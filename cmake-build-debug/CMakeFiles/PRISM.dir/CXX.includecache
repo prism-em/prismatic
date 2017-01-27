@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/ajpryor/Documents/MATLAB/multislice/PRISM/main.cpp
+iostream
+-
+complex
+-
+fftw3.h
+/Users/ajpryor/Documents/MATLAB/multislice/PRISM/fftw3.h
+
