@@ -60,43 +60,6 @@ CMAKE_SOURCE_DIR = /home/aj/hdd1/clion/PRISM
 CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/cmake-build-debug
 
 #=============================================================================
-# Target rules for target CMakeFiles/Array2D_tester.dir
-
-# All Build rule for target.
-CMakeFiles/Array2D_tester.dir/all:
-	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/depend
-	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target Array2D_tester"
-.PHONY : CMakeFiles/Array2D_tester.dir/all
-
-# Include target in all.
-all: CMakeFiles/Array2D_tester.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-CMakeFiles/Array2D_tester.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Array2D_tester.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/Array2D_tester.dir/rule
-
-# Convenience name for target.
-Array2D_tester: CMakeFiles/Array2D_tester.dir/rule
-
-.PHONY : Array2D_tester
-
-# clean rule for target.
-CMakeFiles/Array2D_tester.dir/clean:
-	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/clean
-.PHONY : CMakeFiles/Array2D_tester.dir/clean
-
-# clean rule for target.
-clean: CMakeFiles/Array2D_tester.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target CMakeFiles/PRISM.dir
 
 # All Build rule for target.
@@ -130,6 +93,61 @@ CMakeFiles/PRISM.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/PRISM.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory Array2D_test
+
+# Convenience name for "all" pass in the directory.
+Array2D_test/all: Array2D_test/CMakeFiles/2D_test.dir/all
+
+.PHONY : Array2D_test/all
+
+# Convenience name for "clean" pass in the directory.
+Array2D_test/clean: Array2D_test/CMakeFiles/2D_test.dir/clean
+
+.PHONY : Array2D_test/clean
+
+# Convenience name for "preinstall" pass in the directory.
+Array2D_test/preinstall:
+
+.PHONY : Array2D_test/preinstall
+
+#=============================================================================
+# Target rules for target Array2D_test/CMakeFiles/2D_test.dir
+
+# All Build rule for target.
+Array2D_test/CMakeFiles/2D_test.dir/all:
+	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/depend
+	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target 2D_test"
+.PHONY : Array2D_test/CMakeFiles/2D_test.dir/all
+
+# Include target in all.
+all: Array2D_test/CMakeFiles/2D_test.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+Array2D_test/CMakeFiles/2D_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/2D_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
+.PHONY : Array2D_test/CMakeFiles/2D_test.dir/rule
+
+# Convenience name for target.
+2D_test: Array2D_test/CMakeFiles/2D_test.dir/rule
+
+.PHONY : 2D_test
+
+# clean rule for target.
+Array2D_test/CMakeFiles/2D_test.dir/clean:
+	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/clean
+.PHONY : Array2D_test/CMakeFiles/2D_test.dir/clean
+
+# clean rule for target.
+clean: Array2D_test/CMakeFiles/2D_test.dir/clean
 
 .PHONY : clean
 

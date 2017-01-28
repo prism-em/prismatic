@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles /home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/progress.marks
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,71 +97,60 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
-#=============================================================================
-# Target rules for targets named PRISM
+# Convenience name for target.
+Array2D_test/CMakeFiles/2D_test.dir/rule:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/2D_test.dir/rule
+.PHONY : Array2D_test/CMakeFiles/2D_test.dir/rule
 
-# Build rule for target.
-PRISM: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 PRISM
-.PHONY : PRISM
+# Convenience name for target.
+2D_test: Array2D_test/CMakeFiles/2D_test.dir/rule
 
-# fast build rule for target.
-PRISM/fast:
-	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/build
-.PHONY : PRISM/fast
-
-#=============================================================================
-# Target rules for targets named 2D_test
-
-# Build rule for target.
-2D_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 2D_test
 .PHONY : 2D_test
 
 # fast build rule for target.
 2D_test/fast:
-	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
 .PHONY : 2D_test/fast
 
-main.o: main.cpp.o
+Array2D_tester.o: Array2D_tester.cpp.o
 
-.PHONY : main.o
+.PHONY : Array2D_tester.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/main.cpp.o
-.PHONY : main.cpp.o
+Array2D_tester.cpp.o:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.o
+.PHONY : Array2D_tester.cpp.o
 
-main.i: main.cpp.i
+Array2D_tester.i: Array2D_tester.cpp.i
 
-.PHONY : main.i
+.PHONY : Array2D_tester.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/main.cpp.i
-.PHONY : main.cpp.i
+Array2D_tester.cpp.i:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.i
+.PHONY : Array2D_tester.cpp.i
 
-main.s: main.cpp.s
+Array2D_tester.s: Array2D_tester.cpp.s
 
-.PHONY : main.s
+.PHONY : Array2D_tester.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/main.cpp.s
-.PHONY : main.cpp.s
+Array2D_tester.cpp.s:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.s
+.PHONY : Array2D_tester.cpp.s
 
 # Help Target
 help:
@@ -171,11 +160,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... PRISM"
 	@echo "... 2D_test"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... Array2D_tester.o"
+	@echo "... Array2D_tester.i"
+	@echo "... Array2D_tester.s"
 .PHONY : help
 
 
@@ -187,6 +175,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

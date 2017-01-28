@@ -15,6 +15,7 @@ int main() {
                                           FFTW_ESTIMATE);
     fftw_execute(plan);
     fftw_destroy_plan(plan);
+    std::cout << "Testing the results of a simple FFT of elements 1:1000" << std::endl;
     for (auto i = 0,j=0; j<10;i+=5,++j){
         std::cout << "k[" <<  i << "] =" << k[i] << std::endl;
 

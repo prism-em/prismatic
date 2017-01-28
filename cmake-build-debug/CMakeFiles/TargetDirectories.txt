@@ -1,4 +1,6 @@
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/edit_cache.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/Array2D_tester.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/PRISM.dir
+/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/edit_cache.dir
+/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/rebuild_cache.dir
+/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir

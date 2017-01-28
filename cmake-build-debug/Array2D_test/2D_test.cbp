@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="2D_test"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\Array2D_test\;CMake Files\cmake\;CMake Files\cmake\modules\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="2D_test">
+				<Option output="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/2D_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/Array2D_test/.."/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 2D_test"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="2D_test/fast">
+				<Option output="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/2D_test" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/Array2D_test/.."/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 2D_test/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D.h">
+			<Option target="2D_test"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D_test/Array2D_tester.cpp">
+			<Option target="2D_test"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Array2D_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\Array2D_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/cmake/modules/FindFFTW.cmake">
+			<Option virtualFolder="CMake Files\cmake\modules\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

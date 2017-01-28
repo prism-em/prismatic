@@ -28,6 +28,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/Platform/Linux.cmake"
   "/home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/Platform/UnixPaths.cmake"
   "/home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/ProcessorCount.cmake"
+  "../Array2D_test/CMakeLists.txt"
   "../CMakeLists.txt"
   "CMakeFiles/3.6.3/CMakeCCompiler.cmake"
   "CMakeFiles/3.6.3/CMakeCXXCompiler.cmake"
@@ -44,10 +45,11 @@ set(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "Array2D_test/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/Array2D_tester.dir/DependInfo.cmake"
   "CMakeFiles/PRISM.dir/DependInfo.cmake"
+  "Array2D_test/CMakeFiles/2D_test.dir/DependInfo.cmake"
   )
