@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named Array2D_tester
+
+# Build rule for target.
+Array2D_tester: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_tester
+.PHONY : Array2D_tester
+
+# fast build rule for target.
+Array2D_tester/fast:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/build
+.PHONY : Array2D_tester/fast
+
+#=============================================================================
 # Target rules for targets named PRISM
 
 # Build rule for target.
@@ -122,6 +135,33 @@ PRISM: cmake_check_build_system
 PRISM/fast:
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/build
 .PHONY : PRISM/fast
+
+Array2D_tester.o: Array2D_tester.cpp.o
+
+.PHONY : Array2D_tester.o
+
+# target to build an object file
+Array2D_tester.cpp.o:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/Array2D_tester.cpp.o
+.PHONY : Array2D_tester.cpp.o
+
+Array2D_tester.i: Array2D_tester.cpp.i
+
+.PHONY : Array2D_tester.i
+
+# target to preprocess a source file
+Array2D_tester.cpp.i:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/Array2D_tester.cpp.i
+.PHONY : Array2D_tester.cpp.i
+
+Array2D_tester.s: Array2D_tester.cpp.s
+
+.PHONY : Array2D_tester.s
+
+# target to generate assembly for a file
+Array2D_tester.cpp.s:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/Array2D_tester.cpp.s
+.PHONY : Array2D_tester.cpp.s
 
 main.o: main.cpp.o
 
@@ -158,7 +198,11 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... Array2D_tester"
 	@echo "... PRISM"
+	@echo "... Array2D_tester.o"
+	@echo "... Array2D_tester.i"
+	@echo "... Array2D_tester.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

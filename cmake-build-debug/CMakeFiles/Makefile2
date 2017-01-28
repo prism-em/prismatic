@@ -60,13 +60,50 @@ CMAKE_SOURCE_DIR = /home/aj/hdd1/clion/PRISM
 CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/cmake-build-debug
 
 #=============================================================================
+# Target rules for target CMakeFiles/Array2D_tester.dir
+
+# All Build rule for target.
+CMakeFiles/Array2D_tester.dir/all:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/depend
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target Array2D_tester"
+.PHONY : CMakeFiles/Array2D_tester.dir/all
+
+# Include target in all.
+all: CMakeFiles/Array2D_tester.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/Array2D_tester.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Array2D_tester.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/Array2D_tester.dir/rule
+
+# Convenience name for target.
+Array2D_tester: CMakeFiles/Array2D_tester.dir/rule
+
+.PHONY : Array2D_tester
+
+# clean rule for target.
+CMakeFiles/Array2D_tester.dir/clean:
+	$(MAKE) -f CMakeFiles/Array2D_tester.dir/build.make CMakeFiles/Array2D_tester.dir/clean
+.PHONY : CMakeFiles/Array2D_tester.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/Array2D_tester.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/PRISM.dir
 
 # All Build rule for target.
 CMakeFiles/PRISM.dir/all:
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/depend
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target PRISM"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target PRISM"
 .PHONY : CMakeFiles/PRISM.dir/all
 
 # Include target in all.

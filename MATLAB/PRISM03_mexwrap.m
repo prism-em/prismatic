@@ -7,14 +7,14 @@ function stack = PRISM03_mexwrap(emdSTEM)
 
 
 % scalars
-imageSizeReduce     = size(emdSTEM.beamsReduce);
-imageSize           = emdSTEM.imageSize;
 scale               = prod(emdSTEM.imageSize) / emdSTEM.interpolationFactor^2 / 4;
 interpolationFactor = emdSTEM.interpolationFactor;
 pixelSize           = emdSTEM.pixelSize;
 lambda              = emdSTEM.lambda;
 
 % arrays
+imageSizeReduce     = size(emdSTEM.beamsReduce);
+imageSize           = emdSTEM.imageSize;
 probeDefocusArray   = emdSTEM.probeDefocusArray;
 probeSemiangleArray = emdSTEM.probeSemiangleArray;
 probeXtiltArray     = emdSTEM.probeXtiltArray;
