@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/cmake-build-debug
 CMakeFiles/PRISM.dir/all:
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/depend
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target PRISM"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=4,5 "Built target PRISM"
 .PHONY : CMakeFiles/PRISM.dir/all
 
 # Include target in all.
@@ -148,6 +148,61 @@ Array2D_test/CMakeFiles/2D_test.dir/clean:
 
 # clean rule for target.
 clean: Array2D_test/CMakeFiles/2D_test.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory CUDA_test
+
+# Convenience name for "all" pass in the directory.
+CUDA_test/all: CUDA_test/CMakeFiles/CUDA_test.dir/all
+
+.PHONY : CUDA_test/all
+
+# Convenience name for "clean" pass in the directory.
+CUDA_test/clean: CUDA_test/CMakeFiles/CUDA_test.dir/clean
+
+.PHONY : CUDA_test/clean
+
+# Convenience name for "preinstall" pass in the directory.
+CUDA_test/preinstall:
+
+.PHONY : CUDA_test/preinstall
+
+#=============================================================================
+# Target rules for target CUDA_test/CMakeFiles/CUDA_test.dir
+
+# All Build rule for target.
+CUDA_test/CMakeFiles/CUDA_test.dir/all:
+	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test.dir/build.make CUDA_test/CMakeFiles/CUDA_test.dir/depend
+	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test.dir/build.make CUDA_test/CMakeFiles/CUDA_test.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=3 "Built target CUDA_test"
+.PHONY : CUDA_test/CMakeFiles/CUDA_test.dir/all
+
+# Include target in all.
+all: CUDA_test/CMakeFiles/CUDA_test.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CUDA_test/CMakeFiles/CUDA_test.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 1
+	$(MAKE) -f CMakeFiles/Makefile2 CUDA_test/CMakeFiles/CUDA_test.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
+.PHONY : CUDA_test/CMakeFiles/CUDA_test.dir/rule
+
+# Convenience name for target.
+CUDA_test: CUDA_test/CMakeFiles/CUDA_test.dir/rule
+
+.PHONY : CUDA_test
+
+# clean rule for target.
+CUDA_test/CMakeFiles/CUDA_test.dir/clean:
+	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test.dir/build.make CUDA_test/CMakeFiles/CUDA_test.dir/clean
+.PHONY : CUDA_test/CMakeFiles/CUDA_test.dir/clean
+
+# clean rule for target.
+clean: CUDA_test/CMakeFiles/CUDA_test.dir/clean
 
 .PHONY : clean
 

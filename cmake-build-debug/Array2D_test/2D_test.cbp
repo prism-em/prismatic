@@ -5,7 +5,7 @@
 		<Option title="2D_test"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\Array2D_test\;CMake Files\cmake\;CMake Files\cmake\modules\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\Array2D_test\;CMake Files\CUDA_test\;CMake Files\cmake\;CMake Files\cmake\modules\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test"/>
@@ -80,6 +80,12 @@
 		</Unit>
 		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D_test/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\Array2D_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/CUDA_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\CUDA_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/CUDA_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\CUDA_test\"/>
 		</Unit>
 		<Unit filename="/home/aj/hdd1/clion/PRISM/cmake/modules/FindFFTW.cmake">
 			<Option virtualFolder="CMake Files\cmake\modules\"/>

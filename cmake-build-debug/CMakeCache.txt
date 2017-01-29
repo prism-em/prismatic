@@ -178,6 +178,12 @@ CMAKE_STRIP:FILEPATH=/usr/bin/strip
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Value Computed by CMake
+CUDA_test_BINARY_DIR:STATIC=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test
+
+//Value Computed by CMake
+CUDA_test_SOURCE_DIR:STATIC=/home/aj/hdd1/clion/PRISM/CUDA_test
+
 //Path to a file.
 FFTW_INCLUDES:PATH=/usr/local/include
 
@@ -295,7 +301,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
