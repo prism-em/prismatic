@@ -137,17 +137,30 @@ PRISM/fast:
 .PHONY : 2D_test/fast
 
 #=============================================================================
-# Target rules for targets named CUDA_test
+# Target rules for targets named CUDA_test1
 
 # Build rule for target.
-CUDA_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 CUDA_test
-.PHONY : CUDA_test
+CUDA_test1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 CUDA_test1
+.PHONY : CUDA_test1
 
 # fast build rule for target.
-CUDA_test/fast:
-	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test.dir/build.make CUDA_test/CMakeFiles/CUDA_test.dir/build
-.PHONY : CUDA_test/fast
+CUDA_test1/fast:
+	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test1.dir/build.make CUDA_test/CMakeFiles/CUDA_test1.dir/build
+.PHONY : CUDA_test1/fast
+
+#=============================================================================
+# Target rules for targets named CUDA_test0
+
+# Build rule for target.
+CUDA_test0: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 CUDA_test0
+.PHONY : CUDA_test0
+
+# fast build rule for target.
+CUDA_test0/fast:
+	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test0.dir/build.make CUDA_test/CMakeFiles/CUDA_test0.dir/build
+.PHONY : CUDA_test0/fast
 
 main.o: main.cpp.o
 
@@ -186,7 +199,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... PRISM"
 	@echo "... 2D_test"
-	@echo "... CUDA_test"
+	@echo "... CUDA_test1"
+	@echo "... CUDA_test0"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

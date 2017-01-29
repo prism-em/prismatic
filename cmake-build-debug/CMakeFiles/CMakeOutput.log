@@ -550,3 +550,31 @@ make[1]: Leaving directory '/mnt/spareA/clion/PRISM/cmake-build-debug/CMakeFiles
     Feature record: CXX_FEATURE:0cxx_variable_templates
     Feature record: CXX_FEATURE:0cxx_variadic_macros
     Feature record: CXX_FEATURE:0cxx_variadic_templates
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_4c961/fast"
+/usr/bin/make -f CMakeFiles/cmTC_4c961.dir/build.make CMakeFiles/cmTC_4c961.dir/build
+make[1]: Entering directory '/mnt/spareA/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4c961.dir/CheckIncludeFile.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_4c961.dir/CheckIncludeFile.c.o   -c /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_4c961
+/home/aj/clion-2016.3.2/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4c961.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_4c961.dir/CheckIncludeFile.c.o  -o cmTC_4c961 
+make[1]: Leaving directory '/mnt/spareA/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_0875d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_0875d.dir/build.make CMakeFiles/cmTC_0875d.dir/build
+make[1]: Entering directory '/mnt/spareA/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0875d.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_0875d.dir/CheckFunctionExists.c.o   -c /home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/CheckFunctionExists.c
+Linking C executable cmTC_0875d
+/home/aj/clion-2016.3.2/bin/cmake/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0875d.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_0875d.dir/CheckFunctionExists.c.o  -o cmTC_0875d -lpthread 
+make[1]: Leaving directory '/mnt/spareA/clion/PRISM/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+

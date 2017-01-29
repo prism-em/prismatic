@@ -1,4 +1,5 @@
 /home/aj/clion-2016.3.2/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/aj/hdd1/clion/PRISM
+CUDA was found
 FFTW FOUND! Location /usr/local/include
 -- Configuring done
 -- Generating done

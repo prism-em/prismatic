@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/cmake-build-debug
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/home/aj/clion-2016.3.2/bin/cmake/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/home/aj/clion-2016.3.2/bin/cmake/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,19 +111,34 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-CUDA_test/CMakeFiles/CUDA_test.dir/rule:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 CUDA_test/CMakeFiles/CUDA_test.dir/rule
-.PHONY : CUDA_test/CMakeFiles/CUDA_test.dir/rule
+CUDA_test/CMakeFiles/CUDA_test1.dir/rule:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 CUDA_test/CMakeFiles/CUDA_test1.dir/rule
+.PHONY : CUDA_test/CMakeFiles/CUDA_test1.dir/rule
 
 # Convenience name for target.
-CUDA_test: CUDA_test/CMakeFiles/CUDA_test.dir/rule
+CUDA_test1: CUDA_test/CMakeFiles/CUDA_test1.dir/rule
 
-.PHONY : CUDA_test
+.PHONY : CUDA_test1
 
 # fast build rule for target.
-CUDA_test/fast:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CUDA_test/CMakeFiles/CUDA_test.dir/build.make CUDA_test/CMakeFiles/CUDA_test.dir/build
-.PHONY : CUDA_test/fast
+CUDA_test1/fast:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CUDA_test/CMakeFiles/CUDA_test1.dir/build.make CUDA_test/CMakeFiles/CUDA_test1.dir/build
+.PHONY : CUDA_test1/fast
+
+# Convenience name for target.
+CUDA_test/CMakeFiles/CUDA_test0.dir/rule:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 CUDA_test/CMakeFiles/CUDA_test0.dir/rule
+.PHONY : CUDA_test/CMakeFiles/CUDA_test0.dir/rule
+
+# Convenience name for target.
+CUDA_test0: CUDA_test/CMakeFiles/CUDA_test0.dir/rule
+
+.PHONY : CUDA_test0
+
+# fast build rule for target.
+CUDA_test0/fast:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CUDA_test/CMakeFiles/CUDA_test0.dir/build.make CUDA_test/CMakeFiles/CUDA_test0.dir/build
+.PHONY : CUDA_test0/fast
 
 # Help Target
 help:
@@ -131,9 +146,10 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... CUDA_test"
+	@echo "... edit_cache"
+	@echo "... CUDA_test1"
+	@echo "... CUDA_test0"
 .PHONY : help
 
 
