@@ -1,7 +1,8 @@
 //
 // Created by AJ Pryor on 1/27/17.
 //
-
+//
+//Test construction of a PRISM:Array2D with Thrust vectors
 #include <iostream>
 #include "Array2D.h"
 #include "thrust/host_vector.h"

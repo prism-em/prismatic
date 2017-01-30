@@ -4,7 +4,18 @@ C++/CUDA implementation of compact S-matrix formulism for fast Multislice simula
 
 ## LINUX/OS X Installation
 
-*\AJ: Doing the above should build all binary executables within the source tree. Currently, this includes a couple of tests for creating PRISM::Array2D objects with std/Thrust backends for CPU and GPU arrays in ./Array2D_test/. There is also a basic CUDA example for doubling an array in ./CUDA_test/ that shows how to do so using both low level CUDA and the higher level Thrust API calls. The main executable is PRISM at the top of the source tree -- one day this will be either an entry point to a CLI or a GUI, but for now is a placeholder and computes an FFT*
+*\AJ: Doing the above should build all binary executables
+within the source tree. Currently, this includes a
+number of tests for creating PRISM::Array2D objects
+with std/Thrust backends for CPU and GPU arrays in 
+./Array2D_test/. There is also a basic CUDA example
+for doubling an array in ./CUDA_test/ that shows how
+to do so using both low level CUDA and the higher 
+level Thrust API calls. The main executable is
+PRISM at the top of the source tree -- one day
+this will be either an entry point to a CLI or 
+a GUI, but for now is a placeholder and computes
+an FFT*
 
 PRISM is built on top of [CMake](https://cmake.org/), a cross-platform compilation utility that allows a single source tree to be compiled into a variety of formats including UNIX Makefiles, Microsoft Visual Studio projects, Mac OS XCode projects, etc. Only having to maintain one project means PRISM developers spend less time managing multiple code-bases and more time optimizing, debugging, and extending PRISM, resulting in a better end-user experience.  
 

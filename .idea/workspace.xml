@@ -24,16 +24,19 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" buildAllGenerated="true">
     <generated>
       <config projectName="PRISM" targetName="CUDA_test1" />
-      <config projectName="PRISM" targetName="Array2D_tester" />
+      <config projectName="PRISM" targetName="Array2D_test_rangefor" />
+      <config projectName="PRISM" targetName="Array2D_test_rangefor_cpu" />
       <config projectName="PRISM" targetName="CUDA_test0" />
-      <config projectName="fft_test" targetName="fft_test" />
       <config projectName="PRISM" targetName="2D_test" />
+      <config projectName="PRISM" targetName="Array2D_test_cpu" />
+      <config projectName="PRISM" targetName="Array2D_tester" />
+      <config projectName="fft_test" targetName="fft_test" />
       <config projectName="PRISM" targetName="PRISM" />
       <config projectName="PRISM" targetName="Array_2D_test" />
       <config projectName="PRISM" targetName="Array2D_test_gpu" />
       <config projectName="tmp" targetName="tmp" />
       <config projectName="PRISM" targetName="CUDA_test" />
-      <config projectName="PRISM" targetName="Array2D_test_cpu" />
+      <config projectName="PRISM" targetName="Array2D_test_rangefor_gpu" />
     </generated>
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
@@ -43,12 +46,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cpp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cpp" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Array2D.h" afterPath="$PROJECT_DIR$/Array2D.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" afterPath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" afterPath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" afterPath="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -75,34 +80,71 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Array2D_tester.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp">
+      <file leaf-file-name="Array2D_test_construct.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="72">
+              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D_test_rangefor.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="198">
+              <caret line="11" column="31" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="17" selection-end-column="1" />
+              <folding>
+                <element signature="e#91#110#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D_test_rangefor.cu" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="16" column="61" lean-forward="false" selection-start-line="16" selection-start-column="61" selection-end-line="16" selection-end-column="61" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="324">
+              <caret line="18" column="86" lean-forward="false" selection-start-line="18" selection-start-column="86" selection-end-line="18" selection-end-column="86" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D_test_construct.cu" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="234">
-              <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
-              <folding />
+              <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+              <folding>
+                <element signature="e#103#122#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Array2D_tester.cu" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="29" column="39" lean-forward="false" selection-start-line="29" selection-start-column="39" selection-end-line="29" selection-end-column="39" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Array2D.h" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Array2D.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Array2D.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="8" lean-forward="false" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
+            <state relative-caret-position="288">
+              <caret line="25" column="17" lean-forward="true" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
               <folding>
                 <element signature="e#89#106#0" expanded="true" />
                 <element signature="e#159#168#0" expanded="true" />
+                <element signature="e#605#614#0" expanded="true" />
+                <element signature="e#895#904#0" expanded="true" />
+                <element signature="e#992#1001#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -132,8 +174,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="198">
-                <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+              <first_editor relative-caret-position="144">
+                <caret line="8" column="7" lean-forward="false" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -175,7 +217,13 @@
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" />
         <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" />
         <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cpp" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cpp" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/Array2D.h" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu" />
       </list>
     </option>
   </component>
@@ -278,7 +326,7 @@
     <property name="js.eslint.eslintPackage" value="" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/aj/hdd1/clion/PRISM/MATLAB/PRISM01.m" />
   </component>
-  <component name="RunManager" selected="Application.Build All">
+  <component name="RunManager" selected="Application.Array2D_test_rangefor_gpu">
     <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" PROJECT_NAME="fft_test" TARGET_NAME="fft_test" CONFIG_NAME="Debug" TEST_MODE="SUITE_TEST">
       <envs />
       <method />
@@ -470,13 +518,28 @@
       <envs />
       <method />
     </configuration>
-    <list size="6">
+    <configuration default="false" name="Array2D_test_rangefor" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PRISM" TARGET_NAME="Array2D_test_rangefor" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PRISM" RUN_TARGET_NAME="Array2D_test_rangefor">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Array2D_test_rangefor_gpu" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PRISM" TARGET_NAME="Array2D_test_rangefor_gpu" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PRISM" RUN_TARGET_NAME="Array2D_test_rangefor_gpu">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Array2D_test_rangefor_cpu" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PRISM" TARGET_NAME="Array2D_test_rangefor_cpu" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PRISM" RUN_TARGET_NAME="Array2D_test_rangefor_cpu">
+      <envs />
+      <method />
+    </configuration>
+    <list size="9">
       <item index="0" class="java.lang.String" itemvalue="Application.CUDA_test0" />
       <item index="1" class="java.lang.String" itemvalue="Application.CUDA_test1" />
       <item index="2" class="java.lang.String" itemvalue="Application.PRISM" />
       <item index="3" class="java.lang.String" itemvalue="Application.Array2D_test_cpu" />
       <item index="4" class="java.lang.String" itemvalue="Application.Array2D_test_gpu" />
       <item index="5" class="java.lang.String" itemvalue="Application.Build All" />
+      <item index="6" class="java.lang.String" itemvalue="Application.Array2D_test_rangefor" />
+      <item index="7" class="java.lang.String" itemvalue="Application.Array2D_test_rangefor_gpu" />
+      <item index="8" class="java.lang.String" itemvalue="Application.Array2D_test_rangefor_cpu" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
@@ -500,18 +563,18 @@
       <workItem from="1485548779442" duration="5182000" />
       <workItem from="1485644449181" duration="4307000" />
       <workItem from="1485791258582" duration="345000" />
-      <workItem from="1485791610965" duration="10018000" />
+      <workItem from="1485791610965" duration="12000000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27968000" />
+    <option name="totallyTimeSpent" value="29950000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="136" width="1389" height="877" extended-state="0" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23470123" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23470123" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -547,37 +610,11 @@
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="7" />
+      <option name="time" value="8" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#112#131#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -823,22 +860,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="29" column="39" lean-forward="false" selection-start-line="29" selection-start-column="39" selection-end-line="29" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="274">
@@ -858,22 +879,69 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="198">
-            <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+          <first_editor relative-caret-position="144">
+            <caret line="8" column="7" lean-forward="false" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
             <folding />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#103#122#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="86" lean-forward="false" selection-start-line="18" selection-start-column="86" selection-end-line="18" selection-end-column="86" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Array2D.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="8" lean-forward="false" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
+        <state relative-caret-position="288">
+          <caret line="25" column="17" lean-forward="true" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
           <folding>
             <element signature="e#89#106#0" expanded="true" />
             <element signature="e#159#168#0" expanded="true" />
+            <element signature="e#605#614#0" expanded="true" />
+            <element signature="e#895#904#0" expanded="true" />
+            <element signature="e#992#1001#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="11" column="31" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="17" selection-end-column="1" />
+          <folding>
+            <element signature="e#91#110#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="16" column="61" lean-forward="false" selection-start-line="16" selection-start-column="61" selection-end-line="16" selection-end-column="61" />
+          <folding />
         </state>
       </provider>
     </entry>
