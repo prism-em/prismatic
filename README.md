@@ -19,7 +19,7 @@ an FFT*
 
 PRISM is built on top of [CMake](https://cmake.org/), a cross-platform compilation utility that allows a single source tree to be compiled into a variety of formats including UNIX Makefiles, Microsoft Visual Studio projects, Mac OS XCode projects, etc. Only having to maintain one project means PRISM developers spend less time managing multiple code-bases and more time optimizing, debugging, and extending PRISM, resulting in a better end-user experience.  
 
-To install PRISM, you must first [install Cmake](https://cmake.org/install/) and [FFTW}(http://www.fftw.org/fftw2_doc/fftw_6.html)]. Once that is finished, open a terminal and get the PRISM source from Github using `git clone`:
+To install PRISM, you must first [install Cmake](https://cmake.org/install/) and [FFTW](http://www.fftw.org/fftw2_doc/fftw_6.html). Once that is finished, open a terminal and get the PRISM source from Github using `git clone`:
 
 ```
 git clone git@github.com:apryor6/PRISM.git
