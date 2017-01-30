@@ -1,2 +1,3 @@
 build/
 *.mat
+cmake-build-debug/
