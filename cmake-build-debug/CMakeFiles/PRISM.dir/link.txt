@@ -1,1 +1,0 @@
-/usr/bin/c++   -g   CMakeFiles/PRISM.dir/main.cpp.o  -o PRISM /usr/local/lib/libfftw3.a 
