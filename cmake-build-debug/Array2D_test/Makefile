@@ -111,19 +111,34 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-Array2D_test/CMakeFiles/2D_test.dir/rule:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/2D_test.dir/rule
-.PHONY : Array2D_test/CMakeFiles/2D_test.dir/rule
+Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule
 
 # Convenience name for target.
-2D_test: Array2D_test/CMakeFiles/2D_test.dir/rule
+Array2D_test_gpu: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule
 
-.PHONY : 2D_test
+.PHONY : Array2D_test_gpu
 
 # fast build rule for target.
-2D_test/fast:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
-.PHONY : 2D_test/fast
+Array2D_test_gpu/fast:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build
+.PHONY : Array2D_test_gpu/fast
+
+# Convenience name for target.
+Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule
+
+# Convenience name for target.
+Array2D_test_cpu: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule
+
+.PHONY : Array2D_test_cpu
+
+# fast build rule for target.
+Array2D_test_cpu/fast:
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build
+.PHONY : Array2D_test_cpu/fast
 
 Array2D_tester.o: Array2D_tester.cpp.o
 
@@ -131,7 +146,7 @@ Array2D_tester.o: Array2D_tester.cpp.o
 
 # target to build an object file
 Array2D_tester.cpp.o:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.o
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_tester.cpp.o
 .PHONY : Array2D_tester.cpp.o
 
 Array2D_tester.i: Array2D_tester.cpp.i
@@ -140,7 +155,7 @@ Array2D_tester.i: Array2D_tester.cpp.i
 
 # target to preprocess a source file
 Array2D_tester.cpp.i:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.i
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_tester.cpp.i
 .PHONY : Array2D_tester.cpp.i
 
 Array2D_tester.s: Array2D_tester.cpp.s
@@ -149,7 +164,7 @@ Array2D_tester.s: Array2D_tester.cpp.s
 
 # target to generate assembly for a file
 Array2D_tester.cpp.s:
-	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/Array2D_tester.cpp.s
+	cd /home/aj/hdd1/clion/PRISM/cmake-build-debug && $(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_tester.cpp.s
 .PHONY : Array2D_tester.cpp.s
 
 # Help Target
@@ -160,7 +175,8 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... 2D_test"
+	@echo "... Array2D_test_gpu"
+	@echo "... Array2D_test_cpu"
 	@echo "... Array2D_tester.o"
 	@echo "... Array2D_tester.i"
 	@echo "... Array2D_tester.s"

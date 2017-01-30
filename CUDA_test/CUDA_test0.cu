@@ -28,7 +28,9 @@ bool all_equal(typename thrust::host_vector<T>::iterator a_first,
     };
     return true;
 };
-
+//
+// Created by AJ Pryor on 1/27/17.
+//
 
 using namespace std;
 int main(){

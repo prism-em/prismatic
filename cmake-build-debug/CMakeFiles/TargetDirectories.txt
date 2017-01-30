@@ -3,7 +3,8 @@
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles/PRISM.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/edit_cache.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/rebuild_cache.dir
-/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir
+/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir
+/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test/CMakeFiles/rebuild_cache.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test/CMakeFiles/edit_cache.dir
 /home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir

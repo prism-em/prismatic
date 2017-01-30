@@ -1,3 +1,7 @@
+//
+// Created by AJ Pryor on 1/27/17.
+//
+
 // This is currently a placeholder program that just computes an FFT
 
 #include <iostream>

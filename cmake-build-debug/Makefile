@@ -124,17 +124,30 @@ PRISM/fast:
 .PHONY : PRISM/fast
 
 #=============================================================================
-# Target rules for targets named 2D_test
+# Target rules for targets named Array2D_test_gpu
 
 # Build rule for target.
-2D_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 2D_test
-.PHONY : 2D_test
+Array2D_test_gpu: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test_gpu
+.PHONY : Array2D_test_gpu
 
 # fast build rule for target.
-2D_test/fast:
-	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
-.PHONY : 2D_test/fast
+Array2D_test_gpu/fast:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build
+.PHONY : Array2D_test_gpu/fast
+
+#=============================================================================
+# Target rules for targets named Array2D_test_cpu
+
+# Build rule for target.
+Array2D_test_cpu: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test_cpu
+.PHONY : Array2D_test_cpu
+
+# fast build rule for target.
+Array2D_test_cpu/fast:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build
+.PHONY : Array2D_test_cpu/fast
 
 #=============================================================================
 # Target rules for targets named CUDA_test1
@@ -198,7 +211,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... PRISM"
-	@echo "... 2D_test"
+	@echo "... Array2D_test_gpu"
+	@echo "... Array2D_test_cpu"
 	@echo "... CUDA_test1"
 	@echo "... CUDA_test0"
 	@echo "... main.o"

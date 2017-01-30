@@ -1,3 +1,7 @@
+//
+// Created by AJ Pryor on 1/27/17.
+//
+
 // This test is the same as CUDA_test0 except it uses the higher level API in Thrust
 // TODO: implement the lower level version
 

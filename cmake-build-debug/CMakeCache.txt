@@ -468,6 +468,9 @@ CMAKE_UNAME:INTERNAL=/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_64_BIT_DEVICE_CODE
 CUDA_64_BIT_DEVICE_CODE-ADVANCED:INTERNAL=1
+//List of intermediate files that are part of the cuda dependency
+// scanning.
+CUDA_ADDITIONAL_CLEAN_FILES:INTERNAL=/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//Array2D_test_gpu_generated_Array2D_tester.cu.o.depend
 //ADVANCED property for variable: CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE
 CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_BUILD_CUBIN

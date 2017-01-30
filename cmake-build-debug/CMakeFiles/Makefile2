@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/cmake-build-debug
 CMakeFiles/PRISM.dir/all:
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/depend
 	$(MAKE) -f CMakeFiles/PRISM.dir/build.make CMakeFiles/PRISM.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=5,6 "Built target PRISM"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=7,8 "Built target PRISM"
 .PHONY : CMakeFiles/PRISM.dir/all
 
 # Include target in all.
@@ -100,12 +100,14 @@ clean: CMakeFiles/PRISM.dir/clean
 # Directory level rules for directory Array2D_test
 
 # Convenience name for "all" pass in the directory.
-Array2D_test/all: Array2D_test/CMakeFiles/2D_test.dir/all
+Array2D_test/all: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/all
+Array2D_test/all: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/all
 
 .PHONY : Array2D_test/all
 
 # Convenience name for "clean" pass in the directory.
-Array2D_test/clean: Array2D_test/CMakeFiles/2D_test.dir/clean
+Array2D_test/clean: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/clean
+Array2D_test/clean: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/clean
 
 .PHONY : Array2D_test/clean
 
@@ -115,39 +117,76 @@ Array2D_test/preinstall:
 .PHONY : Array2D_test/preinstall
 
 #=============================================================================
-# Target rules for target Array2D_test/CMakeFiles/2D_test.dir
+# Target rules for target Array2D_test/CMakeFiles/Array2D_test_gpu.dir
 
 # All Build rule for target.
-Array2D_test/CMakeFiles/2D_test.dir/all:
-	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/depend
-	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target 2D_test"
-.PHONY : Array2D_test/CMakeFiles/2D_test.dir/all
+Array2D_test/CMakeFiles/Array2D_test_gpu.dir/all:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target Array2D_test_gpu"
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_gpu.dir/all
 
 # Include target in all.
-all: Array2D_test/CMakeFiles/2D_test.dir/all
+all: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-Array2D_test/CMakeFiles/2D_test.dir/rule: cmake_check_build_system
+Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/2D_test.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/Array2D_test_gpu.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
-.PHONY : Array2D_test/CMakeFiles/2D_test.dir/rule
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule
 
 # Convenience name for target.
-2D_test: Array2D_test/CMakeFiles/2D_test.dir/rule
+Array2D_test_gpu: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/rule
 
-.PHONY : 2D_test
-
-# clean rule for target.
-Array2D_test/CMakeFiles/2D_test.dir/clean:
-	$(MAKE) -f Array2D_test/CMakeFiles/2D_test.dir/build.make Array2D_test/CMakeFiles/2D_test.dir/clean
-.PHONY : Array2D_test/CMakeFiles/2D_test.dir/clean
+.PHONY : Array2D_test_gpu
 
 # clean rule for target.
-clean: Array2D_test/CMakeFiles/2D_test.dir/clean
+Array2D_test/CMakeFiles/Array2D_test_gpu.dir/clean:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/clean
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_gpu.dir/clean
+
+# clean rule for target.
+clean: Array2D_test/CMakeFiles/Array2D_test_gpu.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target Array2D_test/CMakeFiles/Array2D_test_cpu.dir
+
+# All Build rule for target.
+Array2D_test/CMakeFiles/Array2D_test_cpu.dir/all:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target Array2D_test_cpu"
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_cpu.dir/all
+
+# Include target in all.
+all: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 Array2D_test/CMakeFiles/Array2D_test_cpu.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles 0
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule
+
+# Convenience name for target.
+Array2D_test_cpu: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/rule
+
+.PHONY : Array2D_test_cpu
+
+# clean rule for target.
+Array2D_test/CMakeFiles/Array2D_test_cpu.dir/clean:
+	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/clean
+.PHONY : Array2D_test/CMakeFiles/Array2D_test_cpu.dir/clean
+
+# clean rule for target.
+clean: Array2D_test/CMakeFiles/Array2D_test_cpu.dir/clean
 
 .PHONY : clean
 
@@ -178,7 +217,7 @@ CUDA_test/preinstall:
 CUDA_test/CMakeFiles/CUDA_test1.dir/all:
 	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test1.dir/build.make CUDA_test/CMakeFiles/CUDA_test1.dir/depend
 	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test1.dir/build.make CUDA_test/CMakeFiles/CUDA_test1.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=4 "Built target CUDA_test1"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=6 "Built target CUDA_test1"
 .PHONY : CUDA_test/CMakeFiles/CUDA_test1.dir/all
 
 # Include target in all.
@@ -215,7 +254,7 @@ clean: CUDA_test/CMakeFiles/CUDA_test1.dir/clean
 CUDA_test/CMakeFiles/CUDA_test0.dir/all:
 	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test0.dir/build.make CUDA_test/CMakeFiles/CUDA_test0.dir/depend
 	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test0.dir/build.make CUDA_test/CMakeFiles/CUDA_test0.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=3 "Built target CUDA_test0"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CMakeFiles --progress-num=5 "Built target CUDA_test0"
 .PHONY : CUDA_test/CMakeFiles/CUDA_test0.dir/all
 
 # Include target in all.
