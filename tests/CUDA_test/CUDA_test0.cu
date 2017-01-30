@@ -77,7 +77,7 @@ int main(){
     // compare results
     cout << "Verifying all elements are equal..." << endl;
     if (all_equal<double>(h_a, h_a + ARR_SIZE, d_answer)) cout << "CPU and GPU results are equal" << endl;
-
+    cout << "Test Successful!" << endl;
     // free memory
     delete(h_a);
     delete(d_answer);

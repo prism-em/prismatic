@@ -43,111 +43,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Array2D_test/Array2D_tester.cpp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Array2D_test/Array2D_tester.cu" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Array2D_test/CMakeLists.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/CUDA_test/CMakeLists.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/CUDA_test/CUDA_test0.cu" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/CUDA_test/CUDA_test1.cu" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/2D_test" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/2D_test.cbp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/CXX.includecache" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/DependInfo.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/build.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/cmake_clean.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/depend.internal" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/depend.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/flags.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/link.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/2D_test.dir/progress.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o.Debug.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/DependInfo.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/build.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/cmake_clean.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/depend.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/flags.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/link.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array_2D_test.dir/progress.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_tester" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/Array2D_tester.cpp.o" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/CXX.includecache" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/DependInfo.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/build.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/cmake_clean.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/depend.internal" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/depend.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/flags.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/link.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Array2D_tester.dir/progress.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/Array2D.cpp.o" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/Array2D_tester.cpp.o" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/CXX.includecache" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/depend.internal" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/DependInfo.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/build.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/cmake_clean.cmake" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/depend.internal" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/depend.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/flags.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/link.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test.dir/progress.make" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CUDA_test.cbp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Array2D_test_cpu" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Array2D_test_cpu" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Array2D_test_gpu" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Array2D_test_gpu" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_tester.cpp.o" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_tester.cpp.o" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Array2D.h" afterPath="$PROJECT_DIR$/Array2D.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/DependInfo.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/DependInfo.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.internal" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.internal" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/flags.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/flags.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/link.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/link.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o.cmake.pre-gen" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o.cmake.pre-gen" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o.depend" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_tester.cu.o.depend" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.internal" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.internal" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/flags.make" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/flags.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/link.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/link.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/CMakeFiles/CMakeDirectoryInformation.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Makefile" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/cmake_install.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/Array2D_test/cmake_install.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeError.log" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeError.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeOutput.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeRuleHashes.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/CMakeRuleHashes.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Makefile2" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/depend.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/depend.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/progress.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/PRISM.dir/progress.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/TargetDirectories.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/clion-log.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/progress.marks" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/progress.marks" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CMakeDirectoryInformation.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/build.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/build.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/cmake_clean.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/cmake_clean.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.internal" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.internal" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/flags.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/flags.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/link.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/link.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/progress.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test0.dir/progress.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/build.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/build.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/cmake_clean.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/cmake_clean.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.internal" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.internal" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/flags.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/flags.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/link.txt" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/link.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/progress.make" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/CUDA_test1.dir/progress.make" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/progress.marks" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/CMakeFiles/progress.marks" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/Makefile" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/cmake_install.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/CUDA_test/cmake_install.cmake" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/Makefile" afterPath="$PROJECT_DIR$/cmake-build-debug/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/PRISM.cbp" afterPath="$PROJECT_DIR$/cmake-build-debug/PRISM.cbp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" afterPath="$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" afterPath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" afterPath="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -164,12 +65,78 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D_tester.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="234">
+              <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D_tester.cu" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="364">
+              <caret line="29" column="39" lean-forward="false" selection-start-line="29" selection-start-column="39" selection-end-line="29" selection-end-column="39" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D.h" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Array2D.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="17" column="8" lean-forward="false" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
+              <folding>
+                <element signature="e#89#106#0" expanded="true" />
+                <element signature="e#159#168#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CUDA_test0.cu" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="274">
+              <caret line="79" column="39" lean-forward="false" selection-start-line="79" selection-start-column="39" selection-end-line="79" selection-end-column="39" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CUDA_test1.cu" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="400">
+              <caret line="76" column="39" lean-forward="false" selection-start-line="76" selection-start-column="39" selection-end-line="76" selection-end-column="39" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="198">
+                <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -197,7 +164,6 @@
         <option value="$PROJECT_DIR$/Array2D.cpp" />
         <option value="$PROJECT_DIR$/Array2D_tester.cpp" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/Array2D.h" />
         <option value="$PROJECT_DIR$/Array2D_test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/main.cpp" />
         <option value="$PROJECT_DIR$/Array2D_test/Array2D_tester.cpp" />
@@ -205,6 +171,11 @@
         <option value="$PROJECT_DIR$/CUDA_test/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/CUDA_test/CUDA_test0.cu" />
         <option value="$PROJECT_DIR$/CUDA_test/CUDA_test1.cu" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp" />
+        <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" />
+        <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" />
+        <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" />
+        <option value="$PROJECT_DIR$/Array2D.h" />
       </list>
     </option>
   </component>
@@ -244,6 +215,56 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CUDA_test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="PRISM" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tests" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Array2D_test" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -479,20 +500,20 @@
       <workItem from="1485548779442" duration="5182000" />
       <workItem from="1485644449181" duration="4307000" />
       <workItem from="1485791258582" duration="345000" />
-      <workItem from="1485791610965" duration="9125000" />
+      <workItem from="1485791610965" duration="10018000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27075000" />
+    <option name="totallyTimeSpent" value="27968000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="136" width="1389" height="877" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23470123" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -531,38 +552,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM01.m">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03.m">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="20" column="0" lean-forward="false" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
-          <folding>
-            <element signature="e#112#131#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -754,16 +743,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Array2D.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="108">
-          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding>
-            <element signature="e#84#101#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MATLAB/PRISM01.m">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -777,17 +756,6 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
         </state>
       </provider>
     </entry>
@@ -852,6 +820,60 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="29" column="39" lean-forward="false" selection-start-line="29" selection-start-column="39" selection-end-line="29" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="79" column="39" lean-forward="false" selection-start-line="79" selection-start-column="39" selection-end-line="79" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="76" column="39" lean-forward="false" selection-start-line="76" selection-start-column="39" selection-end-line="76" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="198">
+            <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Array2D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="17" column="8" lean-forward="false" selection-start-line="17" selection-start-column="8" selection-end-line="17" selection-end-column="8" />
+          <folding>
+            <element signature="e#89#106#0" expanded="true" />
+            <element signature="e#159#168#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

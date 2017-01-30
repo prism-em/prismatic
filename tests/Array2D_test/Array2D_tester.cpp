@@ -12,4 +12,5 @@ int main(){
     PRISM::Array2D< std::vector<int> > arr(test,2,3);
     cout << "nrows = " << arr.get_nrows() << endl;
     cout << "ncols = " << arr.get_ncols() << endl;
+    cout << "Test Successful!" << endl;
 }

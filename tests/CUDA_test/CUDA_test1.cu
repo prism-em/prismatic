@@ -74,4 +74,5 @@ int main(){
     // compare results
     cout << "Verifying all elements are equal..." << endl;
     if (all_equal<double>(h_a.begin(),h_a.end(),d_answer.begin()))cout << "CPU and GPU results are equal" << endl;
+    cout << "Test Successful!" << endl;
 }

@@ -27,5 +27,5 @@ int main(){
     PRISM::Array2D< thrust::device_vector<int> > arr_d(test_d,2,3);
     cout << "nrows = " << arr.get_nrows() << endl;
     cout << "ncols = " << arr.get_ncols() << endl;
-
+    cout << "Test Successful!" << endl;
 }

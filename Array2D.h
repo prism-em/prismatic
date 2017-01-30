@@ -1,5 +1,5 @@
 //
-// Created by aj on 1/27/17.
+// Created by AJ Pryor on 1/27/17
 //
 
 #ifndef PRISM_ARRAY2D_H
@@ -15,6 +15,7 @@ namespace PRISM {
         Array2D(T _data, size_t _nrows, size_t _ncols):data(_data), nrows(_nrows), ncols(_ncols){};
         size_t get_nrows() const {return this->nrows;}
         size_t get_ncols() const {return this->ncols;}
+        
     private:
         T data;
         size_t nrows;
