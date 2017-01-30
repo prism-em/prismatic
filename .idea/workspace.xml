@@ -46,7 +46,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" afterPath="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -105,7 +105,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="90">
@@ -164,12 +164,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="144">
-                <caret line="8" column="7" lean-forward="false" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
+              <first_editor relative-caret-position="378">
+                <caret line="21" column="129" lean-forward="false" selection-start-line="21" selection-start-column="129" selection-end-line="21" selection-end-column="129" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -211,13 +211,13 @@
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_tester.cu" />
         <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu" />
         <option value="$PROJECT_DIR$/tests/CUDA_test/CUDA_test1.cu" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cpp" />
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu" />
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cpp" />
         <option value="$PROJECT_DIR$/Array2D.h" />
         <option value="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu" />
         <option value="$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -557,12 +557,12 @@
       <workItem from="1485548779442" duration="5182000" />
       <workItem from="1485644449181" duration="4307000" />
       <workItem from="1485791258582" duration="345000" />
-      <workItem from="1485791610965" duration="12348000" />
+      <workItem from="1485791610965" duration="12465000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30298000" />
+    <option name="totallyTimeSpent" value="30415000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="136" width="1389" height="877" extended-state="0" />
@@ -870,17 +870,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="144">
-            <caret line="8" column="7" lean-forward="false" selection-start-line="8" selection-start-column="7" selection-end-line="8" selection-end-column="7" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/Array2D_test/Array2D_test_construct.cu">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -937,6 +926,17 @@
         <state relative-caret-position="90">
           <caret line="5" column="76" lean-forward="false" selection-start-line="5" selection-start-column="76" selection-end-line="5" selection-end-column="76" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="378">
+            <caret line="21" column="129" lean-forward="false" selection-start-line="21" selection-start-column="129" selection-end-line="21" selection-end-column="129" />
+            <folding />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
