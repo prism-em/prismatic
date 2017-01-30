@@ -133,7 +133,7 @@ Array2D_test_gpu: cmake_check_build_system
 
 # fast build rule for target.
 Array2D_test_gpu/fast:
-	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build
+	$(MAKE) -f tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build
 .PHONY : Array2D_test_gpu/fast
 
 #=============================================================================
@@ -146,7 +146,7 @@ Array2D_test_cpu: cmake_check_build_system
 
 # fast build rule for target.
 Array2D_test_cpu/fast:
-	$(MAKE) -f Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build
+	$(MAKE) -f tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build
 .PHONY : Array2D_test_cpu/fast
 
 #=============================================================================
@@ -159,7 +159,7 @@ CUDA_test1: cmake_check_build_system
 
 # fast build rule for target.
 CUDA_test1/fast:
-	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test1.dir/build.make CUDA_test/CMakeFiles/CUDA_test1.dir/build
+	$(MAKE) -f tests/CUDA_test/CMakeFiles/CUDA_test1.dir/build.make tests/CUDA_test/CMakeFiles/CUDA_test1.dir/build
 .PHONY : CUDA_test1/fast
 
 #=============================================================================
@@ -172,7 +172,7 @@ CUDA_test0: cmake_check_build_system
 
 # fast build rule for target.
 CUDA_test0/fast:
-	$(MAKE) -f CUDA_test/CMakeFiles/CUDA_test0.dir/build.make CUDA_test/CMakeFiles/CUDA_test0.dir/build
+	$(MAKE) -f tests/CUDA_test/CMakeFiles/CUDA_test0.dir/build.make tests/CUDA_test/CMakeFiles/CUDA_test0.dir/build
 .PHONY : CUDA_test0/fast
 
 main.o: main.cpp.o

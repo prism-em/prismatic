@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(PRISM)
 
 set(CMAKE_CXX_STANDARD 11)
-add_subdirectory(Array2D_test)
-add_subdirectory(CUDA_test)
+add_subdirectory(tests)
 
 set(SOURCE_FILES main.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)

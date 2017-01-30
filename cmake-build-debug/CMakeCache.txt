@@ -15,10 +15,10 @@
 ########################
 
 //Value Computed by CMake
-2D_test_BINARY_DIR:STATIC=/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test
+2D_test_BINARY_DIR:STATIC=/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/Array2D_test
 
 //Value Computed by CMake
-2D_test_SOURCE_DIR:STATIC=/home/aj/hdd1/clion/PRISM/Array2D_test
+2D_test_SOURCE_DIR:STATIC=/home/aj/hdd1/clion/PRISM/tests/Array2D_test
 
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
@@ -297,10 +297,10 @@ CUDA_npps_LIBRARY:FILEPATH=/usr/local/cuda/lib64/libnpps.so
 CUDA_rt_LIBRARY:FILEPATH=/usr/lib/x86_64-linux-gnu/librt.so
 
 //Value Computed by CMake
-CUDA_test_BINARY_DIR:STATIC=/home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test
+CUDA_test_BINARY_DIR:STATIC=/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/CUDA_test
 
 //Value Computed by CMake
-CUDA_test_SOURCE_DIR:STATIC=/home/aj/hdd1/clion/PRISM/CUDA_test
+CUDA_test_SOURCE_DIR:STATIC=/home/aj/hdd1/clion/PRISM/tests/CUDA_test
 
 //Path to a file.
 FFTW_INCLUDES:PATH=/usr/local/include
@@ -427,7 +427,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -470,7 +470,7 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 CUDA_64_BIT_DEVICE_CODE-ADVANCED:INTERNAL=1
 //List of intermediate files that are part of the cuda dependency
 // scanning.
-CUDA_ADDITIONAL_CLEAN_FILES:INTERNAL=/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//Array2D_test_gpu_generated_Array2D_tester.cu.o.depend
+CUDA_ADDITIONAL_CLEAN_FILES:INTERNAL=/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//Array2D_test_gpu_generated_Array2D_tester.cu.o.depend;/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/CUDA_test/CMakeFiles/CUDA_test0.dir//CUDA_test0_generated_CUDA_test0.cu.o.depend;/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/CUDA_test/CMakeFiles/CUDA_test1.dir//CUDA_test1_generated_CUDA_test1.cu.o.depend
 //ADVANCED property for variable: CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE
 CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CUDA_BUILD_CUBIN

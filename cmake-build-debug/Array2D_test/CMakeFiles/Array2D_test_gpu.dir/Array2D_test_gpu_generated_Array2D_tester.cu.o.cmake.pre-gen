@@ -55,12 +55,12 @@ if(NOT generated_file)
 endif()
 
 # Set these up as variables to make reading the generated file easier
-set(CMAKE_COMMAND "/home/aj/clion-2016.3.2/bin/cmake/bin/cmake") # path
+set(CMAKE_COMMAND "/usr/local/bin/cmake") # path
 set(source_file "/home/aj/hdd1/clion/PRISM/Array2D_test/Array2D_tester.cu") # path
 set(NVCC_generated_dependency_file "/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//Array2D_test_gpu_generated_Array2D_tester.cu.o.NVCC-depend") # path
 set(cmake_dependency_file "/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//Array2D_test_gpu_generated_Array2D_tester.cu.o.depend") # path
-set(CUDA_make2cmake "/home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/FindCUDA/make2cmake.cmake") # path
-set(CUDA_parse_cubin "/home/aj/clion-2016.3.2/bin/cmake/share/cmake-3.6/Modules/FindCUDA/parse_cubin.cmake") # path
+set(CUDA_make2cmake "/usr/local/share/cmake-3.7/Modules/FindCUDA/make2cmake.cmake") # path
+set(CUDA_parse_cubin "/usr/local/share/cmake-3.7/Modules/FindCUDA/parse_cubin.cmake") # path
 set(build_cubin OFF) # bool
 set(CUDA_HOST_COMPILER "/usr/bin/cc") # path
 # We won't actually use these variables for now, but we need to set this, in
@@ -69,7 +69,7 @@ set(generated_file_path "/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_tes
 set(generated_file_internal "/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//./Array2D_test_gpu_generated_Array2D_tester.cu.o") # path
 set(generated_cubin_file_internal "/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/CMakeFiles/Array2D_test_gpu.dir//./Array2D_test_gpu_generated_Array2D_tester.cu.o.cubin.txt") # path
 
-set(CUDA_NVCC_EXECUTABLE "/usr/local/cuda/bin/nvcc") # path
+set(CUDA_NVCC_EXECUTABLE "/usr/local/cuda-8.0/bin/nvcc") # path
 set(CUDA_NVCC_FLAGS -arch=sm_35 -std=c++11 ;; ) # list
 # Build specific configuration flags
 set(CUDA_NVCC_FLAGS_DEBUG  ; )
@@ -77,9 +77,24 @@ set(CUDA_NVCC_FLAGS_MINSIZEREL  ; )
 set(CUDA_NVCC_FLAGS_RELEASE  ; )
 set(CUDA_NVCC_FLAGS_RELWITHDEBINFO  ; )
 set(nvcc_flags -m64) # list
-set(CUDA_NVCC_INCLUDE_ARGS "-I/usr/local/cuda/include;-I/usr/local/cuda/include;-I/home/aj/hdd1/clion/PRISM/Array2D_test/..;-I/usr/local/cuda/include") # list (needs to be in quotes to handle spaces properly).
+set(CUDA_NVCC_INCLUDE_DIRS "/usr/local/cuda-8.0/include;/usr/local/cuda-8.0/include;$<TARGET_PROPERTY:Array2D_test_gpu,INCLUDE_DIRECTORIES>") # list (needs to be in quotes to handle spaces properly).
+set(CUDA_NVCC_COMPILE_DEFINITIONS "$<TARGET_PROPERTY:Array2D_test_gpu,COMPILE_DEFINITIONS>") # list (needs to be in quotes to handle spaces properly).
 set(format_flag "-c") # string
 set(cuda_language_flag ) # list
+
+# Clean up list of include directories and add -I flags
+list(REMOVE_DUPLICATES CUDA_NVCC_INCLUDE_DIRS)
+set(CUDA_NVCC_INCLUDE_ARGS)
+foreach(dir ${CUDA_NVCC_INCLUDE_DIRS})
+  # Extra quotes are added around each flag to help nvcc parse out flags with spaces.
+  list(APPEND CUDA_NVCC_INCLUDE_ARGS "-I${dir}")
+endforeach()
+
+# Clean up list of compile definitions, add -D flags, and append to nvcc_flags
+list(REMOVE_DUPLICATES CUDA_NVCC_COMPILE_DEFINITIONS)
+foreach(def ${CUDA_NVCC_COMPILE_DEFINITIONS})
+  list(APPEND nvcc_flags "-D${def}")
+endforeach()
 
 if(build_cubin AND NOT generated_cubin_file)
   message(FATAL_ERROR "You must specify generated_cubin_file on the command line")
@@ -103,7 +118,7 @@ string(TOUPPER "${build_configuration}" build_configuration)
 #message("CUDA_NVCC_HOST_COMPILER_FLAGS = ${CUDA_NVCC_HOST_COMPILER_FLAGS}")
 foreach(flag ${CMAKE_HOST_FLAGS} ${CMAKE_HOST_FLAGS_${build_configuration}})
   # Extra quotes are added around each flag to help nvcc parse out flags with spaces.
-  set(nvcc_host_compiler_flags "${nvcc_host_compiler_flags},\"${flag}\"")
+  string(APPEND nvcc_host_compiler_flags ",\"${flag}\"")
 endforeach()
 if (nvcc_host_compiler_flags)
   set(nvcc_host_compiler_flags "-Xcompiler" ${nvcc_host_compiler_flags})

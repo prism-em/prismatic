@@ -34,8 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/aj/hdd1/clion/PRISM/cmake-build-debug/Array2D_test/cmake_install.cmake")
-  include("/home/aj/hdd1/clion/PRISM/cmake-build-debug/CUDA_test/cmake_install.cmake")
+  include("/home/aj/hdd1/clion/PRISM/cmake-build-debug/tests/cmake_install.cmake")
 
 endif()
 

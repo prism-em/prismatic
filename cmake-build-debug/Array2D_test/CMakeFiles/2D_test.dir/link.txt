@@ -1,1 +1,0 @@
-/usr/bin/c++   -g   CMakeFiles/2D_test.dir/Array2D_tester.cpp.o  -o 2D_test 
