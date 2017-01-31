@@ -44,6 +44,21 @@ This will generate a Makefile with the necessary dependencies and paths to compi
 make
 ```
 
+## Building Test Programs
+PRISM contains a number of test programs that can be useful
+for debugging. They can be built by setting the 
+CMake variable `PRISM_BUILD_TESTS=1`. This can be done on the command line with the -D flag during the cmake
+call from within the build directory like so
+```
+cmake -DPRISM_BUILD_TESTS=1 ../
+```
+Alternatively, if you have already run `cmake` there will
+be a CMakeCache.txt file that contains all of the option 
+settings. You can edit options directly from this file or interactively edit options with `ccmake` like so
+```$xslt
+ccmake .
+```
+After any changes, rerun `make` to rebuild with the current options.
 ## Implementation
 
 *Note: we following the standard NVIDIA naming convention and interchangeably refer to the CPU as the "host" and to the GPU as the "device".*

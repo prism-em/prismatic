@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="2D_test"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\tests\;CMake Files\tests\Array2D_test\;CMake Files\tests\CUDA_test\;CMake Files\cmake\;CMake Files\cmake\modules\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_cpu">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_cpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_cpu"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_cpu/fast">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_cpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_cpu/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_gpu">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_gpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_gpu"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_gpu/fast">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_gpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_gpu/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_rangefor_cpu">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor_cpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_rangefor_cpu"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_rangefor_cpu/fast">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor_cpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_rangefor_cpu/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_rangefor_gpu">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor_gpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_rangefor_gpu"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Array2D_test_rangefor_gpu/fast">
+				<Option output="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor_gpu" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/aj/hdd1/clion/PRISM/tests/Array2D_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/../.."/>
+					<Add directory="/usr/local/cuda/include"/>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 Array2D_test_rangefor_gpu/fast"/>
+					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j12 -f &quot;/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/Array2D.h">
+			<Option target="Array2D_test_cpu"/>
+			<Option target="Array2D_test_gpu"/>
+			<Option target="Array2D_test_rangefor_cpu"/>
+			<Option target="Array2D_test_rangefor_gpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_construct.cpp">
+			<Option target="Array2D_test_cpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_construct.cu">
+			<Option target="Array2D_test_gpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor.cpp">
+			<Option target="Array2D_test_rangefor_cpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor.cu">
+			<Option target="Array2D_test_rangefor_gpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o">
+			<Option target="Array2D_test_gpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/Array2D_test_rangefor_gpu_generated_Array2D_test_rangefor.cu.o">
+			<Option target="Array2D_test_rangefor_gpu"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\tests\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\tests\Array2D_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/Array2D_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\tests\Array2D_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/CUDA_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\tests\CUDA_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/tests/CUDA_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\tests\CUDA_test\"/>
+		</Unit>
+		<Unit filename="/home/aj/hdd1/clion/PRISM/cmake/modules/FindFFTW.cmake">
+			<Option virtualFolder="CMake Files\cmake\modules\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D_test_rangefor.cpp
+iostream
+-
+Array2D.h
+/home/aj/hdd1/clion/PRISM/tests/Array2D_test/Array2D.h
+
+tests/Array2D_test/../../Array2D.h
+vector
+-
+cstddef
+-
+

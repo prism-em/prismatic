@@ -9,20 +9,20 @@ function [emdSTEM] = PRISM01(atoms,cellDim)
             
 % cellDim - Dimensions of the unit cell [x_cell y_cell z_cell]
 
-pixelSize = 100/1024;   % Realspace pixel size.
+pixelSize = 100/1000;   % Realspace pixel size.
 emdSTEM.potBound = 1;       % Radial distance to integrate atomic potentials.
 emdSTEM.numFP = 8/8;          % Number of frozen phonon configurations.
 emdSTEM.sliceThickness = 2; % Thickness of each potential slice.
-emdSTEM.interpolationFactor = 8;
+emdSTEM.interpolationFactor = 5;
 
 u = ones(118,1) * 0.08;      % Debye waller coefficients.
 
-% Keep atomic positions
+% Keep atomic positions in struct
 emdSTEM.atoms = atoms;
 emdSTEM.cellDim = cellDim;
 
 % Simulation size
-f = 2*emdSTEM.interpolationFactor;
+f = 4*emdSTEM.interpolationFactor;
 emdSTEM.imageSize = round(cellDim(1:2)/pixelSize/f)*f;
 emdSTEM.pixelSize = cellDim(1:2) ./ emdSTEM.imageSize;
 
@@ -55,7 +55,8 @@ z = atoms(:,3)*cellDim(3);
 ID = atoms(:,4);
 
 % Determine z plane slice index for all atoms
-zPlane = round((z - min(z))/emdSTEM.sliceThickness + 0.5);
+% zPlane = round((z - min(z))/emdSTEM.sliceThickness + 0.5);
+zPlane = round((-z + max(z))/emdSTEM.sliceThickness + 0.5);
 emdSTEM.numPlanes = max(zPlane);
 
 % Generate projected potentials for all atoms /  frozen phonon configs
