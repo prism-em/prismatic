@@ -1,0 +1,5 @@
+First generate a shared option with
+nvcc -Xcompiler -fPIC  -c timesTwo.cu -arch=sm_35 -std=c++11
+
+then mex with
+mex timesTwo.cpp timesTwo.o LINKLIBS='$LINKLIBS -lcudart -L /usr/local/cuda-8.0/lib64'
