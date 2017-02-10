@@ -46,15 +46,143 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/include/.Array2D.h.swp" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/include/Array3D.h" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeCache.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CMakeCCompiler.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CMakeCXXCompiler.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CMakeDetermineCompilerABI_C.bin" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CMakeDetermineCompilerABI_CXX.bin" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CMakeSystem.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CompilerIdC/CMakeCCompilerId.c" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CompilerIdC/a.out" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CompilerIdCXX/CMakeCXXCompilerId.cpp" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.5.1/CompilerIdCXX/a.out" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CMakeCCompiler.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CMakeCXXCompiler.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CMakeDetermineCompilerABI_C.bin" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CMakeDetermineCompilerABI_CXX.bin" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CMakeSystem.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CompilerIdC/CMakeCCompilerId.c" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CompilerIdC/a.out" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CompilerIdCXX/CMakeCXXCompilerId.cpp" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/3.7.2/CompilerIdCXX/a.out" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/CMakeError.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/CMakeOutput.log" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/CMakeRuleHashes.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/Makefile.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/Makefile2" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/CXX.includecache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/main.cpp.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/PRISM.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/TargetDirectories.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/cmake.check_cache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/feature_tests.bin" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/feature_tests.c" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/feature_tests.cxx" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/CMakeFiles/progress.marks" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/Makefile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/PRISM" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/cmake_install.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/Array2D_test_cpu" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/Array2D_test_gpu" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/Array2D_test_rangefor_cpu" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/Array2D_test_rangefor_gpu" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/Array2D_test_construct.cpp.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/CXX.includecache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o.cmake.pre-gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o.depend" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/Array2D_test_rangefor.cpp.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/CXX.includecache" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/Array2D_test_rangefor_gpu_generated_Array2D_test_rangefor.cu.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/Array2D_test_rangefor_gpu_generated_Array2D_test_rangefor.cu.o.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/Array2D_test_rangefor_gpu_generated_Array2D_test_rangefor.cu.o.cmake.pre-gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/Array2D_test_rangefor_gpu_generated_Array2D_test_rangefor.cu.o.depend" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/CMakeFiles/progress.marks" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/Makefile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Array2D_test/cmake_install.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CMakeFiles/progress.marks" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CMakeDirectoryInformation.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/CUDA_test0_generated_CUDA_test0.cu.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/CUDA_test0_generated_CUDA_test0.cu.o.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/CUDA_test0_generated_CUDA_test0.cu.o.cmake.pre-gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/CUDA_test0_generated_CUDA_test0.cu.o.depend" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test0.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/CUDA_test1_generated_CUDA_test1.cu.o" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/CUDA_test1_generated_CUDA_test1.cu.o.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/CUDA_test1_generated_CUDA_test1.cu.o.cmake.pre-gen" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/CUDA_test1_generated_CUDA_test1.cu.o.depend" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/DependInfo.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/build.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/cmake_clean.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.internal" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/depend.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/flags.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/link.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/CUDA_test1.dir/progress.make" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CMakeFiles/progress.marks" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CUDA_test0" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/CUDA_test1" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/Makefile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/CUDA_test/cmake_install.cmake" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/Makefile" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/b/tests/cmake_install.cmake" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM01.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM01.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM02.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM02.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM03.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/run.m" afterPath="$PROJECT_DIR$/MATLAB/run.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/CMakeLists.txt" afterPath="$PROJECT_DIR$/tests/CMakeLists.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array2D.h" afterPath="$PROJECT_DIR$/include/Array2D.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -76,6 +204,46 @@
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="557">
+              <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+              <folding>
+                <element signature="e#1056#1068#0" expanded="true" />
+                <element signature="e#1733#1745#0" expanded="true" />
+                <element signature="e#2165#2177#0" expanded="true" />
+                <element signature="e#2283#2295#0" expanded="true" />
+                <element signature="e#2481#2493#0" expanded="true" />
+                <element signature="e#2680#2692#0" expanded="true" />
+                <element signature="e#2910#2922#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array3D.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/include/Array3D.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="432">
+              <caret line="31" column="6" lean-forward="true" selection-start-line="31" selection-start-column="6" selection-end-line="31" selection-end-column="6" />
+              <folding>
+                <element signature="e#160#169#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Array2D.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/include/Array2D.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="26" column="21" lean-forward="true" selection-start-line="26" selection-start-column="21" selection-end-line="26" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="timesTwo.cu" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MATLAB/timesTwo.cu">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -127,6 +295,9 @@
         <option value="$PROJECT_DIR$/tests/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/include/Array2D.h" />
+        <option value="$PROJECT_DIR$/include/Array3D.h" />
+        <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
       </list>
     </option>
   </component>
@@ -137,10 +308,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="67" />
-    <option name="y" value="136" />
-    <option name="width" value="1389" />
-    <option name="height" value="877" />
+    <option name="x" value="1987" />
+    <option name="y" value="24" />
+    <option name="width" value="1853" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -179,7 +350,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="tests" />
+              <option name="myItemId" value="MATLAB" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -193,7 +364,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="MATLAB" />
+              <option name="myItemId" value="include" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -445,21 +616,23 @@
       <workItem from="1485644449181" duration="4307000" />
       <workItem from="1485791258582" duration="345000" />
       <workItem from="1485791610965" duration="12465000" />
-      <workItem from="1485880427817" duration="5064000" />
+      <workItem from="1485880427817" duration="5521000" />
+      <workItem from="1486658930744" duration="12000" />
+      <workItem from="1486746095591" duration="5842000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35479000" />
+    <option name="totallyTimeSpent" value="41790000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="67" y="136" width="1389" height="877" extended-state="0" />
-    <editor active="false" />
+    <frame x="1987" y="24" width="1853" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.34269258" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25688073" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3282365" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26911315" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32917705" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -497,36 +670,11 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="25" lean-forward="false" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmake/modules/FindFFTW.cmake" />
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -534,7 +682,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="12" column="0" lean-forward="true" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -543,7 +690,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -552,7 +698,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
           <caret line="9" column="33" lean-forward="false" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -560,7 +705,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="14" column="28" lean-forward="false" selection-start-line="14" selection-start-column="28" selection-end-line="14" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -569,7 +713,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -577,7 +720,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -625,13 +767,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_ajp.m">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="13" column="18" lean-forward="false" selection-start-line="13" selection-start-column="18" selection-end-line="13" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" />
     <entry file="file://$PROJECT_DIR$/MATLAB/PRISM01.m">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -650,7 +786,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -658,7 +793,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1422">
           <caret line="79" column="39" lean-forward="false" selection-start-line="79" selection-start-column="39" selection-end-line="79" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -666,7 +800,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1368">
           <caret line="76" column="39" lean-forward="false" selection-start-line="76" selection-start-column="39" selection-end-line="76" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -674,9 +807,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-          <folding>
-            <element signature="e#103#122#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -684,7 +814,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="24" column="46" lean-forward="false" selection-start-line="24" selection-start-column="46" selection-end-line="24" selection-end-column="46" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -692,7 +821,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -700,23 +828,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="5" column="76" lean-forward="false" selection-start-line="5" selection-start-column="76" selection-end-line="5" selection-end-column="76" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeCache.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-720">
-          <caret line="23" column="22" lean-forward="false" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeCache.txt" />
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -724,9 +843,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
           <caret line="12" column="19" lean-forward="false" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
-          <folding>
-            <element signature="e#91#110#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -734,40 +850,59 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="36">
           <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Array2D.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="25" column="17" lean-forward="false" selection-start-line="25" selection-start-column="17" selection-end-line="25" selection-end-column="17" />
-          <folding>
-            <element signature="e#89#106#0" expanded="true" />
-            <element signature="e#159#168#0" expanded="true" />
-            <element signature="e#605#614#0" expanded="true" />
-            <element signature="e#895#904#0" expanded="true" />
-            <element signature="e#992#1001#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Array2D.h" />
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="284">
             <caret line="60" column="68" lean-forward="false" selection-start-line="60" selection-start-column="68" selection-end-line="60" selection-end-column="68" />
-            <folding />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
+    <entry file="file://$PROJECT_DIR$/MATLAB/timesTwo.cu">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/Array2D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="26" column="21" lean-forward="true" selection-start-line="26" selection-start-column="21" selection-end-line="26" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/Array3D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="432">
+          <caret line="31" column="6" lean-forward="true" selection-start-line="31" selection-start-column="6" selection-end-line="31" selection-end-column="6" />
+          <folding>
+            <element signature="e#160#169#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="557">
+          <caret line="88" column="0" lean-forward="false" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+          <folding>
+            <element signature="e#1056#1068#0" expanded="true" />
+            <element signature="e#1733#1745#0" expanded="true" />
+            <element signature="e#2165#2177#0" expanded="true" />
+            <element signature="e#2283#2295#0" expanded="true" />
+            <element signature="e#2481#2493#0" expanded="true" />
+            <element signature="e#2680#2692#0" expanded="true" />
+            <element signature="e#2910#2922#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -4,6 +4,7 @@
 #include "fftw3.h"
 #include "mex.h"
 #include "Array2D.h"
+#include "Array3D.h"
 
 // define the position of each input here for clarity, since there are so many
 #define POS_Scompact            0
@@ -31,19 +32,65 @@
 #define POS_numFP               22
 #define NUM_INPUTS              22
 
+
 template <typename T>
-PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
-    size_t nrows = mxGetM(array);
-    size_t ncols = mxGetN(array);
+PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
+    const mwSize *dims   = mxGetDimensions(array);
+    const size_t nrows   = (size_t)dims[0];
+    const size_t ncols   = (size_t)dims[1];
+    const size_t nlayers = (size_t)dims[2];
     mexPrintf("nrows = %i\n",nrows);
     mexPrintf("ncols = %i\n",ncols);
-    size_t N     = nrows*ncols;
+    mexPrintf("nlayers = %i\n",nlayers);
+    const size_t N       = nrows*ncols*nlayers;
+    double *ptr  = mxGetPr(array);
+    PRISM::Array3D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols, nlayers);
+    //for (auto& i:arr)i=(T)*ptr++;
+    for (auto& i:arr){i=(T)*ptr++;mexPrintf("%f\n",*ptr);}
+    return arr;
+}
+
+
+template <typename T>
+PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
+    const mwSize *dims = mxGetDimensions(array);
+    const size_t nrows = (size_t)dims[0];
+    const size_t ncols = (size_t)dims[1];
+    const size_t N     = nrows*ncols;
+
     double *ptr  = mxGetPr(array);
     PRISM::Array2D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols);
     for (auto& i:arr)i=(T)*ptr++;
-    for (auto& i:arr)mexPrintf("%f\n",i);
     return arr;
 }
+
+template <typename T>
+T matGetScalar(const mxArray *array){
+    double *ptr  = mxGetPr(array);
+    return (T)*ptr;
+}
+
+template <typename T>
+PRISM::Array2D< std::vector<T> > ones_2D(const size_t& nrows, const size_t& ncols){
+    return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols);
+}
+
+template <typename T>
+PRISM::Array2D< std::vector<T> > zeros_2D(const size_t& nrows, const size_t& ncols){
+    return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols);
+}
+
+template <typename T>
+PRISM::Array3D< std::vector<T> > ones_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
+    return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols, nlayers);
+}
+
+template <typename T>
+PRISM::Array3D< std::vector<T> > zeros_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
+    return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols, nlayers);
+}
+
+
 
 
 void mexFunction(int nlhs, mxArray *plhs[],
@@ -52,62 +99,16 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // Check we for correct number of arguments
 //     if (nrhs != NUM_INPUTS)mexErrMsgTxt("Incorrect number of inputs to mex function, should be 22");
     using PRISM_FLOAT_TYPE = double;
-    PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> > qxaReduce = mat2DtoPRISM2D<double>(prhs[0]); // change from 0
 
-    for (auto &i : qxaReduce)mexPrintf("%f\n",i);
-    plhs[0] = mxCreateDoubleMatrix(qxaReduce.get_nrows(), qxaReduce.get_ncols(), mxREAL);
-    
+    PRISM::Array3D< std::vector<PRISM_FLOAT_TYPE> > Scompact = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[0]); // change from 0
+   // PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> > qxaReduce = mat2DtoPRISM2D<double>(prhs[1]); // change from 0
+
+
+    for (auto &i : Scompact)mexPrintf("%f\n",i);
+    //plhs[0] = mxCreateDoubleMatrix(qxaReduce.get_nrows(), qxaReduce.get_ncols(), mxREAL);
+    mexPrintf("size = %i\n",Scompact.size());
+    plhs[0] = mxCreateDoubleMatrix(Scompact.size(), 1, mxREAL);
+
     double * ptr = mxGetPr(plhs[0]);
-    for (auto &i:qxaReduce)*ptr++=i;
-//    // get points to array variables
-//    double *probeDefocusArray   = mxGetPr(prhs[POS_probeDefocusArray]);
-//    double *probeSemiangleArray = mxGetPr(prhs[POS_probeSemiangleArray]);
-//    double *probeXtiltArray     = mxGetPr(prhs[POS_probeXtiltArray]);
-//    double *probeYtiltArray     = mxGetPr(prhs[POS_probeYtiltArray]);
-//    double *qxaReduce           = mxGetPr(prhs[POS_qxaReduce]);
-//    double *qyaReduce           = mxGetPr(prhs[POS_qyaReduce]);
-//    double *xp                  = mxGetPr(prhs[POS_xp]);
-//    double *yp                  = mxGetPr(prhs[POS_yp]);
-//    double *imageSize           = mxGetPr(prhs[POS_imageSize]);
-//    double *imageSizeReduce     = mxGetPr(prhs[POS_imageSizeReduce]);
-//
-//    // get scalars
-//    double scale                = mxGetScalar(prhs[POS_scale]);
-//    double interpolationFactor  = mxGetScalar(prhs[POS_interpolationFactor]);
-//    double pixelSize            = mxGetScalar(prhs[POS_pixelSize]);
-//    double lambda               = mxGetScalar(prhs[POS_lambda]);
-//
-//    size_t mrows = mxGetM(prhs[0]);
-//    size_t ncols = mxGetN(prhs[0]);
-//    mexPrintf("mrows = %d\n", mrows);
-//    mexPrintf("mcols = %d\n", ncols);
-//
-////     plhs[0] = mxCreateDoubleMatrix((mwSize)mrows, (mwSize)ncols, mxREAL);
-////     double v[mrows*ncols];
-//    double* v = (double*)mxMalloc(mrows*ncols*sizeof(double));
-//    for (int i = 0; i < mrows*ncols; ++i){
-////         v[i] = i;
-//        v[i] = probeDefocusArray[i];
-//        mexPrintf("val %f\n",v[i]);
-//    };
-//    plhs[0] = mxCreateNumericMatrix(0,0,mxDOUBLE_CLASS,mxREAL);
-//
-//    mxSetPr(plhs[0], v);
-//    mxSetM(plhs[0],mrows);
-//    mxSetN(plhs[0],ncols);
-//
-//
-////     plhs[0] = mxGetPr(prhs[0]);
-//
-//
-//      //initialize:
-//   /*
-//    q1 = zeros(imageSizeReduce);
-//    q2 = zeros(imageSizeReduce);
-//    PsiProbeInit = zeros(imageSizeReduce);
-//    psi = zeros(imageSizeReduce);
-//    intOutput = zeros(imageSizeReduce);
-//     */
-//    //dq = mean([qxaReduce(2,1) qyaReduce(1,2)]);
-//    //qProbeMax = emdSTEM.probeSemiangleArray(a1) / emdSTEM.lambda;
+    for (auto &i:Scompact)*ptr++=i;
 }

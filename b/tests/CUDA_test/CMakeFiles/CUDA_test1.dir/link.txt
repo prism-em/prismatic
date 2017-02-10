@@ -1,1 +1,0 @@
-/usr/bin/c++      CMakeFiles/CUDA_test1.dir/CUDA_test1_generated_CUDA_test1.cu.o  -o CUDA_test1 /usr/local/cuda-8.0/lib64/libcudart_static.a -lpthread -ldl /usr/lib/x86_64-linux-gnu/librt.so 

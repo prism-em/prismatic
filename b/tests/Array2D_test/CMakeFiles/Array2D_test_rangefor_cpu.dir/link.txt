@@ -1,1 +1,0 @@
-/usr/bin/c++      CMakeFiles/Array2D_test_rangefor_cpu.dir/Array2D_test_rangefor.cpp.o  -o Array2D_test_rangefor_cpu /usr/local/cuda-8.0/lib64/libcudart_static.a -lpthread -ldl /usr/lib/x86_64-linux-gnu/librt.so 

@@ -1,1 +1,0 @@
-/usr/bin/c++      CMakeFiles/Array2D_test_cpu.dir/Array2D_test_construct.cpp.o  -o Array2D_test_cpu 
