@@ -48,12 +48,8 @@
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/run_ajp.m" afterPath="$PROJECT_DIR$/MATLAB/run_ajp.m" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array2D.h" afterPath="$PROJECT_DIR$/include/Array2D.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array3D.h" afterPath="$PROJECT_DIR$/include/Array3D.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu" afterPath="$PROJECT_DIR$/tests/Array2D_test/Array2D_test_rangefor.cu" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -76,10 +72,10 @@
       <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="67" column="45" lean-forward="false" selection-start-line="67" selection-start-column="45" selection-end-line="67" selection-end-column="45" />
+            <state relative-caret-position="557">
+              <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
               <folding>
-                <element signature="e#2170#2182#0" expanded="true" />
+                <element signature="e#2173#2185#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -169,6 +165,7 @@
     <findStrings>
       <find>cudamem</find>
       <find>.h</find>
+      <find>POS_</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -223,8 +220,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="2411" />
-    <option name="y" value="135" />
+    <option name="x" value="2379" />
+    <option name="y" value="141" />
     <option name="width" value="1389" />
     <option name="height" value="877" />
   </component>
@@ -578,15 +575,15 @@
       <workItem from="1486769097915" duration="79000" />
       <workItem from="1486769183586" duration="422000" />
       <workItem from="1486775802954" duration="6152000" />
-      <workItem from="1487010151253" duration="1622000" />
+      <workItem from="1487010151253" duration="4390000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="50495000" />
+    <option name="totallyTimeSpent" value="53263000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2411" y="135" width="1389" height="877" extended-state="0" />
+    <frame x="2379" y="141" width="1389" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18430525" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -855,10 +852,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="67" column="45" lean-forward="false" selection-start-line="67" selection-start-column="45" selection-end-line="67" selection-end-column="45" />
+        <state relative-caret-position="557">
+          <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
           <folding>
-            <element signature="e#2170#2182#0" expanded="true" />
+            <element signature="e#2173#2185#0" expanded="true" />
           </folding>
         </state>
       </provider>
