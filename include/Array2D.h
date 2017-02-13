@@ -15,6 +15,7 @@ namespace PRISM {
         Array2D(T _data,
                 const size_t& _nrows,
                 const size_t& _ncols);
+        Array2D(){};
         size_t get_nrows() const {return this->nrows;}
         size_t get_ncols() const {return this->ncols;}
         size_t size()      const {return this->N;}

@@ -16,6 +16,7 @@ namespace PRISM {
                 const size_t& _nrows,
                 const size_t& _ncols,
                 const size_t& _nlayers);
+        Array3D(){};
         size_t get_nrows()   const {return this->nrows;}
         size_t get_ncols()   const {return this->ncols;}
         size_t get_nlayers() const {return this->nlayers;}
