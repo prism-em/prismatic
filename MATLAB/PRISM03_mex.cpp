@@ -1,6 +1,7 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
+#include <complex>
 #include "fftw3.h"
 #include "mex.h"
 #include "Array2D.h"
@@ -95,6 +96,62 @@ T matGetScalar(const mxArray *array){
     return (T)*ptr;
 }
 
+
+template <typename T>
+PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray *array){
+    // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
+    const mwSize ndims   = mxGetNumberOfDimensions(array);
+    if (ndims!=3)mexErrMsgTxt("Array is not 3D.\n");
+    const mwSize *dims   = mxGetDimensions(array);
+    const size_t nrows   = (size_t)dims[0];
+    const size_t ncols   = (size_t)dims[1];
+    const size_t nlayers = (size_t)dims[2];
+    mexPrintf("nrows = %i\n",nrows);
+    mexPrintf("ncols = %i\n",ncols);
+    mexPrintf("nlayers = %i\n",nlayers);
+    const size_t N       = nrows*ncols*nlayers;
+    double *ptr_r  = mxGetPr(array);
+    double *ptr_i  = mxGetPi(array);
+    PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols, nlayers);
+    //for (auto& i:arr)i=(T)*ptr++;
+    //for (auto& i:arr){i=(T)*ptr++;}
+    for (auto k = 0; k < nlayers; ++k){
+        for (auto j = 0; j < ncols; ++j){
+            for (auto i = 0; i < nrows; ++i){
+                arr.at(i,j,k).real((T)*ptr_r++);
+                arr.at(i,j,k).imag((T)*ptr_i++);
+            }
+        }
+    }
+    return arr;
+}
+
+template <typename T>
+PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray *array){
+    const mwSize ndims   = mxGetNumberOfDimensions(array);
+    if (ndims!=2)mexErrMsgTxt("Array is not 2D.\n");
+    // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
+    const mwSize *dims   = mxGetDimensions(array);
+    const size_t nrows   = (size_t)dims[0];
+    const size_t ncols   = (size_t)dims[1];
+    mexPrintf("nrows = %i\n",nrows);
+    mexPrintf("ncols = %i\n",ncols);
+    const size_t N       = nrows*ncols;
+    double *ptr_r  = mxGetPr(array);
+    double *ptr_i  = mxGetPi(array);
+    PRISM::Array2D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols);
+    //for (auto& i:arr)i=(T)*ptr++;
+    //for (auto& i:arr){i=(T)*ptr++;}
+    for (auto j = 0; j < ncols; ++j){
+        for (auto i = 0; i < nrows; ++i){
+            arr.at(i,j).real((T)*ptr_r++);
+            arr.at(i,j).imag((T)*ptr_i++);
+        }
+    }
+    return arr;
+}
+
+
 template <typename T>
 PRISM::Array2D< std::vector<T> > ones_2D(const size_t& nrows, const size_t& ncols){
     return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols);
@@ -127,30 +184,32 @@ void mexFunction(int nlhs, mxArray *plhs[],
 //        mexErrMsgTxt(what.c_str());
 //    }
     using PRISM_FLOAT_TYPE = double;
-    using Array3D = PRISM::Array3D< std::vector<PRISM_FLOAT_TYPE> >;
-    using Array2D = PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> >;
-
+    using PRISM_COMPLEX_TYPE = std::complex<PRISM_FLOAT_TYPE>;
+    using Array3D_r = PRISM::Array3D< std::vector<PRISM_FLOAT_TYPE> >;
+    using Array2D_r = PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> >;
+    using Array3D_cx = PRISM::Array3D< std::vector<PRISM_COMPLEX_TYPE> >;
+    using Array2D_cx = PRISM::Array2D< std::vector<PRISM_COMPLEX_TYPE> >;
     // extract all the data from MATLAB into PRISM data types
-    Array3D Scompact = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[POS_Scompact]);
-    Array3D stack    = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[POS_stack]);
+    Array3D_cx Scompact = mat3DtoPRISM3D_cx<PRISM_FLOAT_TYPE>(prhs[POS_Scompact]);
+    Array3D_r stack     = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[POS_stack]);
 
-    Array2D probeDefocusArray   = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeDefocusArray]);
-    Array2D probeSemiangleArray = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeSemiangleArray]);
-    Array2D probeXtiltArray     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeXtiltArray]);
-    Array2D probeYtiltArray     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeYtiltArray]);
-    Array2D qxaReduce           = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_qxaReduce]);
-    Array2D qyaReduce           = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_qyaReduce]);
-    Array2D xp                  = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xp]);
-    Array2D yp                  = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_yp]);
-    Array2D beamsIndex          = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_beamsIndex]);
-    Array2D xyBeams             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xyBeams]);
-    Array2D xVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xVec]);
-    Array2D yVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_yVec]);
-    Array2D imageSizeReduce     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeReduce]);
-    Array2D imageSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeOutput]);
-    Array2D detectorAngles      = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_detectorAngles]);
-    Array2D cellDim             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_cellDim]);
-    Array2D pixelSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_pixelSizeOutput]);
+    Array2D_r probeDefocusArray   = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeDefocusArray]);
+    Array2D_r probeSemiangleArray = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeSemiangleArray]);
+    Array2D_r probeXtiltArray     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeXtiltArray]);
+    Array2D_r probeYtiltArray     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeYtiltArray]);
+    Array2D_r qxaReduce           = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_qxaReduce]);
+    Array2D_r qyaReduce           = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_qyaReduce]);
+    Array2D_r xp                  = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xp]);
+    Array2D_r yp                  = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_yp]);
+    Array2D_r beamsIndex          = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_beamsIndex]);
+    Array2D_r xyBeams             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xyBeams]);
+    Array2D_r xVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xVec]);
+    Array2D_r yVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_yVec]);
+    Array2D_r imageSizeReduce     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeReduce]);
+    Array2D_r imageSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeOutput]);
+    Array2D_r detectorAngles      = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_detectorAngles]);
+    Array2D_r cellDim             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_cellDim]);
+    Array2D_r pixelSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_pixelSizeOutput]);
 
     PRISM_FLOAT_TYPE scale      = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_scale]);
     PRISM_FLOAT_TYPE lambda     = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_lambda]);
@@ -183,6 +242,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
     PRISM_pars.cellDim             = cellDim;
     PRISM_pars.pixelSizeOutput     = pixelSizeOutput;
 
+    PRISM_pars.PsiProbeInit = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.q1           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.q2           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+
     PRISM_pars.scale  = scale;
     PRISM_pars.lambda = lambda;
     PRISM_pars.dr     = dr;
@@ -190,7 +253,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     PRISM_pars.Ndet   = Ndet;
     PRISM_pars.numFP  = numFP;
 
-
+    mexPrintf("Scompact.real = %f\n",Scompact[1].real());
+    mexPrintf("Scompact.imag = %f\n",Scompact[1].imag());
+    mexPrintf("qxaReduce = %f",qxaReduce[1]);
     mexPrintf("Scompact size = %i\n",Scompact.size());
     mexPrintf("stack size = %i\n",stack.size());
     mexPrintf("numFP size = %f\n",PRISM_pars.numFP);

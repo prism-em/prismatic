@@ -103,6 +103,16 @@ emdSTEM.stack = double(emdSTEM.stack);
     emdSTEM.lambda, dr, dq, Ndet, ...
      emdSTEM.numFP);
  
+ emdSTEM.stack = loop_wrapper(emdSTEM.Scompact, ...
+    emdSTEM.stack, emdSTEM.probeDefocusArray, emdSTEM.probeSemiangleArray, ...
+    emdSTEM.probeXtiltArray, emdSTEM.probeYtiltArray,qxaReduce, qyaReduce, ...
+    emdSTEM.xp, emdSTEM.yp, emdSTEM.beamsIndex,xyBeams,xVec, yVec, imageSizeReduce,emdSTEM.imageSizeOutput, ...
+    emdSTEM.detectorAngles,emdSTEM.cellDim,emdSTEM.pixelSizeOutput, scale, ...
+    emdSTEM.lambda, dr, dq, Ndet, ...
+     emdSTEM.numFP);
+
+ 
+ 
 % for a0 = 1:length(emdSTEM.probeDefocusArray)
 %     for a1 = 1:length(emdSTEM.probeSemiangleArray)
 %         qProbeMax = emdSTEM.probeSemiangleArray(a1) / emdSTEM.lambda;
@@ -234,7 +244,7 @@ q2 = zeros(imageSizeReduce);
 
 for a0 = 1:length(probeDefocusArray)
     for a1 = 1:length(probeSemiangleArray)
-        qProbeMax = probeSemiangleArray(a1) / lambda;
+        qProbeMax = probeSemiangleArray(a1) / lambda
         
         for a2 = 1:length(probeXtiltArray)
             for a3 = 1:length(probeYtiltArray)

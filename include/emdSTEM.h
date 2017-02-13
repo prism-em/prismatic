@@ -7,11 +7,12 @@
 #include "Array2D.h"
 #include "Array3D.h"
 #include <vector>
+#include <complex>
 
 namespace PRISM{
     template <class T>
     struct emdSTEM {
-        PRISM::Array3D< std::vector<T> > Scompact;
+        PRISM::Array3D< std::vector< std::complex<T> > > Scompact;
         PRISM::Array3D< std::vector<T> > stack;
         PRISM::Array2D< std::vector<T> > probeDefocusArray;
         PRISM::Array2D< std::vector<T> > probeSemiangleArray;
@@ -30,6 +31,11 @@ namespace PRISM{
         PRISM::Array2D< std::vector<T> > detectorAngles;
         PRISM::Array2D< std::vector<T> > cellDim;
         PRISM::Array2D< std::vector<T> > pixelSizeOutput;
+
+        PRISM::Array2D< std::vector<T> > PsiProbeInit;
+        PRISM::Array2D< std::vector<T> > q1;
+        PRISM::Array2D< std::vector<T> > q2;
+
         T scale;
         T lambda;
         T dr;

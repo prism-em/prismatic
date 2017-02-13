@@ -46,16 +46,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/PRISM03.cpp" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/include/PRISM03.h" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/include/emdSTEM.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/run_ajp.m" afterPath="$PROJECT_DIR$/MATLAB/run_ajp.m" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PRISM03.cpp" afterPath="$PROJECT_DIR$/PRISM03.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array2D.h" afterPath="$PROJECT_DIR$/include/Array2D.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array3D.h" afterPath="$PROJECT_DIR$/include/Array3D.h" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/emdSTEM.h" afterPath="$PROJECT_DIR$/include/emdSTEM.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -75,26 +72,37 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2916">
-              <caret line="162" column="35" lean-forward="false" selection-start-line="162" selection-start-column="35" selection-end-line="162" selection-end-column="35" />
+            <state relative-caret-position="398">
+              <caret line="120" column="29" lean-forward="true" selection-start-line="120" selection-start-column="29" selection-end-line="120" selection-end-column="29" />
               <folding>
-                <element signature="e#2215#2227#0" expanded="true" />
+                <element signature="e#2234#2246#0" expanded="true" />
+                <element signature="e#4487#4499#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PRISM03.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/main.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PRISM03.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="12" column="8" lean-forward="false" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+            <state relative-caret-position="560">
+              <caret line="57" column="0" lean-forward="false" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
               <folding>
                 <element signature="e#42#70#0" expanded="true" />
-                <element signature="e#144#153#0" expanded="true" />
+                <element signature="e#165#174#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -115,42 +123,12 @@
       <file leaf-file-name="emdSTEM.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/emdSTEM.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="14" column="41" lean-forward="false" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
+            <state relative-caret-position="162">
+              <caret line="9" column="18" lean-forward="false" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
               <folding>
                 <element signature="e#90#110#0" expanded="true" />
-                <element signature="e#181#190#0" expanded="true" />
+                <element signature="e#200#209#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="5" column="26" lean-forward="false" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/CMakeLists.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="4" column="19" lean-forward="false" selection-start-line="4" selection-start-column="19" selection-end-line="4" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tests/Array2D_test/CMakeLists.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="23" column="22" lean-forward="false" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -168,13 +146,14 @@
       <file leaf-file-name="Array3D.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/Array3D.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="18" column="20" lean-forward="false" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+            <state relative-caret-position="556">
+              <caret line="58" column="34" lean-forward="false" selection-start-line="58" selection-start-column="34" selection-end-line="58" selection-end-column="34" />
               <folding>
                 <element signature="e#90#107#0" expanded="true" />
                 <element signature="e#160#169#0" expanded="true" />
-                <element signature="e#1449#1458#0" expanded="true" />
-                <element signature="e#1542#1551#0" expanded="true" />
+                <element signature="e#1510#1519#0" expanded="true" />
+                <element signature="e#1603#1612#0" expanded="true" />
+                <element signature="e#1781#1790#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -183,12 +162,44 @@
       <file leaf-file-name="Array2D.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/Array2D.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
+            <state relative-caret-position="295">
+              <caret line="61" column="59" lean-forward="false" selection-start-line="61" selection-start-column="59" selection-end-line="61" selection-end-column="59" />
               <folding>
+                <element signature="e#89#106#0" expanded="true" />
                 <element signature="e#159#168#0" expanded="true" />
-                <element signature="e#1284#1293#0" expanded="true" />
+                <element signature="e#1765#1774#0" expanded="true" />
+                <element signature="e#1923#1932#0" expanded="true" />
+                <element signature="e#2313#2322#0" expanded="true" />
+                <element signature="e#2461#2470#0" expanded="true" />
+                <element signature="e#2570#2579#0" expanded="true" />
+                <element signature="e#2785#2794#0" expanded="true" />
+                <element signature="e#3000#3009#0" expanded="true" />
+                <element signature="e#3215#3224#0" expanded="true" />
+                <element signature="e#3430#3439#0" expanded="true" />
+                <element signature="e#3626#3635#0" expanded="true" />
+                <element signature="e#3822#3831#0" expanded="true" />
+                <element signature="e#4018#4027#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="timesTwo.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MATLAB/timesTwo.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PRISM03_ajp.m" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_ajp.m">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -201,6 +212,8 @@
       <find>.h</find>
       <find>POS_</find>
       <find>PRISM::Array2D&lt;T&gt;</find>
+      <find>qxaReduce</find>
+      <find>at.real</find>
     </findStrings>
     <replaceStrings>
       <replace>PRISM::Array2D&lt; std::vector&lt;T&gt; &gt;</replace>
@@ -245,13 +258,13 @@
         <option value="$PROJECT_DIR$/include/iterator_F.h" />
         <option value="$PROJECT_DIR$/include/test.cpp" />
         <option value="$PROJECT_DIR$/include/Iterator_F.h" />
-        <option value="$PROJECT_DIR$/include/emdSTEM.h" />
+        <option value="$PROJECT_DIR$/PRISM03.h" />
+        <option value="$PROJECT_DIR$/include/PRISM03.h" />
         <option value="$PROJECT_DIR$/include/Array3D.h" />
         <option value="$PROJECT_DIR$/include/Array2D.h" />
-        <option value="$PROJECT_DIR$/PRISM03.h" />
-        <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
-        <option value="$PROJECT_DIR$/include/PRISM03.h" />
         <option value="$PROJECT_DIR$/PRISM03.cpp" />
+        <option value="$PROJECT_DIR$/include/emdSTEM.h" />
+        <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
       </list>
     </option>
   </component>
@@ -591,12 +604,12 @@
       <workItem from="1486769183586" duration="422000" />
       <workItem from="1486775802954" duration="6152000" />
       <workItem from="1487010151253" duration="8051000" />
-      <workItem from="1487022871081" duration="306000" />
+      <workItem from="1487022871081" duration="6955000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57230000" />
+    <option name="totallyTimeSpent" value="63879000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="2165" y="112" width="1389" height="877" extended-state="0" />
@@ -653,13 +666,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="9" column="33" lean-forward="false" selection-start-line="9" selection-start-column="33" selection-end-line="9" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
@@ -720,7 +726,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" />
     <entry file="file://$PROJECT_DIR$/MATLAB/PRISM01.m">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -735,13 +740,6 @@
     <entry file="file://$PROJECT_DIR$/CUDA_test/CUDA_test0.cu" />
     <entry file="file://$PROJECT_DIR$/CUDA_test/CUDA_test1.cu" />
     <entry file="file://$PROJECT_DIR$/Array2D_test/CMakeLists.txt" />
-    <entry file="file://$PROJECT_DIR$/main.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tests/CUDA_test/CUDA_test0.cu">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1422">
@@ -837,51 +835,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/Array3D.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" column="20" lean-forward="false" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
-          <folding>
-            <element signature="e#90#107#0" expanded="true" />
-            <element signature="e#160#169#0" expanded="true" />
-            <element signature="e#1449#1458#0" expanded="true" />
-            <element signature="e#1542#1551#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/Array2D.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
-          <folding>
-            <element signature="e#159#168#0" expanded="true" />
-            <element signature="e#1284#1293#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2916">
-          <caret line="162" column="35" lean-forward="false" selection-start-line="162" selection-start-column="35" selection-end-line="162" selection-end-column="35" />
-          <folding>
-            <element signature="e#2215#2227#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/include/emdSTEM.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="14" column="41" lean-forward="false" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
-          <folding>
-            <element signature="e#90#110#0" expanded="true" />
-            <element signature="e#181#190#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/include/PRISM03.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
@@ -892,13 +845,96 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/include/Array3D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="556">
+          <caret line="58" column="34" lean-forward="false" selection-start-line="58" selection-start-column="34" selection-end-line="58" selection-end-column="34" />
+          <folding>
+            <element signature="e#90#107#0" expanded="true" />
+            <element signature="e#160#169#0" expanded="true" />
+            <element signature="e#1510#1519#0" expanded="true" />
+            <element signature="e#1603#1612#0" expanded="true" />
+            <element signature="e#1781#1790#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_ajp.m">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MATLAB/timesTwo.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="8" lean-forward="false" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+        <state relative-caret-position="560">
+          <caret line="57" column="0" lean-forward="false" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
           <folding>
             <element signature="e#42#70#0" expanded="true" />
-            <element signature="e#144#153#0" expanded="true" />
+            <element signature="e#165#174#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/emdSTEM.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="9" column="18" lean-forward="false" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+          <folding>
+            <element signature="e#90#110#0" expanded="true" />
+            <element signature="e#200#209#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/Array2D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="61" column="59" lean-forward="false" selection-start-line="61" selection-start-column="59" selection-end-line="61" selection-end-column="59" />
+          <folding>
+            <element signature="e#89#106#0" expanded="true" />
+            <element signature="e#159#168#0" expanded="true" />
+            <element signature="e#1765#1774#0" expanded="true" />
+            <element signature="e#1923#1932#0" expanded="true" />
+            <element signature="e#2313#2322#0" expanded="true" />
+            <element signature="e#2461#2470#0" expanded="true" />
+            <element signature="e#2570#2579#0" expanded="true" />
+            <element signature="e#2785#2794#0" expanded="true" />
+            <element signature="e#3000#3009#0" expanded="true" />
+            <element signature="e#3215#3224#0" expanded="true" />
+            <element signature="e#3430#3439#0" expanded="true" />
+            <element signature="e#3626#3635#0" expanded="true" />
+            <element signature="e#3822#3831#0" expanded="true" />
+            <element signature="e#4018#4027#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="398">
+          <caret line="120" column="29" lean-forward="true" selection-start-line="120" selection-start-column="29" selection-end-line="120" selection-end-column="29" />
+          <folding>
+            <element signature="e#2234#2246#0" expanded="true" />
+            <element signature="e#4487#4499#0" expanded="true" />
           </folding>
         </state>
       </provider>
