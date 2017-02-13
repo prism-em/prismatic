@@ -7,7 +7,6 @@
 #include "Array2D.h"
 #include "thrust/host_vector.h"
 #include "thrust/device_vector.h"
-#include "../../../../../../../usr/local/cuda/include/thrust/detail/copy.h"
 
 using namespace std;
 int main(){

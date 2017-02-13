@@ -20,6 +20,7 @@ namespace PRISM {
         size_t size()      const {return this->N;}
         typename T::iterator begin();
         typename T::iterator end();
+        typename T::value_type& at(const size_t& i, const size_t& j);
 
     private:
         T data;
@@ -41,6 +42,11 @@ namespace PRISM {
 
     template <class T>
     typename T::iterator Array2D<T>::end(){return this->data.end();}
+
+    template <class T>
+    typename T::value_type& Array2D<T>::at(const size_t& i, const size_t& j){
+        return data[i*ncols + j];
+    }
 }
 
 

@@ -21,20 +21,25 @@
 #define POS_xyBeams             11
 #define POS_xVec                12
 #define POS_yVec                13
-#define POS_imageSizeOutput     14
-#define POS_detectorAngles      15
-#define POS_cellDim             16
-#define POS_scale               17
-#define POS_lambda              18
-#define POS_dr                  19
-#define POS_dq                  20
-#define POS_Ndet                21
-#define POS_numFP               22
-#define NUM_INPUTS              22
+#define POS_imageSizeReduce     14
+#define POS_imageSizeOutput     15
+#define POS_detectorAngles      16
+#define POS_cellDim             17
+#define POS_pixelSizeOutput     18
+#define POS_scale               19
+#define POS_lambda              20
+#define POS_dr                  21
+#define POS_dq                  22
+#define POS_Ndet                23
+#define POS_numFP               24
+#define NUM_INPUTS              25
 
 
 template <typename T>
 PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
+    // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
+    const mwSize ndims   = mxGetNumberOfDimensions(array);
+    if (ndims!=3)mexErrMsgTxt("Array is not 3D.\n");
     const mwSize *dims   = mxGetDimensions(array);
     const size_t nrows   = (size_t)dims[0];
     const size_t ncols   = (size_t)dims[1];
@@ -46,23 +51,40 @@ PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
     double *ptr  = mxGetPr(array);
     PRISM::Array3D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols, nlayers);
     //for (auto& i:arr)i=(T)*ptr++;
-    for (auto& i:arr){i=(T)*ptr++;mexPrintf("%f\n",*ptr);}
+    //for (auto& i:arr){i=(T)*ptr++;}
+    for (auto k = 0; k < nlayers; ++k){
+        for (auto j = 0; j < ncols; ++j){
+            for (auto i = 0; i < nrows; ++i){
+                arr.at(i,j,k) = *ptr++;
+            }
+        }
+    }
     return arr;
 }
-
 
 template <typename T>
 PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
-    const mwSize *dims = mxGetDimensions(array);
-    const size_t nrows = (size_t)dims[0];
-    const size_t ncols = (size_t)dims[1];
-    const size_t N     = nrows*ncols;
-
+    const mwSize ndims   = mxGetNumberOfDimensions(array);
+    if (ndims!=2)mexErrMsgTxt("Array is not 2D.\n");
+    // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
+    const mwSize *dims   = mxGetDimensions(array);
+    const size_t nrows   = (size_t)dims[0];
+    const size_t ncols   = (size_t)dims[1];
+    mexPrintf("nrows = %i\n",nrows);
+    mexPrintf("ncols = %i\n",ncols);
+    const size_t N       = nrows*ncols;
     double *ptr  = mxGetPr(array);
     PRISM::Array2D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols);
-    for (auto& i:arr)i=(T)*ptr++;
+    //for (auto& i:arr)i=(T)*ptr++;
+    //for (auto& i:arr){i=(T)*ptr++;}
+        for (auto j = 0; j < ncols; ++j){
+            for (auto i = 0; i < nrows; ++i){
+                arr.at(i,j) = *ptr++;
+            }
+        }
     return arr;
 }
+
 
 template <typename T>
 T matGetScalar(const mxArray *array){
@@ -101,10 +123,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     using PRISM_FLOAT_TYPE = double;
 
     PRISM::Array3D< std::vector<PRISM_FLOAT_TYPE> > Scompact = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[0]); // change from 0
+    PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> > probeDefocusArray = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[1]); // change from 0
    // PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> > qxaReduce = mat2DtoPRISM2D<double>(prhs[1]); // change from 0
 
 
     for (auto &i : Scompact)mexPrintf("%f\n",i);
+    for (auto &i : probeDefocusArray)mexPrintf("%f\n",i);
     //plhs[0] = mxCreateDoubleMatrix(qxaReduce.get_nrows(), qxaReduce.get_ncols(), mxREAL);
     mexPrintf("size = %i\n",Scompact.size());
     plhs[0] = mxCreateDoubleMatrix(Scompact.size(), 1, mxREAL);

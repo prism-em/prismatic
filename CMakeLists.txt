@@ -3,7 +3,7 @@ project(PRISM)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp include/Array3D.h)
+set(SOURCE_FILES main.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 add_executable(PRISM ${SOURCE_FILES})
 

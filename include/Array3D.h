@@ -22,6 +22,7 @@ namespace PRISM {
         size_t size()        const {return this->N;}
         typename T::iterator begin();
         typename T::iterator end();
+        typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k);
 
     private:
         T data;
@@ -46,6 +47,12 @@ namespace PRISM {
 
     template <class T>
     typename T::iterator Array3D<T>::end(){return this->data.end();}
+
+    template <class T>
+    typename T::value_type& Array3D<T>::at(const size_t& i, const size_t& j,const size_t& k){
+        return data[i*ncols*nlayers + j*nlayers + k];
+    }
 }
+
 
 #endif //PRISM_ARRAY3D_H

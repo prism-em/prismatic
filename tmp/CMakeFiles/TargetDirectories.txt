@@ -1,0 +1,11 @@
+/home/aj/hdd1/clion/PRISM/tmp/CMakeFiles/rebuild_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/CMakeFiles/edit_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/CMakeFiles/PRISM.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/CMakeFiles/rebuild_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/CMakeFiles/edit_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/edit_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/rebuild_cache.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/Array2D_test_cpu.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/Array2D_test_gpu.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_cpu.dir
+/home/aj/hdd1/clion/PRISM/tmp/tests/Array2D_test/CMakeFiles/Array2D_test_rangefor_gpu.dir
