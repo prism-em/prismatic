@@ -98,7 +98,7 @@ T matGetScalar(const mxArray *array){
 
 
 template <typename T>
-PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray *array){
+PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray *array, bool reorder=1){
     // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
     const mwSize ndims   = mxGetNumberOfDimensions(array);
     if (ndims!=3)mexErrMsgTxt("Array is not 3D.\n");
@@ -112,18 +112,30 @@ PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray
     const size_t N       = nrows*ncols*nlayers;
     double *ptr_r  = mxGetPr(array);
     double *ptr_i  = mxGetPi(array);
-    PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols, nlayers);
+
     //for (auto& i:arr)i=(T)*ptr++;
     //for (auto& i:arr){i=(T)*ptr++;}
-    for (auto k = 0; k < nlayers; ++k){
-        for (auto j = 0; j < ncols; ++j){
-            for (auto i = 0; i < nrows; ++i){
-                arr.at(i,j,k).real((T)*ptr_r++);
-                arr.at(i,j,k).imag((T)*ptr_i++);
+    if (reorder) {
+        PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols, nlayers);
+        for (auto k = 0; k < nlayers; ++k) {
+            for (auto j = 0; j < ncols; ++j) {
+                for (auto i = 0; i < nrows; ++i) {
+                    arr.at(i, j, k).real((T) *ptr_r++);
+                    arr.at(i, j, k).imag((T) *ptr_i++);
+                }
             }
         }
+        return arr;
+    } else
+    {
+        PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nlayers, ncols, nrows);
+        for (auto &i:arr){
+            i.real((T)*ptr_r++);
+            i.imag((T)*ptr_i++);
+        }
+        return arr;
     }
-    return arr;
+
 }
 
 template <typename T>
@@ -174,7 +186,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     using Array3D_cx = PRISM::Array3D< std::vector<PRISM_COMPLEX_TYPE> >;
     using Array2D_cx = PRISM::Array2D< std::vector<PRISM_COMPLEX_TYPE> >;
     // extract all the data from MATLAB into PRISM data types
-    Array3D_cx Scompact = mat3DtoPRISM3D_cx<PRISM_FLOAT_TYPE>(prhs[POS_Scompact]);
+    Array3D_cx Scompact = mat3DtoPRISM3D_cx<PRISM_FLOAT_TYPE>(prhs[POS_Scompact], 0);
     Array3D_r stack     = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[POS_stack]);
 
     Array2D_r probeDefocusArray   = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_probeDefocusArray]);

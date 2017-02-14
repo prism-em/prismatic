@@ -58,6 +58,16 @@ namespace PRISM {
     template <class T>
     typename T::value_type& Array3D<T>::operator[](const size_t& i){return data[i];}
 
+
+    template <typename T>
+    PRISM::Array3D< std::vector<T> > ones_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
+        return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols, nlayers);
+    }
+
+    template <typename T>
+    PRISM::Array3D< std::vector<T> > zeros_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
+        return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols, nlayers);
+    }
 }
 
 

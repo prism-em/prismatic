@@ -130,6 +130,16 @@ namespace PRISM {
         for (auto& i:result)i/=val;
         return result;
     }
+
+    template <typename T>
+    PRISM::Array2D< std::vector<T> > ones_2D(const size_t& nrows, const size_t& ncols){
+        return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols);
+    }
+
+    template <typename T>
+    PRISM::Array2D< std::vector<T> > zeros_2D(const size_t& nrows, const size_t& ncols){
+        return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols);
+    }
 }
 
 
