@@ -46,12 +46,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="87247cb8-5238-4a79-91aa-a3d4eeee81c0" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.mexa64" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_ajp.m" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PRISM03.cpp" afterPath="$PROJECT_DIR$/PRISM03.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array2D.h" afterPath="$PROJECT_DIR$/include/Array2D.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/Array3D.h" afterPath="$PROJECT_DIR$/include/Array3D.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -100,12 +98,12 @@
       <file leaf-file-name="PRISM03.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1122">
-              <caret line="91" column="40" lean-forward="false" selection-start-line="91" selection-start-column="40" selection-end-line="91" selection-end-column="40" />
+            <state relative-caret-position="2988">
+              <caret line="166" column="79" lean-forward="false" selection-start-line="166" selection-start-column="79" selection-end-line="166" selection-end-column="79" />
               <folding>
                 <element signature="e#42#70#0" expanded="true" />
-                <element signature="e#184#193#0" expanded="true" />
-                <element signature="e#7291#7300#0" expanded="true" />
+                <element signature="e#202#211#0" expanded="true" />
+                <element signature="e#7519#7528#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -149,8 +147,8 @@
       <file leaf-file-name="Array3D.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/Array3D.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="60" column="0" lean-forward="true" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
+            <state relative-caret-position="230">
+              <caret line="58" column="4" lean-forward="false" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="4" />
               <folding>
                 <element signature="e#90#107#0" expanded="true" />
                 <element signature="e#160#169#0" expanded="true" />
@@ -225,6 +223,10 @@
       <find>at.real</find>
       <find>PsiProbeInit</find>
       <find>int</find>
+      <find>at</find>
+      <find>at(</find>
+      <find>operator[](</find>
+      <find>inl</find>
     </findStrings>
     <replaceStrings>
       <replace>PRISM::Array2D&lt; std::vector&lt;T&gt; &gt;</replace>
@@ -273,8 +275,8 @@
         <option value="$PROJECT_DIR$/include/PRISM03.h" />
         <option value="$PROJECT_DIR$/include/emdSTEM.h" />
         <option value="$PROJECT_DIR$/include/Array2D.h" />
-        <option value="$PROJECT_DIR$/include/Array3D.h" />
         <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
+        <option value="$PROJECT_DIR$/include/Array3D.h" />
         <option value="$PROJECT_DIR$/PRISM03.cpp" />
       </list>
     </option>
@@ -286,8 +288,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="2179" />
-    <option name="y" value="62" />
+    <option name="x" value="2338" />
+    <option name="y" value="64" />
     <option name="width" value="1389" />
     <option name="height" value="877" />
   </component>
@@ -620,11 +622,11 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81465000" />
+    <option name="totallyTimeSpent" value="82718000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2179" y="62" width="1389" height="877" extended-state="0" />
-    <editor active="true" />
+    <frame x="2338" y="64" width="1389" height="877" extended-state="0" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21814255" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -866,22 +868,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/Array3D.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="60" column="0" lean-forward="true" selection-start-line="60" selection-start-column="0" selection-end-line="60" selection-end-column="0" />
-          <folding>
-            <element signature="e#90#107#0" expanded="true" />
-            <element signature="e#160#169#0" expanded="true" />
-            <element signature="e#1510#1519#0" expanded="true" />
-            <element signature="e#1603#1612#0" expanded="true" />
-            <element signature="e#1781#1790#0" expanded="true" />
-            <element signature="e#1891#1903#0" expanded="true" />
-            <element signature="e#2137#2149#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/include/PRISM03.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
@@ -950,14 +936,30 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/include/Array3D.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="58" column="4" lean-forward="false" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="4" />
+          <folding>
+            <element signature="e#90#107#0" expanded="true" />
+            <element signature="e#160#169#0" expanded="true" />
+            <element signature="e#1510#1519#0" expanded="true" />
+            <element signature="e#1603#1612#0" expanded="true" />
+            <element signature="e#1781#1790#0" expanded="true" />
+            <element signature="e#1891#1903#0" expanded="true" />
+            <element signature="e#2137#2149#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1122">
-          <caret line="91" column="40" lean-forward="false" selection-start-line="91" selection-start-column="40" selection-end-line="91" selection-end-column="40" />
+        <state relative-caret-position="2988">
+          <caret line="166" column="79" lean-forward="false" selection-start-line="166" selection-start-column="79" selection-end-line="166" selection-end-column="79" />
           <folding>
             <element signature="e#42#70#0" expanded="true" />
-            <element signature="e#184#193#0" expanded="true" />
-            <element signature="e#7291#7300#0" expanded="true" />
+            <element signature="e#202#211#0" expanded="true" />
+            <element signature="e#7519#7528#0" expanded="true" />
           </folding>
         </state>
       </provider>
