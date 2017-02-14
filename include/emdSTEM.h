@@ -32,7 +32,7 @@ namespace PRISM{
         PRISM::Array2D< std::vector<T> > cellDim;
         PRISM::Array2D< std::vector<T> > pixelSizeOutput;
 
-        PRISM::Array2D< std::vector<T> > PsiProbeInit;
+        PRISM::Array2D< std::vector< std::complex<T> > > PsiProbeInit;
         PRISM::Array2D< std::vector<T> > q1;
         PRISM::Array2D< std::vector<T> > q2;
 

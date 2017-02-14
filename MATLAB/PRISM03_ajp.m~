@@ -274,8 +274,6 @@ for a0 = 1:length(probeDefocusArray)
              
                 % Calculate additional probe shift in cut out region to
                 % beam tilt, apply in final probe calculation.
-                
-                %%% left off here
                 zTotal = cellDim(3);  % plus defocus shift?
                 xTiltShift = -zTotal ...
                     * tan(probeXtiltArray(a2));

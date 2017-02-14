@@ -211,12 +211,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Array2D_r cellDim             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_cellDim]);
     Array2D_r pixelSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_pixelSizeOutput]);
 
-    PRISM_FLOAT_TYPE scale      = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_scale]);
-    PRISM_FLOAT_TYPE lambda     = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_lambda]);
-    PRISM_FLOAT_TYPE dr         = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_dr]);
-    PRISM_FLOAT_TYPE dq         = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_dq]);
-    PRISM_FLOAT_TYPE Ndet       = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_Ndet]);
-    PRISM_FLOAT_TYPE numFP      = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_numFP]);
+    PRISM_FLOAT_TYPE scale        = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_scale]);
+    PRISM_FLOAT_TYPE lambda       = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_lambda]);
+    PRISM_FLOAT_TYPE dr           = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_dr]);
+    PRISM_FLOAT_TYPE dq           = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_dq]);
+    PRISM_FLOAT_TYPE Ndet         = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_Ndet]);
+    PRISM_FLOAT_TYPE numFP        = matGetScalar<PRISM_FLOAT_TYPE>(prhs[POS_numFP]);
 
     // an emdSTEM object holds all of this data in one place for convenience
     PRISM::emdSTEM<PRISM_FLOAT_TYPE> PRISM_pars;
@@ -242,7 +242,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     PRISM_pars.cellDim             = cellDim;
     PRISM_pars.pixelSizeOutput     = pixelSizeOutput;
 
-    PRISM_pars.PsiProbeInit = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.PsiProbeInit = zeros_2D<PRISM_COMPLEX_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
     PRISM_pars.q1           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
     PRISM_pars.q2           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
 
@@ -262,7 +262,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     PRISM::PRISM03<PRISM_FLOAT_TYPE>(PRISM_pars);
 
-    plhs[0] = mxCreateDoubleMatrix(Scompact.size(), 1, mxREAL);
+    plhs[0] = mxCreateDoubleMatrix(Scompact.size(), 1, mxCOMPLEX);
 
-    double * ptr = mxGetPr(plhs[0]);
+    double * ptr_r = mxGetPr(plhs[0]);
+    double * ptr_i = mxGetPi(plhs[0]);
+    for (auto &i:PRISM_pars.PsiProbeInit){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
 }

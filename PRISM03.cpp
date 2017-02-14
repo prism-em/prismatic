@@ -5,6 +5,7 @@
 #include "include/PRISM03.h"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 namespace PRISM {
@@ -45,6 +46,40 @@ namespace PRISM {
                                   alphaMask.begin(),
                                   [&pars](const T& a){return (a<pars.Ndet)?1:0;});
 
+                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5,5) << endl;
+                        transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
+                                  pars.q1.begin(),pars.PsiProbeInit.begin(),
+                                  [&pars, &qProbeMax](std::complex<T>& a, T& q1_t){
+                                      a.real(erf( (qProbeMax - q1_t) / (0.5 * pars.dq) ) *0.5 + 0.5);
+                                      a.imag(0);
+//                                      a.imag(erf( (qProbeMax - q1_t) / (0.5 * pars.dq) ) *0.5 + 0.5);
+                                      return a;
+                                  });
+                        constexpr static std::complex<T> i(0,1);
+                        constexpr double pi = std::acos(-1);
+                        transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
+                                  pars.q2.begin(),pars.PsiProbeInit.begin(),
+                                  [&pars, &a0](std::complex<T>& a, T& q2_t){
+                                      a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[a0]*q2_t);
+//                                      a.real(1);
+//                                      a.imag(1);
+                                      return a;
+                                  });
+                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5,5) << endl;
+//                        T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(),pars.PsiProbeInit.end(),
+//                                                     0, [](T accum, std::complex<T>& a){return accum + abs(a) * abs(a);}));
+                        T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(),pars.PsiProbeInit.end(),
+                                                          0.0, [](T accum, std::complex<T>& a){return accum + abs(a);}));
+
+                        cout << " norm_constant = " << norm_constant << endl;
+                        cout << "  PsiProbeInit.size()= " << pars.PsiProbeInit.size() << endl;
+                        double a = 0;
+                        for (auto&i : pars.PsiProbeInit){a+=i.real();};cout<<"a= " << a << endl;
+                        transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
+                                  pars.PsiProbeInit.begin(), [&norm_constant](std::complex<T>& a){
+                                    return a / norm_constant;
+                                });
+                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5,5) << endl;
                         cout << "alphaInd.at(5,5) = " << alphaInd.at(5,5) << endl;
                         cout << "alphaInd.at(0,0) = " << alphaInd.at(0,0) << endl;
                         cout << "qxaShift[101] = " << qxaShift[101] << endl;
