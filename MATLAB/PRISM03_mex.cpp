@@ -152,25 +152,9 @@ PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray
 }
 
 
-template <typename T>
-PRISM::Array2D< std::vector<T> > ones_2D(const size_t& nrows, const size_t& ncols){
-    return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols);
-}
 
-template <typename T>
-PRISM::Array2D< std::vector<T> > zeros_2D(const size_t& nrows, const size_t& ncols){
-    return PRISM::Array2D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols);
-}
 
-template <typename T>
-PRISM::Array3D< std::vector<T> > ones_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
-    return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,1),nrows, ncols, nlayers);
-}
 
-template <typename T>
-PRISM::Array3D< std::vector<T> > zeros_3D(const size_t& nrows, const size_t& ncols, const size_t& nlayers){
-    return PRISM::Array3D< std::vector<T> >(std::vector<T>(nrows*ncols,0),nrows, ncols, nlayers);
-}
 
 
 
@@ -242,9 +226,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     PRISM_pars.cellDim             = cellDim;
     PRISM_pars.pixelSizeOutput     = pixelSizeOutput;
 
-    PRISM_pars.PsiProbeInit = zeros_2D<PRISM_COMPLEX_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
-    PRISM_pars.q1           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
-    PRISM_pars.q2           = zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.PsiProbeInit = PRISM::zeros_2D<PRISM_COMPLEX_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.q1           = PRISM::zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.q2           = PRISM::zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
 
     PRISM_pars.scale  = scale;
     PRISM_pars.lambda = lambda;
