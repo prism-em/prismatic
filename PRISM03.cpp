@@ -69,7 +69,7 @@ namespace PRISM {
 //                        T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(),pars.PsiProbeInit.end(),
 //                                                     0, [](T accum, std::complex<T>& a){return accum + abs(a) * abs(a);}));
                         T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(),pars.PsiProbeInit.end(),
-                                                          0.0, [](T accum, std::complex<T>& a){return accum + abs(a);}));
+                                                          0.0, [](T accum, std::complex<T>& a){return accum + abs(a)*abs(a);}));
 
                         cout << " norm_constant = " << norm_constant << endl;
                         cout << "  PsiProbeInit.size()= " << pars.PsiProbeInit.size() << endl;

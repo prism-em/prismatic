@@ -50,7 +50,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" afterPath="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/PRISM03.cpp" afterPath="$PROJECT_DIR$/PRISM03.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/emdSTEM.h" afterPath="$PROJECT_DIR$/include/emdSTEM.h" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <ignored path="$PROJECT_DIR$/CMakeFiles/" />
@@ -70,14 +69,21 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PRISM03_mex.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="646">
-              <caret line="268" column="53" lean-forward="false" selection-start-line="268" selection-start-column="53" selection-end-line="268" selection-end-column="53" />
+              <caret line="268" column="6" lean-forward="false" selection-start-line="268" selection-start-column="6" selection-end-line="268" selection-end-column="6" />
               <folding>
+                <element signature="e#1187#1199#0" expanded="true" />
                 <element signature="e#2234#2246#0" expanded="true" />
+                <element signature="e#3132#3144#0" expanded="true" />
+                <element signature="e#3295#3307#0" expanded="true" />
                 <element signature="e#4487#4499#0" expanded="true" />
+                <element signature="e#5504#5516#0" expanded="true" />
+                <element signature="e#5702#5714#0" expanded="true" />
+                <element signature="e#5901#5913#0" expanded="true" />
+                <element signature="e#6131#6143#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -93,15 +99,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PRISM03.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PRISM03.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="367">
-              <caret line="71" column="116" lean-forward="false" selection-start-line="71" selection-start-column="116" selection-end-line="71" selection-end-column="116" />
-              <folding>
-                <element signature="e#42#70#0" expanded="true" />
-                <element signature="e#182#191#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="151">
+              <caret line="71" column="123" lean-forward="false" selection-start-line="71" selection-start-column="123" selection-end-line="71" selection-end-column="123" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -212,6 +215,8 @@
       <find>PRISM::Array2D&lt;T&gt;</find>
       <find>qxaReduce</find>
       <find>at.real</find>
+      <find>qProbe</find>
+      <find>scalar</find>
     </findStrings>
     <replaceStrings>
       <replace>PRISM::Array2D&lt; std::vector&lt;T&gt; &gt;</replace>
@@ -261,8 +266,8 @@
         <option value="$PROJECT_DIR$/include/Array3D.h" />
         <option value="$PROJECT_DIR$/include/Array2D.h" />
         <option value="$PROJECT_DIR$/include/emdSTEM.h" />
-        <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
         <option value="$PROJECT_DIR$/PRISM03.cpp" />
+        <option value="$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp" />
       </list>
     </option>
   </component>
@@ -607,7 +612,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="68220000" />
+    <option name="totallyTimeSpent" value="68392000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="2099" y="117" width="1389" height="877" extended-state="0" />
@@ -803,7 +808,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
           <caret line="4" column="19" lean-forward="false" selection-start-line="4" selection-start-column="19" selection-end-line="4" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -819,7 +823,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
           <caret line="23" column="22" lean-forward="false" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -915,24 +918,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
+    <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="646">
-          <caret line="268" column="53" lean-forward="false" selection-start-line="268" selection-start-column="53" selection-end-line="268" selection-end-column="53" />
-          <folding>
-            <element signature="e#2234#2246#0" expanded="true" />
-            <element signature="e#4487#4499#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="151">
+          <caret line="71" column="123" lean-forward="false" selection-start-line="71" selection-start-column="123" selection-end-line="71" selection-end-column="123" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PRISM03.cpp">
+    <entry file="file://$PROJECT_DIR$/MATLAB/PRISM03_mex.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="367">
-          <caret line="71" column="116" lean-forward="false" selection-start-line="71" selection-start-column="116" selection-end-line="71" selection-end-column="116" />
+        <state relative-caret-position="646">
+          <caret line="268" column="6" lean-forward="false" selection-start-line="268" selection-start-column="6" selection-end-line="268" selection-end-column="6" />
           <folding>
-            <element signature="e#42#70#0" expanded="true" />
-            <element signature="e#182#191#0" expanded="true" />
+            <element signature="e#1187#1199#0" expanded="true" />
+            <element signature="e#2234#2246#0" expanded="true" />
+            <element signature="e#3132#3144#0" expanded="true" />
+            <element signature="e#3295#3307#0" expanded="true" />
+            <element signature="e#4487#4499#0" expanded="true" />
+            <element signature="e#5504#5516#0" expanded="true" />
+            <element signature="e#5702#5714#0" expanded="true" />
+            <element signature="e#5901#5913#0" expanded="true" />
+            <element signature="e#6131#6143#0" expanded="true" />
           </folding>
         </state>
       </provider>

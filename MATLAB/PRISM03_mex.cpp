@@ -266,5 +266,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
 
     double * ptr_r = mxGetPr(plhs[0]);
     double * ptr_i = mxGetPi(plhs[0]);
-    for (auto &i:PRISM_pars.PsiProbeInit){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+    //for (auto &i:PRISM_pars.PsiProbeInit){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+    for (auto &i:PRISM_pars.Scompact){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+
 }
