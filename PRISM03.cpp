@@ -135,29 +135,39 @@ namespace PRISM {
         using Array2D_cx = PRISM::Array2D<std::vector<std::complex<T> > >;
         T x0 = pars.xp[ax] / pars.pixelSizeOutput[0]; // could not create these
         T y0 = pars.yp[ay] / pars.pixelSizeOutput[1];
-        Array2D x = pars.xVec + round(x0) - 1;
-        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]) + 1; });
-        Array2D y = pars.yVec + round(y0) - 1;
-        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]) + 1; });
+        Array2D x = pars.xVec + round(x0);
+        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
+        Array2D y = pars.yVec + round(y0);
+        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]); });
         Array2D intOutput = PRISM::zeros_2D<T>(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-    cout << "pars.beamsIndex.size() = " << pars.beamsIndex.size()<< endl;
+//    cout << "pars.beamsIndex.size() = " << pars.beamsIndex.size()<< endl;
         for (auto a5 = 0; a5 < pars.numFP; ++a5) {
             Array2D_cx psi = PRISM::zeros_2D<std::complex<T> >(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
             for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
-//            for (auto a4 = 0; a4 < 10; ++a4) {
+//            for (auto a4 = 0; a4 < 2; ++a4) {
                 T xB = pars.xyBeams.at(a4, 0) - 1;
                 T yB = pars.xyBeams.at(a4, 1) - 1;
+//                if (ax==0 && ay==0) {
+//                    cout << "xB = " << xB << endl;
+//                    cout << "yB = " << yB << endl;
+//                }
                 if (abs(pars.PsiProbeInit.at(xB, yB)) > 0) {
                     T q0_0 = pars.qxaReduce.at(xB, yB);
                     T q0_1 = pars.qyaReduce.at(xB, yB);
+//                    if (ax==0 && ay==0){
+//                        cout <<"q0_0 = " << q0_0 << endl;
+//                        cout <<"q0_1 = " << q0_1 << endl;
+//
+//                    }
                     std::complex<T> phaseShift = exp(-2 * pi * i * (q0_0 * (pars.xp[ax] + xTiltShift) +
-                                                                    q0_1 * (pars.yp[ax] + yTiltShift)));
+                                                                    q0_1 * (pars.yp[ay] + yTiltShift)));
                     std::complex<T> tmp_const = pars.PsiProbeInit.at(xB, yB) * phaseShift;
                     auto psi_ptr = psi.begin();
                     for (auto j = 0; j < y.size(); ++j) {
                         for (auto i = 0; i < x.size(); ++i) {
-                            *psi_ptr = *psi_ptr + (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
-                            ++psi_ptr;
+//                            *psi_ptr = *psi_ptr + (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+//                            ++psi_ptr;
+                            *psi_ptr++ +=  (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
 
                         }
                     }

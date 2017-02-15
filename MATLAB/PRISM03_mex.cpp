@@ -267,6 +267,10 @@ void mexFunction(int nlhs, mxArray *plhs[],
 //    for (auto &i:PRISM_pars.Scompact){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
 //    for (auto &i:PRISM_pars.stack){*ptr_r++ = i;}
 //
+
+    cout << "PRISM_pars.stack.get_nlayers() = " << PRISM_pars.stack.get_nlayers() << endl;
+    cout << "PRISM_pars.stack.get_ncols() = " << PRISM_pars.stack.get_ncols() << endl;
+    cout << "PRISM_pars.stack.get_nrows() = " << PRISM_pars.stack.get_nrows() << endl;
     for (auto k = 0; k < PRISM_pars.stack.get_nlayers(); ++k){
         for (auto j = 0; j < PRISM_pars.stack.get_ncols(); ++j){
             for (auto i = 0; i < PRISM_pars.stack.get_nrows(); ++i){
