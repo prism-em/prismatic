@@ -11,6 +11,8 @@ namespace PRISM {
 
     template <class T>
     class Array3D {
+        // 3D array class for nrows x ncolums x nlayers data indexed as C-style
+        // T is expected to be a std::vector
     public:
         Array3D(T _data,
                 const size_t& _nrows,

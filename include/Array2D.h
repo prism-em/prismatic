@@ -11,6 +11,8 @@ namespace PRISM {
 
     template <class T>
     class Array2D {
+        // 2D array class for nrows x ncolums data indexed as C-style
+        // T is expected to be a std::vector
     public:
         Array2D(T _data,
                 const size_t& _nrows,
