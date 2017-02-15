@@ -1,5 +1,5 @@
 function [emdSTEM] = PRISM02(emdSTEM)
-tic
+% tic
 % 02 - calculate the S matrix from the projected potentials, out to some
 % maximum scattering angle for the input tensor.
 
@@ -107,6 +107,6 @@ emdSTEM.beamsOutput = emdSTEM.beams(emdSTEM.qxInd,emdSTEM.qyInd);
 
 
 
-
-toc
+% 
+% toc
 end

@@ -1,5 +1,5 @@
 function [emdSTEM,psi] = PRISM03(emdSTEM)
-tic
+% tic
 
 % 03 - compute outputs from compact S matrix into 3D STEM outputs
 
@@ -196,5 +196,5 @@ if flag_plot == true
     set(gca,'position',[0 0 1 1])
 end
 
-toc
+% toc
 end

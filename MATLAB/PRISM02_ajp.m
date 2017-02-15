@@ -81,16 +81,14 @@ for a0 = 1:emdSTEM.numberBeams
         psi = ifft2(psi);
         
         % Propgate through all potential planes
+        % singles are ~4x faster than doubles on most GPUs
         psi = gpuArray(single(psi));
         prop = gpuArray(emdSTEM.prop);
-%         psi = (psi);
-%         prop = (emdSTEM.prop);
         for a2 = 1:emdSTEM.numPlanes
             psi = ifft2(fft2(psi.*trans(:,:,a2,a1)).*prop);
         end
         psi = double(gather(psi));
-%         psi(:) = fft2(psi).*emdSTEM.propBack;  % Stay in Fourier space
-        %         psi(:) = ifft2(fft2(psi).*emdSTEM.propBack);
+        
         
         % Output subset of S-matrix
         psi(:) = fft2(psi);
@@ -115,9 +113,6 @@ emdSTEM.qyaOutput = emdSTEM.qya(emdSTEM.qxInd,emdSTEM.qyInd);
 % emdSTEM.qMask = qMask(emdSTEM.qxInd,emdSTEM.qyInd);
 % emdSTEM.prop = emdSTEM.prop(emdSTEM.qxInd,emdSTEM.qyInd);
 emdSTEM.beamsOutput = emdSTEM.beams(emdSTEM.qxInd,emdSTEM.qyInd);
-
-
-
 
 toc
 end

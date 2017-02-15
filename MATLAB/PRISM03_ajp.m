@@ -70,12 +70,12 @@ emdSTEM.stackSize = [ ...
     length(emdSTEM.probeXtiltArray) ...
     length(emdSTEM.probeYtiltArray)];
 emdSTEM.stack = zeros(emdSTEM.stackSize,'single');
-q1 = zeros(imageSizeReduce);
-q2 = zeros(imageSizeReduce);
+% q1 = zeros(imageSizeReduce);
+% q2 = zeros(imageSizeReduce);
 dq = mean([qxaReduce(2,1) qyaReduce(1,2)]);
-PsiProbeInit = zeros(imageSizeReduce);
+% PsiProbeInit = zeros(imageSizeReduce);
 psi = zeros(imageSizeReduce);
-intOutput = zeros(imageSizeReduce);
+% intOutput = zeros(imageSizeReduce);
 % Main loops
 scale = emdSTEM.interpolationFactor^4;
 if flag_keep_beams == 1
@@ -85,8 +85,7 @@ if flag_keep_beams == 1
         length(emdSTEM.beamsIndex));
 end
 % 
-emdSTEM.Scompact = double(emdSTEM.Scompact);
-emdSTEM.stack = double(emdSTEM.stack);
+
 % d = loop_wrapper(emdSTEM.Scompact, ...
 %     emdSTEM.stack, emdSTEM.probeDefocusArray, emdSTEM.probeSemiangleArray, ...
 %     emdSTEM.probeXtiltArray, emdSTEM.probeYtiltArray,qxaReduce, qyaReduce, ...
@@ -95,7 +94,11 @@ emdSTEM.stack = double(emdSTEM.stack);
 %     emdSTEM.lambda, dr, dq, Ndet, ...
 %      emdSTEM.numFP);
 
-tic
+
+% MEX functions will crash if you pass them singles and they expect double,
+% which is the default behavior of most of the MATLAB MEX API.
+emdSTEM.Scompact = double(emdSTEM.Scompact);
+emdSTEM.stack = double(emdSTEM.stack);
 tmp = PRISM03_mex(emdSTEM.Scompact, ...
     emdSTEM.stack, emdSTEM.probeDefocusArray, emdSTEM.probeSemiangleArray, ...
     emdSTEM.probeXtiltArray, emdSTEM.probeYtiltArray,qxaReduce, qyaReduce, ...
@@ -103,128 +106,10 @@ tmp = PRISM03_mex(emdSTEM.Scompact, ...
     emdSTEM.detectorAngles,emdSTEM.cellDim,emdSTEM.pixelSizeOutput, scale, ...
     emdSTEM.lambda, dr, dq, Ndet, ...
      emdSTEM.numFP);
- toc
  emdSTEM.stack =  reshape(tmp,size(emdSTEM.stack));
 
  
  
- 
-%  emdSTEM.stack = loop_wrapper(emdSTEM.Scompact, ...
-%     emdSTEM.stack, emdSTEM.probeDefocusArray, emdSTEM.probeSemiangleArray, ...
-%     emdSTEM.probeXtiltArray, emdSTEM.probeYtiltArray,qxaReduce, qyaReduce, ...
-%     emdSTEM.xp, emdSTEM.yp, emdSTEM.beamsIndex,xyBeams,xVec, yVec, imageSizeReduce,emdSTEM.imageSizeOutput, ...
-%     emdSTEM.detectorAngles,emdSTEM.cellDim,emdSTEM.pixelSizeOutput, scale, ...
-%     emdSTEM.lambda, dr, dq, Ndet, ...
-%      emdSTEM.numFP);
-%  toc
- 
-%  emdSTEM.stack = d;
-
-% sum(abs(tmp(:)-d(:)))
-% emdSTEM.stack = reshape(tmp,size(emdSTEM.stack)); 
-% %  emdSTEM.stack = loop_wrapper(emdSTEM.Scompact, ...
-% %     emdSTEM.stack, emdSTEM.probeDefocusArray, emdSTEM.probeSemiangleArray, ...
-% %     emdSTEM.probeXtiltArray, emdSTEM.probeYtiltArray,qxaReduce, qyaReduce, ...
-% %     emdSTEM.xp, emdSTEM.yp, emdSTEM.bead =  reshape(tmp,size(emdSTEM.stack));
-% % figure, imagesc(sum(d,3))Index,xyBeams,xVec, yVec, imageSizeReduce,emdSTEM.imageSizeOutput, ...
-% %     emdSTEM.detectorAngles,emdSTEM.cellDim,emdSTEM.pixelSizeOutput, scale, ...
-% %     emdSTEM.lambda, dr, dq, Ndet, ...
-% %      emdSTEM.numFP);
-
- 
- 
-% for a0 = 1:length(emdSTEM.probeDefocusArray)
-%     for a1 = 1:length(emdSTEM.probeSemiangleArray)
-%         qProbeMax = emdSTEM.probeSemiangleArray(a1) / emdSTEM.lambda;
-%         
-%         for a2 = 1:length(emdSTEM.probeXtiltArray)
-%             for a3 = 1:length(emdSTEM.probeYtiltArray)
-%                 qxaShift = qxaReduce  ...
-%                     -  emdSTEM.probeXtiltArray(a2) / emdSTEM.lambda;
-%                 qyaShift = qyaReduce  ...
-%                     -  emdSTEM.probeYtiltArray(a3) / emdSTEM.lambda;
-%                 q2(:) = (qxaShift.^2 + qyaShift.^2);
-%                 q1(:) = sqrt(q2);
-%                 
-%                 % Build shifted detector coordinate array
-%                 emdSTEM.alphaInd = round((q1*emdSTEM.lambda ...
-%                     - emdSTEM.detectorAngles(1)) / dr) + 1;
-%                 emdSTEM.alphaInd(emdSTEM.alphaInd<1) = 1;
-%                 alphaMask = emdSTEM.alphaInd <= Ndet;
-%                 alphaInds = emdSTEM.alphaInd(alphaMask);
-%                 emdSTEM.alphaInd(~alphaMask) = 0;
-%                 
-%                 % Build unshifted, tilted probed probe with defocus
-%                 PsiProbeInit(:) = (erf((qProbeMax - q1) ...
-%                     /(0.5*dq))*0.5 + 0.5);
-%                 PsiProbeInit(:) = PsiProbeInit ...
-%                     .* exp((-1i*pi*emdSTEM.lambda ...
-%                     * emdSTEM.probeDefocusArray(a0))*q2);
-%                 PsiProbeInit(:) = PsiProbeInit(:) ...
-%                     / sqrt(sum(abs(PsiProbeInit(:)).^2));
-%              
-%                 % Calculate additional probe shift in cut out region to
-%                 % beam tilt, apply in final probe calculation.
-%                 zTotal = emdSTEM.cellDim(3);  % plus defocus shift?
-%                 xTiltShift = -zTotal ...
-%                     * tan(emdSTEM.probeXtiltArray(a2));
-%                 yTiltShift = -zTotal ...
-%                     * tan(emdSTEM.probeYtiltArray(a3));
-%                 
-%                 for ax = 1:length(emdSTEM.xp)
-%                     for ay = 1:length(emdSTEM.yp)
-%                         % Cut out the potential segment
-%                         x0 = emdSTEM.xp(ax)/emdSTEM.pixelSizeOutput(1);
-%                         y0 = emdSTEM.yp(ay)/emdSTEM.pixelSizeOutput(2);
-%                         x = mod(xVec + round(x0),...
-%                             emdSTEM.imageSizeOutput(1)) + 1;
-%                         y = mod(yVec + round(y0),...
-%                             emdSTEM.imageSizeOutput(2)) + 1;
-%                         
-%                         intOutput(:) = 0;
-%                         for a5 = 1:emdSTEM.numFP
-%                             % Build signal from beams
-%                             psi(:) = 0;
-%                             for a4 = 1:length(emdSTEM.beamsIndex)
-%                                 xB = xyBeams(a4,1);
-%                                 yB = xyBeams(a4,2);
-%                                 if abs(PsiProbeInit(xB,yB)) > 0
-%                                     q0 = [qxaReduce(xB,yB) ...
-%                                         qyaReduce(xB,yB)];
-%                                     phaseShift = exp(-2i*pi ...
-%                                         *(q0(1)*(emdSTEM.xp(ax) + xTiltShift) ...
-%                                         + q0(2)*(emdSTEM.yp(ay) + yTiltShift)));
-%                                     psi = psi ...
-%                                         + (PsiProbeInit(xB,yB) * phaseShift) ...
-%                                         * emdSTEM.Scompact(x,y,a4);
-%                                 end
-%                             end
-%                             
-%                             intOutput = intOutput ...
-%                                 + abs(fft2(psi)).^2;
-%                         end
-%                         
-%                         % Output signal
-%                         emdSTEM.stack(ax,ay,:,a0,a1,a2,a3) = ...
-%                             emdSTEM.stack(ax,ay,:,a0,a1,a2,a3) ...
-%                             + reshape(accumarray(alphaInds,...
-%                             intOutput(alphaMask),[Ndet 1]),...
-%                             [1 1 Ndet]) * scale;
-%                     end
-%                     
-%                     comp = ((((ax / length(emdSTEM.xp) ...
-%                         + a3 - 1) / length(emdSTEM.probeYtiltArray) ...
-%                         + a2 - 1) / length(emdSTEM.probeXtiltArray) ...
-%                         + a1 - 1) / length(emdSTEM.probeSemiangleArray) ...
-%                         + a0 - 1) / length(emdSTEM.probeDefocusArray);
-%                     progressbar(comp,2);
-%                 end
-%             end
-%         end
-%     end
-% end
-
-
 if flag_plot == true
     figure(1)
     clf
@@ -294,15 +179,12 @@ for a0 = 1:length(probeDefocusArray)
                 % Calculate additional probe shift in cut out region to
                 % beam tilt, apply in final probe calculation.
                 
-                %%% left off here
                 zTotal = cellDim(3);  % plus defocus shift?
                 xTiltShift = -zTotal ...
                     * tan(probeXtiltArray(a2));
                 yTiltShift = -zTotal ...
                     * tan(probeYtiltArray(a3));
-%                 for ax = 1:20
-%                     for ay = 1:20
-length(beamsIndex)
+
                 for ax = 1:length(xp)
                     for ay = 1:length(yp)
                         % Cut out the potential segment
@@ -317,7 +199,6 @@ length(beamsIndex)
                         for a5 = 1:numFP
                             % Build signal from beams
                             psi(:) = 0;
-%                             for a4 = 1:2
                             for a4 = 1:length(beamsIndex)
                                 xB = xyBeams(a4,1);
                                 yB = xyBeams(a4,2);
@@ -330,9 +211,7 @@ length(beamsIndex)
                                     psi = psi ...
                                         + (PsiProbeInit(xB,yB) * phaseShift) ...
                                         * Scompact(x,y,a4);
-%                                             psi = psi ...
-%                                         + (PsiProbeInit(xB,yB) * phaseShift) ...
-%                                         * T;
+
                                 end
                             end
                             
@@ -348,12 +227,12 @@ length(beamsIndex)
                             [1 1 Ndet]) * scale;
                     end
                     
-%                     comp = ((((ax / length(xp) ...
-%                         + a3 - 1) / length(probeYtiltArray) ...
-%                         + a2 - 1) / length(probeXtiltArray) ...
-%                         + a1 - 1) / length(probeSemiangleArray) ...
-%                         + a0 - 1) / length(probeDefocusArray);
-%                     progressbar(comp,2);
+                    comp = ((((ax / length(xp) ...
+                        + a3 - 1) / length(probeYtiltArray) ...
+                        + a2 - 1) / length(probeXtiltArray) ...
+                        + a1 - 1) / length(probeSemiangleArray) ...
+                        + a0 - 1) / length(probeDefocusArray);
+                    progressbar(comp,2);
                 end
             end
         end

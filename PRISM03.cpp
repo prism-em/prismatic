@@ -17,15 +17,20 @@
 using namespace std;
 namespace PRISM {
 
+    // forward declare the helper function
     template<class T>
     void buildSignal(const emdSTEM<T> &pars, const size_t &ax, const size_t &ay);
 
     template<class T>
     void PRISM03(emdSTEM<T> &pars) {
 
+        // alias some types to avoid so much text
         using Array3D = PRISM::Array3D<std::vector<T> >;
         using Array2D = PRISM::Array2D<std::vector<T> >;
 
+        // most of this is transcribed directly from the original MATLAB version. The operators +, -, /, * return
+        // arrays by value, so to avoid unnecessary memory allocations/copies for chained operations I try to do things
+        // like create variables initially with at most one operation, and then perform in-place transforms if more is needed
         for (auto a0 = 0; a0 < pars.probeDefocusArray.size(); ++a0) {
             for (auto a1 = 0; a1 < pars.probeSemiangleArray.size(); ++a1) {
                 T qProbeMax = pars.probeSemiangleArray[a0] / pars.lambda;
@@ -39,7 +44,7 @@ namespace PRISM {
                         transform(pars.q2.begin(), pars.q2.end(),
                                   pars.q1.begin(),
                                   [](const T &a) { return sqrt(a); });
-                        Array2D alphaInd(pars.q1);
+                        Array2D alphaInd(pars.q1); // copy constructor more efficient than assignment
                         transform(alphaInd.begin(), alphaInd.end(),
                                   alphaInd.begin(),
                                   [&pars](const T &a) {
@@ -62,8 +67,11 @@ namespace PRISM {
                                       a.imag(0);
                                       return a;
                                   });
+
+                        // constexpr means these are evaluated at compile time and no memory/overhead occurs at runtime
                         constexpr static std::complex<T> i(0, 1);
-                        constexpr double pi = std::acos(-1);
+                        // this might seem a strange way to get pi, but it's slightly more future proof
+                        constexpr static double pi = std::acos(-1);
                         transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
                                   pars.q2.begin(), pars.PsiProbeInit.begin(),
                                   [&pars, &a0](std::complex<T> &a, T &q2_t) {
@@ -73,7 +81,7 @@ namespace PRISM {
                         T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
                                                           0.0, [](T accum, std::complex<T> &a) {
                                     return accum + abs(a) * abs(a);
-                                }));
+                                })); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
 
                         double a = 0;
                         for (auto &i : pars.PsiProbeInit) { a += i.real(); };
@@ -86,21 +94,28 @@ namespace PRISM {
                         T xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
                         T yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
 
-                        // launch threads to compute results for baches of xp, yp
+                        // launch threads to compute results for batches of xp, yp
+                        // I do this by dividing the xp points among threads, and each computes
+                        // all of the relevant yp for each of its xp. This seems an okay strategy
+                        // as long as the number of xp and yp are similar. If that is not the case
+                        // this may need to be adapted
                         vector<thread> workers;
+                        workers.reserve(NUM_THREADS); // prevents multiple reallocations
+                        auto WORK_CHUNK_SIZE = ( (pars.xp.size()-1) / NUM_THREADS) + 1;
                         auto start = 0;
-                        auto stop = start + NUM_THREADS;
+                        auto stop = start + WORK_CHUNK_SIZE;
                         while (start < pars.xp.size()) {
-                            workers.push_back(thread([&pars, &xTiltShift, &yTiltShift, &alphaInd, start,stop]() {
-
+                            // emplace_back is better whenever constructing a new object
+                            workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift, &alphaInd, start,stop]() {
                                 for (auto ax = start; ax < min((size_t)stop, pars.xp.size()); ++ax) {
                                     for (auto ay = 0; ay < pars.yp.size(); ++ay) {
                                         buildSignal(pars, ax, ay, xTiltShift, yTiltShift, alphaInd);
                                     }
                                 }
                             }));
-                            start += NUM_THREADS;
-                            stop  += NUM_THREADS;
+                            start += WORK_CHUNK_SIZE;
+                            stop  += WORK_CHUNK_SIZE;
+                            if (start >= pars.xp.size())break;
                         }
 
                         // synchronize
@@ -111,16 +126,20 @@ namespace PRISM {
         }
     }
 
-    static mutex fftw_plan_lock;
+    static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
     template<class T>
     void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::Array2D<std::vector<T> > &alphaInd) {
+        // constexpr explained above
         constexpr static std::complex<T> i(0, 1);
-        constexpr double pi = std::acos(-1);
+        constexpr static double pi = std::acos(-1);
+
+        // convenience aliases
         using Array3D = PRISM::Array3D<std::vector<T> >;
         using Array2D = PRISM::Array2D<std::vector<T> >;
         using Array2D_cx = PRISM::Array2D<std::vector<std::complex<T> > >;
-        T x0 = pars.xp[ax] / pars.pixelSizeOutput[0]; // could not create these
+
+        T x0 = pars.xp[ax] / pars.pixelSizeOutput[0];
         T y0 = pars.yp[ay] / pars.pixelSizeOutput[1];
         Array2D x = pars.xVec + round(x0);
         transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
@@ -137,12 +156,15 @@ namespace PRISM {
                     T q0_1 = pars.qyaReduce.at(xB, yB);
                     std::complex<T> phaseShift = exp(-2 * pi * i * (q0_0 * (pars.xp[ax] + xTiltShift) +
                                                                     q0_1 * (pars.yp[ay] + yTiltShift)));
-                    std::complex<T> tmp_const = pars.PsiProbeInit.at(xB, yB) * phaseShift;
+
+                    // caching this constant made a 5x performance improvement even with
+                    // full compiler optimization turned on. Optimizing compilers aren't perfect...
+                    const std::complex<T> tmp_const = pars.PsiProbeInit.at(xB, yB) * phaseShift;
                     auto psi_ptr = psi.begin();
                     for (auto j = 0; j < y.size(); ++j) {
                         for (auto i = 0; i < x.size(); ++i) {
+                            // access contiguously for performance
                             *psi_ptr++ +=  (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
-
                         }
                     }
                 }
@@ -156,12 +178,13 @@ namespace PRISM {
                                                   reinterpret_cast<fftw_complex *>(&psi[0]),
                                                   FFTW_FORWARD, FFTW_ESTIMATE);
 
-            gatekeeper.unlock();
+            gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
             fftw_execute(plan);
             gatekeeper.lock();
             fftw_destroy_plan(plan);
+            gatekeeper.unlock();
 
-
+            // since I'm transcribing from MATLAB, here there is an F to C ordering change. Tiny cost for convenience
             for (auto ii = 0; ii < intOutput.get_nrows(); ++ii){
                 for (auto jj = 0; jj < intOutput.get_ncols(); ++jj){
                     intOutput.at(ii,jj) += pow(abs(psi.at(jj,ii)),2);
