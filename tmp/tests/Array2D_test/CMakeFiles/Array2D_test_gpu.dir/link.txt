@@ -1,1 +1,0 @@
-/usr/bin/c++      CMakeFiles/Array2D_test_gpu.dir/Array2D_test_gpu_generated_Array2D_test_construct.cu.o  -o Array2D_test_gpu /usr/lib/x86_64-linux-gnu/libcudart_static.a -lpthread -ldl /usr/lib/x86_64-linux-gnu/librt.so 

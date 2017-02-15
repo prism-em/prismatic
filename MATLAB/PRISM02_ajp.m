@@ -81,14 +81,14 @@ for a0 = 1:emdSTEM.numberBeams
         psi = ifft2(psi);
         
         % Propgate through all potential planes
-        psi = gpuArray(psi);
+        psi = gpuArray(single(psi));
         prop = gpuArray(emdSTEM.prop);
 %         psi = (psi);
 %         prop = (emdSTEM.prop);
         for a2 = 1:emdSTEM.numPlanes
             psi = ifft2(fft2(psi.*trans(:,:,a2,a1)).*prop);
         end
-        psi = gather(psi);
+        psi = double(gather(psi));
 %         psi(:) = fft2(psi).*emdSTEM.propBack;  % Stay in Fourier space
         %         psi(:) = ifft2(fft2(psi).*emdSTEM.propBack);
         
