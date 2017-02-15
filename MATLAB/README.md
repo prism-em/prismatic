@@ -4,7 +4,8 @@ PRISM02_ajp.m is the same as PRISM02.m except that the bottleneck fft2 line
 is modified to use a single precision GPU array.
 
 PRISM03_ajp.m is MEX accelerated and requires compilation of PRISM03_mex.cpp. See
-`HOWTO_compile_mex.txt` for information about the actual compilation call.  
+`HOWTO_compile_mex.txt` for information about the actual compilation call. You can adjust
+the number of threads used with the NUM_THREADS macro defined in `PRISM03.cpp`
 
 It is a little tricky to compile CUDA code and link it with MATLAB. In principle
 there is `mexcuda`, but it doesn't seem to be compatible with the latest version
