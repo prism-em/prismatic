@@ -6,10 +6,13 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include <thread>
+#include <mutex>
 #include "fftw3.h"
 
 using namespace std;
 namespace PRISM {
+
 
 
     template<class T>
@@ -95,14 +98,36 @@ namespace PRISM {
                         T zTotal = pars.cellDim[2];
                         T xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
                         T yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
-                        for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-//                            cout << " ax  = " << ax << endl;
-                            for (auto ay = 0; ay < pars.yp.size(); ++ay) {
-//                        for (auto ax = 0; ax < 20; ++ax){
-//                            for (auto ay = 0; ay < 20; ++ay){
-                                buildSignal(pars, ax, ay, xTiltShift, yTiltShift, alphaInd);
-                            }
+                        vector<thread> workers;
+                        auto num_threads = 12;
+//                        for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+//                            for (auto ay = 0; ay < pars.yp.size(); ++ay) {
+//                        for (auto ax = 0; ax < 200; ++ax) {
+//                            for (auto ay = 0; ay < 20; ++ay) {
+//                                buildSignal(pars, ax, ay, xTiltShift, yTiltShift, alphaInd);
+                        auto start = 0;
+                        auto stop = start + num_threads;
+                        while (start < pars.xp.size()) {
+                            cout << "start = " << start << endl;
+                            cout << "stop = " << stop << endl;
+                            workers.push_back(thread([&pars, &xTiltShift, &yTiltShift, &alphaInd, start,stop]() {
+
+                                for (auto ax = start; ax < min((size_t)stop, pars.xp.size()); ++ax) {
+                                    for (auto ay = 0; ay < pars.yp.size(); ++ay) {
+                                        buildSignal(pars, ax, ay, xTiltShift, yTiltShift, alphaInd);
+                                    }
+                                }
+                            }));
+                            start += num_threads;
+                            stop  += num_threads;
                         }
+//                                thread a(buildSignal<T>,pars,ax,ay,xTiltShift,yTiltShift,alphaInd);
+//                                a.join();
+                                //workers.push_back(thread(buildSignal<T>,pars, ax, ay, xTiltShift, yTiltShift, alphaInd));
+//                            }
+//                        }
+
+                        for (auto &t:workers)t.join();
 //                        cout << "pars.Scompact.at(0,0,0) = " << pars.Scompact.at(0, 0, 0) << endl;
 //                        cout << "pars.Scompact.at(0,0,1) = " << pars.Scompact.at(0, 0, 1) << endl;
 //
@@ -125,6 +150,8 @@ namespace PRISM {
             }
         }
     }
+
+    static mutex fftw_plan_lock;
 
     template<class T>
     void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::Array2D<std::vector<T> > &alphaInd) {
@@ -173,14 +200,18 @@ namespace PRISM {
                     }
                 }
             }
-            fftw_plan plan = fftw_plan_dft_2d(psi.get_nrows(), psi.get_nrows(),
-                                              reinterpret_cast<fftw_complex*>(&psi[0]),
-                                              reinterpret_cast<fftw_complex*>(&psi[0]),
-                                              FFTW_FORWARD, FFTW_ESTIMATE);
-//            if (a5==0)cout << "psi [0] = " << psi[0] << endl;
 
+            unique_lock<mutex> gatekeeper(fftw_plan_lock);
+            fftw_plan plan = fftw_plan_dft_2d(psi.get_nrows(), psi.get_nrows(),
+                                                  reinterpret_cast<fftw_complex *>(&psi[0]),
+                                                  reinterpret_cast<fftw_complex *>(&psi[0]),
+                                                  FFTW_FORWARD, FFTW_ESTIMATE);
+
+            gatekeeper.unlock();
             fftw_execute(plan);
+            gatekeeper.lock();
             fftw_destroy_plan(plan);
+
 
             for (auto ii = 0; ii < intOutput.get_nrows(); ++ii){
                 for (auto jj = 0; jj < intOutput.get_ncols(); ++jj){
@@ -195,7 +226,7 @@ namespace PRISM {
             //+ abs(fft2(psi)).^2;
         }
 
-        // update emdSTEM.stack
+        // update emdSTEM.stack -- ax,ay are unique per thread so this write is thread-safe without a lock
         auto idx = alphaInd.begin();
         for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
             if (*idx <= pars.Ndet){
