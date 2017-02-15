@@ -20,15 +20,15 @@ namespace PRISM {
 
         using Array3D = PRISM::Array3D<std::vector<T> >;
         using Array2D = PRISM::Array2D<std::vector<T> >;
-        cout << "pars.scale = " << pars.scale << endl;
-        cout << "pars.q1.nrows = " << pars.q1.get_nrows() << endl;
-        cout << "pars.q1.nrows = " << pars.q1.get_ncols() << endl;
-        cout << "pars.q1.size = " << pars.q1.size() << endl;
+//        cout << "pars.scale = " << pars.scale << endl;
+//        cout << "pars.q1.nrows = " << pars.q1.get_nrows() << endl;
+//        cout << "pars.q1.nrows = " << pars.q1.get_ncols() << endl;
+//        cout << "pars.q1.size = " << pars.q1.size() << endl;
 
         for (auto a0 = 0; a0 < pars.probeDefocusArray.size(); ++a0) {
             for (auto a1 = 0; a1 < pars.probeSemiangleArray.size(); ++a1) {
                 T qProbeMax = pars.probeSemiangleArray[a0] / pars.lambda;
-                cout << "qProbeMax = " << qProbeMax << endl;
+//                cout << "qProbeMax = " << qProbeMax << endl;
                 for (auto a2 = 0; a2 < pars.probeXtiltArray.size(); ++a2) {
                     for (auto a3 = 0; a3 < pars.probeYtiltArray.size(); ++a3) {
                         Array2D qxaShift = pars.qxaReduce - (pars.probeXtiltArray[a2] / pars.lambda);
@@ -55,7 +55,7 @@ namespace PRISM {
                                   alphaMask.begin(),
                                   [&pars](const T &a) { return (a < pars.Ndet) ? 1 : 0; });
 
-                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
+//                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
                         transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
                                   pars.q1.begin(), pars.PsiProbeInit.begin(),
                                   [&pars, &qProbeMax](std::complex<T> &a, T &q1_t) {
@@ -74,7 +74,7 @@ namespace PRISM {
 //                                      a.imag(1);
                                       return a;
                                   });
-                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
+//                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
 //                        T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(),pars.PsiProbeInit.end(),
 //                                                     0, [](T accum, std::complex<T>& a){return accum + abs(a) * abs(a);}));
                         T norm_constant = sqrt(accumulate(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
@@ -82,11 +82,11 @@ namespace PRISM {
                                     return accum + abs(a) * abs(a);
                                 }));
 
-                        cout << " norm_constant = " << norm_constant << endl;
-                        cout << "  PsiProbeInit.size()= " << pars.PsiProbeInit.size() << endl;
+//                        cout << " norm_constant = " << norm_constant << endl;
+//                        cout << "  PsiProbeInit.size()= " << pars.PsiProbeInit.size() << endl;
                         double a = 0;
                         for (auto &i : pars.PsiProbeInit) { a += i.real(); };
-                        cout << "a= " << a << endl;
+//                        cout << "a= " << a << endl;
                         transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
                                   pars.PsiProbeInit.begin(), [&norm_constant](std::complex<T> &a) {
                                     return a / norm_constant;
@@ -96,30 +96,30 @@ namespace PRISM {
                         T xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
                         T yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
                         for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-                            cout << " ax  = " << ax << endl;
+//                            cout << " ax  = " << ax << endl;
                             for (auto ay = 0; ay < pars.yp.size(); ++ay) {
-//                        for (auto ax = 0; ax < 1; ++ax){
-//                            for (auto ay = 0; ay < 1; ++ay){
-                                buildSignal(pars, ax, ay, xTiltShift, yTiltShift);
+//                        for (auto ax = 0; ax < 20; ++ax){
+//                            for (auto ay = 0; ay < 20; ++ay){
+                                buildSignal(pars, ax, ay, xTiltShift, yTiltShift, alphaInd);
                             }
                         }
-                        cout << "pars.Scompact.at(0,0,0) = " << pars.Scompact.at(0, 0, 0) << endl;
-                        cout << "pars.Scompact.at(0,0,1) = " << pars.Scompact.at(0, 0, 1) << endl;
-
-                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
-                        cout << "alphaInd.at(5,5) = " << alphaInd.at(5, 5) << endl;
-                        cout << "alphaInd.at(0,0) = " << alphaInd.at(0, 0) << endl;
-                        cout << "qxaShift[101] = " << qxaShift[101] << endl;
-                        cout << "pars.q2[1] = " << pars.q2.at(0, 0) << endl;
-                        cout << "pars.q2[101] = " << pars.q2.at(1, 2) << endl;
-                        cout << "pars.probeXtiltArray[a2] = " << pars.probeXtiltArray[a2] << endl;
-                        cout << "pars.lambda = " << pars.lambda << endl;
-                        cout << "pars.qxaReduce = " << pars.qxaReduce[1] << endl;
-                        cout << "alphaMask.at(44,44) = " << alphaMask.at(44, 44) << endl;
-                        cout << "alphaMask.at(0,0) = " << alphaMask.at(0, 0) << endl;
-                        cout << "zTotal= " << zTotal << endl;
-                        cout << "xTiltShift = " << xTiltShift << endl;
-                        cout << " yTiltShift= " << yTiltShift << endl;
+//                        cout << "pars.Scompact.at(0,0,0) = " << pars.Scompact.at(0, 0, 0) << endl;
+//                        cout << "pars.Scompact.at(0,0,1) = " << pars.Scompact.at(0, 0, 1) << endl;
+//
+//                        cout << "PsiProbeInit.at(5,5) = " << pars.PsiProbeInit.at(5, 5) << endl;
+//                        cout << "alphaInd.at(5,5) = " << alphaInd.at(5, 5) << endl;
+//                        cout << "alphaInd.at(0,0) = " << alphaInd.at(0, 0) << endl;
+//                        cout << "qxaShift[101] = " << qxaShift[101] << endl;
+//                        cout << "pars.q2[1] = " << pars.q2.at(0, 0) << endl;
+//                        cout << "pars.q2[101] = " << pars.q2.at(1, 2) << endl;
+//                        cout << "pars.probeXtiltArray[a2] = " << pars.probeXtiltArray[a2] << endl;
+//                        cout << "pars.lambda = " << pars.lambda << endl;
+//                        cout << "pars.qxaReduce = " << pars.qxaReduce[1] << endl;
+//                        cout << "alphaMask.at(44,44) = " << alphaMask.at(44, 44) << endl;
+//                        cout << "alphaMask.at(0,0) = " << alphaMask.at(0, 0) << endl;
+//                        cout << "zTotal= " << zTotal << endl;
+//                        cout << "xTiltShift = " << xTiltShift << endl;
+//                        cout << " yTiltShift= " << yTiltShift << endl;
                     }
                 }
             }
@@ -127,7 +127,7 @@ namespace PRISM {
     }
 
     template<class T>
-    void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift) {
+    void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::Array2D<std::vector<T> > &alphaInd) {
         constexpr static std::complex<T> i(0, 1);
         constexpr double pi = std::acos(-1);
         using Array3D = PRISM::Array3D<std::vector<T> >;
@@ -140,10 +140,11 @@ namespace PRISM {
         Array2D y = pars.yVec + round(y0) - 1;
         transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]) + 1; });
         Array2D intOutput = PRISM::zeros_2D<T>(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-
+    cout << "pars.beamsIndex.size() = " << pars.beamsIndex.size()<< endl;
         for (auto a5 = 0; a5 < pars.numFP; ++a5) {
             Array2D_cx psi = PRISM::zeros_2D<std::complex<T> >(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
             for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
+//            for (auto a4 = 0; a4 < 10; ++a4) {
                 T xB = pars.xyBeams.at(a4, 0) - 1;
                 T yB = pars.xyBeams.at(a4, 1) - 1;
                 if (abs(pars.PsiProbeInit.at(xB, yB)) > 0) {
@@ -166,8 +167,34 @@ namespace PRISM {
                                               reinterpret_cast<fftw_complex*>(&psi[0]),
                                               reinterpret_cast<fftw_complex*>(&psi[0]),
                                               FFTW_FORWARD, FFTW_ESTIMATE);
+//            if (a5==0)cout << "psi [0] = " << psi[0] << endl;
+
+            fftw_execute(plan);
+            fftw_destroy_plan(plan);
+
+            for (auto ii = 0; ii < intOutput.get_nrows(); ++ii){
+                for (auto jj = 0; jj < intOutput.get_ncols(); ++jj){
+                    intOutput.at(ii,jj) += pow(abs(psi.at(jj,ii)),2);
+                }
+            }
+//            if (a5==0)cout << "psi [0] = " << psi[0] << endl;
+//            if (a5==0)cout << "intOutput [0] = " << intOutput[0] << endl;
+//            if (a5==0)cout << "intOutput.at(2,1) = " << intOutput.at(2,1) << endl;
+//            fftw_destroy_plan(plan);
             //intOutput = intOutput ...
             //+ abs(fft2(psi)).^2;
         }
+
+        // update emdSTEM.stack
+        auto idx = alphaInd.begin();
+        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+            if (*idx <= pars.Ndet){
+                pars.stack.at(ax,ay,(*idx)-1) += *counts * pars.scale;
+            }
+            ++idx;
+        };
+//        cout << "pars.stack.at(0,0,0) = " << pars.stack.at(0,0,0) << endl;
+//        cout << "pars.stack.at(2,3,4) = " << pars.stack.at(2,3,4) << endl;
+//        cout << "pars.stack.at(6,7,5) = " << pars.stack.at(6,7,5) << endl;
     }
 }

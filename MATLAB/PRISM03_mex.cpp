@@ -152,8 +152,6 @@ PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray
     double *ptr_r  = mxGetPr(array);
     double *ptr_i  = mxGetPi(array);
     PRISM::Array2D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols);
-    //for (auto& i:arr)i=(T)*ptr++;
-    //for (auto& i:arr){i=(T)*ptr++;}
     for (auto j = 0; j < ncols; ++j){
         for (auto i = 0; i < nrows; ++i){
             arr.at(i,j).real((T)*ptr_r++);
@@ -254,15 +252,28 @@ void mexFunction(int nlhs, mxArray *plhs[],
     mexPrintf("qxaReduce = %f",qxaReduce[1]);
     mexPrintf("Scompact size = %i\n",Scompact.size());
     mexPrintf("stack size = %i\n",stack.size());
+    mexPrintf("stack get_nrows = %i\n",stack.get_nrows());
+    mexPrintf("stack get_ncols = %i\n",stack.get_ncols());
+    mexPrintf("stack get_nlayers = %i\n",stack.get_nlayers());
     mexPrintf("numFP size = %f\n",PRISM_pars.numFP);
-
+//
     PRISM::PRISM03<PRISM_FLOAT_TYPE>(PRISM_pars);
 
-    plhs[0] = mxCreateDoubleMatrix(Scompact.size(), 1, mxCOMPLEX);
+    plhs[0] = mxCreateDoubleMatrix(stack.size(), 1, mxREAL);
 
     double * ptr_r = mxGetPr(plhs[0]);
-    double * ptr_i = mxGetPi(plhs[0]);
-    //for (auto &i:PRISM_pars.PsiProbeInit){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
-    for (auto &i:PRISM_pars.Scompact){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+    //double * ptr_i = mxGetPi(plhs[0]);
+//    for (auto &i:PRISM_pars.PsiProbeInit){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+//    for (auto &i:PRISM_pars.Scompact){*ptr_r++ = i.real(); *ptr_i++ = i.imag();}
+//    for (auto &i:PRISM_pars.stack){*ptr_r++ = i;}
+//
+    for (auto k = 0; k < PRISM_pars.stack.get_nlayers(); ++k){
+        for (auto j = 0; j < PRISM_pars.stack.get_ncols(); ++j){
+            for (auto i = 0; i < PRISM_pars.stack.get_nrows(); ++i){
+                *ptr_r++ = PRISM_pars.stack.at(i,j,k);
+            }
+        }
+    }
+
 
 }
