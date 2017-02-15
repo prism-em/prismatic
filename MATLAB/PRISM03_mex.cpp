@@ -175,7 +175,7 @@ PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray
 void mexFunction(int nlhs, mxArray *plhs[],
                  int nrhs, const mxArray *prhs[]){
     
-     Check we for correct number of arguments
+    // Check we for correct number of arguments
     if (nrhs != NUM_INPUTS){
         std::string what = "Incorrect number of inputs to mex function (expected " + std::to_string(NUM_INPUTS) + ')';
         mexErrMsgTxt(what.c_str());
