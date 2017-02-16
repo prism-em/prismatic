@@ -8,6 +8,7 @@
 #include <cmath>
 #include <thread>
 #include <mutex>
+#include <numeric>
 #include "fftw3.h"
 
 #ifndef NUM_THREADS
@@ -69,10 +70,9 @@ namespace PRISM {
                                       return a;
                                   });
 
-                        // constexpr means these are evaluated at compile time and no memory/overhead occurs at runtime
-                        constexpr static std::complex<T> i(0, 1);
+                        const static std::complex<T> i(0, 1);
                         // this might seem a strange way to get pi, but it's slightly more future proof
-                        constexpr static double pi = std::acos(-1);
+                        const static double pi = std::acos(-1);
                         transform(pars.PsiProbeInit.begin(), pars.PsiProbeInit.end(),
                                   pars.q2.begin(), pars.PsiProbeInit.begin(),
                                   [&pars, &a0](std::complex<T> &a, T &q2_t) {
@@ -131,9 +131,8 @@ namespace PRISM {
 
     template<class T>
     void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::Array2D<std::vector<T> > &alphaInd) {
-        // constexpr explained above
-        constexpr static std::complex<T> i(0, 1);
-        constexpr static double pi = std::acos(-1);
+        const static std::complex<T> i(0, 1);
+        const static double pi = std::acos(-1);
 
         // convenience aliases
         using Array3D = PRISM::Array3D<std::vector<T> >;
