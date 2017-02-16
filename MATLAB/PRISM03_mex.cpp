@@ -49,9 +49,6 @@ PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
     const size_t nrows   = (size_t)dims[0];
     const size_t ncols   = (size_t)dims[1];
     const size_t nlayers = (size_t)dims[2];
-    mexPrintf("nrows = %i\n",nrows);
-    mexPrintf("ncols = %i\n",ncols);
-    mexPrintf("nlayers = %i\n",nlayers);
     const size_t N       = nrows*ncols*nlayers;
     double *ptr  = mxGetPr(array);
     PRISM::Array3D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols, nlayers);
@@ -75,8 +72,6 @@ PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
     const mwSize *dims   = mxGetDimensions(array);
     const size_t nrows   = (size_t)dims[0];
     const size_t ncols   = (size_t)dims[1];
-    mexPrintf("nrows = %i\n",nrows);
-    mexPrintf("ncols = %i\n",ncols);
     const size_t N       = nrows*ncols;
     double *ptr  = mxGetPr(array);
     PRISM::Array2D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols);
@@ -109,9 +104,6 @@ PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray
     const size_t nrows   = (size_t)dims[0];
     const size_t ncols   = (size_t)dims[1];
     const size_t nlayers = (size_t)dims[2];
-    mexPrintf("nrows = %i\n",nrows);
-    mexPrintf("ncols = %i\n",ncols);
-    mexPrintf("nlayers = %i\n",nlayers);
     const size_t N       = nrows*ncols*nlayers;
     double *ptr_r  = mxGetPr(array);
     double *ptr_i  = mxGetPi(array);
@@ -149,8 +141,6 @@ PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray
     const mwSize *dims   = mxGetDimensions(array);
     const size_t nrows   = (size_t)dims[0];
     const size_t ncols   = (size_t)dims[1];
-    mexPrintf("nrows = %i\n",nrows);
-    mexPrintf("ncols = %i\n",ncols);
     const size_t N       = nrows*ncols;
     double *ptr_r  = mxGetPr(array);
     double *ptr_i  = mxGetPi(array);
