@@ -28,9 +28,10 @@ namespace PRISM {
         using Array3D = PRISM::Array3D<std::vector<T> >;
         using Array2D = PRISM::Array2D<std::vector<T> >;
 
-        // most of this is transcribed directly from the original MATLAB version. The operators +, -, /, * return
-        // arrays by value, so to avoid unnecessary memory allocations/copies for chained operations I try to do things
-        // like create variables initially with at most one operation, and then perform in-place transforms if more is needed
+        // Most of this is transcribed directly from the original MATLAB version.
+        // The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
+        // allocations/copies for chained operations I try to do things like create variables 
+        // initially with at most one operation, and then perform in-place transforms if more is needed
         for (auto a0 = 0; a0 < pars.probeDefocusArray.size(); ++a0) {
             for (auto a1 = 0; a1 < pars.probeSemiangleArray.size(); ++a1) {
                 T qProbeMax = pars.probeSemiangleArray[a0] / pars.lambda;
