@@ -89,7 +89,6 @@ T matGetScalar(const mxArray *array){
     // Get a scalar value
     
     double *ptr  = mxGetPr(array);
-    mexPrintf("scalar value %f\n",(T)*ptr);
     return (T)*ptr;
 }
 
