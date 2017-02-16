@@ -1,8 +1,8 @@
 Example for compiling CUDA code that is then used in MEX functions. I couldn't
 get mexcuda to work with CUDA 8.0, so instead this compiles a shared object
-with nvcc and then links it with MEX. A bit of a pain, but works
+with nvcc and then links it with MEX. A bit of a pain, but it works
 
-First generate a shared option with
+First generate a shared object with
 nvcc -Xcompiler -fPIC  -c timesTwo.cu -arch=sm_35 -std=c++11
 
 then mex with
