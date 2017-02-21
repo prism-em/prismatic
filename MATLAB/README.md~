@@ -1,7 +1,0 @@
-# PRISM (MATLAB)
-
-PRISM02_ajp.m is the same as PRISM02.m except that the bottleneck fft2 line
-is modified to use a single precision GPU array.
-
-P
-

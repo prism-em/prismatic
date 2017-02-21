@@ -5,6 +5,7 @@
 #define PRISM_EMDSTEM_H
 
 #include "Array2D.h"
+#include "ArrayND.h"
 #include "Array3D.h"
 #include <vector>
 #include <complex>

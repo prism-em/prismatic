@@ -1,7 +1,4 @@
-load inputData01
-emdSTEM = PRISM01(atoms,cellDim);
-emdSTEM = PRISM02_ajp(emdSTEM);
-save('step2')
+
 load('step2')
 emdSTEM = PRISM03_ajp(emdSTEM);
 % emdSTEM = PRISM03(emdSTEM);
