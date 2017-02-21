@@ -47,6 +47,7 @@ namespace PRISM {
             std::array<size_t, N-1> strides;
             size_t arr_size;
             T data;
+            
         };
 
         template <size_t N, class T>

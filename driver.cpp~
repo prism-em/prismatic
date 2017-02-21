@@ -1,0 +1,24 @@
+#include "include/fparams.h"
+#include "include/ArrayND.h"
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+int main(){
+cout << "test" << endl;
+cout << "fparams[0]" <<  fparams[0] << endl;
+cout << "fparams[10]" <<  fparams[10] << endl;
+cout << "fparams[20]" <<  fparams[20] << endl;
+
+using vec_d = std::vector<double>;
+using Array2D 
+        
+
+double pixelSize = 100.0/1000.0;
+double potBound = 1.0;
+double numFP = 8.0/8.0;
+size_t sliceThickness = 2;
+size_t interpolationFactor = 10;
+
+
+return 0;
+}
