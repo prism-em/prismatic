@@ -26,8 +26,8 @@ namespace PRISM {
     void PRISM03(emdSTEM<T> &pars) {
 
         // alias some types to avoid so much text
-        using Array3D = PRISM::Array3D<std::vector<T> >;
-        using Array2D = PRISM::Array2D<std::vector<T> >;
+        using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+        using Array2D = PRISM::ArrayND<2, std::vector<T> >;
 
         // Most of this is transcribed directly from the original MATLAB version.
         // The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
@@ -55,9 +55,9 @@ namespace PRISM {
                         transform(alphaInd.begin(), alphaInd.end(),
                                   alphaInd.begin(),
                                   [](const T &a) { return a < 1 ? 1 : a; });
-                        PRISM::Array2D<std::vector<unsigned short> > alphaMask(
+                        PRISM::ArrayND<2, std::vector<unsigned short> > alphaMask(
                                 std::vector<unsigned short>(alphaInd.size(), 0),
-                                alphaInd.get_nrows(), alphaInd.get_ncols());
+                                {alphaInd.get_nrows(), alphaInd.get_ncols()});
                         transform(alphaInd.begin(), alphaInd.end(),
                                   alphaMask.begin(),
                                   [&pars](const T &a) { return (a < pars.Ndet) ? 1 : 0; });
@@ -130,14 +130,14 @@ namespace PRISM {
     static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
     template<class T>
-    void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::Array2D<std::vector<T> > &alphaInd) {
+    void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::ArrayND<2, std::vector<T> > &alphaInd) {
         const static std::complex<T> i(0, 1);
         const static double pi = std::acos(-1);
 
         // convenience aliases
-        using Array3D = PRISM::Array3D<std::vector<T> >;
-        using Array2D = PRISM::Array2D<std::vector<T> >;
-        using Array2D_cx = PRISM::Array2D<std::vector<std::complex<T> > >;
+        using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+        using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+        using Array2D_cx = PRISM::ArrayND<2, std::vector<std::complex<T> > >;
 
         T x0 = pars.xp[ax] / pars.pixelSizeOutput[0];
         T y0 = pars.yp[ay] / pars.pixelSizeOutput[1];
@@ -145,9 +145,9 @@ namespace PRISM {
         transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
         Array2D y = pars.yVec + round(y0);
         transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]); });
-        Array2D intOutput = PRISM::zeros_2D<T>(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+        Array2D intOutput = PRISM::zeros_ND<2, T>({pars.imageSizeReduce[0], pars.imageSizeReduce[1]});
         for (auto a5 = 0; a5 < pars.numFP; ++a5) {
-            Array2D_cx psi = PRISM::zeros_2D<std::complex<T> >(pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+            Array2D_cx psi = PRISM::zeros_ND<2, std::complex<T> >({pars.imageSizeReduce[0], pars.imageSizeReduce[1]});
             for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
                 T xB = pars.xyBeams.at(a4, 0) - 1;
                 T yB = pars.xyBeams.at(a4, 1) - 1;

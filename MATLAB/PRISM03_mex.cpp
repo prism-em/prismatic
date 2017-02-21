@@ -4,8 +4,7 @@
 #include <complex>
 #include "fftw3.h"
 #include "mex.h"
-#include "Array2D.h"
-#include "Array3D.h"
+#include "ArrayND.h"
 #include "emdSTEM.h"
 #include "PRISM03.h"
 
@@ -39,7 +38,7 @@
 
 
 template <typename T>
-PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
+PRISM::ArrayND<3,  std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
     // convert 3D MATLAB array to 3D PRISM array and convert from F to C order
     // TODO: implement reorder parameter like in mat3DtoPRISM3D_cx
     
@@ -51,7 +50,7 @@ PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
     const size_t nlayers = (size_t)dims[2];
     const size_t N       = nrows*ncols*nlayers;
     double *ptr  = mxGetPr(array);
-    PRISM::Array3D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols, nlayers);
+    PRISM::ArrayND<3, std::vector<T> > arr( std::vector<T>(N, 0), {nrows, ncols, nlayers});
     for (auto k = 0; k < nlayers; ++k){
         for (auto j = 0; j < ncols; ++j){
             for (auto i = 0; i < nrows; ++i){
@@ -63,7 +62,7 @@ PRISM::Array3D< std::vector<T> > mat3DtoPRISM3D(const mxArray *array){
 }
 
 template <typename T>
-PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
+PRISM::ArrayND<2, std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
     // convert 2D MATLAB array to 2D PRISM array and convert from F to C order
     // TODO: implement reorder parameter like in mat3DtoPRISM3D_cx
 
@@ -74,7 +73,7 @@ PRISM::Array2D< std::vector<T> > mat2DtoPRISM2D(const mxArray *array){
     const size_t ncols   = (size_t)dims[1];
     const size_t N       = nrows*ncols;
     double *ptr  = mxGetPr(array);
-    PRISM::Array2D< std::vector<T> > arr( std::vector<T>(N, 0), nrows, ncols);
+    PRISM::ArrayND<2, std::vector<T> > arr( std::vector<T>(N, 0), {nrows, ncols});
         for (auto j = 0; j < ncols; ++j){
             for (auto i = 0; i < nrows; ++i){
                 arr.at(i,j) = (T)*ptr++;
@@ -94,7 +93,7 @@ T matGetScalar(const mxArray *array){
 
 
 template <typename T>
-PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray *array, bool reorder=1){
+PRISM::ArrayND<3, std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray *array, bool reorder=1){
     // convert 3D MATLAB complex array to 3D PRISM complex array and convert from F to C order if reorder == 1
     
     const mwSize ndims   = mxGetNumberOfDimensions(array);
@@ -108,7 +107,7 @@ PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray
     double *ptr_i  = mxGetPi(array);
 
     if (reorder) {
-        PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols, nlayers);
+        PRISM::ArrayND<3, std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), {nrows, ncols, nlayers});
         for (auto k = 0; k < nlayers; ++k) {
             for (auto j = 0; j < ncols; ++j) {
                 for (auto i = 0; i < nrows; ++i) {
@@ -120,7 +119,7 @@ PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray
         return arr;
     } else
     {
-        PRISM::Array3D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nlayers, ncols, nrows);
+        PRISM::ArrayND<3, std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), {nlayers, ncols, nrows});
         for (auto &i:arr){
             i.real((T)*ptr_r++);
             i.imag((T)*ptr_i++);
@@ -131,7 +130,7 @@ PRISM::Array3D< std::vector< std::complex<T> > > mat3DtoPRISM3D_cx(const mxArray
 }
 
 template <typename T>
-PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray *array){
+PRISM::ArrayND<2, std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray *array){
     // convert 2D MATLAB complex array to 2D PRISM complex array and convert from F to C order
     // TODO: implement reorder parameter like in mat3DtoPRISM3D_cx
     
@@ -143,7 +142,7 @@ PRISM::Array2D< std::vector< std::complex<T> > > mat2DtoPRISM2D_cx(const mxArray
     const size_t N       = nrows*ncols;
     double *ptr_r  = mxGetPr(array);
     double *ptr_i  = mxGetPi(array);
-    PRISM::Array2D< std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), nrows, ncols);
+    PRISM::ArrayND<2, std::vector< std::complex<T> > > arr( std::vector< std::complex<T> >(N, 0), {nrows, ncols});
     for (auto j = 0; j < ncols; ++j){
         for (auto i = 0; i < nrows; ++i){
             arr.at(i,j).real((T)*ptr_r++);
@@ -173,11 +172,12 @@ void mexFunction(int nlhs, mxArray *plhs[],
     // Define convenience aliases
     using PRISM_FLOAT_TYPE = double;
     using PRISM_COMPLEX_TYPE = std::complex<PRISM_FLOAT_TYPE>;
-    using Array3D_r = PRISM::Array3D< std::vector<PRISM_FLOAT_TYPE> >;
-    using Array2D_r = PRISM::Array2D< std::vector<PRISM_FLOAT_TYPE> >;
-    using Array3D_cx = PRISM::Array3D< std::vector<PRISM_COMPLEX_TYPE> >;
-    using Array2D_cx = PRISM::Array2D< std::vector<PRISM_COMPLEX_TYPE> >;
-    
+    using Array3D_r = PRISM::ArrayND<3, std::vector<PRISM_FLOAT_TYPE> >;
+    using Array2D_r = PRISM::ArrayND<2, std::vector<PRISM_FLOAT_TYPE> >;
+    using Array3D_cx = PRISM::ArrayND<3, std::vector<PRISM_COMPLEX_TYPE> >;
+    using Array2D_cx = PRISM::ArrayND<2, std::vector<PRISM_COMPLEX_TYPE> >;
+    using Array2D_dims = PRISM::ArrayND<2, std::vector<size_t> >;
+
     // extract all the data from MATLAB into PRISM data types
     Array3D_cx Scompact = mat3DtoPRISM3D_cx<PRISM_FLOAT_TYPE>(prhs[POS_Scompact], 0);
     Array3D_r stack     = mat3DtoPRISM3D<PRISM_FLOAT_TYPE>(prhs[POS_stack]);
@@ -194,8 +194,8 @@ void mexFunction(int nlhs, mxArray *plhs[],
     Array2D_r xyBeams             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xyBeams]);
     Array2D_r xVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_xVec]);
     Array2D_r yVec                = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_yVec]);
-    Array2D_r imageSizeReduce     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeReduce]);
-    Array2D_r imageSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_imageSizeOutput]);
+    Array2D_dims imageSizeReduce  = mat2DtoPRISM2D<size_t>(prhs[POS_imageSizeReduce]);
+    Array2D_dims imageSizeOutput  = mat2DtoPRISM2D<size_t>(prhs[POS_imageSizeOutput]);
     Array2D_r detectorAngles      = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_detectorAngles]);
     Array2D_r cellDim             = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_cellDim]);
     Array2D_r pixelSizeOutput     = mat2DtoPRISM2D<PRISM_FLOAT_TYPE>(prhs[POS_pixelSizeOutput]);
@@ -231,9 +231,9 @@ void mexFunction(int nlhs, mxArray *plhs[],
     PRISM_pars.cellDim             = cellDim;
     PRISM_pars.pixelSizeOutput     = pixelSizeOutput;
 
-    PRISM_pars.PsiProbeInit = PRISM::zeros_2D<PRISM_COMPLEX_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
-    PRISM_pars.q1           = PRISM::zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
-    PRISM_pars.q2           = PRISM::zeros_2D<PRISM_FLOAT_TYPE>(imageSizeReduce[0], imageSizeReduce[1]);
+    PRISM_pars.PsiProbeInit = PRISM::zeros_ND<2, PRISM_COMPLEX_TYPE>({imageSizeReduce[0], imageSizeReduce[1]});
+    PRISM_pars.q1           = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({imageSizeReduce[0], imageSizeReduce[1]});
+    PRISM_pars.q2           = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({imageSizeReduce[0], imageSizeReduce[1]});
 
     PRISM_pars.scale  = scale;
     PRISM_pars.lambda = lambda;

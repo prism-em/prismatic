@@ -7,9 +7,6 @@
 
 using namespace std;
 int main(){
-    //PRISM::ArrayND<3, std::vector<double> > arr(std::vector<double>(12, 0), std::vector<size_t>{2,3,2,4});
-//    PRISM::ArrayND<3, std::vector<double> > arr(std::vector<double>(12, 0), std::array<size_t, 3>{2,3,2,4});
-    //PRISM::ArrayND<3, std::vector<double> > arr(std::vector<double>(12, 0), {2,3,2});
     using vec_f = std::vector<double>;
     std::array<size_t, 4> dims{2,3,2,1};
     dims[3] = 2;

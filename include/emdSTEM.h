@@ -4,38 +4,36 @@
 #ifndef PRISM_EMDSTEM_H
 #define PRISM_EMDSTEM_H
 
-#include "Array2D.h"
 #include "ArrayND.h"
-#include "Array3D.h"
 #include <vector>
 #include <complex>
 
 namespace PRISM{
     template <class T>
     struct emdSTEM {
-        PRISM::Array3D< std::vector< std::complex<T> > > Scompact;
-        PRISM::Array3D< std::vector<T> > stack;
-        PRISM::Array2D< std::vector<T> > probeDefocusArray;
-        PRISM::Array2D< std::vector<T> > probeSemiangleArray;
-        PRISM::Array2D< std::vector<T> > probeXtiltArray;
-        PRISM::Array2D< std::vector<T> > probeYtiltArray;
-        PRISM::Array2D< std::vector<T> > qxaReduce;
-        PRISM::Array2D< std::vector<T> > qyaReduce;
-        PRISM::Array2D< std::vector<T> > xp;
-        PRISM::Array2D< std::vector<T> > yp;
-        PRISM::Array2D< std::vector<T> > beamsIndex;
-        PRISM::Array2D< std::vector<T> > xyBeams;
-        PRISM::Array2D< std::vector<T> > xVec;
-        PRISM::Array2D< std::vector<T> > yVec;
-        PRISM::Array2D< std::vector<T> > imageSizeReduce;
-        PRISM::Array2D< std::vector<T> > imageSizeOutput;
-        PRISM::Array2D< std::vector<T> > detectorAngles;
-        PRISM::Array2D< std::vector<T> > cellDim;
-        PRISM::Array2D< std::vector<T> > pixelSizeOutput;
+        PRISM::ArrayND<3, std::vector< std::complex<T> > > Scompact;
+        PRISM::ArrayND<3, std::vector<T> > stack;
+        PRISM::ArrayND<2, std::vector<T> > probeDefocusArray;
+        PRISM::ArrayND<2, std::vector<T> > probeSemiangleArray;
+        PRISM::ArrayND<2, std::vector<T> > probeXtiltArray;
+        PRISM::ArrayND<2, std::vector<T> > probeYtiltArray;
+        PRISM::ArrayND<2, std::vector<T> > qxaReduce;
+        PRISM::ArrayND<2, std::vector<T> > qyaReduce;
+        PRISM::ArrayND<2, std::vector<T> > xp;
+        PRISM::ArrayND<2, std::vector<T> > yp;
+        PRISM::ArrayND<2, std::vector<T> > beamsIndex;
+        PRISM::ArrayND<2, std::vector<T> > xyBeams;
+        PRISM::ArrayND<2, std::vector<T> > xVec;
+        PRISM::ArrayND<2, std::vector<T> > yVec;
+        PRISM::ArrayND<2, std::vector<size_t> > imageSizeReduce;
+        PRISM::ArrayND<2, std::vector<size_t> > imageSizeOutput;
+        PRISM::ArrayND<2, std::vector<T> > detectorAngles;
+        PRISM::ArrayND<2, std::vector<T> > cellDim;
+        PRISM::ArrayND<2, std::vector<T> > pixelSizeOutput;
 
-        PRISM::Array2D< std::vector< std::complex<T> > > PsiProbeInit;
-        PRISM::Array2D< std::vector<T> > q1;
-        PRISM::Array2D< std::vector<T> > q2;
+        PRISM::ArrayND<2, std::vector< std::complex<T> > > PsiProbeInit;
+        PRISM::ArrayND<2, std::vector<T> > q1;
+        PRISM::ArrayND<2, std::vector<T> > q2;
 
         T scale;
         T lambda;

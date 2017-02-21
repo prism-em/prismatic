@@ -22,16 +22,25 @@ namespace PRISM {
             size_t get_ncols()   const {return this->dims[1];}
             size_t get_nlayers() const {return this->dims[2];}
             size_t get_ndim4()   const {return this->dims[3];}
-            size_t size()        const {return this->N;}
+            size_t size()        const {return this->arr_size;}
             typename T::iterator begin();
             typename T::iterator end();
             typename T::iterator begin() const;
-            typename T::iterator end() const;
+            typename T::iterator end()   const;
             typename T::value_type& at(const size_t& i);
             typename T::value_type& at(const size_t& i, const size_t& j);
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k);
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k, const size_t& l);
             typename T::value_type& operator[](const size_t& i);
+            ArrayND<N, T> operator-(const ArrayND<N, T>& other);
+            ArrayND<N, T> operator+(const ArrayND<N, T>& other);
+            ArrayND<N, T> operator*(const ArrayND<N, T>& other) ;
+            ArrayND<N, T> operator/(const ArrayND<N, T>& other);
+            ArrayND<N, T> operator-(const typename T::value_type& val);
+            ArrayND<N, T> operator+(const typename T::value_type& val);
+            ArrayND<N, T> operator*(const typename T::value_type& val);
+            ArrayND<N, T> operator/(const typename T::value_type& val);
+
 
         private:
             T data;
@@ -56,64 +65,119 @@ namespace PRISM {
             this->dims     = _dims;
         };
 
-        template <size_t N, class T>
-        typename T::iterator ArrayND<N, T>::begin(){return this->data.begin();}
+    template <size_t N, class T>
+    typename T::iterator ArrayND<N, T>::begin(){return this->data.begin();}
 
-        template <size_t N, class T>
-        typename T::iterator ArrayND<N, T>::end(){return this->data.end();}
+    template <size_t N, class T>
+    typename T::iterator ArrayND<N, T>::end(){return this->data.end();}
 
-        template <size_t N, class T>
-        typename T::iterator ArrayND<N, T>::begin() const {return this->data.begin();}
+    template <size_t N, class T>
+    typename T::iterator ArrayND<N, T>::begin() const {return this->data.begin();}
 
-        template <size_t N, class T>
-        typename T::iterator ArrayND<N, T>::end() const {return this->data.end();}
+    template <size_t N, class T>
+    typename T::iterator ArrayND<N, T>::end() const {return this->data.end();}
 
-        template <size_t N, class T>
-        typename T::value_type& ArrayND<N, T>::at(const size_t& i){
-            return data[i];
-        }
+    template <size_t N, class T>
+    typename T::value_type& ArrayND<N, T>::at(const size_t& i){
+        return data[i];
+    }
 
-        template <size_t N, class T>
-        typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j){
-            return data[i*dims[1] + j];
-        }
+    template <size_t N, class T>
+    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j){
+        return data[i*dims[1] + j];
+    }
 
-        template <size_t N, class T>
-        typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k){
-            return data[i*dims[1]*dims[2] + j*dims[2] + k];
-        }
+    template <size_t N, class T>
+    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k){
+        return data[i*dims[1]*dims[2] + j*dims[2] + k];
+    }
 
-        template <size_t N, class T>
-        typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k, const size_t& l){
-            return data[i*dims[1]*dims[2]*dims[3] + j*dims[2]*dims[3] + k*dims[3] + l];
-        }
-
-
+    template <size_t N, class T>
+    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k, const size_t& l){
+        return data[i*dims[1]*dims[2]*dims[3] + j*dims[2]*dims[3] + k*dims[3] + l];
+    }
 
 
 
+    template <size_t N, class T>
+    typename T::value_type& ArrayND<N, T>::operator[](const size_t& i){return data[i];}
 
-        template <size_t N, class T>
-        typename T::value_type& ArrayND<N, T>::operator[](const size_t& i){return data[i];}
 
 
-        template <>
-        size_t ArrayND<3, std::vector<double> >::get_ndim4()   const = delete;
-/*
-        template <size_t N, class T>
-        PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::vector<size_t>& dims){
-            size_t size = 1;
-            for (auto& i:dims)size*=i;
-            return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,1), dims);
-        }
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator-(const ArrayND<N, T>& other){
+        ArrayND<N, T> result(*this);
+        typename T::value_type* o = other.begin();
+        for (auto& i:result)i-=*o++;
+    }
 
-        template <size_t N, class T>
-        PRISM::ArrayND<N, std::vector<T> > zeros_ND(const std::vector<size_t>& dims){
-            size_t size = 1;
-            for (auto& i:dims)size*=i;
-            return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
-        }
-        */
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator+(const ArrayND<N, T>& other){
+        ArrayND<N, T> result(*this);
+        typename T::value_type* o = other.begin();
+        for (auto& i:result)i+=*o++;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator*(const ArrayND<N, T>& other){
+        ArrayND<N, T> result(*this);
+        typename T::value_type* o = other.begin();
+        for (auto& i:result)i*=*o++;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator/(const ArrayND<N, T>& other){
+        ArrayND<N, T> result(*this);
+        typename T::value_type* o = other.begin();
+        for (auto& i:result)i/=*o++;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator-(const typename T::value_type& val){
+        ArrayND<N, T> result(*this);
+        for (auto& i:result)i-=val;
+        return result;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator+(const typename T::value_type& val){
+        ArrayND<N, T> result(*this);
+        for (auto& i:result)i+=val;
+        return result;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator*(const typename T::value_type& val){
+        ArrayND<N, T> result(*this);
+        for (auto& i:result)i*=val;
+        return result;
+    }
+
+    template <size_t N, class T>
+    ArrayND<N, T> ArrayND<N, T>::operator/(const typename T::value_type& val){
+        ArrayND<N, T> result(*this);
+        for (auto& i:result)i/=val;
+        return result;
+    }
+
+
+    template <>
+    size_t ArrayND<3, std::vector<double> >::get_ndim4()   const = delete;
+
+    template <size_t N, class T>
+    PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N>& dims){
+        size_t size = 1;
+        for (auto& i:dims)size*=i;
+        return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,1), dims);
+    }
+
+    template <size_t N, class T>
+    PRISM::ArrayND<N, std::vector<T> > zeros_ND(const std::array<size_t, N>& dims){
+        size_t size = 1;
+        for (auto& i:dims)size*=i;
+        return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
+    }
+
 }
 
 #endif //PRISM_ARRAYND_H
