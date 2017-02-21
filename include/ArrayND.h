@@ -43,9 +43,10 @@ namespace PRISM {
 
 
         private:
-            T data;
             std::array<size_t, N> dims;
+            std::array<size_t, N-1> strides;
             size_t arr_size;
+            T data;
         };
 
         template <size_t N, class T>
@@ -63,6 +64,12 @@ namespace PRISM {
             }
             this->arr_size = _size;
             this->dims     = _dims;
+
+            size_t stride = 1;
+            for (auto i = (N-1); i > 0; --i) {
+                stride *= this->dims[i];
+                this->strides[i-1] = stride;
+            }
         };
 
     template <size_t N, class T>
@@ -84,17 +91,17 @@ namespace PRISM {
 
     template <size_t N, class T>
     typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j){
-        return data[i*dims[1] + j];
+        return data[i*strides[0] + j];
     }
 
     template <size_t N, class T>
     typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k){
-        return data[i*dims[1]*dims[2] + j*dims[2] + k];
+        return data[i*strides[0] + j*strides[1] + k];
     }
 
     template <size_t N, class T>
     typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k, const size_t& l){
-        return data[i*dims[1]*dims[2]*dims[3] + j*dims[2]*dims[3] + k*dims[3] + l];
+        return data[i*strides[0] + j*strides[1] + k*strides[2] + l];
     }
 
 
