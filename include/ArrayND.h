@@ -6,7 +6,6 @@
 #define PRISM_ARRAYND_H
 #include <vector>
 #include <cstddef>
-#include <assert.h>
 #include <iostream>
 #include <array>
 namespace PRISM {

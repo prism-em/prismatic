@@ -7,12 +7,14 @@
 #include "ArrayND.h"
 #include <vector>
 #include <complex>
+#include "atom.h"
 
 namespace PRISM{
     template <class T>
     struct emdSTEM {
         PRISM::ArrayND<3, std::vector< std::complex<T> > > Scompact;
         PRISM::ArrayND<3, std::vector<T> > stack;
+
         PRISM::ArrayND<2, std::vector<T> > probeDefocusArray;
         PRISM::ArrayND<2, std::vector<T> > probeSemiangleArray;
         PRISM::ArrayND<2, std::vector<T> > probeXtiltArray;
@@ -25,22 +27,29 @@ namespace PRISM{
         PRISM::ArrayND<2, std::vector<T> > xyBeams;
         PRISM::ArrayND<2, std::vector<T> > xVec;
         PRISM::ArrayND<2, std::vector<T> > yVec;
-        PRISM::ArrayND<2, std::vector<size_t> > imageSizeReduce;
-        PRISM::ArrayND<2, std::vector<size_t> > imageSizeOutput;
         PRISM::ArrayND<2, std::vector<T> > detectorAngles;
-        PRISM::ArrayND<2, std::vector<T> > cellDim;
-        PRISM::ArrayND<2, std::vector<T> > pixelSizeOutput;
+
+	    std::vector<atom> atoms;
+	    PRISM::ArrayND<1, std::vector<T> > pixelSize;
+        PRISM::ArrayND<1, std::vector<T> > pixelSizeOutput;
+	    PRISM::ArrayND<1, std::vector<size_t> > cellDim;
+	    PRISM::ArrayND<1, std::vector<size_t> > imageSize;
+	    PRISM::ArrayND<1, std::vector<size_t> > imageSizeReduce;
+	    PRISM::ArrayND<1, std::vector<size_t> > imageSizeOutput;
 
         PRISM::ArrayND<2, std::vector< std::complex<T> > > PsiProbeInit;
         PRISM::ArrayND<2, std::vector<T> > q1;
         PRISM::ArrayND<2, std::vector<T> > q2;
 
-        T scale;
+	    T scale;
         T lambda;
         T dr;
         T dq;
-        T Ndet;
-        T numFP;
+        T potBound;
+        size_t Ndet;
+        size_t numFP;
+        size_t sliceThickness;
+        size_t interpolationFactor;
         emdSTEM(){};
     };
 

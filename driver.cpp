@@ -1,26 +1,64 @@
 #include "include/fparams.h"
 #include "include/ArrayND.h"
+#include "include/PRISM01.h"
+#include "include/PRISM03.h"
+#include "include/atom.h"
+#include "emdSTEM.h"
 #include <iostream>
 #include <stdlib.h>
+#include <algorithm>
+#include <numeric>
+#include <string>
+
 using namespace std;
 int main(){
-    const double pixelSize = 100.0/1000.0;
-    const double potBound = 1.0;
-    const double numFP = 8.0/8.0;
-    const size_t sliceThickness = 2;
-    const size_t interpolationFactor = 10;
-    
+    using PRISM_FLOAT_TYPE = double;
+    using vec_d = std::vector<PRISM_FLOAT_TYPE>;
+    using Array3D = PRISM::ArrayND<3, vec_d>;
+    using Array2D = PRISM::ArrayND<2, vec_d>;
+    using Array1D = PRISM::ArrayND<1, vec_d>;
+    using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
+
+    std::string filename = "test_atom.txt";
+    PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
+    PRISM_FLOAT_TYPE one_pixel_size = 100.0/1000.0;
+    prism_pars.potBound = 1.0;
+    prism_pars.numFP = 8.0/8.0;
+    prism_pars.sliceThickness = 2;
+    prism_pars.interpolationFactor = 10;
+    Array1D_dims cellDim({100,100,80},{3});
+    prism_pars.cellDim = cellDim;
+
+    PRISM_FLOAT_TYPE f = 4*prism_pars.interpolationFactor;
+    Array1D_dims imageSize({cellDim[0], cellDim[1]},{2});
+    std::transform(imageSize.begin(),imageSize.end(),imageSize.begin(),[&f, &prism_pars, &one_pixel_size](size_t& a){
+        return (size_t)(f*round((PRISM_FLOAT_TYPE)a / one_pixel_size / f));
+    });
+    cout << "imageSize[0] = " << imageSize[0] << endl;
+    cout << "imageSize[1] = " << imageSize[1] << endl;
+    prism_pars.imageSize = imageSize;
+
+    Array1D pixelSize({(PRISM_FLOAT_TYPE)cellDim[0], (PRISM_FLOAT_TYPE)cellDim[1]},{2});
+    prism_pars.pixelSize = pixelSize;
+    prism_pars.pixelSize[0]/=prism_pars.imageSize[0];
+    prism_pars.pixelSize[1]/=prism_pars.imageSize[1];
+    prism_pars.atoms = PRISM::readAtoms(filename);
+
+
+    cout << "prism_pars.pixelSize[0] = " << prism_pars.pixelSize[0] << endl;
+    cout << "prism_pars.pixelSize[1] = " << prism_pars.pixelSize[1] << endl;
     cout << "test" << endl;
     cout << "fparams[0]" <<  fparams[0] << endl;
     cout << "fparams[10]" <<  fparams[10] << endl;
     cout << "fparams[20]" <<  fparams[20] << endl;
 
-    using vec_d = std::vector<double>;
-    using Array2D = PRISM::ArrayND<2, vec_d>;
+
 
 
 
     Array2D u = PRISM::ones_ND<2, double>({118,1}) * 0.8;
-    for (auto& i : u) std::cout << i << std::endl;
+
+    PRISM::PRISM01(prism_pars);
+    //for (auto& i : u) std::cout << i << std::endl;
     return 0;
 }

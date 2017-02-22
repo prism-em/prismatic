@@ -7,6 +7,9 @@ set(SOURCE_FILES main.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 add_executable(PRISM ${SOURCE_FILES})
 
+set(SOURCE_FILES driver.cpp)
+add_executable(driver ${SOURCE_FILES})
+
 find_package(FFTW REQUIRED)
 include_directories(FFTW_INCLUDES)
 target_link_libraries(PRISM ${FFTW_LIBRARIES})
