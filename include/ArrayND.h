@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iostream>
 #include <array>
+#include <utility>
 namespace PRISM {
     template <size_t N, class T>
     class ArrayND {
@@ -91,18 +92,18 @@ namespace PRISM {
     }
 
     template <size_t N, class T>
-    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j){
-        return data[i*strides[0] + j];
+    typename T::value_type& ArrayND<N, T>::at(const size_t& j, const size_t& i){
+        return data[j*strides[0] + i];
     }
 
     template <size_t N, class T>
-    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k){
-        return data[i*strides[0] + j*strides[1] + k];
+    typename T::value_type& ArrayND<N, T>::at(const size_t& k, const size_t& j,const size_t& i){
+        return data[k*strides[0] + j*strides[1] + i];
     }
 
     template <size_t N, class T>
-    typename T::value_type& ArrayND<N, T>::at(const size_t& i, const size_t& j,const size_t& k, const size_t& l){
-        return data[i*strides[0] + j*strides[1] + k*strides[2] + l];
+    typename T::value_type& ArrayND<N, T>::at(const size_t& l, const size_t& k,const size_t& j, const size_t& i){
+        return data[l*strides[0] + k*strides[1] + j*strides[2] + i];
     }
 
 
@@ -187,6 +188,22 @@ namespace PRISM {
         return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
     }
 
+	template <class T>
+	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	template <class T>
+	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+	template <class T>
+	std::pair<Array2D<T>, Array2D<T>> meshgrid(const Array1D<T>& X, const Array1D<T>& Y){
+		Array2D<T> xx = zeros_ND<2, T>({Y.size(), X.size()});
+		Array2D<T> yy = zeros_ND<2, T>({Y.size(), X.size()});
+		for (auto i = 0; i < xx.get_nrows(); ++i){
+			for (auto j = 0; j < xx.get_ncols(); ++j){
+				xx.at(i,j) = X[j];
+				yy.at(i,j) = Y[i];
+			}
+		}
+		return std::pair<Array2D<T>, Array2D<T> >(xx,yy);
+	}
 }
 
 #endif //PRISM_ARRAYND_H

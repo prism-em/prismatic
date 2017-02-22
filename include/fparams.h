@@ -1,8 +1,10 @@
 // Parameters for computing atomic potentials using Kirkland's method
-#include <stdlib.h> 
-static constexpr size_t num_species  = 103; // number of atomic species (number of rows)
-static constexpr size_t n_parameters = 12;  // number of parameters for each species (number of columns)     
-static constexpr double fparams[] = {
+#ifndef FPARAMS_H
+#define FPARAMS_H
+#include <stdlib.h>
+constexpr size_t num_species  = 103; // number of atomic species (number of rows)
+constexpr size_t n_parameters = 12;  // number of parameters for each species (number of columns)
+constexpr double fparams[] = {
 0.035522,0.22535,0.026278,0.22535,0.03527,0.22536,0.067776,4.3885,0.003566,0.40388,0.027613,1.4449,
 0.03737,0.53648,0.036023,0.53648,0.12254,0.53649,0.005064,0.27093,0.020362,0.85196,0.027424,2.3354,
 0.10796,0.92326,0.10678,0.92323,0.077139,0.047412,0.0027524,0.16976,1.0803,19.068,0.34677,6.284,
@@ -107,3 +109,4 @@ static constexpr double fparams[] = {
 0.22025,0.055065,4.9051,15.414,4.5534,0.53674,0.12634,0.074868,0.37901,0.3986,2.3344,17.221,
 0.31478,0.065348,4.8747,16.077,4.5896,0.57443,2.2946,14.496,0.37778,0.388,0.12187,0.07211
 };
+#endif //FPARAMS_H
