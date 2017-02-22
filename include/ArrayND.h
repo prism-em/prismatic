@@ -31,6 +31,7 @@ namespace PRISM {
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k);
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k, const size_t& l);
             typename T::value_type& operator[](const size_t& i);
+            typename T::value_type operator[](const size_t& i)const;
             ArrayND<N, T> operator-(const ArrayND<N, T>& other);
             ArrayND<N, T> operator+(const ArrayND<N, T>& other);
             ArrayND<N, T> operator*(const ArrayND<N, T>& other) ;
@@ -109,7 +110,8 @@ namespace PRISM {
     template <size_t N, class T>
     typename T::value_type& ArrayND<N, T>::operator[](const size_t& i){return data[i];}
 
-
+    template <size_t N, class T>
+    typename T::value_type ArrayND<N, T>::operator[](const size_t& i)const{return data[i];}
 
     template <size_t N, class T>
     ArrayND<N, T> ArrayND<N, T>::operator-(const ArrayND<N, T>& other){

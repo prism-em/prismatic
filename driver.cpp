@@ -64,6 +64,7 @@ int main(){
 
 
     Array2D u = PRISM::ones_ND<2, double>({118,1}) * 0.8;
+    prism_pars.u = u;
     prism_pars.atoms[0].to_string();
     prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
     PRISM::PRISM01(prism_pars);

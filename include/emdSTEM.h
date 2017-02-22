@@ -35,7 +35,7 @@ namespace PRISM{
         Array2D xVec;
         Array2D yVec;
         Array2D detectorAngles;
-
+	    Array2D u;
 	    std::vector<atom> atoms;
 	    Array1D pixelSize;
         Array1D pixelSizeOutput;
