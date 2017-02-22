@@ -19,7 +19,8 @@ int main(){
     using Array1D = PRISM::ArrayND<1, vec_d>;
     using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
 
-    std::string filename = "test_atom.txt";
+    std::string filename = "atoms.txt";
+    //std::string filename = "test_atom.txt";
     PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
     PRISM_FLOAT_TYPE one_pixel_size = 100.0/1000.0;
     prism_pars.potBound = 1.0;
@@ -42,8 +43,14 @@ int main(){
     prism_pars.pixelSize = pixelSize;
     prism_pars.pixelSize[0]/=prism_pars.imageSize[0];
     prism_pars.pixelSize[1]/=prism_pars.imageSize[1];
-    prism_pars.atoms = PRISM::readAtoms(filename);
-
+   try {
+	   prism_pars.atoms = PRISM::readAtoms(filename);
+   } catch(std::domain_error& e){
+       cout << "PRISM: Error extracting atomic data from " << filename << "!" << endl;
+	   cout << e.what();
+       cout << "Terminating" << endl;
+	   return 1;
+   }
 
     cout << "prism_pars.pixelSize[0] = " << prism_pars.pixelSize[0] << endl;
     cout << "prism_pars.pixelSize[1] = " << prism_pars.pixelSize[1] << endl;
@@ -57,7 +64,8 @@ int main(){
 
 
     Array2D u = PRISM::ones_ND<2, double>({118,1}) * 0.8;
-
+    prism_pars.atoms[0].to_string();
+    prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
     PRISM::PRISM01(prism_pars);
     //for (auto& i : u) std::cout << i << std::endl;
     return 0;
