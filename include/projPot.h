@@ -12,6 +12,26 @@
 #include <numeric>
 #include "fparams.h"
 namespace PRISM {
+
+	template <class T>
+	T get_potMin(const ArrayND<2, std::vector<T> >& pot,
+	             const ArrayND<1, std::vector<T> >& xr,
+	             const ArrayND<1, std::vector<T> >& yr){
+		// I am assuming that xr and yr are symmetric about 0
+		const size_t xInd = std::floor(xr.size()/2);
+		const size_t yInd = std::floor(yr.size()/2);
+		const T dx        = round(sqrt(2*xInd - 1));
+		const T dy        = round(sqrt(2*yInd - 1));
+		const T xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
+		const T yv[]      = {0, 0, (T)yr.size()-1, (T)yr.size()-1, yInd-dy-1, yInd+dy+1, yInd-dy-1, yInd+dy+1};
+		for (auto i=0; i < 8; ++i)std::cout<<xv[i]<<std::endl;
+		for (auto i=0; i < 8; ++i)std::cout<<yv[i]<<std::endl;
+
+		T potMin = 0;
+		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(xv[i],yv[i]) : potMin;
+		return potMin;
+	}
+
 	using namespace std;
 	template <class T>
 	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
@@ -148,22 +168,38 @@ namespace PRISM {
 		          potSS.begin(),[&ap, &term1, &term2](const T& r_t, const T& r2_t){
 
 			return term1*(ap[0] *
-	                cyl_bessel_k(0,2*pi*sqrt(ap[1])*r_t)      +
-					ap[2]*cyl_bessel_k(0,2*pi*sqrt(ap[3])*r_t)  +
-					ap[4]*cyl_bessel_k(0,2*pi*sqrt(ap[5])*r_t)) +
-					term2*(ap[6]/ap[7]*exp(-pow(pi,2)/ap[7]*r2_t)    +
-					ap[8]/ap[9]*exp(-pow(pi,2)/ap[9]*r2_t)          +
+	                cyl_bessel_k(0,2*pi*sqrt(ap[1])*r_t)          +
+					ap[2]*cyl_bessel_k(0,2*pi*sqrt(ap[3])*r_t)    +
+					ap[4]*cyl_bessel_k(0,2*pi*sqrt(ap[5])*r_t))   +
+					term2*(ap[6]/ap[7]*exp(-pow(pi,2)/ap[7]*r2_t) +
+					ap[8]/ap[9]*exp(-pow(pi,2)/ap[9]*r2_t)        +
 					ap[10]/ap[11]*exp(-pow(pi,2)/ap[11]*r2_t));
-
 		});
 
 		cout << "potSS[0] = " << potSS[0] << endl;
 		cout << "potSS[2] = " << potSS[2] << endl;
 
 		// integrate
-		ArrayND<2, std::vector<T> > potMid = zeros_ND<2, T>({yr.size(), xr.size()});
+		ArrayND<2, std::vector<T> > pot = zeros_ND<2, T>({yr.size(), xr.size()});
+		for (auto sy = 0; sy < ss; ++sy){
+			for (auto sx = 0; sx < ss; ++sx) {
+				for (auto j = 0; j < pot.get_nrows(); ++j) {
+					for (auto i = 0; i < pot.get_ncols(); ++i) {
+						pot.at(j, i) += potSS.at(j*ss + sy, i*ss + sx);
+					}
+				}
+			}
+		}
+		pot/=(ss*ss);
 
+		T potMin = get_potMin(pot,xr,yr);
+		pot -= potMin;
+		cout << "potMin = " <<potMin << endl;
+		transform(pot.begin(),pot.end(),pot.begin(),[](T& a){return a<0?0:a;});
 
+		cout << "pot.at(0,0) = " <<pot.at(0,0) << endl;
+		cout << "pot.at(2,3) = " << pot.at(2,3)<< endl;
+		cout << "pot.at(10,10) = " << pot.at(10,10)<< endl;
 #ifndef NDEBUG
 #include <iostream>
 		using namespace std;

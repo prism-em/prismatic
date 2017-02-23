@@ -31,7 +31,12 @@ namespace PRISM {
             typename T::value_type& at(const size_t& i, const size_t& j);
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k);
             typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k, const size_t& l);
-            typename T::value_type& operator[](const size_t& i);
+	        typename T::value_type at(const size_t& i)const;
+	        typename T::value_type at(const size_t& i, const size_t& j)const;
+	        typename T::value_type at(const size_t& i, const size_t& j,const size_t& k)const;
+	        typename T::value_type at(const size_t& i, const size_t& j,const size_t& k, const size_t& l)const;
+
+	        typename T::value_type& operator[](const size_t& i);
             typename T::value_type operator[](const size_t& i)const;
             ArrayND<N, T> operator-(const ArrayND<N, T>& other);
             ArrayND<N, T> operator+(const ArrayND<N, T>& other);
@@ -41,7 +46,10 @@ namespace PRISM {
             ArrayND<N, T> operator+(const typename T::value_type& val);
             ArrayND<N, T> operator*(const typename T::value_type& val);
             ArrayND<N, T> operator/(const typename T::value_type& val);
-
+            ArrayND<N, T>& operator-=(const typename T::value_type& val);
+            ArrayND<N, T>& operator+=(const typename T::value_type& val);
+            ArrayND<N, T>& operator*=(const typename T::value_type& val);
+            ArrayND<N, T>& operator/=(const typename T::value_type& val);
 
         private:
             std::array<size_t, N> dims;
@@ -106,6 +114,26 @@ namespace PRISM {
         return data[l*strides[0] + k*strides[1] + j*strides[2] + i];
     }
 
+	template <size_t N, class T>
+	typename T::value_type ArrayND<N, T>::at(const size_t& i)const{
+		return data[i];
+	}
+
+	template <size_t N, class T>
+	typename T::value_type ArrayND<N, T>::at(const size_t& j, const size_t& i)const{
+		return data[j*strides[0] + i];
+	}
+
+	template <size_t N, class T>
+	typename T::value_type ArrayND<N, T>::at(const size_t& k, const size_t& j,const size_t& i)const{
+		return data[k*strides[0] + j*strides[1] + i];
+	}
+
+	template <size_t N, class T>
+	typename T::value_type ArrayND<N, T>::at(const size_t& l, const size_t& k,const size_t& j, const size_t& i)const{
+		return data[l*strides[0] + k*strides[1] + j*strides[2] + i];
+	}
+
 
 
     template <size_t N, class T>
@@ -169,6 +197,31 @@ namespace PRISM {
         for (auto& i:result)i/=val;
         return result;
     }
+
+
+    template <size_t N, class T>
+    ArrayND<N, T>& ArrayND<N, T>::operator-=(const typename T::value_type& val){
+        for (auto& i:(*this))i-=val;
+        return *this;
+    }
+
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator+=(const typename T::value_type& val){
+		for (auto& i:(*this))i+=val;
+		return *this;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator*=(const typename T::value_type& val){
+		for (auto& i:(*this))i*=val;
+		return *this;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator/=(const typename T::value_type& val){
+		for (auto& i:(*this))i/=val;
+		return *this;
+	}
 
 
     template <>
