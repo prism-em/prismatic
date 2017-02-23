@@ -1,5 +1,7 @@
+tic
 load inputData01
 emdSTEM = PRISM01(atoms,cellDim);
+toc
 emdSTEM = PRISM02_ajp(emdSTEM);
 save('step2')
 load('step2')

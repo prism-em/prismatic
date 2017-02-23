@@ -62,7 +62,7 @@ emdSTEM.numPlanes = max(zPlane);
 % Generate projected potentials for all atoms /  frozen phonon configs
 emdSTEM.pot = zeros(emdSTEM.imageSize(1),...
     emdSTEM.imageSize(2),emdSTEM.numPlanes,emdSTEM.numFP);
-potProj = zeros(emdSTEM.imageSize);
+        potProj = zeros(emdSTEM.imageSize);
 for a0 = 1:emdSTEM.numPlanes
     inds = find(zPlane == a0);
     

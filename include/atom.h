@@ -25,6 +25,7 @@ namespace PRISM{
 	std::vector<atom> readAtoms(const std::string& filename){
 		std::vector<atom> atoms;
 		std::ifstream f(filename);
+		if (!f)throw std::runtime_error("Unable to open file.\n");
 		std::string line;
 		std::string token;
 #ifndef NDEBUG

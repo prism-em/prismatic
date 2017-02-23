@@ -21,6 +21,7 @@ namespace PRISM{
 
 	    Array3D_cx Scompact;
 	    Array3D stack;
+		Array3D pot;
 
         Array2D probeDefocusArray;
         Array2D probeSemiangleArray;
@@ -57,7 +58,8 @@ namespace PRISM{
         size_t numFP;
         size_t sliceThickness;
         size_t interpolationFactor;
-        emdSTEM(){};
+        size_t numPlanes;
+	    emdSTEM(){};
     };
 
 

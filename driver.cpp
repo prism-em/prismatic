@@ -3,7 +3,7 @@
 #include "include/PRISM01.h"
 #include "include/PRISM03.h"
 #include "include/atom.h"
-#include "emdSTEM.h"
+#include "include/emdSTEM.h"
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
@@ -44,8 +44,15 @@ int main(){
     prism_pars.pixelSize[0]/=prism_pars.imageSize[0];
     prism_pars.pixelSize[1]/=prism_pars.imageSize[1];
    try {
-	   prism_pars.atoms = PRISM::readAtoms(filename);
-   } catch(std::domain_error& e){
+       prism_pars.atoms = PRISM::readAtoms(filename);
+   }
+   catch(const std::runtime_error& e){
+	   cout << "PRISM: Error opening " << filename << endl;
+	   cout << e.what();
+       cout << "Terminating" << endl;
+       return 1;
+   }
+   catch(const std::domain_error& e){
        cout << "PRISM: Error extracting atomic data from " << filename << "!" << endl;
 	   cout << e.what();
        cout << "Terminating" << endl;

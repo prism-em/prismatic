@@ -237,7 +237,7 @@ namespace PRISM {
 		for (auto &i : ap)cout << i << endl;
 
 #endif //NDEBUG
-		return result;
+		return pot;
 	}
 }
 #endif //PRISM_PROJPOT_H

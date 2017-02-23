@@ -40,12 +40,20 @@ namespace PRISM {
             typename T::value_type operator[](const size_t& i)const;
             ArrayND<N, T> operator-(const ArrayND<N, T>& other);
             ArrayND<N, T> operator+(const ArrayND<N, T>& other);
-            ArrayND<N, T> operator*(const ArrayND<N, T>& other) ;
+            ArrayND<N, T> operator*(const ArrayND<N, T>& other);
             ArrayND<N, T> operator/(const ArrayND<N, T>& other);
             ArrayND<N, T> operator-(const typename T::value_type& val);
             ArrayND<N, T> operator+(const typename T::value_type& val);
             ArrayND<N, T> operator*(const typename T::value_type& val);
             ArrayND<N, T> operator/(const typename T::value_type& val);
+	        ArrayND<N, T> operator-(const ArrayND<N, T>& other)const;
+	        ArrayND<N, T> operator+(const ArrayND<N, T>& other)const;
+	        ArrayND<N, T> operator*(const ArrayND<N, T>& other)const;
+	        ArrayND<N, T> operator/(const ArrayND<N, T>& other)const;
+	        ArrayND<N, T> operator-(const typename T::value_type& val)const;
+	        ArrayND<N, T> operator+(const typename T::value_type& val)const;
+	        ArrayND<N, T> operator*(const typename T::value_type& val)const;
+	        ArrayND<N, T> operator/(const typename T::value_type& val)const;
             ArrayND<N, T>& operator-=(const typename T::value_type& val);
             ArrayND<N, T>& operator+=(const typename T::value_type& val);
             ArrayND<N, T>& operator*=(const typename T::value_type& val);
@@ -147,6 +155,7 @@ namespace PRISM {
         ArrayND<N, T> result(*this);
         typename T::value_type* o = other.begin();
         for (auto& i:result)i-=*o++;
+	    return result;
     }
 
     template <size_t N, class T>
@@ -154,6 +163,7 @@ namespace PRISM {
         ArrayND<N, T> result(*this);
         typename T::value_type* o = other.begin();
         for (auto& i:result)i+=*o++;
+	    return result;
     }
 
     template <size_t N, class T>
@@ -161,6 +171,7 @@ namespace PRISM {
         ArrayND<N, T> result(*this);
         typename T::value_type* o = other.begin();
         for (auto& i:result)i*=*o++;
+	    return result;
     }
 
     template <size_t N, class T>
@@ -168,6 +179,7 @@ namespace PRISM {
         ArrayND<N, T> result(*this);
         typename T::value_type* o = other.begin();
         for (auto& i:result)i/=*o++;
+	    return result;
     }
 
     template <size_t N, class T>
@@ -197,6 +209,90 @@ namespace PRISM {
         for (auto& i:result)i/=val;
         return result;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator-(const ArrayND<N, T>& other)const{
+		ArrayND<N, T> result(*this);
+		typename T::value_type* o = other.begin();
+		for (auto& i:result)i-=*o++;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator+(const ArrayND<N, T>& other)const{
+		ArrayND<N, T> result(*this);
+		typename T::value_type* o = other.begin();
+		for (auto& i:result)i+=*o++;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator*(const ArrayND<N, T>& other)const{
+		ArrayND<N, T> result(*this);
+		typename T::value_type* o = other.begin();
+		for (auto& i:result)i*=*o++;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator/(const ArrayND<N, T>& other)const{
+		ArrayND<N, T> result(*this);
+		typename T::value_type* o = other.begin();
+		for (auto& i:result)i/=*o++;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator-(const typename T::value_type& val)const{
+		ArrayND<N, T> result(*this);
+		for (auto& i:result)i-=val;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator+(const typename T::value_type& val)const{
+		ArrayND<N, T> result(*this);
+		for (auto& i:result)i+=val;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator*(const typename T::value_type& val)const{
+		ArrayND<N, T> result(*this);
+		for (auto& i:result)i*=val;
+		return result;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T> ArrayND<N, T>::operator/(const typename T::value_type& val)const{
+		ArrayND<N, T> result(*this);
+		for (auto& i:result)i/=val;
+		return result;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     template <size_t N, class T>
