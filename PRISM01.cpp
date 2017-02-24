@@ -7,6 +7,7 @@
 #include <cstring>
 #include <map>
 #include <random>
+#include <thread>
 #include "emdSTEM.h"
 #include "ArrayND.h"
 #include "projPot.h"
@@ -48,14 +49,13 @@ namespace PRISM {
 	}
 
 	template <class T>
-	Array3D<T> generateProjectedPotentials(emdSTEM<T>& pars,
+	void generateProjectedPotentials(emdSTEM<T>& pars,
                                            const Array3D<T>& potLookup,
                                            const vector<size_t>& unique_species,
                                            const ArrayND<1, vector<long> >& xvec,
                                            const ArrayND<1, vector<long> >& yvec,
                                            const Array1D<T>& uLookup ){
 		// splits the atomic coordinates into slices and computes the projected potential for each.
-		// Note: this function has some side effects on pars as well as a return value
 		Array1D<T> x  = zeros_ND<1, T>({pars.atoms.size()});
 		Array1D<T> y  = zeros_ND<1, T>({pars.atoms.size()});
 		Array1D<T> z  = zeros_ND<1, T>({pars.atoms.size()});
@@ -78,7 +78,7 @@ namespace PRISM {
 		pars.numPlanes = *max_z + 1;
 
 		pars.pot = zeros_ND<3, T>({pars.numPlanes,pars.imageSize[1], pars.imageSize[0] });
-		Array2D<T> projPot = zeros_ND<2, T>({pars.imageSize[0], pars.imageSize[1]});
+
 
 		// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
 		map<size_t, size_t> Z_lookup;
@@ -87,35 +87,73 @@ namespace PRISM {
 		cout << "Z_lookup[78]  = " << Z_lookup[78] << endl;
 		cout << "Z_lookup[6]  = " << Z_lookup[6] <<endl;
 
-		std::default_random_engine de(time(0));
-		normal_distribution<T> randn(0,1);
-		ArrayND<1, vector<long> > xp;
-		ArrayND<1, vector<long> > yp;
+
 		// loop over each plane, perturb the atomic positions, and place the corresponding potential at each location
-		for (auto a0 = 0; a0 < pars.numPlanes; ++a0){
-			memset((void*)&projPot[0], 0, projPot.size() * sizeof(T));
-			for (auto a2 = 0; a2 < x.size(); ++a2){
-				if (zPlane[a2]==a0){
-					const size_t cur_Z = Z_lookup[ID[a2]];
-					const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
-					xp = xvec + (long)X;
-					for (auto& i:xp)i%=pars.imageSize[0];
-					const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
-					yp = yvec + (long)Y;
-					for (auto& i:yp)i%=pars.imageSize[1];
-					for (auto ii = 0; ii < xp.size(); ++ii){
-						for (auto jj = 0; jj < yp.size(); ++jj){
-							projPot.at(yp[jj],xp[ii]) += potLookup.at(cur_Z,jj,ii);
+
+		// parallel calculation of each individual slice
+		std::vector<std::thread> workers;
+		workers.reserve(pars.numPlanes);
+		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
+			workers.emplace_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potLookup,&uLookup,a0](){
+				std::default_random_engine de(time(0));
+				normal_distribution<T> randn(0,1);
+				ArrayND<1, vector<long> > xp;
+				ArrayND<1, vector<long> > yp;
+				Array2D<T> projPot = zeros_ND<2, T>({pars.imageSize[0], pars.imageSize[1]});
+				for (auto a2 = 0; a2 < x.size(); ++a2){
+					if (zPlane[a2]==a0){
+						const size_t cur_Z = Z_lookup[ID[a2]];
+						const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
+						xp = xvec + (long)X;
+						for (auto& i:xp)i%=pars.imageSize[0];
+						const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
+						yp = yvec + (long)Y;
+						for (auto& i:yp)i%=pars.imageSize[1];
+						for (auto ii = 0; ii < xp.size(); ++ii){
+							for (auto jj = 0; jj < yp.size(); ++jj){
+								projPot.at(yp[jj],xp[ii]) += potLookup.at(cur_Z,jj,ii);
+							}
 						}
 					}
-					//const T X = x[a2] + randn(de)*uLookup[Z_lookup[ID[a2]]];
-//					transform(xvec.begin(), xvec.end(), xvec.begin(),[](){
-//
-//						;});
 				}
-			}
-			copy(projPot.begin(), projPot.end(),&pars.pot.at(a0,0,0));
+				copy(projPot.begin(), projPot.end(),&pars.pot.at(a0,0,0));
+
+			}));
+
 		}
+		for (auto &t:workers)t.join();
+
+
+		//serial version
+//				Array2D<T> projPot = zeros_ND<2, T>({pars.imageSize[0], pars.imageSize[1]});
+//		std::default_random_engine de(time(0));
+//				normal_distribution<T> randn(0,1);
+//				ArrayND<1, vector<long> > xp;
+//				ArrayND<1, vector<long> > yp;
+//		for (auto a0 = 0; a0 < pars.numPlanes; ++a0){
+//			memset((void*)&projPot[0], 0, projPot.size() * sizeof(T));
+//			for (auto a2 = 0; a2 < x.size(); ++a2){
+//				if (zPlane[a2]==a0){
+//					const size_t cur_Z = Z_lookup[ID[a2]];
+//					const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
+//					xp = xvec + (long)X;
+//					for (auto& i:xp)i%=pars.imageSize[0];
+//					const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
+//					yp = yvec + (long)Y;
+//					for (auto& i:yp)i%=pars.imageSize[1];
+//					for (auto ii = 0; ii < xp.size(); ++ii){
+//						for (auto jj = 0; jj < yp.size(); ++jj){
+//							projPot.at(yp[jj],xp[ii]) += potLookup.at(cur_Z,jj,ii);
+//						}
+//					}
+//					//const T X = x[a2] + randn(de)*uLookup[Z_lookup[ID[a2]]];
+////					transform(xvec.begin(), xvec.end(), xvec.begin(),[](){
+////
+////						;});
+//				}
+//			}
+//			copy(projPot.begin(), projPot.end(),&pars.pot.at(a0,0,0));
+//		}
 
 		cout << "pars.numPlans = " << pars.numPlanes << endl;
 		cout << "zPlane[1] = " << zPlane[1] << endl;
@@ -127,7 +165,7 @@ namespace PRISM {
 		cout << "x[1] = " << x[1] << endl;
 		cout << "y[1] = " << y[1] << endl;
 		cout << "z[1] = " << z[1] << endl;
-		return zeros_ND<3,T>({1,1,1});
+//		return projPot;
 	};
 
 	template <class T>
@@ -173,7 +211,7 @@ namespace PRISM {
 		Array3D potLookup = zeros_ND<3, T>({unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1});
 		fetch_potentials(potLookup, unique_species, xr, yr);
 
-		pars.pot = generateProjectedPotentials(pars, potLookup, unique_species, xvec, yvec, uLookup);
+		generateProjectedPotentials(pars, potLookup, unique_species, xvec, yvec, uLookup);
 
 #ifndef NDEBUG
 		cout << "potLookup.get_ncols() = " << potLookup.get_ncols() << endl;

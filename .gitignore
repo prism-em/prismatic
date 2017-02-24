@@ -6,4 +6,5 @@ include/boost
 cmake-build-debug/
 *.mexa*
 *.txt
+*.mrc
 

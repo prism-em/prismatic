@@ -9,6 +9,8 @@
 #include <iostream>
 #include <array>
 #include <utility>
+#include <fstream>
+#include <cstring>
 namespace PRISM {
     template <size_t N, class T>
     class ArrayND {
@@ -59,6 +61,7 @@ namespace PRISM {
             ArrayND<N, T>& operator*=(const typename T::value_type& val);
             ArrayND<N, T>& operator/=(const typename T::value_type& val);
 
+	        void toMRC_f(const char* filename)const;
         private:
             std::array<size_t, N> dims;
             std::array<size_t, N-1> strides;
@@ -210,17 +213,6 @@ namespace PRISM {
         return result;
     }
 
-
-
-
-
-
-
-
-
-
-
-
 	template <size_t N, class T>
 	ArrayND<N, T> ArrayND<N, T>::operator-(const ArrayND<N, T>& other)const{
 		ArrayND<N, T> result(*this);
@@ -281,20 +273,6 @@ namespace PRISM {
 		return result;
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     template <size_t N, class T>
     ArrayND<N, T>& ArrayND<N, T>::operator-=(const typename T::value_type& val){
         for (auto& i:(*this))i-=val;
@@ -353,6 +331,30 @@ namespace PRISM {
 		}
 		return std::pair<Array2D<T>, Array2D<T> >(xx,yy);
 	}
+
+	template <>
+	void ArrayND<3, std::vector<double> >::toMRC_f(const char* filename) const{
+		// output to an MRC file in float format
+		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
+		std::ofstream f(filename, std::ios::binary |std::ios::out);
+		if (f) {
+			int int_header[56];
+			char char_header[800];
+			std::memset((void *) char_header, 0, 800);
+			std::memset((void *) int_header, 0, 56 * 4);
+			int_header[0] = (int) dims[2]; //nx
+			int_header[1] = (int) dims[1]; //ny
+			int_header[2] = (int) dims[0]; //nz
+			int_header[3] = 2; //mode, float
+			f.write((char*)int_header,56*4); //use 4 instead of sizeof(int) because architecture may change but file format won't
+			f.write(char_header,800);
+			float* data_buffer = new float[this->size()];
+			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
+			std::cout << " size of buffer = " << this->size() << std::endl;
+			f.write((char*)data_buffer,this->size()*sizeof(float));
+			delete[] data_buffer;
+		}
+	};
 }
 
 #endif //PRISM_ARRAYND_H
