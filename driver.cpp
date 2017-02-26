@@ -1,6 +1,7 @@
 #include "include/fparams.h"
 #include "include/ArrayND.h"
 #include "include/PRISM01.h"
+#include "include/PRISM02.h"
 #include "include/PRISM03.h"
 #include "include/atom.h"
 #include "include/emdSTEM.h"
@@ -19,7 +20,7 @@ int main(){
     using Array1D = PRISM::ArrayND<1, vec_d>;
     using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
 
-    std::string filename = "atoms.txt";
+    std::string filename = "/home/aj/hdd1/clion/PRISM/atoms.txt";
     //std::string filename = "test_atom.txt";
     PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
     PRISM_FLOAT_TYPE one_pixel_size = 100.0/1000.0;
@@ -29,6 +30,18 @@ int main(){
     prism_pars.interpolationFactor = 10;
     Array1D_dims cellDim({100,100,80},{3});
     prism_pars.cellDim = cellDim;
+    prism_pars.E0 = 80e3;
+    prism_pars.alphaBeamMax=24/1000.0;
+
+	constexpr double m = 9.109383e-31;
+	constexpr double e = 1.602177e-19;
+	constexpr double c = 299792458;
+	constexpr double h = 6.62607e-34;
+	const  double pi = std::acos(-1);
+	prism_pars.lambda = h / sqrt(2*m*e*prism_pars.E0) / sqrt(1+e*prism_pars.E0/2/m/c/c)*1e10;
+	prism_pars.sigma = (2*pi/prism_pars.lambda/prism_pars.E0)*(m*c*c+e*prism_pars.E0)/(2*m*c*c+e*prism_pars.E0);
+	cout << "lambda = " << prism_pars.lambda << endl;
+	cout << "sigma = " << prism_pars.sigma << endl;
 
     PRISM_FLOAT_TYPE f = 4*prism_pars.interpolationFactor;
     Array1D_dims imageSize({cellDim[0], cellDim[1]},{2});
@@ -75,6 +88,7 @@ int main(){
     prism_pars.atoms[0].to_string();
     prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
     PRISM::PRISM01(prism_pars);
+	PRISM::PRISM02(prism_pars);
     cout << "Writing potential stack to \"potential.mrc\"" << endl;
 	prism_pars.pot.toMRC_f("potentials.mrc");
 	//for (auto& i : u) std::cout << i << std::endl;
