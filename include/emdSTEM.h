@@ -12,21 +12,28 @@
 namespace PRISM{
     template <class T>
     struct emdSTEM {
-	    using Array1D      = PRISM::ArrayND<1, std::vector<T> >;
-	    using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
-	    using Array2D      = PRISM::ArrayND<2, std::vector<T> >;
-	    using Array2D_cx   = PRISM::ArrayND<2, std::vector< std::complex<T> > >;
-	    using Array3D      = PRISM::ArrayND<3, std::vector<T> >;
-	    using Array3D_cx   = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
+	    using Array1D        = PRISM::ArrayND<1, std::vector<T> >;
+	    using Array1D_dims   = PRISM::ArrayND<1, std::vector<size_t> >;
+	    using Array2D        = PRISM::ArrayND<2, std::vector<T> >;
+	    using Array2D_cx     = PRISM::ArrayND<2, std::vector< std::complex<T> > >;
+	    using Array2D_mask   = PRISM::ArrayND<2, std::vector<unsigned int> >;
+	    using Array3D        = PRISM::ArrayND<3, std::vector<T> >;
+	    using Array3D_cx     = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
 
 	    Array3D_cx Scompact;
 	    Array3D stack;
 		Array3D pot;
 
+	    Array2D_cx prop;
+	    Array2D_cx propBack;
+
+	    Array2D_mask qMask;
         Array2D probeDefocusArray;
         Array2D probeSemiangleArray;
         Array2D probeXtiltArray;
         Array2D probeYtiltArray;
+	    Array2D qxa;
+	    Array2D qya;
         Array2D qxaReduce;
         Array2D qyaReduce;
         Array2D xp;
@@ -54,6 +61,10 @@ namespace PRISM{
         T dr;
         T dq;
         T potBound;
+	    T E0;
+	    T sigma;
+	    T alphaBeamMax;
+	    T qMax;
         size_t Ndet;
         size_t numFP;
         size_t sliceThickness;
