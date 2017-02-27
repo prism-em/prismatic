@@ -234,7 +234,7 @@ namespace PRISM {
 		cout << "term2 = " << term2 << endl;
 		cout << "term1 = " << term1 << endl;
 		cout << "ap terms\n";
-		for (auto &i : ap)cout << i << endl;
+//		for (auto &i : ap)cout << i << endl;
 
 #endif //NDEBUG
 		return pot;

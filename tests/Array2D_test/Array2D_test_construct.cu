@@ -5,6 +5,7 @@
 //Test construction of a PRISM:Array2D with Thrust vectors
 #include <iostream>
 #include "ArrayND.h"
+#include <array>
 #include "thrust/host_vector.h"
 #include "thrust/device_vector.h"
 
@@ -19,7 +20,7 @@ int main(){
 
     cout << "Creating a host-side 2x3 PRISM::Array2D with thrust::host_vector" << endl;
     thrust::host_vector<int> test_h(6,0);
-    PRISM::ArrayND<2, thrust::host_vector<int> > arr_h(test_h,{2,3});
+    PRISM::ArrayND<2, thrust::host_vector<int> > arr_h(test_h,std::array<2,size_t>{2,3});
     cout << "nrows = " << arr.get_nrows() << endl;
     cout << "ncols = " << arr.get_ncols() << endl;
 

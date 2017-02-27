@@ -40,6 +40,7 @@ namespace PRISM{
         Array2D yp;
         Array2D beamsIndex;
         Array2D xyBeams;
+		Array2D beams;
         Array2D xVec;
         Array2D yVec;
         Array2D detectorAngles;
@@ -70,7 +71,8 @@ namespace PRISM{
         size_t sliceThickness;
         size_t interpolationFactor;
         size_t numPlanes;
-	    emdSTEM(){};
+	    size_t numberBeams;
+		emdSTEM(){};
     };
 
 

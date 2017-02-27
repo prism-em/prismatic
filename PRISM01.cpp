@@ -103,9 +103,11 @@ namespace PRISM {
 				for (auto a2 = 0; a2 < x.size(); ++a2){
 					if (zPlane[a2]==a0){
 						const size_t cur_Z = Z_lookup[ID[a2]];
+//						const T X = round((x[a2]) / pars.pixelSize[0]);
 						const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
 						xp = xvec + (long)X;
 						for (auto& i:xp)i%=pars.imageSize[0];
+//						const T Y = round((y[a2])/pars.pixelSize[1]);
 						const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
 						yp = yvec + (long)Y;
 						for (auto& i:yp)i%=pars.imageSize[1];
