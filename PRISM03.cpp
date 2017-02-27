@@ -11,9 +11,6 @@
 #include <numeric>
 #include "fftw3.h"
 
-#ifndef NUM_THREADS
-#define NUM_THREADS 12
-#endif //NUM_THREADS
 
 using namespace std;
 namespace PRISM {
@@ -101,8 +98,8 @@ namespace PRISM {
                         // as long as the number of xp and yp are similar. If that is not the case
                         // this may need to be adapted
                         vector<thread> workers;
-                        workers.reserve(NUM_THREADS); // prevents multiple reallocations
-                        auto WORK_CHUNK_SIZE = ( (pars.xp.size()-1) / NUM_THREADS) + 1;
+                        workers.reserve(pars.NUM_THREADS); // prevents multiple reallocations
+                        auto WORK_CHUNK_SIZE = ( (pars.xp.size()-1) / pars.NUM_THREADS) + 1;
                         auto start = 0;
                         auto stop = start + WORK_CHUNK_SIZE;
                         while (start < pars.xp.size()) {
@@ -115,8 +112,8 @@ namespace PRISM {
                                 }
                             }));
                             start += WORK_CHUNK_SIZE;
-                            stop  += WORK_CHUNK_SIZE;
                             if (start >= pars.xp.size())break;
+                            stop  += WORK_CHUNK_SIZE;
                         }
 
                         // synchronize
@@ -127,10 +124,11 @@ namespace PRISM {
         }
     }
 
-    static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+
 
     template<class T>
     void buildSignal(emdSTEM<T> &pars, const size_t &ax, const size_t &ay, const T &xTiltShift, const T &yTiltShift, PRISM::ArrayND<2, std::vector<T> > &alphaInd) {
+        static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
         const static std::complex<T> i(0, 1);
         const static double pi = std::acos(-1);
 

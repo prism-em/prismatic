@@ -4,30 +4,176 @@
 
 #include "PRISM02.h"
 #include <iostream>
+#include <vector>
+#include <thread>
+#include "fftw3.h"
+#include <mutex>
 using namespace std;
 namespace PRISM {
-	template <class T>
+
+	template<class T>
 	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
-	template <class T>
+	template<class T>
 	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
-	template <class T>
+	template<class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 
-	template <class T>
-	Array1D<T> makeFourierCoords(const size_t& N, const T& pixel_size){
+	template<class T>
+	Array1D<T> makeFourierCoords(const size_t &N, const T &pixel_size) {
 		Array1D<T> result = zeros_ND<1, T>({N});
-		long long nc = (size_t)floor( (double)N/2 );
+		long long nc = (size_t) floor((double) N / 2);
 
-		T dp = 1/(N*pixel_size);
-		for (auto i = 0; i < N; ++i){
-			result[(nc + (size_t)i) % N] = (i-nc) * dp;
+		T dp = 1 / (N * pixel_size);
+		for (auto i = 0; i < N; ++i) {
+			result[(nc + (size_t) i) % N] = (i - nc) * dp;
 		}
 		return result;
-};
+	};
 
-	template <class T>
-	void fill_Scompact(emdSTEM<T>& pars){
+	template<class T>
+	void propagatePlaneWave(emdSTEM<T> &pars,
+	                        Array3D<complex<T> >& trans,
+	                        size_t a0,
+	                        Array2D<complex<T> > &psi,
+	                        const fftw_plan &plan_forward,
+	                        const fftw_plan &plan_inverse,
+							mutex& fftw_plan_lock) {
+		psi[pars.beamsIndex[a0]] = 1;
+		const T N = (T)psi.size();
+		fftw_execute(plan_inverse);
+		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
+		const complex<T>* trans_t = &trans[0];
+		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+			for (auto& p:psi)p*=(*trans_t++); // transmit
+			fftw_execute(plan_forward); // FFT
+			for (auto i = psi.begin(), j = pars.prop.begin(); i != psi.end();++i,++j)*i*=(*j); // propagate
+			fftw_execute(plan_inverse); // IFFT
+			for (auto &i : psi)i /= N; // fftw scales by N, need to correct
+		}
+		fftw_execute(plan_forward);
+
+		Array2D< complex<T> > psi_small = zeros_ND<2, complex<T> >({{pars.qyInd.size(), pars.qxInd.size()}});
+		for (auto y = 0; y < pars.qyInd.size(); ++y){
+			for (auto x = 0; x < pars.qxInd.size(); ++x){
+				psi_small.at(y,x) = psi.at(pars.qyInd[y], pars.qxInd[x]);
+			}
+		}
+
+		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+		fftw_plan plan_final = fftw_plan_dft_2d(psi_small.get_nrows(), psi_small.get_ncols(),
+		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
+		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
+		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
+
+		gatekeeper.unlock();
+		fftw_execute(plan_final);
+		gatekeeper.lock();
+		fftw_destroy_plan(plan_final);
+		gatekeeper.unlock();
+		complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_nrows() * pars.Scompact.get_ncols()];
+		const T N_small = (T)psi_small.size();
+		for (auto& i:psi_small) {
+			*S_t++ = i/N_small;
+		}
+	};
+
+	template<class T>
+	void fill_Scompact(emdSTEM<T> &pars) {
+		mutex fftw_plan_lock;
+		const double pi = acos(-1);
+		const std::complex<double> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1], pars.imageSize[0]}});
+		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
+				{{pars.pot.get_nrows(), pars.pot.get_ncols(), pars.pot.get_nlayers()}});
+		cout << "pars.pot.get_nlayers() = " << pars.pot.get_nlayers() << endl;
+		cout << " pars.pot.get_ncols()= " << pars.pot.get_ncols() << endl;
+		cout << "  pars.pot.get_nrows()} = " << pars.pot.get_nrows() << endl;
+		{
+			auto p = pars.pot.begin();
+			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
+		}
+//
+//
+//		Array2D<complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
+//		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+//		fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+//		                                          FFTW_FORWARD, FFTW_ESTIMATE);
+//		fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+//		                                          FFTW_BACKWARD, FFTW_ESTIMATE);
+//		gatekeeper.unlock();
+//		//for (auto a0 = 0; a0 < pars.numberBeams; ++a0){
+//		for (auto a0 = 0; a0 < 1; ++a0) {
+//			cout << "a0 = " << a0 << endl;
+//			// re-zero psi each iteration
+//			memset((void *) &psi[0], 0, psi.size() * sizeof(complex<T>));
+//			propagatePlaneWave(pars, trans, a0, psi, plan_forward, plan_inverse, fftw_plan_lock);
+//		}
+//		gatekeeper.lock();
+//		fftw_destroy_plan(plan_forward);
+//		fftw_destroy_plan(plan_inverse);
+//		gatekeeper.unlock();
+
+
+
+
+
+
+
+
+
+
+		vector<thread> workers;
+		workers.reserve(pars.NUM_THREADS); // prevents multiple reallocations
+		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.NUM_THREADS) + 1;
+		auto start = 0;
+		auto stop = start + WORK_CHUNK_SIZE;
+		while (start < pars.numberBeams){
+		workers.emplace_back([&pars, &start, &stop, &fftw_plan_lock, &trans](){
+
+				// allocate array for psi just once per thread
+				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
+
+				unique_lock<mutex> gatekeeper(fftw_plan_lock);
+				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+				                                          FFTW_FORWARD, FFTW_ESTIMATE);
+				fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
+				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
+				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
+				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
+					// re-zero psi each iteration
+					memset((void*)&psi[0], 0, psi.size()*sizeof(complex<T>));
+					propagatePlaneWave(pars, trans, a0, psi, plan_forward, plan_inverse, fftw_plan_lock);
+				}
+
+				// clean up
+				gatekeeper.lock();
+				fftw_destroy_plan(plan_forward);
+				fftw_destroy_plan(plan_inverse);
+				gatekeeper.unlock();
+			});
+
+			start += WORK_CHUNK_SIZE;
+			if (start >= pars.numberBeams)break;
+			stop  += WORK_CHUNK_SIZE;
+		}
+		for (auto& t:workers)t.join();
+
+
+		cout << "pars.at(0,0,0) = " << pars.at(0,0,0) << endl;
+		cout << "trans.at(20,21,22) = " << trans.at(20,21,22) << endl;
+		cout << "trans.at(29,999,49) = " << trans.at(29,999,49) << endl;
+		cout << "trans.at(19,999,449) = " << trans.at(19,999,449) << endl;
+
+
 	}
 
 	template <class T>
@@ -126,12 +272,14 @@ namespace PRISM {
         }
 
 
-        pars.beams = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
+        pars.beams     = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
+
         {
             int beam_count = 0;
-            for (auto y = 0; y < pars.qMask.get_nrows(); ++y) {
-                for (auto x = 0; x < pars.qMask.get_ncols(); ++x) {
+            for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
+                for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
                     if (mask.at(y,x)==1){
+	                    pars.beamsIndex.push_back(y*pars.qMask.get_nrows() + x);
                         pars.beams.at(y,x) = beam_count++;
                     }
                 }
@@ -160,7 +308,7 @@ namespace PRISM {
 			}
 		}
 
-
+		cout << "Fetching compact S" << endl;
 
 		// populate compact-S matrix
 		fill_Scompact(pars);

@@ -38,7 +38,7 @@ namespace PRISM{
         Array2D qyaReduce;
         Array2D xp;
         Array2D yp;
-        Array2D beamsIndex;
+        std::vector<size_t> beamsIndex;
         Array2D xyBeams;
 		Array2D beams;
         Array2D xVec;
@@ -74,6 +74,8 @@ namespace PRISM{
         size_t interpolationFactor;
         size_t numPlanes;
 	    size_t numberBeams;
+		size_t NUM_THREADS;
+	    size_t NUM_GPUS;
 		emdSTEM(){};
     };
 

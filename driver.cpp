@@ -33,6 +33,8 @@ int main(){
     prism_pars.cellDim = cellDim;
     prism_pars.E0 = 80e3;
     prism_pars.alphaBeamMax=24/1000.0;
+	prism_pars.NUM_GPUS = 1;
+	prism_pars.NUM_THREADS = 1;
 
 	constexpr double m = 9.109383e-31;
 	constexpr double e = 1.602177e-19;
