@@ -52,6 +52,8 @@ namespace PRISM{
 	    Array1D_dims imageSize;
 	    Array1D_dims imageSizeReduce;
 	    Array1D_dims imageSizeOutput;
+	    Array1D_dims qxInd;
+	    Array1D_dims qyInd;
 
 	    Array2D_cx PsiProbeInit;
         Array2D q1;

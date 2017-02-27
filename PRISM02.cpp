@@ -12,6 +12,7 @@ namespace PRISM {
 	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
 	template <class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+
 	template <class T>
 	Array1D<T> makeFourierCoords(const size_t& N, const T& pixel_size){
 		Array1D<T> result = zeros_ND<1, T>({N});
@@ -25,15 +26,23 @@ namespace PRISM {
 };
 
 	template <class T>
+	void fill_Scompact(emdSTEM<T>& pars){
+		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1], pars.imageSize[0]}});
+	}
+
+	template <class T>
 	void PRISM02(emdSTEM<T>& pars){
+		// propogate plane waves to construct compact S-matrix
 
-
+		// constants
 		constexpr double m = 9.109383e-31;
 		constexpr double e = 1.602177e-19;
 		constexpr double c = 299792458;
 		constexpr double h = 6.62607e-34;
         const double pi = acos(-1);
         const std::complex<double> i(0, 1);
+
+		// setup some coordinates
 		pars.imageSize[0] = pars.pot.get_nlayers();
 		pars.imageSize[1] = pars.pot.get_ncols();
 		Array1D<T> qx = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
@@ -64,14 +73,8 @@ namespace PRISM {
 		{
 			long offset_x = pars.qMask.get_ncols()/4;		cout << "offset_x = " << offset_x << endl;
 			long offset_y = pars.qMask.get_nrows()/4;
-			cout << "(y-offset_y) % pars.qMask.get_nrows() = " << (0-offset_y) % pars.qMask.get_nrows() << endl;
-			cout << "pars.qMask.get_nrows() = " << pars.qMask.get_nrows() << endl;
-			cout << "-offset_y % pars.qMask.get_nrows() = " << (-offset_y) % (int)pars.qMask.get_nrows() << endl;
-			cout << "-250 % 1000 = " << -250%1000 << endl;
-			// Fix this
 			long ndimy = (long)pars.qMask.get_nrows();
 			long ndimx = (long)pars.qMask.get_nrows();
-
 			for (long y = 0; y < pars.qMask.get_nrows() / 2; ++y) {
 				for (long x = 0; x < pars.qMask.get_ncols() / 2; ++x) {
 					pars.qMask.at( ((y-offset_y) % ndimy + ndimy) % ndimy,
@@ -123,7 +126,6 @@ namespace PRISM {
         }
 
 
-        cout << " pow(pars.alphaBeamMax / pars.lambda,2) = " <<  pow(pars.alphaBeamMax / pars.lambda,2) << endl;
         pars.beams = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
         {
             int beam_count = 0;
@@ -134,9 +136,39 @@ namespace PRISM {
                     }
                 }
             }
-            cout << "beam_count = " << beam_count << endl;
-            cout << "pars.numberBeams = " << pars.numberBeams << endl;
         }
+
+
+		// TODO: ensure this block is correct for arbitrary dimension
+		// get the indices for the compact S-matrix
+		pars.qxInd = zeros_ND<1, size_t>({{pars.imageSize[1]/2}});
+		pars.qyInd = zeros_ND<1, size_t>({{pars.imageSize[0]/2}});
+		{
+			long n_0        = pars.imageSize[0];
+			long n_1        = pars.imageSize[1];
+			long n_half0    = pars.imageSize[0]/2;
+			long n_half1    = pars.imageSize[1]/2;
+			long n_quarter0 = pars.imageSize[0]/4;
+			long n_quarter1 = pars.imageSize[1]/4;
+			for (auto i = 0; i < n_quarter0; ++i) {
+				pars.qyInd[i] = i;
+				pars.qyInd[i + n_quarter0] = (i-n_quarter0) + n_0;
+			}
+			for (auto i = 0; i < n_quarter1; ++i) {
+				pars.qxInd[i] = i;
+				pars.qxInd[i + n_quarter1] = (i-n_quarter1) + n_1;
+			}
+		}
+
+
+
+		// populate compact-S matrix
+		fill_Scompact(pars);
+
+		cout << "pars.qyInd[2] = " << pars.qyInd[2]<< endl;
+		cout << "pars.qxInd[2] = " << pars.qxInd[2]<< endl;
+		cout << "pars.qyInd[350] = " << pars.qyInd[350]<< endl;
+		cout << "pars.qxInd[350] = " << pars.qxInd[350]<< endl;
         q2.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/q2.mrc");
         mesh_a.first.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/xa.mrc");
         mesh_a.second.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/ya.mrc");

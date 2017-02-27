@@ -20,9 +20,10 @@ int main(){
     using Array1D = PRISM::ArrayND<1, vec_d>;
     using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
 
-    std::string filename = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/MATLAB/atoms.txt";
-    //std::string filename = "test_atom.txt";
-    PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
+//    std::string filename = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/MATLAB/atoms.txt";
+//    std::string filename = "test_atom.txt";
+	std::string filename = "/home/aj/hdd1/clion/PRISM/MATLAB/atoms.txt";
+	PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
     PRISM_FLOAT_TYPE one_pixel_size = 100.0/1000.0;
     prism_pars.potBound = 1.0;
     prism_pars.numFP = 8.0/8.0;
