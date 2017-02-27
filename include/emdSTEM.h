@@ -34,6 +34,8 @@ namespace PRISM{
         Array2D probeYtiltArray;
 	    Array2D qxa;
 	    Array2D qya;
+	    Array2D qxaOutput;
+	    Array2D qyaOutput;
         Array2D qxaReduce;
         Array2D qyaReduce;
         Array2D xp;
@@ -41,6 +43,7 @@ namespace PRISM{
         std::vector<size_t> beamsIndex;
         Array2D xyBeams;
 		Array2D beams;
+	    Array2D beamsOutput;
         Array2D xVec;
         Array2D yVec;
         Array2D detectorAngles;

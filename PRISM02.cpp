@@ -283,12 +283,12 @@ namespace PRISM {
         mask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
         pars.numberBeams = 0;
         long interp_f = (long)pars.interpolationFactor;
-        for (auto y = 0; y < pars.qMask.get_nrows(); ++y) {
-            for (auto x = 0; x < pars.qMask.get_ncols(); ++x) {
+        for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
+            for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
                 if (q2.at(y,x) < pow(pars.alphaBeamMax / pars.lambda,2) &&
                     pars.qMask.at(y,x)==1 &&
-                    (size_t)round(mesh_a.first.at(y,x))  % interp_f == 0 &&
-                    (size_t)round(mesh_a.second.at(y,x)) % interp_f == 0){
+                    (long)round(mesh_a.first.at(y,x))  % interp_f == 0 &&
+                    (long)round(mesh_a.second.at(y,x)) % interp_f == 0){
                     mask.at(y,x)=1;
                     ++pars.numberBeams;
                 }
@@ -299,7 +299,7 @@ namespace PRISM {
 
         pars.beams     = zeros_ND<2, T>({{pars.imageSize[1], pars.imageSize[0]}});
 		{
-			int beam_count = 0;
+			int beam_count = 1;
 			for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
 				for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
 					if (mask.at(y,x)==1){
@@ -312,6 +312,8 @@ namespace PRISM {
 		mask.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/mask.mrc");
 		q2.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/q2.mrc");
 		pars.beams.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/beams.mrc");
+		mesh_a.second.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/ya.mrc");
+		mesh_a.first.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/xa.mrc");
 		for (auto  &i : pars.beamsIndex)cout << "beamsIndex = " << i << endl;
 //        {
 //            int beam_count = 0;
@@ -352,6 +354,31 @@ namespace PRISM {
 		// populate compact-S matrix
 		fill_Scompact(pars);
 
+		// downsample Fourier components by x2 to match output
+		pars.imageSizeOutput = pars.imageSize;
+		pars.imageSizeOutput[0]/=2;
+		pars.imageSizeOutput[1]/=2;
+		pars.pixelSizeOutput = pars.pixelSize;
+		pars.pixelSizeOutput[0]/=2;
+		pars.pixelSizeOutput[1]/=2;
+
+		pars.qxaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
+		pars.qyaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
+		pars.beamsOutput = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
+		for (auto y = 0; y < pars.qyInd.size(); ++y){
+			for (auto x = 0; x < pars.qxInd.size(); ++x){
+				pars.qxaOutput.at(y,x)   = pars.qxa.at(pars.qyInd[y],pars.qxInd[x]);
+				pars.qyaOutput.at(y,x)   = pars.qya.at(pars.qyInd[y],pars.qxInd[x]);
+				pars.beamsOutput.at(y,x) = pars.beams.at(pars.qyInd[y],pars.qxInd[x]);
+			}
+		}
+
+		cout << "pars.qxaOutput.at(0,1) = " << pars.qxaOutput.at(0,1) << endl;
+		cout << "pars.qyaOutput.at(4,3) = " << pars.qyaOutput.at(4,3) << endl;
+		cout << "pars.beamsOutput.at(4,3) = " << pars.beamsOutput.at(4,3) << endl;
+		pars.qxaOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/qxa.mrc");
+		pars.qyaOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/qya.mrc");
+		pars.beamsOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/beamsOutput.mrc");
 		cout << "pars.qyInd[2] = " << pars.qyInd[2]<< endl;
 		cout << "pars.qxInd[2] = " << pars.qxInd[2]<< endl;
 		cout << "pars.qyInd[350] = " << pars.qyInd[350]<< endl;
