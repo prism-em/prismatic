@@ -13,9 +13,10 @@ pixelSize = 100/1000;   % Realspace pixel size.
 emdSTEM.potBound = 1;       % Radial distance to integrate atomic potentials.
 emdSTEM.numFP = 8/8;          % Number of frozen phonon configurations.
 emdSTEM.sliceThickness = 2; % Thickness of each potential slice.
-emdSTEM.interpolationFactor = 5;
+emdSTEM.interpolationFactor = 10;
 
-u = ones(118,1) * 0.08;      % Debye waller coefficients.
+% u = ones(118,1) * 0.08;      % Debye waller coefficients.
+u = ones(118,1) * 0.0;      % Debye waller coefficients.
 
 % Keep atomic positions in struct
 emdSTEM.atoms = atoms;
@@ -71,6 +72,13 @@ for a0 = 1:emdSTEM.numPlanes
         
          for a2 = 1:length(inds)
             [~,indType] = min(abs(atomTypes-ID(inds(a2))));
+%             xp = mod(xvec+round((x(inds(a2))...
+%                 + 0*randn*uLookup(indType)) ...
+%                 /emdSTEM.pixelSize(1)),emdSTEM.imageSize(1))+1;
+%             yp = mod(yvec+round((y(inds(a2)) ...
+%                 + 0*randn*uLookup(indType)) ...
+%                 /emdSTEM.pixelSize(2)),emdSTEM.imageSize(2))+1;
+
             xp = mod(xvec+round((x(inds(a2))...
                 + randn*uLookup(indType)) ...
                 /emdSTEM.pixelSize(1)),emdSTEM.imageSize(1))+1;
