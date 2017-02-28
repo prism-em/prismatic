@@ -199,8 +199,8 @@ namespace PRISM {
 
 		pars.qMask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
 		{
-			long offset_x = pars.qMask.get_ncols()/4;		cout << "offset_x = " << offset_x << endl;
-			long offset_y = pars.qMask.get_nrows()/4;
+			long offset_x = pars.qMask.get_dimi()/4;		cout << "offset_x = " << offset_x << endl;
+			long offset_y = pars.qMask.get_dimj()/4;
 			long ndimy = (long)pars.qMask.get_dimj();
 			long ndimx = (long)pars.qMask.get_dimi();
 			for (long y = 0; y < pars.qMask.get_dimj() / 2; ++y) {

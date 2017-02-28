@@ -15,32 +15,23 @@
 namespace PRISM {
     template <size_t N, class T>
     class ArrayND {
-            // ND array class for data indexed as C-style
+            // ND array class for data indexed as C-style, i.e. arr.at(k,j,i) where i is the fastest varying index
+            // and k is the slowest
+
             // T is expected to be a std::vector
         public:
             ArrayND(T _data,
                     std::array<size_t, N> _dims);
             ArrayND(){};
-            size_t get_nrows()   const {return dims[0];}
-        size_t get_ncols()   const {return dims[1];}
-        size_t get_nlayers()   const {return dims[2];}
-			size_t get_dimi()   const {
-				return this->dims[N-1];
-			}
-			size_t get_dimj()   const {
-				return this->dims[N-2];
-			}
-			size_t get_dimk()   const {
-				return this->dims[N-3];
-			}
-			size_t get_diml()   const {
-				return this->dims[N-4];
-			}
-			size_t get_dimm()   const {
-				return this->dims[N-5];
-			}
-            size_t size()        const {return this->arr_size;}
-
+//            size_t get_nrows()   const {return dims[0];}
+//        size_t get_ncols()   const {return dims[1];}
+//        size_t get_nlayers()   const {return dims[2];}
+			size_t get_dimi() const {return this->dims[N-1];}
+			size_t get_dimj() const {return this->dims[N-2];}
+			size_t get_dimk() const {return this->dims[N-3];}
+			size_t get_diml() const {return this->dims[N-4]; }
+			size_t get_dimm() const {return this->dims[N-5]; }
+            size_t size()     const {return this->arr_size;}
             typename T::iterator begin();
             typename T::iterator end();
             typename T::iterator begin() const;

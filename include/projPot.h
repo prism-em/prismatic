@@ -65,19 +65,6 @@ namespace PRISM {
 		std::pair<Array2D<T>, Array2D<T> > meshx = meshgrid(xr, sub*dx);
 		std::pair<Array2D<T>, Array2D<T> > meshy = meshgrid(yr, sub*dy);
 
-//		for (auto i = 0; i < meshx.first.get_ncols();++i){
-//			for (auto j = 0; j < meshx.first.get_nrows(); ++j){
-//				cout <<" j,i = " << j << ", " << i << endl;
-//				cout << meshx.first.at(j,i) << endl;
-//			}
-//		}
-//
-//		for (auto i = 0; i < meshx.first.get_ncols();++i){
-//			for (auto j = 0; j < meshx.first.get_nrows(); ++j){
-//				cout <<" j,i = " << j << ", " << i << endl;
-//				cout << meshx.second.at(j,i) << endl;
-//			}
-//		}
 
 		ArrayND<1, std::vector<T> > xv = zeros_ND<1, T>({meshx.first.size()});
 		ArrayND<1, std::vector<T> > yv = zeros_ND<1, T>({meshy.first.size()});
@@ -90,10 +77,6 @@ namespace PRISM {
 			}
 		}
 
-//		cout <<"print xv\n";
-//		for (auto &i : xv)cout<<i << endl;
-
-
 
 		{
 			auto t_y = yv.begin();
@@ -104,42 +87,20 @@ namespace PRISM {
 			}
 		}
 
-//		cout <<"print yv\n";
-//		for (auto &i : yv)cout<<i << endl;
-
-//		cout << "yv.at[0] = " << yv[0] << endl;
-//		cout << "yv.at[5] = " << yv[5] << endl;
-//		cout << "yv.at[10] = " << yv[10] << endl;
-//		cout << "yv.at[100] = " << yv[100] << endl;
-//		cout << "yv.at[0] = " << yv[0] << endl;
-
-
 
 		std::pair<Array2D<T>, Array2D<T> > meshxy = meshgrid(xv, yv);
 		ArrayND<2, std::vector<T> > r2 = zeros_ND<2, T>({yv.size(), xv.size()});
 		ArrayND<2, std::vector<T> > r = zeros_ND<2, T>({yv.size(), xv.size()});
-//		cout << "r.get_ncols = " << r.get_ncols()<<endl;
-//		cout << "r.get_nrows = " << r.get_nrows()<<endl;
-//		cout << "meshxy.first.size() = " << meshxy.first.size() << endl;
-//		cout << "meshxy.first.get_nrows() = " << meshxy.first.get_nrows() << endl;
-//		cout << "meshxy.first.get_ncols() = " << meshxy.first.get_ncols() << endl;
 
-
-//		for (auto j = 0; j < meshxy.first.size(); ++j)r2[j]=pow(meshxy.first[j],2) + pow(meshxy.second[j],2);
 		{
 			auto t_y = r2.begin();
 			for (auto i = 0; i < meshxy.first.get_dimi(); ++i) {
 				for (auto j = 0; j < meshxy.first.get_dimj(); ++j) {
 					*t_y++ = pow(meshxy.first.at(j,i),2) + pow(meshxy.second.at(j,i),2);
-//					r2.at(j,i) = pow(meshxy.first.at(j,i),2) + pow(meshxy.second.at(j,i),2);
 				}
 			}
 		}
 
-//		cout << "r2.at(1,1) = " << r2.at(1,1) << endl;
-//		cout << "r2.at(10,10) = " << r2.at(10,10) << endl;
-//		cout << "r2.at(100,100) = " << r2.at(100,100) << endl;
-//		cout << "r2.at(96,96) = " << r2.at(96,96) << endl;
 
 		for (auto i = 0; i < r.size(); ++i)r[i] = sqrt(r2[i]);
 		// construct potential

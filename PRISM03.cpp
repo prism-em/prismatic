@@ -69,7 +69,6 @@ namespace PRISM {
         vector<T> detectorAngles_d = vecFromRange(dr/2, dr, alphaMax-dr/2);
 	    Array1D<T> detectorAngles(detectorAngles_d,{{detectorAngles_d.size()}});
         pars.detectorAngles = detectorAngles;
-
         bool flag_plot = 0;
         bool flag_keep_beams = 0;
         T r_0 = pars.imageSizeOutput[0] / pars.interpolationFactor / 2;
