@@ -14,7 +14,7 @@ add_executable(driver ${SOURCE_FILES})
 target_link_libraries(driver ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS})
 find_package(FFTW REQUIRED)
-include_directories(FFTW_INCLUDES)
+include_directories(${FFTW_INCLUDES})
 target_link_libraries(PRISM ${FFTW_LIBRARIES})
 message("FFTW FOUND! Location " ${FFTW_INCLUDES})
 
