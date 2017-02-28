@@ -74,21 +74,21 @@ namespace PRISM {
         bool flag_keep_beams = 0;
         T r_0 = pars.imageSizeOutput[0] / pars.interpolationFactor / 2;
         T r_1 = pars.imageSizeOutput[1] / pars.interpolationFactor / 2;
-	    vector<T> xVec = vecFromRange(-r_0, 1.0, r_0-1);
-	    vector<T> yVec = vecFromRange(-r_1, 1.0, r_1-1);
+	    vector<T> yVec = vecFromRange(-r_0, 1.0, r_0-1);
+	    vector<T> xVec = vecFromRange(-r_1, 1.0, r_1-1);
 
 
 
         vector<T> beamsReduce_d;
         size_t dimx = 0;
         size_t dimy = 0;
-        for (auto y = 0; y < pars.beamsOutput.get_nrows(); y+=pars.interpolationFactor) {
-            for (auto x = 0; x < pars.beamsOutput.get_ncols(); x += pars.interpolationFactor) {
+        for (auto y = 0; y < pars.beamsOutput.get_dimj(); y+=pars.interpolationFactor) {
+            for (auto x = 0; x < pars.beamsOutput.get_dimi(); x += pars.interpolationFactor) {
                 beamsReduce_d.push_back(pars.beamsOutput.at(y,x));
             }
             ++dimy;
         }
-        for (auto x = 0; x < pars.beamsOutput.get_ncols(); x += pars.interpolationFactor)++dimx;
+        for (auto x = 0; x < pars.beamsOutput.get_dimi(); x += pars.interpolationFactor)++dimx;
         Array2D<T> beamsReduce(beamsReduce_d,{{dimy, dimx}});
 
 
@@ -248,15 +248,15 @@ namespace PRISM {
         using Array2D = PRISM::ArrayND<2, std::vector<T> >;
         using Array2D_cx = PRISM::ArrayND<2, std::vector<std::complex<T> > >;
 
-        T x0 = pars.xp[ax] / pars.pixelSizeOutput[0];
-        T y0 = pars.yp[ay] / pars.pixelSizeOutput[1];
+        T x0 = pars.xp[ax] / pars.pixelSizeOutput[1];
+        T y0 = pars.yp[ay] / pars.pixelSizeOutput[0];
         Array2D x = pars.xVec + round(x0);
-        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
+        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]); });
         Array2D y = pars.yVec + round(y0);
-        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]); });
+        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
         Array2D intOutput = PRISM::zeros_ND<2, T>({pars.imageSizeReduce[0], pars.imageSizeReduce[1]});
         for (auto a5 = 0; a5 < pars.numFP; ++a5) {
-            Array2D_cx psi = PRISM::zeros_ND<2, std::complex<T> >({pars.imageSizeReduce[0], pars.imageSizeReduce[1]});
+            Array2D_cx psi = PRISM::zeros_ND<2, std::complex<T> >({pars.imageSizeReduce[1], pars.imageSizeReduce[0]});
             for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
                 T xB = pars.xyBeams.at(a4, 0) - 1;
                 T yB = pars.xyBeams.at(a4, 1) - 1;

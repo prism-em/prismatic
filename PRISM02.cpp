@@ -61,7 +61,7 @@ namespace PRISM {
 		}
 
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		fftw_plan plan_final = fftw_plan_dft_2d(psi_small.get_nrows(), psi_small.get_ncols(),
+		fftw_plan plan_final = fftw_plan_dft_2d(psi_small.get_dimj(), psi_small.get_dimi(),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
 		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
@@ -71,10 +71,7 @@ namespace PRISM {
 		gatekeeper.lock();
 		fftw_destroy_plan(plan_final);
 		gatekeeper.unlock();
-	complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_nlayers() * pars.Scompact.get_ncols()];
-	//cout << "pars.Scompact.get_nlayers() = " << pars.Scompact.get_nlayers() << endl;
-	//	cout << "pars.Scompact.get_nrows() = " << pars.Scompact.get_nrows() << endl;
-	//	cout << "pars.Scompact.get_ncols() = " << pars.Scompact.get_ncols() << endl;
+		complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()];
 		const T N_small = (T)psi_small.size();
 		for (auto& i:psi_small) {
 			*S_t++ = i/N_small;
@@ -89,45 +86,13 @@ namespace PRISM {
 		const std::complex<double> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1], pars.imageSize[0]}});
 		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
-				{{pars.pot.get_nrows(), pars.pot.get_ncols(), pars.pot.get_nlayers()}});
+				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
 			auto p = pars.pot.begin();
 			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
 		}
 
 		for (auto& i:trans){i.real(1);i.imag(2);};
-//
-//
-//		Array2D<complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
-//		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-//		fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
-//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-//		                                          FFTW_FORWARD, FFTW_ESTIMATE);
-//		fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
-//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-//		                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-//		                                          FFTW_BACKWARD, FFTW_ESTIMATE);
-//		gatekeeper.unlock();
-//		//for (auto a0 = 0; a0 < pars.numberBeams; ++a0){
-//		for (auto a0 = 0; a0 < 1; ++a0) {
-//			cout << "a0 = " << a0 << endl;
-//			// re-zero psi each iteration
-//			memset((void *) &psi[0], 0, psi.size() * sizeof(complex<T>));
-//			propagatePlaneWave(pars, trans, a0, psi, plan_forward, plan_inverse, fftw_plan_lock);
-//		}
-//		gatekeeper.lock();
-//		fftw_destroy_plan(plan_forward);
-//		fftw_destroy_plan(plan_inverse);
-//		gatekeeper.unlock();
-
-
-
-
-
-
-
-
 
 
 		vector<thread> workers;
@@ -142,11 +107,11 @@ namespace PRISM {
 				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
 
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
-				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          FFTW_FORWARD, FFTW_ESTIMATE);
-				fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_nrows(), psi.get_ncols(),
+				fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
@@ -174,10 +139,10 @@ namespace PRISM {
 		cout << "pars.Scompact.at(0,0,1)= " << pars.Scompact.at(0,0,1) << endl;
 		cout << "pars.Scompact.at(0,0,2)= " << pars.Scompact.at(0,0,2) << endl;
 		cout << "pars.Scompact.at(0,0,3)= " << pars.Scompact.at(0,0,3) << endl;
-		cout << "pars.Scompact.at(1,0,0)= " << pars.Scompact.at(1,0,0) << endl;
-		cout << "pars.Scompact.at(1,0,1)= " << pars.Scompact.at(1,0,1) << endl;
-		cout << "pars.Scompact.at(1,0,2)= " << pars.Scompact.at(1,0,2) << endl;
-		cout << "pars.Scompact.at(1,0,3)= " << pars.Scompact.at(1,0,3) << endl;
+//		cout << "pars.Scompact.at(1,0,0)= " << pars.Scompact.at(1,0,0) << endl;
+//		cout << "pars.Scompact.at(1,0,1)= " << pars.Scompact.at(1,0,1) << endl;
+//		cout << "pars.Scompact.at(1,0,2)= " << pars.Scompact.at(1,0,2) << endl;
+//		cout << "pars.Scompact.at(1,0,3)= " << pars.Scompact.at(1,0,3) << endl;
 //		cout << "pars.Scompact.at(2,0,0)= " << pars.Scompact.at(2,0,0) << endl;
 //		cout << "pars.Scompact.at(2,0,1)= " << pars.Scompact.at(2,0,1) << endl;
 //		cout << "pars.Scompact.at(2,0,2)= " << pars.Scompact.at(2,0,2) << endl;
@@ -206,10 +171,10 @@ namespace PRISM {
         const std::complex<double> i(0, 1);
 
 		// setup some coordinates
-		pars.imageSize[0] = pars.pot.get_nlayers();
-		pars.imageSize[1] = pars.pot.get_ncols();
-		Array1D<T> qx = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
-		Array1D<T> qy = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
+		pars.imageSize[0] = pars.pot.get_dimj();
+		pars.imageSize[1] = pars.pot.get_dimi();
+		Array1D<T> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
+		Array1D<T> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 
 		pair< Array2D<T>, Array2D<T> > mesh = meshgrid(qx,qy);
 		pars.qxa = mesh.first;
@@ -236,10 +201,10 @@ namespace PRISM {
 		{
 			long offset_x = pars.qMask.get_ncols()/4;		cout << "offset_x = " << offset_x << endl;
 			long offset_y = pars.qMask.get_nrows()/4;
-			long ndimy = (long)pars.qMask.get_nrows();
-			long ndimx = (long)pars.qMask.get_nrows();
-			for (long y = 0; y < pars.qMask.get_nrows() / 2; ++y) {
-				for (long x = 0; x < pars.qMask.get_ncols() / 2; ++x) {
+			long ndimy = (long)pars.qMask.get_dimj();
+			long ndimx = (long)pars.qMask.get_dimi();
+			for (long y = 0; y < pars.qMask.get_dimj() / 2; ++y) {
+				for (long x = 0; x < pars.qMask.get_dimi() / 2; ++x) {
 					pars.qMask.at( ((y-offset_y) % ndimy + ndimy) % ndimy,
 								   ((x-offset_x) % ndimx + ndimx) % ndimx) = 1;
 				}
@@ -250,8 +215,8 @@ namespace PRISM {
         pars.prop     = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
         pars.propBack = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
         cout << "exp(-i * pi) << endl =" << exp(-i * pi) << endl;
-        for (auto y = 0; y < pars.qMask.get_nrows(); ++y) {
-            for (auto x = 0; x < pars.qMask.get_ncols(); ++x) {
+        for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
+            for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
                 if (pars.qMask.at(y,x)==1)
                 {
                     pars.prop.at(y,x)     = exp(-i * pi * complex<T>(pars.lambda, 0) *
@@ -276,8 +241,8 @@ namespace PRISM {
         mask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
         pars.numberBeams = 0;
         long interp_f = (long)pars.interpolationFactor;
-        for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
-            for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
+        for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
+            for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
                 if (q2.at(y,x) < pow(pars.alphaBeamMax / pars.lambda,2) &&
                     pars.qMask.at(y,x)==1 &&
                     (long)round(mesh_a.first.at(y,x))  % interp_f == 0 &&
@@ -290,13 +255,13 @@ namespace PRISM {
 		cout << "pars.alphaBeamMax = " << pars.alphaBeamMax<< endl;
 		cout << "pars.lambda = " << pars.lambda<< endl;
 
-        pars.beams     = zeros_ND<2, T>({{pars.imageSize[1], pars.imageSize[0]}});
+        pars.beams     = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
 			int beam_count = 1;
-			for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
-				for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
+			for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
+				for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 					if (mask.at(y,x)==1){
-						pars.beamsIndex.push_back((size_t)y*pars.qMask.get_ncols() + (size_t)x);
+						pars.beamsIndex.push_back((size_t)y*pars.qMask.get_dimj() + (size_t)x);
 						pars.beams.at(y,x) = beam_count++;
 					}
 				}

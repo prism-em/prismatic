@@ -21,10 +21,9 @@ namespace PRISM {
             ArrayND(T _data,
                     std::array<size_t, N> _dims);
             ArrayND(){};
-            size_t get_nrows()   const {return this->dims[0];}
-            size_t get_ncols()   const {return this->dims[1];}
-            size_t get_nlayers() const {return this->dims[2];}
-            size_t get_ndim4()   const {return this->dims[3];}
+            size_t get_nrows()   const {return dims[0];}
+        size_t get_ncols()   const {return dims[1];}
+        size_t get_nlayers()   const {return dims[2];}
 			size_t get_dimi()   const {
 				return this->dims[N-1];
 			}
@@ -338,10 +337,10 @@ namespace PRISM {
 	std::pair<Array2D<T>, Array2D<T>> meshgrid(const Array1D<T>& X, const Array1D<T>& Y){
 		Array2D<T> xx = zeros_ND<2, T>({Y.size(), X.size()});
 		Array2D<T> yy = zeros_ND<2, T>({Y.size(), X.size()});
-		for (auto i = 0; i < xx.get_nrows(); ++i){
-			for (auto j = 0; j < xx.get_ncols(); ++j){
-				xx.at(i,j) = X[j];
-				yy.at(i,j) = Y[i];
+		for (auto j = 0; j < xx.get_dimj(); ++j){
+			for (auto i = 0; i < xx.get_dimi(); ++i){
+				xx.at(j,i) = X[i];
+				yy.at(j,i) = Y[j];
 			}
 		}
 		return std::pair<Array2D<T>, Array2D<T> >(xx,yy);

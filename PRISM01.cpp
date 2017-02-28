@@ -77,7 +77,7 @@ namespace PRISM {
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
 
-		pars.pot = zeros_ND<3, T>({pars.numPlanes,pars.imageSize[1], pars.imageSize[0] });
+		pars.pot = zeros_ND<3, T>({pars.numPlanes,pars.imageSize[0], pars.imageSize[1] });
 
 
 		// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
@@ -103,14 +103,14 @@ namespace PRISM {
 				for (auto a2 = 0; a2 < x.size(); ++a2){
 					if (zPlane[a2]==a0){
 						const size_t cur_Z = Z_lookup[ID[a2]];
-						const T X = round((x[a2]) / pars.pixelSize[0]);
+						const T X = round((x[a2]) / pars.pixelSize[1]);
 //						const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
 						xp = xvec + (long)X;
-						for (auto& i:xp)i%=pars.imageSize[0];
-						const T Y = round((y[a2])/pars.pixelSize[1]);
+						for (auto& i:xp)i%=pars.imageSize[1];
+						const T Y = round((y[a2])/pars.pixelSize[0]);
 //						const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
 						yp = yvec + (long)Y;
-						for (auto& i:yp)i%=pars.imageSize[1];
+						for (auto& i:yp)i%=pars.imageSize[0];
 						for (auto ii = 0; ii < xp.size(); ++ii){
 							for (auto jj = 0; jj < yp.size(); ++jj){
 								projPot.at(yp[jj],xp[ii]) += potLookup.at(cur_Z,jj,ii);
@@ -216,23 +216,6 @@ namespace PRISM {
 		generateProjectedPotentials(pars, potLookup, unique_species, xvec, yvec, uLookup);
 
 #ifndef NDEBUG
-		cout << "potLookup.get_ncols() = " << potLookup.get_ncols() << endl;
-		cout << "potLookup.get_nrows() = " << potLookup.get_nrows() << endl;
-		cout << "potLookup.get_nlayers() = " << potLookup.get_nlayers() << endl;
-		cout << "potLookup.at(1,2,3) = " << potLookup.at(1,2,3) << endl;
-		cout << "potLookup.at(0,4,4) = " << potLookup.at(0,4,4) << endl;
-		cout << "potLookup.at(0,20,20) = " << potLookup.at(0,20,20) << endl;
-//		cout << "pars.pixelSize[0] = " << pars.pixelSize[0] << endl;
-//		cout << "pars.pixelSize[0] = " << pars.pixelSize[1] << endl;
-//		//for (auto& j : yvec)cout<<j<<endl;
-//		for (auto& j : yr)cout<<j<<endl;
-//		cout<<yr.size()<<endl;
-//		cout<<xr.size()<<endl;
-//		cout<<yvec.size()<<endl;
-//		for (auto& i:unique_species)cout<<i<<endl;
-//		cout <<"number of unique atomic species = " << unique_species.size() << endl;
-//		cout <<"uLookup.size() = " << uLookup.size() << endl;
-//		for (auto& i :potLookup)cout<<i << endl;
 //		for (auto& i :uLookup)cout<<i << endl;
 #endif //NDEBUG
 

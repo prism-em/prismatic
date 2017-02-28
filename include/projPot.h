@@ -83,8 +83,8 @@ namespace PRISM {
 		ArrayND<1, std::vector<T> > yv = zeros_ND<1, T>({meshy.first.size()});
 		{
 			auto t_x = xv.begin();
-			for (auto i = 0; i < meshx.first.get_ncols(); ++i) {
-				for (auto j = 0; j < meshx.first.get_nrows(); ++j) {
+			for (auto i = 0; i < meshx.first.get_dimi(); ++i) {
+				for (auto j = 0; j < meshx.first.get_dimj(); ++j) {
 					*t_x++ = meshx.first.at(j, i) + meshx.second.at(j, i);
 				}
 			}
@@ -97,8 +97,8 @@ namespace PRISM {
 
 		{
 			auto t_y = yv.begin();
-			for (auto i = 0; i < meshy.first.get_ncols(); ++i) {
-				for (auto j = 0; j < meshy.first.get_nrows(); ++j) {
+			for (auto i = 0; i < meshy.first.get_dimi(); ++i) {
+				for (auto j = 0; j < meshy.first.get_dimj(); ++j) {
 					*t_y++ = meshy.first.at(j, i) + meshy.second.at(j, i);
 				}
 			}
@@ -128,8 +128,8 @@ namespace PRISM {
 //		for (auto j = 0; j < meshxy.first.size(); ++j)r2[j]=pow(meshxy.first[j],2) + pow(meshxy.second[j],2);
 		{
 			auto t_y = r2.begin();
-			for (auto i = 0; i < meshxy.first.get_nrows(); ++i) {
-				for (auto j = 0; j < meshxy.first.get_ncols(); ++j) {
+			for (auto i = 0; i < meshxy.first.get_dimi(); ++i) {
+				for (auto j = 0; j < meshxy.first.get_dimj(); ++j) {
 					*t_y++ = pow(meshxy.first.at(j,i),2) + pow(meshxy.second.at(j,i),2);
 //					r2.at(j,i) = pow(meshxy.first.at(j,i),2) + pow(meshxy.second.at(j,i),2);
 				}
@@ -143,7 +143,7 @@ namespace PRISM {
 
 		for (auto i = 0; i < r.size(); ++i)r[i] = sqrt(r2[i]);
 		// construct potential
-		ArrayND<2, std::vector<T> > potSS  = ones_ND<2, T>({r2.get_nrows(), r2.get_ncols()});
+		ArrayND<2, std::vector<T> > potSS  = ones_ND<2, T>({r2.get_dimj(), r2.get_dimi()});
 		std::vector<double> ap;
 		ap.reserve(n_parameters);
 		for (auto i = 0; i < n_parameters; ++i){
@@ -183,8 +183,8 @@ namespace PRISM {
 		ArrayND<2, std::vector<T> > pot = zeros_ND<2, T>({yr.size(), xr.size()});
 		for (auto sy = 0; sy < ss; ++sy){
 			for (auto sx = 0; sx < ss; ++sx) {
-				for (auto j = 0; j < pot.get_nrows(); ++j) {
-					for (auto i = 0; i < pot.get_ncols(); ++i) {
+				for (auto j = 0; j < pot.get_dimj(); ++j) {
+					for (auto i = 0; i < pot.get_dimi(); ++i) {
 						pot.at(j, i) += potSS.at(j*ss + sy, i*ss + sx);
 					}
 				}
@@ -203,9 +203,6 @@ namespace PRISM {
 #ifndef NDEBUG
 #include <iostream>
 		using namespace std;
-		cout << meshx.first.get_nrows() << endl;
-		cout << meshx.second.get_nrows() << endl;
-		cout << meshx.first.size() << endl;
 		cout << "meshx.first.at(0,1) = " << meshx.first.at(0,1)<< endl;
 		cout << "meshx.first.at(0,2) = " << meshx.first.at(0,2)<< endl;
 		cout << "meshx.first.at(1,1) = " << meshx.first.at(1,1)<< endl;
