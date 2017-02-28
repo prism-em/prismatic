@@ -26,12 +26,12 @@ namespace PRISM {
 	                      const ArrayND<1, std::vector<T> >& xr,
 	                      const ArrayND<1, std::vector<T> >& yr){
 		ArrayND<2, std::vector<T> > cur_pot;
-		for (auto a0 =0; a0 < potentials.get_nrows(); ++a0){
-			cout << "species = " << atomic_species[a0] << endl;
-			ArrayND<2, std::vector<T> > cur_pot = projPot(atomic_species[a0], xr, yr);
-			for (auto j = 0; j < potentials.get_ncols(); ++j){
-				for (auto k = 0; k < potentials.get_nlayers(); ++k){
-					potentials.at(a0,j,k) = cur_pot.at(j,k);
+		for (auto k =0; k < potentials.get_dimk(); ++k){
+			cout << "species = " << atomic_species[k] << endl;
+			ArrayND<2, std::vector<T> > cur_pot = projPot(atomic_species[k], xr, yr);
+			for (auto j = 0; j < potentials.get_dimj(); ++j){
+				for (auto i = 0; i < potentials.get_dimi(); ++i){
+					potentials.at(k,j,i) = cur_pot.at(j,i);
 				}
 			}
 		}
@@ -62,9 +62,9 @@ namespace PRISM {
 		Array1D<T> ID = zeros_ND<1, T>({pars.atoms.size()});
 
 		for (auto i = 0; i < pars.atoms.size(); ++i){
-			x[i]  = pars.atoms[i].x * pars.cellDim[0];
+			x[i]  = pars.atoms[i].x * pars.cellDim[2];
 			y[i]  = pars.atoms[i].y * pars.cellDim[1];
-			z[i]  = pars.atoms[i].z * pars.cellDim[2];
+			z[i]  = pars.atoms[i].z * pars.cellDim[0];
 			ID[i] = pars.atoms[i].species;
 		}
 
@@ -199,8 +199,8 @@ namespace PRISM {
 		}
 		Array1D xr(vector<T>(2*(size_t)xleng + 1, 0),{2*(size_t)xleng + 1});
 		Array1D yr(vector<T>(2*(size_t)yleng + 1, 0),{2*(size_t)yleng + 1});
-		for (auto i=0; i < xr.size(); ++i)xr[i] = (T)xvec[i] * pars.pixelSize[0];
-		for (auto j=0; j < yr.size(); ++j)yr[j] = (T)yvec[j] * pars.pixelSize[1];
+		for (auto i=0; i < xr.size(); ++i)xr[i] = (T)xvec[i] * pars.pixelSize[1];
+		for (auto j=0; j < yr.size(); ++j)yr[j] = (T)yvec[j] * pars.pixelSize[0];
 
 		vector<size_t> unique_species = get_unique_atomic_species(pars);
 		cout << "unique_species[0] = " << unique_species[0] << endl;

@@ -29,7 +29,7 @@ int main(){
     prism_pars.numFP = 8.0/8.0;
     prism_pars.sliceThickness = 2;
     prism_pars.interpolationFactor = 100;
-    Array1D_dims cellDim({100,100,80},{3});
+    Array1D_dims cellDim({80,100,100},{3}); // this is z,y,x format
     prism_pars.cellDim = cellDim;
     prism_pars.E0 = 80e3;
     prism_pars.alphaBeamMax=24/1000.0;
@@ -47,7 +47,7 @@ int main(){
 	cout << "sigma = " << prism_pars.sigma << endl;
 
     PRISM_FLOAT_TYPE f = 4*prism_pars.interpolationFactor;
-    Array1D_dims imageSize({{cellDim[0], cellDim[1]},{2}});
+    Array1D_dims imageSize({{cellDim[1], cellDim[2]},{2}});
     std::transform(imageSize.begin(),imageSize.end(),imageSize.begin(),[&f, &prism_pars, &one_pixel_size](size_t& a){
         return (size_t)(f*round((PRISM_FLOAT_TYPE)a / one_pixel_size / f));
     });
@@ -55,7 +55,7 @@ int main(){
     cout << "imageSize[1] = " << imageSize[1] << endl;
     prism_pars.imageSize = imageSize;
 
-    Array1D pixelSize({{(PRISM_FLOAT_TYPE)cellDim[0], (PRISM_FLOAT_TYPE)cellDim[1]},{2}});
+    Array1D pixelSize({{(PRISM_FLOAT_TYPE)cellDim[1], (PRISM_FLOAT_TYPE)cellDim[2]},{2}});
     prism_pars.pixelSize = pixelSize;
     prism_pars.pixelSize[0]/=prism_pars.imageSize[0];
     prism_pars.pixelSize[1]/=prism_pars.imageSize[1];
@@ -86,7 +86,7 @@ int main(){
 
 
 
-    Array2D u = PRISM::ones_ND<2, double>({{118,1}}) * 0.08;
+    Array1D u = PRISM::ones_ND<1, double>({{118}}) * 0.08;
     prism_pars.u = u;
     prism_pars.atoms[0].to_string();
     prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
@@ -94,7 +94,7 @@ int main(){
 	PRISM::PRISM02(prism_pars);
 	PRISM::PRISM03(prism_pars);
     cout << "Writing potential stack to \"potential.mrc\"" << endl;
-//	prism_pars.pot.toMRC_f("potentials.mrc");
-	//for (auto& i : u) std::cout << i << std::endl;
+	prism_pars.pot.toMRC_f("potentials.mrc");
+//	for (auto& i : u) std::cout << i << std::endl;
     return 0;
 }
