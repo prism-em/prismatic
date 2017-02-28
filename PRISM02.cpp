@@ -178,18 +178,18 @@ namespace PRISM {
 		cout << "pars.Scompact.at(1,0,1)= " << pars.Scompact.at(1,0,1) << endl;
 		cout << "pars.Scompact.at(1,0,2)= " << pars.Scompact.at(1,0,2) << endl;
 		cout << "pars.Scompact.at(1,0,3)= " << pars.Scompact.at(1,0,3) << endl;
-		cout << "pars.Scompact.at(2,0,0)= " << pars.Scompact.at(2,0,0) << endl;
-		cout << "pars.Scompact.at(2,0,1)= " << pars.Scompact.at(2,0,1) << endl;
-		cout << "pars.Scompact.at(2,0,2)= " << pars.Scompact.at(2,0,2) << endl;
-		cout << "pars.Scompact.at(2,0,3)= " << pars.Scompact.at(2,0,3) << endl;
-		cout << "pars.Scompact.at(10,0,0)= " << pars.Scompact.at(10,0,0) << endl;
-		cout << "pars.Scompact.at(10,0,1)= " << pars.Scompact.at(10,0,1) << endl;
-		cout << "pars.Scompact.at(10,0,2)= " << pars.Scompact.at(10,0,2) << endl;
-		cout << "pars.Scompact.at(10,0,3)= " << pars.Scompact.at(10,0,3) << endl;
-		cout << "pars.Scompact.at(100,0,0)= " << pars.Scompact.at(100,0,0) << endl;
-		cout << "pars.Scompact.at(100,0,1)= " << pars.Scompact.at(100,0,1) << endl;
-		cout << "pars.Scompact.at(100,0,2)= " << pars.Scompact.at(100,0,2) << endl;
-		cout << "pars.Scompact.at(100,0,3)= " << pars.Scompact.at(100,0,3) << endl;
+//		cout << "pars.Scompact.at(2,0,0)= " << pars.Scompact.at(2,0,0) << endl;
+//		cout << "pars.Scompact.at(2,0,1)= " << pars.Scompact.at(2,0,1) << endl;
+//		cout << "pars.Scompact.at(2,0,2)= " << pars.Scompact.at(2,0,2) << endl;
+//		cout << "pars.Scompact.at(2,0,3)= " << pars.Scompact.at(2,0,3) << endl;
+//		cout << "pars.Scompact.at(10,0,0)= " << pars.Scompact.at(10,0,0) << endl;
+//		cout << "pars.Scompact.at(10,0,1)= " << pars.Scompact.at(10,0,1) << endl;
+//		cout << "pars.Scompact.at(10,0,2)= " << pars.Scompact.at(10,0,2) << endl;
+//		cout << "pars.Scompact.at(10,0,3)= " << pars.Scompact.at(10,0,3) << endl;
+//		cout << "pars.Scompact.at(100,0,0)= " << pars.Scompact.at(100,0,0) << endl;
+//		cout << "pars.Scompact.at(100,0,1)= " << pars.Scompact.at(100,0,1) << endl;
+//		cout << "pars.Scompact.at(100,0,2)= " << pars.Scompact.at(100,0,2) << endl;
+//		cout << "pars.Scompact.at(100,0,3)= " << pars.Scompact.at(100,0,3) << endl;
 
 	}
 

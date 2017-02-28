@@ -38,15 +38,15 @@ namespace PRISM{
 	    Array2D qyaOutput;
         Array2D qxaReduce;
         Array2D qyaReduce;
-        Array2D xp;
-        Array2D yp;
+        Array1D xp;
+        Array1D yp;
         std::vector<size_t> beamsIndex;
         Array2D xyBeams;
 		Array2D beams;
 	    Array2D beamsOutput;
         Array2D xVec;
         Array2D yVec;
-        Array2D detectorAngles;
+        Array1D detectorAngles;
 	    Array2D u;
 	    std::vector<atom> atoms;
 	    Array1D pixelSize;

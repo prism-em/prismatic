@@ -20,15 +20,15 @@ int main(){
     using Array1D = PRISM::ArrayND<1, vec_d>;
     using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
 
-//    std::string filename = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/MATLAB/atoms.txt";
+    std::string filename = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/MATLAB/atoms.txt";
 //    std::string filename = "test_atom.txt";
-	std::string filename = "/home/aj/hdd1/clion/PRISM/MATLAB/atoms.txt";
+//	std::string filename = "/home/aj/hdd1/clion/PRISM/MATLAB/atoms.txt";
 	PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
     PRISM_FLOAT_TYPE one_pixel_size = 100.0/1000.0;
     prism_pars.potBound = 1.0;
     prism_pars.numFP = 8.0/8.0;
     prism_pars.sliceThickness = 2;
-    prism_pars.interpolationFactor = 10;
+    prism_pars.interpolationFactor = 100;
     Array1D_dims cellDim({100,100,80},{3});
     prism_pars.cellDim = cellDim;
     prism_pars.E0 = 80e3;
@@ -92,7 +92,7 @@ int main(){
     prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
     PRISM::PRISM01(prism_pars);
 	PRISM::PRISM02(prism_pars);
-//	PRISM::PRISM03(prism_pars);
+	PRISM::PRISM03(prism_pars);
     cout << "Writing potential stack to \"potential.mrc\"" << endl;
 //	prism_pars.pot.toMRC_f("potentials.mrc");
 	//for (auto& i : u) std::cout << i << std::endl;
