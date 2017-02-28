@@ -38,13 +38,11 @@ namespace PRISM {
 	                        const fftw_plan &plan_forward,
 	                        const fftw_plan &plan_inverse,
 							mutex& fftw_plan_lock){
-		cout << "pars.beamsIndex[a0] = " << pars.beamsIndex[a0] << endl;
 		psi[pars.beamsIndex[a0]] = 1;
 		const T N = (T)psi.size();
 		fftw_execute(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
 		const complex<T>* trans_t = &trans[0];
-		cout << "a0 = " << a0 << endl;
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 
 			for (auto& p:psi)p*=(*trans_t++); // transmit
@@ -92,9 +90,6 @@ namespace PRISM {
 		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1], pars.imageSize[0]}});
 		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
 				{{pars.pot.get_nrows(), pars.pot.get_ncols(), pars.pot.get_nlayers()}});
-		cout << "pars.pot.get_nlayers() = " << pars.pot.get_nlayers() << endl;
-		cout << " pars.pot.get_ncols()= " << pars.pot.get_ncols() << endl;
-		cout << "  pars.pot.get_nrows()} = " << pars.pot.get_nrows() << endl;
 		{
 			auto p = pars.pot.begin();
 			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
@@ -141,8 +136,6 @@ namespace PRISM {
 		auto start = 0;
 		auto stop = start + WORK_CHUNK_SIZE;
 		while (start < pars.numberBeams){
-			cout << " start = " << start << endl;
-			cout << " stop = " << stop << endl;
 
 		workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
 				// allocate array for psi just once per thread
@@ -309,23 +302,6 @@ namespace PRISM {
 				}
 			}
 		}
-		mask.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/mask.mrc");
-		q2.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/q2.mrc");
-		pars.beams.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/beams.mrc");
-		mesh_a.second.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/ya.mrc");
-		mesh_a.first.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/xa.mrc");
-		for (auto  &i : pars.beamsIndex)cout << "beamsIndex = " << i << endl;
-//        {
-//            int beam_count = 0;
-//            for (auto y = 0; y < pars.qMask.get_ncols(); ++y) {
-//                for (auto x = 0; x < pars.qMask.get_nrows(); ++x) {
-//                    if (mask.at(y,x)==1){
-//	                    pars.beamsIndex.push_back(y*pars.qMask.get_nrows() + x);
-//                        pars.beams.at(y,x) = beam_count++;
-//                    }
-//                }
-//            }
-//        }
 
 
 		// TODO: ensure this block is correct for arbitrary dimension
@@ -373,6 +349,7 @@ namespace PRISM {
 			}
 		}
 
+	/*
 		cout << "pars.qxaOutput.at(0,1) = " << pars.qxaOutput.at(0,1) << endl;
 		cout << "pars.qyaOutput.at(4,3) = " << pars.qyaOutput.at(4,3) << endl;
 		cout << "pars.beamsOutput.at(4,3) = " << pars.beamsOutput.at(4,3) << endl;
@@ -390,7 +367,8 @@ namespace PRISM {
         mask.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/mask.mrc");
         pars.beams.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/beams.mrc");
 
-
+*/
+		/*
 
         //pars.qMask.toMRC_f("/mnt/spareA/clion/PRISM/MATLABdebug.mrc");
 		pars.qMask.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/debug.mrc");
@@ -410,6 +388,6 @@ namespace PRISM {
 		cout << "qy[499] = " << qy[499] << endl;
 		cout << "qx[500] = " << qx[500] << endl;
 		cout << "qy[500] = " << qy[500] << endl;
-
+*/
 	}
 }

@@ -92,8 +92,9 @@ int main(){
     prism_pars.atoms[prism_pars.atoms.size()-1].to_string();
     PRISM::PRISM01(prism_pars);
 	PRISM::PRISM02(prism_pars);
+//	PRISM::PRISM03(prism_pars);
     cout << "Writing potential stack to \"potential.mrc\"" << endl;
-	prism_pars.pot.toMRC_f("potentials.mrc");
+//	prism_pars.pot.toMRC_f("potentials.mrc");
 	//for (auto& i : u) std::cout << i << std::endl;
     return 0;
 }

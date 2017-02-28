@@ -28,10 +28,10 @@ namespace PRISM{
 	    Array2D_cx propBack;
 
 	    Array2D_mask qMask;
-        Array2D probeDefocusArray;
-        Array2D probeSemiangleArray;
-        Array2D probeXtiltArray;
-        Array2D probeYtiltArray;
+        Array1D probeDefocusArray;
+        Array1D probeSemiangleArray;
+        Array1D probeXtiltArray;
+        Array1D probeYtiltArray;
 	    Array2D qxa;
 	    Array2D qya;
 	    Array2D qxaOutput;

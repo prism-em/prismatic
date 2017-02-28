@@ -14,17 +14,87 @@
 
 using namespace std;
 namespace PRISM {
-
+	template<class T>
+	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+	template<class T>
+	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	template<class T>
+	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
     // forward declare the helper function
     template<class T>
     void buildSignal(const emdSTEM<T> &pars, const size_t &ax, const size_t &ay);
 
     template<class T>
     void PRISM03(emdSTEM<T> &pars) {
+	    pars.probeDefocusArray      = zeros_ND<1, T>({{1}});
+	    pars.probeSemiangleArray    = zeros_ND<1, T>({{1}});
+	    pars.probeXtiltArray        = zeros_ND<1, T>({{1}});
+	    pars.probeYtiltArray        = zeros_ND<1, T>({{1}});
+	    pars.probeDefocusArray[0]   = 0;
+	    pars.probeSemiangleArray[0] = 20/1000;
+	    pars.probeXtiltArray[0]     = 0/1000;
+	    pars.probeYtiltArray[0]     = 0/1000;
 
-        // alias some types to avoid so much text
-        using Array3D = PRISM::ArrayND<3, std::vector<T> >;
-        using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	    T dxy = 0.25 * 2;
+
+	    Array1D<T> xr = zeros_ND<1, T>({{2}});
+	    xr[0] = 0.1*pars.cellDim[0];
+	    xr[1] = 0.9*pars.cellDim[0];
+	    Array1D<T> yr = zeros_ND<1, T>({{2}});
+	    yr[0] = 0.1*pars.cellDim[1];
+	    yr[1] = 0.9*pars.cellDim[1];
+
+////	    xR = [0.1 0.9]*emdSTEM.cellDim(1);
+////	    yR = [0.1 0.9]*emdSTEM.cellDim(2);
+////	    emdSTEM.xp = (xR(1)+dxy/2):dxy:(xR(2)-dxy/2);
+////	    emdSTEM.yp = (yR(1)+dxy/2):dxy:(yR(2)-dxy/2);
+////	    dr = 2.5 / 1000;
+////	    alphaMax = emdSTEM.qMax * emdSTEM.lambda;
+////	    emdSTEM.detectorAngles = (dr/2):dr:(alphaMax-dr/2);
+////	    flag_plot = 0;
+////	    flag_keep_beams = 0;
+////	    r = emdSTEM.imageSizeOutput / emdSTEM.interpolationFactor / 2;
+////	    xVec = ((-r(1)):(r(1)-1));
+////	    yVec = ((-r(2)):(r(2)-1));
+////	    % Downsampled beams
+////	    emdSTEM.beamsReduce = emdSTEM.beamsOutput( ...
+////	    1:(emdSTEM.interpolationFactor):end,...
+////	    1:(emdSTEM.interpolationFactor):end);
+////	    imageSizeReduce = size(emdSTEM.beamsReduce);
+////	    xyBeams = zeros(length(emdSTEM.beamsIndex),2);
+////	    for a0 = 1:emdSTEM.numberBeams;
+////	    [~,ind] = min(abs(emdSTEM.beamsReduce(:) - a0));
+////	    [xx,yy] = ind2sub(imageSizeReduce,ind);
+////	    xyBeams(a0,:) = [xx yy];
+////	    end
+////	    // alias some types to avoid so much text
+////        using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+////        using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+////	    qxaReduce = emdSTEM.qxaOutput( ...
+////	    1:emdSTEM.interpolationFactor:end,...
+////	    1:emdSTEM.interpolationFactor:end);
+////	    qyaReduce = emdSTEM.qyaOutput( ...
+////	    1:emdSTEM.interpolationFactor:end,...
+////	    1:emdSTEM.interpolationFactor:end);
+////	    Ndet = length(emdSTEM.detectorAngles);
+////	    % Initialize pieces
+////	    emdSTEM.stackSize = [ ...
+////	    length(emdSTEM.xp) ...
+////	    length(emdSTEM.yp) ...
+////	    length(emdSTEM.detectorAngles) ...
+////	    length(emdSTEM.probeDefocusArray) ...
+////	    length(emdSTEM.probeSemiangleArray) ...
+////	    length(emdSTEM.probeXtiltArray) ...
+////	    length(emdSTEM.probeYtiltArray)];
+////	    emdSTEM.stack = zeros(emdSTEM.stackSize,'single');
+////	    q1 = zeros(imageSizeReduce);
+////	    q2 = zeros(imageSizeReduce);
+////	    dq = mean([qxaReduce(2,1) qyaReduce(1,2)]);
+////	    PsiProbeInit = zeros(imageSizeReduce);
+////	    psi = zeros(imageSizeReduce);
+//	    intOutput = zeros(imageSizeReduce);
+//	    % Main loops
+//	    scale = emdSTEM.interpolationFactor^4;
 
         // Most of this is transcribed directly from the original MATLAB version.
         // The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
