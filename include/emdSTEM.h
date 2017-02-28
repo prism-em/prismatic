@@ -19,9 +19,9 @@ namespace PRISM{
 	    using Array2D_mask   = PRISM::ArrayND<2, std::vector<unsigned int> >;
 	    using Array3D        = PRISM::ArrayND<3, std::vector<T> >;
 	    using Array3D_cx     = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
-
+		using Array4D        = PRISM::ArrayND<4, std::vector<T> >;
 	    Array3D_cx Scompact;
-	    Array3D stack;
+	    Array4D stack;
 		Array3D pot;
 
 	    Array2D_cx prop;

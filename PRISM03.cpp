@@ -33,6 +33,24 @@ namespace PRISM {
         return result;
     };
 
+    template <class T>
+    Array2D<T> array2D_subset(const Array2D<T>& arr,
+                              const size_t& starty,const size_t& stepy, const size_t& stopy,
+                              const size_t& startx,const size_t& stepx, const size_t& stopx){
+        vector<T> _d;
+        size_t dimx = 0;
+        size_t dimy = 0;
+        for (auto y = starty; y < stopy; y+=stepy) {
+            for (auto x = startx; x < stopx; x += stepx) {
+                _d.push_back(arr.at(y,x));
+            }
+            ++dimy;
+        }
+        for (auto x = 0; x < arr.get_dimi(); x += stepx)++dimx;
+        Array2D<T> result(_d,{{dimy, dimx}});
+        return result;
+    }
+
     template<class T>
     void PRISM03(emdSTEM<T> &pars) {
 	    pars.probeDefocusArray      = zeros_ND<1, T>({{1}});
@@ -60,7 +78,6 @@ namespace PRISM {
         vector<T> yp_d = vecFromRange(yR[0]+dxy/2, dxy, yR[1]-dxy/2);
         Array1D<T> xp(xp_d,{{xp_d.size()}});
         Array1D<T> yp(yp_d,{{yp_d.size()}});
-
         pars.xp = xp;
         pars.yp = yp;
 	    T dr = 2.5 / 1000;
@@ -77,47 +94,44 @@ namespace PRISM {
 	    vector<T> xVec = vecFromRange(-r_1, 1.0, r_1-1);
 
 
+        Array2D<T> beamsReduce = array2D_subset(pars.beamsOutput,
+                                                0, pars.interpolationFactor, pars.beamsOutput.get_dimj(),
+                                                0, pars.interpolationFactor, pars.beamsOutput.get_dimi());
 
-        vector<T> beamsReduce_d;
-        size_t dimx = 0;
-        size_t dimy = 0;
-        for (auto y = 0; y < pars.beamsOutput.get_dimj(); y+=pars.interpolationFactor) {
-            for (auto x = 0; x < pars.beamsOutput.get_dimi(); x += pars.interpolationFactor) {
-                beamsReduce_d.push_back(pars.beamsOutput.at(y,x));
+        vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
+        Array2D<size_t> xyBeams = zeros_ND<2, size_t>({pars.beamsIndex.size(),2});
+
+        for (auto a0 = 1; a0 <= pars.beamsIndex.size(); ++a0) {
+            for (auto y = 0; y < beamsReduce.get_dimj(); ++y) {
+                for (auto x = 0; x < beamsReduce.get_dimi(); ++x) {
+                    if (beamsReduce.at(y,x) == a0) {
+                        xyBeams.at(a0-1, 0) = y;
+                        xyBeams.at(a0-1, 1) = x;
+                    }
+                }
             }
-            ++dimy;
         }
-        for (auto x = 0; x < pars.beamsOutput.get_dimi(); x += pars.interpolationFactor)++dimx;
-        Array2D<T> beamsReduce(beamsReduce_d,{{dimy, dimx}});
 
+        Array2D<T> qxaReduce = array2D_subset(pars.qxaOutput,
+                                                0, pars.interpolationFactor, pars.qxaOutput.get_dimj(),
+                                                0, pars.interpolationFactor, pars.qxaOutput.get_dimi());
+        Array2D<T> qyaReduce = array2D_subset(pars.qyaOutput,
+                                                0, pars.interpolationFactor, pars.qyaOutput.get_dimj(),
+                                                0, pars.interpolationFactor, pars.qyaOutput.get_dimi());
+        const size_t Ndet = pars.detectorAngles.size();
+        pars.stack = zeros_ND<4, T>({{pars.yp.size(), pars.xp.size(), Ndet, 1}});
 
 //        for (auto& i : xp)cout << i << endl;
 //        for (auto& i : detectorAngles)cout << i << endl;
 //        for (auto& i : xVec)cout << i << endl;
-        for (auto& i : beamsReduce)cout << i << endl;
 
-////	    % Downsampled beams
-////	    emdSTEM.beamsReduce = emdSTEM.beamsOutput( ...
-////	    1:(emdSTEM.interpolationFactor):end,...
-////	    1:(emdSTEM.interpolationFactor):end);
-////	    imageSizeReduce = size(emdSTEM.beamsReduce);
-////	    xyBeams = zeros(length(emdSTEM.beamsIndex),2);
-////	    for a0 = 1:emdSTEM.numberBeams;
-////	    [~,ind] = min(abs(emdSTEM.beamsReduce(:) - a0));
-////	    [xx,yy] = ind2sub(imageSizeReduce,ind);
-////	    xyBeams(a0,:) = [xx yy];
-////	    end
-////	    // alias some types to avoid so much text
-////        using Array3D = PRISM::ArrayND<3, std::vector<T> >;
-////        using Array2D = PRISM::ArrayND<2, std::vector<T> >;
-////	    qxaReduce = emdSTEM.qxaOutput( ...
-////	    1:emdSTEM.interpolationFactor:end,...
-////	    1:emdSTEM.interpolationFactor:end);
-////	    qyaReduce = emdSTEM.qyaOutput( ...
-////	    1:emdSTEM.interpolationFactor:end,...
-////	    1:emdSTEM.interpolationFactor:end);
-////	    Ndet = length(emdSTEM.detectorAngles);
-////	    % Initialize pieces
+        for (auto &i:xyBeams) cout << i << endl;
+        for (auto& i : beamsReduce)cout << i << endl;
+        cout << "qxaReduce" << endl;
+        for (auto& i : qxaReduce)cout << i << endl;
+        cout << "qyaReduce" << endl;
+        for (auto& i : qyaReduce)cout << i << endl;
+
 ////	    emdSTEM.stackSize = [ ...
 ////	    length(emdSTEM.xp) ...
 ////	    length(emdSTEM.yp) ...
