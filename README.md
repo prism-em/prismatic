@@ -44,6 +44,14 @@ This will generate a Makefile with the necessary dependencies and paths to compi
 make
 ```
 
+If this completes successfully, you can then run PRISM with the following syntax
+
+```
+./PRISM /path/to/atoms.txt interpolation_factor
+```
+
+where `/path/to/atoms.txt` file is a txt file containing csv values x,y,z,Z for each atom (1 per row), and `interpolation_factor` is PRISM's *f* parameter.
+
 ## Building Test Programs
 PRISM contains a number of test programs that can be useful
 for debugging. They can be built by setting the 

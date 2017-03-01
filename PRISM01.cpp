@@ -87,7 +87,7 @@ namespace PRISM {
 		// parallel calculation of each individual slice
 		std::vector<std::thread> workers;
 		workers.reserve(pars.numPlanes);
-		cout << "Launching separate thread to compute each z-slice of potential.\n";
+		cout << "Launching separate threads to compute each z-slice of potential.\n";
 		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
 			workers.emplace_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potLookup,&uLookup,a0](){
 				std::default_random_engine de(time(0));
