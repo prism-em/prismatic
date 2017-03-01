@@ -59,10 +59,6 @@ namespace PRISM{
 	    Array1D_dims qxInd;
 	    Array1D_dims qyInd;
 
-//	    Array2D_cx PsiProbeInit;
-//        Array2D q1;
-//        Array2D q2;
-
 	    T scale;
         T lambda;
         T dr;

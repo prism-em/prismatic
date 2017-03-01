@@ -24,8 +24,6 @@ namespace PRISM {
 		const T dy        = round(sqrt(2*yInd - 1));
 		const T xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
 		const T yv[]      = {0, 0, (T)yr.size()-1, (T)yr.size()-1, yInd-dy-1, yInd+dy+1, yInd-dy-1, yInd+dy+1};
-		for (auto i=0; i < 8; ++i)std::cout<<xv[i]<<std::endl;
-		for (auto i=0; i < 8; ++i)std::cout<<yv[i]<<std::endl;
 
 		T potMin = 0;
 		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(yv[i],xv[i]) : potMin;
@@ -42,9 +40,9 @@ namespace PRISM {
 	ArrayND<2, std::vector<T> >
 	projPot(const size_t &Z, const ArrayND<1, std::vector<T> > &xr, const ArrayND<1, std::vector<T> > &yr) {
 		static const T pi = std::acos(-1);
-		T ss = 8;
-		T a0 = 0.5292;
-		T e = 14.4;
+		T ss    = 8;
+		T a0    = 0.5292;
+		T e     = 14.4;
 		T term1 = 4*pi*pi*a0*e;
 		T term2 = 2*pi*pi*a0*e;
 		ArrayND<2, std::vector<T> > result = zeros_ND<2, T>({yr.size(), xr.size()});
@@ -60,11 +58,9 @@ namespace PRISM {
 			start+=step;
 		}
 		ArrayND<1, std::vector<T> > sub(sub_data,{sub_data.size()});
-		for (auto& i : sub)cout << i << endl;
 
 		std::pair<Array2D<T>, Array2D<T> > meshx = meshgrid(xr, sub*dx);
 		std::pair<Array2D<T>, Array2D<T> > meshy = meshgrid(yr, sub*dy);
-
 
 		ArrayND<1, std::vector<T> > xv = zeros_ND<1, T>({meshx.first.size()});
 		ArrayND<1, std::vector<T> > yv = zeros_ND<1, T>({meshy.first.size()});
@@ -77,7 +73,6 @@ namespace PRISM {
 			}
 		}
 
-
 		{
 			auto t_y = yv.begin();
 			for (auto i = 0; i < meshy.first.get_dimi(); ++i) {
@@ -86,7 +81,6 @@ namespace PRISM {
 				}
 			}
 		}
-
 
 		std::pair<Array2D<T>, Array2D<T> > meshxy = meshgrid(xv, yv);
 		ArrayND<2, std::vector<T> > r2 = zeros_ND<2, T>({yv.size(), xv.size()});
@@ -111,19 +105,7 @@ namespace PRISM {
 			ap[i] = fparams[(Z-1)*n_parameters + i];
 		}
 
-//		for (auto &i:r)cout<<i<<endl;
 		using namespace boost::math;
-		cout << "2*pi*sqrt(ap[1])*r[0] = " << 2*pi*sqrt(ap[1])*r[0] << endl;
-		cout << "cyl_bessel_k(2*pi*sqrt(ap[1])*r[0]) = " << cyl_bessel_k(0,2*pi*sqrt(ap[1])*r[0]) << endl;
-
-		cout << "r2[0] = " << r2[0] << endl;
-		cout << "r2[1] = " << r2[1] << endl;
-		cout << "r2[2] = " << r2[2] << endl;
-		cout << "r[0] = " << r[0] << endl;
-		cout << "r[1] = " << r[1] << endl;
-		cout << "r[28223] = " << r[28223] << endl;
-		cout << "pi = " << pi << endl;
-//		potSS = term1 * ( ap[0]*cyl_bessel_k(0,2*pi*sqrt(ap[1]))*r);
 		std::transform(r.begin(), r.end(),
 		          r2.begin(), potSS.begin(), [&ap, &term1, &term2](const T& r_t, const T& r2_t){
 
@@ -135,9 +117,6 @@ namespace PRISM {
 					ap[8]/ap[9]*exp(-pow(pi,2)/ap[9]*r2_t)        +
 					ap[10]/ap[11]*exp(-pow(pi,2)/ap[11]*r2_t));
 		});
-
-		cout << "potSS[0] = " << potSS[0] << endl;
-		cout << "potSS[2] = " << potSS[2] << endl;
 
 		// integrate
 		ArrayND<2, std::vector<T> > pot = zeros_ND<2, T>({yr.size(), xr.size()});
@@ -154,46 +133,8 @@ namespace PRISM {
 
 		T potMin = get_potMin(pot,xr,yr);
 		pot -= potMin;
-		cout << "potMin = " <<potMin << endl;
 		transform(pot.begin(),pot.end(),pot.begin(),[](T& a){return a<0?0:a;});
 
-		cout << "pot.at(0,0) = " <<pot.at(0,0) << endl;
-		cout << "pot.at(2,3) = " << pot.at(2,3)<< endl;
-		cout << "pot.at(10,10) = " << pot.at(10,10)<< endl;
-#ifndef NDEBUG
-#include <iostream>
-		using namespace std;
-		cout << "meshx.first.at(0,1) = " << meshx.first.at(0,1)<< endl;
-		cout << "meshx.first.at(0,2) = " << meshx.first.at(0,2)<< endl;
-		cout << "meshx.first.at(1,1) = " << meshx.first.at(1,1)<< endl;
-		cout << "meshx.second.at(0,1) = " << meshx.second.at(0,1)<< endl;
-		cout << "meshx.second.at(0,2) = " << meshx.second.at(0,2)<< endl;
-		cout << "meshx.second.at(1,1) = " << meshx.second.at(1,1)<< endl;
-		cout << "meshy.first.at(0,1) = " << meshy.first.at(0,1)<< endl;
-		cout << "meshy.first.at(0,2) = " << meshy.first.at(0,2)<< endl;
-		cout << "meshy.first.at(1,1) = " << meshy.first.at(1,1)<< endl;
-		cout << "meshy.second.at(0,1) = " << meshy.second.at(0,1)<< endl;
-		cout << "meshy.second.at(0,2) = " << meshy.second.at(0,2)<< endl;
-		cout << "meshy.second.at(1,1) = " << meshy.second.at(1,1)<< endl;
-		cout << "xv[0] = " << xv[0]<< endl;
-		cout << "xv[2] = " << xv[2]<< endl;
-		cout << "xv[4] = " << xv[4]<< endl;
-		cout << "yv[0] = " << xv[0]<< endl;
-		cout << "yv[2] = " << xv[2]<< endl;
-		cout << "yv[4] = " << xv[4]<< endl;
-//		cout << "meshxy.second.at(0,1) = " << meshxy.second.at(0,1)<< endl;
-//		cout << "meshxy.second.at(0,2) = " << meshxy.second.at(0,2)<< endl;
-//		cout << "meshxy.second.at(1,1) = " << meshxy.second.at(1,1)<< endl;
-		cout << "r2.at(1,1) = " << r2.at(1,1)<< endl;
-		cout << "r2.at(3,2) = " << r2.at(3,2)<< endl;
-		cout << "a0 = " << a0 << endl;
-		cout << "term1 = " << term1 << endl;
-		cout << "term2 = " << term2 << endl;
-		cout << "term1 = " << term1 << endl;
-		cout << "ap terms\n";
-//		for (auto &i : ap)cout << i << endl;
-
-#endif //NDEBUG
 		return pot;
 	}
 }

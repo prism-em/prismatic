@@ -101,8 +101,8 @@ namespace PRISM {
 		auto start = 0;
 		auto stop = start + WORK_CHUNK_SIZE;
 		while (start < pars.numberBeams){
-
-		workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
+			cout << "Launching thread to compute beams " << start << " through " << min(stop, pars.numberBeams) << '\n';
+			workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
 				// allocate array for psi just once per thread
 				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[0], pars.imageSize[1]}});
 
@@ -132,36 +132,15 @@ namespace PRISM {
 			if (start >= pars.numberBeams)break;
 			stop  += WORK_CHUNK_SIZE;
 		}
+		cout << "Synchronizing threads...\n";
 		for (auto& t:workers)t.join();
-
-
-		cout << "pars.Scompact.at(0,0,0)= " << pars.Scompact.at(0,0,0) << endl;
-		cout << "pars.Scompact.at(0,0,1)= " << pars.Scompact.at(0,0,1) << endl;
-		cout << "pars.Scompact.at(0,0,2)= " << pars.Scompact.at(0,0,2) << endl;
-		cout << "pars.Scompact.at(0,0,3)= " << pars.Scompact.at(0,0,3) << endl;
-//		cout << "pars.Scompact.at(1,0,0)= " << pars.Scompact.at(1,0,0) << endl;
-//		cout << "pars.Scompact.at(1,0,1)= " << pars.Scompact.at(1,0,1) << endl;
-//		cout << "pars.Scompact.at(1,0,2)= " << pars.Scompact.at(1,0,2) << endl;
-//		cout << "pars.Scompact.at(1,0,3)= " << pars.Scompact.at(1,0,3) << endl;
-//		cout << "pars.Scompact.at(2,0,0)= " << pars.Scompact.at(2,0,0) << endl;
-//		cout << "pars.Scompact.at(2,0,1)= " << pars.Scompact.at(2,0,1) << endl;
-//		cout << "pars.Scompact.at(2,0,2)= " << pars.Scompact.at(2,0,2) << endl;
-//		cout << "pars.Scompact.at(2,0,3)= " << pars.Scompact.at(2,0,3) << endl;
-//		cout << "pars.Scompact.at(10,0,0)= " << pars.Scompact.at(10,0,0) << endl;
-//		cout << "pars.Scompact.at(10,0,1)= " << pars.Scompact.at(10,0,1) << endl;
-//		cout << "pars.Scompact.at(10,0,2)= " << pars.Scompact.at(10,0,2) << endl;
-//		cout << "pars.Scompact.at(10,0,3)= " << pars.Scompact.at(10,0,3) << endl;
-//		cout << "pars.Scompact.at(100,0,0)= " << pars.Scompact.at(100,0,0) << endl;
-//		cout << "pars.Scompact.at(100,0,1)= " << pars.Scompact.at(100,0,1) << endl;
-//		cout << "pars.Scompact.at(100,0,2)= " << pars.Scompact.at(100,0,2) << endl;
-//		cout << "pars.Scompact.at(100,0,3)= " << pars.Scompact.at(100,0,3) << endl;
-
 	}
 
 	template <class T>
 	void PRISM02(emdSTEM<T>& pars){
-		// propogate plane waves to construct compact S-matrix
+		// propagate plane waves to construct compact S-matrix
 
+		cout << "Entering PRISM02" << endl;
 		// constants
 		constexpr double m = 9.109383e-31;
 		constexpr double e = 1.602177e-19;
@@ -199,7 +178,7 @@ namespace PRISM {
 
 		pars.qMask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
 		{
-			long offset_x = pars.qMask.get_dimi()/4;		cout << "offset_x = " << offset_x << endl;
+			long offset_x = pars.qMask.get_dimi()/4;
 			long offset_y = pars.qMask.get_dimj()/4;
 			long ndimy = (long)pars.qMask.get_dimj();
 			long ndimx = (long)pars.qMask.get_dimi();
@@ -214,7 +193,6 @@ namespace PRISM {
         // build propagators
         pars.prop     = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
         pars.propBack = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
-        cout << "exp(-i * pi) << endl =" << exp(-i * pi) << endl;
         for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
             for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
                 if (pars.qMask.at(y,x)==1)
@@ -228,9 +206,6 @@ namespace PRISM {
                 }
             }
         }
-        cout << "pars.propBack.at(3,4) = " << pars.propBack.at(3,4) << endl;
-        cout << "pars.prop.at(33,44) = " << pars.prop.at(33,44) << endl;
-
 
         Array1D<T> xv = makeFourierCoords(pars.imageSize[1], (double)1/pars.imageSize[1]);
         Array1D<T> yv = makeFourierCoords(pars.imageSize[0], (double)1/pars.imageSize[0]);
@@ -252,8 +227,6 @@ namespace PRISM {
                 }
             }
         }
-		cout << "pars.alphaBeamMax = " << pars.alphaBeamMax<< endl;
-		cout << "pars.lambda = " << pars.lambda<< endl;
 
         pars.beams     = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
@@ -267,7 +240,6 @@ namespace PRISM {
 				}
 			}
 		}
-
 
 		// TODO: ensure this block is correct for arbitrary dimension
 		// get the indices for the compact S-matrix
@@ -290,7 +262,7 @@ namespace PRISM {
 			}
 		}
 
-		cout << "Fetching compact S" << endl;
+		cout << "Computing compact S matrix" << endl;
 
 		// populate compact-S matrix
 		fill_Scompact(pars);
@@ -313,46 +285,5 @@ namespace PRISM {
 				pars.beamsOutput.at(y,x) = pars.beams.at(pars.qyInd[y],pars.qxInd[x]);
 			}
 		}
-
-	/*
-		cout << "pars.qxaOutput.at(0,1) = " << pars.qxaOutput.at(0,1) << endl;
-		cout << "pars.qyaOutput.at(4,3) = " << pars.qyaOutput.at(4,3) << endl;
-		cout << "pars.beamsOutput.at(4,3) = " << pars.beamsOutput.at(4,3) << endl;
-		pars.qxaOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/qxa.mrc");
-		pars.qyaOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/qya.mrc");
-		pars.beamsOutput.toMRC_f("/mnt/spareA/clion/PRISM/MATLAB/beamsOutput.mrc");
-		cout << "pars.qyInd[2] = " << pars.qyInd[2]<< endl;
-		cout << "pars.qxInd[2] = " << pars.qxInd[2]<< endl;
-		cout << "pars.qyInd[350] = " << pars.qyInd[350]<< endl;
-		cout << "pars.qxInd[350] = " << pars.qxInd[350]<< endl;
-        q2.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/q2.mrc");
-        mesh_a.first.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/xa.mrc");
-        mesh_a.second.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/ya.mrc");
-
-        mask.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/mask.mrc");
-        pars.beams.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/beams.mrc");
-
-*/
-		/*
-
-        //pars.qMask.toMRC_f("/mnt/spareA/clion/PRISM/MATLABdebug.mrc");
-		pars.qMask.toMRC_f("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/debug.mrc");
-		cout << "pars.qMax = " << pars.qMax << endl;
-		cout << "pars.qya.at(1,1) = " << pars.qya.at(1,1) << endl;
-		cout << "pars.qya.at(0,1) = " << pars.qya.at(0,1) << endl;
-		cout << "q2.at(3,4) = " << q2.at(3,4) << endl;
-		cout << "q2.at(5,5) = " << q2.at(5,5) << endl;
-
-		cout << "pars.pixelSize[0] = " << pars.pixelSize[0]<< endl;
-		cout << "pars.pixelSize[1] = " << pars.pixelSize[1]<< endl;
-		for (auto i = 0; i < 10; ++i){
-			cout << "qx[" << i << "] = " << qx[i] << endl;
-			cout << "qy[" << i << "] = " << qy[i] << endl;
-		}
-		cout << "qx[499] = " << qx[499] << endl;
-		cout << "qy[499] = " << qy[499] << endl;
-		cout << "qx[500] = " << qx[500] << endl;
-		cout << "qy[500] = " << qy[500] << endl;
-*/
 	}
 }

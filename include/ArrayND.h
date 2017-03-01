@@ -80,11 +80,6 @@ namespace PRISM {
         template <size_t N, class T>
         ArrayND<N, T>::ArrayND(T _data,
                                std::array<size_t, N> _dims):data(_data){
-            //static_assert(N==_dims.size(),"exit");
-           // if (_dims.size() != N) {
-             //   std::cout << "PRISM: Dimension mismatch! Provided number of dimensions does not equal N for ND array\n";
-               // throw "PRISM: Dimension mismatch! Provided number of dimensions does not equal N for ND array";
-            //}
             size_t _size = 1;
             for (auto& i:_dims)_size*=i;
             if (_data.size() != _size){
@@ -355,7 +350,6 @@ namespace PRISM {
 			f.write(char_header,800);
 			float* data_buffer = new float[this->size()];
 			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
-			std::cout << " size of buffer = " << this->size() << std::endl;
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}
@@ -379,7 +373,6 @@ namespace PRISM {
 			f.write(char_header,800);
 			float* data_buffer = new float[this->size()];
 			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
-			std::cout << " size of buffer = " << this->size() << std::endl;
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}
@@ -403,7 +396,6 @@ namespace PRISM {
 			f.write(char_header,800);
 			float* data_buffer = new float[this->size()];
 			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
-			std::cout << " size of buffer = " << this->size() << std::endl;
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}

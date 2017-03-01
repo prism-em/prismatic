@@ -28,9 +28,6 @@ namespace PRISM{
 		if (!f)throw std::runtime_error("Unable to open file.\n");
 		std::string line;
 		std::string token;
-#ifndef NDEBUG
-		std::cout << "opening file " << filename << std::endl;
-#endif //NDEBUG
 		size_t line_num = 0;
 		size_t atom_count = 0;
 		while (std::getline(f,line)){
@@ -49,9 +46,7 @@ namespace PRISM{
 			if(ss.peek()==',')ss.ignore();
 			atoms.emplace_back(atom{tx,ty,tz,tspecies});
 		}
-#ifndef NDEBUG
 		std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in "  << filename  << std::endl;
-#endif //NDEBUG
 		return atoms;
 	};
 

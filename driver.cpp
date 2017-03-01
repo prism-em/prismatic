@@ -39,7 +39,7 @@ int main(int argc, const char** argv) {
 	prism_pars.E0 = 80e3;
 	prism_pars.alphaBeamMax = 24 / 1000.0;
 	prism_pars.NUM_GPUS = 1;
-	prism_pars.NUM_THREADS = 1;
+	prism_pars.NUM_THREADS = 12;
 
 	constexpr double m = 9.109383e-31;
 	constexpr double e = 1.602177e-19;
@@ -49,8 +49,6 @@ int main(int argc, const char** argv) {
 	prism_pars.lambda = h / sqrt(2 * m * e * prism_pars.E0) / sqrt(1 + e * prism_pars.E0 / 2 / m / c / c) * 1e10;
 	prism_pars.sigma = (2 * pi / prism_pars.lambda / prism_pars.E0) * (m * c * c + e * prism_pars.E0) /
 	                   (2 * m * c * c + e * prism_pars.E0);
-	cout << "lambda = " << prism_pars.lambda << endl;
-	cout << "sigma = " << prism_pars.sigma << endl;
 
 	PRISM_FLOAT_TYPE f = 4 * prism_pars.interpolationFactor;
 	Array1D_dims imageSize({{cellDim[1], cellDim[2]},
@@ -59,8 +57,6 @@ int main(int argc, const char** argv) {
 	               [&f, &prism_pars, &one_pixel_size](size_t &a) {
 		               return (size_t) (f * round((PRISM_FLOAT_TYPE) a / one_pixel_size / f));
 	               });
-	cout << "imageSize[0] = " << imageSize[0] << endl;
-	cout << "imageSize[1] = " << imageSize[1] << endl;
 	prism_pars.imageSize = imageSize;
 
 	Array1D pixelSize({{(PRISM_FLOAT_TYPE) cellDim[1], (PRISM_FLOAT_TYPE) cellDim[2]},
@@ -84,13 +80,8 @@ int main(int argc, const char** argv) {
 		return 1;
 	}
 
-	cout << "prism_pars.pixelSize[0] = " << prism_pars.pixelSize[0] << endl;
-	cout << "prism_pars.pixelSize[1] = " << prism_pars.pixelSize[1] << endl;
-
 	Array1D u = PRISM::ones_ND<1, double>({{118}}) * 0.08;
 	prism_pars.u = u;
-	prism_pars.atoms[0].to_string();
-	prism_pars.atoms[prism_pars.atoms.size() - 1].to_string();
 	PRISM::PRISM01(prism_pars);
 	PRISM::PRISM02(prism_pars);
 	PRISM::PRISM03(prism_pars);
