@@ -65,7 +65,7 @@ emdSTEM.Scompact = zeros(...
     emdSTEM.numFP,'single');
 psi = zeros(emdSTEM.imageSize);
 trans = exp(1i*emdSTEM.sigma*emdSTEM.pot);
-trans = ones(size(trans)) + 2*j*ones(size(trans));
+% trans = ones(size(trans)) + 2*j*ones(size(trans));
 comp = 0;
 progressbar(comp,2);
 for a0 = 1:emdSTEM.numberBeams

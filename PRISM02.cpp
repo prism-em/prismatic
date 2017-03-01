@@ -84,7 +84,7 @@ namespace PRISM {
 
 		const double pi = acos(-1);
 		const std::complex<double> i(0, 1);
-		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1], pars.imageSize[0]}});
+		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1]/2, pars.imageSize[0]/2}});
 		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
@@ -92,7 +92,7 @@ namespace PRISM {
 			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
 		}
 
-		for (auto& i:trans){i.real(1);i.imag(2);};
+//		for (auto& i:trans){i.real(1);i.imag(2);};
 
 
 		vector<thread> workers;
@@ -223,7 +223,7 @@ namespace PRISM {
                                                           complex<T>(pars.sliceThickness, 0) *
                                                           complex<T>(q2.at(y, x), 0));
                     pars.propBack.at(y,x) = exp(i * pi * complex<T>(pars.lambda, 0) *
-                                                         complex<T>(pars.cellDim[2], 0) *
+                                                         complex<T>(pars.cellDim[0], 0) *
                                                          complex<T>(q2.at(y, x), 0));
                 }
             }

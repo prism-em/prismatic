@@ -17,6 +17,7 @@ namespace PRISM{
 	    using Array2D        = PRISM::ArrayND<2, std::vector<T> >;
 	    using Array2D_cx     = PRISM::ArrayND<2, std::vector< std::complex<T> > >;
 	    using Array2D_mask   = PRISM::ArrayND<2, std::vector<unsigned int> >;
+	    using Array2D_dims   = PRISM::ArrayND<2, std::vector<size_t> >;
 	    using Array3D        = PRISM::ArrayND<3, std::vector<T> >;
 	    using Array3D_cx     = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
 		using Array4D        = PRISM::ArrayND<4, std::vector<T> >;
@@ -41,11 +42,11 @@ namespace PRISM{
         Array1D xp;
         Array1D yp;
         std::vector<size_t> beamsIndex;
-        Array2D xyBeams;
+        Array2D_dims xyBeams;
 		Array2D beams;
 	    Array2D beamsOutput;
-        Array2D xVec;
-        Array2D yVec;
+        Array1D xVec;
+        Array1D yVec;
         Array1D detectorAngles;
 	    Array1D u;
 	    std::vector<atom> atoms;
@@ -53,7 +54,7 @@ namespace PRISM{
         Array1D pixelSizeOutput;
 	    Array1D_dims cellDim;
 	    Array1D_dims imageSize;
-	    Array1D_dims imageSizeReduce;
+	    std::vector<size_t> imageSizeReduce;
 	    Array1D_dims imageSizeOutput;
 	    Array1D_dims qxInd;
 	    Array1D_dims qyInd;
