@@ -12,7 +12,7 @@
 #include <string>
 
 using namespace std;
-int main() {
+int main(int argc, const char** argv) {
 	using PRISM_FLOAT_TYPE = double;
 	using vec_d = std::vector<PRISM_FLOAT_TYPE>;
 	using Array3D = PRISM::ArrayND<3, vec_d>;
@@ -28,7 +28,9 @@ int main() {
 	prism_pars.potBound = 1.0;
 	prism_pars.numFP = 8.0 / 8.0;
 	prism_pars.sliceThickness = 2;
-	prism_pars.interpolationFactor = 5;
+	//if (argc > 1)
+	prism_pars.interpolationFactor = (argc>1) ? atoi(argv[1]) : 25;
+	//prism_pars.interpolationFactor = 5;
 	Array1D_dims cellDim({80, 100, 100}, {3}); // this is z,y,x format
 	prism_pars.cellDim = cellDim;
 	prism_pars.E0 = 80e3;
@@ -61,8 +63,8 @@ int main() {
 	Array1D pixelSize({{(PRISM_FLOAT_TYPE) cellDim[1], (PRISM_FLOAT_TYPE) cellDim[2]},
 	                   {2}});
 	prism_pars.pixelSize = pixelSize;
-	prism_pars.pixelSize[0] /= prism_pars.imageSize[0];
-	prism_pars.pixelSize[1] /= prism_pars.imageSize[1];
+	prism_pars.pixelSize[0] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[0];
+	prism_pars.pixelSize[1] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[1];
 	try {
 		prism_pars.atoms = PRISM::readAtoms(filename);
 	}
@@ -93,24 +95,66 @@ int main() {
 	prism_pars.atoms[prism_pars.atoms.size() - 1].to_string();
 	PRISM::PRISM01(prism_pars);
 	PRISM::PRISM02(prism_pars);
-	PRISM::PRISM03(prism_pars);
-    cout << "Writing potential stack to \"potential.mrc\"" << endl;
-	prism_pars.pot.toMRC_f("potentials.mrc");
-
-	Array2D multislice_image;
-	multislice_image = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
-
-	size_t lower = 13;
-	size_t upper = 17;
-	for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
-		for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
-			for (auto b = 0; b < prism_pars.stack.get_dimj(); ++b){
-				multislice_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
-			}
-		}
-	}
-	multislice_image.toMRC_f("multislice_image.mrc");
-
-	//for (auto& i : u) std::cout << i << std::endl;
+	cout << "prism_pars.Scompact[0] = " << prism_pars.Scompact[0] << endl;
+//	PRISM::PRISM03(prism_pars);
+//	cout << "pars.stack[0] = " << prism_pars.stack[0] << endl;
+//    cout << "Writing potential stack to \"potential.mrc\"" << endl;
+//	prism_pars.pot.toMRC_f("potentials.mrc");
+//	cout <<"dims" << endl;
+//	cout << prism_pars.stack.get_dimi() << endl;
+//	cout << prism_pars.stack.get_dimj() << endl;
+//	cout << prism_pars.stack.get_dimk() << endl;
+//	cout << prism_pars.stack.get_diml() << endl;
+//	PRISM::ArrayND<2, vec_d> multislice_image;
+//	multislice_image = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({{100,100}});
+//	std::vector<PRISM_FLOAT_TYPE> bb(160*160*160,0);
+//	std::vector<PRISM_FLOAT_TYPE> cc;
+//	for (int i = 0; i < 160*160; ++i)cc.push_back(0);
+//
+//	multislice_image = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
+////
+//	cout << "DEBUG 5" << endl;
+//	int lower = 13;
+//	int upper = 18;
+//	// if this fails then something is off with 4D stacks
+////	cout << "prism_pars.stack[1] = " << prism_pars.stack[1]<< endl;
+////	volatile const char* bla = "somethign really really alskdjfalsdvjlakvjlaksdjvklasdjvclaksdjfklasjdflkasjedfl;ajsdlfkjasl;dkfjaskldfjsa";
+////	for (auto y = 0; y < 2; ++y){
+////		for (auto x = 0; x < 2; ++x){
+////			for (int b = 13; b < 18; ++b){
+//
+//
+////			int c = lower;
+////			for (int b = lower; b < upper; ++b){
+////			multislice_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+//////				multislice_image.at(y,x) = prism_pars.stack[1];
+////			cout << "y = " << y << endl;
+////			cout << "x = " << x << endl;
+////			cout << "b = " << b << endl;
+//////			multislice_image.at(y,x) = 3.2;
+////			}
+////		}
+////	}
+////	cout << "image dims" << endl;
+////	cout << multislice_image.get_dimj() << endl;
+////	cout << multislice_image.get_dimi() << endl;
+//////	int lower = 13;
+//////	int upper = 18;
+//	for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
+//		for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
+//			for (auto b = lower; b < upper; ++b){
+//				multislice_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+////			cout << "y = " << y << endl;
+////			cout << "x = " << x << endl;
+////				multislice_image.at(y,x) = 3.2;
+//			}
+//		}
+//	}
+//	multislice_image.toMRC_f("multislice_image.mrc");
+//
+//	double a;
+//	for (auto& i :prism_pars.stack)a+=i;
+//	cout << " a = " << a <<endl;
+//	//for (auto& i : u) std::cout << i << std::endl;
 	return 0;
 }

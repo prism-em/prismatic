@@ -300,8 +300,8 @@ namespace PRISM {
 		pars.imageSizeOutput[0]/=2;
 		pars.imageSizeOutput[1]/=2;
 		pars.pixelSizeOutput = pars.pixelSize;
-		pars.pixelSizeOutput[0]/=2;
-		pars.pixelSizeOutput[1]/=2;
+		pars.pixelSizeOutput[0]*=2;
+		pars.pixelSizeOutput[1]*=2;
 
 		pars.qxaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
 		pars.qyaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});

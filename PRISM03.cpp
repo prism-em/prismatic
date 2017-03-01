@@ -43,7 +43,7 @@ namespace PRISM {
             }
             ++dimy;
         }
-        for (auto x = 0; x < arr.get_dimi(); x += stepx)++dimx;
+        for (auto x = startx; x < stopx; x += stepx)++dimx;
         Array2D<T> result(_d, {{dimy, dimx}});
         return result;
     }
@@ -54,10 +54,10 @@ namespace PRISM {
         pars.probeSemiangleArray = zeros_ND<1, T>({{1}});
         pars.probeXtiltArray = zeros_ND<1, T>({{1}});
         pars.probeYtiltArray = zeros_ND<1, T>({{1}});
-        pars.probeDefocusArray[0] = 0;
-        pars.probeSemiangleArray[0] = 20 / 1000;
-        pars.probeXtiltArray[0] = 0 / 1000;
-        pars.probeYtiltArray[0] = 0 / 1000;
+        pars.probeDefocusArray[0] = 0.0;
+        pars.probeSemiangleArray[0] = 20.0 / 1000;
+        pars.probeXtiltArray[0] = 0.0 / 1000;
+        pars.probeYtiltArray[0] = 0.0 / 1000;
 
         T dxy = 0.25 * 2;
 
@@ -78,10 +78,10 @@ namespace PRISM {
         Array1D<T> yp(yp_d, {{yp_d.size()}});
         pars.xp = xp;
         pars.yp = yp;
-        T dr = 2.5 / 1000;
-        T alphaMax = pars.qMax * pars.lambda;
+        pars.dr = 2.5 / 1000;
+        pars.alphaMax = pars.qMax * pars.lambda;
 
-        vector<T> detectorAngles_d = vecFromRange(dr / 2, dr, alphaMax - dr / 2);
+        vector<T> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
         Array1D<T> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
         pars.detectorAngles = detectorAngles;
         bool flag_plot = 0;
@@ -119,11 +119,11 @@ namespace PRISM {
         pars.qyaReduce = array2D_subset(pars.qyaOutput,
                                         0, pars.interpolationFactor, pars.qyaOutput.get_dimj(),
                                         0, pars.interpolationFactor, pars.qyaOutput.get_dimi());
-        const size_t Ndet = pars.detectorAngles.size();
-        pars.stack = zeros_ND<4, T>({{pars.yp.size(), pars.xp.size(), Ndet, 1}});
+        pars.Ndet = pars.detectorAngles.size();
+        pars.stack = zeros_ND<4, T>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}});
         cout << "pars.yp.size() = " << pars.yp.size() << endl;
         cout << "pars.xp.size() = " << pars.xp.size() << endl;
-        cout << "Ndet = " << Ndet << endl;
+        cout << "pars.Ndet = " << pars.Ndet << endl;
         cout << "pars.stack.get_dimi() = " << pars.stack.get_dimi() << endl;
         cout << "pars.stack.get_dimj() = " << pars.stack.get_dimj() << endl;
         cout << "pars.stack.get_dimk() = " << pars.stack.get_dimk() << endl;
@@ -138,7 +138,7 @@ namespace PRISM {
         pars.imageSizeReduce = imageSizeReduce;
         cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
         cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
-        T dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
+        pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
         T scale = pow(pars.interpolationFactor, 4);
         pars.scale = scale;
 //        for (auto& i : xp)cout << i << endl;
@@ -159,7 +159,7 @@ namespace PRISM {
         // initially with at most one operation, and then perform in-place transforms if more is needed
         for (auto a0 = 0; a0 < pars.probeDefocusArray.size(); ++a0) {
             for (auto a1 = 0; a1 < pars.probeSemiangleArray.size(); ++a1) {
-                T qProbeMax = pars.probeSemiangleArray[a0] / pars.lambda;
+                T qProbeMax = pars.probeSemiangleArray[a1] / pars.lambda;
                 for (auto a2 = 0; a2 < pars.probeXtiltArray.size(); ++a2) {
                     for (auto a3 = 0; a3 < pars.probeYtiltArray.size(); ++a3) {
                         cout << "DEBUG 1" << endl;
@@ -195,6 +195,14 @@ namespace PRISM {
                                       a.imag(0);
                                       return a;
                                   });
+
+	                    Array2D<T> tmp_PSI3 = zeros_ND<2, T>({{PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi()}});
+	                    for ( auto y = 0; y < PsiProbeInit.get_dimj(); ++y){
+		                    for ( auto x = 0; x < PsiProbeInit.get_dimi(); ++x){
+			                    tmp_PSI3.at(y,x) = abs(PsiProbeInit.at(y,x));
+		                    }
+	                    }
+	                    tmp_PSI3.toMRC_f("DEBUG3.mrc");
                         cout << "DEBUG 3" << endl;
 
                         const static std::complex<T> i(0, 1);
@@ -221,6 +229,14 @@ namespace PRISM {
                                   PsiProbeInit.begin(), [&norm_constant](std::complex<T> &a) {
                                     return a / norm_constant;
                                 });
+
+                        Array2D<T> tmp_PSI = zeros_ND<2, T>({{PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi()}});
+                        for ( auto y = 0; y < PsiProbeInit.get_dimj(); ++y){
+                            for ( auto x = 0; x < PsiProbeInit.get_dimi(); ++x){
+                                tmp_PSI.at(y,x) = abs(PsiProbeInit.at(y,x));
+                            }
+                        }
+                        tmp_PSI.toMRC_f("DEBUG.mrc");
 
                         T zTotal = pars.cellDim[0];
                         cout << "zTotal = " << zTotal << endl;
@@ -264,6 +280,14 @@ namespace PRISM {
                 }
             }
         }
+        double t = 0;
+        pars.stack[0] = 5;
+        for (auto i : pars.stack)t+=i;
+        cout << "sum = " << t << endl;
+        complex<double> t2 = 0;
+        for (auto i : pars.Scompact)t2+=i;
+        cout << "sum Scompact = " << t2 << endl;
+
     }
 
 
@@ -315,6 +339,7 @@ namespace PRISM {
 
                             // access contiguously for performance
                             *psi_ptr++ +=  (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+//	                        *psi_ptr++ +=  (tmp_const * pars.Scompact.at(a4, x[j], y[i])); // wrong
                             //*psi_ptr++ +=  (tmp_const * pars.Scompact.at(0,0, 0));
 //                            *psi_ptr++ +=  (tmp_const);
                         }

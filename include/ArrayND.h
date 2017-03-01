@@ -37,13 +37,13 @@ namespace PRISM {
             typename T::iterator begin() const;
             typename T::iterator end()   const;
             typename T::value_type& at(const size_t& i);
-            typename T::value_type& at(const size_t& i, const size_t& j);
-            typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k);
-            typename T::value_type& at(const size_t& i, const size_t& j,const size_t& k, const size_t& l);
+            typename T::value_type& at(const size_t& j, const size_t& i);
+            typename T::value_type& at(const size_t& k, const size_t& j,const size_t& i);
+            typename T::value_type& at(const size_t& l, const size_t& k,const size_t& j, const size_t& i);
 	        typename T::value_type at(const size_t& i)const;
-	        typename T::value_type at(const size_t& i, const size_t& j)const;
-	        typename T::value_type at(const size_t& i, const size_t& j,const size_t& k)const;
-	        typename T::value_type at(const size_t& i, const size_t& j,const size_t& k, const size_t& l)const;
+	        typename T::value_type at(const size_t& j, const size_t& i)const;
+	        typename T::value_type at(const size_t& k, const size_t& j,const size_t& i)const;
+	        typename T::value_type at(const size_t& l, const size_t& k,const size_t& j, const size_t& i)const;
 
 	        typename T::value_type& operator[](const size_t& i);
             typename T::value_type operator[](const size_t& i)const;
@@ -307,14 +307,14 @@ namespace PRISM {
 
 
     template <size_t N, class T>
-    PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N>& dims){
+    PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N> dims){
         size_t size = 1;
         for (auto& i:dims)size*=i;
         return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,1), dims);
     }
 
     template <size_t N, class T>
-    PRISM::ArrayND<N, std::vector<T> > zeros_ND(const std::array<size_t, N>& dims){
+    PRISM::ArrayND<N, std::vector<T> > zeros_ND(const std::array<size_t, N> dims){
         size_t size = 1;
         for (auto& i:dims)size*=i;
         return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
@@ -370,7 +370,7 @@ namespace PRISM {
 			int int_header[56];
 			char char_header[800];
 			std::memset((void *) char_header, 0, 800);
-			std::memset((void *) int_header, 0, 56 * 4);
+			std::memset((void *) int_header, 0, 56 * sizeof(int));
 			int_header[0] = (int) dims[1]; //nx
 			int_header[1] = (int) dims[0]; //ny
 			int_header[2] = (int) 1; //nz
@@ -394,7 +394,7 @@ namespace PRISM {
 			int int_header[56];
 			char char_header[800];
 			std::memset((void *) char_header, 0, 800);
-			std::memset((void *) int_header, 0, 56 * 4);
+			std::memset((void *) int_header, 0, 56 * sizeof(int));
 			int_header[0] = (int) dims[1]; //nx
 			int_header[1] = (int) dims[0]; //ny
 			int_header[2] = (int) 1; //nz
