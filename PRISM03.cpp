@@ -100,7 +100,7 @@ namespace PRISM {
                                                 0, pars.interpolationFactor, pars.beamsOutput.get_dimi());
 
         vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
-        pars.xyBeams = zeros_ND<2, size_t>({pars.beamsIndex.size(), 2});
+        pars.xyBeams = zeros_ND<2, long>({pars.beamsIndex.size(), 2});
 
         for (auto a0 = 1; a0 <= pars.beamsIndex.size(); ++a0) {
             for (auto y = 0; y < beamsReduce.get_dimj(); ++y) {
@@ -312,15 +312,15 @@ namespace PRISM {
         T x0 = pars.xp[ax] / pars.pixelSizeOutput[1];
         T y0 = pars.yp[ay] / pars.pixelSizeOutput[0];
         Array1D x = pars.xVec + round(x0);
-        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[1]); });
+        transform(x.begin(), x.end(), x.begin(), [&pars](T &a) { return fmod(a, (T)pars.imageSizeOutput[1]); });
         Array1D y = pars.yVec + round(y0);
-        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, pars.imageSizeOutput[0]); });
+        transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, (T)pars.imageSizeOutput[0]); });
         Array2D intOutput = PRISM::zeros_ND<2, T>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
         for (auto a5 = 0; a5 < pars.numFP; ++a5) {
             Array2D_cx psi = PRISM::zeros_ND<2, std::complex<T> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
             for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
-                T yB = pars.xyBeams.at(a4, 0) - 1;
-                T xB = pars.xyBeams.at(a4, 1) - 1;
+                T yB = pars.xyBeams.at(a4, 0);
+                T xB = pars.xyBeams.at(a4, 1);
                 if (abs(PsiProbeInit.at(yB, xB)) > 0) {
                     T q0_0 = pars.qxaReduce.at(yB, xB);
                     T q0_1 = pars.qyaReduce.at(yB, xB);
@@ -366,6 +366,7 @@ namespace PRISM {
             for (auto jj = 0; jj < intOutput.get_dimj(); ++jj){
                 for (auto ii = 0; ii < intOutput.get_dimi(); ++ii){
                     intOutput.at(ii,jj) += pow(abs(psi.at(jj,ii)),2);
+//	                intOutput.at(jj,ii) += pow(abs(psi.at(jj,ii)),2);
                 }
             }
         }

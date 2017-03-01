@@ -42,7 +42,7 @@ namespace PRISM{
         Array1D xp;
         Array1D yp;
         std::vector<size_t> beamsIndex;
-        Array2D_dims xyBeams;
+	    PRISM::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D beams;
 	    Array2D beamsOutput;
         Array1D xVec;
@@ -60,8 +60,8 @@ namespace PRISM{
 	    Array1D_dims qyInd;
 
 //	    Array2D_cx PsiProbeInit;
-        Array2D q1;
-        Array2D q2;
+//        Array2D q1;
+//        Array2D q2;
 
 	    T scale;
         T lambda;

@@ -13,7 +13,7 @@ pixelSize = 100/1000;   % Realspace pixel size.
 emdSTEM.potBound = 1;       % Radial distance to integrate atomic potentials.
 emdSTEM.numFP = 8/8;          % Number of frozen phonon configurations.
 emdSTEM.sliceThickness = 2; % Thickness of each potential slice.
-emdSTEM.interpolationFactor = 25;
+emdSTEM.interpolationFactor = 50;
 
 % u = ones(118,1) * 0.08;      % Debye waller coefficients.
 u = ones(118,1) * 0.0;      % Debye waller coefficients.
