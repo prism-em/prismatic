@@ -19,17 +19,22 @@ int main(int argc, const char** argv) {
 	using Array2D = PRISM::ArrayND<2, vec_d>;
 	using Array1D = PRISM::ArrayND<1, vec_d>;
 	using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
-
-//    std::string filename = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/MATLAB/atoms.txt";
-//    std::string filename = "test_atom.txt";
-	std::string filename = "/home/aj/hdd1/clion/PRISM/MATLAB/atoms.txt";
 	PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
+
+	std::string filename;
+	if (argc>1) {
+		filename = std::string(argv[1]);
+	} else{
+		cout << "PRISM: Correct syntax is prism filename [interpolation factor]" << endl;
+		return 0;
+	}
+	prism_pars.interpolationFactor = (argc>2) ? atoi(argv[2]) : 50;
+
 	PRISM_FLOAT_TYPE one_pixel_size = 100.0 / 1000.0;
 	prism_pars.potBound = 1.0;
 	prism_pars.numFP = 8.0 / 8.0;
 	prism_pars.sliceThickness = 2;
 	//if (argc > 1)
-	prism_pars.interpolationFactor = (argc>1) ? atoi(argv[1]) : 50;
 	//prism_pars.interpolationFactor = 5;
 	Array1D_dims cellDim({80, 100, 100}, {3}); // this is z,y,x format
 	prism_pars.cellDim = cellDim;
