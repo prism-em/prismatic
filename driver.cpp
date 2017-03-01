@@ -94,8 +94,10 @@ int main(int argc, const char** argv) {
 	prism_pars.atoms[0].to_string();
 	prism_pars.atoms[prism_pars.atoms.size() - 1].to_string();
 	PRISM::PRISM01(prism_pars);
-	PRISM::PRISM02(prism_pars);
-	cout << "prism_pars.Scompact[0] = " << prism_pars.Scompact[0] << endl;
+	cout << "Writing potential stack to \"potential.mrc\"" << endl;
+	prism_pars.pot.toMRC_f("potentials.mrc");
+//	PRISM::PRISM02(prism_pars);
+//	cout << "prism_pars.Scompact[0] = " << prism_pars.Scompact[0] << endl;
 //	PRISM::PRISM03(prism_pars);
 //	cout << "pars.stack[0] = " << prism_pars.stack[0] << endl;
 //    cout << "Writing potential stack to \"potential.mrc\"" << endl;
