@@ -98,6 +98,6 @@ int main(int argc, const char** argv) {
 		}
 	}
 	multislice_image.toMRC_f("multislice_image.mrc");
-	cout << "PRISM: Calculation complete. Exiting." << endl;
+	cout << "Calculation complete. Exiting." << endl;
 	return 0;
 }

@@ -119,7 +119,7 @@ namespace PRISM {
 			}));
 
 		}
-		cout << "Synchronizing threads...\n";
+		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
 
 

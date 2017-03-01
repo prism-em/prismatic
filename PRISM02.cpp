@@ -132,7 +132,7 @@ namespace PRISM {
 			if (start >= pars.numberBeams)break;
 			stop  += WORK_CHUNK_SIZE;
 		}
-		cout << "Synchronizing threads...\n";
+		cout << "Waiting for threads...\n";
 		for (auto& t:workers)t.join();
 	}
 
