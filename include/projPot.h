@@ -28,7 +28,7 @@ namespace PRISM {
 		for (auto i=0; i < 8; ++i)std::cout<<yv[i]<<std::endl;
 
 		T potMin = 0;
-		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(xv[i],yv[i]) : potMin;
+		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(yv[i],xv[i]) : potMin;
 		return potMin;
 	}
 
@@ -90,7 +90,7 @@ namespace PRISM {
 
 		std::pair<Array2D<T>, Array2D<T> > meshxy = meshgrid(xv, yv);
 		ArrayND<2, std::vector<T> > r2 = zeros_ND<2, T>({yv.size(), xv.size()});
-		ArrayND<2, std::vector<T> > r = zeros_ND<2, T>({yv.size(), xv.size()});
+		ArrayND<2, std::vector<T> > r  = zeros_ND<2, T>({yv.size(), xv.size()});
 
 		{
 			auto t_y = r2.begin();
@@ -124,9 +124,8 @@ namespace PRISM {
 		cout << "r[28223] = " << r[28223] << endl;
 		cout << "pi = " << pi << endl;
 //		potSS = term1 * ( ap[0]*cyl_bessel_k(0,2*pi*sqrt(ap[1]))*r);
-		std::transform(r.begin() , r.end() ,
-		          r2.begin(),
-		          potSS.begin(),[&ap, &term1, &term2](const T& r_t, const T& r2_t){
+		std::transform(r.begin(), r.end(),
+		          r2.begin(), potSS.begin(), [&ap, &term1, &term2](const T& r_t, const T& r2_t){
 
 			return term1*(ap[0] *
 	                cyl_bessel_k(0,2*pi*sqrt(ap[1])*r_t)          +

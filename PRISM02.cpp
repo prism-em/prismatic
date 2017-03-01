@@ -84,7 +84,7 @@ namespace PRISM {
 
 		const double pi = acos(-1);
 		const std::complex<double> i(0, 1);
-		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[1]/2, pars.imageSize[0]/2}});
+		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[0]/2, pars.imageSize[1]/2}});
 		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
@@ -104,7 +104,7 @@ namespace PRISM {
 
 		workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
 				// allocate array for psi just once per thread
-				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
+				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[0], pars.imageSize[1]}});
 
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
 				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),

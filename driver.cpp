@@ -28,7 +28,7 @@ int main() {
 	prism_pars.potBound = 1.0;
 	prism_pars.numFP = 8.0 / 8.0;
 	prism_pars.sliceThickness = 2;
-	prism_pars.interpolationFactor = 25;
+	prism_pars.interpolationFactor = 5;
 	Array1D_dims cellDim({80, 100, 100}, {3}); // this is z,y,x format
 	prism_pars.cellDim = cellDim;
 	prism_pars.E0 = 80e3;
