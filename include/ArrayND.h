@@ -321,8 +321,8 @@ namespace PRISM {
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 	template <class T>
 	std::pair<Array2D<T>, Array2D<T>> meshgrid(const Array1D<T>& X, const Array1D<T>& Y){
-		Array2D<T> xx = zeros_ND<2, T>({Y.size(), X.size()});
-		Array2D<T> yy = zeros_ND<2, T>({Y.size(), X.size()});
+		Array2D<T> xx = zeros_ND<2, T>({{Y.size(), X.size()}});
+		Array2D<T> yy = zeros_ND<2, T>({{Y.size(), X.size()}});
 		for (auto j = 0; j < xx.get_dimj(); ++j){
 			for (auto i = 0; i < xx.get_dimi(); ++i){
 				xx.at(j,i) = X[i];

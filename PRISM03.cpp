@@ -100,7 +100,7 @@ namespace PRISM {
                                                 0, pars.interpolationFactor, pars.beamsOutput.get_dimi());
 
         vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
-        pars.xyBeams = zeros_ND<2, long>({pars.beamsIndex.size(), 2});
+        pars.xyBeams = zeros_ND<2, long>({{pars.beamsIndex.size(), 2}});
 
         for (auto a0 = 1; a0 <= pars.beamsIndex.size(); ++a0) {
             for (auto y = 0; y < beamsReduce.get_dimj(); ++y) {
@@ -161,7 +161,7 @@ namespace PRISM {
                                   [](const T &a) { return a < 1 ? 1 : a; });
                         PRISM::ArrayND<2, std::vector<unsigned short> > alphaMask(
                                 std::vector<unsigned short>(alphaInd.size(), 0),
-                                {alphaInd.get_dimj(), alphaInd.get_dimi()});
+                                {{alphaInd.get_dimj(), alphaInd.get_dimi()}});
                         transform(alphaInd.begin(), alphaInd.end(),
                                   alphaMask.begin(),
                                   [&pars](const T &a) { return (a < pars.Ndet) ? 1 : 0; });

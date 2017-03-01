@@ -55,10 +55,10 @@ namespace PRISM {
                                            const ArrayND<1, vector<long> >& yvec,
                                            const Array1D<T>& uLookup ){
 		// splits the atomic coordinates into slices and computes the projected potential for each.
-		Array1D<T> x  = zeros_ND<1, T>({pars.atoms.size()});
-		Array1D<T> y  = zeros_ND<1, T>({pars.atoms.size()});
-		Array1D<T> z  = zeros_ND<1, T>({pars.atoms.size()});
-		Array1D<T> ID = zeros_ND<1, T>({pars.atoms.size()});
+		Array1D<T> x  = zeros_ND<1, T>({{pars.atoms.size()}});
+		Array1D<T> y  = zeros_ND<1, T>({{pars.atoms.size()}});
+		Array1D<T> z  = zeros_ND<1, T>({{pars.atoms.size()}});
+		Array1D<T> ID = zeros_ND<1, T>({{pars.atoms.size()}});
 
 		for (auto i = 0; i < pars.atoms.size(); ++i){
 			x[i]  = pars.atoms[i].x * pars.cellDim[2];
@@ -76,7 +76,7 @@ namespace PRISM {
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
 
-		pars.pot = zeros_ND<3, T>({pars.numPlanes,pars.imageSize[0], pars.imageSize[1] });
+		pars.pot = zeros_ND<3, T>({{pars.numPlanes,pars.imageSize[0], pars.imageSize[1]}});
 
 
 		// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
@@ -191,25 +191,25 @@ namespace PRISM {
 		cout << "Entering PRISM01" << endl;
 		T yleng = std::ceil(pars.potBound / pars.pixelSize[0]);
 		T xleng = std::ceil(pars.potBound / pars.pixelSize[1]);
-		ArrayND<1, vector<long> > xvec(vector<long>(2*(size_t)xleng + 1, 0),{2*(size_t)xleng + 1});
-		ArrayND<1, vector<long> > yvec(vector<long>(2*(size_t)yleng + 1, 0),{2*(size_t)yleng + 1});
+		ArrayND<1, vector<long> > xvec(vector<long>(2*(size_t)xleng + 1, 0),{{2*(size_t)xleng + 1}});
+		ArrayND<1, vector<long> > yvec(vector<long>(2*(size_t)yleng + 1, 0),{{2*(size_t)yleng + 1}});
 		{
 			T tmpx = -xleng;
 			T tmpy = -yleng;
 			for (auto &i : xvec)i = tmpx++;
 			for (auto &j : yvec)j = tmpy++;
 		}
-		Array1D xr(vector<T>(2*(size_t)xleng + 1, 0),{2*(size_t)xleng + 1});
-		Array1D yr(vector<T>(2*(size_t)yleng + 1, 0),{2*(size_t)yleng + 1});
+		Array1D xr(vector<T>(2*(size_t)xleng + 1, 0),{{2*(size_t)xleng + 1}});
+		Array1D yr(vector<T>(2*(size_t)yleng + 1, 0),{{2*(size_t)yleng + 1}});
 		for (auto i=0; i < xr.size(); ++i)xr[i] = (T)xvec[i] * pars.pixelSize[1];
 		for (auto j=0; j < yr.size(); ++j)yr[j] = (T)yvec[j] * pars.pixelSize[0];
 
 		vector<size_t> unique_species = get_unique_atomic_species(pars);
-		Array1D uLookup   = zeros_ND<1, T>({unique_species.size()});
+		Array1D uLookup   = zeros_ND<1, T>({{unique_species.size()}});
 		for (auto i = 0; i < unique_species.size(); ++i){
 			uLookup[i] = pars.u[unique_species[i]] > 0 ? pars.u[unique_species[i]] : 0.05;
 		}
-		Array3D potLookup = zeros_ND<3, T>({unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1});
+		Array3D potLookup = zeros_ND<3, T>({{unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1}});
 		fetch_potentials(potLookup, unique_species, xr, yr);
 		generateProjectedPotentials(pars, potLookup, unique_species, xvec, yvec, uLookup);
 	}

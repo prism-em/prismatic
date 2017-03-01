@@ -34,7 +34,7 @@ int main(int argc, const char** argv) {
 	prism_pars.potBound = 1.0;
 	prism_pars.numFP = 8.0 / 8.0;
 	prism_pars.sliceThickness = 2;
-	Array1D_dims cellDim({80, 100, 100}, {3}); // this is z,y,x format
+	Array1D_dims cellDim({{80, 100, 100}}, {{3}}); // this is z,y,x format
 	prism_pars.cellDim = cellDim;
 	prism_pars.E0 = 80e3;
 	prism_pars.alphaBeamMax = 24 / 1000.0;
@@ -51,16 +51,14 @@ int main(int argc, const char** argv) {
 	                   (2 * m * c * c + e * prism_pars.E0);
 
 	PRISM_FLOAT_TYPE f = 4 * prism_pars.interpolationFactor;
-	Array1D_dims imageSize({{cellDim[1], cellDim[2]},
-	                        {2}});
+	Array1D_dims imageSize({{cellDim[1], cellDim[2]}}, {{2}});
 	std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
 	               [&f, &prism_pars, &one_pixel_size](size_t &a) {
 		               return (size_t) (f * round((PRISM_FLOAT_TYPE) a / one_pixel_size / f));
 	               });
 	prism_pars.imageSize = imageSize;
 
-	Array1D pixelSize({{(PRISM_FLOAT_TYPE) cellDim[1], (PRISM_FLOAT_TYPE) cellDim[2]},
-	                   {2}});
+	Array1D pixelSize({{(PRISM_FLOAT_TYPE) cellDim[1], (PRISM_FLOAT_TYPE) cellDim[2]}}, {{2}});
 	prism_pars.pixelSize = pixelSize;
 	prism_pars.pixelSize[0] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[0];
 	prism_pars.pixelSize[1] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[1];

@@ -20,7 +20,7 @@ namespace PRISM {
 
 	template<class T>
 	Array1D<T> makeFourierCoords(const size_t &N, const T &pixel_size) {
-		Array1D<T> result = zeros_ND<1, T>({N});
+		Array1D<T> result = zeros_ND<1, T>({{N}});
 		long long nc = (size_t) floor((double) N / 2);
 
 		T dp = 1 / (N * pixel_size);
@@ -176,7 +176,7 @@ namespace PRISM {
 			pars.qMax = min(qx_max, qy_max) / 2;
 		}
 
-		pars.qMask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
+		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
 		{
 			long offset_x = pars.qMask.get_dimi()/4;
 			long offset_y = pars.qMask.get_dimj()/4;
@@ -191,8 +191,8 @@ namespace PRISM {
 		}
 
         // build propagators
-        pars.prop     = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
-        pars.propBack = zeros_ND<2, std::complex<T> >({pars.imageSize[1], pars.imageSize[0]});
+        pars.prop     = zeros_ND<2, std::complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
+        pars.propBack = zeros_ND<2, std::complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
         for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
             for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
                 if (pars.qMask.at(y,x)==1)
@@ -213,7 +213,7 @@ namespace PRISM {
 
         // create beam mask and count beams
         PRISM::ArrayND<2, std::vector<unsigned int> > mask;
-        mask = zeros_ND<2, unsigned int>({pars.imageSize[1], pars.imageSize[0]});
+        mask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
         pars.numberBeams = 0;
         long interp_f = (long)pars.interpolationFactor;
         for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {

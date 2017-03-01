@@ -13,7 +13,7 @@ find_package(FFTW REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS} ${FFTW_INCLUDES})
 target_link_libraries(PRISM ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 message("FFTW found.   Location " ${FFTW_INCLUDES})
-message("Boost found.  Location " ${FFTW_LIBRARIES})
+message("Boost found.  Location " ${Boost_Library_DIRS})
 
 # PRISM custom options
 set(PRISM_ENABLE_GPU 0 CACHE BOOL PRISM_ENABLE_GPU)
