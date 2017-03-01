@@ -1,6 +1,0 @@
-You will need to have FFTW3 installed and add the relevant path to the mex
-command. On my machine FFTW is installed at /usr/local so the relevant
-flags are -I/usr/local/include/ -lfftw3 -L/usr/local/lib/
-Just replace them accordingly and the rest should work
-
-mex PRISM03_mex.cpp -I../include/ CXXOPTIMFLAGS='-O3 -DNDEBUG' LDOPTIMFLAGS='-O3' -I/usr/local/include/ -lfftw3 -L/usr/local/lib/

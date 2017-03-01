@@ -34,8 +34,6 @@ int main(int argc, const char** argv) {
 	prism_pars.potBound = 1.0;
 	prism_pars.numFP = 8.0 / 8.0;
 	prism_pars.sliceThickness = 2;
-	//if (argc > 1)
-	//prism_pars.interpolationFactor = 5;
 	Array1D_dims cellDim({80, 100, 100}, {3}); // this is z,y,x format
 	prism_pars.cellDim = cellDim;
 	prism_pars.E0 = 80e3;
@@ -88,21 +86,13 @@ int main(int argc, const char** argv) {
 
 	cout << "prism_pars.pixelSize[0] = " << prism_pars.pixelSize[0] << endl;
 	cout << "prism_pars.pixelSize[1] = " << prism_pars.pixelSize[1] << endl;
-	cout << "test" << endl;
-	cout << "fparams[0]" << fparams[0] << endl;
-	cout << "fparams[10]" << fparams[10] << endl;
-	cout << "fparams[20]" << fparams[20] << endl;
-
 
 	Array1D u = PRISM::ones_ND<1, double>({{118}}) * 0.08;
 	prism_pars.u = u;
 	prism_pars.atoms[0].to_string();
 	prism_pars.atoms[prism_pars.atoms.size() - 1].to_string();
 	PRISM::PRISM01(prism_pars);
-	cout << "Writing potential stack to \"potential.mrc\"" << endl;
-	prism_pars.pot.toMRC_f("potentials.mrc");
 	PRISM::PRISM02(prism_pars);
-	cout << "prism_pars.Scompact[0] = " << prism_pars.Scompact[0] << endl;
 	PRISM::PRISM03(prism_pars);
 
 	size_t lower = 13;
@@ -117,10 +107,6 @@ int main(int argc, const char** argv) {
 		}
 	}
 	multislice_image.toMRC_f("multislice_image.mrc");
-
-	double a = 0;
-	for (auto& i :prism_pars.stack)a+=i;
-	cout << " sum stack =  = " << a <<endl;
-//	//for (auto& i : u) std::cout << i << std::endl;
+	cout << "PRISM: Calculation complete. Exiting." << endl;
 	return 0;
 }

@@ -1,4 +1,5 @@
 build/
+MATLAB/
 gmon.out
 include/boost
 .DS_Store
