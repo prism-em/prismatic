@@ -1,24 +1,19 @@
 //
 // Created by AJ Pryor on 2/13/17.
 //
-#ifndef PRISM_EMDSTEM_H
-#define PRISM_EMDSTEM_H
+#ifndef PRISM_PARAMS_H
+#define PRISM_PARAMS_H
 
 #include "ArrayND.h"
 #include <vector>
 #include <string>
 #include <complex>
 #include "atom.h"
-
+#include "meta.h"
 namespace PRISM{
-	template <class T>
-	struct Metadata{
-		size_t interpolationFactor;
-		std::string filename_atoms;
-		std::string filename_output;
-	};
     template <class T>
-    struct Parameters {
+    class Parameters {
+    public:
 	    using Array1D        = PRISM::ArrayND<1, std::vector<T> >;
 	    using Array1D_dims   = PRISM::ArrayND<1, std::vector<size_t> >;
 	    using Array2D        = PRISM::ArrayND<2, std::vector<T> >;
@@ -90,4 +85,4 @@ namespace PRISM{
 
 
 }
-#endif //PRISM_EMDSTEM_H
+#endif //PRISM_PARAMS_H

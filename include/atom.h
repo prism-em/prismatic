@@ -46,8 +46,13 @@ namespace PRISM{
 			if(ss.peek()==',')ss.ignore();
 			atoms.emplace_back(atom{tx,ty,tz,tspecies});
 		}
-		std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in "  << filename  << std::endl;
-		return atoms;
+		if (atom_count == 0){
+			std::domain_error("Bad input data. No atoms were found in this file.\n");
+		} else {
+			std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
+			          << std::endl;
+		}
+			return atoms;
 	};
 
 }

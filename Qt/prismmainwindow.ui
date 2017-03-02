@@ -51,9 +51,9 @@
          <widget class="QLineEdit" name="lineedit_outputfile"/>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="btn_outputfile_browse">
           <property name="text">
-           <string>PushButton</string>
+           <string>Browse</string>
           </property>
          </widget>
         </item>

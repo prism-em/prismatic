@@ -31,4 +31,3 @@ HEADERS  += prismmainwindow.h
 FORMS    += \
     prismmainwindow.ui
 
-CONFIG+=console

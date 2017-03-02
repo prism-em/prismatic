@@ -26,7 +26,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/Qt)
 add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp)
-target_link_libraries(prism-gui Qt5::Widgets)
+target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 endif (PRISM_ENABLE_GUI)
 
 set(PRISM_ENABLE_GPU 0 CACHE BOOL PRISM_ENABLE_GPU)
