@@ -86,16 +86,16 @@ int main(int argc, const char** argv) {
 
 	size_t lower = 13;
 	size_t upper = 18;
-	Array2D multislice_image;
-	multislice_image = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
+	Array2D prism_image;
+	prism_image = PRISM::zeros_ND<2, PRISM_FLOAT_TYPE>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
 	for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
 		for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
 			for (auto b = lower; b < upper; ++b){
-				multislice_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+				prism_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
 			}
 		}
 	}
-	multislice_image.toMRC_f("multislice_image.mrc");
+	prism_image.toMRC_f("prism_image.mrc");
 	cout << "Calculation complete. Exiting." << endl;
 	return 0;
 }
