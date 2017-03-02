@@ -1,4 +1,6 @@
 build/
+test/
+profile/
 MATLAB/
 gmon.out
 include/boost
