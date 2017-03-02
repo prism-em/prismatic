@@ -18,7 +18,8 @@ message("Boost found.  Location " ${Boost_Library_DIRS})
 # PRISM custom options
 
 # Qt options
-set(PRISM_ENABLE_GUI 1 CACHE BOOL PRISM_ENABLE_GUI)
+set(PRISM_ENABLE_GUI 0 CACHE BOOL PRISM_ENABLE_GUI)
+set(Qt5Widgets_DIR /usr/local/Cellar/qt5/5.8.0_1/lib/cmake/Qt5Widgets/)
 set(CMAKE_INCLUDE_CURRENT_DIR on)
 if (PRISM_ENABLE_GUI)
 set(CMAKE_AUTOMOC ON)
