@@ -31,7 +31,7 @@ namespace PRISM {
 	};
 
 	template<class T>
-	void propagatePlaneWave(emdSTEM<T> &pars,
+	void propagatePlaneWave(Parameters<T> &pars,
 	                        Array3D<complex<T> >& trans,
 	                        size_t a0,
 	                        Array2D<complex<T> > &psi,
@@ -79,7 +79,7 @@ namespace PRISM {
 	};
 
 	template<class T>
-	void fill_Scompact(emdSTEM<T> &pars) {
+	void fill_Scompact(Parameters<T> &pars) {
 		mutex fftw_plan_lock;
 
 		const double pi = acos(-1);
@@ -137,7 +137,7 @@ namespace PRISM {
 	}
 
 	template <class T>
-	void PRISM02(emdSTEM<T>& pars){
+	void PRISM02(Parameters<T>& pars){
 		// propagate plane waves to construct compact S-matrix
 
 		cout << "Entering PRISM02" << endl;
@@ -215,7 +215,7 @@ namespace PRISM {
         PRISM::ArrayND<2, std::vector<unsigned int> > mask;
         mask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
         pars.numberBeams = 0;
-        long interp_f = (long)pars.interpolationFactor;
+        long interp_f = (long)pars.meta.interpolationFactor;
         for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
             for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
                 if (q2.at(y,x) < pow(pars.alphaBeamMax / pars.lambda,2) &&

@@ -6,12 +6,19 @@
 
 #include "ArrayND.h"
 #include <vector>
+#include <string>
 #include <complex>
 #include "atom.h"
 
 namespace PRISM{
+	template <class T>
+	struct Metadata{
+		size_t interpolationFactor;
+		std::string filename_atoms;
+		std::string filename_output;
+	};
     template <class T>
-    struct emdSTEM {
+    struct Parameters {
 	    using Array1D        = PRISM::ArrayND<1, std::vector<T> >;
 	    using Array1D_dims   = PRISM::ArrayND<1, std::vector<size_t> >;
 	    using Array2D        = PRISM::ArrayND<2, std::vector<T> >;
@@ -21,13 +28,14 @@ namespace PRISM{
 	    using Array3D        = PRISM::ArrayND<3, std::vector<T> >;
 	    using Array3D_cx     = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
 		using Array4D        = PRISM::ArrayND<4, std::vector<T> >;
+	    Metadata<T> meta;
 	    Array3D_cx Scompact;
 	    Array4D stack;
 		Array3D pot;
 
 	    Array2D_cx prop;
 	    Array2D_cx propBack;
-
+//	    size_t interpolationFactor;
 	    Array2D_mask qMask;
         Array1D probeDefocusArray;
         Array1D probeSemiangleArray;
@@ -72,12 +80,12 @@ namespace PRISM{
         size_t Ndet;
         size_t numFP;
         size_t sliceThickness;
-        size_t interpolationFactor;
+
         size_t numPlanes;
 	    size_t numberBeams;
 		size_t NUM_THREADS;
 	    size_t NUM_GPUS;
-		emdSTEM(){};
+		Parameters(){};
     };
 
 

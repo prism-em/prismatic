@@ -4,7 +4,7 @@
 #include "include/PRISM02.h"
 #include "include/PRISM03.h"
 #include "include/atom.h"
-#include "include/emdSTEM.h"
+#include "include/params.h"
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
@@ -19,16 +19,20 @@ int main(int argc, const char** argv) {
 	using Array2D = PRISM::ArrayND<2, vec_d>;
 	using Array1D = PRISM::ArrayND<1, vec_d>;
 	using Array1D_dims = PRISM::ArrayND<1, std::vector<size_t> >;
-	PRISM::emdSTEM<PRISM_FLOAT_TYPE> prism_pars;
+	PRISM::Parameters<PRISM_FLOAT_TYPE> prism_pars;
+	PRISM::Metadata<PRISM_FLOAT_TYPE> meta;
+	prism_pars.meta = meta;
+	prism_pars.meta.interpolationFactor = (argc>2) ? atoi(argv[2]) : 50;
 
 	std::string filename;
 	if (argc>1) {
-		filename = std::string(argv[1]);
+		prism_pars.meta.filename_atoms = std::string(argv[1]);
 	} else{
 		cout << "PRISM: Correct syntax is prism filename [interpolation factor]" << endl;
 		return 0;
 	}
-	prism_pars.interpolationFactor = (argc>2) ? atoi(argv[2]) : 50;
+	prism_pars.meta.filename_output = "prism_image.mrc";
+
 
 	PRISM_FLOAT_TYPE one_pixel_size = 100.0 / 1000.0;
 	prism_pars.potBound = 1.0;
@@ -50,7 +54,7 @@ int main(int argc, const char** argv) {
 	prism_pars.sigma = (2 * pi / prism_pars.lambda / prism_pars.E0) * (m * c * c + e * prism_pars.E0) /
 	                   (2 * m * c * c + e * prism_pars.E0);
 
-	PRISM_FLOAT_TYPE f = 4 * prism_pars.interpolationFactor;
+	PRISM_FLOAT_TYPE f = 4 * prism_pars.meta.interpolationFactor;
 	Array1D_dims imageSize({{cellDim[1], cellDim[2]}}, {{2}});
 	std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
 	               [&f, &prism_pars, &one_pixel_size](size_t &a) {
@@ -95,7 +99,8 @@ int main(int argc, const char** argv) {
 			}
 		}
 	}
-	prism_image.toMRC_f("prism_image.mrc");
+
+	prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
 	cout << "Calculation complete. Exiting." << endl;
 	return 0;
 }

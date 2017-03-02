@@ -49,7 +49,7 @@ namespace PRISM {
     }
 
     template<class T>
-    void PRISM03(emdSTEM<T> &pars) {
+    void PRISM03(Parameters<T> &pars) {
 		// compute final image
 
 	    cout << "Entering PRISM02" << endl;
@@ -86,8 +86,8 @@ namespace PRISM {
         pars.detectorAngles = detectorAngles;
 //        bool flag_plot = 0;
 //        bool flag_keep_beams = 0;
-        T r_0 = pars.imageSizeOutput[0] / pars.interpolationFactor / 2;
-        T r_1 = pars.imageSizeOutput[1] / pars.interpolationFactor / 2;
+        T r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
+        T r_1 = pars.imageSizeOutput[1] / pars.meta.interpolationFactor / 2;
         vector<T> yVec_d = vecFromRange(-r_0, 1.0, r_0 - 1);
         vector<T> xVec_d = vecFromRange(-r_1, 1.0, r_1 - 1);
         Array1D<T> yVec(yVec_d,{{yVec_d.size()}});
@@ -96,8 +96,8 @@ namespace PRISM {
         pars.xVec = xVec;
 
         Array2D<T> beamsReduce = array2D_subset(pars.beamsOutput,
-                                                0, pars.interpolationFactor, pars.beamsOutput.get_dimj(),
-                                                0, pars.interpolationFactor, pars.beamsOutput.get_dimi());
+                                                0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimj(),
+                                                0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimi());
 
         vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
         pars.xyBeams = zeros_ND<2, long>({{pars.beamsIndex.size(), 2}});
@@ -114,11 +114,11 @@ namespace PRISM {
         }
 
         pars.qxaReduce = array2D_subset(pars.qxaOutput,
-                                        0, pars.interpolationFactor, pars.qxaOutput.get_dimj(),
-                                        0, pars.interpolationFactor, pars.qxaOutput.get_dimi());
+                                        0, pars.meta.interpolationFactor, pars.qxaOutput.get_dimj(),
+                                        0, pars.meta.interpolationFactor, pars.qxaOutput.get_dimi());
         pars.qyaReduce = array2D_subset(pars.qyaOutput,
-                                        0, pars.interpolationFactor, pars.qyaOutput.get_dimj(),
-                                        0, pars.interpolationFactor, pars.qyaOutput.get_dimi());
+                                        0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimj(),
+                                        0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimi());
         pars.Ndet = pars.detectorAngles.size();
         pars.stack = zeros_ND<4, T>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}});
 
@@ -130,7 +130,7 @@ namespace PRISM {
         psi = zeros_ND<2, complex<T> >({{imageSizeReduce[0], imageSizeReduce[1]}});
         pars.imageSizeReduce = imageSizeReduce;
         pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
-        T scale = pow(pars.interpolationFactor, 4);
+        T scale = pow(pars.meta.interpolationFactor, 4);
         pars.scale = scale;
 
         // Most of this is transcribed directly from the original MATLAB version.
@@ -239,7 +239,7 @@ namespace PRISM {
 
 
     template<class T>
-    void buildSignal(emdSTEM<T> &pars,
+    void buildSignal(Parameters<T> &pars,
                      const size_t &ay,
                      const size_t &ax,
                      const T &yTiltShift,
@@ -309,7 +309,7 @@ namespace PRISM {
             }
         }
 
-//         update emdSTEM.stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+//         update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
         auto idx = alphaInd.begin();
         for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
             if (*idx <= pars.Ndet){

@@ -8,7 +8,7 @@
 #include <map>
 #include <random>
 #include <thread>
-#include "emdSTEM.h"
+#include "params.h"
 #include "ArrayND.h"
 #include "projPot.h"
 using namespace std;
@@ -37,7 +37,7 @@ namespace PRISM {
 	}
 
 	template <class T>
-	vector<size_t> get_unique_atomic_species(emdSTEM<T>& pars){
+	vector<size_t> get_unique_atomic_species(Parameters<T>& pars){
 		// helper function to get the unique atomic species
 		vector<size_t> unique_atoms = vector<size_t>(pars.atoms.size(),0);
 		for (auto i = 0; i < pars.atoms.size(); ++i)unique_atoms[i] = pars.atoms[i].species;
@@ -48,7 +48,7 @@ namespace PRISM {
 	}
 
 	template <class T>
-	void generateProjectedPotentials(emdSTEM<T>& pars,
+	void generateProjectedPotentials(Parameters<T>& pars,
                                            const Array3D<T>& potLookup,
                                            const vector<size_t>& unique_species,
                                            const ArrayND<1, vector<long> >& xvec,
@@ -179,7 +179,7 @@ namespace PRISM {
 	};
 
 	template <class T>
-	void PRISM01(emdSTEM<T>& pars){
+	void PRISM01(Parameters<T>& pars){
 		//builds atomic potentials
 
 		using Array3D = ArrayND<3, std::vector<T> >;
