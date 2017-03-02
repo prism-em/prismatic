@@ -1,9 +1,11 @@
 #include <QFileDialog>
+#include <QString>
 #include "prismmainwindow.h"
 #include "ui_prismmainwindow.h"
 #include <fstream>
 #include <iostream>
 #include "PRISM_entry.h"
+#include <sstream>
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,8 +13,14 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 	this->meta = new PRISM::Metadata<double>;
-
     this->setWindowTitle("PRISM");
+	{
+		std::stringstream ss;
+		ss << this->meta->interpolationFactor;
+		this->ui->lineedit_f->setText(QString::fromStdString(ss.str()));
+	}
+	this->ui->lineedit_atomsfile->setText(QString::fromStdString(this->meta->filename_atoms));
+	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 	connect(this->ui->lineedit_f,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
 	connect(this->ui->lineedit_atomsfile,SIGNAL(editingFinished()),this,SLOT(setFilenameAtoms_fromLineEdit()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
@@ -35,14 +43,14 @@ void PRISMMainWindow::setInterpolationFactor(){
 void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
 	filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename);
-	this->ui->lineedit_atomsfile->text(filename);
+	this->ui->lineedit_atomsfile->setText(filename);
 	this->setFilenameAtoms(filename.toStdString());
 }
 
 void PRISMMainWindow::setFilenameOutput_fromDialog(){
 	QString filename;
 	filename = QFileDialog::getOpenFileName(this, tr("AnyFile"), filename);
-	this->ui->lineedit_outputfile->text(filename);
+	this->ui->lineedit_outputfile->setText(filename);
 	this->setFilenameOutput(filename.toStdString());
 }
 
