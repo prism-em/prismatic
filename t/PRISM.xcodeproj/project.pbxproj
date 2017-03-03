@@ -1,0 +1,1084 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		994CF98625524A6285538945 /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = CB78C6293BC84A20AAE3F942 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				ED59023D96724B24BB52BF48 /* CMake Rules */,
+			);
+			dependencies = (
+				F2A9C9979AA942BF865FA719 /* PBXTargetDependency */,
+				D15B705764E2458AAFCEE593 /* PBXTargetDependency */,
+				6BC05A45372444ABBE37299F /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		D2C99837B82540E2B8D42100 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 06B4DF85DD434F02A406B40A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				33DC6D58D8334E7E80E900F9 /* CMake Rules */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+		E27C56F42D6F4181A16B0B51 /* prism-gui_automoc */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = E290633E5DE3485FBE9AFFA8 /* Build configuration list for PBXAggregateTarget "prism-gui_automoc" */;
+			buildPhases = (
+				D486DBFE71BF48228C71C191 /* CMake Rules */,
+			);
+			dependencies = (
+				E22600CC6D6E40B0AB7BA8E3 /* PBXTargetDependency */,
+			);
+			name = "prism-gui_automoc";
+			productName = "prism-gui_automoc";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		199517FF17204552AB251012 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = AD5ED67D340F4188B88DA2CC /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */; };
+		23FBF3029EAB428A92EACBD5 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/driver.cpp */ = {isa = PBXBuildFile; fileRef = 750D75555FA04FAD90FFF2C5 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/driver.cpp */; };
+		49CE946B8AB944F085048FB0 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/prism-gui_automoc.cpp */ = {isa = PBXBuildFile; fileRef = 800CC70146524BBF94194A26 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/prism-gui_automoc.cpp */; };
+		6E96B320417F4A1A8391209A /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 6925AC3AE9604590BFA5ABEA /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */; };
+		A2698B2C42A64D4BAAF09E30 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = F4625A8A7E52485493730D78 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist */; };
+		C89D9F014F444709ABBA3E72 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp */ = {isa = PBXBuildFile; fileRef = A553B9EFC1494DD18305F01B /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp */; };
+		F72766D1FC76461C923397F4 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp */ = {isa = PBXBuildFile; fileRef = 8041DAEC8CE44E0195616288 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp */; };
+		FF8D2D08F984443899501905 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = 18807DEBA7044F93B4CE3171 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		211F391DCB5C4585B4FA06F9 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		B11F97C496B944B3909B7A6C /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		B491A12E6FB24B9DBE44B051 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		B7E96DBE5E814A159627793E = {
+			isa = PBXBuildStyle;
+		};
+		CF99B2AFE45347F888BCF94A /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		0D2CB2715E854AB198945BEC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2F3875E6E9E44B5834084F0;
+			remoteInfo = prism;
+		};
+		23D0CDCD38204990B01CC1A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2C99837B82540E2B8D42100;
+			remoteInfo = ZERO_CHECK;
+		};
+		87C3438BDEB04333BF9B0EF8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8A3FF4B97E44D4D8EBEF0CB;
+			remoteInfo = "prism-gui";
+		};
+		916870C86C0D4200BFA1CA9E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2C99837B82540E2B8D42100;
+			remoteInfo = ZERO_CHECK;
+		};
+		AA5506873F6F4B018C44661F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E27C56F42D6F4181A16B0B51;
+			remoteInfo = "prism-gui_automoc";
+		};
+		D7A04EA9077E4312BF850574 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2C99837B82540E2B8D42100;
+			remoteInfo = ZERO_CHECK;
+		};
+		FDD519AC7ADD4EC88CCCD592 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A80ACAD81C98493E96A1C774 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2C99837B82540E2B8D42100;
+			remoteInfo = ZERO_CHECK;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		18807DEBA7044F93B4CE3171 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = "t/CMakeFiles/prism-gui.dir/Info.plist"; sourceTree = SOURCE_ROOT; };
+		29812D75B4864A6C821F2A74 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		2BF69B248ED147D5A49D77FB /* prism */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = prism; sourceTree = BUILT_PRODUCTS_DIR; };
+		49498DE47025420AB24D289A /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		6925AC3AE9604590BFA5ABEA /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		750D75555FA04FAD90FFF2C5 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/driver.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = driver.cpp; path = driver.cpp; sourceTree = SOURCE_ROOT; };
+		800CC70146524BBF94194A26 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/prism-gui_automoc.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = "prism-gui_automoc.cpp"; path = "t/prism-gui_automoc.cpp"; sourceTree = SOURCE_ROOT; };
+		8041DAEC8CE44E0195616288 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = prismmainwindow.cpp; path = Qt/prismmainwindow.cpp; sourceTree = SOURCE_ROOT; };
+		A553B9EFC1494DD18305F01B /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = main.cpp; path = Qt/main.cpp; sourceTree = SOURCE_ROOT; };
+		AB96BC647A79445D8B613D14 /* prism-gui */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; path = "prism-gui"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD5ED67D340F4188B88DA2CC /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		B126E9C335A34545A9A754EC /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		F4625A8A7E52485493730D78 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = t/CMakeFiles/prism.dir/Info.plist; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0C9BFBC3537E42BD84FCF36F /* prism-gui_automoc */ = {
+			isa = PBXGroup;
+			children = (
+				6226FE4F713D49B799600BFC /* CMake Rules */,
+				49498DE47025420AB24D289A /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */,
+			);
+			name = "prism-gui_automoc";
+			sourceTree = "<group>";
+		};
+		42A4EDCD1D8545D9AA84DB13 /* prism */ = {
+			isa = PBXGroup;
+			children = (
+				ECCA4C49F4434AD18D0D6FFF /* Source Files */,
+				4721C597258940F493C517E7 /* Resources */,
+				6925AC3AE9604590BFA5ABEA /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */,
+			);
+			name = prism;
+			sourceTree = "<group>";
+		};
+		4721C597258940F493C517E7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F4625A8A7E52485493730D78 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		6226FE4F713D49B799600BFC /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		657D225A4AA945C6BB63EA15 = {
+			isa = PBXGroup;
+			children = (
+				FCFCE722B0FA45869386246B /* Sources */,
+				B367233296CE4B918345D6E4 /* Resources */,
+				C5712216D6724625A9112F57 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6A20F35F5741499F847CF74D /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				A31966B1E8E14F0DACCE9CCD /* CMake Rules */,
+				29812D75B4864A6C821F2A74 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		7DB453F087F344A8A6D02736 /* prism-gui */ = {
+			isa = PBXGroup;
+			children = (
+				A65FA4F843414F53A80FBAE6 /* Source Files */,
+				DAB44F1526EC4BB1879971C9 /* Resources */,
+				AD5ED67D340F4188B88DA2CC /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */,
+			);
+			name = "prism-gui";
+			sourceTree = "<group>";
+		};
+		A31966B1E8E14F0DACCE9CCD /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		A65FA4F843414F53A80FBAE6 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				A553B9EFC1494DD18305F01B /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp */,
+				8041DAEC8CE44E0195616288 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp */,
+				800CC70146524BBF94194A26 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/prism-gui_automoc.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		B367233296CE4B918345D6E4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		C3BE40F68BC144BA82912173 /* ZERO_CHECK */ = {
+			isa = PBXGroup;
+			children = (
+				D7CB235C6CA242C89B2D1384 /* CMake Rules */,
+				B126E9C335A34545A9A754EC /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/CMakeLists.txt */,
+			);
+			name = ZERO_CHECK;
+			sourceTree = "<group>";
+		};
+		C5712216D6724625A9112F57 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BF69B248ED147D5A49D77FB /* prism */,
+				AB96BC647A79445D8B613D14 /* prism-gui */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D7CB235C6CA242C89B2D1384 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		DAB44F1526EC4BB1879971C9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				18807DEBA7044F93B4CE3171 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		ECCA4C49F4434AD18D0D6FFF /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				750D75555FA04FAD90FFF2C5 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/driver.cpp */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		FCFCE722B0FA45869386246B /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				7DB453F087F344A8A6D02736 /* prism-gui */,
+				42A4EDCD1D8545D9AA84DB13 /* prism */,
+				0C9BFBC3537E42BD84FCF36F /* prism-gui_automoc */,
+				6A20F35F5741499F847CF74D /* ALL_BUILD */,
+				C3BE40F68BC144BA82912173 /* ZERO_CHECK */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A2F3875E6E9E44B5834084F0 /* prism */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 40602869359B476CAD9A0295 /* Build configuration list for PBXNativeTarget "prism" */;
+			buildPhases = (
+				A80A4B89D33E486BBE7353F3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				32592D877C26475890B0BD44 /* PBXTargetDependency */,
+			);
+			name = prism;
+			productName = prism;
+			productReference = 2BF69B248ED147D5A49D77FB /* prism */;
+			productType = "com.apple.product-type.application";
+		};
+		D8A3FF4B97E44D4D8EBEF0CB /* prism-gui */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A9DAB3DED4B14892A9AA68AE /* Build configuration list for PBXNativeTarget "prism-gui" */;
+			buildPhases = (
+				720050A81FFE45EBB9C16D11 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D4928147D80D42DA8B3E47D7 /* PBXTargetDependency */,
+				649F7562636D46BB9121415E /* PBXTargetDependency */,
+			);
+			name = "prism-gui";
+			productName = "prism-gui";
+			productReference = AB96BC647A79445D8B613D14 /* prism-gui */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A80ACAD81C98493E96A1C774 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 0730;
+			};
+			buildConfigurationList = 7D25C7E6598A403C88FC9924 /* Build configuration list for PBXProject "PRISM" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				B11F97C496B944B3909B7A6C /* Debug */,
+				CF99B2AFE45347F888BCF94A /* Release */,
+				211F391DCB5C4585B4FA06F9 /* MinSizeRel */,
+				B491A12E6FB24B9DBE44B051 /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 657D225A4AA945C6BB63EA15;
+			projectDirPath = ../;
+			projectRoot = "";
+			targets = (
+				994CF98625524A6285538945 /* ALL_BUILD */,
+				D2C99837B82540E2B8D42100 /* ZERO_CHECK */,
+				A2F3875E6E9E44B5834084F0 /* prism */,
+				D8A3FF4B97E44D4D8EBEF0CB /* prism-gui */,
+				E27C56F42D6F4181A16B0B51 /* prism-gui_automoc */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		150AAAE5F8954FCBA5F95DD3 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		29DBA79055684075B1C0E6A8 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		33DC6D58D8334E7E80E900F9 /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t -f /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeScripts/ZERO_CHECK_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		4E0CFD7289A04BA9902B265D = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		D486DBFE71BF48228C71C191 /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t -f /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeScripts/prism-gui_automoc_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+		ED59023D96724B24BB52BF48 /* CMake Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake Rules";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "make -C /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t -f /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeScripts/ALL_BUILD_cmakeRulesBuildPhase.make$CONFIGURATION all";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		720050A81FFE45EBB9C16D11 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C89D9F014F444709ABBA3E72 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp */,
+				F72766D1FC76461C923397F4 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp */,
+				49CE946B8AB944F085048FB0 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/prism-gui_automoc.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A80A4B89D33E486BBE7353F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23FBF3029EAB428A92EACBD5 /* /Users/ajpryor/Documents/MATLAB/multislice/PRISM/driver.cpp */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		32592D877C26475890B0BD44 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2C99837B82540E2B8D42100 /* ZERO_CHECK */;
+			targetProxy = 23D0CDCD38204990B01CC1A8 /* PBXContainerItemProxy */;
+		};
+		649F7562636D46BB9121415E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2C99837B82540E2B8D42100 /* ZERO_CHECK */;
+			targetProxy = FDD519AC7ADD4EC88CCCD592 /* PBXContainerItemProxy */;
+		};
+		6BC05A45372444ABBE37299F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2C99837B82540E2B8D42100 /* ZERO_CHECK */;
+			targetProxy = D7A04EA9077E4312BF850574 /* PBXContainerItemProxy */;
+		};
+		D15B705764E2458AAFCEE593 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2F3875E6E9E44B5834084F0 /* prism */;
+			targetProxy = 0D2CB2715E854AB198945BEC /* PBXContainerItemProxy */;
+		};
+		D4928147D80D42DA8B3E47D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E27C56F42D6F4181A16B0B51 /* prism-gui_automoc */;
+			targetProxy = AA5506873F6F4B018C44661F /* PBXContainerItemProxy */;
+		};
+		E22600CC6D6E40B0AB7BA8E3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D2C99837B82540E2B8D42100 /* ZERO_CHECK */;
+			targetProxy = 916870C86C0D4200BFA1CA9E /* PBXContainerItemProxy */;
+		};
+		F2A9C9979AA942BF865FA719 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8A3FF4B97E44D4D8EBEF0CB /* prism-gui */;
+			targetProxy = 87C3438BDEB04333BF9B0EF8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2A84972286A646E9AC1A1C95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INFOPLIST_FILE = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist;
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "        -DNDEBUG '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/lib/libfftw3.a";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = prism;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		30A7B12BDF4E4CB4A818AF20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		3E77FCC77A174960ADEC38E3 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/usr/local/Cellar/qt5/5.8.0_1/lib);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",QT_WIDGETS_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_NO_DEBUG);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt,/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/Headers,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/Headers,"/usr/local/Cellar/qt5/5.8.0_1/./mkspecs/macx-clang");
+				INFOPLIST_FILE = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist";
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "        -DNDEBUG -fPIC '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/QtWidgets /usr/local/lib/libfftw3.a /usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/QtGui /usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/QtCore";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		4E44E807E9394AB396EFBB99 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		50EDBA6CD9514D25889803CE /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk;
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/build;
+			};
+			name = RelWithDebInfo;
+		};
+		5C3E08C1B82242ECB6E6CACC /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/usr/local/Cellar/qt5/5.8.0_1/lib);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",QT_WIDGETS_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_NO_DEBUG);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt,/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/Headers,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/Headers,"/usr/local/Cellar/qt5/5.8.0_1/./mkspecs/macx-clang");
+				INFOPLIST_FILE = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist";
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "           -DNDEBUG -fPIC '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/QtWidgets /usr/local/lib/libfftw3.a /usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/QtGui /usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/QtCore";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		5CA8FF18C8464266B7A66A1A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui_automoc";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		5CF34EF30C6D4284B6B7E8D2 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		5FB2ACED92CD498CA1C5B3D5 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INFOPLIST_FILE = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist;
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "           -DNDEBUG '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/lib/libfftw3.a";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = prism;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		651E39CA5DEB4099BEF501AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		66F5D95413DC4323B926AFD1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INFOPLIST_FILE = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist;
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "       '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/lib/libfftw3.a";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = prism;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		74F136B8633A4CAEABC9D190 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		753C4D288AC14AB5A28C0E49 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui_automoc";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		841C87E698F8455181C7F8CA /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui_automoc";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		8BC94EACFDAB4CF8BD45E6CE /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk;
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/build;
+			};
+			name = MinSizeRel;
+		};
+		A07F79ECC31843F09EF6B488 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk;
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/build;
+			};
+			name = Debug;
+		};
+		AC3A32444E544B82907E2F30 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui_automoc";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		B047ABA5834B4E82BF5FECE9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		B2A955E1CC944EB5872295C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk;
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/build;
+			};
+			name = Release;
+		};
+		B818D2A91DA64C08931DD60D /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		DB9B94B5B85A430A99B303BD /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INFOPLIST_FILE = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism.dir/Info.plist;
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "        -DNDEBUG '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/lib/libfftw3.a";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = prism;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		ED28A1F4632F4CD7AF0D394B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/usr/local/Cellar/qt5/5.8.0_1/lib);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",QT_WIDGETS_LIB,QT_GUI_LIB,QT_CORE_LIB);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt,/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/Headers,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/Headers,"/usr/local/Cellar/qt5/5.8.0_1/./mkspecs/macx-clang");
+				INFOPLIST_FILE = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist";
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "       -fPIC '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/QtWidgets /usr/local/lib/libfftw3.a /usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/QtGui /usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/QtCore";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Debug;
+		};
+		F108A84A780E4DA8BAF57EB5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = "";
+				EXECUTABLE_SUFFIX = "";
+				FRAMEWORK_SEARCH_PATHS = (/usr/local/Cellar/qt5/5.8.0_1/lib);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",QT_WIDGETS_LIB,QT_GUI_LIB,QT_CORE_LIB,QT_NO_DEBUG);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt,/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/Headers,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers,/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/Headers,"/usr/local/Cellar/qt5/5.8.0_1/./mkspecs/macx-clang");
+				INFOPLIST_FILE = "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t/CMakeFiles/prism-gui.dir/Info.plist";
+				INSTALL_PATH = "";
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CPLUSPLUSFLAGS = "        -DNDEBUG -fPIC '-std=gnu++11'  ";
+				OTHER_LDFLAGS = " -Wl,-search_paths_first -Wl,-headerpad_max_install_names  /usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/QtWidgets /usr/local/lib/libfftw3.a /usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/QtGui /usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/QtCore";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "prism-gui";
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = Release;
+		};
+		F79BF3B49F9F4CA9A21FD635 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/ajpryor/Documents/MATLAB/multislice/PRISM/t,/Users/ajpryor/Documents/MATLAB/multislice/PRISM,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/include,/usr/local/boost_1_61_0,/usr/local/include,/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt);
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = " ";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/t;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("-Wmost","-Wno-four-char-constants","-Wno-unknown-pragmas","$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		06B4DF85DD434F02A406B40A /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				30A7B12BDF4E4CB4A818AF20 /* Debug */,
+				74F136B8633A4CAEABC9D190 /* Release */,
+				F79BF3B49F9F4CA9A21FD635 /* MinSizeRel */,
+				4E44E807E9394AB396EFBB99 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		40602869359B476CAD9A0295 /* Build configuration list for PBXNativeTarget "prism" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66F5D95413DC4323B926AFD1 /* Debug */,
+				2A84972286A646E9AC1A1C95 /* Release */,
+				DB9B94B5B85A430A99B303BD /* MinSizeRel */,
+				5FB2ACED92CD498CA1C5B3D5 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7D25C7E6598A403C88FC9924 /* Build configuration list for PBXProject "PRISM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A07F79ECC31843F09EF6B488 /* Debug */,
+				B2A955E1CC944EB5872295C9 /* Release */,
+				8BC94EACFDAB4CF8BD45E6CE /* MinSizeRel */,
+				50EDBA6CD9514D25889803CE /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A9DAB3DED4B14892A9AA68AE /* Build configuration list for PBXNativeTarget "prism-gui" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED28A1F4632F4CD7AF0D394B /* Debug */,
+				F108A84A780E4DA8BAF57EB5 /* Release */,
+				3E77FCC77A174960ADEC38E3 /* MinSizeRel */,
+				5C3E08C1B82242ECB6E6CACC /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CB78C6293BC84A20AAE3F942 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B047ABA5834B4E82BF5FECE9 /* Debug */,
+				651E39CA5DEB4099BEF501AE /* Release */,
+				B818D2A91DA64C08931DD60D /* MinSizeRel */,
+				5CF34EF30C6D4284B6B7E8D2 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E290633E5DE3485FBE9AFFA8 /* Build configuration list for PBXAggregateTarget "prism-gui_automoc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				753C4D288AC14AB5A28C0E49 /* Debug */,
+				5CA8FF18C8464266B7A66A1A /* Release */,
+				AC3A32444E544B82907E2F30 /* MinSizeRel */,
+				841C87E698F8455181C7F8CA /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A80ACAD81C98493E96A1C774 /* Project object */;
+}
