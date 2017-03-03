@@ -11,6 +11,10 @@
 #include "fftw3.h"
 #include <mutex>
 namespace PRISM {
+
+
+
+
 	template<class T>
 	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
 	template<class T>
@@ -40,6 +44,8 @@ namespace PRISM {
 	                        mutex& fftw_plan_lock){
 		psi[pars.beamsIndex[a0]] = 1;
 		const T N = (T)psi.size();
+
+
 		fftw_execute(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
 		const complex<T>* trans_t = &trans[0];
@@ -64,7 +70,7 @@ namespace PRISM {
 		fftw_plan plan_final = fftw_plan_dft_2d(psi_small.get_dimj(), psi_small.get_dimi(),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
-		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
+		                                        FFTW_BACKWARD, FFTW_MEASURE);
 
 		gatekeeper.unlock();
 		fftw_execute(plan_final);
@@ -110,11 +116,11 @@ namespace PRISM {
 				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-				                                          FFTW_FORWARD, FFTW_ESTIMATE);
+				                                          FFTW_FORWARD, FFTW_MEASURE);
 				fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
+				                                          FFTW_BACKWARD, FFTW_MEASURE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
 					// re-zero psi each iteration
@@ -286,5 +292,7 @@ namespace PRISM {
 			}
 		}
 	}
+
+
 }
 #endif //PRISM_PRISM02_H
