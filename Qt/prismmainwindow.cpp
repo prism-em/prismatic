@@ -27,6 +27,18 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
 	connect(this->ui->btn_outputfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameOutput_fromDialog()));
 	connect(this->ui->btn_go,SIGNAL(pressed()),this,SLOT(launch()));
+    connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
+    connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
+    connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
+    connect(this->ui->lineEdit_alphaBeamMax, SIGNAL(editingFinished()), this, SLOT(setAlphaBeamMax_fromLineEdit()));
+    connect(this->ui->lineedit_pixelSize, SIGNAL(editingFinished()), this, SLOT(setPixelSize_fromLineEdit()));
+    connect(this->ui->lineEdit_potbound, SIGNAL(editingFinished()), this, SLOT(setPotBound_fromLineEdit()));
+    connect(this->ui->lineEdit_sliceThickness, SIGNAL(editingFinished()), this, SLOT(setSliceThickness_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
+    connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
+
 }
 
 void PRISMMainWindow::setInterpolationFactor(){
@@ -82,6 +94,96 @@ void PRISMMainWindow::launch(){
 
 	PRISM::PRISM_entry((*this->meta));
 }
+
+void PRISMMainWindow::setNumGPUs(const int& num){
+    if (num > 0){
+        this->meta->NUM_GPUS = num;
+        std::cout << "Setting number of GPUs to " << num << std::endl;
+    }
+
+}
+
+void PRISMMainWindow::setNumThreads(const int& num){
+    if (num > 0){
+        this->meta->NUM_THREADS = num;
+        std::cout << "Setting number of CPU Threads to " << num << std::endl;
+    }
+
+}
+
+void PRISMMainWindow::setNumFP(const int& num){
+    if (num > 0){
+        this->meta->numFP = num;
+        std::cout << "Setting number of frozen phonon configurations to " << num << std::endl;
+    }
+
+}
+
+void PRISMMainWindow::setPixelSize_fromLineEdit(){
+    double val = this->ui->lineedit_pixelSize->text().toDouble();
+    if (val > 0){
+        this->meta->pixelSize = std::vector<double>{val, val};
+        this->meta->realspace_pixelSize = val;
+        std::cout << "Setting X/Y pixel size to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setPotBound_fromLineEdit(){
+    double val = this->ui->lineEdit_potbound->text().toDouble();
+    if (val > 0){
+        this->meta->potBound = val;
+        std::cout << "Setting potential bound to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
+    double val = this->ui->lineEdit_alphaBeamMax->text().toDouble();
+    if (val > 0){
+        this->meta->alphaBeamMax = val;
+        std::cout << "Setting alphaBeamMax to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setSliceThickness_fromLineEdit(){
+    double val = this->ui->lineEdit_sliceThickness->text().toDouble();
+    if (val > 0){
+        this->meta->sliceThickness = val;
+        std::cout << "Setting sliceThickness to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setCellDimX_fromLineEdit(){
+    int val = this->ui->lineEdit_cellDimX->text().toInt();
+    if (val > 0){
+        this->meta->cellDim[2] = (size_t)val;
+        std::cout << "Setting X cell dimension to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setCellDimY_fromLineEdit(){
+    int val = this->ui->lineEdit_cellDimY->text().toInt();
+    if (val > 0){
+        this->meta->cellDim[1] = (size_t)val;
+        std::cout << "Setting Y cell dimension to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setCellDimZ_fromLineEdit(){
+    int val = this->ui->lineEdit_cellDimZ->text().toInt();
+    if (val > 0){
+        this->meta->cellDim[0] = (size_t)val;
+        std::cout << "Setting Z cell dimension to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setE0_fromLineEdit(){
+    int val = this->ui->lineEdit_E0->text().toDouble();
+    if (val > 0){
+        this->meta->E0 = val;
+        std::cout << "Setting E0 to " << val << std::endl;
+    }
+}
+
 
 
 

@@ -102,8 +102,8 @@ namespace PRISM {
 
 
 		vector<thread> workers;
-		workers.reserve(pars.NUM_THREADS); // prevents multiple reallocations
-		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.NUM_THREADS) + 1;
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.meta.NUM_THREADS) + 1;
 		auto start = 0;
 		auto stop = start + WORK_CHUNK_SIZE;
 		while (start < pars.numberBeams){
@@ -204,10 +204,10 @@ namespace PRISM {
 				if (pars.qMask.at(y,x)==1)
 				{
 					pars.prop.at(y,x)     = exp(-i * pi * complex<T>(pars.lambda, 0) *
-					                            complex<T>(pars.sliceThickness, 0) *
+					                            complex<T>(pars.meta.sliceThickness, 0) *
 					                            complex<T>(q2.at(y, x), 0));
 					pars.propBack.at(y,x) = exp(i * pi * complex<T>(pars.lambda, 0) *
-					                            complex<T>(pars.cellDim[0], 0) *
+					                            complex<T>(pars.meta.cellDim[0], 0) *
 					                            complex<T>(q2.at(y, x), 0));
 				}
 			}
@@ -224,7 +224,7 @@ namespace PRISM {
 		long interp_f = (long)pars.meta.interpolationFactor;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
-				if (q2.at(y,x) < pow(pars.alphaBeamMax / pars.lambda,2) &&
+				if (q2.at(y,x) < pow(pars.meta.alphaBeamMax / pars.lambda,2) &&
 				    pars.qMask.at(y,x)==1 &&
 				    (long)round(mesh_a.first.at(y,x))  % interp_f == 0 &&
 				    (long)round(mesh_a.second.at(y,x)) % interp_f == 0){

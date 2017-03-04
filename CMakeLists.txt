@@ -18,7 +18,7 @@ message("Boost found.  Location " ${Boost_Library_DIRS})
 # PRISM custom options
 
 # Qt options
-set(PRISM_ENABLE_GUI 0 CACHE BOOL PRISM_ENABLE_GUI)
+set(PRISM_ENABLE_GUI 1 CACHE BOOL PRISM_ENABLE_GUI)
 #set(Qt5Widgets_DIR)
 set(CMAKE_INCLUDE_CURRENT_DIR on)
 if (PRISM_ENABLE_GUI)
@@ -36,8 +36,3 @@ if (PRISM_ENABLE_GPU)
     message("GPU support enabled")
 endif(PRISM_ENABLE_GPU)
 
-set(PRISM_BUILD_TESTS 0 CACHE BOOL PRISM_BUILD_TESTS)
-if (PRISM_BUILD_TESTS)
-    add_subdirectory(tests)
-    message("Building test programs")
-endif(PRISM_BUILD_TESTS)

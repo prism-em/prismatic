@@ -28,6 +28,7 @@ namespace PRISM{
 	    Array4D stack;
 		Array3D pot;
 
+
 	    Array2D_cx prop;
 	    Array2D_cx propBack;
 //	    size_t interpolationFactor;
@@ -55,7 +56,6 @@ namespace PRISM{
 	    std::vector<atom> atoms;
 	    Array1D pixelSize;
         Array1D pixelSizeOutput;
-	    Array1D_dims cellDim;
 	    Array1D_dims imageSize;
 	    std::vector<size_t> imageSizeReduce;
 	    Array1D_dims imageSizeOutput;
@@ -66,20 +66,13 @@ namespace PRISM{
         T lambda;
         T dr;
         T dq;
-        T potBound;
-	    T E0;
 	    T sigma;
-	    T alphaBeamMax;
 	    T qMax;
 	    T alphaMax;
         size_t Ndet;
-        size_t numFP;
-        size_t sliceThickness;
 
         size_t numPlanes;
 	    size_t numberBeams;
-		size_t NUM_THREADS;
-	    size_t NUM_GPUS;
 		Parameters(){};
     };
 

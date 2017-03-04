@@ -64,9 +64,9 @@ namespace PRISM {
 		Array1D<T> ID = zeros_ND<1, T>({{pars.atoms.size()}});
 
 		for (auto i = 0; i < pars.atoms.size(); ++i){
-			x[i]  = pars.atoms[i].x * pars.cellDim[2];
-			y[i]  = pars.atoms[i].y * pars.cellDim[1];
-			z[i]  = pars.atoms[i].z * pars.cellDim[0];
+			x[i]  = pars.atoms[i].x * pars.meta.cellDim[2];
+			y[i]  = pars.atoms[i].y * pars.meta.cellDim[1];
+			z[i]  = pars.atoms[i].z * pars.meta.cellDim[0];
 			ID[i] = pars.atoms[i].species;
 		}
 
@@ -74,7 +74,7 @@ namespace PRISM {
 		auto max_z = std::max_element(z.begin(), z.end());
 		Array1D<T> zPlane(z);
 		std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&max_z, &pars](T &t_z) {
-			return round((-t_z + *max_z) / pars.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+			return round((-t_z + *max_z) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 		});
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
@@ -192,8 +192,8 @@ namespace PRISM {
 		ArrayND<2, std::vector<T> > projPot(const size_t&, const Array1D&, const Array1D&);
 
 		cout << "Entering PRISM01" << endl;
-		T yleng = std::ceil(pars.potBound / pars.pixelSize[0]);
-		T xleng = std::ceil(pars.potBound / pars.pixelSize[1]);
+		T yleng = std::ceil(pars.meta.potBound / pars.meta.pixelSize[0]);
+		T xleng = std::ceil(pars.meta.potBound / pars.meta.pixelSize[1]);
 		ArrayND<1, vector<long> > xvec(vector<long>(2*(size_t)xleng + 1, 0),{{2*(size_t)xleng + 1}});
 		ArrayND<1, vector<long> > yvec(vector<long>(2*(size_t)yleng + 1, 0),{{2*(size_t)yleng + 1}});
 		{

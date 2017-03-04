@@ -64,11 +64,11 @@ namespace PRISM {
 		T dxy = 0.25 * 2;
 
 		Array1D<T> xR = zeros_ND<1, T>({{2}});
-		xR[0] = 0.1 * pars.cellDim[2];
-		xR[1] = 0.9 * pars.cellDim[2];
+		xR[0] = 0.1 * pars.meta.cellDim[2];
+		xR[1] = 0.9 * pars.meta.cellDim[2];
 		Array1D<T> yR = zeros_ND<1, T>({{2}});
-		yR[0] = 0.1 * pars.cellDim[1];
-		yR[1] = 0.9 * pars.cellDim[1];
+		yR[0] = 0.1 * pars.meta.cellDim[1];
+		yR[1] = 0.9 * pars.meta.cellDim[1];
 
 		vector<T> xp_d = vecFromRange(xR[0] + dxy / 2, dxy, xR[1] - dxy / 2);
 		vector<T> yp_d = vecFromRange(yR[0] + dxy / 2, dxy, yR[1] - dxy / 2);
@@ -195,7 +195,7 @@ namespace PRISM {
 								});
 
 
-						T zTotal = pars.cellDim[0];
+						T zTotal = pars.meta.cellDim[0];
 						T xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
 						T yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
 
@@ -205,8 +205,8 @@ namespace PRISM {
 						// as long as the number of xp and yp are similar. If that is not the case
 						// this may need to be adapted
 						vector<thread> workers;
-						workers.reserve(pars.NUM_THREADS); // prevents multiple reallocations
-						auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.NUM_THREADS) + 1;
+						workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+						auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1;
 						auto start = 0;
 						auto stop = start + WORK_CHUNK_SIZE;
 						while (start < pars.yp.size()) {
@@ -262,7 +262,7 @@ namespace PRISM {
 		Array1D y = pars.yVec + round(y0);
 		transform(y.begin(), y.end(), y.begin(), [&pars](T &a) { return fmod(a, (T)pars.imageSizeOutput[0]); });
 		Array2D intOutput = PRISM::zeros_ND<2, T>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-		for (auto a5 = 0; a5 < pars.numFP; ++a5) {
+		for (auto a5 = 0; a5 < pars.meta.numFP; ++a5) {
 			Array2D_cx psi = PRISM::zeros_ND<2, std::complex<T> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 				T yB = pars.xyBeams.at(a4, 0);
