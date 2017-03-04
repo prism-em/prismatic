@@ -4,11 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/aj/hdd1/clion/PRISM/Qt/main.cpp" "/home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui.dir/Qt/main.cpp.o"
-  "/home/aj/hdd1/clion/PRISM/Qt/prismmainwindow.cpp" "/home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o"
-  "/home/aj/hdd1/clion/PRISM/b/prism-gui_automoc.cpp" "/home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o"
+  "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp" "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui.dir/Qt/main.cpp.o"
+  "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp" "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o"
+  "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/prism-gui_automoc.cpp" "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "GNU")
+set(CMAKE_CXX_COMPILER_ID "AppleClang")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
@@ -23,14 +23,17 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "."
   "../"
   "../include"
-  "/usr/local/boost_1_60_0"
+  "/usr/local/boost_1_61_0"
   "/usr/local/include"
   "../Qt"
-  "/usr/include/x86_64-linux-gnu/qt5"
-  "/usr/include/x86_64-linux-gnu/qt5/QtWidgets"
-  "/usr/include/x86_64-linux-gnu/qt5/QtGui"
-  "/usr/include/x86_64-linux-gnu/qt5/QtCore"
-  "/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/Headers"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/Headers"
+  "/System/Library/Frameworks/OpenGL.framework/Headers"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework"
+  "/usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/Headers"
+  "/usr/local/Cellar/qt5/5.8.0_1/./mkspecs/macx-clang"
   )
 
 # Targets to which this target links.

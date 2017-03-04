@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/local/Cellar/cmake/3.7.2/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
+RM = /usr/local/Cellar/cmake/3.7.2/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aj/hdd1/clion/PRISM
+CMAKE_SOURCE_DIR = /Users/ajpryor/Documents/MATLAB/multislice/PRISM
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/b
+CMAKE_BINARY_DIR = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b
 
 # Include any dependencies generated for this target.
 include CMakeFiles/prism-gui.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/prism-gui.dir/flags.make
 
 CMakeFiles/prism-gui.dir/Qt/main.cpp.o: CMakeFiles/prism-gui.dir/flags.make
 CMakeFiles/prism-gui.dir/Qt/main.cpp.o: ../Qt/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aj/hdd1/clion/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/prism-gui.dir/Qt/main.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/Qt/main.cpp.o -c /home/aj/hdd1/clion/PRISM/Qt/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/prism-gui.dir/Qt/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/Qt/main.cpp.o -c /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp
 
 CMakeFiles/prism-gui.dir/Qt/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/prism-gui.dir/Qt/main.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/aj/hdd1/clion/PRISM/Qt/main.cpp > CMakeFiles/prism-gui.dir/Qt/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp > CMakeFiles/prism-gui.dir/Qt/main.cpp.i
 
 CMakeFiles/prism-gui.dir/Qt/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/prism-gui.dir/Qt/main.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/aj/hdd1/clion/PRISM/Qt/main.cpp -o CMakeFiles/prism-gui.dir/Qt/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/main.cpp -o CMakeFiles/prism-gui.dir/Qt/main.cpp.s
 
 CMakeFiles/prism-gui.dir/Qt/main.cpp.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/prism-gui.dir/Qt/main.cpp.o.provides.build: CMakeFiles/prism-gui.dir/
 
 CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o: CMakeFiles/prism-gui.dir/flags.make
 CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o: ../Qt/prismmainwindow.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aj/hdd1/clion/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o -c /home/aj/hdd1/clion/PRISM/Qt/prismmainwindow.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o -c /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp
 
 CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/aj/hdd1/clion/PRISM/Qt/prismmainwindow.cpp > CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp > CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.i
 
 CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/aj/hdd1/clion/PRISM/Qt/prismmainwindow.cpp -o CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismmainwindow.cpp -o CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.s
 
 CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o.requires:
 
@@ -107,16 +107,16 @@ CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o.provides.build: CMakeFiles/pri
 
 CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o: CMakeFiles/prism-gui.dir/flags.make
 CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o: prism-gui_automoc.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/aj/hdd1/clion/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o -c /home/aj/hdd1/clion/PRISM/b/prism-gui_automoc.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o -c /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/prism-gui_automoc.cpp
 
 CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/aj/hdd1/clion/PRISM/b/prism-gui_automoc.cpp > CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/prism-gui_automoc.cpp > CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.i
 
 CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/aj/hdd1/clion/PRISM/b/prism-gui_automoc.cpp -o CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/prism-gui_automoc.cpp -o CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.s
 
 CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o.requires:
 
@@ -142,12 +142,12 @@ prism-gui: CMakeFiles/prism-gui.dir/Qt/main.cpp.o
 prism-gui: CMakeFiles/prism-gui.dir/Qt/prismmainwindow.cpp.o
 prism-gui: CMakeFiles/prism-gui.dir/prism-gui_automoc.cpp.o
 prism-gui: CMakeFiles/prism-gui.dir/build.make
-prism-gui: /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.5.1
-prism-gui: /usr/local/lib/libfftw3.so
-prism-gui: /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.5.1
-prism-gui: /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.5.1
+prism-gui: /usr/local/Cellar/qt5/5.8.0_1/lib/QtWidgets.framework/QtWidgets
+prism-gui: /usr/local/lib/libfftw3.a
+prism-gui: /usr/local/Cellar/qt5/5.8.0_1/lib/QtGui.framework/QtGui
+prism-gui: /usr/local/Cellar/qt5/5.8.0_1/lib/QtCore.framework/QtCore
 prism-gui: CMakeFiles/prism-gui.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/aj/hdd1/clion/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable prism-gui"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable prism-gui"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/prism-gui.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -166,6 +166,6 @@ CMakeFiles/prism-gui.dir/clean:
 .PHONY : CMakeFiles/prism-gui.dir/clean
 
 CMakeFiles/prism-gui.dir/depend:
-	cd /home/aj/hdd1/clion/PRISM/b && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aj/hdd1/clion/PRISM /home/aj/hdd1/clion/PRISM /home/aj/hdd1/clion/PRISM/b /home/aj/hdd1/clion/PRISM/b /home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/ajpryor/Documents/MATLAB/multislice/PRISM /Users/ajpryor/Documents/MATLAB/multislice/PRISM /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/prism-gui.dir/depend
 

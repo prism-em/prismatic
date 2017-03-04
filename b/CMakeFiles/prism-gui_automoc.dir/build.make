@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/local/bin/cmake
+CMAKE_COMMAND = /usr/local/Cellar/cmake/3.7.2/bin/cmake
 
 # The command to remove a file.
-RM = /usr/local/bin/cmake -E remove -f
+RM = /usr/local/Cellar/cmake/3.7.2/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aj/hdd1/clion/PRISM
+CMAKE_SOURCE_DIR = /Users/ajpryor/Documents/MATLAB/multislice/PRISM
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/b
+CMAKE_BINARY_DIR = /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b
 
 # Utility rule file for prism-gui_automoc.
 
@@ -54,8 +54,8 @@ CMAKE_BINARY_DIR = /home/aj/hdd1/clion/PRISM/b
 include CMakeFiles/prism-gui_automoc.dir/progress.make
 
 CMakeFiles/prism-gui_automoc:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/aj/hdd1/clion/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic moc and uic for target prism-gui"
-	/usr/local/bin/cmake -E cmake_autogen /home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui_automoc.dir/ ""
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic moc and uic for target prism-gui"
+	/usr/local/Cellar/cmake/3.7.2/bin/cmake -E cmake_autogen /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui_automoc.dir/ ""
 
 prism-gui_automoc: CMakeFiles/prism-gui_automoc
 prism-gui_automoc: CMakeFiles/prism-gui_automoc.dir/build.make
@@ -72,6 +72,6 @@ CMakeFiles/prism-gui_automoc.dir/clean:
 .PHONY : CMakeFiles/prism-gui_automoc.dir/clean
 
 CMakeFiles/prism-gui_automoc.dir/depend:
-	cd /home/aj/hdd1/clion/PRISM/b && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aj/hdd1/clion/PRISM /home/aj/hdd1/clion/PRISM /home/aj/hdd1/clion/PRISM/b /home/aj/hdd1/clion/PRISM/b /home/aj/hdd1/clion/PRISM/b/CMakeFiles/prism-gui_automoc.dir/DependInfo.cmake --color=$(COLOR)
+	cd /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/ajpryor/Documents/MATLAB/multislice/PRISM /Users/ajpryor/Documents/MATLAB/multislice/PRISM /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b /Users/ajpryor/Documents/MATLAB/multislice/PRISM/b/CMakeFiles/prism-gui_automoc.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/prism-gui_automoc.dir/depend
 
