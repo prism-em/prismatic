@@ -14,6 +14,7 @@ namespace PRISM {
 	void configure();
 
 	using entry_func = int (*)(Metadata<double>&);
+//	using entry_func = int (*)(Metadata<float>&);
 	extern entry_func execute_plan;
 }
 

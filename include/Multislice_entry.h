@@ -1,21 +1,19 @@
 //
-// Created by AJ Pryor on 3/2/17.
+// Created by AJ Pryor on 3/5/17.
 //
 
-#ifndef PRISM_PRISM_ENTRY_H
-#define PRISM_PRISM_ENTRY_H
-#include <iostream>
-#include <stdlib.h>
+#ifndef PRISM_MULTISLICE_ENTRY_H
+#define PRISM_MULTISLICE_ENTRY_H
+#include "meta.h"
+#include "params.h"
+#include "ArrayND.h"
 #include <algorithm>
-#include "PRISM01.h"
-#include "PRISM02.h"
-#include "PRISM03.h"
+
 namespace PRISM{
 	template <class T>
-	int PRISM_entry(Metadata<T>& meta){
+	int Multislice_entry(Metadata<T>& meta){
 
 		using PRISM_FLOAT_TYPE = double;
-//		using PRISM_FLOAT_TYPE = float;
 		using vec_d = std::vector<PRISM_FLOAT_TYPE>;
 		using Array3D = ArrayND<3, vec_d>;
 		using Array2D = ArrayND<2, vec_d>;
@@ -66,8 +64,7 @@ namespace PRISM{
 		Array1D u = ones_ND<1, double>({{118}}) * 0.08;
 		prism_pars.u = u;
 		PRISM01(prism_pars);
-		PRISM02(prism_pars);
-		PRISM03(prism_pars);
+
 
 		size_t lower = 13;
 		size_t upper = 18;
@@ -87,4 +84,4 @@ namespace PRISM{
 	}
 
 }
-#endif //PRISM_PRISM_ENTRY_H
+#endif //PRISM_MULTISLICE_ENTRY_H

@@ -8,5 +8,6 @@ namespace PRISM {
 	void configure() {
 		std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 		execute_plan = PRISM_entry<double>;
+//		execute_plan = PRISM_entry<float>;
 	}
 }
