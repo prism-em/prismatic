@@ -5,6 +5,8 @@
 #ifndef PRISM_META_H
 #define PRISM_META_H
 #include <vector>
+#include <string>
+#include <cstddef>
 namespace PRISM{
 	template <class T>
 	class Metadata{

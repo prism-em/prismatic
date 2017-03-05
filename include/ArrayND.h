@@ -4,6 +4,7 @@
 
 #ifndef PRISM_ARRAYND_H
 #define PRISM_ARRAYND_H
+
 #include <vector>
 #include <cstddef>
 #include <iostream>
@@ -68,7 +69,7 @@ namespace PRISM {
             ArrayND<N, T>& operator*=(const typename T::value_type& val);
             ArrayND<N, T>& operator/=(const typename T::value_type& val);
 
-	        void toMRC_f(const char* filename)const;
+	    inline void toMRC_f(const char* filename)const;
         private:
             std::array<size_t, N> dims;
             std::array<size_t, N-1> strides;
@@ -333,7 +334,7 @@ namespace PRISM {
 	}
 
 	template <>
-	void ArrayND<3, std::vector<double> >::toMRC_f(const char* filename) const{
+	inline void ArrayND<3, std::vector<double> >::toMRC_f(const char* filename) const{
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
@@ -353,10 +354,10 @@ namespace PRISM {
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}
-	};
+	}
 
 	template <>
-	void ArrayND<2, std::vector<double> >::toMRC_f(const char* filename) const{
+	inline void ArrayND<2, std::vector<double> >::toMRC_f(const char* filename) const{
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
@@ -376,10 +377,10 @@ namespace PRISM {
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}
-	};
+	}
 
 	template <>
-	void ArrayND<2, std::vector<unsigned int> >::toMRC_f(const char* filename) const{
+	inline void ArrayND<2, std::vector<unsigned int> >::toMRC_f(const char* filename) const{
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
@@ -399,7 +400,7 @@ namespace PRISM {
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}
-	};
+	}
 
 
     // We want to prevents programming errors like querying the size of the 3rd dimension of

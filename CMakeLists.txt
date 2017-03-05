@@ -4,7 +4,7 @@ project(PRISM)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
 
-set(SOURCE_FILES driver.cpp)
+set(SOURCE_FILES driver.cpp configure.cpp)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 add_executable(prism ${SOURCE_FILES})
 find_package (Threads REQUIRED)

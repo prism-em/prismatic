@@ -1,7 +1,8 @@
-#include "ArrayND.h"
+//#include "ArrayND.h"
 #include "params.h"
-#include "meta.h"
-#include "PRISM_entry.h"
+//#include "meta.h"
+#include "configure.h"
+//#include "PRISM_entry.h"
 
 using namespace std;
 int main(int argc, const char** argv) {
@@ -28,5 +29,7 @@ int main(int argc, const char** argv) {
 		return 0;
 	}
 	prism_meta.filename_output = "prism_image.mrc";
-	return PRISM_entry(prism_meta);
+
+	PRISM::configure();
+	return PRISM::execute_plan(prism_meta);
 }
