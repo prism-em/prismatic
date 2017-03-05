@@ -25,6 +25,7 @@ namespace PRISM{
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
 			NUM_THREADS = 12;
+			algorithm = 0; // 0 PRISM; 1 Multislice
 		}
 		size_t interpolationFactor;
 		std::string filename_atoms;
@@ -39,6 +40,7 @@ namespace PRISM{
 		T alphaBeamMax;
 		size_t NUM_GPUS;
 		size_t NUM_THREADS;
+		int algorithm;
 	};
 }
 #endif //PRISM_META_H

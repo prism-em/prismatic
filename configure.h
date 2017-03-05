@@ -9,13 +9,20 @@
 #define PRISM_CONFIGURE_H
 #include "meta.h"
 #include "PRISM_entry.h"
+#include "Multislice_entry.h"
 
 namespace PRISM {
-	void configure();
+
+
+	template <class T>
+	void configure(Metadata<T>&);
 
 	using entry_func = int (*)(Metadata<double>&);
 //	using entry_func = int (*)(Metadata<float>&);
 	extern entry_func execute_plan;
+
+
+
 }
 
 #endif //PRISM_CONFIGURE_H

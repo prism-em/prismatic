@@ -30,6 +30,7 @@ int main(int argc, const char** argv) {
 	}
 	prism_meta.filename_output = "prism_image.mrc";
 
-	PRISM::configure();
+	//PRISM::configure();
+	PRISM::configure(prism_meta);
 	return PRISM::execute_plan(prism_meta);
 }
