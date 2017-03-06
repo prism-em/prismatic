@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/aj/hdd1/clion/PRISM/t/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_cb390/fast"
+/usr/bin/make -f CMakeFiles/cmTC_cb390.dir/build.make CMakeFiles/cmTC_cb390.dir/build
+make[1]: Entering directory '/mnt/spareA/clion/PRISM/t/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_cb390.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_cb390.dir/CheckSymbolExists.c.o   -c /home/aj/hdd1/clion/PRISM/t/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_cb390
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_cb390.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_cb390.dir/CheckSymbolExists.c.o  -o cmTC_cb390 
+CMakeFiles/cmTC_cb390.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_cb390.dir/build.make:97: recipe for target 'cmTC_cb390' failed
+make[1]: *** [cmTC_cb390] Error 1
+make[1]: Leaving directory '/mnt/spareA/clion/PRISM/t/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_cb390/fast' failed
+make: *** [cmTC_cb390/fast] Error 2
+
+File /home/aj/hdd1/clion/PRISM/t/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/aj/hdd1/clion/PRISM/t/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_13d25/fast"
+/usr/bin/make -f CMakeFiles/cmTC_13d25.dir/build.make CMakeFiles/cmTC_13d25.dir/build
+make[1]: Entering directory '/mnt/spareA/clion/PRISM/t/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_13d25.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_13d25.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_13d25
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_13d25.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_13d25.dir/CheckFunctionExists.c.o  -o cmTC_13d25 -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_13d25.dir/build.make:97: recipe for target 'cmTC_13d25' failed
+make[1]: *** [cmTC_13d25] Error 1
+make[1]: Leaving directory '/mnt/spareA/clion/PRISM/t/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_13d25/fast' failed
+make: *** [cmTC_13d25/fast] Error 2
+
+

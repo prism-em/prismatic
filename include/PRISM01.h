@@ -103,12 +103,12 @@ namespace PRISM {
 						const long dim0 = (long)pars.imageSize[0];
 						const long dim1 = (long)pars.imageSize[1];
 						const size_t cur_Z = Z_lookup[ID[a2]];
-//						const T X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
-						const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
+						const T X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
+//						const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
 						xp = xvec + (long)X;
 						for (auto& i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
-//						const T Y = round((y[a2])/ pars.pixelSize[0]); // this line uses no thermal factor
-						const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
+						const T Y = round((y[a2])/ pars.pixelSize[0]); // this line uses no thermal factor
+//						const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
 						yp = yvec + (long)Y;
 						for (auto& i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
 						for (auto ii = 0; ii < xp.size(); ++ii){

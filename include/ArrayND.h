@@ -338,6 +338,12 @@ namespace PRISM {
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
+		std::cout <<"DEBUG TEST" << std::endl;
+		std::cout <<"dimx " << dims[2] << std::endl;
+		std::cout <<"dimx " << dims[1] <<std::endl;
+		std::cout <<"dimx " << dims[0] <<std::endl;
+		std::cout << " filename  = " << filename << std::endl;
+
 		if (f) {
 			int int_header[56];
 			char char_header[800];

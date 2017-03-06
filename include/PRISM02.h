@@ -10,10 +10,10 @@
 #include <thread>
 #include "fftw3.h"
 #include <mutex>
+#include "ArrayND.h"
+#include <complex>
 namespace PRISM {
-
-
-
+	using namespace std;
 
 	template<class T>
 	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
@@ -70,13 +70,18 @@ namespace PRISM {
 		fftw_plan plan_final = fftw_plan_dft_2d(psi_small.get_dimj(), psi_small.get_dimi(),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
 		                                        reinterpret_cast<fftw_complex *>(&psi_small[0]),
-		                                        FFTW_BACKWARD, FFTW_MEASURE);
+		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
 
 		gatekeeper.unlock();
 		fftw_execute(plan_final);
 		gatekeeper.lock();
 		fftw_destroy_plan(plan_final);
 		gatekeeper.unlock();
+
+		if (a0 == 0 ){
+int debug = 0;
+}
+
 		complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()];
 		const T N_small = (T)psi_small.size();
 		for (auto& i:psi_small) {
@@ -116,11 +121,11 @@ namespace PRISM {
 				fftw_plan plan_forward = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-				                                          FFTW_FORWARD, FFTW_MEASURE);
+				                                          FFTW_FORWARD, FFTW_ESTIMATE);
 				fftw_plan plan_inverse = fftw_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
 				                                          reinterpret_cast<fftw_complex *>(&psi[0]),
-				                                          FFTW_BACKWARD, FFTW_MEASURE);
+				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
 					// re-zero psi each iteration

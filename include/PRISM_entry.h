@@ -22,10 +22,12 @@ namespace PRISM{
 		using Array1D = ArrayND<1, vec_d>;
 		using Array1D_dims = ArrayND<1, std::vector<size_t> >;
 
+//		Parameters<PRISM_FLOAT_TYPE> prism_pars2(meta);
+//		Parameters<PRISM_FLOAT_TYPE> prism_pars(meta);
 
 		Parameters<PRISM_FLOAT_TYPE> prism_pars;
 		prism_pars.meta = meta;
-
+//
 		constexpr double m = 9.109383e-31;
 		constexpr double e = 1.602177e-19;
 		constexpr double c = 299792458;
@@ -65,8 +67,26 @@ namespace PRISM{
 
 		Array1D u = ones_ND<1, double>({{118}}) * 0.08;
 		prism_pars.u = u;
+		cout << " prism_pars.pixelSize[1] = " << prism_pars.pixelSize[1] << endl;
+		cout << " prism_pars.pixelSize[0] = " << prism_pars.pixelSize[0] << endl;
+
+
 		PRISM01(prism_pars);
+//		prism_pars.pot.toMRC_f(std::string("/mnt/spareA/clion/PRISM/cmake-build-debug/DEBUG.mrc").c_str());
 		PRISM02(prism_pars);
+		cout << "prism_pars.Scompact.at(0,0,0) = " << prism_pars.Scompact.at(0,0,0) << endl;
+		cout << "prism_pars.Scompact.at(1,1,1) = " << prism_pars.Scompact.at(1,1,1) << endl;
+		cout << "prism_pars.Scompact.at(2,3,4) = " << prism_pars.Scompact.at(2,3,4) << endl;
+		cout << "prism_pars.Scompact.at(20,499,499) = " << prism_pars.Scompact.at(20,499,499) << endl;
+		cout << "prism_pars.Scompact.at(20,499,495) = " << prism_pars.Scompact.at(20,499,495) << endl;
+		cout << "prism_pars.Scompact.at(19,475,495) = " << prism_pars.Scompact.at(19,475,495) << endl;
+		Array3D tmp_S = zeros_ND<3, T>({{21,500,500}});
+		auto ptr = tmp_S.begin();
+		for (auto i : prism_pars.Scompact) *ptr++ = abs(i);
+		tmp_S.toMRC_f("debug_s.mrc");
+		double s = 0;
+		for (auto i : prism_pars.Scompact) s += abs(i);
+		cout << "sum = " << s << endl;
 		PRISM03(prism_pars);
 
 		size_t lower = 13;
