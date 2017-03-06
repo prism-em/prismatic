@@ -4,6 +4,7 @@
 
 #ifndef PRISM_PROJPOT_H
 #define PRISM_PROJPOT_H
+#include <vector>
 #include "ArrayND.h"
 #include "boost/math/special_functions/bessel.hpp"
 #include <math.h>
@@ -22,8 +23,9 @@ namespace PRISM {
 		const size_t yInd = std::floor(yr.size()/2);
 		const T dx        = round(sqrt(2*xInd - 1));
 		const T dy        = round(sqrt(2*yInd - 1));
-		const T xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
-		const T yv[]      = {0, 0, (T)yr.size()-1, (T)yr.size()-1, yInd-dy-1, yInd+dy+1, yInd-dy-1, yInd+dy+1};
+		const T xv[]      = {xInd-dx, xInd+dx, xInd-dx, xInd+dx, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
+//		const T xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
+		const T yv[]      = {0, 0, (T)yr.size()-1, (T)yr.size()-1, yInd-dy, yInd+dy, yInd-dy, yInd+dy};
 
 		T potMin = 0;
 		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(yv[i],xv[i]) : potMin;

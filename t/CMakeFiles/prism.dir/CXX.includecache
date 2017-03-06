@@ -71,6 +71,10 @@ fftw3.h
 ../include/fftw3.h
 mutex
 -
+ArrayND.h
+../include/ArrayND.h
+complex
+-
 
 ../include/PRISM03.h
 params.h

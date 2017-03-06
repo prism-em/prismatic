@@ -189,11 +189,11 @@ namespace PRISM {
 		using Array2D = ArrayND<2, std::vector<T> >;
 		using Array1D = ArrayND<1, std::vector<T> >;
 
-		ArrayND<2, std::vector<T> > projPot(const size_t&, const Array1D&, const Array1D&);
+//		ArrayND<2, std::vector<T> > projPot(const size_t&, const Array1D&, const Array1D&);
 
 		cout << "Entering PRISM01" << endl;
-		T yleng = std::ceil(pars.meta.potBound / pars.meta.pixelSize[0]);
-		T xleng = std::ceil(pars.meta.potBound / pars.meta.pixelSize[1]);
+		T yleng = std::ceil(pars.meta.potBound / pars.pixelSize[0]);
+		T xleng = std::ceil(pars.meta.potBound / pars.pixelSize[1]);
 		ArrayND<1, vector<long> > xvec(vector<long>(2*(size_t)xleng + 1, 0),{{2*(size_t)xleng + 1}});
 		ArrayND<1, vector<long> > yvec(vector<long>(2*(size_t)yleng + 1, 0),{{2*(size_t)yleng + 1}});
 		{

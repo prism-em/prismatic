@@ -16,11 +16,10 @@ namespace PRISM{
 			filename_atoms      = "";
 			filename_output     = "";
 			realspace_pixelSize = 100.0 / 1000.0;
-			pixelSize = std::vector<T>{realspace_pixelSize,realspace_pixelSize}; // remove this parameter maybe
 			potBound = 1.0;
 			numFP = 8.0 / 8.0;
 			sliceThickness = 2;
-			cellDim = std::vector<size_t>{0,0,0}; // this is z,y,x format
+			cellDim = std::vector<size_t>{1,1,1}; // this is z,y,x format
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
@@ -31,7 +30,7 @@ namespace PRISM{
 		std::string filename_atoms;
 		std::string filename_output;
 		T realspace_pixelSize;
-		std::vector<T> pixelSize;
+
 		T potBound;
 		size_t numFP;
 		T sliceThickness;

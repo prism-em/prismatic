@@ -54,8 +54,8 @@ namespace PRISM{
         Array1D detectorAngles;
 	    Array1D u;
 	    std::vector<atom> atoms;
-	    Array1D pixelSize;
-        Array1D pixelSizeOutput;
+	    std::vector<T> pixelSize;
+	    std::vector<T> pixelSizeOutput;
 	    Array1D_dims imageSize;
 	    std::vector<size_t> imageSizeReduce;
 	    Array1D_dims imageSizeOutput;
@@ -70,7 +70,6 @@ namespace PRISM{
 	    T qMax;
 	    T alphaMax;
         size_t Ndet;
-
         size_t numPlanes;
 	    size_t numberBeams;
 		Parameters(){};
@@ -93,7 +92,7 @@ namespace PRISM{
 		                   });
 		    this->imageSize = _imageSize;
 
-		    Array1D _pixelSize({{(T) meta.cellDim[1], (T) meta.cellDim[2]}}, {{2}});
+		    std::vector<T> _pixelSize{(T) meta.cellDim[1], (T) meta.cellDim[2]};
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];

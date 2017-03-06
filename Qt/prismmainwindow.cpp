@@ -91,7 +91,7 @@ void PRISMMainWindow::launch(){
 	std::cout << "Atoms filename = " << this->meta->filename_atoms << '\n';
 	std::cout << "Output filename = " << this->meta->filename_output << '\n';
 	std::cout << "Interpolation factor = " << this->meta->interpolationFactor << '\n';
-
+	std::cout << "pixelSize[0] = " << this->meta->pixelSize[0]<< '\n';
 	PRISM::PRISM_entry((*this->meta));
 }
 
