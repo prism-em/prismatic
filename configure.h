@@ -10,7 +10,7 @@
 #include "meta.h"
 #include "PRISM_entry.h"
 #include "Multislice_entry.h"
-
+#include "Multislice.h"
 namespace PRISM {
 
 
@@ -18,8 +18,13 @@ namespace PRISM {
 	void configure(Metadata<T>&);
 
 	using entry_func = int (*)(Metadata<double>&);
+	//using ms_output_func = void (*)(Parameters<double>&);
+//	template <class T>
+//	using ms_output_func = void (*)(Parameters<T>&);
 //	using entry_func = int (*)(Metadata<float>&);
 	extern entry_func execute_plan;
+
+//	extern ms_output_func buildMultisliceOutput;
 
 
 

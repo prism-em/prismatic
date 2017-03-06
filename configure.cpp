@@ -5,6 +5,7 @@
 #include <iostream>
 namespace PRISM {
 	entry_func execute_plan;
+//	ms_output_func<double> buildMultisliceOutput;
 	template <>
 	void configure(Metadata<double>& meta) {
 		if (meta.algorithm == 0) {
@@ -14,6 +15,7 @@ namespace PRISM {
 		} else{
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
 			execute_plan = Multislice_entry<double>;
+//			buildMultisliceOutput = buildMultisliceOutput_cpuOnly<double>;
 		}
 	}
 

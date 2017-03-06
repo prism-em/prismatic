@@ -78,9 +78,6 @@ namespace PRISM {
 		fftw_destroy_plan(plan_final);
 		gatekeeper.unlock();
 
-		if (a0 == 0 ){
-int debug = 0;
-}
 
 		complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()];
 		const T N_small = (T)psi_small.size();

@@ -12,6 +12,7 @@
 #include <mutex>
 #include <numeric>
 #include "fftw3.h"
+#include "utility.h"
 namespace PRISM {
 	template<class T>
 	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
@@ -20,14 +21,7 @@ namespace PRISM {
 	template<class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 
-	template<class T>
-	vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
-		vector<T> result;
-		for (auto i = start; i <= stop; i += step) {
-			result.push_back(i);
-		}
-		return result;
-	};
+
 
 	template<class T>
 	Array2D<T> array2D_subset(const Array2D<T> &arr,
@@ -52,6 +46,8 @@ namespace PRISM {
 		// compute final image
 
 		cout << "Entering PRISM02" << endl;
+
+		// should move these elsewhere and in Multislice
 		pars.probeDefocusArray = zeros_ND<1, T>({{1}});
 		pars.probeSemiangleArray = zeros_ND<1, T>({{1}});
 		pars.probeXtiltArray = zeros_ND<1, T>({{1}});
@@ -77,9 +73,9 @@ namespace PRISM {
 		Array1D<T> yp(yp_d, {{yp_d.size()}});
 		pars.xp = xp;
 		pars.yp = yp;
+
 		pars.dr = 2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
-
 		vector<T> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
 		Array1D<T> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;

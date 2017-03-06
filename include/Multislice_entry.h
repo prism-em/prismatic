@@ -7,7 +7,9 @@
 #include "meta.h"
 #include "params.h"
 #include "ArrayND.h"
+#include "Multislice.h"
 #include <algorithm>
+
 
 namespace PRISM{
 	template <class T>
@@ -25,8 +27,11 @@ namespace PRISM{
 		std::cout<<"Dummy code for Multislice entrypoint" << std::endl;
 		PRISM01(prism_pars);
 		prism_pars.pot.toMRC_f("DEBUG.mrc");
+		Multislice(prism_pars);
+//		PRISM02(prism_pars);
+//		PRISM03(prism_pars);
 //
-//
+
 		size_t lower = 13;
 		size_t upper = 18;
 		Array2D prism_image;
