@@ -13,9 +13,11 @@
 #include "ArrayND.h"
 #include "params.h"
 #include "utility.h"
+#include "fftw3.h"
 namespace PRISM{
+       using namespace std;
 
-	void getMultisliceProbe_cpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	inline void getMultisliceProbe_cpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                 Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                 const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                 const size_t& ay,
@@ -86,7 +88,7 @@ namespace PRISM{
 //		cout << "test cpu" << endl;
 	}
 
-	void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	inline void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                        Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                        Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
@@ -224,7 +226,7 @@ namespace PRISM{
 //				  alphaInd.begin(),
 //				  [](const PRISM_FLOAT_PRECISION &a) { return a < 1 ? 1 : a; });
 		Array2D<PRISM_FLOAT_PRECISION> alphaInd = (alpha + pars.dr/2) / pars.dr;
-		for (auto& q : alphaInd) q = round(q);
+		for (auto& q : alphaInd) q = std::round(q);
 
 		pars.Ndet = pars.detectorAngles.size();
 		if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
@@ -270,7 +272,7 @@ namespace PRISM{
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
 		buildMultisliceOutput(pars, trans, PsiProbeInit, alphaInd);
-		int debug=0;
+		//int debug=0;
 	}
 
 }

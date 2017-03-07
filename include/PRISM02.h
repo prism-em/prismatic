@@ -12,7 +12,9 @@
 #include <mutex>
 #include "ArrayND.h"
 #include <complex>
+#include "utility.h"
 namespace PRISM {
+
 	using namespace std;
 
 	template<class T>
@@ -21,7 +23,7 @@ namespace PRISM {
 	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
 	template<class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
-
+/*
 	inline Array1D<PRISM_FLOAT_PRECISION> makeFourierCoords(const size_t &N, const PRISM_FLOAT_PRECISION &pixel_size) {
 		Array1D<PRISM_FLOAT_PRECISION> result = zeros_ND<1, PRISM_FLOAT_PRECISION>({{N}});
 		long long nc = (size_t) floor((PRISM_FLOAT_PRECISION) N / 2);
@@ -32,7 +34,7 @@ namespace PRISM {
 		}
 		return result;
 	};
-
+*/
 	inline void propagatePlaneWave(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
