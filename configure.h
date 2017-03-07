@@ -9,16 +9,16 @@
 #define PRISM_CONFIGURE_H
 
 //#ifdef PRISM_ENABLE_DOUBLE_PRECISION
-typedef double PRISM_FLOAT_PRECISION;
+//typedef double PRISM_FLOAT_PRECISION;
 //#else
-//typedef float PRISM_FLOAT_PRECISION;
+typedef float PRISM_FLOAT_PRECISION;
 //#endif //PRISM_ENABLE_DOUBLE_PRECISION
 
 #include "meta.h"
 #include "ArrayND.h"
 #include "PRISM_entry.h"
-//#include "Multislice_entry.h"
-//#include "Multislice.h"
+#include "Multislice_entry.h"
+#include "Multislice.h"
 namespace PRISM {
 
 	template <class T>

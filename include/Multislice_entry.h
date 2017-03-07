@@ -12,7 +12,7 @@
 
 
 namespace PRISM{
-	int Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
+	inline int Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 
 		using vec_d = std::vector<PRISM_FLOAT_PRECISION>;
 		using Array3D = ArrayND<3, vec_d>;
@@ -25,11 +25,11 @@ namespace PRISM{
 		std::cout<<"Dummy code for Multislice entrypoint" << std::endl;
 		PRISM01(prism_pars);
 		prism_pars.pot.toMRC_f("DEBUG.mrc");
-		Multislice(prism_pars);
-//		PRISM02(prism_pars);
-//		PRISM03(prism_pars);
-//
+//		Multislice(prism_pars);
+		PRISM02(prism_pars);
+		PRISM03(prism_pars);
 
+//
 		size_t lower = 13;
 		size_t upper = 18;
 		Array2D prism_image;

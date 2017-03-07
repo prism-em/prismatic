@@ -22,33 +22,31 @@ namespace PRISM {
 	template<class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 
-	template<class T>
-	Array1D<T> makeFourierCoords(const size_t &N, const T &pixel_size) {
-		Array1D<T> result = zeros_ND<1, T>({{N}});
+	inline Array1D<PRISM_FLOAT_PRECISION> makeFourierCoords(const size_t &N, const PRISM_FLOAT_PRECISION &pixel_size) {
+		Array1D<PRISM_FLOAT_PRECISION> result = zeros_ND<1, PRISM_FLOAT_PRECISION>({{N}});
 		long long nc = (size_t) floor((PRISM_FLOAT_PRECISION) N / 2);
 
-		T dp = 1 / (N * pixel_size);
+		PRISM_FLOAT_PRECISION dp = 1 / (N * pixel_size);
 		for (auto i = 0; i < N; ++i) {
 			result[(nc + (size_t) i) % N] = (i - nc) * dp;
 		}
 		return result;
 	};
 
-	template<class T>
-	void propagatePlaneWave(Parameters<T> &pars,
-	                        Array3D<complex<T> >& trans,
+	inline void propagatePlaneWave(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
-	                        Array2D<complex<T> > &psi,
+	                        Array2D<complex<PRISM_FLOAT_PRECISION> > &psi,
 	                        const fftwf_plan &plan_forward,
 	                        const fftwf_plan &plan_inverse,
 	                        mutex& fftw_plan_lock){
 		psi[pars.beamsIndex[a0]] = 1;
-		const T N = (T)psi.size();
+		const PRISM_FLOAT_PRECISION N = (PRISM_FLOAT_PRECISION)psi.size();
 
 
 		fftwf_execute(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
-		const complex<T>* trans_t = &trans[0];
+		const complex<PRISM_FLOAT_PRECISION>* trans_t = &trans[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 
 			for (auto& p:psi)p*=(*trans_t++); // transmit
@@ -59,7 +57,7 @@ namespace PRISM {
 		}
 		fftwf_execute(plan_forward);
 
-		Array2D< complex<T> > psi_small = zeros_ND<2, complex<T> >({{pars.qyInd.size(), pars.qxInd.size()}});
+		Array2D< complex<PRISM_FLOAT_PRECISION> > psi_small = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.qyInd.size(), pars.qxInd.size()}});
 		for (auto y = 0; y < pars.qyInd.size(); ++y){
 			for (auto x = 0; x < pars.qxInd.size(); ++x){
 				psi_small.at(y,x) = psi.at(pars.qyInd[y], pars.qxInd[x]);
@@ -79,21 +77,20 @@ namespace PRISM {
 		gatekeeper.unlock();
 
 
-		complex<T>* S_t = &pars.Scompact[a0 * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()];
-		const T N_small = (T)psi_small.size();
+		complex<PRISM_FLOAT_PRECISION>* S_t = &pars.Scompact[a0 * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()];
+		const PRISM_FLOAT_PRECISION N_small = (PRISM_FLOAT_PRECISION)psi_small.size();
 		for (auto& i:psi_small) {
 			*S_t++ = i/N_small;
 		}
 	};
 
-	template<class T>
-	void fill_Scompact(Parameters<T> &pars) {
+	inline void fill_Scompact(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		mutex fftw_plan_lock;
 
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
-		pars.Scompact = zeros_ND<3, complex<T> > ({{pars.numberBeams,pars.imageSize[0]/2, pars.imageSize[1]/2}});
-		Array3D<complex<T> > trans = zeros_ND<3, complex<T> >(
+		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> > ({{pars.numberBeams,pars.imageSize[0]/2, pars.imageSize[1]/2}});
+		Array3D<complex<PRISM_FLOAT_PRECISION> > trans = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
 			auto p = pars.pot.begin();
@@ -112,7 +109,7 @@ namespace PRISM {
 			cout << "Launching thread to compute beams " << start << " through " << min(stop, pars.numberBeams) << '\n';
 			workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
 				// allocate array for psi just once per thread
-				Array2D< complex<T> > psi = zeros_ND<2, complex<T> >({{pars.imageSize[0], pars.imageSize[1]}});
+				Array2D< complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
 				fftwf_plan plan_forward = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
@@ -126,7 +123,7 @@ namespace PRISM {
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
 					// re-zero psi each iteration
-					memset((void*)&psi[0], 0, psi.size()*sizeof(complex<T>));
+					memset((void*)&psi[0], 0, psi.size()*sizeof(complex<PRISM_FLOAT_PRECISION>));
 					propagatePlaneWave(pars, trans, a0, psi, plan_forward, plan_inverse, fftw_plan_lock);
 				}
 				// clean up
@@ -144,8 +141,7 @@ namespace PRISM {
 		for (auto& t:workers)t.join();
 	}
 
-	template <class T>
-	void PRISM02(Parameters<T>& pars){
+	inline void PRISM02(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		// propagate plane waves to construct compact S-matrix
 
 		cout << "Entering PRISM02" << endl;
@@ -160,23 +156,23 @@ namespace PRISM {
 		// setup some coordinates
 		pars.imageSize[0] = pars.pot.get_dimj();
 		pars.imageSize[1] = pars.pot.get_dimi();
-		Array1D<T> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
-		Array1D<T> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
+		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
+		Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 
-		pair< Array2D<T>, Array2D<T> > mesh = meshgrid(qx,qy);
+		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qx,qy);
 		pars.qxa = mesh.first;
 		pars.qya = mesh.second;
-		Array2D<T> q2(pars.qya);
+		Array2D<PRISM_FLOAT_PRECISION> q2(pars.qya);
 		transform(pars.qxa.begin(), pars.qxa.end(),
-		          pars.qya.begin(), q2.begin(), [](const T& a, const T& b){
+		          pars.qya.begin(), q2.begin(), [](const PRISM_FLOAT_PRECISION& a, const PRISM_FLOAT_PRECISION& b){
 					return a*a + b*b;
 				});
 
 		// get qMax
 		pars.qMax = 0;
 		{
-			T qx_max;
-			T qy_max;
+			PRISM_FLOAT_PRECISION qx_max;
+			PRISM_FLOAT_PRECISION qy_max;
 			for (auto i = 0; i < qx.size(); ++i) {
 				qx_max = ( abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
 				qy_max = ( abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
@@ -199,8 +195,8 @@ namespace PRISM {
 		}
 
 		// build propagators
-		pars.prop     = zeros_ND<2, std::complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
-		pars.propBack = zeros_ND<2, std::complex<T> >({{pars.imageSize[1], pars.imageSize[0]}});
+		pars.prop     = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[1], pars.imageSize[0]}});
+		pars.propBack = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[1], pars.imageSize[0]}});
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 				if (pars.qMask.at(y,x)==1)
@@ -236,7 +232,7 @@ namespace PRISM {
 			}
 		}
 
-		pars.beams     = zeros_ND<2, T>({{pars.imageSize[0], pars.imageSize[1]}});
+		pars.beams     = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
 			int beam_count = 1;
 			for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
@@ -283,9 +279,9 @@ namespace PRISM {
 		pars.pixelSizeOutput[0]*=2;
 		pars.pixelSizeOutput[1]*=2;
 
-		pars.qxaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
-		pars.qyaOutput   = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
-		pars.beamsOutput = zeros_ND<2, T>({{pars.qyInd.size(), pars.qxInd.size()}});
+		pars.qxaOutput   = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
+		pars.qyaOutput   = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
+		pars.beamsOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
 		for (auto y = 0; y < pars.qyInd.size(); ++y){
 			for (auto x = 0; x < pars.qxInd.size(); ++x){
 				pars.qxaOutput.at(y,x)   = pars.qxa.at(pars.qyInd[y],pars.qxInd[x]);

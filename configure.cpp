@@ -13,7 +13,7 @@ namespace PRISM {
 //		execute_plan = PRISM_entry<float>;
 		} else{
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
-//			execute_plan = Multislice_entry;
+			execute_plan = Multislice_entry;
 //			buildMultisliceOutput = buildMultisliceOutput_cpuOnly<double>;
 		}
 	}
