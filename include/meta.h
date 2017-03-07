@@ -23,8 +23,10 @@ namespace PRISM{
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
+			NUM_STREAMS_PER_GPU = 2;
 			NUM_THREADS = 12;
 			algorithm = 0; // 0 PRISM; 1 Multislice
+			cpu_gpu_ratio = 0.1;
 		}
 		size_t interpolationFactor;
 		std::string filename_atoms;
@@ -34,11 +36,13 @@ namespace PRISM{
 		T potBound;
 		size_t numFP;
 		T sliceThickness;
+		T cpu_gpu_ratio; // what fraction of computation to do on the cpu vs gpu
 		std::vector<size_t> cellDim; // this is z,y,x format
 		T E0;
 		T alphaBeamMax;
-		size_t NUM_GPUS;
 		size_t NUM_THREADS;
+		size_t NUM_GPUS;
+		size_t NUM_STREAMS_PER_GPU;
 		int algorithm;
 	};
 }

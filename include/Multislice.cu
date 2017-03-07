@@ -10,7 +10,12 @@
 #define NZ 128
 
 namespace PRISM{
-    __host__ void getMultisliceProbe_gpu(){
+    __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
+                                Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
+                                const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
+                                const size_t& ay,
+                                const size_t& ax,
+                                Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
 cufftHandle plan;
 cufftComplex *data1, *data2;
 cudaMalloc((void**)&data1, sizeof(cufftComplex)*NX*NY*NZ);
@@ -25,61 +30,60 @@ cufftDestroy(plan);
                                    Array2D <PRISM_FLOAT_PRECISION> &alphaInd) {
         using namespace std;
         cout << "Test GPU function from CUDA host" << endl;
-getMultisliceProbe_gpu();
-    /*
-static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
-		static const PRISM_FLOAT_PRECISION pi = acos(-1);
-		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
-		// populates the output stack for Multislice simulation using the CPU. The number of
-		// threads used is determined by pars.meta.NUM_THREADS
-
-		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(PsiProbeInit);
-
-		{
-			auto qxa_ptr = pars.qxa.begin();
-			auto qya_ptr = pars.qya.begin();
-            for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*pars.xp[ax] +
-                                                    (*qya_ptr++)*pars.yp[ay]));
+	const PRISM_FLOAT_PRECISION cpu_stop = std::floor(pars.meta.cpu_gpu_ratio*pars.yp.size());
+		vector<thread> workers_gpu;
+		vector<thread> workers_cpu;
+		workers_gpu.reserve(pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU); // prevents multiple reallocations
+		workers_cpu.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		auto WORK_CHUNK_SIZE_GPU = std::floor( (((pars.yp.size() - cpu_stop - 1)) / (pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU)) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
+		cout << "WORK_CHUNK_SIZE_GPU = " << WORK_CHUNK_SIZE_GPU << endl;
+		auto start = cpu_stop;// gpu work starts where the cpu work will stop
+		auto stop = start + WORK_CHUNK_SIZE_GPU;
+		while (start < pars.yp.size()) {
+			cout << "Launching thread to compute all x-probe positions for y-probes "
+				 << start << "/" << std::min((size_t)stop,pars.yp.size()) << " on GPU\n";
+			// emplace_back is better whenever constructing a new object
+			workers_gpu.emplace_back(thread([&pars, &trans,
+												&alphaInd, &PsiProbeInit,
+												start, stop]() {
+				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
+					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+						getMultisliceProbe_gpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+					}
+				}
+			}));
+			start += WORK_CHUNK_SIZE_GPU;
+			if (start >= pars.yp.size())break;
+			stop += WORK_CHUNK_SIZE_GPU;
 		}
 
-        // fftw_execute is the only thread-safe function in the library, so we need to synchronize access
-        // to the plan creation methods
-        unique_lock<mutex> gatekeeper(fftw_plan_lock);
-        fftwf_plan plan_forward = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    FFTW_FORWARD, FFTW_ESTIMATE);
-        fftwf_plan plan_inverse = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    FFTW_BACKWARD, FFTW_ESTIMATE);
-        gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 
-        for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-            fftwf_execute(plan_inverse);
-            complex<PRISM_FLOAT_PRECISION>* t_ptr = &trans[a2 * trans.get_dimj() * trans.get_dimi()];
-            for (auto& p:psi)p *= (*t_ptr++); // transmit
-            fftwf_execute(plan_forward);
-            auto p_ptr = pars.prop.begin();
-            for (auto& p:psi)p *= (*p_ptr++); // propagate
-            for (auto& p:psi)p /= psi.size(); // scale FFT
+		// now launch CPU work
+		auto WORK_CHUNK_SIZE_CPU = std::floor(((cpu_stop - 1) / pars.meta.NUM_THREADS) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
+		cout << "WORK_CHUNK_SIZE_CPU = " << WORK_CHUNK_SIZE_CPU << endl;
+                start = 0;// cpu work starts at beginning
+                stop = start + WORK_CHUNK_SIZE_CPU;
+                while (start < cpu_stop) {
+                        cout << "Launching thread to compute all x-probe positions for y-probes "
+                                 << start << "/" << std::min(stop,cpu_stop) << " on CPU\n";
+                        // emplace_back is better whenever constructing a new object
+                        workers_gpu.emplace_back(thread([&pars, &trans,
+                                                                                                &alphaInd, &PsiProbeInit,
+                                                                                                start, cpu_stop,stop]() {
+                                for (auto ay = start; ay < std::min(stop, cpu_stop); ++ay) {
+                                        for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+                                                getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+                                        }
+                                }
+                        }));
+                        start += WORK_CHUNK_SIZE_CPU;
+                        if (start >= cpu_stop)break;
+                        stop += WORK_CHUNK_SIZE_CPU;
+                }
 
-        }
+		// synchronize threads
+		for (auto& t:workers_gpu)t.join();
+		for (auto& t:workers_cpu)t.join();
 
-        Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
-        auto psi_ptr = psi.begin();
-        for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-        //update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
-        auto idx = alphaInd.begin();
-        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
-            if (*idx <= pars.Ndet){
-                pars.stack.at(ay,ax,(*idx)-1, 1) += *counts;
-            }
-            ++idx;
-        };
-*/
-
-
-
-};
+	}
 }
