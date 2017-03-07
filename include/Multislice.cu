@@ -16,19 +16,19 @@ namespace PRISM{
                                 const size_t& ay,
                                 const size_t& ax,
                                 Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
-cufftHandle plan;
-cufftComplex *data1, *data2;
-cudaMalloc((void**)&data1, sizeof(cufftComplex)*NX*NY*NZ);
-cudaMalloc((void**)&data2, sizeof(cufftComplex)*NX*NY*NZ);
-/* Create a 3D FFT plan. */
-cufftPlan3d(&plan, NX, NY, NZ, CUFFT_C2C);
-cufftDestroy(plan);
+	cufftHandle plan;
+	cufftComplex *data1, *data2;
+	cudaMalloc((void**)&data1, sizeof(cufftComplex)*NX*NY*NZ);
+	cudaMalloc((void**)&data2, sizeof(cufftComplex)*NX*NY*NZ);
+	/* Create a 3D FFT plan. */
+	cufftPlan3d(&plan, NX, NY, NZ, CUFFT_C2C);
+	cufftDestroy(plan);
 }
     __host__ void buildMultisliceOutput_gpu(Parameters <PRISM_FLOAT_PRECISION> &pars,
                                    Array3D <std::complex<PRISM_FLOAT_PRECISION>> &trans,
                                    Array2D <std::complex<PRISM_FLOAT_PRECISION>> &PsiProbeInit,
                                    Array2D <PRISM_FLOAT_PRECISION> &alphaInd) {
-        using namespace std;
+		using namespace std;
         cout << "Test GPU function from CUDA host" << endl;
 	const PRISM_FLOAT_PRECISION cpu_stop = std::floor(pars.meta.cpu_gpu_ratio*pars.yp.size());
 		vector<thread> workers_gpu;
