@@ -10,57 +10,59 @@
 #include <complex>
 #include "atom.h"
 #include "meta.h"
+//#include "configure.h"
 namespace PRISM{
+	template <class T>
+	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+	template <class T>
+	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	template <class T>
+	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+	template <class T>
+	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
+
     template <class T>
     class Parameters {
     public:
-	    using Array1D        = PRISM::ArrayND<1, std::vector<T> >;
-	    using Array1D_dims   = PRISM::ArrayND<1, std::vector<size_t> >;
-	    using Array2D        = PRISM::ArrayND<2, std::vector<T> >;
-	    using Array2D_cx     = PRISM::ArrayND<2, std::vector< std::complex<T> > >;
-	    using Array2D_mask   = PRISM::ArrayND<2, std::vector<unsigned int> >;
-	    using Array2D_dims   = PRISM::ArrayND<2, std::vector<size_t> >;
-	    using Array3D        = PRISM::ArrayND<3, std::vector<T> >;
-	    using Array3D_cx     = PRISM::ArrayND<3, std::vector< std::complex<T> > >;
-		using Array4D        = PRISM::ArrayND<4, std::vector<T> >;
+
 	    Metadata<T> meta;
-	    Array3D_cx Scompact;
-	    Array4D stack;
-		Array3D pot;
+	    Array3D< std::complex<T>  > Scompact;
+	    Array4D<T> stack;
+		Array3D<T> pot;
 
 
-	    Array2D_cx prop;
-	    Array2D_cx propBack;
+	    Array2D< std::complex<T>  > prop;
+	    Array2D< std::complex<T> > propBack;
 //	    size_t interpolationFactor;
-	    Array2D_mask qMask;
-        Array1D probeDefocusArray;
-        Array1D probeSemiangleArray;
-        Array1D probeXtiltArray;
-        Array1D probeYtiltArray;
-	    Array2D qxa;
-	    Array2D qya;
-	    Array2D qxaOutput;
-	    Array2D qyaOutput;
-        Array2D qxaReduce;
-        Array2D qyaReduce;
-        Array1D xp;
-        Array1D yp;
+	    Array2D<unsigned int> qMask;
+        Array1D<T> probeDefocusArray;
+        Array1D<T> probeSemiangleArray;
+        Array1D<T> probeXtiltArray;
+        Array1D<T> probeYtiltArray;
+	    Array2D<T> qxa;
+	    Array2D<T> qya;
+	    Array2D<T> qxaOutput;
+	    Array2D<T> qyaOutput;
+        Array2D<T> qxaReduce;
+        Array2D<T> qyaReduce;
+        Array1D<T> xp;
+        Array1D<T> yp;
         std::vector<size_t> beamsIndex;
 	    PRISM::ArrayND<2, std::vector<long> > xyBeams;
-		Array2D beams;
-	    Array2D beamsOutput;
-        Array1D xVec;
-        Array1D yVec;
-        Array1D detectorAngles;
-	    Array1D u;
+		Array2D<T> beams;
+	    Array2D<T> beamsOutput;
+        Array1D<T> xVec;
+        Array1D<T> yVec;
+        Array1D<T> detectorAngles;
+	    Array1D<T> u;
 	    std::vector<atom> atoms;
 	    std::vector<T> pixelSize;
 	    std::vector<T> pixelSizeOutput;
-	    Array1D_dims imageSize;
+	    Array1D<size_t> imageSize;
 	    std::vector<size_t> imageSizeReduce;
-	    Array1D_dims imageSizeOutput;
-	    Array1D_dims qxInd;
-	    Array1D_dims qyInd;
+	    Array1D<size_t> imageSizeOutput;
+	    Array1D<size_t> qxInd;
+	    Array1D<size_t> qyInd;
 
 	    T scale;
         T lambda;
@@ -85,7 +87,7 @@ namespace PRISM{
 		                       (2 * m * c * c + e * meta.E0);
 
 		    T f = 4 * meta.interpolationFactor;
-		    Array1D_dims _imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
+		    Array1D<size_t> _imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
 		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
 		                   [&f, this](size_t &a) {
 			                   return (size_t) (f * round(((T)a) / meta.realspace_pixelSize / f));
@@ -112,7 +114,7 @@ namespace PRISM{
 //			    return -2;
 		    }
 
-		    this->u = ones_ND<1, double>({{118}}) * 0.08;
+		    this->u = ones_ND<1,T>({{118}}) * 0.08;
 //		    u = u;
 		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;

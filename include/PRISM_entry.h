@@ -7,25 +7,32 @@
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
+#include "configure.h"
+#include "ArrayND.h"
 #include "PRISM01.h"
-#include "PRISM02.h"
-#include "PRISM03.h"
+//#include "PRISM02.h"
+//#include "PRISM03.h"
+#include "params.h"
+#include <vector>
+
 namespace PRISM{
+
 	template <class T>
-	int PRISM_entry(Metadata<T>& meta){
+	using Array3D = ArrayND<3, std::vector<T> >;
+	template <class T>
+	using Array2D = ArrayND<2, std::vector<T> >;
+	template <class T>
+	using Array1D = ArrayND<1, std::vector<T> >;
 
-		using PRISM_FLOAT_TYPE = double;
-//		using PRISM_FLOAT_TYPE = float;
-		using vec_d = std::vector<PRISM_FLOAT_TYPE>;
-		using Array3D = ArrayND<3, vec_d>;
-		using Array2D = ArrayND<2, vec_d>;
-		using Array1D = ArrayND<1, vec_d>;
-		using Array1D_dims = ArrayND<1, std::vector<size_t> >;
+	inline int PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
+		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 
-//		Parameters<PRISM_FLOAT_TYPE> prism_pars2(meta);
-		Parameters<PRISM_FLOAT_TYPE> prism_pars(meta);
+//		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
+//		Parameters prism_pars(meta);
 
-//		Parameters<PRISM_FLOAT_TYPE> prism_pars;
+//		Parameters<PRISM_FLOAT_PRECISION> prism_pars2(meta);
+
+//		Parameters<PRISM_FLOAT_PRECISION> prism_pars;
 //		prism_pars.meta = meta;
 //
 //		constexpr double m = 9.109383e-31;
@@ -37,18 +44,18 @@ namespace PRISM{
 //		prism_pars.sigma = (2 * pi / prism_pars.lambda / prism_pars.meta.E0) * (m * c * c + e * prism_pars.meta.E0) /
 //		                   (2 * m * c * c + e * prism_pars.meta.E0);
 //
-//		PRISM_FLOAT_TYPE f = 4 * prism_pars.meta.interpolationFactor;
-//		Array1D_dims imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
+//		PRISM_FLOAT_PRECISION f = 4 * prism_pars.meta.interpolationFactor;
+//		Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
 //		std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
 //		               [&f, &prism_pars](size_t &a) {
-//			               return (size_t) (f * round((PRISM_FLOAT_TYPE) a / prism_pars.meta.realspace_pixelSize / f));
+//			               return (size_t) (f * round((PRISM_FLOAT_PRECISION) a / prism_pars.meta.realspace_pixelSize / f));
 //		               });
 //		prism_pars.imageSize = imageSize;
 //
-//		Array1D pixelSize({{(PRISM_FLOAT_TYPE) meta.cellDim[1], (PRISM_FLOAT_TYPE) meta.cellDim[2]}}, {{2}});
+//		Array1D pixelSize({{(PRISM_FLOAT_PRECISION) meta.cellDim[1], (PRISM_FLOAT_PRECISION) meta.cellDim[2]}}, {{2}});
 //		prism_pars.pixelSize = pixelSize;
-//		prism_pars.pixelSize[0] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[0];
-//		prism_pars.pixelSize[1] /= (PRISM_FLOAT_TYPE)prism_pars.imageSize[1];
+//		prism_pars.pixelSize[0] /= (PRISM_FLOAT_PRECISION)prism_pars.imageSize[0];
+//		prism_pars.pixelSize[1] /= (PRISM_FLOAT_PRECISION)prism_pars.imageSize[1];
 //		try {
 //			prism_pars.atoms = readAtoms(prism_pars.meta.filename_atoms);
 //		}
@@ -72,22 +79,24 @@ namespace PRISM{
 
 
 		PRISM01(prism_pars);
-		PRISM02(prism_pars);
-		PRISM03(prism_pars);
-
-		size_t lower = 13;
-		size_t upper = 18;
-		Array2D prism_image;
-		prism_image = zeros_ND<2, PRISM_FLOAT_TYPE>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
-		for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
-			for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
-				for (auto b = lower; b < upper; ++b){
-					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
-				}
-			}
-		}
-
-		prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
+//		cout << prism_pars.pot.at(0,0,0);
+		prism_pars.pot.toMRC_f("test.mrc");
+//		PRISM02(prism_pars);
+//		PRISM03(prism_pars);
+//
+//		size_t lower = 13;
+//		size_t upper = 18;
+//		Array2D prism_image;
+//		prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
+//		for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
+//			for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
+//				for (auto b = lower; b < upper; ++b){
+//					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+//				}
+//			}
+//		}
+//
+//		prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
 		std::cout << "Calculation complete.\n" << std::endl;
 		return 0;
 	}

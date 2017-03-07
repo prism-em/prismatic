@@ -317,20 +317,20 @@ namespace PRISM {
     }
 
 	template <class T>
-	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	using Array2D_T = PRISM::ArrayND<2, std::vector<T> >;
 	template <class T>
-	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+	using Array1D_T = PRISM::ArrayND<1, std::vector<T> >;
 	template <class T>
-	std::pair<Array2D<T>, Array2D<T>> meshgrid(const Array1D<T>& X, const Array1D<T>& Y){
-		Array2D<T> xx = zeros_ND<2, T>({{Y.size(), X.size()}});
-		Array2D<T> yy = zeros_ND<2, T>({{Y.size(), X.size()}});
+	std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T>& X, const Array1D_T<T>& Y){
+		Array2D_T<T> xx = zeros_ND<2, T>({{Y.size(), X.size()}});
+		Array2D_T<T> yy = zeros_ND<2, T>({{Y.size(), X.size()}});
 		for (auto j = 0; j < xx.get_dimj(); ++j){
 			for (auto i = 0; i < xx.get_dimi(); ++i){
 				xx.at(j,i) = X[i];
 				yy.at(j,i) = Y[j];
 			}
 		}
-		return std::pair<Array2D<T>, Array2D<T> >(xx,yy);
+		return std::pair<Array2D_T<T>, Array2D_T<T> >(xx,yy);
 	}
 
 	template <>
@@ -362,8 +362,61 @@ namespace PRISM {
 		}
 	}
 
+
+	template <>
+	inline void ArrayND<3, std::vector<float> >::toMRC_f(const char* filename) const{
+		// output to an MRC file in float format
+		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
+		std::ofstream f(filename, std::ios::binary |std::ios::out);
+		std::cout <<"DEBUG TEST" << std::endl;
+		std::cout <<"dimx " << dims[2] << std::endl;
+		std::cout <<"dimx " << dims[1] <<std::endl;
+		std::cout <<"dimx " << dims[0] <<std::endl;
+		std::cout << " filename  = " << filename << std::endl;
+
+		if (f) {
+			int int_header[56];
+			char char_header[800];
+			std::memset((void *) char_header, 0, 800);
+			std::memset((void *) int_header, 0, 56 * 4);
+			int_header[0] = (int) dims[2]; //nx
+			int_header[1] = (int) dims[1]; //ny
+			int_header[2] = (int) dims[0]; //nz
+			int_header[3] = 2; //mode, float
+			f.write((char*)int_header,56*4); //use 4 instead of sizeof(int) because architecture may change but file format won't
+			f.write(char_header,800);
+			float* data_buffer = new float[this->size()];
+			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
+			f.write((char*)data_buffer,this->size()*sizeof(float));
+			delete[] data_buffer;
+		}
+	}
+
 	template <>
 	inline void ArrayND<2, std::vector<double> >::toMRC_f(const char* filename) const{
+		// output to an MRC file in float format
+		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
+		std::ofstream f(filename, std::ios::binary |std::ios::out);
+		if (f) {
+			int int_header[56];
+			char char_header[800];
+			std::memset((void *) char_header, 0, 800);
+			std::memset((void *) int_header, 0, 56 * sizeof(int));
+			int_header[0] = (int) dims[1]; //nx
+			int_header[1] = (int) dims[0]; //ny
+			int_header[2] = (int) 1; //nz
+			int_header[3] = 2; //mode, float
+			f.write((char*)int_header,56*4); //use 4 instead of sizeof(int) because architecture may change but file format won't
+			f.write(char_header,800);
+			float* data_buffer = new float[this->size()];
+			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
+			f.write((char*)data_buffer,this->size()*sizeof(float));
+			delete[] data_buffer;
+		}
+	}
+
+	template <>
+	inline void ArrayND<2, std::vector<float> >::toMRC_f(const char* filename) const{
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);

@@ -14,58 +14,53 @@
 #include "fparams.h"
 namespace PRISM {
 
-	template <class T>
-	T get_potMin(const ArrayND<2, std::vector<T> >& pot,
-	             const ArrayND<1, std::vector<T> >& xr,
-	             const ArrayND<1, std::vector<T> >& yr){
+	inline PRISM_FLOAT_PRECISION get_potMin(const Array2D<PRISM_FLOAT_PRECISION>& pot,
+	                                        const Array1D<PRISM_FLOAT_PRECISION>& xr,
+	                                        const Array1D<PRISM_FLOAT_PRECISION>& yr){
 		// I am assuming that xr and yr are symmetric about 0
 		const size_t xInd = std::floor(xr.size()/2);
 		const size_t yInd = std::floor(yr.size()/2);
-		const T dx        = round(sqrt(2*xInd - 1));
-		const T dy        = round(sqrt(2*yInd - 1));
-		const T xv[]      = {xInd-dx, xInd+dx, xInd-dx, xInd+dx, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
-//		const T xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (T)xr.size()-1, (T)xr.size()-1};
-		const T yv[]      = {0, 0, (T)yr.size()-1, (T)yr.size()-1, yInd-dy, yInd+dy, yInd-dy, yInd+dy};
+		const PRISM_FLOAT_PRECISION dx        = round(sqrt(2*xInd - 1));
+		const PRISM_FLOAT_PRECISION dy        = round(sqrt(2*yInd - 1));
+		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx, xInd+dx, xInd-dx, xInd+dx, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
+//		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
+		const PRISM_FLOAT_PRECISION yv[]      = {0, 0, (PRISM_FLOAT_PRECISION)yr.size()-1, (PRISM_FLOAT_PRECISION)yr.size()-1, yInd-dy, yInd+dy, yInd-dy, yInd+dy};
 
-		T potMin = 0;
+		PRISM_FLOAT_PRECISION potMin = 0;
 		for (auto i=0; i < 8; ++i)potMin = (pot.at(yv[i],xv[i]) > potMin) ? pot.at(yv[i],xv[i]) : potMin;
 		return potMin;
 	}
 
 	using namespace std;
-	template <class T>
-	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
-	template <class T>
-	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 
-	template<class T>
-	ArrayND<2, std::vector<T> >
-	projPot(const size_t &Z, const ArrayND<1, std::vector<T> > &xr, const ArrayND<1, std::vector<T> > &yr) {
-		static const T pi = std::acos(-1);
-		T ss    = 8;
-		T a0    = 0.5292;
-		T e     = 14.4;
-		T term1 = 4*pi*pi*a0*e;
-		T term2 = 2*pi*pi*a0*e;
-		ArrayND<2, std::vector<T> > result = zeros_ND<2, T>({{yr.size(), xr.size()}});
-		const T dx = xr[1] - xr[0];
-		const T dy = yr[1] - yr[0];
+	inline Array2D<PRISM_FLOAT_PRECISION> projPot(const size_t &Z,
+	                                       const Array1D<PRISM_FLOAT_PRECISION> &xr,
+	                                       const Array1D<PRISM_FLOAT_PRECISION> &yr) {
+		static const PRISM_FLOAT_PRECISION pi = std::acos(-1);
+		PRISM_FLOAT_PRECISION ss    = 8;
+		PRISM_FLOAT_PRECISION a0    = 0.5292;
+		PRISM_FLOAT_PRECISION e     = 14.4;
+		PRISM_FLOAT_PRECISION term1 = 4*pi*pi*a0*e;
+		PRISM_FLOAT_PRECISION term2 = 2*pi*pi*a0*e;
+		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > result = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yr.size(), xr.size()}});
+		const PRISM_FLOAT_PRECISION dx = xr[1] - xr[0];
+		const PRISM_FLOAT_PRECISION dy = yr[1] - yr[0];
 
-		T start = -(ss-1)/ss/2;
-		const T step  = 1/ss;
-		const T end   = -start;
-		vector<T> sub_data;
+		PRISM_FLOAT_PRECISION start = -(ss-1)/ss/2;
+		const PRISM_FLOAT_PRECISION step  = 1/ss;
+		const PRISM_FLOAT_PRECISION end   = -start;
+		vector<PRISM_FLOAT_PRECISION> sub_data;
 		while (start <= end){
 			sub_data.push_back(start);
 			start+=step;
 		}
-		ArrayND<1, std::vector<T> > sub(sub_data,{{sub_data.size()}});
+		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > sub(sub_data,{{sub_data.size()}});
 
-		std::pair<Array2D<T>, Array2D<T> > meshx = meshgrid(xr, sub*dx);
-		std::pair<Array2D<T>, Array2D<T> > meshy = meshgrid(yr, sub*dy);
+		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshx = meshgrid(xr, sub*dx);
+		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshy = meshgrid(yr, sub*dy);
 
-		ArrayND<1, std::vector<T> > xv = zeros_ND<1, T>({{meshx.first.size()}});
-		ArrayND<1, std::vector<T> > yv = zeros_ND<1, T>({{meshy.first.size()}});
+		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > xv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshx.first.size()}});
+		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > yv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshy.first.size()}});
 		{
 			auto t_x = xv.begin();
 			for (auto i = 0; i < meshx.first.get_dimi(); ++i) {
@@ -84,9 +79,9 @@ namespace PRISM {
 			}
 		}
 
-		std::pair<Array2D<T>, Array2D<T> > meshxy = meshgrid(xv, yv);
-		ArrayND<2, std::vector<T> > r2 = zeros_ND<2, T>({{yv.size(), xv.size()}});
-		ArrayND<2, std::vector<T> > r  = zeros_ND<2, T>({{yv.size(), xv.size()}});
+		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshxy = meshgrid(xv, yv);
+		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > r2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yv.size(), xv.size()}});
+		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > r  = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yv.size(), xv.size()}});
 
 		{
 			auto t_y = r2.begin();
@@ -100,7 +95,7 @@ namespace PRISM {
 
 		for (auto i = 0; i < r.size(); ++i)r[i] = sqrt(r2[i]);
 		// construct potential
-		ArrayND<2, std::vector<T> > potSS  = ones_ND<2, T>({{r2.get_dimj(), r2.get_dimi()}});
+		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > potSS  = ones_ND<2, PRISM_FLOAT_PRECISION>({{r2.get_dimj(), r2.get_dimi()}});
 		std::vector<double> ap;
 		ap.reserve(n_parameters);
 		for (auto i = 0; i < n_parameters; ++i){
@@ -109,7 +104,7 @@ namespace PRISM {
 
 		using namespace boost::math;
 		std::transform(r.begin(), r.end(),
-		          r2.begin(), potSS.begin(), [&ap, &term1, &term2](const T& r_t, const T& r2_t){
+		          r2.begin(), potSS.begin(), [&ap, &term1, &term2](const PRISM_FLOAT_PRECISION& r_t, const PRISM_FLOAT_PRECISION& r2_t){
 
 			return term1*(ap[0] *
 	                cyl_bessel_k(0,2*pi*sqrt(ap[1])*r_t)          +
@@ -121,7 +116,7 @@ namespace PRISM {
 		});
 
 		// integrate
-		ArrayND<2, std::vector<T> > pot = zeros_ND<2, T>({{yr.size(), xr.size()}});
+		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > pot = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yr.size(), xr.size()}});
 		for (auto sy = 0; sy < ss; ++sy){
 			for (auto sx = 0; sx < ss; ++sx) {
 				for (auto j = 0; j < pot.get_dimj(); ++j) {
@@ -133,11 +128,11 @@ namespace PRISM {
 		}
 		pot/=(ss*ss);
 
-		T potMin = get_potMin(pot,xr,yr);
+		PRISM_FLOAT_PRECISION potMin = get_potMin(pot,xr,yr);
 		pot -= potMin;
-		transform(pot.begin(),pot.end(),pot.begin(),[](T& a){return a<0?0:a;});
+		transform(pot.begin(),pot.end(),pot.begin(),[](PRISM_FLOAT_PRECISION& a){return a<0?0:a;});
 
 		return pot;
 	}
 }
-#endif //PRISM_PROJPOT_H
+#endif //PRISM_PROJPOPRISM_FLOAT_PRECISION_H

@@ -6,15 +6,14 @@
 namespace PRISM {
 	entry_func execute_plan;
 //	ms_output_func<double> buildMultisliceOutput;
-	template <>
-	void configure(Metadata<double>& meta) {
+	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
 		if (meta.algorithm == 0) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
-			execute_plan = PRISM_entry<double>;
+			execute_plan = PRISM_entry;
 //		execute_plan = PRISM_entry<float>;
 		} else{
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
-			execute_plan = Multislice_entry<double>;
+//			execute_plan = Multislice_entry;
 //			buildMultisliceOutput = buildMultisliceOutput_cpuOnly<double>;
 		}
 	}

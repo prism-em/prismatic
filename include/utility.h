@@ -4,10 +4,11 @@
 
 #ifndef PRISM_UTILITY_H
 #define PRISM_UTILITY_H
+#include <vector>
 namespace PRISM{
 	template<class T>
-	vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
-		vector<T> result;
+	std::vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
+		std::vector<T> result;
 		for (auto i = start; i <= stop; i += step) {
 			result.push_back(i);
 		}

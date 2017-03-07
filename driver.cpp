@@ -6,12 +6,11 @@
 
 using namespace std;
 int main(int argc, const char** argv) {
-	using PRISM_FLOAT_TYPE = double;
-	PRISM::Metadata<PRISM_FLOAT_TYPE> prism_meta;
+	PRISM::Metadata<PRISM_FLOAT_PRECISION> prism_meta;
 	prism_meta.interpolationFactor = (argc>2) ? (size_t)atoi(argv[2]) : 50;
 
 
-	PRISM_FLOAT_TYPE one_pixel_size = 100.0 / 1000.0;
+	PRISM_FLOAT_PRECISION one_pixel_size = 100.0 / 1000.0;
 	prism_meta.potBound = 1.0;
 	prism_meta.numFP = 8.0 / 8.0;
 	prism_meta.sliceThickness = 2;
@@ -21,7 +20,7 @@ int main(int argc, const char** argv) {
 	prism_meta.alphaBeamMax = 24 / 1000.0;
 	prism_meta.NUM_GPUS = 1;
 	prism_meta.NUM_THREADS = 1;
-	prism_meta.algorithm = 1;
+	prism_meta.algorithm = 0;
 
 	std::string filename;
 	if (argc>1) {
@@ -32,7 +31,8 @@ int main(int argc, const char** argv) {
 	}
 	prism_meta.filename_output = "prism_image.mrc";
 
-	//PRISM::configure();
 	PRISM::configure(prism_meta);
 	return PRISM::execute_plan(prism_meta);
+//	return 0;
+
 }
