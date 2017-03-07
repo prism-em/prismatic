@@ -36,6 +36,7 @@ endif (PRISM_ENABLE_GUI)
 
 set(PRISM_ENABLE_GPU 0 CACHE BOOL PRISM_ENABLE_GPU)
 if (PRISM_ENABLE_GPU)
+    add_definitions(-DPRISM_ENABLE_GPU)
     message("GPU support enabled")
 endif(PRISM_ENABLE_GPU)
 

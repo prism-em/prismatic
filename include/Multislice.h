@@ -12,11 +12,18 @@
 #include "params.h"
 #include "utility.h"
 namespace PRISM{
-	inline void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
+	void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
-		cout << " test " << endl;
+		cout << "test cpu" << endl;
 
 	};
+
+	void buildMultisliceOutput_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars){
+        using namespace std;
+        cout << "test gpu " << endl;
+
+    };
+
 	inline void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -159,7 +166,9 @@ namespace PRISM{
 
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
-//		buildMultisliceOutput(pars);
+		buildMultisliceOutput(pars);
+//		buildMultisliceOutput_cpuOnly(pars);
+//		buildMultisliceOutput_gpu(pars);
 		int debug=0;
 	}
 

@@ -13,13 +13,18 @@
 //#else
 typedef float PRISM_FLOAT_PRECISION;
 //#endif //PRISM_ENABLE_DOUBLE_PRECISION
-
 #include "meta.h"
 #include "ArrayND.h"
-#include "PRISM_entry.h"
-#include "Multislice_entry.h"
-#include "Multislice.h"
+#include "params.h"
+//#include "PRISM_entry.h"
+//#include "Multislice_entry.h"
+//#include "Multislice.h"
 namespace PRISM {
+	using entry_func = int (*)(Metadata<PRISM_FLOAT_PRECISION>&);
+	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&);
+
+	extern entry_func execute_plan;
+	extern ms_output_func buildMultisliceOutput;
 
 	template <class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
@@ -32,14 +37,7 @@ namespace PRISM {
 
 	void configure(Metadata<PRISM_FLOAT_PRECISION>&);
 
-	using entry_func = int (*)(Metadata<PRISM_FLOAT_PRECISION>&);
-	//using ms_output_func = void (*)(Parameters<double>&);
-//	template <class T>
-//	using ms_output_func = void (*)(Parameters<T>&);
-//	using entry_func = int (*)(Metadata<float>&);
-	extern entry_func execute_plan;
 
-//	extern ms_output_func buildMultisliceOutput;
 
 
 
