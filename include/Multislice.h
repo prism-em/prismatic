@@ -167,8 +167,6 @@ namespace PRISM{
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
 		buildMultisliceOutput(pars);
-//		buildMultisliceOutput_cpuOnly(pars);
-//		buildMultisliceOutput_gpu(pars);
 		int debug=0;
 	}
 
