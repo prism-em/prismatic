@@ -13,6 +13,7 @@
 //#else
 typedef float PRISM_FLOAT_PRECISION;
 //#endif //PRISM_ENABLE_DOUBLE_PRECISION
+#include <complex>
 #include "meta.h"
 #include "ArrayND.h"
 #include "params.h"
@@ -20,8 +21,11 @@ typedef float PRISM_FLOAT_PRECISION;
 //#include "Multislice_entry.h"
 //#include "Multislice.h"
 namespace PRISM {
-	using entry_func = int (*)(Metadata<PRISM_FLOAT_PRECISION>&);
-	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&);
+	using entry_func     = int  (*)(Metadata<PRISM_FLOAT_PRECISION>&);
+	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
+                                    Array3D<std::complex<PRISM_FLOAT_PRECISION> >&,
+                                    Array2D<std::complex<PRISM_FLOAT_PRECISION> >&,
+                                    Array2D<PRISM_FLOAT_PRECISION>&);
 
 	extern entry_func execute_plan;
 	extern ms_output_func buildMultisliceOutput;

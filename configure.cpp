@@ -6,6 +6,12 @@
 #include "Multislice_entry.h"
 #include "Multislice.h"
 #include <iostream>
+
+//#define PRISM_ENABLE_GPU
+
+#ifdef PRISM_ENABLE_GPU
+#include "Multislice.cuh"
+#endif //PRISM_ENABLE_GPU
 namespace PRISM {
 	entry_func execute_plan;
 	ms_output_func buildMultisliceOutput;

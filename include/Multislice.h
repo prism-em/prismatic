@@ -5,30 +5,124 @@
 #ifndef PRISM_MULTISLICE_H
 #define PRISM_MULTISLICE_H
 #include <iostream>
+#include <thread>
 #include <vector>
+#include <mutex>
 #include "configure.h"
 #include "meta.h"
 #include "ArrayND.h"
 #include "params.h"
 #include "utility.h"
 namespace PRISM{
-	void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		using namespace std;
-		cout << "test cpu" << endl;
+
+	void getMultisliceProbe_cpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
+                                Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
+                                const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
+                                const size_t& ay,
+                                const size_t& ax,
+                                Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
+        static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+		static const PRISM_FLOAT_PRECISION pi = acos(-1);
+		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+		// populates the output stack for Multislice simulation using the CPU. The number of
+		// threads used is determined by pars.meta.NUM_THREADS
+
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(PsiProbeInit);
+
+		{
+			auto qxa_ptr = pars.qxa.begin();
+			auto qya_ptr = pars.qya.begin();
+            for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*pars.xp[ax] +
+                                                    (*qya_ptr++)*pars.yp[ay]));
+		}
+
+        // fftw_execute is the only thread-safe function in the library, so we need to synchronize access
+        // to the plan creation methods
+        unique_lock<mutex> gatekeeper(fftw_plan_lock);
+        fftwf_plan plan_forward = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
+                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+                                                    FFTW_FORWARD, FFTW_ESTIMATE);
+        fftwf_plan plan_inverse = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
+                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+                                                    FFTW_BACKWARD, FFTW_ESTIMATE);
+        gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
+        for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+            fftwf_execute(plan_inverse);
+            complex<PRISM_FLOAT_PRECISION>* t_ptr = &trans[a2 * trans.get_dimj() * trans.get_dimi()];
+            for (auto& p:psi)p *= (*t_ptr++); // transmit
+            fftwf_execute(plan_forward);
+            auto p_ptr = pars.prop.begin();
+            for (auto& p:psi)p *= (*p_ptr++); // propagate
+            for (auto& p:psi)p /= psi.size(); // scale FFT
+
+        }
+
+        Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
+        auto psi_ptr = psi.begin();
+        for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
+        //update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+        auto idx = alphaInd.begin();
+        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+            if (*idx <= pars.Ndet){
+                pars.stack.at(ay,ax,(*idx)-1, 1) += *counts;
+            }
+            ++idx;
+        };
+
+
+//
+//		% Propgate through all potential planes
+//		for a2 = 1:emdSTEM.numPlanes
+//		psi = fft2(ifft2(psi).*trans(:,:,a2)).*emdSTEM.prop;
+//		end
+//
+//		% Record output
+//		emdSTEM.MULTIstack(a0,a1,:) = ...
+//		accumarray(alphaIndsSub,abs(psi(alphaMask)).^2,[Ndet 1]);
+//		using namespace std;
+//		cout << "test cpu" << endl;
+	}
+
+	void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+                                       Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
+                                       Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
+                                       Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
+		vector<thread> workers;
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
+		auto start = 0;
+		auto stop = start + WORK_CHUNK_SIZE;
+		while (start < pars.yp.size()) {
+			cout << "Launching thread to compute all x-probe positions for y-probes "
+				 << start << "/" << min(stop,pars.yp.size()) << '\n';
+			// emplace_back is better whenever constructing a new object
+			workers.emplace_back(thread([&pars, &trans,
+												&alphaInd, &PsiProbeInit,
+												start, stop]() {
+				for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
+					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+						getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+					}
+				}
+			}));
+			start += WORK_CHUNK_SIZE;
+			if (start >= pars.yp.size())break;
+			stop += WORK_CHUNK_SIZE;
+		}
+		for (auto& t:workers)t.join();
 
 	};
 
-	void buildMultisliceOutput_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars){
-        using namespace std;
-        cout << "test gpu " << endl;
-
-    };
 
 	inline void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
-		const PRISM_FLOAT_PRECISION pi = acos(-1);
-		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
-		const PRISM_FLOAT_PRECISION dxy = 0.25 * 2;
+		static const PRISM_FLOAT_PRECISION pi = acos(-1);
+		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+
+		const PRISM_FLOAT_PRECISION dxy = 0.25 * 2; // TODO: move this
 
 		// should move these elsewhere and in PRISM03
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
@@ -120,8 +214,17 @@ namespace PRISM{
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		Array2D<PRISM_FLOAT_PRECISION> alpha = q1 * pars.lambda;
-//		Array2D<PRISM_FLOAT_PRECISION> alphaInds = (alpha + pars.dr/2) / pars.dr;
-//		for (auto& q : alphaInds) q = round(q);
+//		Array2D<PRISM_FLOAT_PRECISION> alphaInd(q1); // copy constructor more efficient than assignment
+//		transform(alphaInd.begin(), alphaInd.end(),
+//				  alphaInd.begin(),
+//				  [&pars](const PRISM_FLOAT_PRECISION &a) {
+//					  return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.dr);
+//				  });
+//		transform(alphaInd.begin(), alphaInd.end(),
+//				  alphaInd.begin(),
+//				  [](const PRISM_FLOAT_PRECISION &a) { return a < 1 ? 1 : a; });
+		Array2D<PRISM_FLOAT_PRECISION> alphaInd = (alpha + pars.dr/2) / pars.dr;
+		for (auto& q : alphaInd) q = round(q);
 
 		pars.Ndet = pars.detectorAngles.size();
 		if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
@@ -142,7 +245,7 @@ namespace PRISM{
 
 		transform(PsiProbeInit.begin(), PsiProbeInit.end(),
 		          q2.begin(), PsiProbeInit.begin(),
-		          [&pars, &i, &pi](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
+		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
 			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[0] * q2_t); // TODO: fix hardcoded length-1 defocus
 			          return a;
 		          });
@@ -166,7 +269,7 @@ namespace PRISM{
 
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
-		buildMultisliceOutput(pars);
+		buildMultisliceOutput(pars, trans, PsiProbeInit, alphaInd);
 		int debug=0;
 	}
 
