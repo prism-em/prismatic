@@ -20,7 +20,7 @@ int main(int argc, const char** argv) {
 	prism_meta.alphaBeamMax = 24 / 1000.0;
 	prism_meta.NUM_GPUS = 1;
 	prism_meta.NUM_THREADS = 1;
-	prism_meta.algorithm = 1;
+	prism_meta.algorithm = 0;
 
 	std::string filename;
 	if (argc>1) {
