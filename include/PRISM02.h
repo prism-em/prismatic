@@ -39,25 +39,25 @@ namespace PRISM {
 	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
 	                        Array2D<complex<PRISM_FLOAT_PRECISION> > &psi,
-	                        const fftwf_plan &plan_forward,
-	                        const fftwf_plan &plan_inverse,
+	                        const PRISM_FFTW_PLAN &plan_forward,
+	                        const PRISM_FFTW_PLAN &plan_inverse,
 	                        mutex& fftw_plan_lock){
 		psi[pars.beamsIndex[a0]] = 1;
 		const PRISM_FLOAT_PRECISION N = (PRISM_FLOAT_PRECISION)psi.size();
 
 
-		fftwf_execute(plan_inverse);
+		PRISM_FFTW_EXECUTE(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
 		const complex<PRISM_FLOAT_PRECISION>* trans_t = &trans[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 
 			for (auto& p:psi)p*=(*trans_t++); // transmit
-			fftwf_execute(plan_forward); // FFT
+			PRISM_FFTW_EXECUTE(plan_forward); // FFT
 			for (auto i = psi.begin(), j = pars.prop.begin(); i != psi.end();++i,++j)*i*=(*j); // propagate
-			fftwf_execute(plan_inverse); // IFFT
+			PRISM_FFTW_EXECUTE(plan_inverse); // IFFT
 			for (auto &i : psi)i /= N; // fftw scales by N, need to correct
 		}
-		fftwf_execute(plan_forward);
+		PRISM_FFTW_EXECUTE(plan_forward);
 
 		Array2D< complex<PRISM_FLOAT_PRECISION> > psi_small = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.qyInd.size(), pars.qxInd.size()}});
 		for (auto y = 0; y < pars.qyInd.size(); ++y){
@@ -67,15 +67,15 @@ namespace PRISM {
 		}
 
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		fftwf_plan plan_final = fftwf_plan_dft_2d(psi_small.get_dimj(), psi_small.get_dimi(),
-		                                        reinterpret_cast<fftwf_complex *>(&psi_small[0]),
-		                                        reinterpret_cast<fftwf_complex *>(&psi_small[0]),
+		PRISM_FFTW_PLAN plan_final = PRISM_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
+		                                        reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		                                        reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
 		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
 
 		gatekeeper.unlock();
-		fftwf_execute(plan_final);
+		PRISM_FFTW_EXECUTE(plan_final);
 		gatekeeper.lock();
-		fftwf_destroy_plan(plan_final);
+		PRISM_FFTW_DESTROY_PLAN(plan_final);
 		gatekeeper.unlock();
 
 
@@ -114,13 +114,13 @@ namespace PRISM {
 				Array2D< complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
-				fftwf_plan plan_forward = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-				                                          reinterpret_cast<fftwf_complex *>(&psi[0]),
-				                                          reinterpret_cast<fftwf_complex *>(&psi[0]),
+				PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          FFTW_FORWARD, FFTW_ESTIMATE);
-				fftwf_plan plan_inverse = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-				                                          reinterpret_cast<fftwf_complex *>(&psi[0]),
-				                                          reinterpret_cast<fftwf_complex *>(&psi[0]),
+				PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
@@ -130,8 +130,8 @@ namespace PRISM {
 				}
 				// clean up
 				gatekeeper.lock();
-				fftwf_destroy_plan(plan_forward);
-				fftwf_destroy_plan(plan_inverse);
+				PRISM_FFTW_DESTROY_PLAN(plan_forward);
+				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 				gatekeeper.unlock();
 			});
 

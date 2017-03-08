@@ -41,26 +41,30 @@ namespace PRISM{
         // fftw_execute is the only thread-safe function in the library, so we need to synchronize access
         // to the plan creation methods
         unique_lock<mutex> gatekeeper(fftw_plan_lock);
-        fftwf_plan plan_forward = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
                                                     FFTW_FORWARD, FFTW_ESTIMATE);
-        fftwf_plan plan_inverse = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
-                                                    reinterpret_cast<fftwf_complex *>(&psi[0]),
+		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
                                                     FFTW_BACKWARD, FFTW_ESTIMATE);
         gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 
         for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-            fftwf_execute(plan_inverse);
+	        PRISM_FFTW_EXECUTE(plan_inverse);
             complex<PRISM_FLOAT_PRECISION>* t_ptr = &trans[a2 * trans.get_dimj() * trans.get_dimi()];
             for (auto& p:psi)p *= (*t_ptr++); // transmit
-            fftwf_execute(plan_forward);
+	        PRISM_FFTW_EXECUTE(plan_forward);
             auto p_ptr = pars.prop.begin();
             for (auto& p:psi)p *= (*p_ptr++); // propagate
             for (auto& p:psi)p /= psi.size(); // scale FFT
 
         }
+		gatekeeper.lock();
+		PRISM_FFTW_DESTROY_PLAN(plan_forward);
+		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+		gatekeeper.unlock();
 
         Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
         auto psi_ptr = psi.begin();

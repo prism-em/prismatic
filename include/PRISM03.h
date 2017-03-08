@@ -295,15 +295,15 @@ namespace PRISM {
 			// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 			// to the plan creation methods
 			unique_lock<mutex> gatekeeper(fftw_plan_lock);
-			fftwf_plan plan = fftwf_plan_dft_2d(psi.get_dimj(), psi.get_dimi(),
-			                                  reinterpret_cast<fftwf_complex *>(&psi[0]),
-			                                  reinterpret_cast<fftwf_complex *>(&psi[0]),
+			PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+			                                  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+			                                  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 			                                  FFTW_FORWARD, FFTW_ESTIMATE);
 
 			gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
-			fftwf_execute(plan);
+			PRISM_FFTW_EXECUTE(plan);
 			gatekeeper.lock();
-			fftwf_destroy_plan(plan);
+			PRISM_FFTW_DESTROY_PLAN(plan);
 			gatekeeper.unlock();
 
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj){

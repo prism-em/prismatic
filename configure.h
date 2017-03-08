@@ -8,11 +8,22 @@
 #ifndef PRISM_CONFIGURE_H
 #define PRISM_CONFIGURE_H
 
-//#ifdef PRISM_ENABLE_DOUBLE_PRECISION
+#ifdef PRISM_ENABLE_DOUBLE_PRECISION
 typedef double PRISM_FLOAT_PRECISION;
-//#else
-//typedef float PRISM_FLOAT_PRECISION;
-//#endif //PRISM_ENABLE_DOUBLE_PRECISION
+#define PRISM_FFTW_PLAN fftw_plan
+#define PRISM_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
+#define PRISM_FFTW_EXECUTE fftw_execute
+#define PRISM_FFTW_DESTROY_PLAN fftw_destroy_plan
+#define PRISM_FFTW_COMPLEX fftw_complex
+#else
+typedef float PRISM_FLOAT_PRECISION;
+#define PRISM_FFTW_PLAN fftwf_plan
+#define PRISM_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
+#define PRISM_FFTW_EXECUTE fftwf_execute
+#define PRISM_FFTW_DESTROY_PLAN fftwf_destroy_plan
+#define PRISM_FFTW_COMPLEX fftwf_complex
+#endif //PRISM_ENABLE_DOUBLE_PRECISION
+
 #include <complex>
 #include "meta.h"
 #include "ArrayND.h"
