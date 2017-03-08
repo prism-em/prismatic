@@ -23,6 +23,19 @@ namespace PRISM{
 	__device__ __constant__ PRISM_FLOAT_PRECISION pi       = PI;
 	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT i     = {0, 1};
 	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT pi_cx = {PI, 0};
+	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT minus_2pii = {0, -2*PI};
+	__device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a){
+		double e = exp(a.x);
+		double s,c;
+		sincos(a.y, &s, &c);
+		return make_cuDoubleComplex(e*c, e*s);
+	}
+	__device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a){
+		float e = exp(a.x);
+		float s,c;
+		sincosf(a.y, &s, &c);
+		return make_cuFloatComplex(e*c, e*s);
+	}
 	__global__ void initializePsi(PRISM_CUDA_COMPLEX_FLOAT *psi_d,
 	                              const PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
 	                              const PRISM_FLOAT_PRECISION* qya_d,
@@ -31,52 +44,58 @@ namespace PRISM{
 	                              const size_t dimi,
 	                              const PRISM_FLOAT_PRECISION yp,
 	                              const PRISM_FLOAT_PRECISION xp){
-		int idx_x = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx_x < (dimj * dimi)) {
-			psi_d[idx_x] = cuCmulf(i, make_cuComplex(0, idx_x));
-		}
-//		int idx_y = threadIdx.y + blockDim.y*blockIdx.y;
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < (dimj * dimi)) {
+		PRISM_CUDA_COMPLEX_FLOAT arg;
+		arg = make_cuFloatComplex(qxa_d[idx]*xp + qya_d[idx]*yp, 0);
+		psi_d[idx] = cuCmulf(PsiProbeInit_d[idx], exp_cx(cuCmulf(minus_2pii,arg)));
+	}
+};
+__host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
+									 PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+									 PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+									 const PRISM_FLOAT_PRECISION* qya_d,
+									 const PRISM_FLOAT_PRECISION* qxa_d,
+									 const size_t& ay,
+									 const size_t& ax,
+									 const size_t dimj,
+									 const size_t dimi,
+									 Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
+									 const cudaStream_t& stream,
+									 std::complex<PRISM_FLOAT_PRECISION>* const output){
 
-	};
-    __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
-                                         PRISM_CUDA_COMPLEX_FLOAT* trans_d,
-                                         PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
-                                         const PRISM_FLOAT_PRECISION* qya_d,
-                                         const PRISM_FLOAT_PRECISION* qxa_d,
-                                         const size_t& ay,
-                                         const size_t& ax,
-                                         const size_t dimj,
-                                         const size_t dimi,
-                                         Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
-                                         const cudaStream_t& stream,
-                                         std::complex<PRISM_FLOAT_PRECISION>* const output){
 
-
-		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
-		PRISM_FLOAT_PRECISION xp = pars.xp[ax];
+	PRISM_FLOAT_PRECISION yp = pars.yp[ay];
+	PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 //		std::cout << "XP = " << xp << std::endl;
-		PRISM_CUDA_COMPLEX_FLOAT *psi_d;
-		cudaMalloc((void**)&psi_d, dimj*dimi*sizeof(PRISM_CUDA_COMPLEX_FLOAT));
-		initializePsi<<<(dimj*dimi-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj, dimi, yp, xp);
+	PRISM_CUDA_COMPLEX_FLOAT *psi_d;
+	cudaMalloc((void**)&psi_d, dimj*dimi*sizeof(PRISM_CUDA_COMPLEX_FLOAT));
+	initializePsi<<<(dimj*dimi-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj, dimi, yp, xp);
 
-		std::complex<PRISM_FLOAT_PRECISION> answer;
+	std::complex<PRISM_FLOAT_PRECISION> answer;
 
-		cudaMemcpy(&answer, psi_d+(ax),1*sizeof(PRISM_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost);
-		cout << " answer = " << answer << endl;
-	/*
+	cudaMemcpy(&answer, psi_d+(ax),1*sizeof(PRISM_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost);
+//	cout << " answer = " << answer << endl;
+		if (ax==0 && ay==0) {
+			for (auto j = 0; j < 10; ++j) {
+				cudaMemcpy(&answer, psi_d + j, 1 * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyDeviceToHost);
+				cout << " answer = " << answer << endl << "xp = " << xp << "yp = " << yp << endl;
+			}
+		}
+/*
 psi(:) = PsiProbeInit ...
-            .* exp(-2i*pi ...
-            *(emdSTEM.qxa*emdSTEM.MULTIxp(a0) ...
-            + emdSTEM.qya*emdSTEM.MULTIyp(a1)));
+		.* exp(-2i*pi ...
+		*(emdSTEM.qxa*emdSTEM.MULTIxp(a0) ...
+		+ emdSTEM.qya*emdSTEM.MULTIyp(a1)));
 
 
 copy PsiProbeInit,qxa, qya to GPU cuComplex types. Allocate a pinned output that is same type as stack
 run kernel to accomplish above line. If necessary, write a cuComplex mult(const cuComplex& a,const cuComplex& b) function and a cuComplex my_exp(const cuComplex& a,const cuComplex& b) that uses exp(a + bi) = exp(a) *cos(a) + exp(a) * sin(a)*i
 
 create two cufft plans, write a complex inplace multiplication kernel, and apply the following loop
- for a2 = 1:emdSTEM.numPlanes
-            psi = fft2(ifft2(psi).*trans(:,:,a2)).*emdSTEM.prop;
-        end
+for a2 = 1:emdSTEM.numPlanes
+		psi = fft2(ifft2(psi).*trans(:,:,a2)).*emdSTEM.prop;
+	end
 
 take final FFT and abs square
 
