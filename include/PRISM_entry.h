@@ -47,7 +47,7 @@ namespace PRISM{
 		for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
 			for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
 				for (auto b = lower; b < upper; ++b){
-					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,0);
 				}
 			}
 		}

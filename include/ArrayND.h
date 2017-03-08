@@ -338,12 +338,6 @@ namespace PRISM {
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
-		std::cout <<"DEBUG TEST" << std::endl;
-		std::cout <<"dimx " << dims[2] << std::endl;
-		std::cout <<"dimx " << dims[1] <<std::endl;
-		std::cout <<"dimx " << dims[0] <<std::endl;
-		std::cout << " filename  = " << filename << std::endl;
-
 		if (f) {
 			int int_header[56];
 			char char_header[800];
@@ -368,12 +362,6 @@ namespace PRISM {
 		// output to an MRC file in float format
 		// see http://bio3d.colorado.edu/imod/doc/mrc_format.txt for details
 		std::ofstream f(filename, std::ios::binary |std::ios::out);
-		std::cout <<"DEBUG TEST" << std::endl;
-		std::cout <<"dimx " << dims[2] << std::endl;
-		std::cout <<"dimx " << dims[1] <<std::endl;
-		std::cout <<"dimx " << dims[0] <<std::endl;
-		std::cout << " filename  = " << filename << std::endl;
-
 		if (f) {
 			int int_header[56];
 			char char_header[800];
@@ -385,8 +373,9 @@ namespace PRISM {
 			int_header[3] = 2; //mode, float
 			f.write((char*)int_header,56*4); //use 4 instead of sizeof(int) because architecture may change but file format won't
 			f.write(char_header,800);
+
 			float* data_buffer = new float[this->size()];
-			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = (float)data[i];
+			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = data[i];
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
 		}

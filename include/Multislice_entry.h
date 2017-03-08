@@ -25,6 +25,7 @@ namespace PRISM{
 		std::cout<<"Dummy code for Multislice entrypoint" << std::endl;
 		PRISM01(prism_pars);
 		prism_pars.pot.toMRC_f("DEBUG.mrc");
+		cout << "entering multislice\n";
 		Multislice(prism_pars);
 //		PRISM02(prism_pars);
 //		PRISM03(prism_pars);
@@ -34,8 +35,10 @@ namespace PRISM{
 		float t = 0;
 		for (auto i : prism_pars.stack) t += i;
 		cout << "stack sum = " << t << endl;
-		size_t lower = 13;
-		size_t upper = 18;
+//		size_t lower = 13;
+//		size_t upper = 18;
+		size_t lower = 0;
+		size_t upper = 1;
 		Array2D prism_image;
 		cout << "prism_pars.stack.get_diml() = " << prism_pars.stack.get_diml() << endl;
 		cout << "prism_pars.stack.get_dimk() = " << prism_pars.stack.get_dimk() << endl;
@@ -45,7 +48,7 @@ namespace PRISM{
 		for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
 			for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
 				for (auto b = lower; b < upper; ++b){
-					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,1);
+					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,0);
 				}
 			}
 		}

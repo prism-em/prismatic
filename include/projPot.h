@@ -96,7 +96,7 @@ namespace PRISM {
 		for (auto i = 0; i < r.size(); ++i)r[i] = sqrt(r2[i]);
 		// construct potential
 		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > potSS  = ones_ND<2, PRISM_FLOAT_PRECISION>({{r2.get_dimj(), r2.get_dimi()}});
-		std::vector<double> ap;
+		std::vector<PRISM_FLOAT_PRECISION> ap;
 		ap.reserve(n_parameters);
 		for (auto i = 0; i < n_parameters; ++i){
 			ap[i] = fparams[(Z-1)*n_parameters + i];

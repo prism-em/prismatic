@@ -318,7 +318,7 @@ namespace PRISM {
 		auto idx = alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
-				pars.stack.at(ay,ax,(*idx)-1, 1) += *counts * pars.scale;
+				pars.stack.at(ay,ax,(*idx)-1, 0) += *counts * pars.scale;
 			}
 			++idx;
 		};
