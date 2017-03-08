@@ -2,6 +2,7 @@
 #include "Multislice.h"
 #include "cuComplex.h"
 #include "cufft.h"
+#include <iostream>
 //#include "cuda.h"
 
 #include "fftw3.h"
@@ -14,8 +15,29 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define NX 64
 #define NY 64
 #define NZ 128
+#define PI 3.14159265359
+#define BLOCK_SIZE1D 1024
 
 namespace PRISM{
+
+	__device__ __constant__ PRISM_FLOAT_PRECISION pi       = PI;
+	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT i     = {0, 1};
+	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT pi_cx = {PI, 0};
+	__global__ void initializePsi(PRISM_CUDA_COMPLEX_FLOAT *psi_d,
+	                              const PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                              const PRISM_FLOAT_PRECISION* qya_d,
+	                              const PRISM_FLOAT_PRECISION* qxa_d,
+	                              const size_t dimj,
+	                              const size_t dimi,
+	                              const PRISM_FLOAT_PRECISION yp,
+	                              const PRISM_FLOAT_PRECISION xp){
+		int idx_x = threadIdx.x + blockDim.x*blockIdx.x;
+		if (idx_x < (dimj * dimi)) {
+			psi_d[idx_x] = cuCmulf(i, make_cuComplex(0, idx_x));
+		}
+//		int idx_y = threadIdx.y + blockDim.y*blockIdx.y;
+
+	};
     __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                          PRISM_CUDA_COMPLEX_FLOAT* trans_d,
                                          PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
@@ -23,11 +45,24 @@ namespace PRISM{
                                          const PRISM_FLOAT_PRECISION* qxa_d,
                                          const size_t& ay,
                                          const size_t& ax,
+                                         const size_t dimj,
+                                         const size_t dimi,
                                          Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
                                          const cudaStream_t& stream,
                                          std::complex<PRISM_FLOAT_PRECISION>* const output){
+
+
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISM_FLOAT_PRECISION xp = pars.xp[ax];
+//		std::cout << "XP = " << xp << std::endl;
+		PRISM_CUDA_COMPLEX_FLOAT *psi_d;
+		cudaMalloc((void**)&psi_d, dimj*dimi*sizeof(PRISM_CUDA_COMPLEX_FLOAT));
+		initializePsi<<<(dimj*dimi-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj, dimi, yp, xp);
+
+		std::complex<PRISM_FLOAT_PRECISION> answer;
+
+		cudaMemcpy(&answer, psi_d+(ax),1*sizeof(PRISM_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost);
+		cout << " answer = " << answer << endl;
 	/*
 psi(:) = PsiProbeInit ...
             .* exp(-2i*pi ...
@@ -57,6 +92,7 @@ after done copy the pinned stack to original
 	/* Create a 3D FFT plan. */
 	cufftPlan3d(&plan, NX, NY, NZ, CUFFT_C2C);
 	cufftDestroy(plan);
+	cudaFree(psi_d);
 }
     __host__ void buildMultisliceOutput_gpu(Parameters <PRISM_FLOAT_PRECISION> &pars,
                                             Array3D <std::complex<PRISM_FLOAT_PRECISION>> &trans,
@@ -136,7 +172,7 @@ after done copy the pinned stack to original
 			// emplace_back is better whenever constructing a new object
 			workers_gpu.emplace_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, &alphaInd,
 					                                start, stop, gpu_num, current_qya_d, current_qxa_d,
-					                                &current_stream, &psi_size]() {
+					                                &current_stream, &psi_size, &PsiProbeInit]() {
 
 				// page-locked (pinned) memory for async streaming of the result back
 				std::complex<PRISM_FLOAT_PRECISION>* pinned_stack;
@@ -154,7 +190,8 @@ after done copy the pinned stack to original
 				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d,current_qya_d, current_qxa_d,
-						                       ay, ax, alphaInd, current_stream, pinned_stack_begin);
+						                       ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
+						                       alphaInd, current_stream, pinned_stack_begin);
 						pinned_stack_begin += psi_size; // advance the start point of the output
 					}
 				}
