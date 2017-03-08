@@ -61,6 +61,27 @@ namespace PRISM{
 		}
 	}
 
+
+	__global__ void kernel_divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
+	                                        const PRISM_FLOAT_PRECISION val,
+	                                        const size_t N){
+		int idx = threadIdx.x + blockDim.x*blockIdx.x;
+		if (idx < N) {
+			arr[idx].x /= val;
+			arr[idx].y /= val;
+		}
+	}
+
+//	__global__ void kernel_divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
+//	                                      const PRISM_CUDA_COMPLEX_FLOAT* other,
+//	                                      const size_t N){
+//		int idx = threadIdx.x + blockDim.x*blockIdx.x;
+//		if (idx < N) {
+//			arr[idx].x *= other[idx].x;
+//			arr[idx].y *= other[idx].y;
+//		}
+//	}
+
 	__global__ void abs_squared(PRISM_FLOAT_PRECISION* arr,
 	                            const PRISM_CUDA_COMPLEX_FLOAT* other,
 	                            const size_t N){
@@ -101,25 +122,30 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 		const size_t N = dimj*dimi;
 		cudaMalloc((void**)&psi_d, dimj*dimi*sizeof(PRISM_CUDA_COMPLEX_FLOAT));
 		cudaMalloc((void**)&psi_abssquared_d, dimj*dimi*sizeof(PRISM_FLOAT_PRECISION));
-		cout << " xp = " << xp << endl;
-		cout << " yp = " << yp << endl;
+//		cout << " xp = " << xp << endl;
+//		cout << " yp = " << yp << endl;
 
 
 		//initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
 //		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D>>>(psi_d, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
-
+//
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE);
 			kernel_multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_d, &trans_d[planeNum*N], N);
 			cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD);
 			kernel_multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_d, prop_d, N);
+			kernel_divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_d, N, N);
 		}
-		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_abssquared_d, psi_d, N);
-		cudaMemcpyAsync(output, psi_abssquared_d,N*sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
-//		Array2D<PRISM_FLOAT_PRECISION> = zeros_ND<2, PRISM_FLOAT_PRECISION>({{dimj, dimi}});
 
+		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream2>>>(psi_abssquared_d, psi_d, N);
+		//cudaMemcpyAsync(output, psi_abssquared_d,N*sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost,stream2);
+		cudaMemcpy(output, psi_abssquared_d,N*sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+		if(ay==0 && ax==0) {
+			for (auto j = 0; j < 25; ++j)cout << "output[j] = " << output[j] << endl;
+//		Array2D<PRISM_FLOAT_PRECISION> = zeros_ND<2, PRISM_FLOAT_PRECISION>({{dimj, dimi}});
+		}
 
 	std::complex<PRISM_FLOAT_PRECISION> answer;
 
@@ -242,27 +268,92 @@ after done copy the pinned stack to original
 					                                current_prop_d, &current_stream, &psi_size, &PsiProbeInit]() {
 
 				// page-locked (pinned) memory for async streaming of the result back
-				PRISM_FLOAT_PRECISION* pinned_stack;
+				PRISM_FLOAT_PRECISION *pinned_output;
 
 				// figure out how much pinned memory to allocate in this job
-				size_t num_probe_positions = pars.xp.size() * (min((size_t)stop, pars.yp.size()) - start);
+				size_t num_probe_positions = pars.xp.size() * (min((size_t) stop, pars.yp.size()) - start);
 				size_t pinned_output_size = psi_size * num_probe_positions;
 
 				// allocate pinned memory on host
-				cudaMallocHost((void**)&pinned_stack, pinned_output_size*sizeof(PRISM_FLOAT_PRECISION));
+				cudaMallocHost((void **) &pinned_output, pinned_output_size * sizeof(PRISM_FLOAT_PRECISION));
 
 				// set the GPU context
 				cudaSetDevice(gpu_num); // set current gpu
-				PRISM_FLOAT_PRECISION* pinned_stack_begin = pinned_stack; // pointer to the beginning of corresponding output layer in the 3D array
+				PRISM_FLOAT_PRECISION *pinned_output_begin = pinned_output; // pointer to the beginning of corresponding output layer in the 3D array
 				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d,current_qya_d, current_qxa_d,
+						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_qya_d,
+						                       current_qxa_d,
 						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
-						                       alphaInd, current_stream, pinned_stack_begin);
-						pinned_stack_begin += psi_size; // advance the start point of the output
+						                       alphaInd, current_stream, pinned_output_begin);
+						pinned_output_begin += psi_size; // advance the start point of the output
 					}
 				}
-				cudaFreeHost(pinned_stack);
+
+				cudaDeviceSynchronize();
+				{
+					for (auto j = 0; j < 25; ++j)cout << "pinned_output[j] = " << pinned_output[j] << endl;
+				}
+				PRISM_FLOAT_PRECISION c = 0;
+				for (auto i = 0; i < pinned_output_size; ++i) {
+					c += pinned_output[i];
+				}
+				cout << "c = " << c << endl;
+				PRISM_FLOAT_PRECISION *counts = pinned_output;
+
+
+				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
+					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+						auto idx = alphaInd.begin();
+						while (idx != alphaInd.end()) {
+							if (*idx <= pars.Ndet) {
+//								cout << "count = " << *counts << endl;
+								pars.stack.at(ay, ax, (*idx) - 1, 0) += (*counts);
+//								cout << "ax = " << ax << endl;
+//								cout << "ay = " << ay << endl;
+//								cout << "(*idx) - 1 = " << (*idx) - 1 << endl;
+//								cout << "pars.stack.at(ay, ax, (*idx) - 1, 0) = "
+//								     << pars.stack.at(ay, ax, (*idx) - 1, 0)
+//								     << endl;
+							}
+							++idx;
+							++counts;
+						}
+					}
+				}
+			cout << " DEBUG 1 " << endl;
+				if (start == 0 ) {
+					Array2D <PRISM_FLOAT_PRECISION> prism_image;
+					prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.stack.get_diml(), pars.stack.get_dimk()}});
+					for (auto y = 0; y < pars.stack.get_diml(); ++y) {
+						for (auto x = 0; x < pars.stack.get_dimk(); ++x) {
+							for (auto b = 1; b < 45; ++b) {
+								prism_image.at(y, x) += pars.stack.at(y, x, b, 0);
+								cout << "prism_image.at(y, x) = " << prism_image.at(y, x) << endl;
+							}
+						}
+					}
+					prism_image.toMRC_f("TEST.mrc");
+					cout <<" debug written" <<endl;
+				}
+//				for (auto y = 0; y < PsiProbeInit.get_dimj(),; ++y) {
+//					for (auto x = 0; x < PsiProbeInit.get_dimi(),; ++x) {
+//						auto idx = alphaInd.at(y,x);
+//						if ( alphaInd.at(y,x) <= pars.Ndet){
+//							pars.stack.at(ay,ax,(*idx)-1, 0) += *counts * pars.scale;
+//						}
+//					}
+//				}
+//				auto idx = alphaInd.begin();
+//				for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+//					if (*idx <= pars.Ndet){
+//						pars.stack.at(ay,ax,(*idx)-1, 0) += *counts * pars.scale;
+//					}
+//					++idx;
+//				};
+
+//				auto stack_ptr = &pars.stack[start*];
+				cudaFreeHost(pinned_output);
 			}));
 
 

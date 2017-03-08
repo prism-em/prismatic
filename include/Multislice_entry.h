@@ -35,10 +35,10 @@ namespace PRISM{
 		float t = 0;
 		for (auto i : prism_pars.stack) t += i;
 		cout << "stack sum = " << t << endl;
-//		size_t lower = 13;
-//		size_t upper = 18;
-		size_t lower = 0;
-		size_t upper = 1;
+		size_t lower = 13;
+		size_t upper = 18;
+//		size_t lower = 1;
+//		size_t upper = 45;
 		Array2D prism_image;
 		cout << "prism_pars.stack.get_diml() = " << prism_pars.stack.get_diml() << endl;
 		cout << "prism_pars.stack.get_dimk() = " << prism_pars.stack.get_dimk() << endl;
