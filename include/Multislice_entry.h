@@ -30,6 +30,7 @@ namespace PRISM{
 //		PRISM03(prism_pars);
 
 //
+		cout << "prism_pars.stack.at(0,0,0) = " << prism_pars.stack.at(0,0,0) << endl;
 		size_t lower = 13;
 		size_t upper = 18;
 		Array2D prism_image;
