@@ -9,9 +9,9 @@
 #define PRISM_CONFIGURE_H
 
 //#ifdef PRISM_ENABLE_DOUBLE_PRECISION
-//typedef double PRISM_FLOAT_PRECISION;
+typedef double PRISM_FLOAT_PRECISION;
 //#else
-typedef float PRISM_FLOAT_PRECISION;
+//typedef float PRISM_FLOAT_PRECISION;
 //#endif //PRISM_ENABLE_DOUBLE_PRECISION
 #include <complex>
 #include "meta.h"

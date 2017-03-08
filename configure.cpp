@@ -23,6 +23,7 @@ namespace PRISM {
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
+			std::cout << "Using GPU codes" << std::endl;
 			buildMultisliceOutput = buildMultisliceOutput_gpu;
 #else
 			buildMultisliceOutput = buildMultisliceOutput_cpuOnly;

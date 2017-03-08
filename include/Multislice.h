@@ -92,6 +92,7 @@ namespace PRISM{
                                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                        Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                        Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
+		cout << "cpu version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
@@ -124,17 +125,17 @@ namespace PRISM{
 		static const PRISM_FLOAT_PRECISION pi = acos(-1);
 		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
-		const PRISM_FLOAT_PRECISION dxy = 0.25 * 2; // TODO: move this
+		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
 
 		// should move these elsewhere and in PRISM03
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeXtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeYtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeDefocusArray[0] = 0.0;
-		pars.probeSemiangleArray[0] = 20.0 / 1000;
-		pars.probeXtiltArray[0] = 0.0 / 1000;
-		pars.probeYtiltArray[0] = 0.0 / 1000;
+		pars.probeDefocusArray[0] = (PRISM_FLOAT_PRECISION)0.0;
+		pars.probeSemiangleArray[0] = (PRISM_FLOAT_PRECISION)20.0 / 1000;
+		pars.probeXtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
+		pars.probeYtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
 
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = 0.1 * pars.meta.cellDim[2];
@@ -210,7 +211,7 @@ namespace PRISM{
 			}
 		}
 
-		pars.dr = 2.5 / 1000;
+		pars.dr = (PRISM_FLOAT_PRECISION)2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
 		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
@@ -252,7 +253,7 @@ namespace PRISM{
 			          return a;
 		          });
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(PsiProbeInit.begin(), PsiProbeInit.end(),
-		                                  0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
+		                                                      (PRISM_FLOAT_PRECISION)0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
 					return accum + abs(a) * abs(a);
 				})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
 		PRISM_FLOAT_PRECISION a = 0;

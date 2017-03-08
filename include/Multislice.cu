@@ -310,6 +310,6 @@ after done copy the pinned stack to original
 		}
 		// destroy CUDA streams
 		for (auto j = 0; j < total_num_streams; ++j)cudaStreamDestroy(streams[j]);
-
+//		cudaDeviceReset();
 	}
 }
