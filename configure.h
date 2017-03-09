@@ -10,6 +10,7 @@
 
 //#define PRISM_ENABLE_DOUBLE_PRECISION
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
+#define MESSAGE "DOUBLE PRECISION"
 typedef double PRISM_FLOAT_PRECISION;
 #define PRISM_FFTW_PLAN fftw_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
@@ -18,6 +19,7 @@ typedef double PRISM_FLOAT_PRECISION;
 #define PRISM_FFTW_COMPLEX fftw_complex
 #else
 typedef float PRISM_FLOAT_PRECISION;
+#define MESSAGE "FLOAT PRECISION"
 #define PRISM_FFTW_PLAN fftwf_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
 #define PRISM_FFTW_EXECUTE fftwf_execute

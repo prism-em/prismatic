@@ -31,7 +31,7 @@ namespace PRISM{
 		return make_cuDoubleComplex(e*c, e*s);
 	}
 	__device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a){
-		float e = exp(a.x);
+		float e = expf(a.x);
 		float s,c;
 		sincosf(a.y, &s, &c);
 		return make_cuFloatComplex(e*c, e*s);
@@ -56,8 +56,13 @@ namespace PRISM{
 	                                        const size_t N){
 		int idx = threadIdx.x + blockDim.x*blockIdx.x;
 		if (idx < N) {
-			arr[idx].x = arr[idx].x*other[idx].x - arr[idx].y*other[idx].y;
-			arr[idx].y = arr[idx].x*other[idx].y + arr[idx].y*other[idx].x;
+			PRISM_FLOAT_PRECISION ax = arr[idx].x;
+			PRISM_FLOAT_PRECISION ay = arr[idx].y;
+			PRISM_FLOAT_PRECISION ox = other[idx].x;
+			PRISM_FLOAT_PRECISION oy = other[idx].y;
+
+			arr[idx].x = ax*ox - ay*oy;
+			arr[idx].y = ax*oy + ay*ox;
 		}
 	}
 
@@ -108,6 +113,8 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 									 Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
 									 const cudaStream_t& stream,
 									 PRISM_FLOAT_PRECISION* const output){
+//		cout << "ax = " << ax <<endl;
+//		cout << "ay = " << ay <<endl;
 		// create cuFFT plan
 		cufftHandle plan;
 		cufftPlan2d(&plan, dimi, dimj, CUFFT_C2C);
@@ -245,6 +252,7 @@ after done copy the pinned stack to original
 		cout << "DEBUG PsiProbeInit.at(0,1) = " << PsiProbeInit.at(0,1) << endl;
 		cout << "DEBUG PsiProbeInit[1] = " << PsiProbeInit[1] << endl;
 		cout << "DEBUG PsiProbeInit[2] = " << PsiProbeInit[2] << endl;
+
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cudaStream_t streams[total_num_streams];
@@ -332,8 +340,8 @@ after done copy the pinned stack to original
 				PRISM_FLOAT_PRECISION *pinned_output_begin = pinned_output; // pointer to the beginning of corresponding output layer in the 3D array
 				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-//				for (auto ay = start; ay < 1; ++ay) {
-//					for (auto ax = 0; ax < 1; ++ax) {
+//				for (auto ay = start; ay < 25; ++ay) {
+//					for (auto ax = 0; ax < 25; ++ax) {
 						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_qya_d,
 						                       current_qxa_d,
 						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
@@ -355,6 +363,8 @@ after done copy the pinned stack to original
 
 				Array2D<PRISM_FLOAT_PRECISION> db = zeros_ND<2, PRISM_FLOAT_PRECISION>({{PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi()}});
 				auto db_ptr = db.begin();
+//				for (auto ay = start; ay < 25; ++ay) {
+//					for (auto ax = 0; ax < 25; ++ax) {
 				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 						auto idx = alphaInd.begin();
@@ -377,22 +387,22 @@ after done copy the pinned stack to original
 						}
 					}
 				}
-				db.toMRC_f("db_intOutput.mrc");
-			cout << " DEBUG 1 " << endl;
-				if (start == 0 ) {
-					Array2D <PRISM_FLOAT_PRECISION> prism_image;
-					prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.stack.get_diml(), pars.stack.get_dimk()}});
-					for (auto y = 0; y < pars.stack.get_diml(); ++y) {
-						for (auto x = 0; x < pars.stack.get_dimk(); ++x) {
-							for (auto b = 13; b < 18; ++b) {
-								prism_image.at(y, x) += pars.stack.at(y, x, b, 0);
-//								cout << "prism_image.at(y, x) = " << prism_image.at(y, x) << endl;
-							}
-						}
-					}
-					prism_image.toMRC_f("TEST.mrc");
-					cout <<" debug written" <<endl;
-				}
+//				db.toMRC_f("db_intOutput.mrc");
+//			cout << " DEBUG 1 " << endl;
+//				if (start == 0 ) {
+//					Array2D <PRISM_FLOAT_PRECISION> prism_image;
+//					prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.stack.get_diml(), pars.stack.get_dimk()}});
+//					for (auto y = 0; y < pars.stack.get_diml(); ++y) {
+//						for (auto x = 0; x < pars.stack.get_dimk(); ++x) {
+//							for (auto b = 13; b < 18; ++b) {
+//								prism_image.at(y, x) += pars.stack.at(y, x, b, 0);
+////								cout << "prism_image.at(y, x) = " << prism_image.at(y, x) << endl;
+//							}
+//						}
+//					}
+////					prism_image.toMRC_f("TEST.mrc");
+//					cout <<" debug written" <<endl;
+//				}
 //				for (auto y = 0; y < PsiProbeInit.get_dimj(),; ++y) {
 //					for (auto x = 0; x < PsiProbeInit.get_dimi(),; ++x) {
 //						auto idx = alphaInd.at(y,x);
@@ -458,6 +468,6 @@ after done copy the pinned stack to original
 		}
 		// destroy CUDA streams
 		for (auto j = 0; j < total_num_streams; ++j)cudaStreamDestroy(streams[j]);
-//		cudaDeviceReset();
+		cudaDeviceReset();
 	}
 }

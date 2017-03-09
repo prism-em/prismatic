@@ -20,7 +20,7 @@ namespace PRISM{
 		using Array1D = ArrayND<1, vec_d>;
 		using Array1D_dims = ArrayND<1, std::vector<size_t> >;
 
-
+		cout << MESSAGE << endl;
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		std::cout<<"Dummy code for Multislice entrypoint" << std::endl;
 		PRISM01(prism_pars);
@@ -35,10 +35,10 @@ namespace PRISM{
 		float t = 0;
 		for (auto i : prism_pars.stack) t += i;
 		cout << "stack sum = " << t << endl;
+//		size_t lower = 15;
+//		size_t upper = 16;
 		size_t lower = 13;
 		size_t upper = 18;
-//		size_t lower = 1;
-//		size_t upper = 45;
 		Array2D prism_image;
 		cout << "prism_pars.stack.get_diml() = " << prism_pars.stack.get_diml() << endl;
 		cout << "prism_pars.stack.get_dimk() = " << prism_pars.stack.get_dimk() << endl;
@@ -54,6 +54,18 @@ namespace PRISM{
 		}
 
 		prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
+
+
+
+
+
+		Array3D debug = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(),prism_pars.stack.get_dimj() }});
+		auto b = debug.begin();
+		for (auto &i:prism_pars.stack)*b++ = i;
+		debug.toMRC_f("stack.mrc");
+
+
+
 		std::cout << "Calculation complete.\n" << std::endl;
 		return 0;
 	}

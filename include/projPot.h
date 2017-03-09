@@ -20,8 +20,8 @@ namespace PRISM {
 		// I am assuming that xr and yr are symmetric about 0
 		const size_t xInd = std::floor(xr.size()/2);
 		const size_t yInd = std::floor(yr.size()/2);
-		const PRISM_FLOAT_PRECISION dx        = round(sqrt(2*xInd - 1));
-		const PRISM_FLOAT_PRECISION dy        = round(sqrt(2*yInd - 1));
+		const PRISM_FLOAT_PRECISION dx        = round(sqrt(2*(xInd + 1)- 1));
+		const PRISM_FLOAT_PRECISION dy        = round(sqrt(2*(yInd + 1) - 1));
 		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx, xInd+dx, xInd-dx, xInd+dx, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
 //		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
 		const PRISM_FLOAT_PRECISION yv[]      = {0, 0, (PRISM_FLOAT_PRECISION)yr.size()-1, (PRISM_FLOAT_PRECISION)yr.size()-1, yInd-dy, yInd+dy, yInd-dy, yInd+dy};
