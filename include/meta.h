@@ -26,7 +26,7 @@ namespace PRISM{
 			NUM_STREAMS_PER_GPU = 1;
 			NUM_THREADS = 12;
 			algorithm = 0; // 0 PRISM; 1 Multislice
-			cpu_gpu_ratio = 0.0;
+			cpu_gpu_ratio = 0.1;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
