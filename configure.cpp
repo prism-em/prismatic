@@ -15,7 +15,15 @@
 namespace PRISM {
 	entry_func execute_plan;
 	ms_output_func buildMultisliceOutput;
+	format_output_func formatOutput_cpu;
+#ifdef PRISM_ENABLE_GPU
+	format_output_func formatOutput_gpu;
+#endif
 	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
+		formatOutput_cpu = formatOutput_cpu_integrate;
+#ifdef PRISM_ENABLE_GPU
+		format_output_gpu =formatOutput_gpu_integrate;
+#endif
 		if (meta.algorithm == 0) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;

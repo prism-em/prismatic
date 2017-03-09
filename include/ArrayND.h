@@ -35,8 +35,8 @@ namespace PRISM {
             size_t size()     const {return this->arr_size;}
             typename T::iterator begin();
             typename T::iterator end();
-            typename T::iterator begin() const;
-            typename T::iterator end()   const;
+            typename T::const_iterator begin() const;
+            typename T::const_iterator end()   const;
             typename T::value_type& at(const size_t& i);
             typename T::value_type& at(const size_t& j, const size_t& i);
             typename T::value_type& at(const size_t& k, const size_t& j,const size_t& i);
@@ -103,10 +103,10 @@ namespace PRISM {
     typename T::iterator ArrayND<N, T>::end(){return this->data.end();}
 
     template <size_t N, class T>
-    typename T::iterator ArrayND<N, T>::begin() const {return this->data.begin();}
+    typename T::const_iterator ArrayND<N, T>::begin() const {return this->data.begin();}
 
     template <size_t N, class T>
-    typename T::iterator ArrayND<N, T>::end() const {return this->data.end();}
+    typename T::const_iterator ArrayND<N, T>::end() const {return this->data.end();}
 
     template <size_t N, class T>
     typename T::value_type& ArrayND<N, T>::at(const size_t& i){

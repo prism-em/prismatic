@@ -17,12 +17,30 @@
 namespace PRISM{
        using namespace std;
 
+	inline void formatOutput_cpu_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
+	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
+	                             const size_t& ay,
+	                             const size_t& ax){
+
+		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
+		auto psi_ptr = psi.begin();
+		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
+		//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+		auto idx = alphaInd.begin();
+		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+			if (*idx <= pars.Ndet){
+				pars.stack.at(ay,ax,(*idx)-1, 0) += *counts;
+			}
+			++idx;
+		};
+	}
 	inline void getMultisliceProbe_cpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                 Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                 const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                 const size_t& ay,
                                 const size_t& ax,
-                                Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
+                                const Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
         static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 		static const PRISM_FLOAT_PRECISION pi = acos(-1);
 		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
@@ -66,17 +84,19 @@ namespace PRISM{
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 		gatekeeper.unlock();
 
-        Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
-        auto psi_ptr = psi.begin();
-        for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-        //update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
-        auto idx = alphaInd.begin();
-        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
-            if (*idx <= pars.Ndet){
-                pars.stack.at(ay,ax,(*idx)-1, 0) += *counts;
-            }
-            ++idx;
-        };
+        formatOutput_cpu(pars, psi, alphaInd, ay, ax);
+
+//		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
+//        auto psi_ptr = psi.begin();
+//        for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
+//        //update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+//        auto idx = alphaInd.begin();
+//        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+//            if (*idx <= pars.Ndet){
+//                pars.stack.at(ay,ax,(*idx)-1, 0) += *counts;
+//            }
+//            ++idx;
+//        };
 
 
 //

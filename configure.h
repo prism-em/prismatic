@@ -41,8 +41,19 @@ namespace PRISM {
                                     Array2D<std::complex<PRISM_FLOAT_PRECISION> >&,
                                     Array2D<PRISM_FLOAT_PRECISION>&);
 
+	using format_output_func =        void (*)( Parameters<PRISM_FLOAT_PRECISION>&,
+	                                            Array2D< std::complex<PRISM_FLOAT_PRECISION> >&,
+	                                            const Array2D<PRISM_FLOAT_PRECISION>&,
+	                                            const size_t&,
+	                                            const size_t&);
+
 	extern entry_func execute_plan;
 	extern ms_output_func buildMultisliceOutput;
+	extern format_output_func formatOutput_cpu;
+
+#ifdef PRISM_ENABLE_GPU
+	extern format_output_func formatOutput_gpu;
+#endif
 
 	template <class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
