@@ -149,7 +149,8 @@ namespace PRISM{
 		static const PRISM_FLOAT_PRECISION pi = acos(-1);
 		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
-		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
+//		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
+		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2*32; // TODO: move this
 
 		// should move these elsewhere and in PRISM03
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});

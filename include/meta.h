@@ -23,10 +23,10 @@ namespace PRISM{
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
-			NUM_STREAMS_PER_GPU = 3;
+			NUM_STREAMS_PER_GPU = 6;
 			NUM_THREADS = 1;
 			algorithm = 0; // 0 PRISM; 1 Multislice
-			cpu_gpu_ratio = 0.1;
+			cpu_gpu_ratio = 0.0;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
