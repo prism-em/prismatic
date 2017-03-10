@@ -22,8 +22,8 @@ int main(int argc, const char** argv) {
 	prism_meta.E0 = 80e3;
 	prism_meta.alphaBeamMax = 24 / 1000.0;
 	prism_meta.NUM_GPUS = 1;
-	prism_meta.NUM_THREADS = 12;
-	prism_meta.algorithm = 1;
+	prism_meta.NUM_THREADS = 8;
+	prism_meta.algorithm = 0;
 
 	std::string filename;
 	if (argc>1) {

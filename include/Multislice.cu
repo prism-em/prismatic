@@ -175,6 +175,7 @@ namespace PRISM{
 	  cudaErrchk(cudaMemcpy(&pars.stack.at(ay,ax,0,0),integratedOutput_d,
 	                        num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
 	                        cudaMemcpyDeviceToHost));
+
 //	  cudaErrchk(cudaFree(integratedOutput));
 //	  int a;
 
