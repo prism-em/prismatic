@@ -20,6 +20,7 @@ int main(int argc, const char** argv) {
 //	prism_meta.cellDim = vector<size_t>{2*40,2*16,2*16}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{80,4*16,4*16}; // this is z,y,x format
 	prism_meta.cellDim = vector<size_t>{40,16,16}; // this is z,y,x format
+//	prism_meta.cellDim = vector<size_t>{20,32,32}; // this is z,y,x format
 	prism_meta.E0 = 80e3;
 	prism_meta.alphaBeamMax = 24 / 1000.0;
 	prism_meta.NUM_GPUS = 1;

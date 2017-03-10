@@ -14,6 +14,7 @@ namespace PRISM {
 	void formatOutput_gpu_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                     PRISM_FLOAT_PRECISION * psi,
                                     const PRISM_FLOAT_PRECISION * alphaInd,
+                                    PRISM_FLOAT_PRECISION * stack_ph,
 //                                    PRISM_FLOAT_PRECISION * integratedOutput,
                                     const size_t& ay,
                                     const size_t& ax,
