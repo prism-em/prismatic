@@ -55,6 +55,7 @@ namespace PRISM {
 	using format_output_func_gpu = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
 	                                        PRISM_FLOAT_PRECISION *,
 	                                        const PRISM_FLOAT_PRECISION *,
+	                                        PRISM_FLOAT_PRECISION*,
 	                                        const size_t&,
 	                                        const size_t&,
 	                                        const size_t&,
