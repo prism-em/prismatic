@@ -193,14 +193,15 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 									 const size_t dimj,
 									 const size_t dimi,
 									 const PRISM_FLOAT_PRECISION* alphaInd_d,
+									 const cufftHandle& plan,
 									 cudaStream_t& stream){
 
 		// create cuFFT plan
-		cufftHandle plan;
-		cufftErrchk(cufftPlan2d(&plan, dimi, dimj, CUFFT_C2C));
-
-		// set the stream
-		cufftErrchk(cufftSetStream(plan, stream));
+//		cufftHandle plan;
+//		cufftErrchk(cufftPlan2d(&plan, dimi, dimj, CUFFT_C2C));
+//
+//		// set the stream
+//		cufftErrchk(cufftSetStream(plan, stream));
 
 		// initialize psi
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
@@ -237,7 +238,7 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 //		PRISM_FLOAT_PRECISION answer2;
 //
 
-	cufftErrchk(cufftDestroy(plan));
+//	cufftErrchk(cufftDestroy(plan));
 //	cudaErrchk(cudaFree(psi_d));
 //	cudaErrchk(cudaFree(psi_abssquared_d));
 }
@@ -252,6 +253,7 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 		cout << "debug pars.prop" << endl;
 		cout << "Psi dim y = " << PsiProbeInit.get_dimj() << endl;
 		cout << "Psi dim x = " << PsiProbeInit.get_dimi() << endl;
+		cout << "number of planes = " << pars.numPlanes << endl;
 		for (auto i =0; i < 10; ++i)cout << pars.prop[i] << endl;
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
@@ -261,11 +263,16 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cudaStream_t streams[total_num_streams];
+		cufftHandle cufft_plan[total_num_streams];
 		cout <<"total_num_streams = " << total_num_streams<< endl;
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
+			cufftErrchk(cufftPlan2d(&cufft_plan[j], PsiProbeInit.get_dimi(), PsiProbeInit.get_dimj(), CUFFT_C2C));
+			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 		}
+
+
 		const PRISM_FLOAT_PRECISION cpu_stop = std::floor(pars.meta.cpu_gpu_ratio*pars.yp.size());
 		vector<thread> workers_gpu;
 		vector<thread> workers_cpu;
@@ -404,12 +411,12 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 			PRISM_CUDA_COMPLEX_FLOAT *current_psi_ds           = psi_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_psi_intensity_ds    = psi_intensity_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_integratedOutput_ds = integratedOutput_ds[stream_count];
-
+			cufftHandle & current_cufft_plan = cufft_plan[stream_count];
 			// launch a new thread
 			// emplace_back is better whenever constructing a new object
 			workers_gpu.emplace_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, &alphaInd, current_alphaInd_d,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
-					                                start, stop, gpu_num, current_qya_d, current_qxa_d,stack_ph,
+					                                start, stop, gpu_num, current_qya_d, current_qxa_d,stack_ph,current_cufft_plan,
 					                                current_prop_d, &current_stream, &psi_size, &PsiProbeInit]() {
 
 				// set the GPU context
@@ -421,7 +428,7 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds,stack_ph,current_psi_intensity_ds,
 						                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
 						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
-						                       current_alphaInd_d, current_stream);
+						                       current_alphaInd_d, current_cufft_plan, current_stream);
 
 
 //
@@ -569,6 +576,7 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 			cudaErrchk(cudaFree(psi_ds[s]));
 			cudaErrchk(cudaFree(psi_intensity_ds[s]));
 			cudaErrchk(cudaFree(integratedOutput_ds[s]));
+			cufftErrchk(cufftDestroy(cufft_plan[s]));
 		}
 
 
