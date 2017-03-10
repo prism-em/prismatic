@@ -7,7 +7,9 @@
 
 #ifndef PRISM_CONFIGURE_H
 #define PRISM_CONFIGURE_H
-
+#ifdef PRISM_ENABLE_GPU
+#include <cuda_runtime.h>
+#endif //PRISM_ENABLE_GPU
 //#define PRISM_ENABLE_DOUBLE_PRECISION
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
 #define MESSAGE "DOUBLE PRECISION"
@@ -52,14 +54,17 @@ namespace PRISM {
 	extern format_output_func formatOutput_cpu;
 
 #ifdef PRISM_ENABLE_GPU
+#define CUDA_API_PER_THREAD_DEFAULT_STREAM
+#include <cuda_runtime.h>
 	using format_output_func_gpu = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
 	                                        PRISM_FLOAT_PRECISION *,
 	                                        const PRISM_FLOAT_PRECISION *,
-	                                        PRISM_FLOAT_PRECISION*,
+//	                                        PRISM_FLOAT_PRECISION*,
 	                                        const size_t&,
 	                                        const size_t&,
 	                                        const size_t&,
-	                                        const size_t&);
+	                                        const size_t&,
+	                                        cudaStream_t& stream);
 	extern format_output_func_gpu formatOutput_gpu;
 #endif
 
