@@ -165,6 +165,7 @@ namespace PRISM{
                                   const size_t& dimj,
                                   const size_t& dimi,
                                   cudaStream_t& stream){
+//	  cudaErrchk(cudaDeviceReset());
 	  PRISM_FLOAT_PRECISION * integratedOutput_d;
 	  size_t num_integration_bins = pars.detectorAngles.size();
 	  cudaErrchk(cudaMalloc((void **) &integratedOutput_d,
@@ -195,6 +196,7 @@ __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
 									 const size_t dimi,
 									 const PRISM_FLOAT_PRECISION* alphaInd_d,
 									 cudaStream_t& stream){
+
 //		cout << "stream = " << stream << endl;
 //		cout << "ax = " << ax <<endl;
 //		cout << "ay = " << ay <<endl;
@@ -332,6 +334,7 @@ after done copy the pinned stack to original
                                             Array3D <std::complex<PRISM_FLOAT_PRECISION>> &trans,
                                             Array2D <std::complex<PRISM_FLOAT_PRECISION>> &PsiProbeInit,
                                             Array2D <PRISM_FLOAT_PRECISION> &alphaInd) {
+		cudaErrchk(cudaDeviceReset());
 		cout << "debug pars.prop" << endl;
 		for (auto i =0; i < 10; ++i)cout << pars.prop[i] << endl;
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
