@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 #include <mutex>
+#include <numeric>
 #include "configure.h"
 #include "meta.h"
 #include "ArrayND.h"
