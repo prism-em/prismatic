@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>778</width>
-    <height>347</height>
+    <height>348</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -378,6 +378,31 @@
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <item>
+       <widget class="QLabel" name="lbl_algo">
+        <property name="text">
+         <string>Algorithm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radBtn_PRISM">
+        <property name="text">
+         <string>PRISM</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radBtn_Multislice">
+        <property name="text">
+         <string>Multislice</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

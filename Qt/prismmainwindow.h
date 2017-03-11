@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <iostream>
 #include "meta.h"
-
+#include "defines.h"
 namespace Ui {
 	class PRISMMainWindow;
 }
@@ -34,21 +34,24 @@ public slots:
     void setCellDimY_fromLineEdit();
     void setCellDimZ_fromLineEdit();
     void setE0_fromLineEdit();
+	void setAlgo_PRISM();
+	void setAlgo_Multislice();
 
 private:
     Ui::PRISMMainWindow *ui;
-    PRISM::Metadata<double> *meta;
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);
-    void setRealspacePixelSize(const double& pixel_size);
-    void setPotBound(const double& potBound);
+    void setRealspacePixelSize(const PRISM_FLOAT_PRECISION& pixel_size);
+    void setPotBound(const PRISM_FLOAT_PRECISION& potBound);
     void setNumFP(const size_t& numFP);
-    void setE0(const double& E0);
-    void setAlphaBeamMax(const double& alphaBeamMax);
-    void setSliceThickness(const double& thickness);
+    void setE0(const PRISM_FLOAT_PRECISION& E0);
+    void setAlphaBeamMax(const PRISM_FLOAT_PRECISION& alphaBeamMax);
+    void setSliceThickness(const PRISM_FLOAT_PRECISION& thickness);
     void setCellDimX(const int& dimX);
     void setCellDimY(const int& dimY);
     void setCellDimZ(const int& dimZ);
+	void setAlgo(const PRISM::Algorithm algo);
 };
 
 #endif // PRISMMAINWINDOW_H

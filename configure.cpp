@@ -24,10 +24,10 @@ namespace PRISM {
 #ifdef PRISM_ENABLE_GPU
 		formatOutput_gpu = formatOutput_gpu_integrate;
 #endif
-		if (meta.algorithm == 0) {
+		if (meta.algorithm == Algorithm::PRISM) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
-		} else {
+		} else if (meta.algorithm == Algorithm::Multislice) {
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
@@ -38,7 +38,4 @@ namespace PRISM {
 #endif //PRISM_ENABLE_GPU
 		}
 	}
-
-//	template void configure(Metadata<double>&);
-//	template void configure(Metadata<float>&);
 }

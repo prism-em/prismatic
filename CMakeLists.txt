@@ -7,9 +7,20 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
 #set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O0")
 # PRISM custom options
 # Qt options
-set(PRISM_ENABLE_GUI 0 CACHE BOOL PRISM_ENABLE_GUI)
-set(PRISM_ENABLE_GPU 0 CACHE BOOL PRISM_ENABLE_GPU)
+set(PRISM_ENABLE_GUI 1 CACHE BOOL PRISM_ENABLE_GUI)
+set(PRISM_ENABLE_GPU 1 CACHE BOOL PRISM_ENABLE_GPU)
 set(PRISM_ENABLE_SINGLE_PRECISION 1 cache PRISM_ENABLE_SINGLE_PRECISION)
+
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+
+find_package (Threads REQUIRED)
+find_package (Boost REQUIRED)
+find_package(FFTW REQUIRED)
+
+if (PRISM_ENABLE_SINGLE_PRECISION)
+    set(FFTW_LIBRARIES ${FFTW_LIBRARIES} fftw3f)
+endif(PRISM_ENABLE_SINGLE_PRECISION)
 
 if (PRISM_ENABLE_DOUBLE_PRECISION)
     add_definitions(-DPRISM_ENABLE_DOUBLE_PRECISION)
@@ -30,19 +41,10 @@ if (PRISM_ENABLE_GUI)
     find_package(Qt5Widgets REQUIRED)
     message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
     include_directories(${CMAKE_SOURCE_DIR}/Qt)
-    add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp)
+    add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp)
     target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 endif (PRISM_ENABLE_GUI)
 
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
-
-find_package (Threads REQUIRED)
-find_package (Boost REQUIRED)
-find_package(FFTW REQUIRED)
-
-if (PRISM_ENABLE_SINGLE_PRECISION)
-    set(FFTW_LIBRARIES ${FFTW_LIBRARIES} fftw3f)
-endif(PRISM_ENABLE_SINGLE_PRECISION)
 
 
 set(SOURCE_FILES driver.cpp configure.cpp)

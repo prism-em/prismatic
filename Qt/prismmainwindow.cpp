@@ -1,24 +1,72 @@
 #include <QFileDialog>
-#include <QString>
 #include "prismmainwindow.h"
 #include "ui_prismmainwindow.h"
 #include <fstream>
 #include <iostream>
-#include "PRISM_entry.h"
-#include <sstream>
+//#include "PRISM_entry.h"
+#include "configure.h"
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PRISMMainWindow)
 {
+	// build Qt generated interface
     ui->setupUi(this);
-	this->meta = new PRISM::Metadata<double>;
-    this->setWindowTitle("PRISM");
+
+	// set window title
+	this->setWindowTitle("PRISM");
+
+	// set initially displayed values based on the default parameters
+	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
 	{
 		std::stringstream ss;
 		ss << this->meta->interpolationFactor;
 		this->ui->lineedit_f->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->filename_atoms;
+		this->ui->lineedit_atomsfile->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->potBound;
+		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->alphaBeamMax;
+		this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->sliceThickness;
+		this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->cellDim[2];
+		this->ui->lineEdit_cellDimX->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->cellDim[1];
+		this->ui->lineEdit_cellDimY->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << this->meta->cellDim[0];
+		this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+		ss << (this->meta->E0 *1e-3);
+		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
+		ss.str("");
+
+		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
+		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
+		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
+		this->ui->spinBox_numFP->setValue(this->meta->numFP);
+
 	}
+
+	switch (this->meta->algorithm){
+		case PRISM::Algorithm::PRISM :      this->ui->radBtn_PRISM->setChecked(true);
+			                                this->ui->radBtn_Multislice->setChecked(false);
+			break;
+		case PRISM::Algorithm::Multislice : this->ui->radBtn_PRISM->setChecked(false);
+										    this->ui->radBtn_Multislice->setChecked(true);
+			break;
+	}
+#ifndef PRISM_ENABLE_GPU
+	this->ui->spinBox_numGPUs->setEnabled(false);
+#endif //PRISM_ENABLE_GPU
+
 	this->ui->lineedit_atomsfile->setText(QString::fromStdString(this->meta->filename_atoms));
 	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 	connect(this->ui->lineedit_f,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
@@ -38,7 +86,22 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
     connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
+	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
+	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
 
+}
+
+
+void PRISMMainWindow::setAlgo_PRISM(){
+	std::cout << "Setting algorithm to PRISM" << std::endl;
+	setAlgo(PRISM::Algorithm::PRISM);
+}
+void PRISMMainWindow::setAlgo_Multislice(){
+	std::cout << "Setting algorithm to Multislice" << std::endl;
+	setAlgo(PRISM::Algorithm::Multislice);
+}
+void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
+	this->meta->algorithm = algo;
 }
 
 void PRISMMainWindow::setInterpolationFactor(){
@@ -91,8 +154,14 @@ void PRISMMainWindow::launch(){
 	std::cout << "Atoms filename = " << this->meta->filename_atoms << '\n';
 	std::cout << "Output filename = " << this->meta->filename_output << '\n';
 	std::cout << "Interpolation factor = " << this->meta->interpolationFactor << '\n';
-	std::cout << "pixelSize[0] = " << this->meta->pixelSize[0]<< '\n';
-	PRISM::PRISM_entry((*this->meta));
+	std::cout << "pixelSize[0] = " << this->meta->realspace_pixelSize<< '\n';
+	PRISM::configure(*this->meta);
+	int returnCode =  PRISM::execute_plan(*this->meta);
+	if (returnCode == 0){
+		std::cout << "Calculation complete" << std::endl;
+	} else {
+		std::cout << "Calculation returned error code " << returnCode << std::endl;
+	}
 }
 
 void PRISMMainWindow::setNumGPUs(const int& num){
@@ -120,16 +189,16 @@ void PRISMMainWindow::setNumFP(const int& num){
 }
 
 void PRISMMainWindow::setPixelSize_fromLineEdit(){
-    double val = this->ui->lineedit_pixelSize->text().toDouble();
+    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineedit_pixelSize->text().toDouble();
     if (val > 0){
-        this->meta->pixelSize = std::vector<double>{val, val};
+        this->meta->realspace_pixelSize = val;
         this->meta->realspace_pixelSize = val;
         std::cout << "Setting X/Y pixel size to " << val << std::endl;
     }
 }
 
 void PRISMMainWindow::setPotBound_fromLineEdit(){
-    double val = this->ui->lineEdit_potbound->text().toDouble();
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_potbound->text().toDouble();
     if (val > 0){
         this->meta->potBound = val;
         std::cout << "Setting potential bound to " << val << std::endl;
@@ -137,7 +206,7 @@ void PRISMMainWindow::setPotBound_fromLineEdit(){
 }
 
 void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
-    double val = this->ui->lineEdit_alphaBeamMax->text().toDouble();
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble();
     if (val > 0){
         this->meta->alphaBeamMax = val;
         std::cout << "Setting alphaBeamMax to " << val << std::endl;
@@ -145,7 +214,7 @@ void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
 }
 
 void PRISMMainWindow::setSliceThickness_fromLineEdit(){
-    double val = this->ui->lineEdit_sliceThickness->text().toDouble();
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_sliceThickness->text().toDouble();
     if (val > 0){
         this->meta->sliceThickness = val;
         std::cout << "Setting sliceThickness to " << val << std::endl;
@@ -177,9 +246,9 @@ void PRISMMainWindow::setCellDimZ_fromLineEdit(){
 }
 
 void PRISMMainWindow::setE0_fromLineEdit(){
-    int val = this->ui->lineEdit_E0->text().toDouble();
+    int val = this->ui->lineEdit_E0->text().toInt();
     if (val > 0){
-        this->meta->E0 = val;
+        this->meta->E0 = val * 1e3;
         std::cout << "Setting E0 to " << val << std::endl;
     }
 }

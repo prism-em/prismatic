@@ -31,7 +31,7 @@ int main(int argc, const char** argv) {
 cout << "ndevices = " << nDevices << endl;
 #endif	
 prism_meta.NUM_THREADS = 12;
-	prism_meta.algorithm = 1;
+	prism_meta.algorithm = PRISM::Algorithm::PRISM;
 
 	std::string filename;
 	if (argc>1) {

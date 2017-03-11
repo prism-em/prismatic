@@ -7,14 +7,16 @@
 #include <vector>
 #include <string>
 #include <cstddef>
+#include "defines.h"
 namespace PRISM{
+
 	template <class T>
 	class Metadata{
 	public:
 		Metadata(){
 			interpolationFactor = 5;
-			filename_atoms      = "";
-			filename_output     = "";
+			filename_atoms      = "/path/to/atoms.txt";
+			filename_output     = "/path/to/output.mrc";
 			realspace_pixelSize = 100.0 / 1000.0;
 			potBound = 1.0;
 			numFP = 8.0 / 8.0;
@@ -23,9 +25,9 @@ namespace PRISM{
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
-			NUM_STREAMS_PER_GPU = 8;
-			NUM_THREADS = 1;
-			algorithm = 0; // 0 PRISM; 1 Multislice
+			NUM_STREAMS_PER_GPU = 4;
+			NUM_THREADS = 12;
+			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
 			cpu_gpu_ratio = 0.0;
 		}
 		size_t interpolationFactor; // PRISM f parameter
@@ -43,7 +45,7 @@ namespace PRISM{
 		size_t NUM_THREADS; // number of CPU threads to use
 		size_t NUM_GPUS; // number of GPUs to use
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU
-		int algorithm; // 0 for PRISM, 1 for Multislice TODO: add an enum for this instead of ints
+		Algorithm algorithm;
 	};
 }
 #endif //PRISM_META_H
