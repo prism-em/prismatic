@@ -9,6 +9,7 @@
 #include <vector>
 #include <mutex>
 #include "configure.h"
+#include <numeric>
 #include "meta.h"
 #include "ArrayND.h"
 #include "params.h"
