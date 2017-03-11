@@ -35,16 +35,18 @@ endif(PRISM_ENABLE_GPU)
 
 #set(Qt5Widgets_DIR)
 set(CMAKE_INCLUDE_CURRENT_DIR on)
-if (PRISM_ENABLE_GUI)
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_AUTOUIC ON)
-    find_package(Qt5Widgets REQUIRED)
-    message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
-    include_directories(${CMAKE_SOURCE_DIR}/Qt)
-    add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp)
 
-    target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
-endif (PRISM_ENABLE_GUI)
+if (PRISM_ENABLE_GUI)
+	set(CMAKE_AUTOMOC ON)
+    	set(CMAKE_AUTOUIC ON)
+    	find_package(Qt5Widgets REQUIRED)
+    	message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
+    	include_directories(${CMAKE_SOURCE_DIR}/Qt)
+endif(PRISM_ENABLE_GUI)
+if (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
+    	add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp)
+    	target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
+endif (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
 
 
 
