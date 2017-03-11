@@ -23,7 +23,7 @@ namespace PRISM{
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
-			NUM_STREAMS_PER_GPU = 6;
+			NUM_STREAMS_PER_GPU = 8;
 			NUM_THREADS = 1;
 			algorithm = 0; // 0 PRISM; 1 Multislice
 			cpu_gpu_ratio = 0.0;
