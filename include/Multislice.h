@@ -10,6 +10,7 @@
 #include <mutex>
 #include <numeric>
 #include "configure.h"
+#include <numeric>
 #include "meta.h"
 #include "ArrayND.h"
 #include "params.h"
