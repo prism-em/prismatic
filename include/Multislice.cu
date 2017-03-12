@@ -480,15 +480,15 @@ std::complex<float> answer4;
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(gpu_num)); // set current gpu
-for (long long it = 0; it < 100; ++it){		
 		for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
-					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+			for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 //				for (auto ay = start; ay < 25; ++ay) {
 //					for (auto ax = 0; ax < 25; ++ax) {
-						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds,stack_ph,current_psi_intensity_ds,
-						                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
-						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
-						                       current_alphaInd_d, current_cufft_plan, current_stream);
+				getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
+				                       current_psi_intensity_ds,
+				                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
+				                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
+				                       current_alphaInd_d, current_cufft_plan, current_stream);
 
 
 //
@@ -496,9 +496,8 @@ for (long long it = 0; it < 100; ++it){
 //
 //
 // 	pinned_output_begin += psi_size; // advance the start point of the output
-					}
-				}
-}
+			}
+		}
 
 //				cudaErrchk(cudaDeviceSynchronize());
 //				{
@@ -608,6 +607,10 @@ for (long long it = 0; it < 100; ++it){
 		for (auto& t:workers_gpu)t.join();
 		for (auto& t:workers_cpu)t.join();
 		cout << "threads done, cleaning up" << endl;
+		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+			cudaSetDevice(g);
+			cudaDeviceSynchronize();
+		}
 
 		// copy the results of the gpu, which are in pinned memory, back to the actual stack. The CPU work populates the
 		// beginning, so make sure to copy from the offset of where the gpu started. Launch this copy on a background thread
