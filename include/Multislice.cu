@@ -625,7 +625,7 @@ std::complex<float> answer4;
 		// synchronize GPUs and cleanup data
 		for (auto j = 0; j < pars.meta.NUM_GPUS; ++j){
 			cudaErrchk(cudaSetDevice(j));
-			cudaErrchk(cudaDeviceSynchronize());
+//			cudaErrchk(cudaDeviceSynchronize());
 			cudaErrchk(cudaFree(PsiProbeInit_d[j]));
 			cudaErrchk(cudaFree(trans_d[j]));
 			cudaErrchk(cudaFree(qxa_d[j]));
