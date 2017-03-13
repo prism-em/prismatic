@@ -51,12 +51,6 @@ namespace PRISM{
 
 		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(PsiProbeInit);
 
-		{
-			auto qxa_ptr = pars.qxa.begin();
-			auto qya_ptr = pars.qya.begin();
-            for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*pars.xp[ax] +
-                                                    (*qya_ptr++)*pars.yp[ay]));
-		}
 
         // fftw_execute is the only thread-safe function in the library, so we need to synchronize access
         // to the plan creation methods
@@ -69,6 +63,13 @@ namespace PRISM{
                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
                                                     FFTW_BACKWARD, FFTW_ESTIMATE);
+
+		{
+			auto qxa_ptr = pars.qxa.begin();
+			auto qya_ptr = pars.qya.begin();
+			for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*pars.xp[ax] +
+			                                        (*qya_ptr++)*pars.yp[ay]));
+		}
         gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 
         for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
