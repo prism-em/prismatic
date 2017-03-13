@@ -6,8 +6,6 @@
 // Created by AJ Pryor on 3/6/17.
 //
 
-#ifndef PRISM_MULTISLICE_H
-#define PRISM_MULTISLICE_H
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -63,11 +61,11 @@ namespace PRISM{
 		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_FORWARD, FFTW_MEASURE);
+		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
 		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_BACKWARD, FFTW_MEASURE);
+		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 
 		{
 			auto qxa_ptr = pars.qxa.begin();
@@ -113,8 +111,8 @@ namespace PRISM{
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						++Nstart;
 						getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+						++Nstart;
 					}
 				}
 				cout << "CPU worker #" << t << " finished\n";
@@ -271,4 +269,3 @@ namespace PRISM{
 		buildMultisliceOutput(pars, trans, PsiProbeInit, alphaInd);
 	}
 }
-#endif //PRISM_MULTISLICE_H

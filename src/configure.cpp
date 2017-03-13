@@ -11,6 +11,7 @@
 
 #ifdef PRISM_ENABLE_GPU
 #include "Multislice.cuh"
+#include "Multislice_entry.h"
 #endif //PRISM_ENABLE_GPU
 namespace PRISM {
 	entry_func execute_plan;

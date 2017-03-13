@@ -9,13 +9,14 @@
 #include <numeric>
 #include <cstring>
 #include <map>
+#include <vector>
 #include <random>
 #include <thread>
 #include "params.h"
 #include "ArrayND.h"
 #include "projPot.h"
 namespace PRISM {
-
+	using namespace std;
 	void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,
 	                      const vector<size_t>& atomic_species,
 	                      const Array1D<PRISM_FLOAT_PRECISION>& xr,

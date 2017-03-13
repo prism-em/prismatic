@@ -5,6 +5,7 @@
 #ifndef PRISM_DEFINES_H
 #define PRISM_DEFINES_H
 namespace PRISM {
+
 	enum class Algorithm {
 		PRISM, Multislice
 	};

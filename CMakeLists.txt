@@ -11,13 +11,24 @@ set(PRISM_ENABLE_GUI 1 CACHE BOOL PRISM_ENABLE_GUI)
 set(PRISM_ENABLE_GPU 1 CACHE BOOL PRISM_ENABLE_GPU)
 set(PRISM_ENABLE_SINGLE_PRECISION 1 cache PRISM_ENABLE_SINGLE_PRECISION)
 
-set(SOURCE_FILES configure.cpp
-        include/getWorkID.cpp
+set(SOURCE_FILES
+        src/configure.cpp
+        src/getWorkID.cpp
         src/Multislice.cpp
         src/PRISM01.cpp
         src/PRISM02.cpp
         src/PRISM03.cpp
-        src/PRISM_entry.cpp)
+        src/PRISM_entry.cpp
+        src/Multislice_entry.cpp
+        src/projPot.cpp)
+
+set(GUI_SOURCE_FILES Qt/main.cpp
+        Qt/prismmainwindow.cpp)
+
+if (PRISM_ENABLE_GPU)
+    set(CUDA_SOURCE_FILES src/Multislice.cu src/PRISM02.cu)
+endif(PRISM_ENABLE_GPU)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 find_package (Threads REQUIRED)
@@ -51,32 +62,28 @@ if (PRISM_ENABLE_GUI)
     	include_directories(${CMAKE_SOURCE_DIR}/Qt)
 endif(PRISM_ENABLE_GUI)
 if (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
-    	add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp ${SOURCE_FILES})
+    	add_executable(prism-gui ${SOURCE_FILES} ${GUI_SOURCE_FILES})
     	target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 endif (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
 
-
-
-
 if (PRISM_ENABLE_GPU)
-    set(SOURCE_FILES ${SOURCE_FILES} include/PRISM02.cu)
+    set(SOURCE_FILES ${SOURCE_FILES})
     message(GPU enabled)
     set(NVCC_FLAGS_EXTRA "-arch=sm_35 -std=c++11")
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS_EXTRA})
-    set(SOURCE_FILES ${SOURCE_FILES} include/Multislice.cu)
-    cuda_add_executable(prism driver.cpp ${SOURCE_FILES})
+    cuda_add_executable(prism src/driver.cpp ${SOURCE_FILES} ${CUDA_SOURCE_FILES})
     cuda_add_cufft_to_target(prism)
     include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS} ${FFTW_INCLUDES} ${CMAKE_SOURCE_DIR})
     target_link_libraries(prism ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
     message("FFTW found.   Location " ${FFTW_INCLUDES})
     message("Boost found.  Location " ${Boost_Library_DIRS})
 
-    cuda_add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp ${SOURCE_FILES})
+    cuda_add_executable(prism-gui  ${SOURCE_FILES} ${CUDA_SOURCE_FILES} ${GUI_SOURCE_FILES} )
     cuda_add_cufft_to_target(prism-gui)
     include_directories(${CMAKE_SOURCE_DIR}/Qt)
     target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 else()
-    add_executable(prism driver.cpp ${SOURCE_FILES})
+    add_executable(prism src/driver.cpp ${SOURCE_FILES})
     include_directories(${CMAKE_SOURCE_DIR}/include ${Boost_INCLUDE_DIRS} ${FFTW_INCLUDES})
     target_link_libraries(prism ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
     message("FFTW found.   Location " ${FFTW_INCLUDES})

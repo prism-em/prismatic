@@ -364,12 +364,13 @@ namespace PRISM{
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						++Nstart;
 						getMultisliceProbe_GPU(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
 						                       current_psi_intensity_ds,
 						                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
 						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
 						                       current_alphaInd_d, current_cufft_plan, current_stream);
+						if (ax==0 & ay==0)cout <<"ON GPU" << endl;
+						++Nstart;
 					}
 				}
 				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
@@ -392,8 +393,8 @@ namespace PRISM{
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
-							++Nstart;
 							getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+							++Nstart;
 						}
 					}
 

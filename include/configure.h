@@ -17,6 +17,15 @@
 //#include "Multislice_entry.h"
 //#include "Multislice.h"
 namespace PRISM {
+	template <class T>
+	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+	template <class T>
+	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	template <class T>
+	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+	template <class T>
+	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
+
 	using entry_func     = int  (*)(Metadata<PRISM_FLOAT_PRECISION>&);
 	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
                                     Array3D<std::complex<PRISM_FLOAT_PRECISION> >&,
@@ -49,22 +58,7 @@ namespace PRISM {
 	                                        cudaStream_t& stream);
 	extern format_output_func_GPU formatOutput_GPU;
 #endif
-
-	template <class T>
-	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
-	template <class T>
-	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
-	template <class T>
-	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
-	template <class T>
-	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
-
 	void configure(Metadata<PRISM_FLOAT_PRECISION>&);
-
-
-
-
-
 }
 
 #endif //PRISM_CONFIGURE_H
