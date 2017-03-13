@@ -19,7 +19,8 @@ find_package (Boost REQUIRED)
 find_package(FFTW REQUIRED)
 
 if (PRISM_ENABLE_SINGLE_PRECISION)
-    set(FFTW_LIBRARIES ${FFTW_LIBRARIES} fftw3f)
+    message("single precision enabled")
+    set(FFTW_LIBRARIES ${FFTW_LIBRARIES} fftw3f fftw3f_threads)
 endif(PRISM_ENABLE_SINGLE_PRECISION)
 
 if (PRISM_ENABLE_DOUBLE_PRECISION)

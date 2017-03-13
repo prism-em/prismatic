@@ -23,6 +23,10 @@ namespace PRISM {
 #define PRISM_FFTW_EXECUTE fftw_execute
 #define PRISM_FFTW_DESTROY_PLAN fftw_destroy_plan
 #define PRISM_FFTW_COMPLEX fftw_complex
+#define PRISM_FFTW_INIT_THREADS fftw_init_threads
+#define	PRISM_FFTW_PLAN_WITH_NTHREADS fftw_plan_with_nthreads
+#define PRISM_FFTW_CLEANUP_THREADS fftw_cleanup_threads
+
 #else
 	typedef float PRISM_FLOAT_PRECISION;
 #define MESSAGE "FLOAT PRECISION"
@@ -31,6 +35,8 @@ namespace PRISM {
 #define PRISM_FFTW_EXECUTE fftwf_execute
 #define PRISM_FFTW_DESTROY_PLAN fftwf_destroy_plan
 #define PRISM_FFTW_COMPLEX fftwf_complex
-
+#define PRISM_FFTW_INIT_THREADS fftwf_init_threads
+#define	PRISM_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
+#define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 #endif //PRISM_DEFINES_H

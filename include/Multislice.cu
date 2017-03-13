@@ -580,6 +580,8 @@ std::complex<float> answer4;
 
 
 		// now launch CPU work
+		PRISM_FFTW_INIT_THREADS();
+		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		auto WORK_CHUNK_SIZE_CPU = std::floor(((cpu_stop - 1) / pars.meta.NUM_THREADS) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
 		cout << "WORK_CHUNK_SIZE_CPU = " << WORK_CHUNK_SIZE_CPU << endl;
                 start = 0;// cpu work starts at beginning
@@ -606,6 +608,7 @@ std::complex<float> answer4;
 		cout << "waiting on threads" << endl;
 		for (auto& t:workers_gpu)t.join();
 		for (auto& t:workers_cpu)t.join();
+		PRISM_FFTW_CLEANUP_THREADS();
 		cout << "threads done, cleaning up" << endl;
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
 			cudaSetDevice(g);

@@ -122,9 +122,11 @@ namespace PRISM{
 		cout << "cpu version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
+		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. );If input isn't square this might not do a good job
 		auto start = 0;
 		auto stop = start + WORK_CHUNK_SIZE;
+		PRISM_FFTW_INIT_THREADS();
+		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		while (start < pars.yp.size()) {
 			cout << "Launching thread to compute all x-probe positions for y-probes "
 				 << start << "/" << min(stop,pars.yp.size()) << '\n';
@@ -133,7 +135,8 @@ namespace PRISM{
 												&alphaInd, &PsiProbeInit,
 												start, stop]() {
 				for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
-					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+//					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+						for (auto ax = 0; ax < 2; ++ax) {
 						getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
 					}
 				}
@@ -143,7 +146,7 @@ namespace PRISM{
 			stop += WORK_CHUNK_SIZE;
 		}
 		for (auto& t:workers)t.join();
-
+		PRISM_FFTW_CLEANUP_THREADS();
 	};
 
 
