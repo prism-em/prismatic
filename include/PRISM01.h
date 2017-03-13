@@ -16,12 +16,12 @@
 #include "ArrayND.h"
 #include "projPot.h"
 namespace PRISM {
-	template <class T>
-	using Array3D = ArrayND<3, std::vector< T > >;
-	template <class T>
-	using Array2D = ArrayND<2, std::vector< T > >;
-	template <class T>
-	using Array1D = ArrayND<1, std::vector< T > >;
+//	template <class T>
+//	using Array3D = ArrayND<3, std::vector< T > >;
+//	template <class T>
+//	using Array2D = ArrayND<2, std::vector< T > >;
+//	template <class T>
+//	using Array1D = ArrayND<1, std::vector< T > >;
 
 	inline void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,
 	                      const vector<size_t>& atomic_species,

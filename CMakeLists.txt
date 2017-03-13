@@ -53,6 +53,7 @@ endif (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
 
 set(SOURCE_FILES driver.cpp configure.cpp include/getWorkID.cpp)
 if (PRISM_ENABLE_GPU)
+    set(SOURCE_FILES ${SOURCE_FILES} include/PRISM02.cu)
     message(GPU enabled)
     set(NVCC_FLAGS_EXTRA "-arch=sm_35 -std=c++11")
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS_EXTRA})

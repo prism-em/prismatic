@@ -360,7 +360,7 @@ namespace PRISM{
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID_probePos(pars, Nstart, Nstop)){ // synchronously get work assignment
+				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -388,7 +388,7 @@ namespace PRISM{
 				// emplace_back is better whenever constructing a new object
 				workers_CPU.emplace_back(thread([&pars, t, &trans, &alphaInd, &PsiProbeInit]() {
 					size_t Nstart, Nstop, ay, ax;
-					while (getWorkID_probePos(pars, Nstart, Nstop)) { // synchronously get work assignment
+					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();

@@ -104,7 +104,7 @@ namespace PRISM{
 			// emplace_back is better whenever constructing a new object
 			workers.emplace_back(thread([&pars, &trans, t, &alphaInd, &PsiProbeInit]() {
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID_probePos(pars, Nstart, Nstop)) { // synchronously get work assignment
+				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();

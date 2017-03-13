@@ -37,7 +37,7 @@ namespace PRISM {
 		return result;
 	};
 */
-	inline void propagatePlaneWave(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
 	                        Array2D<complex<PRISM_FLOAT_PRECISION> > &psi,
@@ -127,11 +127,11 @@ namespace PRISM {
 				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop;
-				while (getWorkID_probePos(pars, currentBeam, stop)) { // synchronously get work assignment
+				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
-						propagatePlaneWave(pars, trans, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
+						propagatePlaneWave_CPU(pars, trans, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
 						++currentBeam;
 					}
 				}
