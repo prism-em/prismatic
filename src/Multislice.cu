@@ -13,13 +13,9 @@
 #include "getWorkID.h"
 #include <iostream>
 #include "fftw3.h"
-#include "utility.h"
+#include "utility.h":"
 
-#ifdef PRISM_ENABLE_DOUBLE_PRECISION
-typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
-#else
-typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
-#endif //PRISM_ENABLE_DOUBLE_PRECISION
+
 #define PI 3.14159265359
 #define BLOCK_SIZE1D 1024
 
@@ -164,7 +160,7 @@ namespace PRISM{
 
 	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	  cudaErrchk(cudaStreamSynchronize(stream));
-	  cudaDeviceSynchronize();
+//	  cudaDeviceSynchronize();
 //		volatile long a = 0;
 //		for (volatile long long b = 0; b < 1000000; ++b)
 //		{
@@ -381,7 +377,7 @@ namespace PRISM{
 							cout << "ON GPU" << endl;
 							cout << "pars.stack.at(0,0,0) =  " << pars.stack.at(0, 0, 0) << endl;
 
-							complex<float> deb2 = (0, 0);
+							complex<float> deb2;
 							for (auto jj = 0; jj < 100; ++jj) {
 								cudaMemcpy(&deb2, current_psi_ds + jj, sizeof(PRISM_FLOAT_PRECISION),
 								           cudaMemcpyDeviceToHost);
@@ -422,7 +418,7 @@ namespace PRISM{
 									cudaMemcpy(&ans, current_qxa_d + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
 									cout << "qxa_d = " << ans << endl;
 								}
-								complex<float> deb = (0,0);
+								complex<float> deb;
 								for (auto jj = 0; jj < 100; ++jj){
 									cudaMemcpy(&deb, current_psi_ds + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
 									cout << "psi_ds = " << deb << endl;

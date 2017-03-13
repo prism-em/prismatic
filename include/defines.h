@@ -11,8 +11,14 @@ namespace PRISM {
 	};
 }
 #ifdef PRISM_ENABLE_GPU
-
+#include "cuComplex.h"
 #include <cuda_runtime.h>
+#ifdef PRISM_ENABLE_DOUBLE_PRECISION
+typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
+#else
+typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
+#endif //PRISM_ENABLE_DOUBLE_PRECISION
+
 
 #endif //PRISM_ENABLE_GPU
 //#define PRISM_ENABLE_DOUBLE_PRECISION

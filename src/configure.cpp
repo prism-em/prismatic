@@ -11,6 +11,7 @@
 
 #ifdef PRISM_ENABLE_GPU
 #include "Multislice.cuh"
+#include "PRISM02.cuh"
 #include "Multislice_entry.h"
 #endif //PRISM_ENABLE_GPU
 namespace PRISM {
@@ -30,6 +31,7 @@ namespace PRISM {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
+			fill_Scompact = fill_Scompact_GPU;
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;
 #endif //PRISM_ENABLE_GPU
