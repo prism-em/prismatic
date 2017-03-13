@@ -4,7 +4,7 @@
 #include "Multislice.h"
 #include "cuComplex.h"
 #include "cufft.h"
-
+#include "getWorkID.h"
 
 
 
@@ -177,6 +177,11 @@ integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>
 	  cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
 	                        num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
 	                        cudaMemcpyDeviceToHost, stream));
+
+	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+	  cudaErrchk(cudaStreamSynchronize(stream));
+	  const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
+	  memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
 
 __host__ void getMultisliceProbe_gpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
@@ -434,7 +439,9 @@ std::complex<float> answer4;
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(gpu_num)); // set current gpu
-		for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
+
+
+				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 			for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 //				for (auto ay = start; ay < 20; ++ay) {
 //					for (auto ax = 0; ax < 20; ++ax) {
@@ -576,12 +583,12 @@ std::complex<float> answer4;
 		// copy the results of the gpu, which are in pinned memory, back to the actual stack. The CPU work populates the
 		// beginning, so make sure to copy from the offset of where the gpu started. Launch this copy on a background thread
 		// while we cleanup the GPU
-		const size_t gpu_start_offset = (size_t)cpu_stop*pars.stack.get_dimk()*pars.stack.get_dimj()*pars.stack.get_dimi();
-		std::thread copy_t([&gpu_start_offset, &pars, &stack_ph](){
-			memcpy(&pars.stack[gpu_start_offset],
-			       &stack_ph[gpu_start_offset],
-			       (pars.stack.size()-gpu_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
-		});
+//		const size_t gpu_start_offset = (size_t)cpu_stop*pars.stack.get_dimk()*pars.stack.get_dimj()*pars.stack.get_dimi();
+//		std::thread copy_t([&gpu_start_offset, &pars, &stack_ph](){
+//			memcpy(&pars.stack[gpu_start_offset],
+//			       &stack_ph[gpu_start_offset],
+//			       (pars.stack.size()-gpu_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
+//		});
 
 		// synchronize GPUs and cleanup data
 		for (auto j = 0; j < pars.meta.NUM_GPUS; ++j){
@@ -625,7 +632,7 @@ std::complex<float> answer4;
 			cudaErrchk(cudaDeviceReset());
 		}
 
-		// make sure the copy is finished
-		copy_t.join();
+//		// make sure the copy is finished
+//		copy_t.join();
 	}
 }

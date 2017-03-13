@@ -16,8 +16,10 @@
 #include "params.h"
 #include "utility.h"
 #include "fftw3.h"
+#include "getWorkID.h"
 namespace PRISM{
        using namespace std;
+
 
 	inline void formatOutput_cpu_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,

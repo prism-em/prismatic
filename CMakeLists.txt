@@ -45,13 +45,13 @@ if (PRISM_ENABLE_GUI)
     	include_directories(${CMAKE_SOURCE_DIR}/Qt)
 endif(PRISM_ENABLE_GUI)
 if (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
-    	add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp)
+    	add_executable(prism-gui Qt/main.cpp Qt/prismmainwindow.cpp configure.cpp include/getWorkID.cpp)
     	target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 endif (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
 
 
 
-set(SOURCE_FILES driver.cpp configure.cpp)
+set(SOURCE_FILES driver.cpp configure.cpp include/getWorkID.cpp)
 if (PRISM_ENABLE_GPU)
     message(GPU enabled)
     set(NVCC_FLAGS_EXTRA "-arch=sm_35 -std=c++11")
