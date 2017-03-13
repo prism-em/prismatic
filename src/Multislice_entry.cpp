@@ -36,6 +36,11 @@ namespace PRISM{
 		float t = 0;
 		for (auto i : prism_pars.stack) t += i;
 		cout << "stack sum = " << t << endl;
+
+		t = 0;
+		for (auto i = 0; i < prism_pars.stack.get_dimi() ; ++i) t += prism_pars.stack.at(0,0,i);
+		cout << "stack sum 0,0,:= " << t << endl;
+
 //		size_t lower = 15;
 //		size_t upper = 16;
 		size_t lower = 13;

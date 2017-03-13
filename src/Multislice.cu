@@ -76,7 +76,7 @@ namespace PRISM{
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
 		if (idx < N) {
 			PRISM_CUDA_COMPLEX_FLOAT arg;
-			arg = make_cuFloatComplex(qxa_d[idx]*xp + qya_d[idx]*yp, 0);
+			arg = (PRISM_CUDA_COMPLEX_FLOAT)make_cuFloatComplex(qxa_d[idx]*xp + qya_d[idx]*yp, 0);
 			psi_d[idx] = cuCmulf(PsiProbeInit_d[idx], exp_cx(cuCmulf(minus_2pii,arg)));
 		}
 	}
@@ -152,6 +152,7 @@ namespace PRISM{
                                     const size_t& dimj,
                                     const size_t& dimi,
                                     cudaStream_t& stream){
+//		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 	  size_t num_integration_bins = pars.detectorAngles.size();
 	  setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
 	  integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
@@ -163,6 +164,12 @@ namespace PRISM{
 
 	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	  cudaErrchk(cudaStreamSynchronize(stream));
+	  cudaDeviceSynchronize();
+//		volatile long a = 0;
+//		for (volatile long long b = 0; b < 1000000; ++b)
+//		{
+//			a += b;
+//		}
 	  const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
 	  memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
@@ -265,6 +272,9 @@ namespace PRISM{
 		memcpy(alphaInd_ph,     &alphaInd[0],     alphaInd.size() * sizeof(PRISM_FLOAT_PRECISION));
 		memcpy(stack_ph,        &pars.stack[0],   pars.stack.size() * sizeof(PRISM_FLOAT_PRECISION));
 
+
+
+
 		// pointers to GPU memory (one copy per GPU)
 		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
 		PRISM_CUDA_COMPLEX_FLOAT *trans_d[pars.meta.NUM_GPUS];
@@ -294,6 +304,9 @@ namespace PRISM{
 			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              PsiProbeInit.size()        * sizeof(PsiProbeInit[0])));
 			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    PsiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(psi_ds[s], 0, PsiProbeInit.size()        * sizeof(PsiProbeInit[0])));
+			cudaErrchk(cudaMemset(psi_intensity_ds[s], 0, PsiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
 
@@ -364,12 +377,71 @@ namespace PRISM{
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						getMultisliceProbe_GPU(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
+						if (ax==0 & ay==0) {
+							cout << "ON GPU" << endl;
+							cout << "pars.stack.at(0,0,0) =  " << pars.stack.at(0, 0, 0) << endl;
+
+							complex<float> deb2 = (0, 0);
+							for (auto jj = 0; jj < 100; ++jj) {
+								cudaMemcpy(&deb2, current_psi_ds + jj, sizeof(PRISM_FLOAT_PRECISION),
+								           cudaMemcpyDeviceToHost);
+								cout << "psi_ds before = " << deb2 << endl;
+							}
+						}
+							getMultisliceProbe_GPU(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
 						                       current_psi_intensity_ds,
 						                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
 						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
 						                       current_alphaInd_d, current_cufft_plan, current_stream);
-						if (ax==0 & ay==0)cout <<"ON GPU" << endl;
+						if (ax==0 & ay==0){
+							cout <<"ON GPU" << endl;
+							cout << "pars.stack.at(0,0,0,0) =  " << pars.stack.at(0,0,0,0) << endl;
+							float s = 0;
+							for (auto jj = 0; jj < pars.stack.get_dimj(); ++jj)s+=pars.stack.at(0,0,jj,0);
+							cout << "sum = " << s << endl;
+							if (std::isnan(s) | s < 0.01)
+							{
+								cout << "MESSED UP!!!\n";
+								cout << "MESSED UP!!!\n";
+								cout << "MESSED UP!!!\n";
+								cout << "MESSED UP!!!\n";
+								float ans;
+								for (auto jj = 0; jj < pars.detectorAngles.size(); ++jj){
+									cudaMemcpy(&ans, current_integratedOutput_ds + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "current_integratedOutput_ds = " << ans << endl;
+								}
+								for (auto jj = 0; jj < 100; ++jj){
+									cudaMemcpy(&ans, current_alphaInd_d + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "current_alphaInd = " << ans << endl;
+								}
+								for (auto jj = 0; jj < 100; ++jj){
+									cudaMemcpy(&ans, current_qya_d + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "qya_d = " << ans << endl;
+								}
+								for (auto jj = 0; jj < 100; ++jj){
+									cudaMemcpy(&ans, current_qxa_d + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "qxa_d = " << ans << endl;
+								}
+								complex<float> deb = (0,0);
+								for (auto jj = 0; jj < 100; ++jj){
+									cudaMemcpy(&deb, current_psi_ds + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "psi_ds = " << deb << endl;
+								}
+								for (auto jj = 0; jj < 100; ++jj){
+									cudaMemcpy(&deb, current_PsiProbeInit_d + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+									cout << "PsiProbeInit_d = " << deb << endl;
+								}
+
+
+
+							} //else{
+//								float ans;
+//								for (auto jj = 0; jj < pars.detectorAngles.size(); ++jj){
+//									cudaMemcpy(&ans, current_integratedOutput_ds + jj, sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost);
+//									cout << "current_integratedOutput_ds = " << ans << endl;
+//								}
+//							}
+						}
 						++Nstart;
 					}
 				}
