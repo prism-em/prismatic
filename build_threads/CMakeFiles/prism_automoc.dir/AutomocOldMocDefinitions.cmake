@@ -1,0 +1,1 @@
+set(AM_OLD_COMPILE_SETTINGS "PRISM_ENABLE_GPU ~~~ /home/aj/hdd1/clion/PRISM/build_threads;/home/aj/hdd1/clion/PRISM;/home/aj/hdd1/clion/PRISM/Qt;/usr/local/cuda-8.0/include;/home/aj/hdd1/clion/PRISM/include;/usr/local/boost_1_60_0;/usr/local/include ~~~  ~~~ FALSE ~~~ ")
