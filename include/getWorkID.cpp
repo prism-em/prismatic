@@ -7,7 +7,7 @@
 #include "configure.h"
 #include <mutex>
 // helper function for dispatching work
-bool getWorkID(const PRISM::Parameters<PRISM_FLOAT_PRECISION>& pars, size_t& Nstart, size_t& Nstop){
+bool getWorkID_probePos(const PRISM::Parameters<PRISM_FLOAT_PRECISION>& pars, size_t& Nstart, size_t& Nstop){
 	static std::mutex lock; // mutex to synchronize reading/incrementing job ID
 	static size_t N_current = 0; // number of next job
 	static const size_t N_total = pars.xp.size() * pars.yp.size(); // total number of jobs

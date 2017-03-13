@@ -29,7 +29,7 @@ int main(int argc, const char** argv) {
   cudaGetDeviceCount(&nDevices);
 cout << "ndevices = " << nDevices << endl;
 #endif	
-	//prism_meta.algorithm = PRISM::Algorithm::PRISM;
+//	prism_meta.algorithm = PRISM::Algorithm::PRISM;
 	prism_meta.algorithm = PRISM::Algorithm::Multislice;
 
 	std::string filename;

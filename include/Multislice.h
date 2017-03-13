@@ -18,9 +18,7 @@
 #include "fftw3.h"
 #include "getWorkID.h"
 namespace PRISM{
-       using namespace std;
-
-
+	using namespace std;
 	inline void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
@@ -88,33 +86,7 @@ namespace PRISM{
 		PRISM_FFTW_DESTROY_PLAN(plan_forward);
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 		gatekeeper.unlock();
-
         formatOutput_CPU(pars, psi, alphaInd, ay, ax);
-
-//		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
-//        auto psi_ptr = psi.begin();
-//        for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-//        //update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
-//        auto idx = alphaInd.begin();
-//        for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
-//            if (*idx <= pars.Ndet){
-//                pars.stack.at(ay,ax,(*idx)-1, 0) += *counts;
-//            }
-//            ++idx;
-//        };
-
-
-//
-//		% Propgate through all potential planes
-//		for a2 = 1:emdSTEM.numPlanes
-//		psi = fft2(ifft2(psi).*trans(:,:,a2)).*emdSTEM.prop;
-//		end
-//
-//		% Record output
-//		emdSTEM.MULTIstack(a0,a1,:) = ...
-//		accumarray(alphaIndsSub,abs(psi(alphaMask)).^2,[Ndet 1]);
-//		using namespace std;
-//		cout << "test CPU" << endl;
 	}
 
 	inline void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
@@ -124,28 +96,23 @@ namespace PRISM{
 		cout << "CPU version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. );If input isn't square this might not do a good job
-		auto start = 0;
-		auto stop = start + WORK_CHUNK_SIZE;
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
-		while (start < pars.yp.size()) {
-			cout << "Launching thread to compute all x-probe positions for y-probes "
-				 << start << "/" << min(stop,pars.yp.size()) << '\n';
+		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
+			cout << "Launching CPU worker #" << t << '\n';
 			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, &trans,
-												&alphaInd, &PsiProbeInit,
-												start, stop]() {
-				for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
-					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-//						for (auto ax = 0; ax < 2; ++ax) {
+			workers.emplace_back(thread([&pars, &trans, t, &alphaInd, &PsiProbeInit]() {
+				size_t Nstart, Nstop, ay, ax;
+				while (getWorkID_probePos(pars, Nstart, Nstop)) { // synchronously get work assignment
+					while (Nstart != Nstop) {
+						ay = Nstart / pars.xp.size();
+						ax = Nstart % pars.xp.size();
+						++Nstart;
 						getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
 					}
 				}
+				cout << "CPU worker #" << t << " finished\n";
 			}));
-			start += WORK_CHUNK_SIZE;
-			if (start >= pars.yp.size())break;
-			stop += WORK_CHUNK_SIZE;
 		}
 		for (auto& t:workers)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
@@ -157,8 +124,6 @@ namespace PRISM{
 		static const PRISM_FLOAT_PRECISION pi = acos(-1);
 		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
-//		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
-//		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2*32; // TODO: move this
 		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
 
 		// should move these elsewhere and in PRISM03
@@ -251,15 +216,6 @@ namespace PRISM{
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		Array2D<PRISM_FLOAT_PRECISION> alpha = q1 * pars.lambda;
-//		Array2D<PRISM_FLOAT_PRECISION> alphaInd(q1); // copy constructor more efficient than assignment
-//		transform(alphaInd.begin(), alphaInd.end(),
-//				  alphaInd.begin(),
-//				  [&pars](const PRISM_FLOAT_PRECISION &a) {
-//					  return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.dr);
-//				  });
-//		transform(alphaInd.begin(), alphaInd.end(),
-//				  alphaInd.begin(),
-//				  [](const PRISM_FLOAT_PRECISION &a) { return a < 1 ? 1 : a; });
 		Array2D<PRISM_FLOAT_PRECISION> alphaInd = (alpha + pars.dr/2) / pars.dr;
 		for (auto& q : alphaInd) q = std::round(q);
 
@@ -307,8 +263,6 @@ namespace PRISM{
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
 		buildMultisliceOutput(pars, trans, PsiProbeInit, alphaInd);
-		//int debug=0;
 	}
-
 }
 #endif //PRISM_MULTISLICE_H

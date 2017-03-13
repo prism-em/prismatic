@@ -17,12 +17,12 @@ namespace PRISM {
 
 	using namespace std;
 
-	template<class T>
-	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
-	template<class T>
-	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
-	template<class T>
-	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+//	template<class T>
+//	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+//	template<class T>
+//	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+//	template<class T>
+//	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
 /*
 	inline Array1D<PRISM_FLOAT_PRECISION> makeFourierCoords(const size_t &N, const PRISM_FLOAT_PRECISION &pixel_size) {
 		Array1D<PRISM_FLOAT_PRECISION> result = zeros_ND<1, PRISM_FLOAT_PRECISION>({{N}});
@@ -117,11 +117,11 @@ namespace PRISM {
 				PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                          FFTW_FORWARD, FFTW_ESTIMATE);
+				                                          FFTW_FORWARD, FFTW_MEASURE);
 				PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
+				                                          FFTW_BACKWARD, FFTW_MEASURE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
 					// re-zero psi each iteration
