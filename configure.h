@@ -31,12 +31,12 @@ namespace PRISM {
 
 	extern entry_func execute_plan;
 	extern ms_output_func buildMultisliceOutput;
-	extern format_output_func formatOutput_cpu;
+	extern format_output_func formatOutput_CPU;
 
 #ifdef PRISM_ENABLE_GPU
 #define CUDA_API_PER_THREAD_DEFAULT_STREAM
 #include <cuda_runtime.h>
-	using format_output_func_gpu = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
+	using format_output_func_GPU = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
 	                                        PRISM_FLOAT_PRECISION *,
 	                                        const PRISM_FLOAT_PRECISION *,
 	                                        PRISM_FLOAT_PRECISION *,
@@ -46,7 +46,7 @@ namespace PRISM {
 	                                        const size_t&,
 	                                        const size_t&,
 	                                        cudaStream_t& stream);
-	extern format_output_func_gpu formatOutput_gpu;
+	extern format_output_func_GPU formatOutput_GPU;
 #endif
 
 	template <class T>

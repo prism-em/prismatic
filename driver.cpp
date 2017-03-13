@@ -24,13 +24,11 @@ int main(int argc, const char** argv) {
 	prism_meta.cellDim = vector<size_t>{40,64,64}; // this is z,y,x format
 	prism_meta.E0 = 80e3;
 	prism_meta.alphaBeamMax = 24 / 1000.0;
-	prism_meta.NUM_GPUS = 1;
   int nDevices;
 #ifdef PRISM_ENABLE_GPU
   cudaGetDeviceCount(&nDevices);
 cout << "ndevices = " << nDevices << endl;
 #endif	
-prism_meta.NUM_THREADS = 12;
 	//prism_meta.algorithm = PRISM::Algorithm::PRISM;
 	prism_meta.algorithm = PRISM::Algorithm::Multislice;
 

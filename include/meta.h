@@ -28,17 +28,17 @@ namespace PRISM{
 			NUM_STREAMS_PER_GPU = 4;
 			NUM_THREADS = 12;
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
-			cpu_gpu_ratio = 0.15;
+			also_do_CPU_work = true;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
 		std::string filename_output;// filename of output image
 		T realspace_pixelSize; // pixel size
-
+		T cpu_gpu_ratio; // delete
 		T potBound; // bounding integration radius for potential calculation
 		size_t numFP; // number of frozen phonon configurations to compute
 		T sliceThickness; // thickness of slice in Z
-		T cpu_gpu_ratio; // what fraction of computation to do on the cpu vs gpu
+		bool also_do_CPU_work; // what fraction of computation to do on the cpu vs gpu
 		std::vector<size_t> cellDim; // this is z,y,x format
 		T E0; // electron energy
 		T alphaBeamMax; // max semi angle for probe

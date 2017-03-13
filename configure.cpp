@@ -15,14 +15,14 @@
 namespace PRISM {
 	entry_func execute_plan;
 	ms_output_func buildMultisliceOutput;
-	format_output_func formatOutput_cpu;
+	format_output_func formatOutput_CPU;
 #ifdef PRISM_ENABLE_GPU
-	format_output_func_gpu formatOutput_gpu;
+	format_output_func_GPU formatOutput_GPU;
 #endif
 	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
-		formatOutput_cpu = formatOutput_cpu_integrate;
+		formatOutput_CPU = formatOutput_CPU_integrate;
 #ifdef PRISM_ENABLE_GPU
-		formatOutput_gpu = formatOutput_gpu_integrate;
+		formatOutput_GPU = formatOutput_GPU_integrate;
 #endif
 		if (meta.algorithm == Algorithm::PRISM) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
@@ -32,9 +32,9 @@ namespace PRISM {
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
 			std::cout << "Using GPU codes" << std::endl;
-			buildMultisliceOutput = buildMultisliceOutput_gpu;
+			buildMultisliceOutput = buildMultisliceOutput_GPU;
 #else
-			buildMultisliceOutput = buildMultisliceOutput_cpuOnly;
+			buildMultisliceOutput = buildMultisliceOutput_CPUOnly;
 #endif //PRISM_ENABLE_GPU
 		}
 	}

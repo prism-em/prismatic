@@ -21,7 +21,7 @@ namespace PRISM{
        using namespace std;
 
 
-	inline void formatOutput_cpu_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	inline void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
 	                             const size_t& ay,
@@ -39,7 +39,7 @@ namespace PRISM{
 			++idx;
 		};
 	}
-	inline void getMultisliceProbe_cpu(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	inline void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                 Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                 const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                 const size_t& ay,
@@ -89,7 +89,7 @@ namespace PRISM{
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 		gatekeeper.unlock();
 
-        formatOutput_cpu(pars, psi, alphaInd, ay, ax);
+        formatOutput_CPU(pars, psi, alphaInd, ay, ax);
 
 //		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
 //        auto psi_ptr = psi.begin();
@@ -114,14 +114,14 @@ namespace PRISM{
 //		emdSTEM.MULTIstack(a0,a1,:) = ...
 //		accumarray(alphaIndsSub,abs(psi(alphaMask)).^2,[Ndet 1]);
 //		using namespace std;
-//		cout << "test cpu" << endl;
+//		cout << "test CPU" << endl;
 	}
 
-	inline void buildMultisliceOutput_cpuOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	inline void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                        Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                        Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
-		cout << "cpu version" << endl;
+		cout << "CPU version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1; //TODO: divide work more generally than just splitting up by yp. );If input isn't square this might not do a good job
@@ -139,7 +139,7 @@ namespace PRISM{
 				for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
 					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 //						for (auto ax = 0; ax < 2; ++ax) {
-						getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+						getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
 					}
 				}
 			}));
