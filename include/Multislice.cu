@@ -331,6 +331,7 @@ namespace PRISM{
 
 		size_t psi_size = PsiProbeInit.size();
 		int stream_count = 0;
+		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];

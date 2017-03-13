@@ -16,6 +16,7 @@ namespace PRISM {
 	entry_func execute_plan;
 	ms_output_func buildMultisliceOutput;
 	format_output_func formatOutput_CPU;
+	fill_Scompact_func fill_Scompact;
 #ifdef PRISM_ENABLE_GPU
 	format_output_func_GPU formatOutput_GPU;
 #endif
@@ -27,6 +28,10 @@ namespace PRISM {
 		if (meta.algorithm == Algorithm::PRISM) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
+#ifdef PRISM_ENABLE_GPU
+#else
+			fill_Scompact = fill_Scompact_CPUOnly;
+#endif //PRISM_ENABLE_GPU
 		} else if (meta.algorithm == Algorithm::Multislice) {
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
 			execute_plan = Multislice_entry;

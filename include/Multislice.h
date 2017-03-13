@@ -89,7 +89,7 @@ namespace PRISM{
         formatOutput_CPU(pars, psi, alphaInd, ay, ax);
 	}
 
-	inline void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	 void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
                                        Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                        Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
@@ -98,6 +98,7 @@ namespace PRISM{
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';
 			// emplace_back is better whenever constructing a new object

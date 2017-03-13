@@ -13,6 +13,8 @@
 #include "ArrayND.h"
 #include <complex>
 #include "utility.h"
+#include "configure.h"
+#include "getWorkID.h"
 namespace PRISM {
 
 	using namespace std;
@@ -60,19 +62,19 @@ namespace PRISM {
 		PRISM_FFTW_EXECUTE(plan_forward);
 
 		Array2D< complex<PRISM_FLOAT_PRECISION> > psi_small = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.qyInd.size(), pars.qxInd.size()}});
+
+
+		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+		PRISM_FFTW_PLAN plan_final = PRISM_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
+		                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		                                                    reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		                                                    FFTW_BACKWARD, FFTW_ESTIMATE);
+		gatekeeper.unlock();
 		for (auto y = 0; y < pars.qyInd.size(); ++y){
 			for (auto x = 0; x < pars.qxInd.size(); ++x){
 				psi_small.at(y,x) = psi.at(pars.qyInd[y], pars.qxInd[x]);
 			}
 		}
-
-		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		PRISM_FFTW_PLAN plan_final = PRISM_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
-		                                        reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
-		                                        reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
-		                                        FFTW_BACKWARD, FFTW_ESTIMATE);
-
-		gatekeeper.unlock();
 		PRISM_FFTW_EXECUTE(plan_final);
 		gatekeeper.lock();
 		PRISM_FFTW_DESTROY_PLAN(plan_final);
@@ -86,7 +88,7 @@ namespace PRISM {
 		}
 	};
 
-	inline void fill_Scompact(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	 void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		mutex fftw_plan_lock;
 
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -104,12 +106,13 @@ namespace PRISM {
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.meta.NUM_THREADS) + 1;
-		auto start = 0;
-		auto stop = start + WORK_CHUNK_SIZE;
-		while (start < pars.numberBeams){
-			cout << "Launching thread to compute beams " << start << " through " << min(stop, pars.numberBeams) << '\n';
-			workers.emplace_back([&pars, start, stop, &fftw_plan_lock, &trans](){
+//		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.meta.NUM_THREADS) + 1;
+//		auto start = 0;
+//		auto stop = start + WORK_CHUNK_SIZE;
+		 setWorkStartStop(0, pars.numberBeams);
+		 for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
+			cout << "Launching thread #" << t << " to compute beams\n";
+			workers.emplace_back([&pars, &fftw_plan_lock, &trans](){
 				// allocate array for psi just once per thread
 				Array2D< complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 
@@ -117,16 +120,20 @@ namespace PRISM {
 				PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                          FFTW_FORWARD, FFTW_MEASURE);
+				                                          FFTW_FORWARD, FFTW_ESTIMATE);
 				PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                          FFTW_BACKWARD, FFTW_MEASURE);
+				                                          FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
-				for (auto a0 = start; a0 < min(stop, pars.numberBeams); ++a0){
-					// re-zero psi each iteration
-					memset((void*)&psi[0], 0, psi.size()*sizeof(complex<PRISM_FLOAT_PRECISION>));
-					propagatePlaneWave(pars, trans, a0, psi, plan_forward, plan_inverse, fftw_plan_lock);
+				size_t currentBeam, stop;
+				while (getWorkID_probePos(pars, currentBeam, stop)) { // synchronously get work assignment
+					while (currentBeam != stop) {
+						// re-zero psi each iteration
+						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
+						propagatePlaneWave(pars, trans, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
+						++currentBeam;
+					}
 				}
 				// clean up
 				gatekeeper.lock();
@@ -134,10 +141,6 @@ namespace PRISM {
 				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 				gatekeeper.unlock();
 			});
-
-			start += WORK_CHUNK_SIZE;
-			if (start >= pars.numberBeams)break;
-			stop  += WORK_CHUNK_SIZE;
 		}
 		cout << "Waiting for threads...\n";
 		for (auto& t:workers)t.join();

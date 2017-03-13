@@ -10,5 +10,6 @@
 //template <class T>
 //class PRISM::Parameters;
 // helper function for dispatching work
+void setWorkStartStop(const size_t& new_N_current, const size_t& new_N_total);
 bool getWorkID_probePos(const PRISM::Parameters<PRISM_FLOAT_PRECISION>& pars, size_t& Nstart, size_t& Nstop);
 #endif //PRISM_GETWORKID_H

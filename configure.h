@@ -28,11 +28,12 @@ namespace PRISM {
 	                                     const Array2D<PRISM_FLOAT_PRECISION>&,
 	                                     const size_t&,
 	                                     const size_t&);
+	using fill_Scompact_func = void(*)(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
 	extern entry_func execute_plan;
 	extern ms_output_func buildMultisliceOutput;
 	extern format_output_func formatOutput_CPU;
-
+	extern fill_Scompact_func fill_Scompact;
 #ifdef PRISM_ENABLE_GPU
 #define CUDA_API_PER_THREAD_DEFAULT_STREAM
 #include <cuda_runtime.h>
