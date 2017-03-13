@@ -482,8 +482,8 @@ std::complex<float> answer4;
 				cudaErrchk(cudaSetDevice(gpu_num)); // set current gpu
 		for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
 			for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-//				for (auto ay = start; ay < 25; ++ay) {
-//					for (auto ax = 0; ax < 25; ++ax) {
+//				for (auto ay = start; ay < 20; ++ay) {
+//					for (auto ax = 0; ax < 20; ++ax) {
 				getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
 				                       current_psi_intensity_ds,
 				                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
@@ -595,6 +595,7 @@ std::complex<float> answer4;
                                                                                                 start, cpu_stop,stop]() {
                                 for (auto ay = start; ay < std::min(stop, cpu_stop); ++ay) {
                                         for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+//	                                        for (auto ax = 0; ax < 20; ++ax) {
                                                 getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
                                         }
                                 }

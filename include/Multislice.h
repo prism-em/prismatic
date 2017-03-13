@@ -135,8 +135,8 @@ namespace PRISM{
 												&alphaInd, &PsiProbeInit,
 												start, stop]() {
 				for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
-//					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-						for (auto ax = 0; ax < 2; ++ax) {
+					for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+//						for (auto ax = 0; ax < 2; ++ax) {
 						getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
 					}
 				}
