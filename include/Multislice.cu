@@ -405,17 +405,16 @@ std::complex<float> answer4;
 
 		size_t psi_size = PsiProbeInit.size();
 
-		auto WORK_CHUNK_SIZE_GPU = std::floor( (((pars.yp.size() - cpu_stop - 1)) / total_num_streams) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
-		cout << "WORK_CHUNK_SIZE_GPU = " << WORK_CHUNK_SIZE_GPU << endl;
-		auto start = cpu_stop;// gpu work starts where the cpu work will stop
-		auto stop = start + WORK_CHUNK_SIZE_GPU;
+//		auto WORK_CHUNK_SIZE_GPU = std::floor( (((pars.yp.size() - cpu_stop - 1)) / total_num_streams) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
+//		cout << "WORK_CHUNK_SIZE_GPU = " << WORK_CHUNK_SIZE_GPU << endl;
+//		auto start = cpu_stop;// gpu work starts where the cpu work will stop
+//		auto stop = start + WORK_CHUNK_SIZE_GPU;
 		int stream_count = 0;
-		while (start < pars.yp.size()) {
+//		while (start < pars.yp.size()) {
+		for (auto t = 0; t < total_num_streams; ++t){
 			int gpu_num = stream_count % pars.meta.NUM_GPUS; // determine which gpu handles this job
 			cudaStream_t& current_stream = streams[stream_count];
-			cout << " STREAM = " << streams[stream_count] << endl;
-			cout << "Launching thread to compute all x-probe positions for y-probes "
-				 << start << "-" << std::min((size_t)stop,pars.yp.size()) << " on stream #" << stream_count << " of GPU #" << gpu_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << gpu_num << '\n';
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d = PsiProbeInit_d[gpu_num];
@@ -434,31 +433,45 @@ std::complex<float> answer4;
 			// emplace_back is better whenever constructing a new object
 			workers_gpu.emplace_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, &alphaInd, current_alphaInd_d,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
-					                                start, stop, gpu_num, current_qya_d, current_qxa_d,stack_ph,current_cufft_plan,
-					                                current_prop_d, &current_stream, &psi_size, &PsiProbeInit]() {
+					                                gpu_num, current_qya_d, current_qxa_d,stack_ph,current_cufft_plan,
+					                                current_prop_d, &current_stream, &psi_size, &PsiProbeInit, stream_count]() {
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(gpu_num)); // set current gpu
+				size_t Nstart, Nstop, ay, ax;
+				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+					while (Nstart != Nstop){
+						ay = Nstart / pars.xp.size();
+						ax = Nstart % pars.xp.size();
+//						cout << " ax = " << ax << endl;
+//						cout << " ay = " << ay << endl;
+						++Nstart;
+						getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
+						                       current_psi_intensity_ds,
+						                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
+						                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
+						                       current_alphaInd_d, current_cufft_plan, current_stream);
+					}
+				}
 
-
-				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
-			for (auto ax = 0; ax < pars.xp.size(); ++ax) {
-//				for (auto ay = start; ay < 20; ++ay) {
-//					for (auto ax = 0; ax < 20; ++ax) {
-				getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
-				                       current_psi_intensity_ds,
-				                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
-				                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
-				                       current_alphaInd_d, current_cufft_plan, current_stream);
-
-
+//				for (auto ay = start; ay < std::min((size_t) stop, pars.yp.size()); ++ay) {
+//			for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+////				for (auto ay = start; ay < 20; ++ay) {
+////					for (auto ax = 0; ax < 20; ++ax) {
+//				getMultisliceProbe_gpu(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, stack_ph,
+//				                       current_psi_intensity_ds,
+//				                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
+//				                       current_prop_d, ay, ax, PsiProbeInit.get_dimj(), PsiProbeInit.get_dimi(),
+//				                       current_alphaInd_d, current_cufft_plan, current_stream);
 //
 //
-//
-//
-// 	pinned_output_begin += psi_size; // advance the start point of the output
-			}
-		}
+////
+////
+////
+////
+//// 	pinned_output_begin += psi_size; // advance the start point of the output
+//			}
+//		}
 
 //				cudaErrchk(cudaDeviceSynchronize());
 //				{
@@ -531,13 +544,13 @@ std::complex<float> answer4;
 
 //				auto stack_ptr = &pars.stack[start*];
 //				cudaErrchk(cudaFreeHost(pinned_output));
-				cout << "GPU job done\n";
+				cout << "GPU worker on stream #" << stream_count << " of GPU #" << gpu_num << "finished\n";
 			}));
 
 			stream_count++;
-			start += WORK_CHUNK_SIZE_GPU;
-			if (start >= pars.yp.size())break;
-			stop += WORK_CHUNK_SIZE_GPU;
+//			start += WORK_CHUNK_SIZE_GPU;
+//			if (start >= pars.yp.size())break;
+//			stop += WORK_CHUNK_SIZE_GPU;
 		}
 
 
@@ -546,26 +559,36 @@ std::complex<float> answer4;
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		auto WORK_CHUNK_SIZE_CPU = std::floor(((cpu_stop - 1) / pars.meta.NUM_THREADS) + 1); //TODO: divide work more generally than just splitting up by yp. If input isn't square this might not do a good job
 		cout << "WORK_CHUNK_SIZE_CPU = " << WORK_CHUNK_SIZE_CPU << endl;
-                start = 0;// cpu work starts at beginning
-                stop = start + WORK_CHUNK_SIZE_CPU;
-                while (start < cpu_stop) {
-                        cout << "Launching thread to compute all x-probe positions for y-probes "
-                                 << start << "-" << std::min(stop,cpu_stop) << " on CPU\n";
+//                start = 0;// cpu work starts at beginning
+//                stop = start + WORK_CHUNK_SIZE_CPU;
+//                while (start < cpu_stop) {
+			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
+                        cout << "Launching CPU worker #" << t <<  '\n';
                         // emplace_back is better whenever constructing a new object
-                        workers_cpu.emplace_back(thread([&pars, &trans,
-                                                                                                &alphaInd, &PsiProbeInit,
-                                                                                                start, cpu_stop,stop]() {
-                                for (auto ay = start; ay < std::min(stop, cpu_stop); ++ay) {
-                                        for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+                        workers_cpu.emplace_back(thread([&pars,t, &trans, &alphaInd, &PsiProbeInit, cpu_stop]() {
+	                        size_t Nstart, Nstop, ay, ax;
+	                        while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+		                        while (Nstart != Nstop){
+			                        ay = Nstart / pars.xp.size();
+			                        ax = Nstart % pars.xp.size();
+//			                        cout << " ax = " << ax << endl;
+//			                        cout << " ay = " << ay << endl;
+			                        ++Nstart;
+			                        getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+		                        }
+	                        }
+
+//                                for (auto ay = start; ay < std::min(stop, cpu_stop); ++ay) {
+//                                        for (auto ax = 0; ax < pars.xp.size(); ++ax) {
 //	                                        for (auto ax = 0; ax < 20; ++ax) {
-                                                getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
-                                        }
-                                }
-	                        cout << "CPU job done\n";
+//                                                getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+//                                        }
+//                                }
+	                        cout << "CPU worker #" << t << " finished\n";
                         }));
-                        start += WORK_CHUNK_SIZE_CPU;
-                        if (start >= cpu_stop)break;
-                        stop += WORK_CHUNK_SIZE_CPU;
+//                        start += WORK_CHUNK_SIZE_CPU;
+//                        if (start >= cpu_stop)break;
+//                        stop += WORK_CHUNK_SIZE_CPU;
                 }
 
 		// synchronize threads
