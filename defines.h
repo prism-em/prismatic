@@ -38,5 +38,8 @@ namespace PRISM {
 #define PRISM_FFTW_INIT_THREADS fftwf_init_threads
 #define	PRISM_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
 #define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
+//#define PRISM_FFTW_INIT_THREADS
+//#define	PRISM_FFTW_PLAN_WITH_NTHREADS
+//#define PRISM_FFTW_CLEANUP_THREADS
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 #endif //PRISM_DEFINES_H

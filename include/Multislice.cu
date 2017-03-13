@@ -171,53 +171,7 @@ for (volatile long b = 0; b < 100; ++b){
                                   cudaStream_t& stream){
 	  size_t num_integration_bins = pars.detectorAngles.size();
 	  setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
-PRISM_FLOAT_PRECISION check;
-	  if (ay==0 & ax==0){
-		  for (auto j = 0; j < 10; ++j) {
-			  cudaErrchk(cudaMemcpy(&check, integratedOutput_ds + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-			  cout << " integratedOutput_ds before = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-		  }
-	  }
-if (ay==0 & ax==0){
-for (auto j = 0; j < 10; ++j) {
-                                cudaErrchk(cudaMemcpy(&check, alphaInd_d + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-                                cout << " alpha before = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-                        }
-}
-
-
-if (ay==0 & ax==0){
-for (auto j = 0; j < 10; ++j) {
-                                cudaErrchk(cudaMemcpy(&check, psi_intensity_ds + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-                                cout << " psi_intensity_ds before = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-                        }
-
-	for (auto j = 0; j < 10; ++j) {
-		cudaErrchk(cudaMemcpy(&check, integratedOutput_ds + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-		cout << " integratedOutput_ds before = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-	}
-
-
-//cout << "copying a value " << endl;
-//float a = 1;
-
-//for (int j = 0; j< 10; ++j){
-//cudaErrchk(cudaMemcpy(psi_intensity_ds + j,&a,sizeof(float),cudaMemcpyHostToDevice));
-//}
-}
 integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
-if (ay==0 & ax==0){
-for (auto j = 0; j < 10; ++j) {
-                                cudaErrchk(cudaMemcpy(&check, psi_intensity_ds + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-                                cout << " psi_intensity_ds after = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-                        }
-	for (auto j = 0; j < 10; ++j) {
-		cudaErrchk(cudaMemcpy(&check, integratedOutput_ds + j, 1 * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyDeviceToHost));
-		cout << " integratedOutput_ds before = " << check << endl; //<< "xp = " << xp << "yp = " << yp << endl;
-	}
-
-                }
-
 
 	  // Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
 	  cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
@@ -570,6 +524,7 @@ std::complex<float> answer4;
 
 //				auto stack_ptr = &pars.stack[start*];
 //				cudaErrchk(cudaFreeHost(pinned_output));
+				cout << "GPU job done\n";
 			}));
 
 			stream_count++;
@@ -599,6 +554,7 @@ std::complex<float> answer4;
                                                 getMultisliceProbe_cpu(pars, trans, PsiProbeInit, ay, ax, alphaInd);
                                         }
                                 }
+	                        cout << "CPU job done\n";
                         }));
                         start += WORK_CHUNK_SIZE_CPU;
                         if (start >= cpu_stop)break;
@@ -608,6 +564,7 @@ std::complex<float> answer4;
 		// synchronize threads
 		cout << "waiting on threads" << endl;
 		for (auto& t:workers_gpu)t.join();
+
 		for (auto& t:workers_cpu)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
 		cout << "threads done, cleaning up" << endl;
