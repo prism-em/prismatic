@@ -13,32 +13,32 @@
 #include "getWorkID.h"
 #include <iostream>
 #include "fftw3.h"
-#include "utility.h":"
+#include "utility.h"
 
 
 #define PI 3.14159265359
 #define BLOCK_SIZE1D 1024
 
-// helpful function for checking CUDA errors.
-// Source: http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
-#define cudaErrchk(ans) { GPUAssert((ans), __FILE__, __LINE__); }
-inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort=true){
-	if (code != cudaSuccess)
-	{
-		fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-		if (abort) exit(code);
-	}
-}
-
-// helpful function for checking cuFFT errors
-#define cufftErrchk(ans) { GPUAssert_cufft((ans), __FILE__, __LINE__); }
-inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=true){
-	if (code != CUFFT_SUCCESS)
-	{
-		fprintf(stderr,"GPUassert: %s %d\n", file, line);
-		if (abort) exit(code);
-	}
-}
+//// helpful function for checking CUDA errors.
+//// Source: http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
+//#define cudaErrchk(ans) { GPUAssert((ans), __FILE__, __LINE__); }
+//inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort=true){
+//	if (code != cudaSuccess)
+//	{
+//		fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+//		if (abort) exit(code);
+//	}
+//}
+//
+//// helpful function for checking cuFFT errors
+//#define cufftErrchk(ans) { GPUAssert_cufft((ans), __FILE__, __LINE__); }
+//inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=true){
+//	if (code != CUFFT_SUCCESS)
+//	{
+//		fprintf(stderr,"GPUassert: %s %d\n", file, line);
+//		if (abort) exit(code);
+//	}
+//}
 
 namespace PRISM{
 	// define some constants
@@ -271,7 +271,7 @@ namespace PRISM{
 
 
 
-		// pointers to GPU memory (one copy per GPU)
+		// pointers to read-only GPU memory (one copy per GPU)
 		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
 		PRISM_CUDA_COMPLEX_FLOAT *trans_d[pars.meta.NUM_GPUS];
 		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
@@ -279,7 +279,7 @@ namespace PRISM{
 		PRISM_FLOAT_PRECISION    *qya_d[pars.meta.NUM_GPUS];
 	    PRISM_FLOAT_PRECISION    *alphaInd_d[pars.meta.NUM_GPUS];
 
-		// pointers to GPU memory (one per stream)
+		// pointers to read/write GPU memory (one per stream)
 		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
 		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
 		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];

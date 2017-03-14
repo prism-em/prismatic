@@ -13,6 +13,31 @@ namespace PRISM {
 #ifdef PRISM_ENABLE_GPU
 #include "cuComplex.h"
 #include <cuda_runtime.h>
+#include <cstdio>
+#include <cstdlib>
+#include "cufft.h"
+
+// helpful function for checking CUDA errors.
+// Source: http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
+#define cudaErrchk(ans) { GPUAssert((ans), __FILE__, __LINE__); }
+inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort=true){
+	if (code != cudaSuccess)
+	{
+		fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+		if (abort) exit(code);
+	}
+}
+
+// helpful function for checking cuFFT errors
+#define cufftErrchk(ans) { GPUAssert_cufft((ans), __FILE__, __LINE__); }
+inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=true){
+	if (code != CUFFT_SUCCESS)
+	{
+		fprintf(stderr,"GPUassert: %s %d\n", file, line);
+		if (abort) exit(code);
+	}
+}
+
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
 typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
 #else
