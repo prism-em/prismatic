@@ -444,7 +444,7 @@ namespace PRISM{
 				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
 			}));
 
-			stream_count++;
+			++stream_count;
 		}
 
 
