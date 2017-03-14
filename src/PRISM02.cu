@@ -8,92 +8,22 @@
 #include "fftw3.h"
 #include "defines.h"
 #include "cufft.h"
+#include "utility.cuh"
 #define PI 3.14159265359
 #define BLOCK_SIZE1D 1024
 
 namespace PRISM {
 	using namespace std;
 
-	// define some constants
-	__device__ __constant__ PRISM_FLOAT_PRECISION pi       = PI;
-	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT i     = {0, 1};
-	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT pi_cx = {PI, 0};
-	__device__ __constant__ PRISM_CUDA_COMPLEX_FLOAT minus_2pii = {0, -2*PI};
 
-	// computes exp(real(a) + i * imag(a))
-	__device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a){
-		double e = exp(a.x);
-		double s,c;
-		sincos(a.y, &s, &c);
-		return make_cuDoubleComplex(e*c, e*s);
-	}
-	__device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a){
-		float e = expf(a.x);
-		float s,c;
-		sincosf(a.y, &s, &c);
-		return make_cuFloatComplex(e*c, e*s);
-	}
-
-	// creates initial probe using existing GPU memory rather than streaming each probe
-	__global__ void initializePsi(cuFloatComplex *psi_d, const size_t N, const size_t beamLoc){
-		int idx = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx < N) {
-			psi_d[idx] = (idx == beamLoc) ? make_cuFloatComplex(1,0):make_cuFloatComplex(0,0);
-		}
-	}
-
-	__global__ void initializePsi(cuDoubleComplex *psi_d, const size_t N, const size_t beamLoc){
-		int idx = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx < N) {
-			psi_d[idx] = (idx == beamLoc) ? make_cuDoubleComplex(1,0):make_cuDoubleComplex(0,0);
-		}
-	}
-
-	// multiply two complex arrays
-	__global__ void multiply_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
-	                                 const PRISM_CUDA_COMPLEX_FLOAT* other,
-	                                 const size_t N){
-		int idx = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx < N) {
-			PRISM_CUDA_COMPLEX_FLOAT a = arr[idx];
-			PRISM_CUDA_COMPLEX_FLOAT o = other[idx];
-			arr[idx].x = a.x * o.x - a.y * o.y;
-			arr[idx].y = a.x * o.y + a.y * o.x;
-		}
-	}
-
-	// divide two complex arrays
-	__global__ void divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
-	                               const PRISM_FLOAT_PRECISION val,
-	                               const size_t N){
-		int idx = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx < N) {
-			arr[idx].x /= val;
-			arr[idx].y /= val;
-		}
-	}
-
-	__global__ void array_subset(const PRISM_CUDA_COMPLEX_FLOAT* psi_d,
-	                             PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
-	                             const PRISM_FLOAT_PRECISION* qyInd_d,
-	                             const PRISM_FLOAT_PRECISION* qxInd_d,
-	                             const size_t dimj,
-	                             const size_t dimi,
-	                             const size_t N){
-		int idx = threadIdx.x + blockDim.x*blockIdx.x;
-		if (idx < N) {
-//			arr[idx].x /= val;
-//			arr[idx].y /= val;
-		}
-	}
 
 	void propagatePlaneWave_GPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                            PRISM_CUDA_COMPLEX_FLOAT* trans_d,
 	                            PRISM_CUDA_COMPLEX_FLOAT* psi_d,
 	                            PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
 	                            complex<PRISM_FLOAT_PRECISION>* Scompact_slice_ph,
-	                            const PRISM_FLOAT_PRECISION* qyInd_d,
-	                            const PRISM_FLOAT_PRECISION* qxInd_d,
+	                            const size_t* qyInd_d,
+	                            const size_t* qxInd_d,
 	                            const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
 	                            const size_t* beamsIndex,
 	                            const size_t& beamNumber,
@@ -102,14 +32,8 @@ namespace PRISM {
 	                            cudaStream_t& stream){
 
 		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
-		initializePsi<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D >>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
-//		complex<float> ans;
-//		cudaMemcpy(&ans, psi_d, sizeof(ans), cudaMemcpyDeviceToHost);
-//		cout << "ans[0] = " << ans << endl;
-//		cudaMemcpy(&ans, (psi_d + 1), sizeof(ans), cudaMemcpyDeviceToHost);
-//		cout << "ans[1] = " << ans << endl;
-//		cudaMemcpy(&ans, (psi_d + 15), sizeof(ans), cudaMemcpyDeviceToHost);
-//		cout << "ans[15] = " << ans << endl;
+		initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
+
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftErrchk(cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
@@ -119,6 +43,51 @@ namespace PRISM {
 			divide_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, psi_size);
 		}
 
+		array_subset<<<(pars.qyInd.size()*pars.qxInd.size()-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>> ( psi_d,
+																					psi_small_d,
+																					qyInd_d,
+																					qxInd_d,
+																					pars.imageSize[1],
+																					pars.qyInd.size(),
+																					pars.qxInd.size(),
+																					psi_size);
+		if (beamNumber==0) {
+			complex<float> ans;
+			cudaMemcpy(&ans, trans_d, sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "trans_d[0] = " << ans << endl;
+			cudaMemcpy(&ans, (trans_d + 1), sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "trans_d[1] = " << ans << endl;
+			cudaMemcpy(&ans, (trans_d + 15), sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "trans_d[15] = " << ans << endl;
+		}
+
+		if (beamNumber==0) {
+			size_t ans_sizet;
+			cudaMemcpy(&ans_sizet, qyInd_d, sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qyInd_d[0] = " << ans_sizet << endl;
+			cudaMemcpy(&ans_sizet, (qyInd_d + 1), sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qyInd_d[1] = " << ans_sizet << endl;
+			cudaMemcpy(&ans_sizet, (qyInd_d + 15), sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qyInd_d[15] = " << ans_sizet << endl;
+			cudaMemcpy(&ans_sizet, qxInd_d, sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qxInd_d[0] = " << ans_sizet << endl;
+			cudaMemcpy(&ans_sizet, (qxInd_d + 1), sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qxInd_d[1] = " << ans_sizet << endl;
+			cudaMemcpy(&ans_sizet, (qxInd_d + 15), sizeof(ans_sizet), cudaMemcpyDeviceToHost);
+			cout << "qxInd_d[15] = " << ans_sizet << endl;
+
+
+		}
+
+		if (beamNumber==6) {
+			complex<float> ans;
+			cudaMemcpy(&ans, psi_small_d, sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "ans[0] = " << ans << endl;
+			cudaMemcpy(&ans, (psi_small_d + 1), sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "ans[1] = " << ans << endl;
+			cudaMemcpy(&ans, (psi_small_d + 15), sizeof(ans), cudaMemcpyDeviceToHost);
+			cout << "ans[15] = " << ans << endl;
+		}
 //		formatOutput_GPU(pars, psi_intensity_ds, alphaInd_d, stack_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 
 //
@@ -250,8 +219,8 @@ namespace PRISM {
 		// pointers to read-only GPU memory (one copy per GPU)
 		PRISM_CUDA_COMPLEX_FLOAT *trans_d[pars.meta.NUM_GPUS];
 		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qxInd_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qyInd_d[pars.meta.NUM_GPUS];
+		size_t                   *qxInd_d[pars.meta.NUM_GPUS];
+		size_t                   *qyInd_d[pars.meta.NUM_GPUS];
 		size_t                   *beamsIndex_d[pars.meta.NUM_GPUS];
 
 		// pointers to read/write GPU memory (one per stream)
@@ -262,11 +231,11 @@ namespace PRISM {
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMalloc((void **) &trans_d[g],      trans.size()      * sizeof(trans[0])));
-			cudaErrchk(cudaMalloc((void **) &prop_d[g],       pars.prop.size()  * sizeof(pars.prop[0])));
-			cudaErrchk(cudaMalloc((void **) &qxInd_d[g],      pars.qxInd.size() * sizeof(pars.qxInd[0])));
-			cudaErrchk(cudaMalloc((void **) &qyInd_d[g],      pars.qyInd.size() * sizeof(pars.qyInd[0])));
-			cudaErrchk(cudaMalloc((void **) &beamsIndex_d[g], pars.beamsIndex.size() * sizeof(pars.beamsIndex[0])));
+			cudaErrchk(cudaMalloc((void **) &trans_d[g],      trans.size()      * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &prop_d[g],       pars.prop.size()  * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &qxInd_d[g],      pars.qxInd.size() * sizeof(size_t)));
+			cudaErrchk(cudaMalloc((void **) &qyInd_d[g],      pars.qyInd.size() * sizeof(size_t)));
+			cudaErrchk(cudaMalloc((void **) &beamsIndex_d[g], pars.beamsIndex.size() * sizeof(size_t)));
 		}
 
 		// allocate memory per stream and 0 it
@@ -333,9 +302,9 @@ namespace PRISM {
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_trans_d = trans_d[GPU_num];
 			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d  = prop_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qxInd_d    = qxInd_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qyInd_d    = qyInd_d[GPU_num];
-			size_t                *current_beamsIndex = beamsIndex_d[GPU_num];
+			size_t                   *current_qxInd_d    = qxInd_d[GPU_num];
+			size_t                   *current_qyInd_d    = qyInd_d[GPU_num];
+			size_t                   *current_beamsIndex = beamsIndex_d[GPU_num];
 			// get pointers to per-stream arrays
 			PRISM_CUDA_COMPLEX_FLOAT *current_psi_ds             = psi_ds[stream_count];
 			PRISM_CUDA_COMPLEX_FLOAT *current_psi_small_ds       = psi_small_ds[stream_count];

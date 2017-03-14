@@ -26,7 +26,10 @@ set(GUI_SOURCE_FILES Qt/main.cpp
         Qt/prismmainwindow.cpp)
 
 if (PRISM_ENABLE_GPU)
-    set(CUDA_SOURCE_FILES src/Multislice.cu src/PRISM02.cu)
+    set(CUDA_SOURCE_FILES
+            src/Multislice.cu
+            src/PRISM02.cu
+            src/utility.cu)
 endif(PRISM_ENABLE_GPU)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
