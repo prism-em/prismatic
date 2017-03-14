@@ -40,8 +40,10 @@ inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=tru
 
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
 typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
+#define PRISM_MAKE_CU_COMPLEX make_cuDoubleComplex
 #else
 typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
+#define PRISM_MAKE_CU_COMPLEX make_cuFloatComplex
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 
 
