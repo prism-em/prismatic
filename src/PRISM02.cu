@@ -69,11 +69,12 @@ namespace PRISM {
 
 		}
 		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
+		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
 		initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
 
 		if (beamNumber==0) {
 			cout << "pars.beamsIndex[beamNumber]) = " << pars.beamsIndex[beamNumber] << endl;
-			complex<double> ans;
+			complex<PRISM_FLOAT_PRECISION> ans;
 			cudaMemcpy(&ans, psi_d, sizeof(ans), cudaMemcpyDeviceToHost);
 			cout << "ans[0] = " << ans << endl;
 			cudaMemcpy(&ans, (psi_d + 1), sizeof(ans), cudaMemcpyDeviceToHost);
@@ -99,18 +100,48 @@ namespace PRISM {
 
 
 		}
-		for (auto planeNum = 0; planeNum < 1; ++planeNum) {
-			cufftErrchk(cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
+
+ if (beamNumber == 0) {
+                                vector<complex<PRISM_FLOAT_PRECISION> > debug_cx(pars.imageSize[0] * pars.imageSize[1], 0);
+                                cout << "debug_cx.size() = " << debug_cx.size() << endl;
+                                cudaMemcpy(&debug_cx[0], (psi_d), psi_size * sizeof(complex<PRISM_FLOAT_PRECISION>),
+                                           cudaMemcpyDeviceToHost);
+                                Array2D<PRISM_FLOAT_PRECISION> debug = zeros_ND<2, PRISM_FLOAT_PRECISION>(
+                                                {{pars.imageSize[0], pars.imageSize[1]}});
+
+                                //for (auto i = 0; i < 100; ++i) {
+                                  //      cout << "debug[" << i << "] = " << debug[i] << endl;
+                                //}
+                                for (auto i = 0; i < 100; ++i) {
+                                        cout << "before debug_cx[" << i << "] = " << debug_cx[i] << endl;
+                                }
+                                for (auto i = 0; i < psi_size; ++i) {
+                                        debug[i] = abs(debug_cx[i]);
+                                }
+                                debug.toMRC_f("debugPSIbefore.mrc");
+                        }
+                
+//cout << DEBUGMESSAGE << endl;
+//cout << MESSAGE << endl;
+//		cout << "size of PRISM_FLOAT_PRECISION = " << sizeof(PRISM_FLOAT_PRECISION) << endl;
+//		cout << "size of psi_d[0] = " << sizeof(psi_d[0]) << endl;
+			//for (auto planeNum = 0; planeNum < 10; ++planeNum) {
+			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
+			//cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
+			//cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
 			//multiply_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
 			multiply_cx<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
 //			multiply_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
 			divide_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-			cufftErrchk(cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
 			//multiply_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
 			multiply_cx<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
 
 		}
 
+//cout << DEBUGMESSAGE << endl;
+//cout << MESSAGE << endl;
 		{
 			if (beamNumber == 0) {
 				vector<complex<PRISM_FLOAT_PRECISION> > debug_cx(pars.imageSize[0] * pars.imageSize[1], 0);
@@ -119,6 +150,13 @@ namespace PRISM {
 				           cudaMemcpyDeviceToHost);
 				Array2D<PRISM_FLOAT_PRECISION> debug = zeros_ND<2, PRISM_FLOAT_PRECISION>(
 						{{pars.imageSize[0], pars.imageSize[1]}});
+
+				//for (auto i = 0; i < 100; ++i) {
+                                  //      cout << "debug[" << i << "] = " << debug[i] << endl;
+                                //}
+				for (auto i = 0; i < 100; ++i) {
+					cout << "debug_cx[" << i << "] = " << debug_cx[i] << endl;	
+				}
 				for (auto i = 0; i < psi_size; ++i) {
 					debug[i] = abs(debug_cx[i]);
 				}
@@ -127,9 +165,9 @@ namespace PRISM {
 		}
 
 //		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
-//			cufftErrchk(cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
+//			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
 //			multiply_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
-//			cufftErrchk(cufftExecC2C(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
+//			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
 //			multiply_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
 //			divide_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, psi_size);
 //		}
@@ -185,6 +223,9 @@ namespace PRISM {
 																					pars.imageSize[1],
 																					pars.qyInd.size(),
 																					pars.qxInd.size());
+		PRISM_CUFFT_EXECUTE(plan_small,&psi_small_d[0], &psi_small_d[0], CUFFT_INVERSE);
+                divide_inplace<<<(psi_small_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_small_d, PRISM_MAKE_CU_COMPLEX(psi_small_size, 0),psi_small_size);
+
 		if (beamNumber==0) {
 			complex<PRISM_FLOAT_PRECISION> ans;
 			cudaMemcpy(&ans, trans_d, sizeof(ans), cudaMemcpyDeviceToHost);
@@ -246,9 +287,17 @@ namespace PRISM {
 		if (beamNumber==0) {
 			complex<PRISM_FLOAT_PRECISION> ans;
 //			for (auto i = 0; i < pars.imageSize[1] * pars.imageSize[0]; ++i) {
-//				cudaMemcpy(&ans, psi_small_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//				cout << "ans[" <<i << "] = " << ans << endl;
-//			}
+			for (auto i = 0; i < 50; ++i) {
+				cudaMemcpy(&ans, psi_small_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
+				cout << "psi_small[" <<i << "] = " << ans << endl;
+			}
+
+			for (auto i = 0; i < 50; ++i) {
+                                cudaMemcpy(&ans, psi_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
+                                cout << "psi_d[" <<i << "] = " << ans << endl;
+                        }
+
+
 			cudaMemcpy(&ans, (psi_small_d + 1), sizeof(ans), cudaMemcpyDeviceToHost);
 			cout << "ans[1] = " << ans << endl;
 			cudaMemcpy(&ans, (psi_small_d + 15), sizeof(ans), cudaMemcpyDeviceToHost);
@@ -340,8 +389,8 @@ namespace PRISM {
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSize[1], pars.imageSize[0], CUFFT_C2C));
-			cufftErrchk(cufftPlan2d(&cufft_plan_small[j], pars.qyInd.size(), pars.qxInd.size(), CUFFT_C2C));
+			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSize[1], pars.imageSize[0], PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlan2d(&cufft_plan_small[j], pars.qyInd.size(), pars.qxInd.size(), PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 			cufftErrchk(cufftSetStream(cufft_plan_small[j], streams[j]));
 		}

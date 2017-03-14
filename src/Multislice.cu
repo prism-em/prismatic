@@ -123,18 +123,37 @@ namespace PRISM{
 //	}
 
 	// integrate computed intensities radially
-	__global__ void integrateDetector(const PRISM_FLOAT_PRECISION* psi_intensity_ds,
-	                                  const PRISM_FLOAT_PRECISION* alphaInd_d,
-	                                  PRISM_FLOAT_PRECISION* integratedOutput,
+	__global__ void integrateDetector(const float* psi_intensity_ds,
+	                                  const float* alphaInd_d,
+	                                  float* integratedOutput,
 	                                  const size_t N,
 	                                  const size_t num_integration_bins) {
 		int idx = threadIdx.x + blockDim.x * blockIdx.x;
 		if (idx < N) {
 			size_t alpha = (size_t)alphaInd_d[idx];
 			if (alpha <= num_integration_bins)
+				//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
 				atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
 		}
 	}
+
+        __global__ void integrateDetector(const double* psi_intensity_ds,
+                                          const double* alphaInd_d,
+                                          double* integratedOutput,
+                                          const size_t N,
+                                          const size_t num_integration_bins) {
+//THIS FUNCTION IS BAD
+//THIS FUNCTION IS BAD
+//TODO: FIX THIS
+                int idx = threadIdx.x + blockDim.x * blockIdx.x;
+                if (idx < N) {
+                        size_t alpha = (size_t)alphaInd_d[idx];
+                        if (alpha <= num_integration_bins){}
+                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+
+                }
+        }
 
 	// formatOutput variants control how the resulting calculation is returned.
 	// formatOutput_GPU_integrate integrates the result of the calculation at the detector plane radially and
@@ -197,9 +216,9 @@ namespace PRISM{
 		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
-			cufftErrchk(cufftExecC2C(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*N], N);
-			cufftErrchk(cufftExecC2C(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
 			divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
 		}

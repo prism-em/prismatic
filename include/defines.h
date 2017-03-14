@@ -33,16 +33,22 @@ inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort=t
 inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=true){
 	if (code != CUFFT_SUCCESS)
 	{
-		fprintf(stderr,"GPUassert: %s %d\n", file, line);
+		fprintf(stderr,"GPUassert: %i %s %d\n", code, file, line);
 		if (abort) exit(code);
 	}
 }
 
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
 typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
+#define PRISM_CUFFT_EXECUTE cufftExecZ2Z
+#define PRISM_CUFFT_PLAN_TYPE CUFFT_Z2Z
+#define DEBUGMESSAGE "using double for cuda"
 #define PRISM_MAKE_CU_COMPLEX make_cuDoubleComplex
 #else
+#define DEBUGMESSAGE "using float for cuda"
 typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
+#define PRISM_CUFFT_EXECUTE cufftExecC2C
+#define PRISM_CUFFT_PLAN_TYPE CUFFT_C2C
 #define PRISM_MAKE_CU_COMPLEX make_cuFloatComplex
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 
