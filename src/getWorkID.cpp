@@ -18,7 +18,7 @@ bool getWorkID(const PRISM::Parameters<PRISM_FLOAT_PRECISION>& pars, size_t& Nst
 	static std::mutex lock; // mutex to synchronize reading/incrementing job ID
 //	static size_t N_curddrent = 0; // number of next job
 //	static const size_t N_total = pars.xp.size() * pars.yp.size(); // total number of jobs
-	constexpr size_t NUM_JOBS_PER_CALL = 5; // number of pieces of work to assign to each calling thread
+	constexpr size_t NUM_JOBS_PER_CALL = 1; // number of pieces of work to assign to each calling thread
 	std::lock_guard<std::mutex> supervisor(lock);
 	if (N_current >= N_total) return false; // all jobs done, terminate
 	Nstart = N_current;
