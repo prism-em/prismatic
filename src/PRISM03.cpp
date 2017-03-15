@@ -17,14 +17,6 @@
 
 namespace PRISM {
 	using namespace std;
-	void buildSignal(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                 const size_t &ay,
-	                 const size_t &ax,
-	                 const PRISM_FLOAT_PRECISION &yTiltShift,
-	                 const PRISM_FLOAT_PRECISION &xTiltShift,
-	                 PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-	                 PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit);
-
 	Array2D<PRISM_FLOAT_PRECISION> array2D_subset(const Array2D<PRISM_FLOAT_PRECISION> &arr,
 	                                              const size_t &starty, const size_t &stepy, const size_t &stopy,
 	                                              const size_t &startx, const size_t &stepx, const size_t &stopx) {
@@ -205,71 +197,72 @@ namespace PRISM {
 									return a / norm_constant;
 								});
 
-
 						PRISM_FLOAT_PRECISION zTotal = pars.meta.cellDim[0];
 						PRISM_FLOAT_PRECISION xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
 						PRISM_FLOAT_PRECISION yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
 
-						// launch threads to compute results for batches of xp, yp
-						// I do this by dividing the xp points among threads, and each computes
-						// all of the relevant yp for each of its xp. This seems an okay strategy
-						// as long as the number of xp and yp are similar. If that is not the case
-						// this may need to be adapted
-						vector<thread> workers;
-						workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-						setWorkStartStop(0, pars.xp.size()*pars.yp.size());
-						for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
-							cout << "Launching thread #" << t << " to result\n";
-							// emplace_back is better whenever constructing a new object
-							workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-									                            &alphaInd, &PsiProbeInit]() {
-								size_t Nstart, Nstop, ay, ax;
-								while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
-									while (Nstart != Nstop){
-										ay = Nstart / pars.xp.size();
-										ax = Nstart % pars.xp.size();
-										buildSignal(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
-										++Nstart;
-									}
-								}
-							}));
-						}
-						// synchronize
-						cout << "Waiting for threads...\n";
-						for (auto &t:workers)t.join();
+						buildPRISMOutput(pars, xTiltShift, yTiltShift, alphaInd, PsiProbeInit);
 					}
 				}
 			}
 		}
 	}
 
+	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                              const PRISM_FLOAT_PRECISION xTiltShift,
+	                              const PRISM_FLOAT_PRECISION yTiltShift,
+	                              const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
+	                              const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit){
+		// launch threads to compute results for batches of xp, yp
+		// I do this by dividing the xp points among threads, and each computes
+		// all of the relevant yp for each of its xp. This seems an okay strategy
+		// as long as the number of xp and yp are similar. If that is not the case
+		// this may need to be adapted
+		vector<thread> workers;
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		setWorkStartStop(0, pars.xp.size()*pars.yp.size());
+		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+			cout << "Launching thread #" << t << " to result\n";
+			// emplace_back is better whenever constructing a new object
+			workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
+					                            &alphaInd, &PsiProbeInit]() {
+				size_t Nstart, Nstop, ay, ax;
+				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+					while (Nstart != Nstop){
+						ay = Nstart / pars.xp.size();
+						ax = Nstart % pars.xp.size();
+						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+						++Nstart;
+					}
+				}
+			}));
+		}
+		// synchronize
+		cout << "Waiting for threads...\n";
+		for (auto &t:workers)t.join();
+	}
 
-	void buildSignal(Parameters<PRISM_FLOAT_PRECISION> &pars,
+
+	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                 const size_t &ay,
 	                 const size_t &ax,
 	                 const PRISM_FLOAT_PRECISION &yTiltShift,
 	                 const PRISM_FLOAT_PRECISION &xTiltShift,
-	                 PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-	                 PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit) {
+	                 const PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
+	                 const PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit) {
 		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
 
-		// convenience aliases
-		using Array3D    = PRISM::ArrayND<3, std::vector<PRISM_FLOAT_PRECISION> >;
-		using Array2D    = PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> >;
-		using Array2D_cx = PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > >;
-		using Array1D    = PRISM::ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> >;
-
 		PRISM_FLOAT_PRECISION x0 = pars.xp[ax] / pars.pixelSizeOutput[1];
 		PRISM_FLOAT_PRECISION y0 = pars.yp[ay] / pars.pixelSizeOutput[0];
-		Array1D x = pars.xVec + round(x0);
+		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
 		transform(x.begin(), x.end(), x.begin(), [&pars](PRISM_FLOAT_PRECISION &a) { return fmod(a, (PRISM_FLOAT_PRECISION)pars.imageSizeOutput[1]); });
-		Array1D y = pars.yVec + round(y0);
+		Array1D<PRISM_FLOAT_PRECISION> y = pars.yVec + round(y0);
 		transform(y.begin(), y.end(), y.begin(), [&pars](PRISM_FLOAT_PRECISION &a) { return fmod(a, (PRISM_FLOAT_PRECISION)pars.imageSizeOutput[0]); });
-		Array2D intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		for (auto a5 = 0; a5 < pars.meta.numFP; ++a5) {
-			Array2D_cx psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+			Array2D<std::complex< PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 				PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);

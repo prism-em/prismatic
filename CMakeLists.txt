@@ -29,6 +29,7 @@ if (PRISM_ENABLE_GPU)
     set(CUDA_SOURCE_FILES
             src/Multislice.cu
             src/PRISM02.cu
+            src/PRISM03.cu
             src/utility.cu)
 endif(PRISM_ENABLE_GPU)
 

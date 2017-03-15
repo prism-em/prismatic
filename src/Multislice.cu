@@ -180,12 +180,6 @@ namespace PRISM{
 
 	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	  cudaErrchk(cudaStreamSynchronize(stream));
-//	  cudaDeviceSynchronize();
-//		volatile long a = 0;
-//		for (volatile long long b = 0; b < 1000000; ++b)
-//		{
-//			a += b;
-//		}
 	  const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
 	  memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }

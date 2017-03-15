@@ -14,26 +14,24 @@
 #include "fftw3.h"
 #include "utility.h"
 namespace PRISM {
-	void buildSignal(Parameters<PRISM_FLOAT_PRECISION> &pars,
-					 const size_t &ay,
-					 const size_t &ax,
-					 const PRISM_FLOAT_PRECISION &yTiltShift,
-					 const PRISM_FLOAT_PRECISION &xTiltShift,
-					 PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-					 PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit);
-
 	Array2D<PRISM_FLOAT_PRECISION> array2D_subset(const Array2D<PRISM_FLOAT_PRECISION> &arr,
 	                          const size_t &starty, const size_t &stepy, const size_t &stopy,
 	                          const size_t &startx, const size_t &stepx, const size_t &stopx);
 
 	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
-	void buildSignal(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                 const size_t &ay,
 	                 const size_t &ax,
 	                 const PRISM_FLOAT_PRECISION &yTiltShift,
 	                 const PRISM_FLOAT_PRECISION &xTiltShift,
-	                 PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-	                 PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit);
+	                 const PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
+	                 const PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit);
+
+	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                              const PRISM_FLOAT_PRECISION xTiltShift,
+	                              const PRISM_FLOAT_PRECISION yTiltShift,
+	                              const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
+	                              const Array2D<std::complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit);
 }
 #endif //PRISM_PRISM03_H

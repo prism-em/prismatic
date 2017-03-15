@@ -32,6 +32,12 @@ namespace PRISM {
                                     Array2D<std::complex<PRISM_FLOAT_PRECISION> >&,
                                     Array2D<PRISM_FLOAT_PRECISION>&);
 
+	using prism_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
+	                                   const PRISM_FLOAT_PRECISION,
+                                       const PRISM_FLOAT_PRECISION,
+									   const Array2D<PRISM_FLOAT_PRECISION>&,
+									   const Array2D<std::complex<PRISM_FLOAT_PRECISION> >&);
+
 	using format_output_func = void (*)( Parameters<PRISM_FLOAT_PRECISION>&,
 	                                     Array2D< std::complex<PRISM_FLOAT_PRECISION> >&,
 	                                     const Array2D<PRISM_FLOAT_PRECISION>&,
@@ -41,6 +47,7 @@ namespace PRISM {
 
 	extern entry_func execute_plan;
 	extern ms_output_func buildMultisliceOutput;
+	extern prism_output_func buildPRISMOutput;
 	extern format_output_func formatOutput_CPU;
 	extern fill_Scompact_func fill_Scompact;
 #ifdef PRISM_ENABLE_GPU

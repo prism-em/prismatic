@@ -6,17 +6,21 @@
 #include "Multislice_entry.h"
 #include "Multislice.h"
 #include <iostream>
-
+#include "PRISM01.h"
+#include "PRISM02.h"
+#include "PRISM03.h"
 //#define PRISM_ENABLE_GPU
 
 #ifdef PRISM_ENABLE_GPU
 #include "Multislice.cuh"
 #include "PRISM02.cuh"
+#include "PRISM03.cuh"
 #include "Multislice_entry.h"
 #endif //PRISM_ENABLE_GPU
 namespace PRISM {
 	entry_func execute_plan;
 	ms_output_func buildMultisliceOutput;
+	prism_output_func buildPRISMOutput;
 	format_output_func formatOutput_CPU;
 	fill_Scompact_func fill_Scompact;
 #ifdef PRISM_ENABLE_GPU
@@ -31,9 +35,11 @@ namespace PRISM {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
-			fill_Scompact = fill_Scompact_GPU;
+			fill_Scompact    = fill_Scompact_GPU;
+			buildPRISMOutput = buildPRISMOutput_GPU;
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;
+			buildPRISMOutput = buildPRISMOutput_CPUOnly;
 #endif //PRISM_ENABLE_GPU
 		} else if (meta.algorithm == Algorithm::Multislice) {
 			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
