@@ -308,15 +308,15 @@ namespace PRISM {
 
 
 
-		// allocate memory on each GPU
-		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
-			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMalloc((void **) &trans_d[g],      trans.size()      * sizeof(trans[0])));
-			cudaErrchk(cudaMalloc((void **) &prop_d[g],       pars.prop.size()  * sizeof(pars.prop[0])));
-			cudaErrchk(cudaMalloc((void **) &qxInd_d[g],      pars.qxInd.size() * sizeof(pars.qxInd[0])));
-			cudaErrchk(cudaMalloc((void **) &qyInd_d[g],      pars.qyInd.size() * sizeof(pars.qyInd[0])));
-			cudaErrchk(cudaMalloc((void **) &beamsIndex_d[g], pars.beamsIndex.size() * sizeof(pars.beamsIndex[0])));
-		}
+//		 allocate memory on each GPU
+//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
+//			cudaErrchk(cudaSetDevice(g));
+//			cudaErrchk(cudaMalloc((void **) &trans_d[g],      trans.size()      * sizeof(trans[0])));
+//			cudaErrchk(cudaMalloc((void **) &prop_d[g],       pars.prop.size()  * sizeof(pars.prop[0])));
+//			cudaErrchk(cudaMalloc((void **) &qxInd_d[g],      pars.qxInd.size() * sizeof(pars.qxInd[0])));
+//			cudaErrchk(cudaMalloc((void **) &qyInd_d[g],      pars.qyInd.size() * sizeof(pars.qyInd[0])));
+//			cudaErrchk(cudaMalloc((void **) &beamsIndex_d[g], pars.beamsIndex.size() * sizeof(pars.beamsIndex[0])));
+//		}
 
 
 		// free pinned memory
@@ -334,6 +334,11 @@ namespace PRISM {
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamDestroy(streams[j]));
+		}
+
+		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+			cudaErrchk(cudaSetDevice(g));
+			cudaErrchk(cudaDeviceReset());
 		}
 	}
 }

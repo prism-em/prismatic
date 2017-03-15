@@ -13,6 +13,7 @@
 #include <vector>
 #include "fftw3.h"
 #include "utility.h"
+#include "getWorkID.h"
 
 namespace PRISM {
 	using namespace std;
@@ -207,27 +208,23 @@ namespace PRISM {
 						// this may need to be adapted
 						vector<thread> workers;
 						workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-						auto WORK_CHUNK_SIZE = ((pars.yp.size() - 1) / pars.meta.NUM_THREADS) + 1;
-						auto start = 0;
-						auto stop = start + WORK_CHUNK_SIZE;
-						while (start < pars.yp.size()) {
-							cout << "Launching thread to compute all x-probe positions for y-probes "
-							     << start << "/" << min(stop,pars.yp.size()) << '\n';
+						setWorkStartStop(0, pars.xp.size()*pars.yp.size());
+						for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+							cout << "Launching thread #" << t << " to result\n";
 							// emplace_back is better whenever constructing a new object
 							workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-									                            &alphaInd, &PsiProbeInit,
-									                            start, stop]() {
-								for (auto ay = start; ay < min((size_t) stop, pars.yp.size()); ++ay) {
-									for (auto ax = 0; ax < pars.xp.size(); ++ax) {
+									                            &alphaInd, &PsiProbeInit]() {
+								size_t Nstart, Nstop, ay, ax;
+								while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+									while (Nstart != Nstop){
+										ay = Nstart / pars.xp.size();
+										ax = Nstart % pars.xp.size();
 										buildSignal(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+										++Nstart;
 									}
 								}
 							}));
-							start += WORK_CHUNK_SIZE;
-							if (start >= pars.yp.size())break;
-							stop += WORK_CHUNK_SIZE;
 						}
-
 						// synchronize
 						cout << "Waiting for threads...\n";
 						for (auto &t:workers)t.join();
