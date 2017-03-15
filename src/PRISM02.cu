@@ -74,9 +74,6 @@ namespace PRISM {
 			auto p = pars.pot.begin();
 			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
 		}
-		complex<PRISM_FLOAT_PRECISION> trans_sum = {0, 0};
-		for (auto &j : trans)trans_sum += j;
-
 
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -151,8 +148,8 @@ namespace PRISM {
 			                      pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &psi_small_ds[s],
 			                      pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(
-					cudaMemset(psi_ds[s], 0, pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
+			cudaErrchk(cudaMemset(psi_ds[s], 0,
+			                      pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(psi_small_ds[s], 0,
 			                      pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 		}
@@ -164,8 +161,6 @@ namespace PRISM {
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			stream_id = g;
 			cudaErrchk(cudaSetDevice(g));
-			trans_sum = {0, 0};
-			for (auto &j : trans)trans_sum += j;
 			cudaErrchk(cudaMemcpyAsync(trans_d[g], &trans_ph[0],
 			                           trans.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
