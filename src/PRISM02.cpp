@@ -72,7 +72,7 @@ namespace PRISM {
 
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
-		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> > ({{pars.numberBeams,pars.imageSize[0]/2, pars.imageSize[1]/2}});
+		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> > ({{pars.numberBeams, pars.imageSize[0]/2, pars.imageSize[1]/2}});
 		Array3D<complex<PRISM_FLOAT_PRECISION> > trans = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
