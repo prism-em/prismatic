@@ -24,8 +24,8 @@ namespace PRISM {
 	                     PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
 	                     PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
 	                     PRISM_FLOAT_PRECISION *psi_intensity_ds,
-	                     size_t *y_ds,
-	                     size_t *x_ds,
+	                     long *y_ds,
+	                     long *x_ds,
 	                     PRISM_FLOAT_PRECISION *output_ph,
 	                     const cufftHandle &cufft_plan,
 	                     const cudaStream_t& stream);

@@ -13,8 +13,6 @@
 #include "cufft.h"
 #include "utility.cuh"
 
-#define PI 3.14159265359
-#define BLOCK_SIZE1D 1024
 
 namespace PRISM {
 	using namespace std;
@@ -199,6 +197,7 @@ namespace PRISM {
 		for (auto t = 0; t < total_num_streams; ++t) {
 
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
+			cudaSetDevice(GPU_num);
 			cudaStream_t &current_stream = streams[stream_count];
 			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
 

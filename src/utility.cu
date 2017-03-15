@@ -1,16 +1,17 @@
 #include "utility.cuh"
+#include "cuComplex.h"
 #include <iostream>
 
 #define PI 3.14159265359
 // define some constants
-__device__ __constant__ float pi_f       = PI;
-__device__ __constant__ cuFloatComplex i_f     = {0, 1};
-__device__ __constant__ cuFloatComplex pi_cx_f = {PI, 0};
+__device__ __constant__ float pi_f                  = PI;
+__device__ __constant__ cuFloatComplex i_f          = {0, 1};
+__device__ __constant__ cuFloatComplex pi_cx_f      = {PI, 0};
 __device__ __constant__ cuFloatComplex minus_2pii_f = {0, -2*PI};
-__device__ __constant__ double pi       = PI;
-__device__ __constant__ cuDoubleComplex i     = {0, 1};
-__device__ __constant__ cuDoubleComplex pi_cx = {PI, 0};
-__device__ __constant__ cuDoubleComplex minus_2pii = {0, -2*PI};
+__device__ __constant__ double pi                   = PI;
+__device__ __constant__ cuDoubleComplex i           = {0, 1};
+__device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
+__device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
 // computes exp(real(a) + i * imag(a))
 __device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a){
@@ -215,13 +216,54 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
                              const size_t* qxInd_d,
                              const size_t dimi,
                              const size_t dimj_small,
-                             const size_t dimi_small){
-	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < dimj_small*dimi_small) {
-		int y = idx / (int)dimi_small;
-		int x = idx % (int)dimi_small;
+                             const size_t dimi_small) {
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < dimj_small * dimi_small) {
+		int y = idx / (int) dimi_small;
+		int x = idx % (int) dimi_small;
 		int idxBig = qyInd_d[y] * dimi + qxInd_d[x];
 		psi_small_d[idx] = psi_d[idxBig];
 //		psi_small_d[idx] = make_cuFloatComplex(idx,idxBig);
 	}
 }
+
+__global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N){
+
+		int idx = threadIdx.x + blockDim.x * blockIdx.x;
+		if (idx < N){
+			vec_out[idx] = (idx - N/2 + by) % imageSize;
+		}
+	}
+
+__global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
+                                   const cuFloatComplex *PsiProbeInit_d,
+                                   const float * qyaReduce_d,
+                                   const float * qxaReduce_d,
+                                   const size_t *yBeams_d,
+                                   const size_t *xBeams_d,
+                                   const float yp,
+                                   const float xp,
+                                   const float yTiltShift,
+                                   const float xTiltShift,
+                                   const size_t dimi,
+                                   const size_t numBeams){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < numBeams){
+		size_t yB = yBeams_d[idx];
+		size_t xB = xBeams_d[idx];
+		cuFloatComplex xp_cx = make_cuFloatComplex(xp,0);
+		cuFloatComplex yp_cx = make_cuFloatComplex(yp,0);
+		cuFloatComplex xTiltShift_cx = make_cuFloatComplex(xTiltShift,0);
+		cuFloatComplex yTiltShift_cx = make_cuFloatComplex(yTiltShift,0);
+		cuFloatComplex qya  = make_cuFloatComplex(qyaReduce_d[yB*dimi + xB], 0);
+		cuFloatComplex qxa  = make_cuFloatComplex(qxaReduce_d[yB*dimi + xB], 0);
+		cuFloatComplex arg1 = cuCmulf(qxa, cuCaddf(xp_cx, xTiltShift_cx));
+		cuFloatComplex arg2 = cuCmulf(qya, cuCaddf(yp_cx, yTiltShift_cx));
+		cuFloatComplex arg  = cuCaddf(arg1, arg2);
+		cuFloatComplex phase_shift  = exp_cx(cuCmulf(minus_2pii_f,arg));
+//		phaseCoeffs[idx] = phase_shift;
+		phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB*dimi + xB]);
+//		phaseCoeffs[idx] = make_cuFloatComplex(1,2);
+	}
+}
+// TODO: double version of above

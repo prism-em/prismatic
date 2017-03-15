@@ -29,5 +29,6 @@ template <class T>
 		return result;
 	};
 
+
 }
 #endif //PRISM_UTILITY_H

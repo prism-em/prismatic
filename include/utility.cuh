@@ -131,4 +131,20 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
                              const size_t dimj_small,
                              const size_t dimi_small);
 
+__global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N);
+
+__global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
+                                   const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
+                                   const PRISM_FLOAT_PRECISION * qyaReduce_d,
+                                   const PRISM_FLOAT_PRECISION * qxaReduce_d,
+                                   const size_t *yBeams_d,
+                                   const size_t *xBeams_d,
+                                   const PRISM_FLOAT_PRECISION yp,
+                                   const PRISM_FLOAT_PRECISION xp,
+                                   const PRISM_FLOAT_PRECISION yTiltShift,
+                                   const PRISM_FLOAT_PRECISION xTiltShift,
+                                   const size_t dimi,
+                                   const size_t numBeams);
+
+//__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
 #endif // PRISM_UTILITY_CUH
