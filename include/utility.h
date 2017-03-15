@@ -8,6 +8,9 @@
 namespace PRISM{
 	template<class T>
 	std::vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
+		std::cout << "vecFromRange start = " << start << std::endl;
+		std::cout << "vecFromRange step = " << step << std::endl;
+		std::cout << "vecFromRange stop = " << stop << std::endl;
 		std::vector<T> result;
 		for (auto i = start; i <= stop; i += step) {
 			result.push_back(i);

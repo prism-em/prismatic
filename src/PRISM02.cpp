@@ -156,8 +156,8 @@ namespace PRISM {
 		// get qMax
 		pars.qMax = 0;
 		{
-			PRISM_FLOAT_PRECISION qx_max;
-			PRISM_FLOAT_PRECISION qy_max;
+			PRISM_FLOAT_PRECISION qx_max = 0;
+			PRISM_FLOAT_PRECISION qy_max = 0;
 			for (auto i = 0; i < qx.size(); ++i) {
 				qx_max = ( abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
 				qy_max = ( abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;

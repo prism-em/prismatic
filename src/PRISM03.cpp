@@ -45,7 +45,7 @@ namespace PRISM {
 	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// compute final image
 
-		cout << "Entering PRISM02" << endl;
+		cout << "Entering PRISM03" << endl;
 
 		// should move these elsewhere and in Multislice
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
@@ -66,6 +66,10 @@ namespace PRISM {
 		yR[0] = 0.1 * pars.meta.cellDim[1];
 		yR[1] = 0.9 * pars.meta.cellDim[1];
 
+		cout << "xR[0] = " << xR[0] << endl;
+		cout << "xR[1] = " << xR[1] << endl;
+		cout << "yR[0] = " << yR[0] << endl;
+		cout << "yR[1] = " << yR[1] << endl;
 		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + dxy / 2, dxy, xR[1] - dxy / 2);
 		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + dxy / 2, dxy, yR[1] - dxy / 2);
 
@@ -76,6 +80,11 @@ namespace PRISM {
 
 		pars.dr = 2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
+		cout << "pars.dr = " << pars.dr << endl;
+		cout << "pars.qMax = " << pars.qMax << endl;
+		cout << "pars.lambda = " << pars.lambda << endl;
+		cout << "pars.alphaMax = " << pars.alphaMax << endl;
+
 		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
