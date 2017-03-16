@@ -146,16 +146,17 @@ __global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
                                    const size_t dimi,
                                    const size_t numBeams);
 
-__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
-                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
-                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
-                             const long *y_ds,
-                             const long* x_ds,
-                             const size_t numberBeams,
-                             const size_t dimj_S,
-                             const size_t dimk_S,
-                             const size_t dimj_psi,
-                             const size_t dimi_psi);
+//template <size_t BlockSizeX>
+//__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+//                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+//                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+//                             const long *y_ds,
+//                             const long* x_ds,
+//                             const size_t numberBeams,
+//                             const size_t dimj_S,
+//                             const size_t dimk_S,
+//                             const size_t dimj_psi,
+//                             const size_t dimi_psi);
 
 __global__ void integrateDetector(const float* psi_intensity_ds,
                        const float* alphaInd_d,

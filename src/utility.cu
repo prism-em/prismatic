@@ -329,41 +329,44 @@ __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
 //		phaseCoeffs[idx] = make_cuFloatComplex(1,2);
 	}
 }
-
-__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
-                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
-                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
-                             const long *z_ds,
-                             const long* y_ds,
-                             const size_t numberBeams,
-                             const size_t dimk_S,
-                             const size_t dimj_S,
-                             const size_t dimj_psi,
-                             const size_t dimi_psi) {
-	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
-	// 2D array of reduced values in psi
-	extern __shared__ cuFloatComplex scaled_values[];
-	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-
-	if (idx < numberBeams) {
-		int y = blockIdx.y;
-		int z = blockIdx.z;
-		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx], phaseCoeffs_ds[idx]);
-		__syncthreads();
-		PRISM_CUDA_COMPLEX_FLOAT s{0,0};
-		if (idx == 0){
-			for (int i = 0; i < numberBeams; ++i){
-				s = cuCaddf(s, scaled_values[i]);
-			}
-			psi_ds[z*dimi_psi + y] = s;
-//			psi_ds[z*dimi_psi + y] = scaled_values[0];
-			//psi_ds[z*dimi_psi + y] = phaseCoeffs_ds[0];
-//			psi_ds[z*dimi_psi + y] = permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx];
-//			psi_ds[z*dimi_psi + y] = make_cuFloatComplex(z_ds[z]*numberBeams*dimj_S, y_ds[y]*numberBeams );
-		}
-	}
-
-}
+//
+//template <size_t BlockSizeX>
+//__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+//                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+//                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+//                             const long *z_ds,
+//                             const long* y_ds,
+//                             const size_t numberBeams,
+//                             const size_t dimk_S,
+//                             const size_t dimj_S,
+//                             const size_t dimj_psi,
+//                             const size_t dimi_psi) {
+//	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
+//	// 2D array of reduced values in psi
+//	extern __shared__ cuFloatComplex scaled_values[];
+//	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+//
+//	if (idx < numberBeams) {
+//		int y = blockIdx.y;
+//		int z = blockIdx.z;
+//		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx], phaseCoeffs_ds[idx]);
+//		__syncthreads();
+//		PRISM_CUDA_COMPLEX_FLOAT s{0,0};
+//		if (idx == 0){
+//			for (int i = 0; i < numberBeams; ++i){
+//				s = cuCaddf(s, scaled_values[i]);
+////				s.x += scaled_values[i].x;
+////				s.y += scaled_values[i].y;
+//			}
+//			psi_ds[z*dimi_psi + y] = s;
+////			psi_ds[z*dimi_psi + y] = scaled_values[0];
+//			//psi_ds[z*dimi_psi + y] = phaseCoeffs_ds[0];
+////			psi_ds[z*dimi_psi + y] = permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx];
+////			psi_ds[z*dimi_psi + y] = make_cuFloatComplex(z_ds[z]*numberBeams*dimj_S, y_ds[y]*numberBeams );
+//		}
+//	}
+//
+//}
 
 
 //// integrate computed intensities radially
