@@ -15,6 +15,7 @@
 #include "Multislice.cuh"
 #include "PRISM02.cuh"
 #include "PRISM03.cuh"
+#include "utility.cuh"
 #include "Multislice_entry.h"
 #endif //PRISM_ENABLE_GPU
 namespace PRISM {

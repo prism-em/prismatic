@@ -14,8 +14,73 @@
 #include "utility.cuh"
 
 namespace PRISM {
-	using namespace std;
+	// define some constants
+	__device__ __constant__ float pi_f                  = PI;
+	__device__ __constant__ cuFloatComplex i_f          = {0, 1};
+	__device__ __constant__ cuFloatComplex pi_cx_f      = {PI, 0};
+	__device__ __constant__ cuFloatComplex minus_2pii_f = {0, -2*PI};
+	__device__ __constant__ double pi                   = PI;
+	__device__ __constant__ cuDoubleComplex i           = {0, 1};
+	__device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
+	__device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
+	using namespace std;
+//	__global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
+//	                                   const cuFloatComplex *PsiProbeInit_d,
+//	                                   const float * qyaReduce_d,
+//	                                   const float * qxaReduce_d,
+//	                                   const size_t *yBeams_d,
+//	                                   const size_t *xBeams_d,
+//	                                   const float yp,
+//	                                   const float xp,
+//	                                   const float yTiltShift,
+//	                                   const float xTiltShift,
+//	                                   const size_t dimi,
+//	                                   const size_t numBeams){
+//		int idx = threadIdx.x + blockDim.x*blockIdx.x;
+//		if (idx < numBeams) {
+//			size_t yB = yBeams_d[idx];
+//			size_t xB = xBeams_d[idx];
+//			cuFloatComplex xp_cx = make_cuFloatComplex(xp, 0);
+//			cuFloatComplex yp_cx = make_cuFloatComplex(yp, 0);
+//			cuFloatComplex xTiltShift_cx = make_cuFloatComplex(xTiltShift, 0);
+//			cuFloatComplex yTiltShift_cx = make_cuFloatComplex(yTiltShift, 0);
+//			cuFloatComplex qya = make_cuFloatComplex(qyaReduce_d[yB * dimi + xB], 0);
+//			cuFloatComplex qxa = make_cuFloatComplex(qxaReduce_d[yB * dimi + xB], 0);
+//			cuFloatComplex arg1 = cuCmulf(qxa, cuCaddf(xp_cx, xTiltShift_cx));
+//			cuFloatComplex arg2 = cuCmulf(qya, cuCaddf(yp_cx, yTiltShift_cx));
+//			cuFloatComplex arg = cuCaddf(arg1, arg2);
+//			cuFloatComplex phase_shift = exp_cx(cuCmulf(minus_2pii_f, arg));
+////		phaseCoeffs[idx] = phase_shift;
+//			phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
+////		phaseCoeffs[idx] = make_cuFloatComplex(1,2);
+//		}
+//	}
+//
+//	__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+//	                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+//	                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+//	                             const size_t numberBeams,
+//	                             const size_t dimk_S,
+//	                             const size_t dimj_S,
+//	                             const size_t dimj_psi,
+//	                             const size_t dimi_psi) {
+//		// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
+//		// 2D array of reduced values in psi
+//		extern __shared__ cuFloatComplex scaled_values[];
+//		int idx = threadIdx.x + blockDim.x * blockIdx.x;
+//
+//		if (idx < numberBeams) {
+//			int y = blockIdx.y;
+//			int z = blockIdx.z;
+//			scaled_values[idx] = cuCmulf(permuted_Scompact_d[z*numberBeams*dimj_S + y*numberBeams + idx], phaseCoeffs_ds[idx]);
+//			__syncthreads();
+//			if (idx == 0){
+//				psi_ds[z*dimi_psi + y] = scaled_values[0];
+//			}
+//		}
+//
+//	}
 	void buildPRISMOutput_GPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                          const PRISM_FLOAT_PRECISION xTiltShift,
 	                          const PRISM_FLOAT_PRECISION yTiltShift,
@@ -217,8 +282,8 @@ namespace PRISM {
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		int stream_count = 0;
-//		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
-		setWorkStartStop(0, 1);
+		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+//		setWorkStartStop(0, 1);
 		for (auto t = 0; t < pars.meta.NUM_GPUS; ++t) {
 
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
@@ -345,6 +410,7 @@ namespace PRISM {
 		cout << "ay = " << ay << endl;
 		const PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISM_FLOAT_PRECISION xp = pars.xp[ax];
+		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
 		cout << "xp = " << xp << endl;
 		cout << "yp = " << yp << endl;
 		cout << "pars.pixelSize[0] = " << pars.pixelSize[0]<< endl;
@@ -357,43 +423,75 @@ namespace PRISM {
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
+		dim3 grid(1, pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+		dim3 block(pars.numberBeams, 1, 1); // should make multiple of 32
+		scaleReduceS <<< grid, block, pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT), stream>>>(
+				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
+					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], PRISM_CUFFT_PLAN_TYPE));
+		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psi_intensity_ds, psi_ds, psi_size);
 
-		{
-			size_t ans;
-			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-				cudaErrchk(cudaMemcpy(&ans, (yBeams_d + i), sizeof(size_t),cudaMemcpyDeviceToHost));
-				cout << "yBeams_d[" << i << "] = " << ans << endl;
-			}
-			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-				cudaErrchk(cudaMemcpy(&ans, (xBeams_d + i), sizeof(size_t),cudaMemcpyDeviceToHost));
-				cout << "xBeams_d[" << i << "] = " << ans << endl;
-			}
-		}
+//		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, stack_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 
-		{
-			long ans;
-			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-				cudaErrchk(cudaMemcpy(&ans, (y_ds + i), sizeof(long),cudaMemcpyDeviceToHost));
-				cout << "y_ds[" << i << "] = " << ans << endl;
-			}
-			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-				cudaErrchk(cudaMemcpy(&ans, (x_ds + i), sizeof(long),cudaMemcpyDeviceToHost));
-				cout << "x_ds[" << i << "] = " << ans << endl;
-			}
-		}
+
+//		setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(output_ph, 0, num_integration_bins);
+
+		// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
+//		cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
+//		                           num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
+//		                           cudaMemcpyDeviceToHost, stream));
+
+		// wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+		cudaErrchk(cudaStreamSynchronize(stream));
+//		const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
+//		memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 
 
 
-		{
-//			cudaDeviceSynchronize();
-			complex<PRISM_FLOAT_PRECISION > ans;
-			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-				cudaErrchk(cudaMemcpy(&ans, (phaseCoeffs_ds + i), sizeof(complex<PRISM_FLOAT_PRECISION>),cudaMemcpyDeviceToHost));
-				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		{
+//			size_t ans;
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (yBeams_d + i), sizeof(size_t),cudaMemcpyDeviceToHost));
+//				cout << "yBeams_d[" << i << "] = " << ans << endl;
+//			}
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (xBeams_d + i), sizeof(size_t),cudaMemcpyDeviceToHost));
+//				cout << "xBeams_d[" << i << "] = " << ans << endl;
+//			}
+//		}
+//
+//		{
+//			long ans;
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (y_ds + i), sizeof(long),cudaMemcpyDeviceToHost));
+//				cout << "y_ds[" << i << "] = " << ans << endl;
+//			}
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (x_ds + i), sizeof(long),cudaMemcpyDeviceToHost));
+//				cout << "x_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
 
-		cout <<"test\n";
+
+//		{
+////			cudaDeviceSynchronize();
+//			complex<PRISM_FLOAT_PRECISION > ans;
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (phaseCoeffs_ds + i), sizeof(complex<PRISM_FLOAT_PRECISION>),cudaMemcpyDeviceToHost));
+//				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
+//
+//		{
+////			cudaDeviceSynchronize();
+//			complex<PRISM_FLOAT_PRECISION > ans;
+//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+//				cudaErrchk(cudaMemcpy(&ans, (psi_ds + i), sizeof(complex<PRISM_FLOAT_PRECISION>),cudaMemcpyDeviceToHost));
+//				cout << "psi_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
+
+//		cout <<"test\n";
 	}
 }

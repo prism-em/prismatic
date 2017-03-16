@@ -146,5 +146,33 @@ __global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
                                    const size_t dimi,
                                    const size_t numBeams);
 
+__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+                             const long *y_ds,
+                             const long* x_ds,
+                             const size_t numberBeams,
+                             const size_t dimj_S,
+                             const size_t dimk_S,
+                             const size_t dimj_psi,
+                             const size_t dimi_psi);
+
+__global__ void integrateDetector(const float* psi_intensity_ds,
+                       const float* alphaInd_d,
+                       float* integratedOutput,
+                       const size_t N,
+                       const size_t num_integration_bins);
+
+void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
+                                         PRISM_FLOAT_PRECISION *psi_intensity_ds,
+                                         const PRISM_FLOAT_PRECISION *alphaInd_d,
+                                         PRISM_FLOAT_PRECISION *stack_ph,
+                                         PRISM_FLOAT_PRECISION *integratedOutput_ds,
+                                         const size_t& ay,
+                                         const size_t& ax,
+                                         const size_t& dimj,
+                                         const size_t& dimi,
+                                         cudaStream_t& stream);
+
 //__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
 #endif // PRISM_UTILITY_CUH

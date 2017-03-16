@@ -122,67 +122,67 @@ namespace PRISM{
 //		}
 //	}
 
-	// integrate computed intensities radially
-	__global__ void integrateDetector(const float* psi_intensity_ds,
-	                                  const float* alphaInd_d,
-	                                  float* integratedOutput,
-	                                  const size_t N,
-	                                  const size_t num_integration_bins) {
-		int idx = threadIdx.x + blockDim.x * blockIdx.x;
-		if (idx < N) {
-			size_t alpha = (size_t)alphaInd_d[idx];
-			if (alpha <= num_integration_bins)
-				//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-				atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-		}
-	}
+//	// integrate computed intensities radially
+//	__global__ void integrateDetector(const float* psi_intensity_ds,
+//	                                  const float* alphaInd_d,
+//	                                  float* integratedOutput,
+//	                                  const size_t N,
+//	                                  const size_t num_integration_bins) {
+//		int idx = threadIdx.x + blockDim.x * blockIdx.x;
+//		if (idx < N) {
+//			size_t alpha = (size_t)alphaInd_d[idx];
+//			if (alpha <= num_integration_bins)
+//				//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//				atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//		}
+//	}
 
-        __global__ void integrateDetector(const double* psi_intensity_ds,
-                                          const double* alphaInd_d,
-                                          double* integratedOutput,
-                                          const size_t N,
-                                          const size_t num_integration_bins) {
-//THIS FUNCTION IS BAD
-//THIS FUNCTION IS BAD
-//TODO: FIX THIS
-                int idx = threadIdx.x + blockDim.x * blockIdx.x;
-                if (idx < N) {
-                        size_t alpha = (size_t)alphaInd_d[idx];
-                        if (alpha <= num_integration_bins){}
-                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-
-                }
-        }
+//        __global__ void integrateDetector(const double* psi_intensity_ds,
+//                                          const double* alphaInd_d,
+//                                          double* integratedOutput,
+//                                          const size_t N,
+//                                          const size_t num_integration_bins) {
+////THIS FUNCTION IS BAD
+////THIS FUNCTION IS BAD
+////TODO: FIX THIS
+//                int idx = threadIdx.x + blockDim.x * blockIdx.x;
+//                if (idx < N) {
+//                        size_t alpha = (size_t)alphaInd_d[idx];
+//                        if (alpha <= num_integration_bins){}
+//                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//                                //atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//
+//                }
+//        }
 
 	// formatOutput variants control how the resulting calculation is returned.
 	// formatOutput_GPU_integrate integrates the result of the calculation at the detector plane radially and
 	// asynchronously streams it back to the host pinned memory buffer, where it is copied to the final stack
-    void formatOutput_GPU_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars,
-                                    PRISM_FLOAT_PRECISION *psi_intensity_ds,
-                                    const PRISM_FLOAT_PRECISION *alphaInd_d,
-                                    PRISM_FLOAT_PRECISION *stack_ph,
-                                    PRISM_FLOAT_PRECISION *integratedOutput_ds,
-                                    const size_t& ay,
-                                    const size_t& ax,
-                                    const size_t& dimj,
-                                    const size_t& dimi,
-                                    cudaStream_t& stream){
-//		cudaSetDeviceFlags(cudaDeviceBlockingSync);
-	  size_t num_integration_bins = pars.detectorAngles.size();
-	  setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
-	  integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
-
-	  // Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
-	  cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
-	                        num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
-	                        cudaMemcpyDeviceToHost, stream));
-
-	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
-	  cudaErrchk(cudaStreamSynchronize(stream));
-	  const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
-	  memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
-}
+//    void formatOutput_GPU_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars,
+//                                    PRISM_FLOAT_PRECISION *psi_intensity_ds,
+//                                    const PRISM_FLOAT_PRECISION *alphaInd_d,
+//                                    PRISM_FLOAT_PRECISION *stack_ph,
+//                                    PRISM_FLOAT_PRECISION *integratedOutput_ds,
+//                                    const size_t& ay,
+//                                    const size_t& ax,
+//                                    const size_t& dimj,
+//                                    const size_t& dimi,
+//                                    cudaStream_t& stream){
+////		cudaSetDeviceFlags(cudaDeviceBlockingSync);
+//	  size_t num_integration_bins = pars.detectorAngles.size();
+//	  setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
+//	  integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
+//
+//	  // Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
+//	  cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
+//	                        num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
+//	                        cudaMemcpyDeviceToHost, stream));
+//
+//	  // wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+//	  cudaErrchk(cudaStreamSynchronize(stream));
+//	  const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
+//	  memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
+//}
 
 	// computes the result of probe position ay,ax using the GPU. The effect of this function is the same as getMultisliceProbe_CPU
 	__host__ void getMultisliceProbe_GPU(Parameters<PRISM_FLOAT_PRECISION>& pars,

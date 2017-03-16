@@ -234,7 +234,6 @@ __global__ void shiftIndices(long* vec_out, const long by, const long imageSize,
 			vec_out[idx] = (idx - N/2 + by) % imageSize;
 		}
 	}
-
 __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
                                    const cuFloatComplex *PsiProbeInit_d,
                                    const float * qyaReduce_d,
@@ -248,22 +247,97 @@ __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
                                    const size_t dimi,
                                    const size_t numBeams){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < numBeams){
+	if (idx < numBeams) {
 		size_t yB = yBeams_d[idx];
 		size_t xB = xBeams_d[idx];
-		cuFloatComplex xp_cx = make_cuFloatComplex(xp,0);
-		cuFloatComplex yp_cx = make_cuFloatComplex(yp,0);
-		cuFloatComplex xTiltShift_cx = make_cuFloatComplex(xTiltShift,0);
-		cuFloatComplex yTiltShift_cx = make_cuFloatComplex(yTiltShift,0);
-		cuFloatComplex qya  = make_cuFloatComplex(qyaReduce_d[yB*dimi + xB], 0);
-		cuFloatComplex qxa  = make_cuFloatComplex(qxaReduce_d[yB*dimi + xB], 0);
+		cuFloatComplex xp_cx = make_cuFloatComplex(xp, 0);
+		cuFloatComplex yp_cx = make_cuFloatComplex(yp, 0);
+		cuFloatComplex xTiltShift_cx = make_cuFloatComplex(xTiltShift, 0);
+		cuFloatComplex yTiltShift_cx = make_cuFloatComplex(yTiltShift, 0);
+		cuFloatComplex qya = make_cuFloatComplex(qyaReduce_d[yB * dimi + xB], 0);
+		cuFloatComplex qxa = make_cuFloatComplex(qxaReduce_d[yB * dimi + xB], 0);
 		cuFloatComplex arg1 = cuCmulf(qxa, cuCaddf(xp_cx, xTiltShift_cx));
 		cuFloatComplex arg2 = cuCmulf(qya, cuCaddf(yp_cx, yTiltShift_cx));
-		cuFloatComplex arg  = cuCaddf(arg1, arg2);
-		cuFloatComplex phase_shift  = exp_cx(cuCmulf(minus_2pii_f,arg));
+		cuFloatComplex arg = cuCaddf(arg1, arg2);
+		cuFloatComplex phase_shift = exp_cx(cuCmulf(minus_2pii_f, arg));
 //		phaseCoeffs[idx] = phase_shift;
-		phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB*dimi + xB]);
+		phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
 //		phaseCoeffs[idx] = make_cuFloatComplex(1,2);
 	}
+}
+
+__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+                             const long *z_ds,
+                             const long* y_ds,
+                             const size_t numberBeams,
+                             const size_t dimk_S,
+                             const size_t dimj_S,
+                             const size_t dimj_psi,
+                             const size_t dimi_psi) {
+	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
+	// 2D array of reduced values in psi
+	extern __shared__ cuFloatComplex scaled_values[];
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+
+	if (idx < numberBeams) {
+		int y = blockIdx.y;
+		int z = blockIdx.z;
+		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx], phaseCoeffs_ds[idx]);
+		__syncthreads();
+		PRISM_CUDA_COMPLEX_FLOAT s{0,0};
+		if (idx == 0){
+			for (int i = 0; i < numberBeams; ++i){
+				s = cuCaddf(s, scaled_values[i]);
+			}
+			psi_ds[z*dimi_psi + y] = s;
+//			psi_ds[z*dimi_psi + y] = scaled_values[0];
+			//psi_ds[z*dimi_psi + y] = phaseCoeffs_ds[0];
+//			psi_ds[z*dimi_psi + y] = permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx];
+//			psi_ds[z*dimi_psi + y] = make_cuFloatComplex(z_ds[z]*numberBeams*dimj_S, y_ds[y]*numberBeams );
+		}
+	}
+
+}
+// integrate computed intensities radially
+__global__ void integrateDetector(const float* psi_intensity_ds,
+                                  const float* alphaInd_d,
+                                  float* integratedOutput,
+                                  const size_t N,
+                                  const size_t num_integration_bins) {
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N) {
+		size_t alpha = (size_t)alphaInd_d[idx];
+		if (alpha <= num_integration_bins)
+			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+	}
+}
+
+void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
+                                PRISM_FLOAT_PRECISION *psi_intensity_ds,
+                                const PRISM_FLOAT_PRECISION *alphaInd_d,
+                                PRISM_FLOAT_PRECISION *stack_ph,
+                                PRISM_FLOAT_PRECISION *integratedOutput_ds,
+                                const size_t& ay,
+                                const size_t& ax,
+                                const size_t& dimj,
+                                const size_t& dimi,
+                                cudaStream_t& stream){
+//		cudaSetDeviceFlags(cudaDeviceBlockingSync);
+	size_t num_integration_bins = pars.detectorAngles.size();
+	setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
+	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
+
+	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
+	cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
+	                           num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
+	                           cudaMemcpyDeviceToHost, stream));
+
+	// wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+	cudaErrchk(cudaStreamSynchronize(stream));
+	const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
+	memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
 // TODO: double version of above
