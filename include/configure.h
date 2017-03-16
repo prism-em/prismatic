@@ -62,7 +62,8 @@ namespace PRISM {
 	                                        const size_t&,
 	                                        const size_t&,
 	                                        const size_t&,
-	                                        cudaStream_t& stream);
+	                                        const cudaStream_t&,
+	                                        const long&);
 	extern format_output_func_GPU formatOutput_GPU;
 #endif
 	void configure(Metadata<PRISM_FLOAT_PRECISION>&);

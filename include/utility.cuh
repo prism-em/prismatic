@@ -164,15 +164,31 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
                        const size_t num_integration_bins);
 
 void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
-                                         PRISM_FLOAT_PRECISION *psi_intensity_ds,
-                                         const PRISM_FLOAT_PRECISION *alphaInd_d,
-                                         PRISM_FLOAT_PRECISION *stack_ph,
-                                         PRISM_FLOAT_PRECISION *integratedOutput_ds,
-                                         const size_t& ay,
-                                         const size_t& ax,
-                                         const size_t& dimj,
-                                         const size_t& dimi,
-                                         cudaStream_t& stream);
+                                PRISM_FLOAT_PRECISION *psi_intensity_ds,
+                                const PRISM_FLOAT_PRECISION *alphaInd_d,
+                                PRISM_FLOAT_PRECISION *stack_ph,
+                                PRISM_FLOAT_PRECISION *integratedOutput_ds,
+                                const size_t& ay,
+                                const size_t& ax,
+                                const size_t& dimj,
+                                const size_t& dimi,
+                                const cudaStream_t& stream,
+                                const long& scale = 1);
 
+__global__ void multiply_cxarr_scalar(cuDoubleComplex* arr,
+                                      const cuDoubleComplex val,
+                                      const size_t N);
+
+__global__ void multiply_cxarr_scalar(cuFloatComplex* arr,
+                                      const cuFloatComplex val,
+                                      const size_t N);
+
+__global__ void multiply_arr_scalar(double* arr,
+                                    const double val,
+                                    const size_t N);
+
+__global__ void multiply_arr_scalar(float* arr,
+                                    const float val,
+                                    const size_t N);
 //__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
 #endif // PRISM_UTILITY_CUH

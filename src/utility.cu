@@ -13,6 +13,29 @@ __device__ __constant__ cuDoubleComplex i           = {0, 1};
 __device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
 __device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
+////atomicAdd for doubles on devices with compute capability < 6. This is directly copied from the CUDA Programming Guide
+//#if __CUDA_ARCH__ < 600
+//__device__ double atomicAdd(double* address, double val)
+//{
+//	unsigned long long int* address_as_ull =
+//			(unsigned long long int*)address;
+//	unsigned long long int old = *address_as_ull, assumed;
+//
+//	do {
+//		assumed = old;
+//		old = atomicCAS(address_as_ull, assumed,
+//		                __double_as_longlong(val +
+//		                                     __longlong_as_double(assumed)));
+//
+//		// Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+//	} while (assumed != old);
+//
+//	return __longlong_as_double(old);
+//}
+//#endif
+
+
+
 // computes exp(real(a) + i * imag(a))
 __device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a){
 	double e = exp(a.x);
@@ -91,6 +114,47 @@ __global__ void multiply_cx(cuFloatComplex* arr,
 		arr[idx] = cuCmulf(arr[idx], other[idx]);
 	}
 }
+
+// multiply complex array by scalar
+__global__ void multiply_cxarr_scalar(cuDoubleComplex* arr,
+                                      const cuDoubleComplex val,
+                                      const size_t N){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < N) {
+		arr[idx] = cuCmul(arr[idx], val);
+	}
+}
+
+// multiply complex array by scalar
+__global__ void multiply_cxarr_scalar(cuFloatComplex* arr,
+                                      const cuFloatComplex val,
+                                      const size_t N){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < N) {
+		arr[idx] = cuCmulf(arr[idx], val);
+	}
+}
+
+// multiply array by scalar
+__global__ void multiply_arr_scalar(double* arr,
+                                    const double val,
+                                    const size_t N){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < N) {
+		arr[idx] = arr[idx]*val;
+	}
+}
+
+// multiply array by scalar
+__global__ void multiply_arr_scalar(float* arr,
+                                    const float val,
+                                    const size_t N){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < N) {
+		arr[idx] = arr[idx]*val;
+	}
+}
+
 
 //// divide two complex arrays
 //__global__ void divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
@@ -300,6 +364,23 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	}
 
 }
+
+
+//// integrate computed intensities radially
+//__global__ void integrateDetector(const float* psi_intensity_ds,
+//                                  const float* alphaInd_d,
+//                                  const size_t N,
+//                                  const size_t num_integration_bins) {
+//	extern __shared__ float integratedOutput[];
+//	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+//	if (idx < N) {
+//		size_t alpha = (size_t)alphaInd_d[idx];
+//		if (alpha <= num_integration_bins)
+//			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+//	}
+//}
+
 // integrate computed intensities radially
 __global__ void integrateDetector(const float* psi_intensity_ds,
                                   const float* alphaInd_d,
@@ -318,26 +399,29 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
 void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
                                 PRISM_FLOAT_PRECISION *psi_intensity_ds,
                                 const PRISM_FLOAT_PRECISION *alphaInd_d,
-                                PRISM_FLOAT_PRECISION *stack_ph,
+                                PRISM_FLOAT_PRECISION *output_ph,
                                 PRISM_FLOAT_PRECISION *integratedOutput_ds,
                                 const size_t& ay,
                                 const size_t& ax,
                                 const size_t& dimj,
                                 const size_t& dimi,
-                                cudaStream_t& stream){
+                                const cudaStream_t& stream,
+                                const long& scale){
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
 	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
+	if (scale != 1)multiply_arr_scalar<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, scale, num_integration_bins);
+//	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISM_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
 
 	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
-	cudaErrchk(cudaMemcpyAsync(&stack_ph[ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj()],integratedOutput_ds,
+	cudaErrchk(cudaMemcpyAsync(output_ph,integratedOutput_ds,
 	                           num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
 	                           cudaMemcpyDeviceToHost, stream));
 
-	// wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+//	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	cudaErrchk(cudaStreamSynchronize(stream));
 	const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
-	memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
+	memcpy(&pars.stack[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
 // TODO: double version of above

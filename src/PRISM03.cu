@@ -92,8 +92,8 @@ namespace PRISM {
 		cudaStream_t streams[total_num_streams];
 		cufftHandle cufft_plan[total_num_streams];
 
-		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
-		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
+//		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
+//		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
@@ -137,7 +137,9 @@ namespace PRISM {
 			memset(output_ph[s], 0, pars.stack.get_dimj() * pars.stack.get_dimi() *
 			                        sizeof(PRISM_FLOAT_PRECISION));
 		}
-
+//		for (auto ii=0; ii < pars.detectorAngles.size(); ++ii){
+//			std::cout << "first output_ph[" << ii <<"] = " << output_ph[0][ii] << std::endl;
+//		}
 		// the GPU computational model operates on Scompact in a different order than the CPU, and it is
 		// more optimal to permute the dimensions so that the consecutive elements represent different
 		// beams on the GPU as opposed to consecutive x-probe positions on the CPU
@@ -168,14 +170,14 @@ namespace PRISM {
 		}
 
 
-		for (auto i = 0; i < 10; ++i){
-			cout << "PsiProbeInit[" << i << "] = " << PsiProbeInit[i] << endl;
-			cout << "PsiProbeInit_ph[" << i << "] = " << PsiProbeInit_ph[i] << endl;
-		}
-		for (auto i = 0; i < 10; ++i){
-			cout << "permuted_Scompact_ph[" << i << "] = " << permuted_Scompact_ph[i] << endl;
-			cout << "pars.Scompact.at("  << i << ",0,0) = " << pars.Scompact.at(i,0,0) << endl;
-		}
+//		for (auto i = 0; i < 10; ++i){
+//			cout << "PsiProbeInit[" << i << "] = " << PsiProbeInit[i] << endl;
+//			cout << "PsiProbeInit_ph[" << i << "] = " << PsiProbeInit_ph[i] << endl;
+//		}
+//		for (auto i = 0; i < 10; ++i){
+//			cout << "permuted_Scompact_ph[" << i << "] = " << permuted_Scompact_ph[i] << endl;
+//			cout << "pars.Scompact.at("  << i << ",0,0) = " << pars.Scompact.at(i,0,0) << endl;
+//		}
 
 		// pointers to read-only GPU memory (one copy per GPU)
 		PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d[pars.meta.NUM_GPUS];
@@ -190,6 +192,7 @@ namespace PRISM {
 		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
 		PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds[total_num_streams];
 		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
+		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];
 		long                     *y_ds[total_num_streams];
 		long                     *x_ds[total_num_streams];
 //
@@ -218,7 +221,8 @@ namespace PRISM {
 			                      pars.xyBeams.get_dimj() * sizeof(long)));
 			cudaErrchk(cudaMalloc((void **) &x_ds[s],
 			                      pars.xyBeams.get_dimj() * sizeof(long)));
-
+			cudaErrchk(cudaMalloc((void **) &integratedOutput_ds[s],
+			                      pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(psi_ds[s], 0,
 			                      pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(phaseCoeffs_ds[s], 0,
@@ -229,6 +233,8 @@ namespace PRISM {
 			                      pars.xyBeams.get_dimj() * sizeof(long)));
 			cudaErrchk(cudaMemset(x_ds[s], 0,
 			                      pars.xyBeams.get_dimj() * sizeof(long)));
+			cudaErrchk(cudaMemset(integratedOutput_ds[s], 0,
+			                      pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
 		// Copy memory to each GPU asynchronously from the pinned host memory spaces.
@@ -267,6 +273,7 @@ namespace PRISM {
 			                           streams[stream_id]));
 		}
 
+//		for (auto i : alphaInd)cout << "alphaInd = " << i << endl;
 		// make sure transfers are complete
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaSetDevice(g);
@@ -310,19 +317,20 @@ namespace PRISM {
 			PRISM_CUDA_COMPLEX_FLOAT *current_psi_ds              = psi_ds[stream_count];
 			PRISM_CUDA_COMPLEX_FLOAT *current_phaseCoeffs_ds      = phaseCoeffs_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_psi_intensity_ds       = psi_intensity_ds[stream_count];
+			PRISM_FLOAT_PRECISION *current_integratedOutput_ds    = integratedOutput_ds[stream_count];
 			long *current_y_ds                                    = y_ds[stream_count];
 			long *current_x_ds                                    = x_ds[stream_count];
 			cufftHandle &current_cufft_plan                       = cufft_plan[stream_count];
 
 			// get pointer to output pinned memory
-			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[total_num_streams];
+			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
 
 			// emplace_back is better whenever constructing a new object
 			workers_GPU.emplace_back(thread([&pars, GPU_num, stream_count, &yTiltShift, &xTiltShift, current_permuted_Scompact_d,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
-					                                current_psi_intensity_ds, current_y_ds, current_x_ds,
+					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
@@ -333,7 +341,7 @@ namespace PRISM {
 						                current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 						                current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
 						                current_phaseCoeffs_ds, current_psi_intensity_ds, current_y_ds,
-						                current_x_ds, current_output_ph, current_cufft_plan, current_stream );
+						                current_x_ds, current_output_ph, current_integratedOutput_ds, current_cufft_plan, current_stream );
 
 
 
@@ -344,8 +352,36 @@ namespace PRISM {
 			}));
 			++stream_count;
 		}
+
+
+		// Now launch CPU work
+		if (pars.meta.also_do_CPU_work) {
+			vector<thread> workers_CPU;
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
+				// emplace_back is better whenever constructing a new object
+				workers_CPU.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
+						                            &alphaInd, &PsiProbeInit, t]() {
+					size_t Nstart, Nstop, ay, ax;
+					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+						while (Nstart != Nstop) {
+							ay = Nstart / pars.xp.size();
+							ax = Nstart % pars.xp.size();
+							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+							++Nstart;
+						}
+					}
+					cout << "CPU worker #" << t << " finished\n";
+				}));
+			}
+			cout << "Waiting for CPU threads...\n";
+			for (auto& t:workers_CPU)t.join();
+		}
+
+
 		// synchronize
-		cout << "Waiting for threads...\n";
+		cout << "Waiting for GPU threads...\n";
 		for (auto &t:workers_GPU)t.join();
 
 		// free pinned memory
@@ -379,6 +415,7 @@ namespace PRISM {
 			cudaErrchk(cudaFree(alphaInd_d[s]));
 			cudaErrchk(cudaFree(y_ds[s]));
 			cudaErrchk(cudaFree(x_ds[s]));
+			cudaErrchk(cudaFree(integratedOutput_ds[s]));
 			cufftErrchk(cufftDestroy(cufft_plan[s]));
 		}
 
@@ -403,17 +440,18 @@ namespace PRISM {
 	                     long  *y_ds,
 	                     long  *x_ds,
 	                     PRISM_FLOAT_PRECISION *output_ph,
+	                     PRISM_FLOAT_PRECISION *integratedOutput_ds,
 	                     const cufftHandle &cufft_plan,
 	                     const cudaStream_t& stream){
 
-		cout << "ax = " << ax << endl;
-		cout << "ay = " << ay << endl;
+//		cout << "ax = " << ax << endl;
+//		cout << "ay = " << ay << endl;
 		const PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
-		cout << "xp = " << xp << endl;
-		cout << "yp = " << yp << endl;
-		cout << "pars.pixelSize[0] = " << pars.pixelSize[0]<< endl;
+//		cout << "xp = " << xp << endl;
+//		cout << "yp = " << yp << endl;
+//		cout << "pars.pixelSize[0] = " << pars.pixelSize[0]<< endl;
 		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 			y_ds, std::round(yp / pars.pixelSizeOutput[0]),pars.imageSize[0], pars.imageSizeReduce[0]);
 
@@ -428,10 +466,12 @@ namespace PRISM {
 		scaleReduceS <<< grid, block, pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT), stream>>>(
 				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], PRISM_CUFFT_PLAN_TYPE));
+		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psi_intensity_ds, psi_ds, psi_size);
-
-//		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, stack_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
+//		cout << "pars.alphaInd"
+		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph,
+		                           integratedOutput_ds, ay, ax, pars.imageSizeReduce[0],
+		                           pars.imageSizeReduce[1], stream, pars.scale);
 
 
 //		setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(output_ph, 0, num_integration_bins);
@@ -442,7 +482,6 @@ namespace PRISM {
 //		                           cudaMemcpyDeviceToHost, stream));
 
 		// wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
-		cudaErrchk(cudaStreamSynchronize(stream));
 //		const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
 //		memcpy(&pars.stack[stack_start_offset], &stack_ph[stack_start_offset], num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 

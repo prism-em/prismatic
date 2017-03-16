@@ -27,6 +27,7 @@ namespace PRISM {
 	                     long *y_ds,
 	                     long *x_ds,
 	                     PRISM_FLOAT_PRECISION *output_ph,
+	                     PRISM_FLOAT_PRECISION *integratedOutput_ds,
 	                     const cufftHandle &cufft_plan,
 	                     const cudaStream_t& stream);
 }
