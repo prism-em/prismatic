@@ -24,10 +24,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        prismmainwindow.cpp
-
+        prismmainwindow.cpp 
+LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h
-
+QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \
     prismmainwindow.ui
-
+INCLUDEPATH += ../include
+INCLUDEPATH += ../
+INCLUDEPATH += /usr/local/include /Developer/NVIDIA/CUDA-8.0/include/
+QMAKE_LFLAGS += -F /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt
+LIBS += -lprism_shared -L.
