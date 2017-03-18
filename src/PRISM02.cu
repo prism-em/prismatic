@@ -264,7 +264,9 @@ namespace PRISM {
 				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
-				size_t currentBeam, stop;
+				size_t currentBeam, stop, early_CPU_stop;
+				stop = 0;
+				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
 				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
@@ -273,6 +275,7 @@ namespace PRISM {
 						                       fftw_plan_lock);
 						++currentBeam;
 					}
+					if (currentBeam >= early_CPU_stop) break;
 				}
 				// clean up
 				gatekeeper.lock();
