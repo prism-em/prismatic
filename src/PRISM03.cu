@@ -14,6 +14,9 @@
 #include "utility.cuh"
 
 namespace PRISM {
+	struct float2{
+		float x,y;
+	};
 	// define some constants
 	__device__ __constant__ float pi_f                  = PI;
 	__device__ __constant__ cuFloatComplex i_f          = {0, 1};
@@ -24,7 +27,121 @@ namespace PRISM {
 	__device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
 	__device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
+
+
+	//There are a number of template specializations that follow. They exploit the fact that scaleReduceS provides one
+	// element of shared memory per thread. Therefore, for every reduction operation other than the one involving BlockSizeX/2 threads
+	// the bounds checking operation can be skipped -- the latter threads just operate on meaningless values
 template <size_t BlockSizeX>
+__device__  void warpReduce_cx(volatile cuFloatComplex* sdata, int idx){
+	// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+	// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+	// and the result will be incorrect
+	if (BlockSizeX >= 64){
+		sdata[idx].x += sdata[idx + 32].x;
+		sdata[idx].y += sdata[idx + 32].y;
+	}
+	if (BlockSizeX >= 32){
+		sdata[idx].x += sdata[idx + 16].x;
+		sdata[idx].y += sdata[idx + 16].y;
+	}
+	if (BlockSizeX >= 16){
+		sdata[idx].x += sdata[idx + 8].x;
+		sdata[idx].y += sdata[idx + 8].y;
+	}
+	if (BlockSizeX >= 8){
+		sdata[idx].x += sdata[idx + 4].x;
+		sdata[idx].y += sdata[idx + 4].y;
+	}
+	if (BlockSizeX >= 4){
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+	}
+	if (BlockSizeX >= 2){
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+}
+
+	template <>
+	__device__  void warpReduce_cx<32>(volatile cuFloatComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+			if (idx < 16) {
+				sdata[idx].x += sdata[idx + 16].x;
+				sdata[idx].y += sdata[idx + 16].y;
+			}
+			sdata[idx].x += sdata[idx + 8].x;
+			sdata[idx].y += sdata[idx + 8].y;
+			sdata[idx].x += sdata[idx + 4].x;
+			sdata[idx].y += sdata[idx + 4].y;
+			sdata[idx].x += sdata[idx + 2].x;
+			sdata[idx].y += sdata[idx + 2].y;
+			sdata[idx].x += sdata[idx + 1].x;
+			sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<16>(volatile cuFloatComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 8) {
+			sdata[idx].x += sdata[idx + 8].x;
+			sdata[idx].y += sdata[idx + 8].y;
+		}
+		sdata[idx].x += sdata[idx + 4].x;
+		sdata[idx].y += sdata[idx + 4].y;
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<8>(volatile cuFloatComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 4) {
+			sdata[idx].x += sdata[idx + 4].x;
+			sdata[idx].y += sdata[idx + 4].y;
+		}
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+
+	template <>
+	__device__  void warpReduce_cx<4>(volatile cuFloatComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 2) {
+			sdata[idx].x += sdata[idx + 2].x;
+			sdata[idx].y += sdata[idx + 2].y;
+		}
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<2>(volatile cuFloatComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 1) {
+			sdata[idx].x += sdata[idx + 1].x;
+			sdata[idx].y += sdata[idx + 1].y;
+		}
+	}
+
+
+	template <size_t BlockSizeX>
 __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
                              const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
                              PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
@@ -40,7 +157,7 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 
 	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
 //	 2D array of reduced values in psi
-	volatile __shared__ cuFloatComplex scaled_values[BlockSizeX];
+	 __shared__ cuFloatComplex scaled_values[BlockSizeX];
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	int y = blockIdx.y;
 	int z = blockIdx.z;
@@ -95,10 +212,12 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	if (BlockSizeX >= 128){
 		if (idx < 64){
 			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 64]);
+//			warpReduce_cx<BlockSizeX>((float2*)scaled_values, idx);
+
 		}
 		__syncthreads();
 	}
-
+	if (idx < 32)warpReduce_cx<BlockSizeX>(scaled_values, idx);
 	// Now we have reduced to 64 elements, and thus the remaining work need only be done by a single warp of 32 threads.
 	// This means we can completely unroll the remaining loops with no synchronization
 //
@@ -110,42 +229,16 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		if (256 >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
 //		if (256 >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
 
-//	if (idx < 32){
-//		if (BlockSizeX >= 64){
-//			scaled_values[idx].x +=  scaled_values[idx + 32].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 32].y;
-//		}
-//		if (BlockSizeX >= 32){
-//			scaled_values[idx].x +=  scaled_values[idx + 16].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 16].y;
-//		}
-//		if (BlockSizeX >= 16){
-//			scaled_values[idx].x +=  scaled_values[idx + 8].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 8].y;
-//		}
-//		if (BlockSizeX >= 8){
-//			scaled_values[idx].x +=  scaled_values[idx + 4].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 4].y;
-//		}
-//		if (BlockSizeX >= 4){
-//			scaled_values[idx].x +=  scaled_values[idx + 2].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 2].y;
-//		}
-//		if (BlockSizeX >= 2){
-//			scaled_values[idx].x +=  scaled_values[idx + 1].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 1].y;
-//		}
-//	}
 
-//	 TODO: figure out why I need syncthreads here... you shouldn't hjave to synchronize at warp level
-	if (idx < 32){
-		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);		__syncthreads();
-		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);		__syncthreads();
-		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);		__syncthreads();
-		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);		__syncthreads();
-		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);		__syncthreads();
-		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);		__syncthreads();
-	}
+//////	 TODO: figure out why I need syncthreads here... you shouldn't hjave to synchronize at warp level
+//	if (idx < 32){
+//		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);		__syncthreads();
+//		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);		__syncthreads();
+//		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);		__syncthreads();
+//		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);		__syncthreads();
+//		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);		__syncthreads();
+//		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);		__syncthreads();
+//	}
 //	if (idx < 32){
 //		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
 //		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
@@ -612,8 +705,8 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		scaleReduceS<32> <<< grid, block, 0, stream>>>(
 //				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 //						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		dim3 block(512, 1, 1); // should make multiple of 32
-		scaleReduceS<512> <<< grid, block, 0, stream>>>(
+		dim3 block(16, 1, 1); // should make multiple of 32
+		scaleReduceS<16> <<< grid, block, 0, stream>>>(
 				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
 //		{
