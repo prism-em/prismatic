@@ -309,7 +309,11 @@ namespace PRISM{
 				cout << "Launching CPU worker #" << t << '\n';
 				// emplace_back is better whenever constructing a new object
 				workers_CPU.emplace_back(thread([&pars, t, &trans, &alphaInd, &PsiProbeInit]() {
-					size_t Nstart, Nstop, ay, ax;
+				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
+				Nstop = 0;
+				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
+				// wait longer for everything to complete
+				early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
 					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
@@ -317,10 +321,12 @@ namespace PRISM{
 							getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
 							++Nstart;
 						}
+						if (Nstop >= early_CPU_stop) break;
 					}
-
 					cout << "CPU worker #" << t << " finished\n";
-				}));
+			
+					}));
+				
 			}
 			cout << "Waiting on GPU threads..." << endl;
 			for (auto& t:workers_CPU)t.join();

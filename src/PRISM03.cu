@@ -39,7 +39,7 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	// http://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_website/projects/reduction/doc/reduction.pdf
 
 	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
-	// 2D array of reduced values in psi
+//	 2D array of reduced values in psi
 	__shared__ cuFloatComplex scaled_values[BlockSizeX];
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	int y = blockIdx.y;
@@ -47,97 +47,97 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 
 	scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
 	__syncthreads();
-////	 read in first values
-	if (idx < numberBeams) {
-		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx],
-		                             phaseCoeffs_ds[idx]);
-		__syncthreads();
-	}
-
-	// step through global memory accumulating until values have been reduced to BlockSizeX elements in shared memory
-	size_t offset = BlockSizeX;
-	while (offset < numberBeams){
-		if (idx + offset < numberBeams){
-			scaled_values[idx] = cuCaddf(scaled_values[idx],
-										 cuCmulf(  permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx + offset],
-									              phaseCoeffs_ds[idx + offset]));
-		}
-		offset += BlockSizeX;
-		__syncthreads(); // maybe can skip syncing every iteration and just do once at end
-	}
-
-	// At this point we have exactly BlockSizeX elements to reduce from shared memory which we will add by recursively
-	// dividing the array in half
-
-	// Take advantage of templates. Because BlockSizeX is passed at compile time, all of these comparisons are also
-	// evaluated at compile time
-	if (BlockSizeX >= 1024){
-		if (idx < 512){
-			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 512]);
-		}
-		__syncthreads();
-	}
-
-	if (BlockSizeX >= 512){
-		if (idx < 256){
-			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 256]);
-		}
-		__syncthreads();
-	}
-
-	if (BlockSizeX >= 256){
-		if (idx < 128){
-			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 128]);
-		}
-		__syncthreads();
-	}
-
-	if (BlockSizeX >= 128){
-		if (idx < 64){
-			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 64]);
-		}
-		__syncthreads();
-	}
-
-	// Now we have reduced to 64 elements, and thus the remaining work need only be done by a single warp of 32 threads.
-	// This means we can completely unroll the remaining loops with no synchronization
-
-//	if (idx < 32){
-//		if (256 >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
-//		if (256 >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
-//		if (256 >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
-//		if (256 >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
-//		if (256 >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
-//		if (256 >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
-//
-//	if (idx < 32){
-//		if (BlockSizeX >= 64){
-//			scaled_values[idx].x +=  scaled_values[idx + 32].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 32].y;
-//		}
-//		if (BlockSizeX >= 32){
-//			scaled_values[idx].x +=  scaled_values[idx + 16].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 16].y;
-//		}
-//		if (BlockSizeX >= 16){
-//			scaled_values[idx].x +=  scaled_values[idx + 8].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 8].y;
-//		}
-//		if (BlockSizeX >= 8){
-//			scaled_values[idx].x +=  scaled_values[idx + 4].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 4].y;
-//		}
-//		if (BlockSizeX >= 4){
-//			scaled_values[idx].x +=  scaled_values[idx + 2].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 2].y;
-//		}
-//		if (BlockSizeX >= 2){
-//			scaled_values[idx].x +=  scaled_values[idx + 1].x;
-//			scaled_values[idx].y +=  scaled_values[idx + 1].y;
-//		}
+//////	 read in first values
+//	if (idx < numberBeams) {
+//		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx],
+//		                             phaseCoeffs_ds[idx]);
+//		__syncthreads();
 //	}
-
-	// TODO: figure out why I need syncthreads here... you shouldn't hjave to synchronize at warp level
+//
+//	// step through global memory accumulating until values have been reduced to BlockSizeX elements in shared memory
+//	size_t offset = BlockSizeX;
+//	while (offset < numberBeams){
+//		if (idx + offset < numberBeams){
+//			scaled_values[idx] = cuCaddf(scaled_values[idx],
+//										 cuCmulf(  permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx + offset],
+//									              phaseCoeffs_ds[idx + offset]));
+//		}
+//		offset += BlockSizeX;
+//		__syncthreads(); // maybe can skip syncing every iteration and just do once at end
+//	}
+//
+//	// At this point we have exactly BlockSizeX elements to reduce from shared memory which we will add by recursively
+//	// dividing the array in half
+//
+//	// Take advantage of templates. Because BlockSizeX is passed at compile time, all of these comparisons are also
+//	// evaluated at compile time
+//	if (BlockSizeX >= 1024){
+//		if (idx < 512){
+//			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 512]);
+//		}
+//		__syncthreads();
+//	}
+//
+//	if (BlockSizeX >= 512){
+//		if (idx < 256){
+//			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 256]);
+//		}
+//		__syncthreads();
+//	}
+//
+//	if (BlockSizeX >= 256){
+//		if (idx < 128){
+//			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 128]);
+//		}
+//		__syncthreads();
+//	}
+//
+//	if (BlockSizeX >= 128){
+//		if (idx < 64){
+//			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 64]);
+//		}
+//		__syncthreads();
+//	}
+//
+//	// Now we have reduced to 64 elements, and thus the remaining work need only be done by a single warp of 32 threads.
+//	// This means we can completely unroll the remaining loops with no synchronization
+////
+////	if (idx < 32){
+////		if (256 >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
+////		if (256 >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
+////		if (256 >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
+////		if (256 >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
+////		if (256 >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
+////		if (256 >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
+//
+////	if (idx < 32){
+////		if (BlockSizeX >= 64){
+////			scaled_values[idx].x +=  scaled_values[idx + 32].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 32].y;
+////		}
+////		if (BlockSizeX >= 32){
+////			scaled_values[idx].x +=  scaled_values[idx + 16].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 16].y;
+////		}
+////		if (BlockSizeX >= 16){
+////			scaled_values[idx].x +=  scaled_values[idx + 8].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 8].y;
+////		}
+////		if (BlockSizeX >= 8){
+////			scaled_values[idx].x +=  scaled_values[idx + 4].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 4].y;
+////		}
+////		if (BlockSizeX >= 4){
+////			scaled_values[idx].x +=  scaled_values[idx + 2].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 2].y;
+////		}
+////		if (BlockSizeX >= 2){
+////			scaled_values[idx].x +=  scaled_values[idx + 1].x;
+////			scaled_values[idx].y +=  scaled_values[idx + 1].y;
+////		}
+////	}
+//
+////	 TODO: figure out why I need syncthreads here... you shouldn't hjave to synchronize at warp level
 //	if (idx < 32){
 //		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);		__syncthreads();
 //		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);		__syncthreads();
@@ -146,19 +146,19 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);		__syncthreads();
 //		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);		__syncthreads();
 //	}
-	if (idx < 32){
-		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
-		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
-		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
-		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
-		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
-		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
-	}
-
-
-	// write out the result
-	if (idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[0];
-	//	if (idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(2,3);
+//	if (idx < 32){
+//		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
+//		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
+//		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
+//		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
+//		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
+//		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
+//	}
+//
+//
+//	// write out the result
+//	if (idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[0];
+//	//	if (idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(2,3);
 }
 	using namespace std;
 //	__global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
