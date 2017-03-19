@@ -337,6 +337,10 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	                          const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
 	                          const Array2D<std::complex<PRISM_FLOAT_PRECISION> > &PsiProbeInit) {
 
+		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+			cudaErrchk(cudaSetDevice(g));
+			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
+		}
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cudaStream_t streams[total_num_streams];
@@ -606,36 +610,39 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 
 
 
-	////// The CUDA implementation of this reduction is so much faster that it is better to not do any CPU work here
-//		// Now launch CPU work
-//		if (pars.meta.also_do_CPU_work) {
-//			vector<thread> workers_CPU;
-//			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-//			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
-//				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-//				// emplace_back is better whenever constructing a new object
-//				workers_CPU.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-//						                            &alphaInd, &PsiProbeInit, t]() {
-//					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
-//					Nstop = 0;
-//					//early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-//					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-////					early_CPU_stop = 0;
-//					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-//						while (Nstart != Nstop) {
-//							ay = Nstart / pars.xp.size();
-//							ax = Nstart % pars.xp.size();
-//							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
-//							++Nstart;
-//						}
-//						if (Nstop >= early_CPU_stop) break;
-//					}
-//					cout << "CPU worker #" << t << " finished\n";
-//				}));
-//			}
-//			cout << "Waiting for CPU threads...\n";
-//			for (auto& t:workers_CPU)t.join();
-//		}
+	//// The CUDA implementation of this reduction is so much faster that it is better to not do any CPU work here
+		// Now launch CPU work
+		if (pars.meta.also_do_CPU_work) {
+			PRISM_FFTW_INIT_THREADS();
+			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+			vector<thread> workers_CPU;
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
+				// emplace_back is better whenever constructing a new object
+				workers_CPU.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
+						                            &alphaInd, &PsiProbeInit, t]() {
+					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
+					Nstop = 0;
+					//early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
+					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
+//					early_CPU_stop = 0;
+					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+						while (Nstart != Nstop) {
+							ay = Nstart / pars.xp.size();
+							ax = Nstart % pars.xp.size();
+							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+							++Nstart;
+						}
+						if (Nstop >= early_CPU_stop) break;
+					}
+					cout << "CPU worker #" << t << " finished\n";
+				}));
+			}
+			cout << "Waiting for CPU threads...\n";
+			for (auto& t:workers_CPU)t.join();
+			PRISM_FFTW_CLEANUP_THREADS();
+		}
 
 
 		// synchronize

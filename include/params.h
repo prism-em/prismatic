@@ -134,8 +134,8 @@ namespace PRISM{
 		    // Check the properties of each GPU, which is used to choose kernel launch configurations. .
 		    // Most machines with multiple GPUs will have identical or similar models, so we keep just one copy of the metadata from the device
 		    // with the smallest compute capability
+		    cudaErrchk(cudaGetDeviceProperties(&deviceProperties, 0));
 		    if (nDevices > 1) {
-			    cudaErrchk(cudaGetDeviceProperties(&deviceProperties, 1));
 			    for (auto g = 1; g < nDevices; ++g) {
 				    cudaDeviceProp tmp_prop;
 				    cudaErrchk(cudaGetDeviceProperties(&tmp_prop, g));

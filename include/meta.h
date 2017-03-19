@@ -30,7 +30,7 @@ namespace PRISM{
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
 			also_do_CPU_work = false;
 			//cpu_gpu_ratio = 1 / 15; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
-			cpu_gpu_ratio = 1 / 2; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
+			cpu_gpu_ratio = 0.5; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)

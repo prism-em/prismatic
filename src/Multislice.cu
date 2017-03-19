@@ -300,10 +300,10 @@ namespace PRISM{
 
 
 		// now launch CPU work
-		PRISM_FFTW_INIT_THREADS();
-		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+
 		if (pars.meta.also_do_CPU_work){
-			vector<thread> workers_CPU;
+			PRISM_FFTW_INIT_THREADS();
+			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
@@ -330,13 +330,14 @@ namespace PRISM{
 			}
 			cout << "Waiting on GPU threads..." << endl;
 			for (auto& t:workers_CPU)t.join();
+			PRISM_FFTW_CLEANUP_THREADS();
 		}
 		// synchronize threads
 		cout << "Waiting on GPU threads..." << endl;
 		for (auto& t:workers_GPU)t.join();
 
 
-		PRISM_FFTW_CLEANUP_THREADS();
+
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
 			cudaSetDevice(g);
 			cudaDeviceSynchronize();
