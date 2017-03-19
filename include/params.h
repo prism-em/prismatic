@@ -74,6 +74,9 @@ namespace PRISM{
         size_t Ndet;
         size_t numPlanes;
 	    size_t numberBeams;
+#ifdef PRISM_ENABLE_GPU
+		cudaDeviceProp deviceProperties;
+#endif // PRISM_ENABLE_GPU
 		Parameters(){};
 	    Parameters(Metadata<T> _meta) : meta(_meta){
 
@@ -118,6 +121,33 @@ namespace PRISM{
 //		    u = u;
 		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
+
+#ifdef PRISM_ENABLE_GPU
+			// query GPU properties
+		    int nDevices;
+		    cudaGetDeviceCount(&nDevices);
+		    if (nDevices < meta.NUM_GPUS){
+			    std::cout << "Warning: User requested " << meta.NUM_GPUS << " GPUs but only " << nDevices << " were found. Proceeding with " << nDevices << ".\n";
+			    meta.NUM_GPUS = nDevices;
+		    }
+
+		    // Check the properties of each GPU, which is used to choose kernel launch configurations. .
+		    // Most machines with multiple GPUs will have identical or similar models, so we keep just one copy of the metadata from the device
+		    // with the smallest compute capability
+		    if (nDevices > 1) {
+			    cudaErrchk(cudaGetDeviceProperties(&deviceProperties, 1));
+			    for (auto g = 1; g < nDevices; ++g) {
+				    cudaDeviceProp tmp_prop;
+				    cudaErrchk(cudaGetDeviceProperties(&tmp_prop, g));
+				    if (tmp_prop.major < deviceProperties.major){
+					    deviceProperties = tmp_prop;
+				    }
+			    }
+		    }
+		    std::cout << "deviceProperties.major = " << deviceProperties.major << std::endl;
+		    std::cout << "deviceProperties.maxThreadsPerBlock = " << deviceProperties.maxThreadsPerBlock << std::endl;
+
+#endif //PRISM_ENABLE_GPU
 	    };
     };
 

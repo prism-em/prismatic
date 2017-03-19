@@ -184,8 +184,8 @@ namespace PRISM{
 
 		// make sure transfers are complete
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-			cudaSetDevice(g);
-			cudaDeviceSynchronize();
+			cudaErrchk(cudaSetDevice(g));
+			cudaErrchk(cudaDeviceSynchronize());
 		}
 
 		size_t psi_size = PsiProbeInit.size();

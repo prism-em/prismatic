@@ -50,6 +50,7 @@ namespace PRISM {
 		pars.probeYtiltArray[0] = 0.0 / 1000;
 
 		PRISM_FLOAT_PRECISION dxy = 0.25 * 2;
+	//	PRISM_FLOAT_PRECISION dxy = 0.25;
 
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = 0.1 * pars.meta.cellDim[2];

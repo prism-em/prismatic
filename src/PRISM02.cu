@@ -217,6 +217,7 @@ namespace PRISM {
 			workers_GPU.emplace_back(thread([&pars, current_trans_d, current_prop_d, current_qxInd_d, current_qyInd_d,
 					                                current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                                current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream]() {
+				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t currentBeam, stop;
 				while (getWorkID(pars, currentBeam, stop)) {
 					while (currentBeam != stop) {

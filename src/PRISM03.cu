@@ -158,13 +158,25 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
 //	 2D array of reduced values in psi
 	 __shared__ cuFloatComplex scaled_values[BlockSizeX];
+	 extern __shared__ cuFloatComplex coeff_cache [];
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	int y = blockIdx.y;
 	int z = blockIdx.z;
 	int gridSizeY = gridDim.y * blockDim.y;
 	int gridSizeZ = gridDim.z * blockDim.z;
-	scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
+	//scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
+	
+	// read the coefficients into shared memory
+	size_t offset_phase_idx = 0;
+	while (offset_phase_idx < numberBeams){
+		if (idx + offset_phase_idx < numberBeams){
+			coeff_cache[idx + offset_phase_idx] = phaseCoeffs_ds[idx + offset_phase_idx];
+		}
+	offset_phase_idx += BlockSizeX;
+	}
 	__syncthreads();
+
+	// each block processes several reductions strided by the grid size
 	int y_saved = y;
 	while (z < dimj_psi){ 
 		y=y_saved; // reset y
@@ -173,7 +185,7 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 ////	 read in first values
 	if (idx < numberBeams) {
 		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx],
-		                             phaseCoeffs_ds[idx]);
+		                             coeff_cache[idx]);
 		__syncthreads();
 	}
 
@@ -182,8 +194,8 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	while (offset < numberBeams){
 		if (idx + offset < numberBeams){
 			scaled_values[idx] = cuCaddf(scaled_values[idx],
-										 cuCmulf(  permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx + offset],
-									              phaseCoeffs_ds[idx + offset]));
+	                			     cuCmulf( permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx + offset],
+				                              coeff_cache[idx + offset]));
 		}
 		offset += BlockSizeX;
 		__syncthreads(); // maybe can skip syncing every iteration and just do once at end
@@ -514,8 +526,8 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		for (auto i : alphaInd)cout << "alphaInd = " << i << endl;
 		// make sure transfers are complete
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
-			cudaSetDevice(g);
-			cudaDeviceSynchronize();
+			cudaErrchk(cudaSetDevice(g));
+			cudaErrchk(cudaDeviceSynchronize());
 		}
 
 
@@ -525,14 +537,14 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 		// as long as the number of xp and yp are similar. If that is not the case
 		// this may need to be adapted
 		vector<thread> workers_GPU;
-		workers_GPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 //		setWorkStartStop(0, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
 
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
-			cudaSetDevice(GPU_num);
+
 			cudaStream_t &current_stream = streams[stream_count];
 			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
 
@@ -570,6 +582,7 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
+				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
@@ -629,6 +642,10 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 		cout << "Waiting for GPU threads...\n";
 		for (auto &t:workers_GPU)t.join();
 
+		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+			cudaSetDevice(g);
+			cudaDeviceSynchronize();
+		}
 		// free pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaFreeHost(output_ph[s]));
@@ -706,10 +723,10 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
-	//	dim3 grid(1, pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-	//	cout << "pars.imageSizeReduce[0]/2 = " << pars.imageSizeReduce[0]/2 << endl;
-	//	cout << "pars.imageSizeReduce[1]/2 = " << pars.imageSizeReduce[1]/2 << endl;
-		dim3 grid(1, pars.imageSizeReduce[0]/10, pars.imageSizeReduce[1]/10);
+		dim3 grid(1, pars.imageSizeReduce[0]/5, pars.imageSizeReduce[1]/5);
+if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
+if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
+	//	dim3 grid(1, pars.imageSizeReduce[0]/10, pars.imageSizeReduce[1]/10);
 //		cout << "pars.Scompact.get_dimk() = " << pars.Scompact.get_dimk() << endl;
 //		cout << "pars.Scompact.get_dimj() = " << pars.Scompact.get_dimj() << endl;
 //		cout << "pars.Scompact.get_dimi() = " << pars.Scompact.get_dimi() << endl;
@@ -717,9 +734,10 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		scaleReduceS<32> <<< grid, block, 0, stream>>>(
 //				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 //						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		constexpr int block_size = 256;
+		constexpr int block_size =256;
 		dim3 block(block_size, 1, 1); // should make multiple of 32
-		scaleReduceS<block_size> <<< grid, block, 0, stream>>>(
+		unsigned long smem = pars.numberBeams * sizeof(cuFloatComplex); // should pad to next multiple of 32 for bank conflicts
+		scaleReduceS<block_size> <<< grid, block, smem, stream>>>(
 				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
 		/*

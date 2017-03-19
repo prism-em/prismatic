@@ -10,11 +10,11 @@ int main(int argc, const char** argv) {
 	prism_meta.interpolationFactor = (argc>2) ? (size_t)atoi(argv[2]) : 50;
 
 
-	PRISM_FLOAT_PRECISION one_pixel_size = 100.0 / 1000.0;
 	prism_meta.potBound = 1.0;
 	prism_meta.numFP = 8.0 / 8.0;
 	prism_meta.sliceThickness = 2;
 	prism_meta.cellDim = vector<size_t>{80,100,100}; // this is z,y,x format
+	prism_meta.realspace_pixelSize = 100.0/1000.0/1;
 //prism_meta.cellDim = vector<size_t>{40,16,16}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{10,32,32}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{2*40,2*16,2*16}; // this is z,y,x format
