@@ -164,8 +164,8 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	int z = blockIdx.z;
 	int gridSizeY = gridDim.y * blockDim.y;
 	int gridSizeZ = gridDim.z * blockDim.z;
-	//scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
-	
+	scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
+	__syncthreads();
 	// read the coefficients into shared memory
 	size_t offset_phase_idx = 0;
 	while (offset_phase_idx < numberBeams){
@@ -354,6 +354,9 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSizeReduce[1], pars.imageSizeReduce[0], PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 		}
+
+		//delete
+		cout << "pars.numberBeams = " << pars.numberBeams << endl;
 
 		// pointers to pinned host memory for async transfers
 		PRISM_FLOAT_PRECISION               *output_ph[total_num_streams]; // one output array per stream
@@ -741,7 +744,7 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 //		scaleReduceS<32> <<< grid, block, 0, stream>>>(
 //				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 //						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		constexpr int block_size =256;
+		constexpr int block_size =128;
 		dim3 block(block_size, 1, 1); // should make multiple of 32
 		unsigned long smem = pars.numberBeams * sizeof(cuFloatComplex); // should pad to next multiple of 32 for bank conflicts
 		scaleReduceS<block_size> <<< grid, block, smem, stream>>>(
