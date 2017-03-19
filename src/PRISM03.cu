@@ -161,9 +161,15 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	int y = blockIdx.y;
 	int z = blockIdx.z;
-
+	int gridSizeY = gridDim.y * blockDim.y;
+	int gridSizeZ = gridDim.z * blockDim.z;
 	scaled_values[idx] = make_cuFloatComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
 	__syncthreads();
+	int y_saved = y;
+	while (z < dimj_psi){ 
+		y=y_saved; // reset y
+		while(y < dimi_psi){
+
 ////	 read in first values
 	if (idx < numberBeams) {
 		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx],
@@ -212,47 +218,50 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 	if (BlockSizeX >= 128){
 		if (idx < 64){
 			scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 64]);
-//			warpReduce_cx<BlockSizeX>((float2*)scaled_values, idx);
-
 		}
 		__syncthreads();
 	}
 	if (idx < 32)warpReduce_cx<BlockSizeX>(scaled_values, idx);
-	// Now we have reduced to 64 elements, and thus the remaining work need only be done by a single warp of 32 threads.
-	// This means we can completely unroll the remaining loops with no synchronization
-//
-//	if (idx < 32){
-//		if (256 >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
-//		if (256 >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
-//		if (256 >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
-//		if (256 >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
-//		if (256 >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
-//		if (256 >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
-
-
-//////	 TODO: figure out why I need syncthreads here... you shouldn't hjave to synchronize at warp level
-//	if (idx < 32){
-//		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);		__syncthreads();
-//		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);		__syncthreads();
-//		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);		__syncthreads();
-//		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);		__syncthreads();
-//		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);		__syncthreads();
-//		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);		__syncthreads();
-//	}
-//	if (idx < 32){
-//		if (BlockSizeX >= 64)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 32]);
-//		if (BlockSizeX >= 32)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 16]);
-//		if (BlockSizeX >= 16)scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 8]);
-//		if (BlockSizeX >= 8) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 4]);
-//		if (BlockSizeX >= 4) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 2]);
-//		if (BlockSizeX >= 2) scaled_values[idx] = cuCaddf(scaled_values[idx], scaled_values[idx + 1]);
-//	}
-
 
 	// write out the result
 	if (idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[0];
-	//	if (idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(2,3);
+	//if (idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(gridSizeY, gridSizeZ);
+	
+	y+=gridSizeY;
+	__syncthreads();
 }
+	z+=gridSizeZ;
+	__syncthreads();
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	using namespace std;
 //	__global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
 //	                                   const cuFloatComplex *PsiProbeInit_d,
@@ -697,7 +706,10 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
-		dim3 grid(1, pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+	//	dim3 grid(1, pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
+	//	cout << "pars.imageSizeReduce[0]/2 = " << pars.imageSizeReduce[0]/2 << endl;
+	//	cout << "pars.imageSizeReduce[1]/2 = " << pars.imageSizeReduce[1]/2 << endl;
+		dim3 grid(1, pars.imageSizeReduce[0]/10, pars.imageSizeReduce[1]/10);
 //		cout << "pars.Scompact.get_dimk() = " << pars.Scompact.get_dimk() << endl;
 //		cout << "pars.Scompact.get_dimj() = " << pars.Scompact.get_dimj() << endl;
 //		cout << "pars.Scompact.get_dimi() = " << pars.Scompact.get_dimi() << endl;
@@ -705,19 +717,21 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 //		scaleReduceS<32> <<< grid, block, 0, stream>>>(
 //				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 //						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		dim3 block(16, 1, 1); // should make multiple of 32
-		scaleReduceS<16> <<< grid, block, 0, stream>>>(
+		constexpr int block_size = 256;
+		dim3 block(block_size, 1, 1); // should make multiple of 32
+		scaleReduceS<block_size> <<< grid, block, 0, stream>>>(
 				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-//		{
+		/*
+		{
 ////			cudaDeviceSynchronize();
-//			complex<PRISM_FLOAT_PRECISION > ans;
-//			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
-//				cudaErrchk(cudaMemcpy(&ans, (psi_ds + i), sizeof(complex<PRISM_FLOAT_PRECISION>),cudaMemcpyDeviceToHost));
-//				cout << "psi_ds[" << i << "] = " << ans << endl;
-//			}
-//		}
-
+			complex<PRISM_FLOAT_PRECISION > ans;
+			for (auto i = 0; i < pars.imageSizeReduce[0]; ++i){
+				cudaErrchk(cudaMemcpy(&ans, (psi_ds + i), sizeof(complex<PRISM_FLOAT_PRECISION>),cudaMemcpyDeviceToHost));
+				cout << "psi_ds[" << i << "] = " << ans << endl;
+			}
+		}
+		*/
 		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psi_intensity_ds, psi_ds, psi_size);
 //		cout << "pars.alphaInd"
