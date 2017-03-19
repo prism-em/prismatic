@@ -949,18 +949,30 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
-		dim3 grid(1, pars.imageSizeReduce[0]/5, pars.imageSizeReduce[1]/5);
+
+
 if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
 if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
-	//	dim3 grid(1, pars.imageSizeReduce[0]/10, pars.imageSizeReduce[1]/10);
-//		cout << "pars.Scompact.get_dimk() = " << pars.Scompact.get_dimk() << endl;
-//		cout << "pars.Scompact.get_dimj() = " << pars.Scompact.get_dimj() << endl;
-//		cout << "pars.Scompact.get_dimi() = " << pars.Scompact.get_dimi() << endl;
-//		dim3 block(32, 1, 1); // should make multiple of 32
-//		scaleReduceS<32> <<< grid, block, 0, stream>>>(
-//				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-//						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-		constexpr int block_size =128;
+
+
+		// Choose a good launch configuration
+		// Heuristically use 2^p / 4 as the block size where p is the first power of 2 greater than the number of elements to work on.
+		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long
+		size_t p = getNextPower2(pars.numberBeams);
+		const size_t block_size = std::max(1, (size_t)pow(2,p) / 4);
+
+		// Estimate max number of blocks per streaming multiprocessor (threads are the limit)
+		const size_t max_blocks_per_sm = pars.deviceProperties.maxThreadsPerBlock / block_size;
+
+		// We find providing around 4 times as many blocks as the estimated maximum provides good performance
+		const size_t target_blocks_per_sm = max_blocks_per_sm * 4;
+		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
+		// left off here
+
+		const PRISM_FLOAT_PRECISION aspect_ratio = pars.imageSizeReduce[1] / pars.imageSizeReduce[0];
+
+		const size_t jobs_per_block = pars.imageSizeReduce[1] / pars.imageSizeReduce[0] / target_blocks_per_sm;
+		dim3 grid(1, pars.imageSizeReduce[0]/5, pars.imageSizeReduce[1]/5);
 		dim3 block(block_size, 1, 1); // should make multiple of 32
 		unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT); // should pad to next multiple of 32 for bank conflicts
 		scaleReduceS<block_size> <<< grid, block, smem, stream>>>(

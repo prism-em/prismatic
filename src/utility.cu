@@ -475,3 +475,20 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	memcpy(&pars.stack[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
 // TODO: double version of above
+
+
+//size_t getNextPower2(const double& val){
+//	size_t p = 0;
+//	while (pow(2,p) <= val)++p;
+//	return p;
+//}
+//size_t getNextPower2(const float& val){
+//	size_t p = 0;
+//	while (pow(2,p) <= val)++p;
+//	return p;
+//}
+size_t getNextPower2(const size_t& val){
+	size_t p = 0;
+	while (pow(2,p) <= val)++p;
+	return p;
+}

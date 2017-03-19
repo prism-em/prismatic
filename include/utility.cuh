@@ -191,6 +191,11 @@ __global__ void multiply_arr_scalar(double* arr,
 __global__ void multiply_arr_scalar(float* arr,
                                     const float val,
                                     const size_t N);
+
+//size_t getNextPower2(const double& val);
+//size_t getNextPower2(const float& val);
+size_t getNextPower2(const size_t& val);
+
 #if __CUDA_ARCH__ < 600
 __device__  double atomicAdd_double(double* address, const double val);
 #endif
