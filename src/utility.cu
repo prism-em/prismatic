@@ -13,26 +13,26 @@ __device__ __constant__ cuDoubleComplex i           = {0, 1};
 __device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
 __device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
-////atomicAdd for doubles on devices with compute capability < 6. This is directly copied from the CUDA Programming Guide
-//#if __CUDA_ARCH__ < 600
-//__device__ double atomicAdd(double* address, double val)
-//{
-//	unsigned long long int* address_as_ull =
-//			(unsigned long long int*)address;
-//	unsigned long long int old = *address_as_ull, assumed;
-//
-//	do {
-//		assumed = old;
-//		old = atomicCAS(address_as_ull, assumed,
-//		                __double_as_longlong(val +
-//		                                     __longlong_as_double(assumed)));
-//
-//		// Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
-//	} while (assumed != old);
-//
-//	return __longlong_as_double(old);
-//}
-//#endif
+//atomicAdd for doubles on devices with compute capability < 6. This is directly copied from the CUDA Programming Guide
+#if __CUDA_ARCH__ < 600
+__device__  double atomicAdd_double(double* address, const double val)
+{
+	unsigned long long int* address_as_ull =
+			(unsigned long long int*)address;
+	unsigned long long int old = *address_as_ull, assumed;
+
+	do {
+		assumed = old;
+		old = atomicCAS(address_as_ull, assumed,
+		                __double_as_longlong(val +
+		                                     __longlong_as_double(assumed)));
+
+//		 Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+	} while (assumed != old);
+
+	return __longlong_as_double(old);
+}
+#endif
 
 
 
@@ -324,11 +324,43 @@ __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
 		cuFloatComplex arg2 = cuCmulf(qya, cuCaddf(yp_cx, yTiltShift_cx));
 		cuFloatComplex arg = cuCaddf(arg1, arg2);
 		cuFloatComplex phase_shift = exp_cx(cuCmulf(minus_2pii_f, arg));
-//		phaseCoeffs[idx] = phase_shift;
 		phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
-//		phaseCoeffs[idx] = make_cuFloatComplex(1,2);
 	}
 }
+
+__global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
+                                   const cuDoubleComplex *PsiProbeInit_d,
+                                   const double * qyaReduce_d,
+                                   const double * qxaReduce_d,
+                                   const size_t *yBeams_d,
+                                   const size_t *xBeams_d,
+                                   const double yp,
+                                   const double xp,
+                                   const double yTiltShift,
+                                   const double xTiltShift,
+                                   const size_t dimi,
+                                   const size_t numBeams){
+	int idx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (idx < numBeams) {
+		size_t yB = yBeams_d[idx];
+		size_t xB = xBeams_d[idx];
+		cuDoubleComplex xp_cx = make_cuDoubleComplex(xp, 0);
+		cuDoubleComplex yp_cx = make_cuDoubleComplex(yp, 0);
+		cuDoubleComplex xTiltShift_cx = make_cuDoubleComplex(xTiltShift, 0);
+		cuDoubleComplex yTiltShift_cx = make_cuDoubleComplex(yTiltShift, 0);
+		cuDoubleComplex qya = make_cuDoubleComplex(qyaReduce_d[yB * dimi + xB], 0);
+		cuDoubleComplex qxa = make_cuDoubleComplex(qxaReduce_d[yB * dimi + xB], 0);
+		cuDoubleComplex arg1 = cuCmul(qxa, cuCadd(xp_cx, xTiltShift_cx));
+		cuDoubleComplex arg2 = cuCmul(qya, cuCadd(yp_cx, yTiltShift_cx));
+		cuDoubleComplex arg = cuCadd(arg1, arg2);
+		cuDoubleComplex phase_shift = exp_cx(cuCmul(minus_2pii, arg));
+		phaseCoeffs[idx] = cuCmul(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
+	}
+}
+
+
+
+
 //
 //template <size_t BlockSizeX>
 //__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
@@ -398,6 +430,21 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
 			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
 	}
 }
+
+__global__ void integrateDetector(const double* psi_intensity_ds,
+                                  const double* alphaInd_d,
+                                  double* integratedOutput,
+                                  const size_t N,
+                                  const size_t num_integration_bins) {
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N) {
+		size_t alpha = (size_t)alphaInd_d[idx];
+		if (alpha <= num_integration_bins)
+			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			atomicAdd_double(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+	}
+}
+
 
 void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
                                 PRISM_FLOAT_PRECISION *psi_intensity_ds,

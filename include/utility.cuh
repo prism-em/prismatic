@@ -191,5 +191,8 @@ __global__ void multiply_arr_scalar(double* arr,
 __global__ void multiply_arr_scalar(float* arr,
                                     const float val,
                                     const size_t N);
+#if __CUDA_ARCH__ < 600
+__device__  double atomicAdd_double(double* address, const double val);
+#endif
 //__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
 #endif // PRISM_UTILITY_CUH

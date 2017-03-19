@@ -41,8 +41,8 @@ find_package (Boost REQUIRED)
 find_package(FFTW REQUIRED)
 #find_package(Qt5::Widgets REQUIRED)
 
-#set(PRISM_ENABLE_DOUBLE_PRECISION 1)
-set(PRISM_ENABLE_DOUBLE_PRECISION 0)
+set(PRISM_ENABLE_DOUBLE_PRECISION 1)
+#set(PRISM_ENABLE_DOUBLE_PRECISION 0)
 
 if (NOT PRISM_ENABLE_DOUBLE_PRECISION)
     message("single precision enabled")

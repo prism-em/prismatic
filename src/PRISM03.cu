@@ -141,10 +141,121 @@ __device__  void warpReduce_cx(volatile cuFloatComplex* sdata, int idx){
 	}
 
 
+
 	template <size_t BlockSizeX>
-__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
-                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
-                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+	__device__  void warpReduce_cx(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (BlockSizeX >= 64){
+			sdata[idx].x += sdata[idx + 32].x;
+			sdata[idx].y += sdata[idx + 32].y;
+		}
+		if (BlockSizeX >= 32){
+			sdata[idx].x += sdata[idx + 16].x;
+			sdata[idx].y += sdata[idx + 16].y;
+		}
+		if (BlockSizeX >= 16){
+			sdata[idx].x += sdata[idx + 8].x;
+			sdata[idx].y += sdata[idx + 8].y;
+		}
+		if (BlockSizeX >= 8){
+			sdata[idx].x += sdata[idx + 4].x;
+			sdata[idx].y += sdata[idx + 4].y;
+		}
+		if (BlockSizeX >= 4){
+			sdata[idx].x += sdata[idx + 2].x;
+			sdata[idx].y += sdata[idx + 2].y;
+		}
+		if (BlockSizeX >= 2){
+			sdata[idx].x += sdata[idx + 1].x;
+			sdata[idx].y += sdata[idx + 1].y;
+		}
+
+	}
+
+	template <>
+	__device__  void warpReduce_cx<32>(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 16) {
+			sdata[idx].x += sdata[idx + 16].x;
+			sdata[idx].y += sdata[idx + 16].y;
+		}
+		sdata[idx].x += sdata[idx + 8].x;
+		sdata[idx].y += sdata[idx + 8].y;
+		sdata[idx].x += sdata[idx + 4].x;
+		sdata[idx].y += sdata[idx + 4].y;
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<16>(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 8) {
+			sdata[idx].x += sdata[idx + 8].x;
+			sdata[idx].y += sdata[idx + 8].y;
+		}
+		sdata[idx].x += sdata[idx + 4].x;
+		sdata[idx].y += sdata[idx + 4].y;
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<8>(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 4) {
+			sdata[idx].x += sdata[idx + 4].x;
+			sdata[idx].y += sdata[idx + 4].y;
+		}
+		sdata[idx].x += sdata[idx + 2].x;
+		sdata[idx].y += sdata[idx + 2].y;
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+
+	template <>
+	__device__  void warpReduce_cx<4>(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 2) {
+			sdata[idx].x += sdata[idx + 2].x;
+			sdata[idx].y += sdata[idx + 2].y;
+		}
+		sdata[idx].x += sdata[idx + 1].x;
+		sdata[idx].y += sdata[idx + 1].y;
+	}
+
+	template <>
+	__device__  void warpReduce_cx<2>(volatile cuDoubleComplex* sdata, int idx){
+		// When 32 or fewer threads remain, there is only a single warp remaining and no need to synchronize; however,
+		// the volatile keyword is necessary otherwise the compiler will optimize these operations into registers
+		// and the result will be incorrect
+		if (idx < 1) {
+			sdata[idx].x += sdata[idx + 1].x;
+			sdata[idx].y += sdata[idx + 1].y;
+		}
+	}
+
+
+
+	template <size_t BlockSizeX>
+__global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
+                             const cuFloatComplex *phaseCoeffs_ds,
+                             cuFloatComplex *psi_ds,
                              const long *z_ds,
                              const long* y_ds,
                              const size_t numberBeams,
@@ -250,6 +361,111 @@ __global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d
 
 
 
+	template <size_t BlockSizeX>
+	__global__ void scaleReduceS(const cuDoubleComplex *permuted_Scompact_d,
+	                             const cuDoubleComplex *phaseCoeffs_ds,
+	                             cuDoubleComplex *psi_ds,
+	                             const long *z_ds,
+	                             const long* y_ds,
+	                             const size_t numberBeams,
+	                             const size_t dimk_S,
+	                             const size_t dimj_S,
+	                             const size_t dimj_psi,
+	                             const size_t dimi_psi) {
+		// This code is heavily modeled after Mark Harris's presentation on optimized parallel reduction
+		// http://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_website/projects/reduction/doc/reduction.pdf
+
+		// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
+//	 2D array of reduced values in psi
+		__shared__ cuDoubleComplex scaled_values[BlockSizeX];
+		extern __shared__ cuDoubleComplex coeff_cache_double[];
+		int idx = threadIdx.x + blockDim.x * blockIdx.x;
+		int y = blockIdx.y;
+		int z = blockIdx.z;
+		int gridSizeY = gridDim.y * blockDim.y;
+		int gridSizeZ = gridDim.z * blockDim.z;
+		scaled_values[idx] = make_cuDoubleComplex(0,0); // guarantee the memory is initialized to 0 so we can accumulate without bounds checking
+		__syncthreads();
+		// read the coefficients into shared memory
+		size_t offset_phase_idx = 0;
+		while (offset_phase_idx < numberBeams){
+			if (idx + offset_phase_idx < numberBeams){
+				coeff_cache_double[idx + offset_phase_idx] = phaseCoeffs_ds[idx + offset_phase_idx];
+			}
+			offset_phase_idx += BlockSizeX;
+		}
+		__syncthreads();
+
+		// each block processes several reductions strided by the grid size
+		int y_saved = y;
+		while (z < dimj_psi){
+			y=y_saved; // reset y
+			while(y < dimi_psi){
+
+////	 read in first values
+				if (idx < numberBeams) {
+					scaled_values[idx] = cuCmul(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx],
+					                             coeff_cache_double[idx]);
+					__syncthreads();
+				}
+
+				// step through global memory accumulating until values have been reduced to BlockSizeX elements in shared memory
+				size_t offset = BlockSizeX;
+				while (offset < numberBeams){
+					if (idx + offset < numberBeams){
+						scaled_values[idx] = cuCadd(scaled_values[idx],
+						                             cuCmul( permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx + offset],
+						                                      coeff_cache_double[idx + offset]));
+					}
+					offset += BlockSizeX;
+					__syncthreads(); // maybe can skip syncing every iteration and just do once at end
+				}
+
+				// At this point we have exactly BlockSizeX elements to reduce from shared memory which we will add by recursively
+				// dividing the array in half
+
+				// Take advantage of templates. Because BlockSizeX is passed at compile time, all of these comparisons are also
+				// evaluated at compile time
+				if (BlockSizeX >= 1024){
+					if (idx < 512){
+						scaled_values[idx] = cuCadd(scaled_values[idx], scaled_values[idx + 512]);
+					}
+					__syncthreads();
+				}
+
+				if (BlockSizeX >= 512){
+					if (idx < 256){
+						scaled_values[idx] = cuCadd(scaled_values[idx], scaled_values[idx + 256]);
+					}
+					__syncthreads();
+				}
+
+				if (BlockSizeX >= 256){
+					if (idx < 128){
+						scaled_values[idx] = cuCadd(scaled_values[idx], scaled_values[idx + 128]);
+					}
+					__syncthreads();
+				}
+
+				if (BlockSizeX >= 128){
+					if (idx < 64){
+						scaled_values[idx] = cuCadd(scaled_values[idx], scaled_values[idx + 64]);
+					}
+					__syncthreads();
+				}
+				if (idx < 32)warpReduce_cx<BlockSizeX>(scaled_values, idx);
+
+				// write out the result
+				if (idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[0];
+				//if (idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(gridSizeY, gridSizeZ);
+
+				y+=gridSizeY;
+				__syncthreads();
+			}
+			z+=gridSizeZ;
+			__syncthreads();
+		}
+	}
 
 
 
@@ -746,7 +962,7 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 //						pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
 		constexpr int block_size =128;
 		dim3 block(block_size, 1, 1); // should make multiple of 32
-		unsigned long smem = pars.numberBeams * sizeof(cuFloatComplex); // should pad to next multiple of 32 for bank conflicts
+		unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT); // should pad to next multiple of 32 for bank conflicts
 		scaleReduceS<block_size> <<< grid, block, smem, stream>>>(
 				    permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
