@@ -36,7 +36,13 @@ namespace PRISM {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
-			fill_Scompact    = fill_Scompact_GPU;
+			if (meta.stream_data) {
+				cout << "Streaming method\n";
+				fill_Scompact = fill_Scompact_GPU_streaming;
+			} else {
+				cout << "Single transfer method\n";
+				fill_Scompact = fill_Scompact_GPU_singlexfer;
+			}
 			buildPRISMOutput = buildPRISMOutput_GPU;
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;

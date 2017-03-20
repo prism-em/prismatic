@@ -31,6 +31,8 @@ namespace PRISM{
 			also_do_CPU_work = false;
 			//cpu_gpu_ratio = 1 / 15; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 			cpu_gpu_ratio = 0.5; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
+			stream_data = true;
+//			stream_data = false;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
@@ -40,6 +42,7 @@ namespace PRISM{
 		size_t numFP; // number of frozen phonon configurations to compute
 		T sliceThickness; // thickness of slice in Z
 		bool also_do_CPU_work; // what fraction of computation to do on the cpu vs gpu
+		bool stream_data;
 		std::vector<size_t> cellDim; // this is z,y,x format
 		T cpu_gpu_ratio;
 		T E0; // electron energy
