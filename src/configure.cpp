@@ -39,11 +39,13 @@ namespace PRISM {
 			if (meta.stream_data) {
 				cout << "Streaming method\n";
 				fill_Scompact = fill_Scompact_GPU_streaming;
+				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
 			} else {
 				cout << "Single transfer method\n";
 				fill_Scompact = fill_Scompact_GPU_singlexfer;
+				buildPRISMOutput = buildPRISMOutput_GPU_singlexfer;
 			}
-			buildPRISMOutput = buildPRISMOutput_GPU;
+
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;
 			buildPRISMOutput = buildPRISMOutput_CPUOnly;

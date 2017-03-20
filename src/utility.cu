@@ -291,6 +291,9 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
 	}
 }
 
+
+
+
 __global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N){
 
 		int idx = threadIdx.x + blockDim.x * blockIdx.x;
@@ -298,6 +301,16 @@ __global__ void shiftIndices(long* vec_out, const long by, const long imageSize,
 			vec_out[idx] = (idx - N/2 + by) % imageSize;
 		}
 	}
+
+__global__ void zeroIndices(long* vec_out, const long N){
+
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N){
+		vec_out[idx] = vec_out[idx] - vec_out[0];
+	}
+}
+
+
 __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
                                    const cuFloatComplex *PsiProbeInit_d,
                                    const float * qyaReduce_d,
