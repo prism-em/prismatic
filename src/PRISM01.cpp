@@ -104,6 +104,9 @@ namespace PRISM {
 						for (auto& i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
 						for (auto ii = 0; ii < xp.size(); ++ii){
 							for (auto jj = 0; jj < yp.size(); ++jj){
+//								if (a0 == 0 && yp[jj] == 150 && xp[jj] == 150){
+//									int db = 0;
+//								}
 								projPot.at(yp[jj],xp[ii]) += potLookup.at(cur_Z,jj,ii);
 							}
 						}

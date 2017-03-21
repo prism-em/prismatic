@@ -90,6 +90,8 @@ namespace PRISM {
 //		auto start = 0;
 //		auto stop = start + WORK_CHUNK_SIZE;
 		 setWorkStartStop(0, pars.numberBeams);
+//		 setWorkStartStop(0, 1);
+
 		 for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute beams\n";
 			workers.emplace_back([&pars, &fftw_plan_lock, &trans](){

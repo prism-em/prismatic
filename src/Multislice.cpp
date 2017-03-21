@@ -39,16 +39,16 @@ namespace PRISM{
 			}
 			++idx;
 		};
-		if (ax==0 & ay==0){
-			cout <<"ON GPU" << endl;
-			cout << "pars.stack.at(0,0,0) =  " << pars.stack.at(0,0,0,0) << endl;
-			cout << "pars.stack.at(0,0,1) =  " << pars.stack.at(0,0,1,0) << endl;
-			cout << "pars.stack.at(0,0,2) =  " << pars.stack.at(0,0,2,0) << endl;
-			cout << "pars.stack.at(0,0,3) =  " << pars.stack.at(0,0,3,0) << endl;
-			float s = 0;
-			for (auto jj = 0; jj < pars.stack.get_dimj(); ++jj)s+=pars.stack.at(0,0,jj,0);
-			cout << "sum = " << s << endl;
-		}
+//		if (ax==0 & ay==0){
+//			cout <<"ON GPU" << endl;
+//			cout << "pars.stack.at(0,0,0) =  " << pars.stack.at(0,0,0,0) << endl;
+//			cout << "pars.stack.at(0,0,1) =  " << pars.stack.at(0,0,1,0) << endl;
+//			cout << "pars.stack.at(0,0,2) =  " << pars.stack.at(0,0,2,0) << endl;
+//			cout << "pars.stack.at(0,0,3) =  " << pars.stack.at(0,0,3,0) << endl;
+//			float s = 0;
+//			for (auto jj = 0; jj < pars.stack.get_dimj(); ++jj)s+=pars.stack.at(0,0,jj,0);
+//			cout << "sum = " << s << endl;
+//		}
 	}
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                   Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
