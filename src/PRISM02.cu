@@ -391,10 +391,6 @@ namespace PRISM {
 	}
 
 
-
-
-
-
 	void fill_Scompact_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars) {
 		// This version streams each slice of the transmission matrix, which is less efficient but can tolerate very large arrays
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){

@@ -37,15 +37,14 @@ namespace PRISM {
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
 			if (meta.stream_data) {
-				cout << "Streaming method\n";
+				cout << "Using streaming method\n";
 				fill_Scompact = fill_Scompact_GPU_streaming;
 				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
 			} else {
-				cout << "Single transfer method\n";
+				cout << "Using single transfer method\n";
 				fill_Scompact = fill_Scompact_GPU_singlexfer;
 				buildPRISMOutput = buildPRISMOutput_GPU_singlexfer;
 			}
-
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;
 			buildPRISMOutput = buildPRISMOutput_CPUOnly;
@@ -55,7 +54,14 @@ namespace PRISM {
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
 			std::cout << "Using GPU codes" << std::endl;
-			buildMultisliceOutput = buildMultisliceOutput_GPU;
+			if (meta.stream_data) {
+				cout << "Using streaming method\n";
+				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
+			} else {
+				cout << "Using single transfer method\n";
+				buildMultisliceOutput = buildMultisliceOutput_GPU_singlexfer;
+			}
+
 #else
 			buildMultisliceOutput = buildMultisliceOutput_CPUOnly;
 #endif //PRISM_ENABLE_GPU
