@@ -321,16 +321,16 @@ namespace PRISM {
 	template <class T>
 	using Array1D_T = PRISM::ArrayND<1, std::vector<T> >;
 	template <class T>
-	std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T>& X, const Array1D_T<T>& Y){
-		Array2D_T<T> xx = zeros_ND<2, T>({{Y.size(), X.size()}});
+	std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T>& Y, const Array1D_T<T>& X){
 		Array2D_T<T> yy = zeros_ND<2, T>({{Y.size(), X.size()}});
+		Array2D_T<T> xx = zeros_ND<2, T>({{Y.size(), X.size()}});
 		for (auto j = 0; j < xx.get_dimj(); ++j){
 			for (auto i = 0; i < xx.get_dimi(); ++i){
-				xx.at(j,i) = X[i];
 				yy.at(j,i) = Y[j];
+				xx.at(j,i) = X[i];
 			}
 		}
-		return std::pair<Array2D_T<T>, Array2D_T<T> >(xx,yy);
+		return std::pair<Array2D_T<T>, Array2D_T<T> >(yy,xx);
 	}
 
 	template <>

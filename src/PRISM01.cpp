@@ -119,70 +119,10 @@ namespace PRISM {
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
 
-
-
-//		//		serial version
-//		Array2D<T> projPot = zeros_ND<2, T>({pars.imageSize[0], pars.imageSize[1]});
-//		std::default_random_engine de(time(0));
-//		normal_distribution<T> randn(0,1);
-//		ArrayND<1, vector<long> > xp;
-//		ArrayND<1, vector<long> > yp;
-//		for (auto a0 = 0; a0 < pars.numPlanes; ++a0){
-////		for (auto a0 = 1; a0 < 2; ++a0){
-//			memset((void*)&projPot[0], 0, projPot.size() * sizeof(T));
-//			for (auto a2 = 0; a2 < x.size(); ++a2){
-//				if (zPlane[a2]==a0){
-//
-//					if (a2 == 56805){
-//						int c = 0;
-//						cout << "x[2] = " << x[a2] << endl;
-//						cout << "round((x[a2]) / (T)pars.pixelSize[1]) = " << round((x[a2]) / (T)pars.pixelSize[1]) << endl;
-//						cout << "(x[a2]) / (T)pars.pixelSize[1]) = " << x[a2] / (T)pars.pixelSize[1] << endl;
-//					}
-//					const size_t cur_Z = Z_lookup[ID[a2]];
-////					const T X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
-//					const T X = round((x[a2]) / (T)pars.pixelSize[1]);
-//
-//					const long dim0 = (long)pars.imageSize[0];
-//					const long dim1 = (long)pars.imageSize[1];
-//
-//					xp = xvec + (long)X;
-//					for (auto& i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
-////					const T Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
-//					const T Y = round((y[a2])/ (T)pars.pixelSize[0]);
-//					yp = yvec + (long)Y;
-//
-//					cout << "max_xp = " << *max_element(xp.begin(),xp.end()) << endl;
-//					cout << "max_yp = " << *max_element(yp.begin(),yp.end()) << endl;
-//					cout << "min_xp = " << *min_element(xp.begin(),xp.end()) << endl;
-//					cout << "min_yp = " << *min_element(yp.begin(),yp.end()) << endl;
-//					for (auto& i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
-//					for (auto ii = 0; ii < xp.size(); ++ii){
-//						for (auto jj = 0; jj < yp.size(); ++jj){
-//								projPot.at(yp[jj], xp[ii]) += potLookup.at(cur_Z, jj, ii);
-//
-//						}
-//					}
-//					//const T X = x[a2] + randn(de)*uLookup[Z_lookup[ID[a2]]];
-////					transform(xvec.begin(), xvec.end(), xvec.begin(),[](){
-////
-////						;});
-//				}
-//			}
-//			copy(projPot.begin(), projPot.end(),&pars.pot.at(a0,0,0));
-//		}
-//
-//
 	};
 
 	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		//builds atomic potentials
-
-//		using Array3D = ArrayND<3, std::vector<PRISM_FLOAT_PRECISION> >;
-//		using Array2D = ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> >;
-//		using Array1D = ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> >;
-
-//		ArrayND<2, std::vector<T> > projPot(const size_t&, const Array1D&, const Array1D&);
 
 		cout << "Entering PRISM01" << endl;
 		PRISM_FLOAT_PRECISION yleng = std::ceil(pars.meta.potBound / pars.pixelSize[0]);

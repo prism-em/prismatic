@@ -15,7 +15,8 @@ int main(int argc, const char** argv) {
 	prism_meta.sliceThickness = 2;
 	//prism_meta.cellDim = vector<size_t>{80,100,100}; // this is z,y,x format
 	prism_meta.realspace_pixelSize = 100.0/1000.0/1;
-prism_meta.cellDim = vector<size_t>{40,16,16}; // this is z,y,x format
+//prism_meta.cellDim = vector<size_t>{40,16,16}; // this is z,y,x format
+prism_meta.cellDim = vector<size_t>{37,12,14}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{10,32,32}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{2*40,2*16,2*16}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{80,4*16,4*16}; // this is z,y,x format

@@ -60,13 +60,15 @@ namespace PRISM {
 
 		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshx = meshgrid(xr, sub*dx);
 		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshy = meshgrid(yr, sub*dy);
+//		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshx = meshgrid(sub*dx, xr);
+//		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshy = meshgrid(sub*dy, yr);
 
 		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > xv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshx.first.size()}});
 		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > yv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshy.first.size()}});
 		{
 			auto t_x = xv.begin();
-			for (auto i = 0; i < meshx.first.get_dimi(); ++i) {
-				for (auto j = 0; j < meshx.first.get_dimj(); ++j) {
+			for (auto j = 0; j < meshx.first.get_dimj(); ++j) {
+				for (auto i = 0; i < meshx.first.get_dimi(); ++i) {
 					*t_x++ = meshx.first.at(j, i) + meshx.second.at(j, i);
 				}
 			}
@@ -74,21 +76,21 @@ namespace PRISM {
 
 		{
 			auto t_y = yv.begin();
-			for (auto i = 0; i < meshy.first.get_dimi(); ++i) {
-				for (auto j = 0; j < meshy.first.get_dimj(); ++j) {
+			for (auto j = 0; j < meshy.first.get_dimj(); ++j) {
+				for (auto i = 0; i < meshy.first.get_dimi(); ++i) {
 					*t_y++ = meshy.first.at(j, i) + meshy.second.at(j, i);
 				}
 			}
 		}
 
-		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshxy = meshgrid(xv, yv);
+		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshxy = meshgrid(yv, xv);
 		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > r2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yv.size(), xv.size()}});
 		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > r  = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yv.size(), xv.size()}});
 
 		{
 			auto t_y = r2.begin();
-			for (auto i = 0; i < meshxy.first.get_dimi(); ++i) {
-				for (auto j = 0; j < meshxy.first.get_dimj(); ++j) {
+			for (auto j = 0; j < meshxy.first.get_dimj(); ++j) {
+				for (auto i = 0; i < meshxy.first.get_dimi(); ++i) {
 					*t_y++ = pow(meshxy.first.at(j,i),2) + pow(meshxy.second.at(j,i),2);
 				}
 			}
