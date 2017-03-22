@@ -25,7 +25,6 @@ namespace PRISM {
 		const PRISM_FLOAT_PRECISION dx        = round(sqrt(2*(xInd + 1)- 1));
 		const PRISM_FLOAT_PRECISION dy        = round(sqrt(2*(yInd + 1) - 1));
 		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx, xInd+dx, xInd-dx, xInd+dx, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
-//		const PRISM_FLOAT_PRECISION xv[]      = {xInd-dx-1, xInd+dx+1, xInd-dx-1, xInd+dx+1, 0, 0, (PRISM_FLOAT_PRECISION)xr.size()-1, (PRISM_FLOAT_PRECISION)xr.size()-1};
 		const PRISM_FLOAT_PRECISION yv[]      = {0, 0, (PRISM_FLOAT_PRECISION)yr.size()-1, (PRISM_FLOAT_PRECISION)yr.size()-1, yInd-dy, yInd+dy, yInd-dy, yInd+dy};
 
 		PRISM_FLOAT_PRECISION potMin = 0;
@@ -60,8 +59,6 @@ namespace PRISM {
 
 		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshx = meshgrid(xr, sub*dx);
 		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshy = meshgrid(yr, sub*dy);
-//		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshx = meshgrid(sub*dx, xr);
-//		std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > meshy = meshgrid(sub*dy, yr);
 
 		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > xv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshx.first.size()}});
 		ArrayND<1, std::vector<PRISM_FLOAT_PRECISION> > yv = zeros_ND<1, PRISM_FLOAT_PRECISION>({{meshy.first.size()}});

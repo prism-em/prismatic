@@ -45,6 +45,8 @@ namespace PRISM{
 	    Array2D<T> qyaOutput;
         Array2D<T> qxaReduce;
         Array2D<T> qyaReduce;
+	    Array2D<T> q2;
+	    Array2D<T> q1;
         Array1D<T> xp;
         Array1D<T> yp;
         std::vector<size_t> beamsIndex;

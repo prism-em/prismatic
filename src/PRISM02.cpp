@@ -16,6 +16,71 @@
 namespace PRISM {
 
 	using namespace std;
+	const PRISM_FLOAT_PRECISION pi = acos(-1);
+	const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+
+	void setupCoordinates_prism(Parameters<PRISM_FLOAT_PRECISION>& pars){
+
+		// setup some Fourier coordinates and propagators
+		pars.imageSize[0] = pars.pot.get_dimj();
+		pars.imageSize[1] = pars.pot.get_dimi();
+		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
+		Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
+
+		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
+		pars.qya = mesh.first;
+		pars.qxa = mesh.second;
+		Array2D<PRISM_FLOAT_PRECISION> q2(pars.qya);
+		transform(pars.qxa.begin(), pars.qxa.end(),
+		          pars.qya.begin(), q2.begin(), [](const PRISM_FLOAT_PRECISION& a, const PRISM_FLOAT_PRECISION& b){
+					return a*a + b*b;
+				});
+		pars.q2 = q2;
+
+		// get qMax
+		pars.qMax = 0;
+		{
+			PRISM_FLOAT_PRECISION qx_max = 0;
+			PRISM_FLOAT_PRECISION qy_max = 0;
+			for (auto i = 0; i < qx.size(); ++i) {
+				qx_max = ( abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
+				qy_max = ( abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
+			}
+			pars.qMax = min(qx_max, qy_max) / 2;
+		}
+
+		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
+		{
+			long offset_x = pars.qMask.get_dimi()/4;
+			long offset_y = pars.qMask.get_dimj()/4;
+			long ndimy = (long)pars.qMask.get_dimj();
+			long ndimx = (long)pars.qMask.get_dimi();
+			for (long y = 0; y < pars.qMask.get_dimj() / 2; ++y) {
+				for (long x = 0; x < pars.qMask.get_dimi() / 2; ++x) {
+					pars.qMask.at( ((y-offset_y) % ndimy + ndimy) % ndimy,
+					               ((x-offset_x) % ndimx + ndimx) % ndimx) = 1;
+				}
+			}
+		}
+
+		// build propagators
+		pars.prop     = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
+		pars.propBack = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
+		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
+			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
+				if (pars.qMask.at(y,x)==1)
+				{
+					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
+					                            complex<PRISM_FLOAT_PRECISION >(pars.meta.sliceThickness, 0) *
+					                            complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+					pars.propBack.at(y,x) = exp(i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
+					                            complex<PRISM_FLOAT_PRECISION>(pars.meta.cellDim[0], 0) *
+					                            complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+				}
+			}
+		}
+	}
+
 	void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
@@ -23,12 +88,11 @@ namespace PRISM {
 	                        const PRISM_FFTW_PLAN &plan_forward,
 	                        const PRISM_FFTW_PLAN &plan_inverse,
 	                        mutex& fftw_plan_lock){
+		// propagates a single plan wave and fills in the corresponding section of compact S-matrix
+
 		psi[pars.beamsIndex[a0]] = 1;
 		const PRISM_FLOAT_PRECISION N = (PRISM_FLOAT_PRECISION)psi.size();
 
-if (a0 == 3){
-	int bd = 0;
-}
 
 		PRISM_FFTW_EXECUTE(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
@@ -71,10 +135,9 @@ if (a0 == 3){
 	};
 
 	 void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars) {
-		mutex fftw_plan_lock;
+		 // populates the compact S-matrix using CPU resources
 
-		const PRISM_FLOAT_PRECISION pi = acos(-1);
-		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+		mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> > ({{pars.numberBeams, pars.imageSize[0]/2, pars.imageSize[1]/2}});
 		Array3D<complex<PRISM_FLOAT_PRECISION> > trans = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
@@ -83,15 +146,8 @@ if (a0 == 3){
 			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
 		}
 
-
-//		for (auto& i:trans){i.real(1);i.imag(2);};
-
-
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-//		auto WORK_CHUNK_SIZE = ( (pars.numberBeams-1) / pars.meta.NUM_THREADS) + 1;
-//		auto start = 0;
-//		auto stop = start + WORK_CHUNK_SIZE;
 		 setWorkStartStop(0, pars.numberBeams);
 //		 setWorkStartStop(0, 1);
 
@@ -144,62 +200,7 @@ if (a0 == 3){
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
 		// setup some coordinates
-		pars.imageSize[0] = pars.pot.get_dimj();
-		pars.imageSize[1] = pars.pot.get_dimi();
-		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
-		Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
-
-		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
-		pars.qya = mesh.first;
-		pars.qxa = mesh.second;
-		Array2D<PRISM_FLOAT_PRECISION> q2(pars.qya);
-		transform(pars.qxa.begin(), pars.qxa.end(),
-		          pars.qya.begin(), q2.begin(), [](const PRISM_FLOAT_PRECISION& a, const PRISM_FLOAT_PRECISION& b){
-					return a*a + b*b;
-				});
-
-		// get qMax
-		pars.qMax = 0;
-		{
-			PRISM_FLOAT_PRECISION qx_max = 0;
-			PRISM_FLOAT_PRECISION qy_max = 0;
-			for (auto i = 0; i < qx.size(); ++i) {
-				qx_max = ( abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
-				qy_max = ( abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
-			}
-			pars.qMax = min(qx_max, qy_max) / 2;
-		}
-
-		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
-		{
-			long offset_x = pars.qMask.get_dimi()/4;
-			long offset_y = pars.qMask.get_dimj()/4;
-			long ndimy = (long)pars.qMask.get_dimj();
-			long ndimx = (long)pars.qMask.get_dimi();
-			for (long y = 0; y < pars.qMask.get_dimj() / 2; ++y) {
-				for (long x = 0; x < pars.qMask.get_dimi() / 2; ++x) {
-					pars.qMask.at( ((y-offset_y) % ndimy + ndimy) % ndimy,
-					               ((x-offset_x) % ndimx + ndimx) % ndimx) = 1;
-				}
-			}
-		}
-
-		// build propagators
-		pars.prop     = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
-		pars.propBack = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
-		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
-			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
-				if (pars.qMask.at(y,x)==1)
-				{
-					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
-					                            complex<PRISM_FLOAT_PRECISION >(pars.meta.sliceThickness, 0) *
-					                            complex<PRISM_FLOAT_PRECISION>(q2.at(y, x), 0));
-					pars.propBack.at(y,x) = exp(i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
-					                            complex<PRISM_FLOAT_PRECISION>(pars.meta.cellDim[0], 0) *
-					                            complex<PRISM_FLOAT_PRECISION>(q2.at(y, x), 0));
-				}
-			}
-		}
+		setupCoordinates_prism(pars);
 
 		Array1D<PRISM_FLOAT_PRECISION> xv = makeFourierCoords(pars.imageSize[1], (PRISM_FLOAT_PRECISION)1/pars.imageSize[1]);
 		Array1D<PRISM_FLOAT_PRECISION> yv = makeFourierCoords(pars.imageSize[0], (PRISM_FLOAT_PRECISION)1/pars.imageSize[0]);
@@ -212,7 +213,7 @@ if (a0 == 3){
 		long interp_f = (long)pars.meta.interpolationFactor;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
-				if (q2.at(y,x) < pow(pars.meta.alphaBeamMax / pars.lambda,2) &&
+				if (pars.q2.at(y,x) < pow(pars.meta.alphaBeamMax / pars.lambda,2) &&
 				    pars.qMask.at(y,x)==1 &&
 				    (long)round(mesh_a.first.at(y,x))  % interp_f == 0 &&
 				    (long)round(mesh_a.second.at(y,x)) % interp_f == 0){

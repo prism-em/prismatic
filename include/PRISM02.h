@@ -12,18 +12,19 @@
 #include "defines.h"
 
 namespace PRISM {
+	void setupCoordinates_prism(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
-	 void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                        Array3D<std::complex<PRISM_FLOAT_PRECISION> >& trans,
-	                        size_t a0,
-	                        Array2D<std::complex<PRISM_FLOAT_PRECISION> > &psi,
-	                        const PRISM_FFTW_PLAN &plan_forward,
-	                        const PRISM_FFTW_PLAN &plan_inverse,
-	                        std::mutex& fftw_plan_lock);
+	void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                            Array3D<std::complex<PRISM_FLOAT_PRECISION> >& trans,
+	                            size_t a0,
+	                            Array2D<std::complex<PRISM_FLOAT_PRECISION> > &psi,
+	                            const PRISM_FFTW_PLAN &plan_forward,
+	                            const PRISM_FFTW_PLAN &plan_inverse,
+	                            std::mutex& fftw_plan_lock);
 
-	 void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
-	 void PRISM02(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	void PRISM02(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 }
 #endif //PRISM_PRISM02_H
