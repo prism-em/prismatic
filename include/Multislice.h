@@ -42,10 +42,7 @@ namespace PRISM{
                                 const size_t& ax,
                                 const Array2D<PRISM_FLOAT_PRECISION> &alphaInd);
 
-	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
-                                       Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
-                                       Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
-                                       Array2D<PRISM_FLOAT_PRECISION> &alphaInd);
+	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 
 	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);

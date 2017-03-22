@@ -82,7 +82,6 @@ namespace PRISM {
 	}
 
 	void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                        Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
 	                        size_t a0,
 	                        Array2D<complex<PRISM_FLOAT_PRECISION> > &psi,
 	                        const PRISM_FFTW_PLAN &plan_forward,
@@ -96,7 +95,7 @@ namespace PRISM {
 
 		PRISM_FFTW_EXECUTE(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
-		const complex<PRISM_FLOAT_PRECISION>* trans_t = &trans[0];
+		const complex<PRISM_FLOAT_PRECISION>* trans_t = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 
 			for (auto& p:psi)p*=(*trans_t++); // transmit
@@ -139,11 +138,11 @@ namespace PRISM {
 
 		mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> > ({{pars.numberBeams, pars.imageSize[0]/2, pars.imageSize[1]/2}});
-		Array3D<complex<PRISM_FLOAT_PRECISION> > trans = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
+		pars.transmission = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
 			auto p = pars.pot.begin();
-			for (auto &j:trans)j = exp(i * pars.sigma * (*p++));
+			for (auto &j:pars.transmission)j = exp(i * pars.sigma * (*p++));
 		}
 
 		vector<thread> workers;
@@ -153,7 +152,7 @@ namespace PRISM {
 
 		 for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute beams\n";
-			workers.emplace_back([&pars, &fftw_plan_lock, &trans](){
+			workers.emplace_back([&pars, &fftw_plan_lock](){
 				// allocate array for psi just once per thread
 				Array2D< complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 
@@ -172,7 +171,7 @@ namespace PRISM {
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
-						propagatePlaneWave_CPU(pars, trans, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
+						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
 						++currentBeam;
 					}
 				}

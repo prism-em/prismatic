@@ -2,7 +2,7 @@
 // Created by AJ Pryor on 2/22/17.
 //
 
-#include "projPot.h"
+#include "projectedPotential.h"
 #include <vector>
 #include "ArrayND.h"
 #include "boost/math/special_functions/bessel.hpp"

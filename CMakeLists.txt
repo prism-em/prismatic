@@ -21,7 +21,7 @@ set(SOURCE_FILES
         src/PRISM03.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
-        src/projPot.cpp)
+        src/projectedPotential.cpp)
 
 set(GUI_SOURCE_FILES Qt/main.cpp
         Qt/prismmainwindow.cpp)

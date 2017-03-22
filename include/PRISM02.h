@@ -15,7 +15,6 @@ namespace PRISM {
 	void setupCoordinates_prism(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 	void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                            Array3D<std::complex<PRISM_FLOAT_PRECISION> >& trans,
 	                            size_t a0,
 	                            Array2D<std::complex<PRISM_FLOAT_PRECISION> > &psi,
 	                            const PRISM_FFTW_PLAN &plan_forward,

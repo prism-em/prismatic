@@ -15,7 +15,7 @@
 #include <thread>
 #include "params.h"
 #include "ArrayND.h"
-#include "projPot.h"
+#include "projectedPotential.h"
 namespace PRISM {
 	 void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,
 	                      const std::vector<size_t>& atomic_species,

@@ -233,10 +233,7 @@ namespace PRISM{
 		formatOutput_CPU(pars, psi, pars.alphaInd, ay, ax);
 	}
 
-	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                                   Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
-	                                   Array2D<complex<PRISM_FLOAT_PRECISION> >& psiProbeInit,
-	                                   Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
+	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		cout << "CPU version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
@@ -294,6 +291,6 @@ namespace PRISM{
 		createStack(pars);
 
 		// create the output
-		buildMultisliceOutput(pars, pars.transmission, pars.psiProbeInit, pars.alphaInd);
+		buildMultisliceOutput(pars);
 	}
 }

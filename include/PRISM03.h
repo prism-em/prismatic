@@ -24,14 +24,10 @@ namespace PRISM {
 	                 const size_t &ay,
 	                 const size_t &ax,
 	                 const PRISM_FLOAT_PRECISION &yTiltShift,
-	                 const PRISM_FLOAT_PRECISION &xTiltShift,
-	                 const PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-	                 const PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit);
+	                 const PRISM_FLOAT_PRECISION &xTiltShift);
 
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                              const PRISM_FLOAT_PRECISION xTiltShift,
-	                              const PRISM_FLOAT_PRECISION yTiltShift,
-	                              const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
-	                              const Array2D<std::complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit);
+	                              const PRISM_FLOAT_PRECISION yTiltShift);
 }
 #endif //PRISM_PRISM03_H

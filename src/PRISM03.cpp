@@ -128,8 +128,8 @@ namespace PRISM {
 		Array2D<PRISM_FLOAT_PRECISION> q1 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
 		Array2D<PRISM_FLOAT_PRECISION> q2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
-		Array2D<complex<PRISM_FLOAT_PRECISION> > PsiProbeInit, psi;
-		PsiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{imageSizeReduce[0], imageSizeReduce[1]}});
+		Array2D<complex<PRISM_FLOAT_PRECISION> >  psi;
+		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{imageSizeReduce[0], imageSizeReduce[1]}});
 		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{imageSizeReduce[0], imageSizeReduce[1]}});
 		pars.imageSizeReduce = imageSizeReduce;
 		pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
@@ -153,24 +153,25 @@ namespace PRISM {
 						transform(q2.begin(), q2.end(),
 						          q1.begin(),
 						          [](const PRISM_FLOAT_PRECISION &a) { return sqrt(a); });
-						Array2D<PRISM_FLOAT_PRECISION> alphaInd(q1); // copy constructor more efficient than assignment
-						transform(alphaInd.begin(), alphaInd.end(),
-						          alphaInd.begin(),
+//						Array2D<PRISM_FLOAT_PRECISION> alphaInd(q1); // copy constructor more efficient than assignment
+						pars.alphaInd = q1;
+						transform(pars.alphaInd.begin(), pars.alphaInd.end(),
+						          pars.alphaInd.begin(),
 						          [&pars](const PRISM_FLOAT_PRECISION &a) {
 							          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.dr);
 						          });
-						transform(alphaInd.begin(), alphaInd.end(),
-						          alphaInd.begin(),
+						transform(pars.alphaInd.begin(), pars.alphaInd.end(),
+						          pars.alphaInd.begin(),
 						          [](const PRISM_FLOAT_PRECISION &a) { return a < 1 ? 1 : a; });
 						PRISM::ArrayND<2, std::vector<unsigned short> > alphaMask(
-								std::vector<unsigned short>(alphaInd.size(), 0),
-								{{alphaInd.get_dimj(), alphaInd.get_dimi()}});
-						transform(alphaInd.begin(), alphaInd.end(),
+								std::vector<unsigned short>(pars.alphaInd.size(), 0),
+								{{pars.alphaInd.get_dimj(), pars.alphaInd.get_dimi()}});
+						transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 						          alphaMask.begin(),
 						          [&pars](const PRISM_FLOAT_PRECISION &a) { return (a < pars.Ndet) ? 1 : 0; });
 
-						transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-						          q1.begin(), PsiProbeInit.begin(),
+						transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+						          q1.begin(), pars.psiProbeInit.begin(),
 						          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
 							          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
 							          a.imag(0);
@@ -181,20 +182,20 @@ namespace PRISM {
 						const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 						// this might seem a strange way to get pi, but it's slightly more future proof
 						const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
-						transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-						          q2.begin(), PsiProbeInit.begin(),
+						transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+						          q2.begin(), pars.psiProbeInit.begin(),
 						          [&pars, &a0](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
 							          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[a0] * q2_t);
 							          return a;
 						          });
-						PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(PsiProbeInit.begin(), PsiProbeInit.end(),
+						PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 						                                                      (PRISM_FLOAT_PRECISION)0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
 									return accum + abs(a) * abs(a);
 								})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
 						PRISM_FLOAT_PRECISION a = 0;
-						for (auto &i : PsiProbeInit) { a += i.real(); };
-						transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-						          PsiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
+						for (auto &i : pars.psiProbeInit) { a += i.real(); };
+						transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+						          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
 									return a / norm_constant;
 								});
 
@@ -202,7 +203,7 @@ namespace PRISM {
 						PRISM_FLOAT_PRECISION xTiltShift = -zTotal * tan(pars.probeXtiltArray[a3]);
 						PRISM_FLOAT_PRECISION yTiltShift = -zTotal * tan(pars.probeYtiltArray[a3]);
 
-						buildPRISMOutput(pars, xTiltShift, yTiltShift, alphaInd, PsiProbeInit);
+						buildPRISMOutput(pars, xTiltShift, yTiltShift);
 					}
 				}
 			}
@@ -211,9 +212,7 @@ namespace PRISM {
 
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                              const PRISM_FLOAT_PRECISION xTiltShift,
-	                              const PRISM_FLOAT_PRECISION yTiltShift,
-	                              const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
-	                              const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit){
+	                              const PRISM_FLOAT_PRECISION yTiltShift){
 		// launch threads to compute results for batches of xp, yp
 		// I do this by dividing the xp points among threads, and each computes
 		// all of the relevant yp for each of its xp. This seems an okay strategy
@@ -225,14 +224,13 @@ namespace PRISM {
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-					                            &alphaInd, &PsiProbeInit]() {
+			workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift);
 						++Nstart;
 					}
 				}
@@ -248,9 +246,7 @@ namespace PRISM {
 	                 const size_t &ay,
 	                 const size_t &ax,
 	                 const PRISM_FLOAT_PRECISION &yTiltShift,
-	                 const PRISM_FLOAT_PRECISION &xTiltShift,
-	                 const PRISM::ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > &alphaInd,
-	                 const PRISM::ArrayND<2, std::vector<std::complex<PRISM_FLOAT_PRECISION> > > &PsiProbeInit) {
+	                 const PRISM_FLOAT_PRECISION &xTiltShift) {
 		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
@@ -267,7 +263,7 @@ namespace PRISM {
 			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 				PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
-				if (abs(PsiProbeInit.at(yB, xB)) > 0) {
+				if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
 					PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
 					PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
 					std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(-2 * pi * i * (q0_0 * (pars.xp[ax] + xTiltShift) +
@@ -275,7 +271,7 @@ namespace PRISM {
 //                    std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(-2 * pi * i);
 					// caching this constant made a 5x performance improvement even with
 					// full compiler optimization turned on. Optimizing compilers aren't perfect...
-					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = PsiProbeInit.at(yB, xB) * phaseShift;
+					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
 					auto psi_ptr = psi.begin();
 					for (auto j = 0; j < y.size(); ++j) {
 						for (auto i = 0; i < x.size(); ++i) {
@@ -309,7 +305,7 @@ namespace PRISM {
 		}
 
 //         update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
-		auto idx = alphaInd.begin();
+		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
 				pars.stack.at(ay,ax,(*idx)-1, 0) += *counts * pars.scale;
