@@ -36,10 +36,10 @@ namespace PRISM{
 	    Array2D< std::complex<T> > psiProbeInit;
 //	    size_t interpolationFactor;
 	    Array2D<unsigned int> qMask;
-        Array1D<T> probeDefocusArray;
-        Array1D<T> probeSemiangleArray;
-        Array1D<T> probeXtiltArray;
-        Array1D<T> probeYtiltArray;
+        T probeDefocus;
+        T probeSemiangle;
+        T probeXtilt;
+        T probeYtilt;
 	    Array2D<T> qxa;
 	    Array2D<T> qya;
 	    Array2D<T> qxaOutput;
@@ -89,6 +89,17 @@ namespace PRISM{
 		    constexpr double c = 299792458;
 		    constexpr double h = 6.62607e-34;
 		    const double pi = std::acos(-1);
+
+		    // should make these settable elsewhere
+		    probeDefocus    = 0;
+		    probeSemiangle  = 0;
+		    probeXtilt      = 0;
+		    probeYtilt      = 0;
+		    probeDefocus    = 0.0;
+		    probeSemiangle  = 20.0 / 1000;
+		    probeXtilt      = 0.0 / 1000;
+		    probeYtilt      = 0.0 / 1000;
+
 		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
 		                       (2 * m * c * c + e * meta.E0));

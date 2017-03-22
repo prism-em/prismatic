@@ -20,7 +20,8 @@ namespace PRISM {
 	inline void setupCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
 	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars);
 	inline void setupBeams(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                 const size_t &ay,
@@ -31,5 +32,6 @@ namespace PRISM {
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                              const PRISM_FLOAT_PRECISION xTiltShift,
 	                              const PRISM_FLOAT_PRECISION yTiltShift);
+	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
 }
 #endif //PRISM_PRISM03_H

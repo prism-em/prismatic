@@ -111,7 +111,6 @@ namespace PRISM{
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		pars.Ndet = pars.detectorAngles.size();
-		if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
 		Array2D<PRISM_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
 		pars.alphaInd = (alpha + pars.dr/2) / pars.dr;
 		for (auto& q : pars.alphaInd) q = std::round(q);
@@ -120,7 +119,7 @@ namespace PRISM{
 
 	void setupProbes_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
-		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangleArray[0] / pars.lambda; // currently a single semiangle
+		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangle/ pars.lambda; // currently a single semiangle
 		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
 		Array2D<complex<PRISM_FLOAT_PRECISION> > psi;
 		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
@@ -135,7 +134,7 @@ namespace PRISM{
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[0] * q2_t); // TODO: fix hardcoded length-1 defocus
+			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocus * q2_t); // TODO: fix hardcoded length-1 defocus
 			          return a;
 		          });
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
@@ -263,16 +262,6 @@ namespace PRISM{
 
 	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
-
-		// TODO:should move these elsewhere and in PRISM03
-		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeXtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeYtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeDefocusArray[0] = (PRISM_FLOAT_PRECISION)0.0;
-		pars.probeSemiangleArray[0] = (PRISM_FLOAT_PRECISION)20.0 / 1000;
-		pars.probeXtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
-		pars.probeYtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
 
 		// setup coordinates and build propagators
 		setupCoordinates_multislice(pars);
