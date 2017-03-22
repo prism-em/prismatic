@@ -719,7 +719,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
-							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift);
 							++Nstart;
 						}
 						if (Nstop >= early_CPU_stop) break;
@@ -1049,7 +1049,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
-							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift);
 							++Nstart;
 						}
 						if (Nstop >= early_CPU_stop) break;
