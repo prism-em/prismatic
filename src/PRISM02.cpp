@@ -229,7 +229,7 @@ namespace PRISM {
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		setWorkStartStop(0, pars.numberBeams);
+		setWorkStartStop(0, pars.numberBeams, 1);
 //		 setWorkStartStop(0, 1);
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
@@ -269,7 +269,6 @@ namespace PRISM {
 		for (auto &t:workers)t.join();
 	}
 
-
 	void PRISM02(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// propagate plane waves to construct compact S-matrix
 
@@ -290,6 +289,5 @@ namespace PRISM {
 		fill_Scompact(pars);
 
 		downsampleFourierComponents(pars);
-
 	}
 }

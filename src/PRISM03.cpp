@@ -220,7 +220,7 @@ namespace PRISM {
 		// this may need to be adapted
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		setWorkStartStop(0, pars.xp.size()*pars.yp.size());
+		setWorkStartStop(0, pars.xp.size()*pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			// emplace_back is better whenever constructing a new object

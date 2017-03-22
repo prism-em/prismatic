@@ -644,8 +644,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
-//		setWorkStartStop(0, 1);
+		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+//		setWorkStartStop(0, 1, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
 
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
