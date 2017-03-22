@@ -193,7 +193,7 @@ namespace PRISM{
 		// populates the output stack for Multislice simulation using the CPU. The number of
 		// threads used is determined by pars.meta.NUM_THREADS
 
-		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(psiProbeInit);
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 
 
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
@@ -218,7 +218,7 @@ namespace PRISM{
 
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 			PRISM_FFTW_EXECUTE(plan_inverse);
-			complex<PRISM_FLOAT_PRECISION>* t_ptr = &trans[a2 * trans.get_dimj() * trans.get_dimi()];
+			complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
 			for (auto& p:psi)p *= (*t_ptr++); // transmit
 			PRISM_FFTW_EXECUTE(plan_forward);
 			auto p_ptr = pars.prop.begin();
@@ -230,7 +230,7 @@ namespace PRISM{
 		PRISM_FFTW_DESTROY_PLAN(plan_forward);
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 		gatekeeper.unlock();
-		formatOutput_CPU(pars, psi, alphaInd, ay, ax);
+		formatOutput_CPU(pars, psi, pars.alphaInd, ay, ax);
 	}
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
@@ -247,13 +247,13 @@ namespace PRISM{
 			cout << "Launching CPU worker #" << t << '\n';
 
 			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, t, &alphaInd]() {
+			workers.emplace_back(thread([&pars, t]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						getMultisliceProbe_CPU(pars, pars.transmission, pars.psiProbeInit, ay, ax, alphaInd);
+						getMultisliceProbe_CPU(pars, pars.transmission, pars.psiProbeInit, ay, ax, pars.alphaInd);
 						++Nstart;
 					}
 				}
@@ -268,8 +268,6 @@ namespace PRISM{
 	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
 
-
-
 		// TODO:should move these elsewhere and in PRISM03
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
@@ -279,8 +277,6 @@ namespace PRISM{
 		pars.probeSemiangleArray[0] = (PRISM_FLOAT_PRECISION)20.0 / 1000;
 		pars.probeXtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
 		pars.probeYtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
-
-
 
 		// setup coordinates and build propagators
 		setupCoordinates_multislice(pars);
@@ -297,6 +293,7 @@ namespace PRISM{
 		// initialize output stack
 		createStack(pars);
 
+		// create the output
 		buildMultisliceOutput(pars, pars.transmission, pars.psiProbeInit, pars.alphaInd);
 	}
 }
