@@ -76,14 +76,14 @@ namespace PRISM{
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
-
+		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 		{
 			auto qxa_ptr = pars.qxa.begin();
 			auto qya_ptr = pars.qya.begin();
 			for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*pars.xp[ax] +
 			                                        (*qya_ptr++)*pars.yp[ay]));
 		}
-		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
 
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 			PRISM_FFTW_EXECUTE(plan_inverse);
@@ -170,9 +170,9 @@ namespace PRISM{
 		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 		Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 
-		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qx,qy);
-		pars.qxa = mesh.first;
-		pars.qya = mesh.second;
+		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
+		pars.qya = mesh.first;
+		pars.qxa = mesh.second;
 		Array2D<PRISM_FLOAT_PRECISION> q2(pars.qya);
 		transform(pars.qxa.begin(), pars.qxa.end(),
 		          pars.qya.begin(), q2.begin(), [](const PRISM_FLOAT_PRECISION& a, const PRISM_FLOAT_PRECISION& b){
@@ -193,7 +193,7 @@ namespace PRISM{
 			pars.qMax = min(qx_max, qy_max) / 2;
 		}
 
-		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
+		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
 			long offset_x = pars.qMask.get_dimi()/4;
 			long offset_y = pars.qMask.get_dimj()/4;
@@ -208,8 +208,8 @@ namespace PRISM{
 		}
 
 		// build propagators
-		pars.prop     = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[1], pars.imageSize[0]}});
-		pars.propBack = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[1], pars.imageSize[0]}});
+		pars.prop     = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
+		pars.propBack = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 				if (pars.qMask.at(y,x)==1)

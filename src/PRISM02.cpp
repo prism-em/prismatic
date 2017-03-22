@@ -26,6 +26,9 @@ namespace PRISM {
 		psi[pars.beamsIndex[a0]] = 1;
 		const PRISM_FLOAT_PRECISION N = (PRISM_FLOAT_PRECISION)psi.size();
 
+if (a0 == 3){
+	int bd = 0;
+}
 
 		PRISM_FFTW_EXECUTE(plan_inverse);
 		for (auto &i : psi)i /= N; // fftw scales by N, need to correct
@@ -146,9 +149,9 @@ namespace PRISM {
 		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 		Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 
-		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qx,qy);
-		pars.qxa = mesh.first;
-		pars.qya = mesh.second;
+		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
+		pars.qya = mesh.first;
+		pars.qxa = mesh.second;
 		Array2D<PRISM_FLOAT_PRECISION> q2(pars.qya);
 		transform(pars.qxa.begin(), pars.qxa.end(),
 		          pars.qya.begin(), q2.begin(), [](const PRISM_FLOAT_PRECISION& a, const PRISM_FLOAT_PRECISION& b){
@@ -167,7 +170,7 @@ namespace PRISM {
 			pars.qMax = min(qx_max, qy_max) / 2;
 		}
 
-		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
+		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
 			long offset_x = pars.qMask.get_dimi()/4;
 			long offset_y = pars.qMask.get_dimj()/4;
@@ -200,11 +203,11 @@ namespace PRISM {
 
 		Array1D<PRISM_FLOAT_PRECISION> xv = makeFourierCoords(pars.imageSize[1], (PRISM_FLOAT_PRECISION)1/pars.imageSize[1]);
 		Array1D<PRISM_FLOAT_PRECISION> yv = makeFourierCoords(pars.imageSize[0], (PRISM_FLOAT_PRECISION)1/pars.imageSize[0]);
-		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh_a = meshgrid(xv, yv);
+		pair< Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh_a = meshgrid(yv, xv);
 
 		// create beam mask and count beams
 		PRISM::Array2D<unsigned int> mask;
-		mask = zeros_ND<2, unsigned int>({{pars.imageSize[1], pars.imageSize[0]}});
+		mask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 		pars.numberBeams = 0;
 		long interp_f = (long)pars.meta.interpolationFactor;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
@@ -218,20 +221,18 @@ namespace PRISM {
 				}
 			}
 		}
-
 		pars.beams     = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
 			int beam_count = 1;
 			for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 				for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 					if (mask.at(y,x)==1){
-						pars.beamsIndex.push_back((size_t)y*pars.qMask.get_dimj() + (size_t)x);
+						pars.beamsIndex.push_back((size_t)y*pars.qMask.get_dimi() + (size_t)x);
 						pars.beams.at(y,x) = beam_count++;
 					}
 				}
 			}
 		}
-
 		// TODO: ensure this block is correct for arbitrary dimension
 		// get the indices for the compact S-matrix
 		pars.qxInd = zeros_ND<1, size_t>({{pars.imageSize[1]/2}});
