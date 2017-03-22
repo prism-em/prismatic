@@ -29,7 +29,7 @@ namespace PRISM{
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> stack;
 		Array3D<T> pot;
-
+	    Array3D<std::complex<PRISM_FLOAT_PRECISION> > transmission;
 
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
@@ -46,6 +46,7 @@ namespace PRISM{
 	    Array2D<T> qyaOutput;
         Array2D<T> qxaReduce;
         Array2D<T> qyaReduce;
+	    Array2D<T> alphaInd;
 	    Array2D<T> q2;
 	    Array2D<T> q1;
         Array1D<T> xp;

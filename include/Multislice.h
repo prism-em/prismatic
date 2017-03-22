@@ -25,6 +25,10 @@ namespace PRISM{
 
 	void setupProbes_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
+	void createTransmission(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
+	void createStack(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
