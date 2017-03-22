@@ -34,24 +34,7 @@ namespace PRISM {
 		return result;
 	}
 
-	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
-		// compute final image
-
-		cout << "Entering PRISM03" << endl;
-
-		// should move these elsewhere and in Multislice
-		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeXtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeYtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
-		pars.probeDefocusArray[0] = 0.0;
-		pars.probeSemiangleArray[0] = 20.0 / 1000;
-		pars.probeXtiltArray[0] = 0.0 / 1000;
-		pars.probeYtiltArray[0] = 0.0 / 1000;
-
-		PRISM_FLOAT_PRECISION dxy = 0.25 * 2;
-	//	PRISM_FLOAT_PRECISION dxy = 0.25;
-
+	inline void setupCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = 0.1 * pars.meta.cellDim[2];
 		xR[1] = 0.9 * pars.meta.cellDim[2];
@@ -59,45 +42,35 @@ namespace PRISM {
 		yR[0] = 0.1 * pars.meta.cellDim[1];
 		yR[1] = 0.9 * pars.meta.cellDim[1];
 
-		cout << "xR[0] = " << xR[0] << endl;
-		cout << "xR[1] = " << xR[1] << endl;
-		cout << "yR[0] = " << yR[0] << endl;
-		cout << "yR[1] = " << yR[1] << endl;
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + dxy / 2, dxy, xR[1] - dxy / 2);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + dxy / 2, dxy, yR[1] - dxy / 2);
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.dxy / 2, pars.meta.dxy, xR[1] - pars.meta.dxy / 2);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.dxy / 2, pars.meta.dxy, yR[1] - pars.meta.dxy / 2);
 
 		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 		pars.xp = xp;
 		pars.yp = yp;
 
+	}
+
+	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		pars.dr = 2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
-		cout << "pars.dr = " << pars.dr << endl;
-		cout << "pars.qMax = " << pars.qMax << endl;
-		cout << "pars.lambda = " << pars.lambda << endl;
-		cout << "pars.alphaMax = " << pars.alphaMax << endl;
 
 		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
-//        bool flag_plot = 0;
-//        bool flag_keep_beams = 0;
 		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
 		PRISM_FLOAT_PRECISION r_1 = pars.imageSizeOutput[1] / pars.meta.interpolationFactor / 2;
 		vector<PRISM_FLOAT_PRECISION> yVec_d = vecFromRange(-r_0, (PRISM_FLOAT_PRECISION)1.0, r_0 - 1);
 		vector<PRISM_FLOAT_PRECISION> xVec_d = vecFromRange(-r_1, (PRISM_FLOAT_PRECISION)1.0, r_1 - 1);
-//		vector<PRISM_FLOAT_PRECISION> yVec_d = {1,2,3};
-//		vector<PRISM_FLOAT_PRECISION> xVec_d = {1,2,3};
-//		vector<PRISM_FLOAT_PRECISION> yVec_d = vecFromRange(-r_0, 1.0f, r_0 - 1);
-//		vector<PRISM_FLOAT_PRECISION> xVec_d = vecFromRange(-r_1, 1.0f, r_1 - 1);
-//		vector<PRISM_FLOAT_PRECISION> yVec_d = vecFromRange(-r_0, 1.0, r_0 - 1);
-//		vector<PRISM_FLOAT_PRECISION> xVec_d = vecFromRange(-r_1, 1.0, r_1 - 1);
 		Array1D<PRISM_FLOAT_PRECISION> yVec(yVec_d,{{yVec_d.size()}});
 		Array1D<PRISM_FLOAT_PRECISION> xVec(xVec_d,{{xVec_d.size()}});
 		pars.yVec = yVec;
 		pars.xVec = xVec;
+		pars.Ndet = pars.detectorAngles.size();
+	}
 
+	inline void setupBeams(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		Array2D<PRISM_FLOAT_PRECISION> beamsReduce = array2D_subset(pars.beamsOutput,
 		                                                            0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimj(),
 		                                                            0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimi());
@@ -115,6 +88,60 @@ namespace PRISM {
 				}
 			}
 		}
+		pars.imageSizeReduce = imageSizeReduce;
+	}
+	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+		// compute final image
+
+		cout << "Entering PRISM03" << endl;
+
+		// should move these elsewhere and in Multislice
+		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
+		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
+		pars.probeXtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
+		pars.probeYtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
+		pars.probeDefocusArray[0] = 0.0;
+		pars.probeSemiangleArray[0] = 20.0 / 1000;
+		pars.probeXtiltArray[0] = 0.0 / 1000;
+		pars.probeYtiltArray[0] = 0.0 / 1000;
+
+
+		setupCoordinates(pars);
+		setupDetector(pars);
+		setupBeams(pars);
+//
+//		pars.dr = 2.5 / 1000;
+//		pars.alphaMax = pars.qMax * pars.lambda;
+//
+//		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
+//		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
+//		pars.detectorAngles = detectorAngles;
+//		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
+//		PRISM_FLOAT_PRECISION r_1 = pars.imageSizeOutput[1] / pars.meta.interpolationFactor / 2;
+//		vector<PRISM_FLOAT_PRECISION> yVec_d = vecFromRange(-r_0, (PRISM_FLOAT_PRECISION)1.0, r_0 - 1);
+//		vector<PRISM_FLOAT_PRECISION> xVec_d = vecFromRange(-r_1, (PRISM_FLOAT_PRECISION)1.0, r_1 - 1);
+//		Array1D<PRISM_FLOAT_PRECISION> yVec(yVec_d,{{yVec_d.size()}});
+//		Array1D<PRISM_FLOAT_PRECISION> xVec(xVec_d,{{xVec_d.size()}});
+//		pars.yVec = yVec;
+//		pars.xVec = xVec;
+
+//		Array2D<PRISM_FLOAT_PRECISION> beamsReduce = array2D_subset(pars.beamsOutput,
+//		                                                            0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimj(),
+//		                                                            0, pars.meta.interpolationFactor, pars.beamsOutput.get_dimi());
+//
+//		vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
+//		pars.xyBeams = zeros_ND<2, long>({{pars.beamsIndex.size(), 2}});
+//
+//		for (auto a0 = 1; a0 <= pars.beamsIndex.size(); ++a0) {
+//			for (auto y = 0; y < beamsReduce.get_dimj(); ++y) {
+//				for (auto x = 0; x < beamsReduce.get_dimi(); ++x) {
+//					if (beamsReduce.at(y, x) == a0) {
+//						pars.xyBeams.at(a0 - 1, 0) = y;
+//						pars.xyBeams.at(a0 - 1, 1) = x;
+//					}
+//				}
+//			}
+//		}
 
 		pars.qxaReduce = array2D_subset(pars.qxaOutput,
 		                                0, pars.meta.interpolationFactor, pars.qxaOutput.get_dimj(),
@@ -122,16 +149,16 @@ namespace PRISM {
 		pars.qyaReduce = array2D_subset(pars.qyaOutput,
 		                                0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimj(),
 		                                0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimi());
-		pars.Ndet = pars.detectorAngles.size();
+//		pars.Ndet = pars.detectorAngles.size();
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}});
 
-		Array2D<PRISM_FLOAT_PRECISION> q1 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
-		Array2D<PRISM_FLOAT_PRECISION> q2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
-		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{imageSizeReduce[0], imageSizeReduce[1]}});
+		Array2D<PRISM_FLOAT_PRECISION> q1 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		Array2D<PRISM_FLOAT_PRECISION> q2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		Array2D<complex<PRISM_FLOAT_PRECISION> >  psi;
-		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{imageSizeReduce[0], imageSizeReduce[1]}});
-		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{imageSizeReduce[0], imageSizeReduce[1]}});
-		pars.imageSizeReduce = imageSizeReduce;
+		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+
 		pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
 		PRISM_FLOAT_PRECISION scale = pow(pars.meta.interpolationFactor, 4);
 		pars.scale = scale;
