@@ -23,23 +23,22 @@ namespace PRISM{
 
 		cout << MESSAGE << endl;
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
-		std::cout<<"Dummy code for Multislice entrypoint" << std::endl;
 		PRISM01(prism_pars);
-		prism_pars.pot.toMRC_f("DEBUG.mrc");
+//		prism_pars.pot.toMRC_f("DEBUG.mrc");
 		cout << "entering multislice\n";
 		Multislice(prism_pars);
 //		PRISM02(prism_pars);
 //		PRISM03(prism_pars);
 
 //
-		cout << "prism_pars.stack.at(0,0,0) = " << prism_pars.stack.at(0,0,0) << endl;
-		float t = 0;
-		for (auto i : prism_pars.stack) t += i;
-		cout << "stack sum = " << t << endl;
+//		cout << "prism_pars.stack.at(0,0,0) = " << prism_pars.stack.at(0,0,0) << endl;
+//		float t = 0;
+//		for (auto i : prism_pars.stack) t += i;
+//		cout << "stack sum = " << t << endl;
 
-		t = 0;
-		for (auto i = 0; i < prism_pars.stack.get_dimi() ; ++i) t += prism_pars.stack.at(0,0,i);
-		cout << "stack sum 0,0,:= " << t << endl;
+//		t = 0;
+//		for (auto i = 0; i < prism_pars.stack.get_dimi() ; ++i) t += prism_pars.stack.at(0,0,i);
+//		cout << "stack sum 0,0,:= " << t << endl;
 
 //		size_t lower = 15;
 //		size_t upper = 16;
@@ -65,10 +64,10 @@ namespace PRISM{
 
 
 
-		Array3D debug = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(),prism_pars.stack.get_dimj() }});
-		auto b = debug.begin();
-		for (auto &i:prism_pars.stack)*b++ = i;
-		debug.toMRC_f("stack.mrc");
+//		Array3D debug = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(),prism_pars.stack.get_dimj() }});
+//		auto b = debug.begin();
+//		for (auto &i:prism_pars.stack)*b++ = i;
+//		debug.toMRC_f("stack.mrc");
 
 
 
