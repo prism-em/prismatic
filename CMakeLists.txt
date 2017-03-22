@@ -3,8 +3,8 @@ project(PRISM)
 #set(Qt5Widgets_DIR /usr/local/Cellar/qt5/5.8.0_1/lib/cmake/Qt5Widgets/)
 set(CMAKE_CXX_STANDARD 11)
 
-#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O0 -g")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O0 -g")
 #set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O0")
 # PRISM custom options
 # Qt options

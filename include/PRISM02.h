@@ -12,8 +12,10 @@
 #include "defines.h"
 
 namespace PRISM {
-	void setupCoordinates_prism(Parameters<PRISM_FLOAT_PRECISION>& pars);
-
+	inline void setupCoordinates(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	inline void setupBeams(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	inline void setupSMatrixCoordinates(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	inline void downsampleFourierComponents(Parameters<PRISM_FLOAT_PRECISION> &pars);
 	void propagatePlaneWave_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                            size_t a0,
 	                            Array2D<std::complex<PRISM_FLOAT_PRECISION> > &psi,
