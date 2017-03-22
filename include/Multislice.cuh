@@ -7,15 +7,9 @@
 #include <complex>
 namespace PRISM {
 
-    void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars,
-                                              Array3D <std::complex<PRISM_FLOAT_PRECISION>> &trans,
-                                              Array2D <std::complex<PRISM_FLOAT_PRECISION>> &PsiProbeInit,
-                                              Array2D <PRISM_FLOAT_PRECISION> &alphaInd);
+    void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars);
 
-	void buildMultisliceOutput_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars,
-	                                         Array3D <std::complex<PRISM_FLOAT_PRECISION>> &trans,
-	                                         Array2D <std::complex<PRISM_FLOAT_PRECISION>> &PsiProbeInit,
-	                                         Array2D <PRISM_FLOAT_PRECISION> &alphaInd);
+	void buildMultisliceOutput_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars);
 
 	void getMultisliceProbe_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                       PRISM_CUDA_COMPLEX_FLOAT* trans_d,

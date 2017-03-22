@@ -36,11 +36,8 @@ namespace PRISM{
 	                             const size_t& ax);
 
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
-                                Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
-                                const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
                                 const size_t& ay,
-                                const size_t& ax,
-                                const Array2D<PRISM_FLOAT_PRECISION> &alphaInd);
+                                const size_t& ax);
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 

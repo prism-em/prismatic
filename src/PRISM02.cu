@@ -617,7 +617,7 @@ namespace PRISM {
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
-						propagatePlaneWave_CPU(pars, trans, currentBeam, psi, plan_forward, plan_inverse,
+						propagatePlaneWave_CPU(pars,  currentBeam, psi, plan_forward, plan_inverse,
 						                       fftw_plan_lock);
 						++currentBeam;
 					}

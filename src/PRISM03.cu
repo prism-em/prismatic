@@ -451,9 +451,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	using namespace std;
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                     const PRISM_FLOAT_PRECISION xTiltShift,
-	                                     const PRISM_FLOAT_PRECISION yTiltShift,
-	                                     const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
-	                                     const Array2D<std::complex<PRISM_FLOAT_PRECISION> > &PsiProbeInit) {
+	                                     const PRISM_FLOAT_PRECISION yTiltShift){
 		// construct the PRISM output array using GPUs
 
 		// set device flags
@@ -493,10 +491,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			                          sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		cudaErrchk(cudaMallocHost((void **) &permuted_Scompact_ph, pars.Scompact.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
-		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &qxaReduce_ph, pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **) &qyaReduce_ph, pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
-		cudaErrchk(cudaMallocHost((void **) &alphaInd_ph,  alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
+		cudaErrchk(cudaMallocHost((void **) &alphaInd_ph,  pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **) &xBeams_ph, pars.xyBeams.get_dimj()  * sizeof(size_t)));
 		cudaErrchk(cudaMallocHost((void **) &yBeams_ph, pars.xyBeams.get_dimj()  * sizeof(size_t)));
 
@@ -523,8 +521,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			}
 		}
 
-		memcpy(PsiProbeInit_ph, &(*PsiProbeInit.begin()), PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
-		memcpy(alphaInd_ph,  &(*alphaInd.begin()),       alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION));
+		memcpy(PsiProbeInit_ph, &(*pars.psiProbeInit.begin()), pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
+		memcpy(alphaInd_ph,  &(*pars.alphaInd.begin()),       pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION));
 		memcpy(qxaReduce_ph, &(*pars.qxaReduce.begin()), pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION));
 		memcpy(qyaReduce_ph, &(*pars.qyaReduce.begin()), pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION));
 
@@ -560,10 +558,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
 			cudaErrchk(cudaMalloc((void **) &permuted_Scompact_d[g], pars.Scompact.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],      PsiProbeInit.size()  * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
+			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],      pars.psiProbeInit.size()  * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &qxaReduce_d[g], pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &qyaReduce_d[g], pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],  alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],  pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &yBeams_d[g], pars.xyBeams.get_dimj()  * sizeof(size_t)));
 			cudaErrchk(cudaMalloc((void **) &xBeams_d[g], pars.xyBeams.get_dimj()  * sizeof(size_t)));
 		}
@@ -611,7 +609,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
-			                           PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
+			                           pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cout << "stream_id = " << stream_id << endl;
@@ -623,7 +621,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			                           pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
-			                           alphaInd.size() * sizeof(alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
+			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(yBeams_d[g], &yBeams_ph[0],
 			                           pars.xyBeams.get_dimj() * sizeof(size_t), cudaMemcpyHostToDevice,
@@ -710,7 +708,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				// emplace_back is better whenever constructing a new object
 				workers_CPU.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-						                            &alphaInd, &PsiProbeInit, t]() {
+						                            t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
@@ -778,11 +776,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 	}
 
-	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                    const PRISM_FLOAT_PRECISION xTiltShift,
-	                                    const PRISM_FLOAT_PRECISION yTiltShift,
-	                                    const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
-	                                    const Array2D<std::complex<PRISM_FLOAT_PRECISION> > &PsiProbeInit) {
+	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		// construct the PRISM output array using GPUs
 
 		// set device flags
@@ -822,10 +816,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			                          sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		cudaErrchk(cudaMallocHost((void **) &permuted_Scompact_ph, pars.Scompact.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
-		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &qxaReduce_ph, pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **) &qyaReduce_ph, pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
-		cudaErrchk(cudaMallocHost((void **) &alphaInd_ph,  alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
+		cudaErrchk(cudaMallocHost((void **) &alphaInd_ph,  pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **) &xBeams_ph, pars.xyBeams.get_dimj()  * sizeof(size_t)));
 		cudaErrchk(cudaMallocHost((void **) &yBeams_ph, pars.xyBeams.get_dimj()  * sizeof(size_t)));
 
@@ -852,8 +846,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			}
 		}
 
-		memcpy(PsiProbeInit_ph, &(*PsiProbeInit.begin()), PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
-		memcpy(alphaInd_ph,  &(*alphaInd.begin()),       alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION));
+		memcpy(PsiProbeInit_ph, &(*pars.psiProbeInit.begin()), pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
+		memcpy(alphaInd_ph,  &(*pars.alphaInd.begin()),       pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION));
 		memcpy(qxaReduce_ph, &(*pars.qxaReduce.begin()), pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION));
 		memcpy(qyaReduce_ph, &(*pars.qyaReduce.begin()), pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION));
 
@@ -888,10 +882,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],      PsiProbeInit.size()  * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
+			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],      pars.psiProbeInit.size()  * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &qxaReduce_d[g], pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &qyaReduce_d[g], pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],  alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],  pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &yBeams_d[g], pars.xyBeams.get_dimj()  * sizeof(size_t)));
 			cudaErrchk(cudaMalloc((void **) &xBeams_d[g], pars.xyBeams.get_dimj()  * sizeof(size_t)));
 		}
@@ -941,7 +935,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
-			                           PsiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
+			                           pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cout << "stream_id = " << stream_id << endl;
@@ -953,7 +947,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			                           pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
-			                           alphaInd.size() * sizeof(alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
+			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(yBeams_d[g], &yBeams_ph[0],
 			                           pars.xyBeams.get_dimj() * sizeof(size_t), cudaMemcpyHostToDevice,
@@ -1005,7 +999,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
 			// emplace_back is better whenever constructing a new object
-			workers_GPU.emplace_back(thread([&pars, GPU_num, stream_count, &yTiltShift, &xTiltShift, current_permuted_Scompact_ds, permuted_Scompact_ph,
+			workers_GPU.emplace_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_ds, permuted_Scompact_ph,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
@@ -1016,7 +1010,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						buildSignal_GPU_streaming(pars, ay, ax, yTiltShift, xTiltShift, current_permuted_Scompact_ds, permuted_Scompact_ph,
+						buildSignal_GPU_streaming(pars, ay, ax, current_permuted_Scompact_ds, permuted_Scompact_ph,
 						                          current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 						                          current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
 						                          current_phaseCoeffs_ds, current_psi_intensity_ds, current_y_ds,
@@ -1039,8 +1033,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				// emplace_back is better whenever constructing a new object
-				workers_CPU.emplace_back(thread([&pars, &xTiltShift, &yTiltShift,
-						                                &alphaInd, &PsiProbeInit, t]() {
+				workers_CPU.emplace_back(thread([&pars, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
@@ -1049,7 +1042,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
-							buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift);
+							buildSignal_CPU(pars, ay, ax);
 							++Nstart;
 						}
 						if (Nstop >= early_CPU_stop) break;
@@ -1112,8 +1105,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	void buildSignal_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>&  pars,
 	                                const size_t& ay,
 	                                const size_t& ax,
-	                                const PRISM_FLOAT_PRECISION& yTiltShift,
-	                                const PRISM_FLOAT_PRECISION& xTiltShift,
 	                                const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
 	                                const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
 	                                const PRISM_FLOAT_PRECISION *qxaReduce_d,
@@ -1142,7 +1133,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
-		           yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
+		           yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
 
 if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
@@ -1289,8 +1280,6 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 	void buildSignal_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>&  pars,
 	                               const size_t& ay,
 	                               const size_t& ax,
-	                               const PRISM_FLOAT_PRECISION& yTiltShift,
-	                               const PRISM_FLOAT_PRECISION& xTiltShift,
 	                               PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_ds,
 	                               const std::complex<PRISM_FLOAT_PRECISION> *permuted_Scompact_ph,
 	                               const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
@@ -1320,7 +1309,7 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
 				phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
-				yBeams_d, xBeams_d, yp, xp, yTiltShift, xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
+				yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
 		long x1,y1;
 		y1 = pars.yVec[0] + std::round(yp / pars.pixelSizeOutput[0]);
