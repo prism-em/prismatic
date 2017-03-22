@@ -21,6 +21,10 @@ namespace PRISM{
 	using namespace std;
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
+	void setupDetector_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
+	void setupProbes_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,

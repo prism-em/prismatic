@@ -26,8 +26,22 @@ namespace PRISM{
 	static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		// setup coordinates and build propagators
 
+		// setup coordinates and build propagators
+		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
+		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		xR[0] = 0.1 * pars.meta.cellDim[2];
+		xR[1] = 0.9 * pars.meta.cellDim[2];
+		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		yR[0] = 0.1 * pars.meta.cellDim[1];
+		yR[1] = 0.9 * pars.meta.cellDim[1];
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + dxy / 2, dxy, xR[1] - dxy / 2);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + dxy / 2, dxy, yR[1] - dxy / 2);
+
+		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
+		pars.xp = xp;
+		pars.yp = yp;
 		pars.imageSize[0] = pars.pot.get_dimj();
 		pars.imageSize[1] = pars.pot.get_dimi();
 		Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
@@ -90,6 +104,58 @@ namespace PRISM{
 		}
 
 	}
+
+	void setupDetector_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
+			pars.dr = (PRISM_FLOAT_PRECISION)2.5 / 1000;
+			pars.alphaMax = pars.qMax * pars.lambda;
+			vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
+			Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
+			pars.detectorAngles = detectorAngles;
+			Array2D<PRISM_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
+			Array2D<PRISM_FLOAT_PRECISION> alphaInd = (alpha + pars.dr/2) / pars.dr;
+			for (auto& q : alphaInd) q = std::round(q);
+
+			pars.Ndet = pars.detectorAngles.size();
+			if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
+
+
+			pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
+	}
+
+	void setupProbes_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
+
+//		PsiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
+		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangleArray[0] / pars.lambda; // currently a single semiangle
+		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi;
+		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
+		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+		          pars.q1.begin(), pars.psiProbeInit.begin(),
+		          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
+			          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
+			          a.imag(0);
+			          return a;
+		          });
+
+
+		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+		          pars.q2.begin(), pars.psiProbeInit.begin(),
+		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
+			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[0] * q2_t); // TODO: fix hardcoded length-1 defocus
+			          return a;
+		          });
+		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+		                                                      (PRISM_FLOAT_PRECISION)0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
+					return accum + abs(a) * abs(a);
+				})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
+		PRISM_FLOAT_PRECISION a = 0;
+		for (auto &i : pars.psiProbeInit) { a += i.real(); };
+		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
+					return a / norm_constant;
+				});
+	}
+
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                       Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                                       const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
@@ -110,7 +176,7 @@ namespace PRISM{
 	}
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                   Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
-	                                   const Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
+	                                   const Array2D<complex<PRISM_FLOAT_PRECISION> >& psiProbeInit,
 	                                   const size_t& ay,
 	                                   const size_t& ax,
 	                                   const Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
@@ -119,7 +185,7 @@ namespace PRISM{
 		// populates the output stack for Multislice simulation using the CPU. The number of
 		// threads used is determined by pars.meta.NUM_THREADS
 
-		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(PsiProbeInit);
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(psiProbeInit);
 
 
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
@@ -161,7 +227,7 @@ namespace PRISM{
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                   Array3D<complex<PRISM_FLOAT_PRECISION> >& trans,
-	                                   Array2D<complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit,
+	                                   Array2D<complex<PRISM_FLOAT_PRECISION> >& psiProbeInit,
 	                                   Array2D<PRISM_FLOAT_PRECISION> &alphaInd){
 		cout << "CPU version" << endl;
 		vector<thread> workers;
@@ -171,14 +237,15 @@ namespace PRISM{
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';
+
 			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, &trans, t, &alphaInd, &PsiProbeInit]() {
+			workers.emplace_back(thread([&pars, &trans, t, &alphaInd]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						getMultisliceProbe_CPU(pars, trans, PsiProbeInit, ay, ax, alphaInd);
+						getMultisliceProbe_CPU(pars, trans, pars.psiProbeInit, ay, ax, alphaInd);
 						++Nstart;
 					}
 				}
@@ -192,12 +259,10 @@ namespace PRISM{
 
 	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		using namespace std;
-//		static const PRISM_FLOAT_PRECISION pi = acos(-1);
-//		static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 
-		const PRISM_FLOAT_PRECISION dxy = (PRISM_FLOAT_PRECISION)0.25 * 2; // TODO: move this
 
-		// should move these elsewhere and in PRISM03
+
+		// TODO:should move these elsewhere and in PRISM03
 		pars.probeDefocusArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeSemiangleArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
 		pars.probeXtiltArray = zeros_ND<1, PRISM_FLOAT_PRECISION>({{1}});
@@ -207,65 +272,55 @@ namespace PRISM{
 		pars.probeXtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
 		pars.probeYtiltArray[0] = (PRISM_FLOAT_PRECISION)0.0 / 1000;
 
-		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		xR[0] = 0.1 * pars.meta.cellDim[2];
-		xR[1] = 0.9 * pars.meta.cellDim[2];
-		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		yR[0] = 0.1 * pars.meta.cellDim[1];
-		yR[1] = 0.9 * pars.meta.cellDim[1];
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + dxy / 2, dxy, xR[1] - dxy / 2);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + dxy / 2, dxy, yR[1] - dxy / 2);
 
-		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
-		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
-		pars.xp = xp;
-		pars.yp = yp;
 
 		// setup coordinates and build propagators
 		setupCoordinates_multislice(pars);
+		setupDetector_multislice(pars);
+		setupProbes_multislice(pars);
 
-		pars.dr = (PRISM_FLOAT_PRECISION)2.5 / 1000;
-		pars.alphaMax = pars.qMax * pars.lambda;
-		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
-		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
-		pars.detectorAngles = detectorAngles;
+//		pars.dr = (PRISM_FLOAT_PRECISION)2.5 / 1000;
+//		pars.alphaMax = pars.qMax * pars.lambda;
+//		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
+//		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
+//		pars.detectorAngles = detectorAngles;
 		Array2D<PRISM_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
 		Array2D<PRISM_FLOAT_PRECISION> alphaInd = (alpha + pars.dr/2) / pars.dr;
 		for (auto& q : alphaInd) q = std::round(q);
+//
+//		pars.Ndet = pars.detectorAngles.size();
+//		if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
+//		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangleArray[0] / pars.lambda; // currently a single semiangle
+//		Array2D<complex<PRISM_FLOAT_PRECISION> > pars.psiProbeInit, psi;
+//		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
+//		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
+//		pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
 
-		pars.Ndet = pars.detectorAngles.size();
-		if (pars.probeSemiangleArray.size() > 1)throw std::domain_error("Currently only scalar probeSemiangleArray supported. Multiple inputs received.\n");
-		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangleArray[0] / pars.lambda; // currently a single semiangle
-		Array2D<complex<PRISM_FLOAT_PRECISION> > PsiProbeInit, psi;
-		PsiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
-		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
-		pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
-
-		transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-		          pars.q1.begin(), PsiProbeInit.begin(),
-		          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
-			          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
-			          a.imag(0);
-			          return a;
-		          });
-
-
-		transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-		          pars.q2.begin(), PsiProbeInit.begin(),
-		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[0] * q2_t); // TODO: fix hardcoded length-1 defocus
-			          return a;
-		          });
-		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(PsiProbeInit.begin(), PsiProbeInit.end(),
-		                                                      (PRISM_FLOAT_PRECISION)0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
-					return accum + abs(a) * abs(a);
-				})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
-		PRISM_FLOAT_PRECISION a = 0;
-		for (auto &i : PsiProbeInit) { a += i.real(); };
-		transform(PsiProbeInit.begin(), PsiProbeInit.end(),
-		          PsiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
-					return a / norm_constant;
-				});
+//		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+//		          pars.q1.begin(), pars.psiProbeInit.begin(),
+//		          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
+//			          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
+//			          a.imag(0);
+//			          return a;
+//		          });
+//
+//
+//		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+//		          pars.q2.begin(), pars.psiProbeInit.begin(),
+//		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
+//			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocusArray[0] * q2_t); // TODO: fix hardcoded length-1 defocus
+//			          return a;
+//		          });
+//		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+//		                                                      (PRISM_FLOAT_PRECISION)0.0, [](PRISM_FLOAT_PRECISION accum, std::complex<PRISM_FLOAT_PRECISION> &a) {
+//					return accum + abs(a) * abs(a);
+//				})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
+//		PRISM_FLOAT_PRECISION a = 0;
+//		for (auto &i : pars.psiProbeInit) { a += i.real(); };
+//		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+//		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
+//					return a / norm_constant;
+//				});
 
 		Array3D<complex<PRISM_FLOAT_PRECISION> > trans = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
@@ -276,6 +331,6 @@ namespace PRISM{
 
 		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}}); // TODO: encapsulate stack creation for 3D/4D output
 
-		buildMultisliceOutput(pars, trans, PsiProbeInit, alphaInd);
+		buildMultisliceOutput(pars, trans, pars.psiProbeInit, alphaInd);
 	}
 }

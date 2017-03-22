@@ -33,6 +33,7 @@ namespace PRISM{
 
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
+	    Array2D< std::complex<T> > psiProbeInit;
 //	    size_t interpolationFactor;
 	    Array2D<unsigned int> qMask;
         Array1D<T> probeDefocusArray;
