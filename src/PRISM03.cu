@@ -466,7 +466,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSizeReduce[1], pars.imageSizeReduce[0], PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSizeReduce[0], pars.imageSizeReduce[1], PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 		}
 
@@ -790,7 +790,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSizeReduce[1], pars.imageSizeReduce[0], PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSizeReduce[0], pars.imageSizeReduce[1], PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 		}
 

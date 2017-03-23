@@ -28,8 +28,8 @@ namespace PRISM{
 			NUM_STREAMS_PER_GPU = 1;
 			NUM_THREADS = 1;
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
-			//also_do_CPU_work = false;
-			also_do_CPU_work = true;
+//			also_do_CPU_work = true;
+			also_do_CPU_work = false;
 			//cpu_gpu_ratio = 1 / 15; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 			cpu_gpu_ratio = 0.35; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 //			stream_data = true;

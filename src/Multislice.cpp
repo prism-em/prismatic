@@ -181,8 +181,8 @@ namespace PRISM{
 		};
 	}
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                                   const size_t& ay,
-	                                   const size_t& ax){
+	                            const size_t& ay,
+	                            const size_t& ax){
 		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
 		// populates the output stack for Multislice simulation using the CPU. The number of

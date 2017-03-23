@@ -17,6 +17,7 @@ int main(int argc, const char** argv) {
 	prism_meta.realspace_pixelSize = 100.0/1000.0/1;
 //prism_meta.cellDim = vector<size_t>{40,16,16}; // this is z,y,x format
 prism_meta.cellDim = vector<size_t>{37,12,14}; // this is z,y,x format
+//	prism_meta.cellDim = vector<size_t>{37,14,14}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{10,32,32}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{2*40,2*16,2*16}; // this is z,y,x format
 //	prism_meta.cellDim = vector<size_t>{80,4*16,4*16}; // this is z,y,x format
@@ -30,8 +31,8 @@ prism_meta.cellDim = vector<size_t>{37,12,14}; // this is z,y,x format
   cudaGetDeviceCount(&nDevices);
 cout << "ndevices = " << nDevices << endl;
 #endif	
-	prism_meta.algorithm = PRISM::Algorithm::PRISM;
-//	prism_meta.algorithm = PRISM::Algorithm::Multislice;
+//	prism_meta.algorithm = PRISM::Algorithm::PRISM;
+	prism_meta.algorithm = PRISM::Algorithm::Multislice;
 
 	std::string filename;
 	if (argc>1) {
