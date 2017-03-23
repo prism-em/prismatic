@@ -30,8 +30,8 @@ prism_meta.cellDim = vector<size_t>{37,12,14}; // this is z,y,x format
   cudaGetDeviceCount(&nDevices);
 cout << "ndevices = " << nDevices << endl;
 #endif	
-//	prism_meta.algorithm = PRISM::Algorithm::PRISM;
-	prism_meta.algorithm = PRISM::Algorithm::Multislice;
+	prism_meta.algorithm = PRISM::Algorithm::PRISM;
+//	prism_meta.algorithm = PRISM::Algorithm::Multislice;
 
 	std::string filename;
 	if (argc>1) {
