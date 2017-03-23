@@ -316,12 +316,13 @@ namespace PRISM {
 				size_t currentBeam, stop, early_CPU_stop;
 				stop = pars.numberBeams;
 //				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
-                early_CPU_stop = stop;
+				early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
+//                early_CPU_stop = stop;
 				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
-					propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
+						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
 						                       fftw_plan_lock);
 						++currentBeam;
 					}
@@ -614,7 +615,8 @@ namespace PRISM {
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop, early_CPU_stop;
 				stop = 0;
-				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
+				//early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
+				early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
 				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {
 						// re-zero psi each iteration

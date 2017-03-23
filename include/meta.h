@@ -25,13 +25,13 @@ namespace PRISM{
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
-			NUM_STREAMS_PER_GPU = 1;
+			NUM_STREAMS_PER_GPU = 3;
 			NUM_THREADS = 1;
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
 			also_do_CPU_work = true;
 //			also_do_CPU_work = false;
 			//cpu_gpu_ratio = 1 / 15; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
-			cpu_gpu_ratio = 0.35; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
+			cpu_gpu_ratio = 0.07; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 //			stream_data = true;
 			stream_data = false;
 			dxy = 0.25 * 2;
