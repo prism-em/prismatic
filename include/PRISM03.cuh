@@ -3,23 +3,13 @@
 #include "configure.h"
 #include "cufft.h"
 namespace PRISM {
-	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                                     const PRISM_FLOAT_PRECISION xTiltShift,
-	                                     const PRISM_FLOAT_PRECISION yTiltShift,
-	                                     const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
-                                         const Array2D<std::complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit);
+	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
-	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                                    const PRISM_FLOAT_PRECISION xTiltShift,
-	                                    const PRISM_FLOAT_PRECISION yTiltShift,
-	                                    const Array2D<PRISM_FLOAT_PRECISION>& alphaInd,
-	                                    const Array2D<std::complex<PRISM_FLOAT_PRECISION> >& PsiProbeInit);
+	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 	void buildSignal_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>&  pars,
 	                                const size_t& ay,
 	                                const size_t& ax,
-	                                const PRISM_FLOAT_PRECISION& yTiltShift,
-	                                const PRISM_FLOAT_PRECISION& xTiltShift,
 	                                const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
 	                                const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
 	                                const PRISM_FLOAT_PRECISION *qxaReduce_d,
@@ -40,8 +30,6 @@ namespace PRISM {
 	void buildSignal_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>&  pars,
 	                               const size_t& ay,
 	                               const size_t& ax,
-	                               const PRISM_FLOAT_PRECISION& yTiltShift,
-	                               const PRISM_FLOAT_PRECISION& xTiltShift,
 	                               PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_ds,
 	                               const std::complex<PRISM_FLOAT_PRECISION> *permuted_Scompact_ph,
 	                               const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
