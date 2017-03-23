@@ -328,9 +328,9 @@ namespace PRISM {
 				});
 
 
-		PRISM_FLOAT_PRECISION zTotal = pars.meta.cellDim[0];
-		PRISM_FLOAT_PRECISION xTiltShift = -zTotal * tan(pars.probeXtilt);
-		PRISM_FLOAT_PRECISION yTiltShift = -zTotal * tan(pars.probeYtilt);
+//		PRISM_FLOAT_PRECISION zTotal = pars.meta.cellDim[0];
+//		PRISM_FLOAT_PRECISION xTiltShift = -zTotal * tan(pars.probeXtilt);
+//		PRISM_FLOAT_PRECISION yTiltShift = -zTotal * tan(pars.probeYtilt);
 
 		buildPRISMOutput(pars, xTiltShift, yTiltShift);
 	}
