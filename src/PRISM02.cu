@@ -33,7 +33,7 @@ namespace PRISM {
 			                               const cufftHandle& plan_small,
 			                               cudaStream_t& stream){
 
-
+//		cout << "beamNumber = " << beamNumber << endl;
 		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
 		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
 		initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
@@ -124,7 +124,7 @@ namespace PRISM {
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSize[1], pars.imageSize[0], PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSize[0], pars.imageSize[1], PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftPlan2d(&cufft_plan_small[j], pars.qyInd.size(), pars.qxInd.size(), PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 			cufftErrchk(cufftSetStream(cufft_plan_small[j], streams[j]));
@@ -294,6 +294,7 @@ namespace PRISM {
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 			setWorkStartStop(0, pars.numberBeams);
+			cout << " pars.numberBeams = " << pars.numberBeams << endl;
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
@@ -313,8 +314,9 @@ namespace PRISM {
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop, early_CPU_stop;
-				stop = 0;
-				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
+				stop = pars.numberBeams;
+//				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
+                early_CPU_stop = stop;
 				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {
 						// re-zero psi each iteration
