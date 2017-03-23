@@ -29,9 +29,7 @@ namespace PRISM {
 	using entry_func     = int  (*)(Metadata<PRISM_FLOAT_PRECISION>&);
 	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&);
 
-	using prism_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
-	                                   const PRISM_FLOAT_PRECISION,
-                                       const PRISM_FLOAT_PRECISION);
+	using prism_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&);
 
 	using format_output_func = void (*)( Parameters<PRISM_FLOAT_PRECISION>&,
 	                                     Array2D< std::complex<PRISM_FLOAT_PRECISION> >&,

@@ -38,7 +38,7 @@ namespace PRISM {
 		return result;
 	}
 
-	inline void setupCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	inline void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = 0.1 * pars.meta.cellDim[2];
 		xR[1] = 0.9 * pars.meta.cellDim[2];
@@ -55,8 +55,6 @@ namespace PRISM {
 		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 		pars.xp = xp;
 		pars.yp = yp;
-
-
 	}
 
 	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars) {
@@ -80,7 +78,7 @@ namespace PRISM {
 		pars.Ndet = pars.detectorAngles.size();
 	}
 
-	inline void setupBeams(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	inline void setupBeams_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// setup some coordinates for the beams
 
 		Array2D<PRISM_FLOAT_PRECISION> beamsReduce = array2D_subset(pars.beamsOutput,
@@ -125,9 +123,7 @@ namespace PRISM {
 	}
 
 
-	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                              const PRISM_FLOAT_PRECISION xTiltShift,
-	                              const PRISM_FLOAT_PRECISION yTiltShift) {
+	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars){
 
 		// launch threads to compute results for batches of xp, yp
 		// I do this by dividing the xp points among threads, and each computes
@@ -140,13 +136,13 @@ namespace PRISM {
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, &xTiltShift, &yTiltShift]() {
+			workers.emplace_back(thread([&pars]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift);
+						buildSignal_CPU(pars, ay, ax);
 						++Nstart;
 					}
 				}
@@ -160,9 +156,9 @@ namespace PRISM {
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                     const size_t &ay,
-	                     const size_t &ax,
-	                     const PRISM_FLOAT_PRECISION &yTiltShift,
-	                     const PRISM_FLOAT_PRECISION &xTiltShift) {
+	                     const size_t &ax){
+		// build the output for a single probe position using CPU resources
+
 		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
@@ -189,11 +185,8 @@ namespace PRISM {
 					PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
 					PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
 					std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(
-							-2 * pi * i * (q0_0 * (pars.xp[ax] + xTiltShift) +
-							               q0_1 * (pars.yp[ay] + yTiltShift)));
-//                    std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(-2 * pi * i);
-					// caching this constant made a 5x performance improvement even with
-					// full compiler optimization turned on. Optimizing compilers aren't perfect...
+							-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) +
+							               q0_1 * (pars.yp[ay] + pars.yTiltShift)));
 					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
 					auto psi_ptr = psi.begin();
 					for (auto j = 0; j < y.size(); ++j) {
@@ -222,7 +215,6 @@ namespace PRISM {
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj) {
 				for (auto ii = 0; ii < intOutput.get_dimi(); ++ii) {
 					intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2);
-//	                intOutput.at(ii,jj) += pow(abs(psi.at(jj,ii)),2);
 				}
 			}
 		}
@@ -237,35 +229,9 @@ namespace PRISM {
 		};
 	}
 
-	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
-		// compute final image
+	inline void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars){
+		// setup some relevant coordinates
 
-		cout << "Entering PRISM03" << endl;
-
-
-
-		// setup necessary coordinates
-		setupCoordinates(pars);
-
-		// setup angles of detector and image sizes
-		setupDetector(pars);
-
-		// setup coordinates and indices for the beams
-		setupBeams(pars);
-
-		// setup Fourier coordinates for the S-matrix
-		setupFourierCoordinates(pars);
-
-		// initialize the output stack to the correct size for the output mode
-		createStack_integrate(pars);
-
-		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>(
-				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-		Array2D<complex<PRISM_FLOAT_PRECISION> > psi;
-		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-
-		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
-				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
 		PRISM_FLOAT_PRECISION scale = pow(pars.meta.interpolationFactor, 4);
 		pars.scale = scale;
@@ -273,7 +239,7 @@ namespace PRISM {
 		// The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
 		// allocations/copies for chained operations I try to do things like create variables
 		// initially with at most one operation, and then perform in-place transforms if more is needed
-		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangle / pars.lambda;
+
 		Array2D<PRISM_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.probeXtilt / pars.lambda);
 		Array2D<PRISM_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.probeYtilt / pars.lambda);
 		transform(qxaShift.begin(), qxaShift.end(),
@@ -298,7 +264,14 @@ namespace PRISM {
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          alphaMask.begin(),
 		          [&pars](const PRISM_FLOAT_PRECISION &a) { return (a < pars.Ndet) ? 1 : 0; });
+	}
 
+	inline void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars){
+		// initialize the probe
+
+		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
+				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangle / pars.lambda;
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q1.begin(), pars.psiProbeInit.begin(),
 		          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
@@ -327,12 +300,36 @@ namespace PRISM {
 					return a / norm_constant;
 				});
 
+	}
 
-//		PRISM_FLOAT_PRECISION zTotal = pars.meta.cellDim[0];
-//		PRISM_FLOAT_PRECISION xTiltShift = -zTotal * tan(pars.probeXtilt);
-//		PRISM_FLOAT_PRECISION yTiltShift = -zTotal * tan(pars.probeYtilt);
+	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+		// compute final image
 
-		buildPRISMOutput(pars, xTiltShift, yTiltShift);
+		cout << "Entering PRISM03" << endl;
+
+		// setup necessary coordinates
+		setupCoordinates_2(pars);
+
+		// setup angles of detector and image sizes
+		setupDetector(pars);
+
+		// setup coordinates and indices for the beams
+		setupBeams_2(pars);
+
+		// setup Fourier coordinates for the S-matrix
+		setupFourierCoordinates(pars);
+
+		// initialize the output stack to the correct size for the output mode
+		createStack_integrate(pars);
+
+		// perform some necessary setup transformations of the data
+		transformIndices(pars);
+
+		// initialize/compute the probes
+		initializeProbes(pars);
+
+		// compute the final PRISM output
+		buildPRISMOutput(pars);
 	}
 }
 

@@ -25,13 +25,9 @@ namespace PRISM {
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                 const size_t &ay,
-	                 const size_t &ax,
-	                 const PRISM_FLOAT_PRECISION &yTiltShift,
-	                 const PRISM_FLOAT_PRECISION &xTiltShift);
+	                 const size_t &ax);
 
-	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                              const PRISM_FLOAT_PRECISION xTiltShift,
-	                              const PRISM_FLOAT_PRECISION yTiltShift);
+	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
 }
 #endif //PRISM_PRISM03_H
