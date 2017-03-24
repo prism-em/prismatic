@@ -234,7 +234,7 @@ namespace PRISM {
 
 		// launch GPU work
 		vector<thread> workers_GPU;
-		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
+		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.numberBeams, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -291,7 +291,7 @@ namespace PRISM {
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			// launch CPU work
 			vector<thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 			setWorkStartStop(0, pars.numberBeams);
 			cout << " pars.numberBeams = " << pars.numberBeams << endl;
@@ -533,7 +533,7 @@ namespace PRISM {
 
 		// launch GPU work
 		vector<thread> workers_GPU;
-		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
+		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.numberBeams);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -592,7 +592,7 @@ namespace PRISM {
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			// launch CPU work
 			vector<thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 			setWorkStartStop(0, pars.numberBeams);
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {

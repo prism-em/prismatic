@@ -83,7 +83,7 @@ namespace PRISM {
 		//loop over each plane, perturb the atomic positions, and place the corresponding potential at each location
 		// using parallel calculation of each individual slice
 		std::vector<std::thread> workers;
-		workers.reserve(pars.numPlanes);
+		workers.resize(pars.numPlanes);
 		cout << "Launching separate threads to compute each z-slice of potential.\n";
 		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
 			workers.emplace_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){

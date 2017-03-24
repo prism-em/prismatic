@@ -228,7 +228,7 @@ namespace PRISM {
 		}
 
 		vector<thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		setWorkStartStop(0, pars.numberBeams, 1);
 //		 setWorkStartStop(0, 1);
 

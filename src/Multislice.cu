@@ -179,7 +179,7 @@ namespace PRISM{
 
 
 		vector<thread> workers_GPU;
-		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
+		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
 
 
 		// pointers to pinned host memory for async transfers
@@ -344,7 +344,7 @@ namespace PRISM{
 		if (pars.meta.also_do_CPU_work){
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// emplace_back is better whenever constructing a new object
@@ -465,7 +465,7 @@ namespace PRISM{
 
 
 		vector<thread> workers_GPU;
-		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
+		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
 
 
 		// pointers to pinned host memory for async transfers
@@ -626,7 +626,7 @@ namespace PRISM{
 		if (pars.meta.also_do_CPU_work){
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// emplace_back is better whenever constructing a new object

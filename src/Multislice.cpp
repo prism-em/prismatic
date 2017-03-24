@@ -231,7 +231,7 @@ namespace PRISM{
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		cout << "CPU version" << endl;
 		vector<thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
