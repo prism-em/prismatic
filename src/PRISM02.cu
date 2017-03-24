@@ -234,7 +234,7 @@ namespace PRISM {
 
 		// launch GPU work
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.numberBeams, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -257,7 +257,7 @@ namespace PRISM {
 			cufftHandle &current_cufft_plan_small = cufft_plan_small[stream_count];
 			complex<PRISM_FLOAT_PRECISION> *current_S_slice_ph = Scompact_slice_ph[stream_count];
 
-			workers_GPU.emplace_back(thread([&pars, current_trans_d, current_prop_d, current_qxInd_d, current_qyInd_d,
+			workers_GPU.push_back(thread([&pars, current_trans_d, current_prop_d, current_qxInd_d, current_qyInd_d,
 					                                current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                                current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
@@ -291,14 +291,14 @@ namespace PRISM {
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			// launch CPU work
 			vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 			setWorkStartStop(0, pars.numberBeams);
 			cout << " pars.numberBeams = " << pars.numberBeams << endl;
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
-				workers_CPU.emplace_back([&pars, &fftw_plan_lock]() {
+				workers_CPU.push_back([&pars, &fftw_plan_lock]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -533,7 +533,7 @@ namespace PRISM {
 
 		// launch GPU work
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.numberBeams);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -557,7 +557,7 @@ namespace PRISM {
 			cufftHandle &current_cufft_plan_small = cufft_plan_small[stream_count];
 			complex<PRISM_FLOAT_PRECISION> *current_S_slice_ph = Scompact_slice_ph[stream_count];
 
-			workers_GPU.emplace_back(thread([&pars, current_trans_ds, trans_ph, current_prop_d, current_qxInd_d, current_qyInd_d,
+			workers_GPU.push_back(thread([&pars, current_trans_ds, trans_ph, current_prop_d, current_qxInd_d, current_qyInd_d,
 					                                current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                                current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
@@ -592,13 +592,13 @@ namespace PRISM {
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			// launch CPU work
 			vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 			setWorkStartStop(0, pars.numberBeams);
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
-				workers_CPU.emplace_back([&pars, &fftw_plan_lock]() {
+				workers_CPU.push_back([&pars, &fftw_plan_lock]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});

@@ -131,12 +131,12 @@ namespace PRISM {
 		// as long as the number of xp and yp are similar. If that is not the case
 		// this may need to be adapted
 		vector<thread> workers;
-		workers.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars]() {
+			// push_back is better whenever constructing a new object
+			workers.push_back(thread([&pars]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {

@@ -309,8 +309,7 @@ namespace PRISM{
 			PRISM_FLOAT_PRECISION *current_output_ph           = output_ph[stream_count];
 			cufftHandle & current_cufft_plan = cufft_plan[stream_count];
 			// launch a new thread
-			// emplace_back is better whenever constructing a new object
-			workers_GPU.emplace_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d,
+			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, &current_cufft_plan,
 					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
@@ -344,11 +343,11 @@ namespace PRISM{
 		if (pars.meta.also_do_CPU_work){
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
-				// emplace_back is better whenever constructing a new object
-				workers_CPU.emplace_back(thread([&pars, t]() {
+				// push_back is better whenever constructing a new object
+				workers_CPU.push_back(thread([&pars, t]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 				Nstop = 0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
@@ -465,7 +464,7 @@ namespace PRISM{
 
 
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 
 
 		// pointers to pinned host memory for async transfers
@@ -591,8 +590,8 @@ namespace PRISM{
 			PRISM_FLOAT_PRECISION *current_output_ph           = output_ph[stream_count];
 			cufftHandle & current_cufft_plan                   = cufft_plan[stream_count];
 			// launch a new thread
-			// emplace_back is better whenever constructing a new object
-			workers_GPU.emplace_back(thread([&pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_alphaInd_d,
+			// push_back is better whenever constructing a new object
+			workers_GPU.push_back(thread([&pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_alphaInd_d,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, current_cufft_plan,
 					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
@@ -626,11 +625,11 @@ namespace PRISM{
 		if (pars.meta.also_do_CPU_work){
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
-				// emplace_back is better whenever constructing a new object
-				workers_CPU.emplace_back(thread([&pars, t]() {
+				// push_back is better whenever constructing a new object
+				workers_CPU.push_back(thread([&pars, t]() {
 					size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 					Nstop = 0;
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to

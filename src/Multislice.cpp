@@ -231,15 +231,14 @@ namespace PRISM{
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		cout << "CPU version" << endl;
 		vector<thread> workers;
-		workers.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';
 
-			// emplace_back is better whenever constructing a new object
-			workers.emplace_back(thread([&pars, t]() {
+			workers.push_back(thread([&pars, t]() {
 				size_t Nstart, Nstop, ay, ax;
 				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {

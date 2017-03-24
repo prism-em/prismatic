@@ -638,7 +638,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// launch threads that will consume work provided by getWorkID
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
 //		setWorkStartStop(0, 1, 1);
@@ -670,8 +670,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			// get pointer to output pinned memory
 			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
-			// emplace_back is better whenever constructing a new object
-			workers_GPU.emplace_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_d,
+			// push_back is better whenever constructing a new object
+			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_d,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
@@ -701,11 +701,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-				// emplace_back is better whenever constructing a new object
-				workers_CPU.emplace_back(thread([&pars, t]() {
+				// push_back is better whenever constructing a new object
+				workers_CPU.push_back(thread([&pars, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size();
@@ -963,7 +963,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// launch threads that will consume work provided by getWorkID
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 //		setWorkStartStop(0, 1);
@@ -995,8 +995,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			// get pointer to output pinned memory
 			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
-			// emplace_back is better whenever constructing a new object
-			workers_GPU.emplace_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_ds, permuted_Scompact_ph,
+			// push_back is better whenever constructing a new object
+			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_ds, permuted_Scompact_ph,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
@@ -1026,11 +1026,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			vector<thread> workers_CPU;
-			workers_CPU.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-				// emplace_back is better whenever constructing a new object
-				workers_CPU.emplace_back(thread([&pars, t]() {
+				// push_back is better whenever constructing a new object
+				workers_CPU.push_back(thread([&pars, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);

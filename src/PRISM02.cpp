@@ -228,13 +228,13 @@ namespace PRISM {
 		}
 
 		vector<thread> workers;
-		workers.resize(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		setWorkStartStop(0, pars.numberBeams, 1);
 //		 setWorkStartStop(0, 1);
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching thread #" << t << " to compute beams\n";
-			workers.emplace_back([&pars, &fftw_plan_lock]() {
+			workers.push_back(thread([&pars, &fftw_plan_lock]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -263,7 +263,7 @@ namespace PRISM {
 				PRISM_FFTW_DESTROY_PLAN(plan_forward);
 				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 				gatekeeper.unlock();
-			});
+			}));
 		}
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();

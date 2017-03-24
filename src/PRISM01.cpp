@@ -38,7 +38,7 @@ namespace PRISM {
 		for (auto i = 0; i < pars.atoms.size(); ++i)unique_atoms[i] = pars.atoms[i].species;
 		sort(unique_atoms.begin(), unique_atoms.end());
 		vector<size_t>::iterator it = unique(unique_atoms.begin(), unique_atoms.end());
-		unique_atoms.resize(distance(unique_atoms.begin(),it));
+		unique_atoms.reserve(distance(unique_atoms.begin(),it));
 		return unique_atoms;
 	}
 
@@ -83,10 +83,10 @@ namespace PRISM {
 		//loop over each plane, perturb the atomic positions, and place the corresponding potential at each location
 		// using parallel calculation of each individual slice
 		std::vector<std::thread> workers;
-		workers.resize(pars.numPlanes);
+		workers.reserve(pars.numPlanes);
 		cout << "Launching separate threads to compute each z-slice of potential.\n";
 		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
-			workers.emplace_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){
+			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){
 				// create a randon number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
 				normal_distribution<PRISM_FLOAT_PRECISION> randn(0,1);
