@@ -27,13 +27,32 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
+    ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+                                          border: 1px solid gray;\
+                                          border-radius: 90px;\
+                                          margin-top: 0.5em;\
+                                      }  QGroupBox::title {\
+                                         subcontrol-origin: margin;\
+                                         left: 100px;\
+                                         padding: 0 3px 0 30px;\
+                                         }");
+
+    ui->box_simulationSettings->setStyleSheet("QGroupBox { \
+                                        border: 1px solid gray;\
+                                        border-radius: 9px;\
+                                        margin-top: 0.5em;\
+                                    }  QGroupBox::title {\
+                                       subcontrol-origin: margin;\
+                                       left: 150px;\
+                                       padding: 0 3px 50px 3px;\
+                                       }");
 
 	// set initially displayed values based on the default parameters
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
 	{
 		std::stringstream ss;
-		ss << this->meta->interpolationFactor;
-		this->ui->lineedit_f->setText(QString::fromStdString(ss.str()));
+        ss << this->meta->interpolationFactor;
+        this->ui->lineedit_interpFactor_x->setText(QString::fromStdString(ss.str()));
 		ss.str("");
 		ss << this->meta->filename_atoms;
 		this->ui->lineedit_atomsfile->setText(QString::fromStdString(ss.str()));
@@ -81,7 +100,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 
 	this->ui->lineedit_atomsfile->setText(QString::fromStdString(this->meta->filename_atoms));
 	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
-	connect(this->ui->lineedit_f,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
+    connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
 	connect(this->ui->lineedit_atomsfile,SIGNAL(editingFinished()),this,SLOT(setFilenameAtoms_fromLineEdit()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
@@ -118,12 +137,12 @@ void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
 
 void PRISMMainWindow::setInterpolationFactor(){
 	bool flag;
-	const size_t& new_f = this->ui->lineedit_f->text().toUInt(&flag);
+    const size_t& new_f = this->ui->lineedit_interpFactor_x->text().toUInt(&flag);
 	if (flag){
 		std::cout << "Setting interpolation factor to " << new_f<< std::endl;
 		this->meta->interpolationFactor = new_f;
 	} else{
-		std::cout << "Invalid interpolation factor input: " <<  this->ui->lineedit_f->text().toStdString() << std::endl;
+        std::cout << "Invalid interpolation factor input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
 	}
 }
 
