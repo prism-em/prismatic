@@ -165,7 +165,7 @@ public:
         horizontalLayout_13->setSpacing(0);
         horizontalLayout_13->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_13->setObjectName(QStringLiteral("horizontalLayout_13"));
-        horizontalLayout_13->setContentsMargins(2, 2, 2, 2);
+        horizontalLayout_13->setContentsMargins(2, 10, 2, 2);
         verticalLayout_13 = new QVBoxLayout();
         verticalLayout_13->setSpacing(0);
         verticalLayout_13->setObjectName(QStringLiteral("verticalLayout_13"));
@@ -342,7 +342,7 @@ public:
         horizontalLayout_11->setSpacing(0);
         horizontalLayout_11->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_11->setObjectName(QStringLiteral("horizontalLayout_11"));
-        horizontalLayout_11->setContentsMargins(2, 2, 2, 2);
+        horizontalLayout_11->setContentsMargins(2, 10, 2, 2);
         verticalLayout_10 = new QVBoxLayout();
         verticalLayout_10->setSpacing(0);
         verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
@@ -577,7 +577,7 @@ public:
         horizontalLayout_20->setSpacing(0);
         horizontalLayout_20->setContentsMargins(11, 11, 11, 11);
         horizontalLayout_20->setObjectName(QStringLiteral("horizontalLayout_20"));
-        horizontalLayout_20->setContentsMargins(2, 2, 2, 2);
+        horizontalLayout_20->setContentsMargins(2, 10, 2, 2);
         verticalLayout_14 = new QVBoxLayout();
         verticalLayout_14->setSpacing(6);
         verticalLayout_14->setObjectName(QStringLiteral("verticalLayout_14"));

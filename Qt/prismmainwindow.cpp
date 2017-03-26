@@ -23,7 +23,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                           margin-top: 0.5em;\
                                       }  QGroupBox::title {\
                                          subcontrol-origin: margin;\
-                                         left: 100px;\
+                                         left: 150px;\
                                          padding: 0 3px 0 3px;\
                                          }");
 
@@ -32,9 +32,10 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                           border-radius: 9px;\
                                           margin-top: 0.5em;\
                                       }  QGroupBox::title {\
+                                         font-weight: bold;\
                                          subcontrol-origin: margin;\
-                                         left: 100px;\
-                                         padding: 0 3px 0 30px;\
+                                         left: 150px;\
+                                         padding: 0 3px 0 3px;\
                                          }");
 
     ui->box_simulationSettings->setStyleSheet("QGroupBox { \
@@ -44,7 +45,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                     }  QGroupBox::title {\
                                        subcontrol-origin: margin;\
                                        left: 150px;\
-                                       padding: 0 3px 50px 3px;\
+                                       padding: 0 3px 0px 3px;\
                                        }");
 
 	// set initially displayed values based on the default parameters
