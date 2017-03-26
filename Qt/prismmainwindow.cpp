@@ -29,7 +29,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 
     ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                           border: 1px solid gray;\
-                                          border-radius: 90px;\
+                                          border-radius: 9px;\
                                           margin-top: 0.5em;\
                                       }  QGroupBox::title {\
                                          subcontrol-origin: margin;\
@@ -104,7 +104,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->lineedit_atomsfile,SIGNAL(editingFinished()),this,SLOT(setFilenameAtoms_fromLineEdit()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
-	connect(this->ui->btn_outputfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameOutput_fromDialog()));
+    //connect(this->ui->btn_outputfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameOutput_fromDialog()));
 	connect(this->ui->btn_go,SIGNAL(pressed()),this,SLOT(launch()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));

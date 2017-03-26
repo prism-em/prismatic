@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>901</width>
-    <height>584</height>
+    <height>950</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,62 +15,15 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0" colspan="2">
+    <item row="0" column="0">
      <widget class="QLabel" name="lbl_atomsfile">
       <property name="text">
        <string>Atoms File </string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2" colspan="2">
-     <widget class="QLineEdit" name="lineedit_atomsfile"/>
-    </item>
-    <item row="0" column="4" colspan="2">
-     <widget class="QPushButton" name="btn_atomsfile_browse">
-      <property name="text">
-       <string>Browse</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="6" colspan="4">
-     <widget class="QPushButton" name="btn_go">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>145</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>30</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Calculate!</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="4" rowspan="2" colspan="3">
-     <widget class="QPushButton" name="btn_outputfile_browse">
-      <property name="text">
-       <string>Browse</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="2">
-     <widget class="QLabel" name="lbl_outputfile">
-      <property name="text">
-       <string>Output File</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2" colspan="2">
-     <widget class="QLineEdit" name="lineedit_outputfile"/>
-    </item>
-    <item row="2" column="9" rowspan="5">
-     <layout class="QVBoxLayout" name="verticalLayout_11">
+    <item row="0" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout_16">
       <item>
        <widget class="QGroupBox" name="box_sampleSettings">
         <property name="sizePolicy">
@@ -109,7 +62,7 @@
               <number>0</number>
              </property>
              <item>
-              <widget class="QPushButton" name="btn_loadCoordinates">
+              <widget class="QPushButton" name="btn_atomsfile_browse">
                <property name="text">
                 <string>Load Coords</string>
                </property>
@@ -117,6 +70,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="btn_saveCoordinates">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="text">
                 <string>Save Coords</string>
                </property>
@@ -621,7 +580,7 @@
                   <widget class="QSpinBox" name="spinBox_numFP">
                    <property name="maximumSize">
                     <size>
-                     <width>30</width>
+                     <width>40</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -786,69 +745,306 @@
         <zorder></zorder>
         <zorder></zorder>
         <zorder>line</zorder>
+        <zorder></zorder>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="box_calculationSettings">
+        <property name="title">
+         <string>Calculation Settings</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_20">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <property name="topMargin">
+            <number>10</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="lbl_outputfile">
+               <property name="text">
+                <string>Output File</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineedit_outputfile"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <item>
+              <widget class="QCheckBox" name="checkBox">
+               <property name="text">
+                <string>Save projected potentials</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_12">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_18">
+             <item>
+              <widget class="QRadioButton" name="radioButton">
+               <property name="text">
+                <string>3D output, step size (mrad)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <widget class="QRadioButton" name="radioButton_2">
+               <property name="text">
+                <string>4D output, step size (mrad)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_2">
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_16">
+             <item>
+              <widget class="QLabel" name="lbl_numthreads">
+               <property name="text">
+                <string>Num Threads</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spinBox_numThreads">
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <item>
+                <widget class="QLabel" name="lbl_numgpus">
+                 <property name="text">
+                  <string>Num GPUs</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spinBox_numGPUs">
+                 <property name="maximumSize">
+                  <size>
+                   <width>40</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_22">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_15">
+               <item>
+                <widget class="QPushButton" name="pushButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Calculate Potentials</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_2">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Calculate S-matrix</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_21">
+               <item>
+                <widget class="QLabel" name="lbl_algo">
+                 <property name="text">
+                  <string>Algorithm</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <item>
+                  <widget class="QRadioButton" name="radBtn_PRISM">
+                   <property name="text">
+                    <string>PRISM</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radBtn_Multislice">
+                   <property name="text">
+                    <string>Multislice</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btn_go">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>30</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Full Calculation</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
+        <zorder></zorder>
+        <zorder></zorder>
+        <zorder>checkBox</zorder>
+        <zorder>checkBox_2</zorder>
+        <zorder>lineEdit</zorder>
+        <zorder>radioButton</zorder>
+        <zorder>radioButton_2</zorder>
+        <zorder>lineEdit</zorder>
+        <zorder>lineEdit_2</zorder>
+        <zorder>label_12</zorder>
+        <zorder></zorder>
+        <zorder></zorder>
        </widget>
       </item>
      </layout>
     </item>
-    <item row="3" column="2" rowspan="2" colspan="7">
-     <widget class="QGroupBox" name="box_calculationSettings">
-      <property name="title">
-       <string>Calculation Settings</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="5" colspan="2">
-     <widget class="QLabel" name="lbl_numgpus">
-      <property name="text">
-       <string>Num GPUs</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="7" colspan="2">
-     <widget class="QSpinBox" name="spinBox_numGPUs">
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="5" colspan="3">
-     <widget class="QLabel" name="lbl_numthreads">
-      <property name="text">
-       <string>Num Threads</string>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="8">
-     <widget class="QSpinBox" name="spinBox_numThreads">
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="lbl_algo">
-      <property name="text">
-       <string>Algorithm</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="1" colspan="2">
-     <widget class="QRadioButton" name="radBtn_PRISM">
-      <property name="text">
-       <string>PRISM</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="3" colspan="2">
-     <widget class="QRadioButton" name="radBtn_Multislice">
-      <property name="text">
-       <string>Multislice</string>
-      </property>
-     </widget>
+    <item row="1" column="0" colspan="2">
+     <widget class="QLineEdit" name="lineedit_atomsfile"/>
     </item>
    </layout>
    <zorder>box_simulationSettings</zorder>
-   <zorder>box_calculationSettings</zorder>
    <zorder>box_sampleSettings</zorder>
    <zorder>box_sampleSettings</zorder>
    <zorder>lineedit_interpFactor_y</zorder>
@@ -857,6 +1053,16 @@
    <zorder>label_14</zorder>
    <zorder>box_sampleSettings</zorder>
    <zorder>box_simulationSettings</zorder>
+   <zorder></zorder>
+   <zorder></zorder>
+   <zorder>box_simulationSettings</zorder>
+   <zorder>box_calculationSettings</zorder>
+   <zorder>radBtn_PRISM</zorder>
+   <zorder>radBtn_Multislice</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>pushButton_2</zorder>
+   <zorder></zorder>
+   <zorder>lineedit_atomsfile</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
