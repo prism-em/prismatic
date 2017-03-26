@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -37,14 +37,14 @@
               <item>
                <widget class="QLabel" name="label_23">
                 <property name="text">
-                 <string/>
+                 <string>Slice min/max</string>
                 </property>
                </widget>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_23">
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_3">
+                 <widget class="QLineEdit" name="lineEdit_slicemin">
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
@@ -57,7 +57,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSlider">
+                 <widget class="QSlider" name="slider_slicemin">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -68,7 +68,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_27">
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_4">
+                 <widget class="QLineEdit" name="lineEdit_slicemax">
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
@@ -81,7 +81,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSlider_2">
+                 <widget class="QSlider" name="slider_slicemax">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -90,7 +90,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox_2">
+               <widget class="QCheckBox" name="checkBox_sqrtIntensity1">
                 <property name="text">
                  <string>Square Root Intensity</string>
                 </property>
@@ -264,7 +264,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox_3">
+         <widget class="QCheckBox" name="checkBox_sqrtIntensity2">
           <property name="text">
            <string>Square Root Intensity</string>
           </property>
@@ -289,14 +289,14 @@
               <item>
                <widget class="QLabel" name="label_26">
                 <property name="text">
-                 <string/>
+                 <string>Angle min/max</string>
                 </property>
                </widget>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_25">
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_7">
+                 <widget class="QLineEdit" name="lineEdit_angmin">
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
@@ -309,7 +309,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSlider_3">
+                 <widget class="QSlider" name="horizontalSlider_angmin">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -320,7 +320,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_31">
                 <item>
-                 <widget class="QLineEdit" name="lineEdit_8">
+                 <widget class="QLineEdit" name="lineEdit_angmax">
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
@@ -333,7 +333,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSlider_4">
+                 <widget class="QSlider" name="slider_angmax">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -342,7 +342,7 @@
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox_4">
+               <widget class="QCheckBox" name="checkBox_sqrtIntensity3">
                 <property name="text">
                  <string>Square Root Intensity</string>
                 </property>
@@ -1167,7 +1167,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_19">
              <item>
-              <widget class="QCheckBox" name="checkBox">
+              <widget class="QCheckBox" name="checkBox_saveProjectedPotential">
                <property name="text">
                 <string>Save projected potentials</string>
                </property>
@@ -1185,14 +1185,14 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_18">
              <item>
-              <widget class="QRadioButton" name="radioButton">
+              <widget class="QRadioButton" name="radioButton_3Doutput">
                <property name="text">
                 <string>3D output, step size (mrad)</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit">
+              <widget class="QLineEdit" name="lineEdit_3Doutputang">
                <property name="maximumSize">
                 <size>
                  <width>30</width>
@@ -1219,14 +1219,14 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_17">
              <item>
-              <widget class="QRadioButton" name="radioButton_2">
+              <widget class="QRadioButton" name="radioButton_4Doutput">
                <property name="text">
                 <string>4D output, step size (mrad)</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="QLineEdit" name="lineEdit_4Doutputang">
                <property name="maximumSize">
                 <size>
                  <width>30</width>
@@ -1359,7 +1359,7 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_15">
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="btn_calcPotential">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1377,7 +1377,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton_2">
+              <widget class="QPushButton" name="btn_calcSmatrix">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1425,9 +1425,9 @@
    </layout>
    <zorder></zorder>
    <zorder>tabs</zorder>
-   <zorder>horizontalSlider</zorder>
-   <zorder>horizontalSlider_2</zorder>
-   <zorder>checkBox_2</zorder>
+   <zorder>slider_slicemin</zorder>
+   <zorder>slider_slicemax</zorder>
+   <zorder>checkBox_sqrtIntensity1</zorder>
    <zorder>label_15</zorder>
    <zorder>label_16</zorder>
    <zorder>label_17</zorder>
