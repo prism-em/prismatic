@@ -38,7 +38,6 @@ class Ui_PRISMMainWindow
 public:
     QWidget *centralWidget;
     QGridLayout *gridLayout;
-    QLabel *lbl_atomsfile;
     QVBoxLayout *verticalLayout_16;
     QGroupBox *box_sampleSettings;
     QHBoxLayout *horizontalLayout_13;
@@ -128,16 +127,15 @@ public:
     QSpinBox *spinBox_numGPUs;
     QSpacerItem *horizontalSpacer_3;
     QHBoxLayout *horizontalLayout_22;
+    QHBoxLayout *horizontalLayout_21;
+    QLabel *lbl_algo;
+    QRadioButton *radBtn_PRISM;
+    QRadioButton *radBtn_Multislice;
+    QSpacerItem *horizontalSpacer_4;
     QVBoxLayout *verticalLayout_15;
     QPushButton *pushButton;
     QPushButton *pushButton_2;
-    QHBoxLayout *horizontalLayout_21;
-    QLabel *lbl_algo;
-    QVBoxLayout *verticalLayout_11;
-    QRadioButton *radBtn_PRISM;
-    QRadioButton *radBtn_Multislice;
     QPushButton *btn_go;
-    QLineEdit *lineedit_atomsfile;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -146,18 +144,13 @@ public:
     {
         if (PRISMMainWindow->objectName().isEmpty())
             PRISMMainWindow->setObjectName(QStringLiteral("PRISMMainWindow"));
-        PRISMMainWindow->resize(901, 950);
+        PRISMMainWindow->resize(333, 849);
         centralWidget = new QWidget(PRISMMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);
         gridLayout->setSpacing(6);
         gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        lbl_atomsfile = new QLabel(centralWidget);
-        lbl_atomsfile->setObjectName(QStringLiteral("lbl_atomsfile"));
-
-        gridLayout->addWidget(lbl_atomsfile, 0, 0, 1, 1);
-
         verticalLayout_16 = new QVBoxLayout();
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
@@ -340,21 +333,6 @@ public:
 
         horizontalLayout_13->addLayout(verticalLayout_13);
 
-        label_2->raise();
-        label_3->raise();
-        label_4->raise();
-        label_5->raise();
-        label_6->raise();
-        lineEdit_tileX->raise();
-        lineEdit_tileY->raise();
-        lineEdit_tileZ->raise();
-        label_7->raise();
-        lineEdit_tileX->raise();
-        label_cellDim->raise();
-        label_8->raise();
-        label_9->raise();
-        label_9->raise();
-        btn_saveCoordinates->raise();
 
         verticalLayout_16->addWidget(box_sampleSettings);
 
@@ -590,8 +568,6 @@ public:
 
         horizontalLayout_11->addLayout(verticalLayout_10);
 
-        label_10->raise();
-        label_11->raise();
 
         verticalLayout_16->addWidget(box_simulationSettings);
 
@@ -723,24 +699,6 @@ public:
         horizontalLayout_22 = new QHBoxLayout();
         horizontalLayout_22->setSpacing(6);
         horizontalLayout_22->setObjectName(QStringLiteral("horizontalLayout_22"));
-        verticalLayout_15 = new QVBoxLayout();
-        verticalLayout_15->setSpacing(6);
-        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
-        pushButton = new QPushButton(box_calculationSettings);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setMinimumSize(QSize(0, 50));
-
-        verticalLayout_15->addWidget(pushButton);
-
-        pushButton_2 = new QPushButton(box_calculationSettings);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
-        pushButton_2->setMinimumSize(QSize(0, 50));
-
-        verticalLayout_15->addWidget(pushButton_2);
-
-
-        horizontalLayout_22->addLayout(verticalLayout_15);
-
         horizontalLayout_21 = new QHBoxLayout();
         horizontalLayout_21->setSpacing(6);
         horizontalLayout_21->setObjectName(QStringLiteral("horizontalLayout_21"));
@@ -750,80 +708,68 @@ public:
 
         horizontalLayout_21->addWidget(lbl_algo);
 
-        verticalLayout_11 = new QVBoxLayout();
-        verticalLayout_11->setSpacing(6);
-        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
         radBtn_PRISM = new QRadioButton(box_calculationSettings);
         radBtn_PRISM->setObjectName(QStringLiteral("radBtn_PRISM"));
 
-        verticalLayout_11->addWidget(radBtn_PRISM);
+        horizontalLayout_21->addWidget(radBtn_PRISM);
 
         radBtn_Multislice = new QRadioButton(box_calculationSettings);
         radBtn_Multislice->setObjectName(QStringLiteral("radBtn_Multislice"));
 
-        verticalLayout_11->addWidget(radBtn_Multislice);
+        horizontalLayout_21->addWidget(radBtn_Multislice);
 
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_21->addLayout(verticalLayout_11);
+        horizontalLayout_21->addItem(horizontalSpacer_4);
 
 
         horizontalLayout_22->addLayout(horizontalLayout_21);
 
-        btn_go = new QPushButton(box_calculationSettings);
-        btn_go->setObjectName(QStringLiteral("btn_go"));
-        btn_go->setMinimumSize(QSize(0, 0));
-        QFont font;
-        font.setPointSize(30);
-        font.setBold(true);
-        font.setWeight(75);
-        btn_go->setFont(font);
-
-        horizontalLayout_22->addWidget(btn_go);
-
 
         verticalLayout_14->addLayout(horizontalLayout_22);
+
+        verticalLayout_15 = new QVBoxLayout();
+        verticalLayout_15->setSpacing(6);
+        verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
+        pushButton = new QPushButton(box_calculationSettings);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setMinimumSize(QSize(0, 50));
+        QFont font;
+        font.setPointSize(14);
+        pushButton->setFont(font);
+
+        verticalLayout_15->addWidget(pushButton);
+
+        pushButton_2 = new QPushButton(box_calculationSettings);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        pushButton_2->setMinimumSize(QSize(0, 50));
+        pushButton_2->setFont(font);
+
+        verticalLayout_15->addWidget(pushButton_2);
+
+        btn_go = new QPushButton(box_calculationSettings);
+        btn_go->setObjectName(QStringLiteral("btn_go"));
+        btn_go->setMinimumSize(QSize(0, 50));
+        btn_go->setFont(font);
+
+        verticalLayout_15->addWidget(btn_go);
+
+
+        verticalLayout_14->addLayout(verticalLayout_15);
 
 
         horizontalLayout_20->addLayout(verticalLayout_14);
 
-        checkBox->raise();
-        lineEdit->raise();
-        radioButton->raise();
-        radioButton_2->raise();
-        lineEdit->raise();
-        lineEdit_2->raise();
-        label_12->raise();
 
         verticalLayout_16->addWidget(box_calculationSettings);
 
 
-        gridLayout->addLayout(verticalLayout_16, 0, 1, 1, 1);
-
-        lineedit_atomsfile = new QLineEdit(centralWidget);
-        lineedit_atomsfile->setObjectName(QStringLiteral("lineedit_atomsfile"));
-
-        gridLayout->addWidget(lineedit_atomsfile, 1, 0, 1, 2);
+        gridLayout->addLayout(verticalLayout_16, 0, 0, 1, 1);
 
         PRISMMainWindow->setCentralWidget(centralWidget);
-        box_simulationSettings->raise();
-        box_sampleSettings->raise();
-        box_sampleSettings->raise();
-        lineedit_interpFactor_y->raise();
-        label_12->raise();
-        label_13->raise();
-        label_14->raise();
-        box_sampleSettings->raise();
-        box_simulationSettings->raise();
-        box_simulationSettings->raise();
-        box_calculationSettings->raise();
-        radBtn_PRISM->raise();
-        radBtn_Multislice->raise();
-        pushButton->raise();
-        pushButton_2->raise();
-        lineedit_atomsfile->raise();
         menuBar = new QMenuBar(PRISMMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 901, 22));
+        menuBar->setGeometry(QRect(0, 0, 333, 22));
         PRISMMainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(PRISMMainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -840,7 +786,6 @@ public:
     void retranslateUi(QMainWindow *PRISMMainWindow)
     {
         PRISMMainWindow->setWindowTitle(QApplication::translate("PRISMMainWindow", "PRISMMainWindow", Q_NULLPTR));
-        lbl_atomsfile->setText(QApplication::translate("PRISMMainWindow", "Atoms File ", Q_NULLPTR));
         box_sampleSettings->setTitle(QApplication::translate("PRISMMainWindow", "Sample Settings", Q_NULLPTR));
         btn_atomsfile_browse->setText(QApplication::translate("PRISMMainWindow", "Load Coords", Q_NULLPTR));
         btn_saveCoordinates->setText(QApplication::translate("PRISMMainWindow", "Save Coords", Q_NULLPTR));
@@ -881,11 +826,11 @@ public:
         radioButton_2->setText(QApplication::translate("PRISMMainWindow", "4D output, step size (mrad)", Q_NULLPTR));
         lbl_numthreads->setText(QApplication::translate("PRISMMainWindow", "Num Threads", Q_NULLPTR));
         lbl_numgpus->setText(QApplication::translate("PRISMMainWindow", "Num GPUs", Q_NULLPTR));
-        pushButton->setText(QApplication::translate("PRISMMainWindow", "Calculate Potentials", Q_NULLPTR));
-        pushButton_2->setText(QApplication::translate("PRISMMainWindow", "Calculate S-matrix", Q_NULLPTR));
         lbl_algo->setText(QApplication::translate("PRISMMainWindow", "Algorithm", Q_NULLPTR));
         radBtn_PRISM->setText(QApplication::translate("PRISMMainWindow", "PRISM", Q_NULLPTR));
         radBtn_Multislice->setText(QApplication::translate("PRISMMainWindow", "Multislice", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("PRISMMainWindow", "Calculate Potentials", Q_NULLPTR));
+        pushButton_2->setText(QApplication::translate("PRISMMainWindow", "Calculate S-matrix", Q_NULLPTR));
         btn_go->setText(QApplication::translate("PRISMMainWindow", "Full Calculation", Q_NULLPTR));
     } // retranslateUi
 

@@ -54,9 +54,6 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
         ss << this->meta->interpolationFactor;
         this->ui->lineedit_interpFactor_x->setText(QString::fromStdString(ss.str()));
 		ss.str("");
-		ss << this->meta->filename_atoms;
-		this->ui->lineedit_atomsfile->setText(QString::fromStdString(ss.str()));
-		ss.str("");
 		ss << this->meta->potBound;
 		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
 		ss.str("");
@@ -98,10 +95,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	this->ui->spinBox_numGPUs->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
 
-	this->ui->lineedit_atomsfile->setText(QString::fromStdString(this->meta->filename_atoms));
 	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
     connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
-	connect(this->ui->lineedit_atomsfile,SIGNAL(editingFinished()),this,SLOT(setFilenameAtoms_fromLineEdit()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     //connect(this->ui->btn_outputfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameOutput_fromDialog()));
@@ -149,7 +144,6 @@ void PRISMMainWindow::setInterpolationFactor(){
 void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
 	filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename);
-	this->ui->lineedit_atomsfile->setText(filename);
 	this->setFilenameAtoms(filename.toStdString());
 }
 
@@ -160,10 +154,6 @@ void PRISMMainWindow::setFilenameOutput_fromDialog(){
 	this->setFilenameOutput(filename.toStdString());
 }
 
-void PRISMMainWindow::setFilenameAtoms_fromLineEdit(){
-	const std::string& filename = this->ui->lineedit_atomsfile->text().toStdString();
-	this->setFilenameAtoms(filename);
-}
 
 void PRISMMainWindow::setFilenameOutput_fromLineEdit(){
 	const std::string& filename = this->ui->lineedit_outputfile->text().toStdString();
