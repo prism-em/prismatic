@@ -16,6 +16,18 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	// set window title
 	this->setWindowTitle("PRISM");
 
+
+    ui->box_sampleSettings->setStyleSheet("QGroupBox { \
+                                          border: 1px solid gray;\
+                                          border-radius: 9px;\
+                                          margin-top: 0.5em;\
+                                      }  QGroupBox::title {\
+                                         subcontrol-origin: margin;\
+                                         left: 100px;\
+                                         padding: 0 3px 0 3px;\
+                                         }");
+
+
 	// set initially displayed values based on the default parameters
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
 	{
