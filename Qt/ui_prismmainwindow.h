@@ -14,7 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QCheckBox>
-#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
@@ -24,9 +24,11 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -37,7 +39,51 @@ class Ui_PRISMMainWindow
 {
 public:
     QWidget *centralWidget;
-    QGridLayout *gridLayout;
+    QHBoxLayout *horizontalLayout_24;
+    QTabWidget *tabs;
+    QWidget *tab_potential;
+    QHBoxLayout *horizontalLayout_29;
+    QVBoxLayout *verticalLayout_23;
+    QGraphicsView *graphicsView_potential;
+    QHBoxLayout *horizontalLayout_28;
+    QVBoxLayout *verticalLayout_17;
+    QLabel *label_23;
+    QHBoxLayout *horizontalLayout_23;
+    QLineEdit *lineEdit_3;
+    QSlider *horizontalSlider;
+    QHBoxLayout *horizontalLayout_27;
+    QLineEdit *lineEdit_4;
+    QSlider *horizontalSlider_2;
+    QCheckBox *checkBox_2;
+    QVBoxLayout *verticalLayout_18;
+    QLabel *label_15;
+    QLineEdit *lineEdit_5;
+    QLineEdit *lineEdit_6;
+    QLabel *label_24;
+    QVBoxLayout *verticalLayout_11;
+    QLabel *label_22;
+    QLabel *label_16;
+    QLabel *label_17;
+    QLabel *label_25;
+    QWidget *tab_probe;
+    QVBoxLayout *verticalLayout_22;
+    QGraphicsView *graphicsView_probe;
+    QHBoxLayout *horizontalLayout_26;
+    QVBoxLayout *verticalLayout_21;
+    QLabel *label_20;
+    QLabel *label_21;
+    QVBoxLayout *verticalLayout_19;
+    QLabel *label_18;
+    QGraphicsView *graphics_multislice_real;
+    QGraphicsView *graphics_prism_real;
+    QVBoxLayout *verticalLayout_20;
+    QLabel *label_19;
+    QGraphicsView *graphics_multislice_fourier;
+    QGraphicsView *graphics_prism_fourier;
+    QCheckBox *checkBox_3;
+    QWidget *tab_output;
+    QHBoxLayout *horizontalLayout_25;
+    QGraphicsView *graphicsView_output;
     QVBoxLayout *verticalLayout_16;
     QGroupBox *box_sampleSettings;
     QHBoxLayout *horizontalLayout_13;
@@ -144,13 +190,246 @@ public:
     {
         if (PRISMMainWindow->objectName().isEmpty())
             PRISMMainWindow->setObjectName(QStringLiteral("PRISMMainWindow"));
-        PRISMMainWindow->resize(333, 849);
+        PRISMMainWindow->resize(764, 849);
         centralWidget = new QWidget(PRISMMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        gridLayout = new QGridLayout(centralWidget);
-        gridLayout->setSpacing(6);
-        gridLayout->setContentsMargins(11, 11, 11, 11);
-        gridLayout->setObjectName(QStringLiteral("gridLayout"));
+        horizontalLayout_24 = new QHBoxLayout(centralWidget);
+        horizontalLayout_24->setSpacing(6);
+        horizontalLayout_24->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_24->setObjectName(QStringLiteral("horizontalLayout_24"));
+        tabs = new QTabWidget(centralWidget);
+        tabs->setObjectName(QStringLiteral("tabs"));
+        tab_potential = new QWidget();
+        tab_potential->setObjectName(QStringLiteral("tab_potential"));
+        horizontalLayout_29 = new QHBoxLayout(tab_potential);
+        horizontalLayout_29->setSpacing(6);
+        horizontalLayout_29->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_29->setObjectName(QStringLiteral("horizontalLayout_29"));
+        verticalLayout_23 = new QVBoxLayout();
+        verticalLayout_23->setSpacing(6);
+        verticalLayout_23->setObjectName(QStringLiteral("verticalLayout_23"));
+        graphicsView_potential = new QGraphicsView(tab_potential);
+        graphicsView_potential->setObjectName(QStringLiteral("graphicsView_potential"));
+
+        verticalLayout_23->addWidget(graphicsView_potential);
+
+        horizontalLayout_28 = new QHBoxLayout();
+        horizontalLayout_28->setSpacing(6);
+        horizontalLayout_28->setObjectName(QStringLiteral("horizontalLayout_28"));
+        verticalLayout_17 = new QVBoxLayout();
+        verticalLayout_17->setSpacing(6);
+        verticalLayout_17->setObjectName(QStringLiteral("verticalLayout_17"));
+        label_23 = new QLabel(tab_potential);
+        label_23->setObjectName(QStringLiteral("label_23"));
+
+        verticalLayout_17->addWidget(label_23);
+
+        horizontalLayout_23 = new QHBoxLayout();
+        horizontalLayout_23->setSpacing(6);
+        horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
+        lineEdit_3 = new QLineEdit(tab_potential);
+        lineEdit_3->setObjectName(QStringLiteral("lineEdit_3"));
+        lineEdit_3->setMaximumSize(QSize(30, 16777215));
+        lineEdit_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_23->addWidget(lineEdit_3);
+
+        horizontalSlider = new QSlider(tab_potential);
+        horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
+        horizontalSlider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_23->addWidget(horizontalSlider);
+
+
+        verticalLayout_17->addLayout(horizontalLayout_23);
+
+        horizontalLayout_27 = new QHBoxLayout();
+        horizontalLayout_27->setSpacing(6);
+        horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
+        lineEdit_4 = new QLineEdit(tab_potential);
+        lineEdit_4->setObjectName(QStringLiteral("lineEdit_4"));
+        lineEdit_4->setMaximumSize(QSize(30, 16777215));
+        lineEdit_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_27->addWidget(lineEdit_4);
+
+        horizontalSlider_2 = new QSlider(tab_potential);
+        horizontalSlider_2->setObjectName(QStringLiteral("horizontalSlider_2"));
+        horizontalSlider_2->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_27->addWidget(horizontalSlider_2);
+
+
+        verticalLayout_17->addLayout(horizontalLayout_27);
+
+        checkBox_2 = new QCheckBox(tab_potential);
+        checkBox_2->setObjectName(QStringLiteral("checkBox_2"));
+
+        verticalLayout_17->addWidget(checkBox_2);
+
+
+        horizontalLayout_28->addLayout(verticalLayout_17);
+
+        verticalLayout_18 = new QVBoxLayout();
+        verticalLayout_18->setSpacing(6);
+        verticalLayout_18->setObjectName(QStringLiteral("verticalLayout_18"));
+        label_15 = new QLabel(tab_potential);
+        label_15->setObjectName(QStringLiteral("label_15"));
+
+        verticalLayout_18->addWidget(label_15);
+
+        lineEdit_5 = new QLineEdit(tab_potential);
+        lineEdit_5->setObjectName(QStringLiteral("lineEdit_5"));
+        lineEdit_5->setMaximumSize(QSize(30, 16777215));
+
+        verticalLayout_18->addWidget(lineEdit_5);
+
+        lineEdit_6 = new QLineEdit(tab_potential);
+        lineEdit_6->setObjectName(QStringLiteral("lineEdit_6"));
+        lineEdit_6->setMaximumSize(QSize(30, 16777215));
+
+        verticalLayout_18->addWidget(lineEdit_6);
+
+        label_24 = new QLabel(tab_potential);
+        label_24->setObjectName(QStringLiteral("label_24"));
+
+        verticalLayout_18->addWidget(label_24);
+
+
+        horizontalLayout_28->addLayout(verticalLayout_18);
+
+        verticalLayout_11 = new QVBoxLayout();
+        verticalLayout_11->setSpacing(6);
+        verticalLayout_11->setObjectName(QStringLiteral("verticalLayout_11"));
+        label_22 = new QLabel(tab_potential);
+        label_22->setObjectName(QStringLiteral("label_22"));
+
+        verticalLayout_11->addWidget(label_22);
+
+        label_16 = new QLabel(tab_potential);
+        label_16->setObjectName(QStringLiteral("label_16"));
+
+        verticalLayout_11->addWidget(label_16);
+
+        label_17 = new QLabel(tab_potential);
+        label_17->setObjectName(QStringLiteral("label_17"));
+
+        verticalLayout_11->addWidget(label_17);
+
+        label_25 = new QLabel(tab_potential);
+        label_25->setObjectName(QStringLiteral("label_25"));
+
+        verticalLayout_11->addWidget(label_25);
+
+
+        horizontalLayout_28->addLayout(verticalLayout_11);
+
+
+        verticalLayout_23->addLayout(horizontalLayout_28);
+
+
+        horizontalLayout_29->addLayout(verticalLayout_23);
+
+        tabs->addTab(tab_potential, QString());
+        tab_probe = new QWidget();
+        tab_probe->setObjectName(QStringLiteral("tab_probe"));
+        verticalLayout_22 = new QVBoxLayout(tab_probe);
+        verticalLayout_22->setSpacing(6);
+        verticalLayout_22->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_22->setObjectName(QStringLiteral("verticalLayout_22"));
+        graphicsView_probe = new QGraphicsView(tab_probe);
+        graphicsView_probe->setObjectName(QStringLiteral("graphicsView_probe"));
+        graphicsView_probe->setMinimumSize(QSize(0, 400));
+
+        verticalLayout_22->addWidget(graphicsView_probe);
+
+        horizontalLayout_26 = new QHBoxLayout();
+        horizontalLayout_26->setSpacing(0);
+        horizontalLayout_26->setObjectName(QStringLiteral("horizontalLayout_26"));
+        verticalLayout_21 = new QVBoxLayout();
+        verticalLayout_21->setSpacing(0);
+        verticalLayout_21->setObjectName(QStringLiteral("verticalLayout_21"));
+        label_20 = new QLabel(tab_probe);
+        label_20->setObjectName(QStringLiteral("label_20"));
+
+        verticalLayout_21->addWidget(label_20);
+
+        label_21 = new QLabel(tab_probe);
+        label_21->setObjectName(QStringLiteral("label_21"));
+
+        verticalLayout_21->addWidget(label_21);
+
+
+        horizontalLayout_26->addLayout(verticalLayout_21);
+
+        verticalLayout_19 = new QVBoxLayout();
+        verticalLayout_19->setSpacing(0);
+        verticalLayout_19->setObjectName(QStringLiteral("verticalLayout_19"));
+        label_18 = new QLabel(tab_probe);
+        label_18->setObjectName(QStringLiteral("label_18"));
+        label_18->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_19->addWidget(label_18);
+
+        graphics_multislice_real = new QGraphicsView(tab_probe);
+        graphics_multislice_real->setObjectName(QStringLiteral("graphics_multislice_real"));
+
+        verticalLayout_19->addWidget(graphics_multislice_real);
+
+        graphics_prism_real = new QGraphicsView(tab_probe);
+        graphics_prism_real->setObjectName(QStringLiteral("graphics_prism_real"));
+
+        verticalLayout_19->addWidget(graphics_prism_real);
+
+
+        horizontalLayout_26->addLayout(verticalLayout_19);
+
+        verticalLayout_20 = new QVBoxLayout();
+        verticalLayout_20->setSpacing(0);
+        verticalLayout_20->setObjectName(QStringLiteral("verticalLayout_20"));
+        label_19 = new QLabel(tab_probe);
+        label_19->setObjectName(QStringLiteral("label_19"));
+        label_19->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_20->addWidget(label_19);
+
+        graphics_multislice_fourier = new QGraphicsView(tab_probe);
+        graphics_multislice_fourier->setObjectName(QStringLiteral("graphics_multislice_fourier"));
+
+        verticalLayout_20->addWidget(graphics_multislice_fourier);
+
+        graphics_prism_fourier = new QGraphicsView(tab_probe);
+        graphics_prism_fourier->setObjectName(QStringLiteral("graphics_prism_fourier"));
+
+        verticalLayout_20->addWidget(graphics_prism_fourier);
+
+
+        horizontalLayout_26->addLayout(verticalLayout_20);
+
+
+        verticalLayout_22->addLayout(horizontalLayout_26);
+
+        checkBox_3 = new QCheckBox(tab_probe);
+        checkBox_3->setObjectName(QStringLiteral("checkBox_3"));
+
+        verticalLayout_22->addWidget(checkBox_3);
+
+        tabs->addTab(tab_probe, QString());
+        tab_output = new QWidget();
+        tab_output->setObjectName(QStringLiteral("tab_output"));
+        horizontalLayout_25 = new QHBoxLayout(tab_output);
+        horizontalLayout_25->setSpacing(6);
+        horizontalLayout_25->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
+        graphicsView_output = new QGraphicsView(tab_output);
+        graphicsView_output->setObjectName(QStringLiteral("graphicsView_output"));
+
+        horizontalLayout_25->addWidget(graphicsView_output);
+
+        tabs->addTab(tab_output, QString());
+
+        horizontalLayout_24->addWidget(tabs);
+
         verticalLayout_16 = new QVBoxLayout();
         verticalLayout_16->setSpacing(6);
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
@@ -764,12 +1043,28 @@ public:
         verticalLayout_16->addWidget(box_calculationSettings);
 
 
-        gridLayout->addLayout(verticalLayout_16, 0, 0, 1, 1);
+        horizontalLayout_24->addLayout(verticalLayout_16);
 
         PRISMMainWindow->setCentralWidget(centralWidget);
+        tabs->raise();
+        horizontalSlider->raise();
+        horizontalSlider_2->raise();
+        checkBox_2->raise();
+        label_15->raise();
+        label_16->raise();
+        label_17->raise();
+        graphics_multislice_real->raise();
+        graphics_multislice_fourier->raise();
+        graphics_prism_real->raise();
+        graphics_prism_fourier->raise();
+        label_18->raise();
+        label_19->raise();
+        label_20->raise();
+        label_21->raise();
+        label_22->raise();
         menuBar = new QMenuBar(PRISMMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 333, 22));
+        menuBar->setGeometry(QRect(0, 0, 764, 22));
         PRISMMainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(PRISMMainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -780,12 +1075,31 @@ public:
 
         retranslateUi(PRISMMainWindow);
 
+        tabs->setCurrentIndex(0);
+
+
         QMetaObject::connectSlotsByName(PRISMMainWindow);
     } // setupUi
 
     void retranslateUi(QMainWindow *PRISMMainWindow)
     {
         PRISMMainWindow->setWindowTitle(QApplication::translate("PRISMMainWindow", "PRISMMainWindow", Q_NULLPTR));
+        label_23->setText(QString());
+        checkBox_2->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        label_15->setText(QApplication::translate("PRISMMainWindow", "Contrast", Q_NULLPTR));
+        label_24->setText(QString());
+        label_22->setText(QString());
+        label_16->setText(QApplication::translate("PRISMMainWindow", "Min", Q_NULLPTR));
+        label_17->setText(QApplication::translate("PRISMMainWindow", "Max", Q_NULLPTR));
+        label_25->setText(QString());
+        tabs->setTabText(tabs->indexOf(tab_potential), QApplication::translate("PRISMMainWindow", "Potential", Q_NULLPTR));
+        label_20->setText(QApplication::translate("PRISMMainWindow", "Multislice", Q_NULLPTR));
+        label_21->setText(QApplication::translate("PRISMMainWindow", "PRISM", Q_NULLPTR));
+        label_18->setText(QApplication::translate("PRISMMainWindow", "Realspace", Q_NULLPTR));
+        label_19->setText(QApplication::translate("PRISMMainWindow", "Fourier Space", Q_NULLPTR));
+        checkBox_3->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_probe), QApplication::translate("PRISMMainWindow", "Probe", Q_NULLPTR));
+        tabs->setTabText(tabs->indexOf(tab_output), QApplication::translate("PRISMMainWindow", "Output", Q_NULLPTR));
         box_sampleSettings->setTitle(QApplication::translate("PRISMMainWindow", "Sample Settings", Q_NULLPTR));
         btn_atomsfile_browse->setText(QApplication::translate("PRISMMainWindow", "Load Coords", Q_NULLPTR));
         btn_saveCoordinates->setText(QApplication::translate("PRISMMainWindow", "Save Coords", Q_NULLPTR));

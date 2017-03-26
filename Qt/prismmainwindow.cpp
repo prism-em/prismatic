@@ -48,6 +48,38 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                        padding: 0 3px 0px 3px;\
                                        }");
 
+    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
+    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
+    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
+    QGraphicsScene* potentialScene = new QGraphicsScene(this);
+    QGraphicsScene* probeScene = new QGraphicsScene(this);
+    QGraphicsScene* outputScene = new QGraphicsScene(this);
+    potentialImage = potentialImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+    //probeImage     = probeImage.scaled(ui->graphicsView_probe->width()*0.9, ui->graphicsView_probe->height()*0.9, Qt::KeepAspectRatio);
+   probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+
+    outputImage    = outputImage.scaled(ui->graphicsView_output->width()*0.9, ui->graphicsView_output->height()*0.9, Qt::KeepAspectRatio);
+
+
+
+    potentialScene->addPixmap(potentialImage);
+    probeScene->addPixmap(probeImage);
+    outputScene->addPixmap(outputImage);
+
+
+    potentialScene->setSceneRect(potentialImage.rect());
+    probeScene->setSceneRect(probeImage.rect());
+    outputScene->setSceneRect(outputImage.rect());
+
+//    potentialScene->setSceneRect(0,0,250,250);
+   // probeScene->setSceneRect(probeImage.rect());
+  //  outputScene->setSceneRect(outputImage.rect());
+    ui->graphicsView_potential->setScene(potentialScene);
+   // ui->graphicsView_potential->fitInView(potentialImage.rect());
+    ui->graphicsView_probe->setScene(probeScene);
+   // ui->graphicsView_probe->setScene(potentialScene);
+    ui->graphicsView_output->setScene(outputScene);
+
 	// set initially displayed values based on the default parameters
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
 	{
