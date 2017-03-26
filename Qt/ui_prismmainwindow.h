@@ -82,8 +82,29 @@ public:
     QGraphicsView *graphics_prism_fourier;
     QCheckBox *checkBox_3;
     QWidget *tab_output;
-    QHBoxLayout *horizontalLayout_25;
+    QHBoxLayout *horizontalLayout_32;
+    QVBoxLayout *verticalLayout_27;
     QGraphicsView *graphicsView_output;
+    QHBoxLayout *horizontalLayout_30;
+    QVBoxLayout *verticalLayout_24;
+    QLabel *label_26;
+    QHBoxLayout *horizontalLayout_25;
+    QLineEdit *lineEdit_7;
+    QSlider *horizontalSlider_3;
+    QHBoxLayout *horizontalLayout_31;
+    QLineEdit *lineEdit_8;
+    QSlider *horizontalSlider_4;
+    QCheckBox *checkBox_4;
+    QVBoxLayout *verticalLayout_25;
+    QLabel *label_27;
+    QLineEdit *lineEdit_9;
+    QLineEdit *lineEdit_10;
+    QLabel *label_28;
+    QVBoxLayout *verticalLayout_26;
+    QLabel *label_29;
+    QLabel *label_30;
+    QLabel *label_31;
+    QLabel *label_32;
     QVBoxLayout *verticalLayout_16;
     QGroupBox *box_sampleSettings;
     QHBoxLayout *horizontalLayout_13;
@@ -417,14 +438,134 @@ public:
         tabs->addTab(tab_probe, QString());
         tab_output = new QWidget();
         tab_output->setObjectName(QStringLiteral("tab_output"));
-        horizontalLayout_25 = new QHBoxLayout(tab_output);
-        horizontalLayout_25->setSpacing(6);
-        horizontalLayout_25->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
+        horizontalLayout_32 = new QHBoxLayout(tab_output);
+        horizontalLayout_32->setSpacing(6);
+        horizontalLayout_32->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout_32->setObjectName(QStringLiteral("horizontalLayout_32"));
+        verticalLayout_27 = new QVBoxLayout();
+        verticalLayout_27->setSpacing(6);
+        verticalLayout_27->setObjectName(QStringLiteral("verticalLayout_27"));
         graphicsView_output = new QGraphicsView(tab_output);
         graphicsView_output->setObjectName(QStringLiteral("graphicsView_output"));
 
-        horizontalLayout_25->addWidget(graphicsView_output);
+        verticalLayout_27->addWidget(graphicsView_output);
+
+        horizontalLayout_30 = new QHBoxLayout();
+        horizontalLayout_30->setSpacing(6);
+        horizontalLayout_30->setObjectName(QStringLiteral("horizontalLayout_30"));
+        verticalLayout_24 = new QVBoxLayout();
+        verticalLayout_24->setSpacing(6);
+        verticalLayout_24->setObjectName(QStringLiteral("verticalLayout_24"));
+        label_26 = new QLabel(tab_output);
+        label_26->setObjectName(QStringLiteral("label_26"));
+
+        verticalLayout_24->addWidget(label_26);
+
+        horizontalLayout_25 = new QHBoxLayout();
+        horizontalLayout_25->setSpacing(6);
+        horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
+        lineEdit_7 = new QLineEdit(tab_output);
+        lineEdit_7->setObjectName(QStringLiteral("lineEdit_7"));
+        lineEdit_7->setMaximumSize(QSize(30, 16777215));
+        lineEdit_7->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_25->addWidget(lineEdit_7);
+
+        horizontalSlider_3 = new QSlider(tab_output);
+        horizontalSlider_3->setObjectName(QStringLiteral("horizontalSlider_3"));
+        horizontalSlider_3->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_25->addWidget(horizontalSlider_3);
+
+
+        verticalLayout_24->addLayout(horizontalLayout_25);
+
+        horizontalLayout_31 = new QHBoxLayout();
+        horizontalLayout_31->setSpacing(6);
+        horizontalLayout_31->setObjectName(QStringLiteral("horizontalLayout_31"));
+        lineEdit_8 = new QLineEdit(tab_output);
+        lineEdit_8->setObjectName(QStringLiteral("lineEdit_8"));
+        lineEdit_8->setMaximumSize(QSize(30, 16777215));
+        lineEdit_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_31->addWidget(lineEdit_8);
+
+        horizontalSlider_4 = new QSlider(tab_output);
+        horizontalSlider_4->setObjectName(QStringLiteral("horizontalSlider_4"));
+        horizontalSlider_4->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_31->addWidget(horizontalSlider_4);
+
+
+        verticalLayout_24->addLayout(horizontalLayout_31);
+
+        checkBox_4 = new QCheckBox(tab_output);
+        checkBox_4->setObjectName(QStringLiteral("checkBox_4"));
+
+        verticalLayout_24->addWidget(checkBox_4);
+
+
+        horizontalLayout_30->addLayout(verticalLayout_24);
+
+        verticalLayout_25 = new QVBoxLayout();
+        verticalLayout_25->setSpacing(6);
+        verticalLayout_25->setObjectName(QStringLiteral("verticalLayout_25"));
+        label_27 = new QLabel(tab_output);
+        label_27->setObjectName(QStringLiteral("label_27"));
+
+        verticalLayout_25->addWidget(label_27);
+
+        lineEdit_9 = new QLineEdit(tab_output);
+        lineEdit_9->setObjectName(QStringLiteral("lineEdit_9"));
+        lineEdit_9->setMaximumSize(QSize(30, 16777215));
+
+        verticalLayout_25->addWidget(lineEdit_9);
+
+        lineEdit_10 = new QLineEdit(tab_output);
+        lineEdit_10->setObjectName(QStringLiteral("lineEdit_10"));
+        lineEdit_10->setMaximumSize(QSize(30, 16777215));
+
+        verticalLayout_25->addWidget(lineEdit_10);
+
+        label_28 = new QLabel(tab_output);
+        label_28->setObjectName(QStringLiteral("label_28"));
+
+        verticalLayout_25->addWidget(label_28);
+
+
+        horizontalLayout_30->addLayout(verticalLayout_25);
+
+        verticalLayout_26 = new QVBoxLayout();
+        verticalLayout_26->setSpacing(6);
+        verticalLayout_26->setObjectName(QStringLiteral("verticalLayout_26"));
+        label_29 = new QLabel(tab_output);
+        label_29->setObjectName(QStringLiteral("label_29"));
+
+        verticalLayout_26->addWidget(label_29);
+
+        label_30 = new QLabel(tab_output);
+        label_30->setObjectName(QStringLiteral("label_30"));
+
+        verticalLayout_26->addWidget(label_30);
+
+        label_31 = new QLabel(tab_output);
+        label_31->setObjectName(QStringLiteral("label_31"));
+
+        verticalLayout_26->addWidget(label_31);
+
+        label_32 = new QLabel(tab_output);
+        label_32->setObjectName(QStringLiteral("label_32"));
+
+        verticalLayout_26->addWidget(label_32);
+
+
+        horizontalLayout_30->addLayout(verticalLayout_26);
+
+
+        verticalLayout_27->addLayout(horizontalLayout_30);
+
+
+        horizontalLayout_32->addLayout(verticalLayout_27);
 
         tabs->addTab(tab_output, QString());
 
@@ -1075,7 +1216,7 @@ public:
 
         retranslateUi(PRISMMainWindow);
 
-        tabs->setCurrentIndex(0);
+        tabs->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(PRISMMainWindow);
@@ -1099,6 +1240,14 @@ public:
         label_19->setText(QApplication::translate("PRISMMainWindow", "Fourier Space", Q_NULLPTR));
         checkBox_3->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_probe), QApplication::translate("PRISMMainWindow", "Probe", Q_NULLPTR));
+        label_26->setText(QString());
+        checkBox_4->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        label_27->setText(QApplication::translate("PRISMMainWindow", "Contrast", Q_NULLPTR));
+        label_28->setText(QString());
+        label_29->setText(QString());
+        label_30->setText(QApplication::translate("PRISMMainWindow", "Min", Q_NULLPTR));
+        label_31->setText(QApplication::translate("PRISMMainWindow", "Max", Q_NULLPTR));
+        label_32->setText(QString());
         tabs->setTabText(tabs->indexOf(tab_output), QApplication::translate("PRISMMainWindow", "Output", Q_NULLPTR));
         box_sampleSettings->setTitle(QApplication::translate("PRISMMainWindow", "Sample Settings", Q_NULLPTR));
         btn_atomsfile_browse->setText(QApplication::translate("PRISMMainWindow", "Load Coords", Q_NULLPTR));

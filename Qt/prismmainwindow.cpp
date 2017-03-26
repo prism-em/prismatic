@@ -58,7 +58,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     //probeImage     = probeImage.scaled(ui->graphicsView_probe->width()*0.9, ui->graphicsView_probe->height()*0.9, Qt::KeepAspectRatio);
    probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
 
-    outputImage    = outputImage.scaled(ui->graphicsView_output->width()*0.9, ui->graphicsView_output->height()*0.9, Qt::KeepAspectRatio);
+    outputImage    = outputImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
 
 
 
