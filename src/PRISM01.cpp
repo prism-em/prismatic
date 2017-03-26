@@ -23,6 +23,7 @@ namespace PRISM {
 	                      const Array1D<PRISM_FLOAT_PRECISION>& yr){
 		Array2D<PRISM_FLOAT_PRECISION> cur_pot;
 		for (auto k =0; k < potentials.get_dimk(); ++k){
+			cout <<"atomic_species[" <<k<<"] = " << atomic_species[k] << endl;
 			Array2D<PRISM_FLOAT_PRECISION> cur_pot = projPot(atomic_species[k], xr, yr);
 			for (auto j = 0; j < potentials.get_dimj(); ++j){
 				for (auto i = 0; i < potentials.get_dimi(); ++i){
@@ -38,7 +39,7 @@ namespace PRISM {
 		for (auto i = 0; i < pars.atoms.size(); ++i)unique_atoms[i] = pars.atoms[i].species;
 		sort(unique_atoms.begin(), unique_atoms.end());
 		vector<size_t>::iterator it = unique(unique_atoms.begin(), unique_atoms.end());
-		unique_atoms.reserve(distance(unique_atoms.begin(),it));
+		unique_atoms.resize(distance(unique_atoms.begin(),it));
 		return unique_atoms;
 	}
 
@@ -148,11 +149,14 @@ namespace PRISM {
 			uLookup[i] = pars.u[unique_species[i]] > 0 ? pars.u[unique_species[i]] : 0.05;
 		}
 		
+		cout <<"lookups\n";
 		// initialize the lookup table
 		Array3D<PRISM_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISM_FLOAT_PRECISION>({{unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1}});
 		
+		cout <<"fetch\n";
 		// precompute the unique potentials
 		fetch_potentials(potentialLookup, unique_species, xr, yr);
+		cout <<"project\n";
 		
 		// populate the slices with the projected potentials
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec, uLookup);
