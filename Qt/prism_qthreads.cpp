@@ -29,4 +29,4 @@ void PotentialThread::run(){
 //    emit potentialReady(params.pot);
 }
 
-PotentialThread::~PotentialThread(){delete progressbar;}
+PotentialThread::~PotentialThread(){}

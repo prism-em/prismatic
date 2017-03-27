@@ -360,6 +360,7 @@ void PRISMMainWindow::calculatePotential(){
     std::cout <<"worker started" << std::endl;
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 }
 
 void PRISMMainWindow::updatePotentialImage(){
