@@ -23,9 +23,11 @@ set(SOURCE_FILES
         src/Multislice_entry.cpp
 	src/projectedPotential.cpp)
 
-set(GUI_SOURCE_FILES Qt/main.cpp
+set(GUI_SOURCE_FILES
+        Qt/main.cpp
         Qt/prismmainwindow.cpp
-	Qt/prism_qthreads.cpp)
+	    Qt/prism_qthreads.cpp
+        Qt/prism_progressbar.cpp)
 
 if (PRISM_ENABLE_GPU)
     set(CUDA_SOURCE_FILES
@@ -75,9 +77,10 @@ if (PRISM_ENABLE_GUI)
     	message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
     	include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
 	qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/include/prism_qthreads.h)
+    qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/include/prism_qthreads.h)
 endif(PRISM_ENABLE_GUI)
 if (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
-	add_executable(prism-gui ${SOURCE_FILES} ${GUI_SOURCE_FILES} ${PRISM_QTHREAD_SOURCE})
+	add_executable(prism-gui ${SOURCE_FILES} ${GUI_SOURCE_FILES} ${PRISM_QTHREAD_SOURCE} ${PRISM_PROGRESSBAR_SOURCE})
     	target_link_libraries(prism-gui Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} ${Boost_LIBRARY_DIRS} ${FFTW_LIBRARIES})
 endif (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
 
