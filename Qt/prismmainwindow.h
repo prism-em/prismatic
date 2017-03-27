@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QMutex>
+#include <QMutexLocker>
 #include <QImage>
 #include <QPixmap>
 #include <iostream>
@@ -29,7 +30,6 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
-
 public slots:
 	void setInterpolationFactor();
 	void setFilenameAtoms_fromDialog();
@@ -51,15 +51,17 @@ public slots:
 	void setAlgo_Multislice();
     void calculatePotential();
     void updatePotentialImage();
+    void updatePotentialDisplay();
+    void updatePotentialFloatImage();
     void updateSliders_fromLineEdits();
+    void updateContrastPotMin();
+    void updateContrastPotMax();
     void updateSlider_lineEdits_min(int);
     void updateSlider_lineEdits_max(int);
+
 //    void testImage();
 
 protected:
-    Ui::PRISMMainWindow *ui;
-    PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
-    QGraphicsScene *potentialScene;
 
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);
@@ -74,6 +76,10 @@ protected:
     void setCellDimZ(const int& dimZ);
 	void setAlgo(const PRISM::Algorithm algo);
 
+private:
+    Ui::PRISMMainWindow *ui;
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
+    QGraphicsScene *potentialScene;
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
@@ -85,9 +91,17 @@ protected:
     //bool stackReady;
 
     QImage potentialImage;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
+
+    PRISM_FLOAT_PRECISION contrast_potentialMin;
+    PRISM_FLOAT_PRECISION contrast_potentialMax;
+
 //    QImage potenetialImage;
 
-
 };
+
+unsigned char getUcharFromFloat(PRISM_FLOAT_PRECISION val,
+                                PRISM_FLOAT_PRECISION contrast_low,
+                                PRISM_FLOAT_PRECISION contrast_high);
 
 #endif // PRISMMAINWINDOW_H

@@ -142,26 +142,26 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_5">
+               <widget class="QLineEdit" name="lineEdit_contrastPotMin">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>30</width>
+                  <width>60</width>
                   <height>16777215</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_6">
+               <widget class="QLineEdit" name="lineEdit_contrastPotMax">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>30</width>
+                  <width>60</width>
                   <height>16777215</height>
                  </size>
                 </property>

@@ -19,11 +19,10 @@ void PotentialThread::run(){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     //std::cout<<"before copy this->parent->pot.at(0,0,0) = " << this->parent->pot.at(0,0,0) << std::endl;
-    this->parent->potentialLock.lock();
-    this->parent->pot = params.pot;
+    QMutexLocker gatekeeper(&this->parent->potentialLock);
+    this->parent->potential = params.pot;
     this->parent->potentialReady = true;
-    this->parent->potentialLock.unlock();
-    std::cout<<"after copy this->parent->pot.at(0,0,0) = " << this->parent->pot.at(0,0,0) << std::endl;
+    std::cout<<"after copy this->parent->pot.at(0,0,0) = " << this->parent->potential.at(0,0,0) << std::endl;
 
 //    emit potentialReady(params.pot);
 }

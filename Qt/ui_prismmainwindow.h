@@ -57,8 +57,8 @@ public:
     QCheckBox *checkBox_sqrtIntensity1;
     QVBoxLayout *verticalLayout_18;
     QLabel *label_15;
-    QLineEdit *lineEdit_5;
-    QLineEdit *lineEdit_6;
+    QLineEdit *lineEdit_contrastPotMin;
+    QLineEdit *lineEdit_contrastPotMax;
     QLabel *label_24;
     QVBoxLayout *verticalLayout_11;
     QLabel *label_22;
@@ -310,19 +310,19 @@ public:
 
         verticalLayout_18->addWidget(label_15);
 
-        lineEdit_5 = new QLineEdit(tab_potential);
-        lineEdit_5->setObjectName(QStringLiteral("lineEdit_5"));
-        lineEdit_5->setEnabled(false);
-        lineEdit_5->setMaximumSize(QSize(30, 16777215));
+        lineEdit_contrastPotMin = new QLineEdit(tab_potential);
+        lineEdit_contrastPotMin->setObjectName(QStringLiteral("lineEdit_contrastPotMin"));
+        lineEdit_contrastPotMin->setEnabled(true);
+        lineEdit_contrastPotMin->setMaximumSize(QSize(60, 16777215));
 
-        verticalLayout_18->addWidget(lineEdit_5);
+        verticalLayout_18->addWidget(lineEdit_contrastPotMin);
 
-        lineEdit_6 = new QLineEdit(tab_potential);
-        lineEdit_6->setObjectName(QStringLiteral("lineEdit_6"));
-        lineEdit_6->setEnabled(false);
-        lineEdit_6->setMaximumSize(QSize(30, 16777215));
+        lineEdit_contrastPotMax = new QLineEdit(tab_potential);
+        lineEdit_contrastPotMax->setObjectName(QStringLiteral("lineEdit_contrastPotMax"));
+        lineEdit_contrastPotMax->setEnabled(true);
+        lineEdit_contrastPotMax->setMaximumSize(QSize(60, 16777215));
 
-        verticalLayout_18->addWidget(lineEdit_6);
+        verticalLayout_18->addWidget(lineEdit_contrastPotMax);
 
         label_24 = new QLabel(tab_potential);
         label_24->setObjectName(QStringLiteral("label_24"));

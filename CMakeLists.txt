@@ -24,7 +24,8 @@ set(SOURCE_FILES
         src/projectedPotential.cpp)
 
 set(GUI_SOURCE_FILES Qt/main.cpp
-        Qt/prismmainwindow.cpp)
+        Qt/prismmainwindow.cpp
+	src/prism_qthreads.cpp)
 
 if (PRISM_ENABLE_GPU)
     set(CUDA_SOURCE_FILES
@@ -72,7 +73,7 @@ if (PRISM_ENABLE_GUI)
     	set(CMAKE_AUTOUIC ON)
     	find_package(Qt5Widgets REQUIRED)
     	message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
-    	include_directories(${CMAKE_SOURCE_DIR}/Qt)
+    	include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
 endif(PRISM_ENABLE_GUI)
 if (PRISM_ENABLE_GUI AND NOT PRISM_ENABLE_GPU)
     	add_executable(prism-gui ${SOURCE_FILES} ${GUI_SOURCE_FILES})

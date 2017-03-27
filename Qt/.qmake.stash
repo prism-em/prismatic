@@ -40,3 +40,11 @@ QMAKE_CXX.COMPILER_MACROS = \
     QT_GCC_PATCH_VERSION
 QMAKE_XCODE_DEVELOPER_PATH = /Applications/Xcode.app/Contents/Developer
 QMAKE_XCODE_VERSION = 7.3.1
+QMAKE_DEFAULT_INCDIRS = \
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1 \
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/7.3.0/include \
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include \
+    /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/usr/include
+QMAKE_DEFAULT_LIBDIRS = \
+    /lib \
+    /usr/lib
