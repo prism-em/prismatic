@@ -27,6 +27,7 @@ DEFINES += PRISM_ENABLE_GPU=0
 
 SOURCES += main.cpp\
         prismmainwindow.cpp \ 
+        prism_qthreads.cpp \
     ../src/configure.cpp \
     ../src/getWorkID.cpp \
     ../src/Multislice_entry.cpp \
@@ -35,8 +36,7 @@ SOURCES += main.cpp\
     ../src/PRISM01.cpp \
     ../src/PRISM02.cpp \
     ../src/PRISM03.cpp \
-    ../src/projectedPotential.cpp \
-    ../src/prism_qthreads.cpp
+    ../src/projectedPotential.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h \
     ../include/prism_qthreads.h

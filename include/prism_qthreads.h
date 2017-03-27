@@ -14,7 +14,7 @@ class PotentialThread : public QThread {
     friend class PRISMMainWindow;
 public:
     PotentialThread(PRISMMainWindow *_parent);
-
+   // virtual ~PotentialThread();
 
 //public slots:
    // signals:
