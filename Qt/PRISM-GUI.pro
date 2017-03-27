@@ -36,13 +36,16 @@ SOURCES += main.cpp\
     ../src/PRISM01.cpp \
     ../src/PRISM02.cpp \
     ../src/PRISM03.cpp \
-    ../src/projectedPotential.cpp
+    ../src/projectedPotential.cpp \
+    prism_progressbar.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h \
-    ../include/prism_qthreads.h
+    ../include/prism_qthreads.h \
+    prism_progressbar.h
 QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \
-    prismmainwindow.ui
+    prismmainwindow.ui \
+    prism_progressbar.ui
 INCLUDEPATH += ../include \
 /usr/local/include
 INCLUDEPATH += ../

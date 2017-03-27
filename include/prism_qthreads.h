@@ -1,6 +1,7 @@
 #ifndef PRISM_QTHREADS_H
 #define PRISM_QTHREADS_H
 #include <QThread>
+#include "prism_progressbar.h"
 #include "ArrayND.h"
 #include "params.h"
 #include "defines.h"
@@ -13,8 +14,8 @@ class PotentialThread : public QThread {
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    PotentialThread(PRISMMainWindow *_parent);
-   // virtual ~PotentialThread();
+    explicit PotentialThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~PotentialThread();
 
 //public slots:
    // signals:
@@ -23,5 +24,6 @@ public:
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
 };
 #endif // PRISM_QTHREADS_H

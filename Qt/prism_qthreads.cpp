@@ -1,9 +1,10 @@
 #include "prism_qthreads.h"
+#include "prism_progressbar.h"
 #include "PRISM01.h"
 #include <iostream>
 
-PotentialThread::PotentialThread(PRISMMainWindow *_parent) :
-parent(_parent){
+PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
+parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
     this->meta = *(parent->getMetadata());
    //this->meta.interpolationFactor = 23;
@@ -16,6 +17,7 @@ parent(_parent){
 void PotentialThread::run(){
     std::cout << "Potential thread running" << std::endl;
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta);
+    //prism_progressbar *progress = new prism_progressbar(this->parent);
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     //std::cout<<"before copy this->parent->pot.at(0,0,0) = " << this->parent->pot.at(0,0,0) << std::endl;
@@ -27,4 +29,4 @@ void PotentialThread::run(){
 //    emit potentialReady(params.pot);
 }
 
-//PotentialThread::~PotentialThread(){};
+PotentialThread::~PotentialThread(){delete progressbar;}

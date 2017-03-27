@@ -6,6 +6,7 @@
 //#include "PRISM_entry.h"
 #include "configure.h"
 #include "prism_qthreads.h"
+#include "prism_progressbar.h"
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -350,14 +351,15 @@ void PRISMMainWindow::setE0_fromLineEdit(){
 }
 
 void PRISMMainWindow::calculatePotential(){
-PotentialThread *worker = new PotentialThread(this);
-std::cout <<"starting working" << std::endl;
-worker->meta.toString();
-worker->start();
-std::cout <<"worker started" << std::endl;
-connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
-connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-
+    prism_progressbar *progressbar = new prism_progressbar(this);
+    progressbar->show();
+    PotentialThread *worker = new PotentialThread(this, progressbar);
+    std::cout <<"starting working" << std::endl;
+    worker->meta.toString();
+    worker->start();
+    std::cout <<"worker started" << std::endl;
+    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 }
 
 void PRISMMainWindow::updatePotentialImage(){
