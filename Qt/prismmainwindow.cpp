@@ -52,26 +52,29 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                        padding: 0 3px 0px 3px;\
                                        }");
 
-    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
+//    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
+    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
+
     QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
     QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
     potentialScene = new QGraphicsScene(this);
     QGraphicsScene* probeScene = new QGraphicsScene(this);
     QGraphicsScene* outputScene = new QGraphicsScene(this);
-    potentialImage = potentialImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
-    //probeImage     = probeImage.scaled(ui->graphicsView_probe->width()*0.9, ui->graphicsView_probe->height()*0.9, Qt::KeepAspectRatio);
-   probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+    potentialImage = potentialImage.scaled(550,550, Qt::KeepAspectRatio);
+
+    probeImage     = probeImage.scaled(ui->graphicsView_probe->width()*0.9, ui->graphicsView_probe->height()*0.9, Qt::KeepAspectRatio);
+    probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
 
     outputImage    = outputImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
 
 
 
-   // potentialScene->addPixmap(potentialImage);
+    potentialScene->addPixmap(potentialImage);
     probeScene->addPixmap(probeImage);
     outputScene->addPixmap(outputImage);
 
 
-    //potentialScene->setSceneRect(potentialImage.rect());
+   // potentialScene->setSceneRect(potentialImage.rect());
     probeScene->setSceneRect(probeImage.rect());
     outputScene->setSceneRect(outputImage.rect());
 
@@ -84,14 +87,14 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
    // ui->graphicsView_probe->setScene(potentialScene);
     ui->graphicsView_output->setScene(outputScene);
 
-    int s = 512;
-    QImage image(s, s, QImage::Format_ARGB32);
-    for (int i = 0; i < s; ++i){
-        for (int j = 0; j < s; ++j){
-            image.setPixel(i, j,  qRgba( i, j, 0, 255));
-        }
-    }
-    potentialScene->addPixmap(QPixmap::fromImage(image));
+//    int s = 512;
+//    QImage image(s, s, QImage::Format_ARGB32);
+//    for (int i = 0; i < s; ++i){
+//        for (int j = 0; j < s; ++j){
+//            image.setPixel(i, j,  qRgba( i, j, 0, 255));
+//        }
+//    }
+//    potentialScene->addPixmap(QPixmap::fromImage(image));
    // potentialScene->setSceneRect(image.rect());
 
 	// set initially displayed values based on the default parameters
@@ -440,10 +443,18 @@ void PRISMMainWindow::updatePotentialDisplay(){
             }
         }
         potentialScene->clear();
-        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(potentialScene->width(),
-                                                                           potentialScene->height(),
-                                                                           Qt::KeepAspectRatio)));
-        //potentialScene->setSceneRect(potentialImage.rect());
+        QImage potentialImage_tmp = potentialImage.scaled(potentialScene->width(),
+                               potentialScene->height(),
+                               Qt::KeepAspectRatio);
+        potentialScene->addPixmap(QPixmap::fromImage(potentialImage_tmp));
+//        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(potentialScene->width(),
+//                                                                           potentialScene->height(),
+//                                                                           Qt::KeepAspectRatio)));
+//        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(550,
+//                                                                           550,
+//                                                                           Qt::KeepAspectRatio)));
+        potentialScene->setSceneRect(potentialImage_tmp.rect());
+       // potentialScene->setAlignment(Qt::AlignCenter);
     }
 }
 void PRISMMainWindow::updateSliders_fromLineEdits(){
