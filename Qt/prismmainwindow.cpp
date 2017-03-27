@@ -62,12 +62,12 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 
 
 
-    potentialScene->addPixmap(potentialImage);
+   // potentialScene->addPixmap(potentialImage);
     probeScene->addPixmap(probeImage);
     outputScene->addPixmap(outputImage);
 
 
-    potentialScene->setSceneRect(potentialImage.rect());
+    //potentialScene->setSceneRect(potentialImage.rect());
     probeScene->setSceneRect(probeImage.rect());
     outputScene->setSceneRect(outputImage.rect());
 
@@ -79,6 +79,16 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     ui->graphicsView_probe->setScene(probeScene);
    // ui->graphicsView_probe->setScene(potentialScene);
     ui->graphicsView_output->setScene(outputScene);
+
+    int s = 512;
+    QImage image(s, s, QImage::Format_ARGB32);
+    for (int i = 0; i < s; ++i){
+        for (int j = 0; j < s; ++j){
+            image.setPixel(i, j,  qRgba( i, j, 0, 255));
+        }
+    }
+    potentialScene->addPixmap(QPixmap::fromImage(image));
+   // potentialScene->setSceneRect(image.rect());
 
 	// set initially displayed values based on the default parameters
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;

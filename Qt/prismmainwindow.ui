@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>764</width>
-    <height>849</height>
+    <width>1000</width>
+    <height>873</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -28,7 +28,20 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_23">
           <item>
-           <widget class="QGraphicsView" name="graphicsView_potential"/>
+           <widget class="QGraphicsView" name="graphicsView_potential">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_28">
@@ -1423,30 +1436,13 @@
      </layout>
     </item>
    </layout>
-   <zorder></zorder>
-   <zorder>tabs</zorder>
-   <zorder>slider_slicemin</zorder>
-   <zorder>slider_slicemax</zorder>
-   <zorder>checkBox_sqrtIntensity1</zorder>
-   <zorder>label_15</zorder>
-   <zorder>label_16</zorder>
-   <zorder>label_17</zorder>
-   <zorder>graphics_multislice_real</zorder>
-   <zorder>graphics_multislice_fourier</zorder>
-   <zorder>graphics_prism_real</zorder>
-   <zorder>graphics_prism_fourier</zorder>
-   <zorder>label_18</zorder>
-   <zorder>label_19</zorder>
-   <zorder>label_20</zorder>
-   <zorder>label_21</zorder>
-   <zorder>label_22</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>764</width>
+     <width>1000</width>
      <height>22</height>
     </rect>
    </property>

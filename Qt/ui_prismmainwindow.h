@@ -49,12 +49,12 @@ public:
     QVBoxLayout *verticalLayout_17;
     QLabel *label_23;
     QHBoxLayout *horizontalLayout_23;
-    QLineEdit *lineEdit_3;
-    QSlider *horizontalSlider;
+    QLineEdit *lineEdit_slicemin;
+    QSlider *slider_slicemin;
     QHBoxLayout *horizontalLayout_27;
-    QLineEdit *lineEdit_4;
-    QSlider *horizontalSlider_2;
-    QCheckBox *checkBox_2;
+    QLineEdit *lineEdit_slicemax;
+    QSlider *slider_slicemax;
+    QCheckBox *checkBox_sqrtIntensity1;
     QVBoxLayout *verticalLayout_18;
     QLabel *label_15;
     QLineEdit *lineEdit_5;
@@ -80,7 +80,7 @@ public:
     QLabel *label_19;
     QGraphicsView *graphics_multislice_fourier;
     QGraphicsView *graphics_prism_fourier;
-    QCheckBox *checkBox_3;
+    QCheckBox *checkBox_sqrtIntensity2;
     QWidget *tab_output;
     QHBoxLayout *horizontalLayout_32;
     QVBoxLayout *verticalLayout_27;
@@ -89,12 +89,12 @@ public:
     QVBoxLayout *verticalLayout_24;
     QLabel *label_26;
     QHBoxLayout *horizontalLayout_25;
-    QLineEdit *lineEdit_7;
-    QSlider *horizontalSlider_3;
+    QLineEdit *lineEdit_angmin;
+    QSlider *horizontalSlider_angmin;
     QHBoxLayout *horizontalLayout_31;
-    QLineEdit *lineEdit_8;
-    QSlider *horizontalSlider_4;
-    QCheckBox *checkBox_4;
+    QLineEdit *lineEdit_angmax;
+    QSlider *slider_angmax;
+    QCheckBox *checkBox_sqrtIntensity3;
     QVBoxLayout *verticalLayout_25;
     QLabel *label_27;
     QLineEdit *lineEdit_9;
@@ -176,15 +176,15 @@ public:
     QLabel *lbl_outputfile;
     QLineEdit *lineedit_outputfile;
     QHBoxLayout *horizontalLayout_19;
-    QCheckBox *checkBox;
+    QCheckBox *checkBox_saveProjectedPotential;
     QLabel *label_12;
     QHBoxLayout *horizontalLayout_18;
-    QRadioButton *radioButton;
-    QLineEdit *lineEdit;
+    QRadioButton *radioButton_3Doutput;
+    QLineEdit *lineEdit_3Doutputang;
     QSpacerItem *horizontalSpacer;
     QHBoxLayout *horizontalLayout_17;
-    QRadioButton *radioButton_2;
-    QLineEdit *lineEdit_2;
+    QRadioButton *radioButton_4Doutput;
+    QLineEdit *lineEdit_4Doutputang;
     QSpacerItem *horizontalSpacer_2;
     QHBoxLayout *horizontalLayout_16;
     QLabel *lbl_numthreads;
@@ -200,8 +200,8 @@ public:
     QRadioButton *radBtn_Multislice;
     QSpacerItem *horizontalSpacer_4;
     QVBoxLayout *verticalLayout_15;
-    QPushButton *pushButton;
-    QPushButton *pushButton_2;
+    QPushButton *btn_calcPotential;
+    QPushButton *btn_calcSmatrix;
     QPushButton *btn_go;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -211,7 +211,7 @@ public:
     {
         if (PRISMMainWindow->objectName().isEmpty())
             PRISMMainWindow->setObjectName(QStringLiteral("PRISMMainWindow"));
-        PRISMMainWindow->resize(764, 849);
+        PRISMMainWindow->resize(1000, 873);
         centralWidget = new QWidget(PRISMMainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         horizontalLayout_24 = new QHBoxLayout(centralWidget);
@@ -231,6 +231,12 @@ public:
         verticalLayout_23->setObjectName(QStringLiteral("verticalLayout_23"));
         graphicsView_potential = new QGraphicsView(tab_potential);
         graphicsView_potential->setObjectName(QStringLiteral("graphicsView_potential"));
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(graphicsView_potential->sizePolicy().hasHeightForWidth());
+        graphicsView_potential->setSizePolicy(sizePolicy);
+        graphicsView_potential->setMaximumSize(QSize(16777215, 16777215));
 
         verticalLayout_23->addWidget(graphicsView_potential);
 
@@ -248,18 +254,18 @@ public:
         horizontalLayout_23 = new QHBoxLayout();
         horizontalLayout_23->setSpacing(6);
         horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
-        lineEdit_3 = new QLineEdit(tab_potential);
-        lineEdit_3->setObjectName(QStringLiteral("lineEdit_3"));
-        lineEdit_3->setMaximumSize(QSize(30, 16777215));
-        lineEdit_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        lineEdit_slicemin = new QLineEdit(tab_potential);
+        lineEdit_slicemin->setObjectName(QStringLiteral("lineEdit_slicemin"));
+        lineEdit_slicemin->setMaximumSize(QSize(30, 16777215));
+        lineEdit_slicemin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_23->addWidget(lineEdit_3);
+        horizontalLayout_23->addWidget(lineEdit_slicemin);
 
-        horizontalSlider = new QSlider(tab_potential);
-        horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
-        horizontalSlider->setOrientation(Qt::Horizontal);
+        slider_slicemin = new QSlider(tab_potential);
+        slider_slicemin->setObjectName(QStringLiteral("slider_slicemin"));
+        slider_slicemin->setOrientation(Qt::Horizontal);
 
-        horizontalLayout_23->addWidget(horizontalSlider);
+        horizontalLayout_23->addWidget(slider_slicemin);
 
 
         verticalLayout_17->addLayout(horizontalLayout_23);
@@ -267,26 +273,26 @@ public:
         horizontalLayout_27 = new QHBoxLayout();
         horizontalLayout_27->setSpacing(6);
         horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
-        lineEdit_4 = new QLineEdit(tab_potential);
-        lineEdit_4->setObjectName(QStringLiteral("lineEdit_4"));
-        lineEdit_4->setMaximumSize(QSize(30, 16777215));
-        lineEdit_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        lineEdit_slicemax = new QLineEdit(tab_potential);
+        lineEdit_slicemax->setObjectName(QStringLiteral("lineEdit_slicemax"));
+        lineEdit_slicemax->setMaximumSize(QSize(30, 16777215));
+        lineEdit_slicemax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_27->addWidget(lineEdit_4);
+        horizontalLayout_27->addWidget(lineEdit_slicemax);
 
-        horizontalSlider_2 = new QSlider(tab_potential);
-        horizontalSlider_2->setObjectName(QStringLiteral("horizontalSlider_2"));
-        horizontalSlider_2->setOrientation(Qt::Horizontal);
+        slider_slicemax = new QSlider(tab_potential);
+        slider_slicemax->setObjectName(QStringLiteral("slider_slicemax"));
+        slider_slicemax->setOrientation(Qt::Horizontal);
 
-        horizontalLayout_27->addWidget(horizontalSlider_2);
+        horizontalLayout_27->addWidget(slider_slicemax);
 
 
         verticalLayout_17->addLayout(horizontalLayout_27);
 
-        checkBox_2 = new QCheckBox(tab_potential);
-        checkBox_2->setObjectName(QStringLiteral("checkBox_2"));
+        checkBox_sqrtIntensity1 = new QCheckBox(tab_potential);
+        checkBox_sqrtIntensity1->setObjectName(QStringLiteral("checkBox_sqrtIntensity1"));
 
-        verticalLayout_17->addWidget(checkBox_2);
+        verticalLayout_17->addWidget(checkBox_sqrtIntensity1);
 
 
         horizontalLayout_28->addLayout(verticalLayout_17);
@@ -430,10 +436,10 @@ public:
 
         verticalLayout_22->addLayout(horizontalLayout_26);
 
-        checkBox_3 = new QCheckBox(tab_probe);
-        checkBox_3->setObjectName(QStringLiteral("checkBox_3"));
+        checkBox_sqrtIntensity2 = new QCheckBox(tab_probe);
+        checkBox_sqrtIntensity2->setObjectName(QStringLiteral("checkBox_sqrtIntensity2"));
 
-        verticalLayout_22->addWidget(checkBox_3);
+        verticalLayout_22->addWidget(checkBox_sqrtIntensity2);
 
         tabs->addTab(tab_probe, QString());
         tab_output = new QWidget();
@@ -464,18 +470,18 @@ public:
         horizontalLayout_25 = new QHBoxLayout();
         horizontalLayout_25->setSpacing(6);
         horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
-        lineEdit_7 = new QLineEdit(tab_output);
-        lineEdit_7->setObjectName(QStringLiteral("lineEdit_7"));
-        lineEdit_7->setMaximumSize(QSize(30, 16777215));
-        lineEdit_7->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        lineEdit_angmin = new QLineEdit(tab_output);
+        lineEdit_angmin->setObjectName(QStringLiteral("lineEdit_angmin"));
+        lineEdit_angmin->setMaximumSize(QSize(30, 16777215));
+        lineEdit_angmin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_25->addWidget(lineEdit_7);
+        horizontalLayout_25->addWidget(lineEdit_angmin);
 
-        horizontalSlider_3 = new QSlider(tab_output);
-        horizontalSlider_3->setObjectName(QStringLiteral("horizontalSlider_3"));
-        horizontalSlider_3->setOrientation(Qt::Horizontal);
+        horizontalSlider_angmin = new QSlider(tab_output);
+        horizontalSlider_angmin->setObjectName(QStringLiteral("horizontalSlider_angmin"));
+        horizontalSlider_angmin->setOrientation(Qt::Horizontal);
 
-        horizontalLayout_25->addWidget(horizontalSlider_3);
+        horizontalLayout_25->addWidget(horizontalSlider_angmin);
 
 
         verticalLayout_24->addLayout(horizontalLayout_25);
@@ -483,26 +489,26 @@ public:
         horizontalLayout_31 = new QHBoxLayout();
         horizontalLayout_31->setSpacing(6);
         horizontalLayout_31->setObjectName(QStringLiteral("horizontalLayout_31"));
-        lineEdit_8 = new QLineEdit(tab_output);
-        lineEdit_8->setObjectName(QStringLiteral("lineEdit_8"));
-        lineEdit_8->setMaximumSize(QSize(30, 16777215));
-        lineEdit_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        lineEdit_angmax = new QLineEdit(tab_output);
+        lineEdit_angmax->setObjectName(QStringLiteral("lineEdit_angmax"));
+        lineEdit_angmax->setMaximumSize(QSize(30, 16777215));
+        lineEdit_angmax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_31->addWidget(lineEdit_8);
+        horizontalLayout_31->addWidget(lineEdit_angmax);
 
-        horizontalSlider_4 = new QSlider(tab_output);
-        horizontalSlider_4->setObjectName(QStringLiteral("horizontalSlider_4"));
-        horizontalSlider_4->setOrientation(Qt::Horizontal);
+        slider_angmax = new QSlider(tab_output);
+        slider_angmax->setObjectName(QStringLiteral("slider_angmax"));
+        slider_angmax->setOrientation(Qt::Horizontal);
 
-        horizontalLayout_31->addWidget(horizontalSlider_4);
+        horizontalLayout_31->addWidget(slider_angmax);
 
 
         verticalLayout_24->addLayout(horizontalLayout_31);
 
-        checkBox_4 = new QCheckBox(tab_output);
-        checkBox_4->setObjectName(QStringLiteral("checkBox_4"));
+        checkBox_sqrtIntensity3 = new QCheckBox(tab_output);
+        checkBox_sqrtIntensity3->setObjectName(QStringLiteral("checkBox_sqrtIntensity3"));
 
-        verticalLayout_24->addWidget(checkBox_4);
+        verticalLayout_24->addWidget(checkBox_sqrtIntensity3);
 
 
         horizontalLayout_30->addLayout(verticalLayout_24);
@@ -576,9 +582,6 @@ public:
         verticalLayout_16->setObjectName(QStringLiteral("verticalLayout_16"));
         box_sampleSettings = new QGroupBox(centralWidget);
         box_sampleSettings->setObjectName(QStringLiteral("box_sampleSettings"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(box_sampleSettings->sizePolicy().hasHeightForWidth());
         box_sampleSettings->setSizePolicy(sizePolicy);
         horizontalLayout_13 = new QHBoxLayout(box_sampleSettings);
@@ -1021,10 +1024,10 @@ public:
         horizontalLayout_19 = new QHBoxLayout();
         horizontalLayout_19->setSpacing(6);
         horizontalLayout_19->setObjectName(QStringLiteral("horizontalLayout_19"));
-        checkBox = new QCheckBox(box_calculationSettings);
-        checkBox->setObjectName(QStringLiteral("checkBox"));
+        checkBox_saveProjectedPotential = new QCheckBox(box_calculationSettings);
+        checkBox_saveProjectedPotential->setObjectName(QStringLiteral("checkBox_saveProjectedPotential"));
 
-        horizontalLayout_19->addWidget(checkBox);
+        horizontalLayout_19->addWidget(checkBox_saveProjectedPotential);
 
         label_12 = new QLabel(box_calculationSettings);
         label_12->setObjectName(QStringLiteral("label_12"));
@@ -1037,16 +1040,16 @@ public:
         horizontalLayout_18 = new QHBoxLayout();
         horizontalLayout_18->setSpacing(6);
         horizontalLayout_18->setObjectName(QStringLiteral("horizontalLayout_18"));
-        radioButton = new QRadioButton(box_calculationSettings);
-        radioButton->setObjectName(QStringLiteral("radioButton"));
+        radioButton_3Doutput = new QRadioButton(box_calculationSettings);
+        radioButton_3Doutput->setObjectName(QStringLiteral("radioButton_3Doutput"));
 
-        horizontalLayout_18->addWidget(radioButton);
+        horizontalLayout_18->addWidget(radioButton_3Doutput);
 
-        lineEdit = new QLineEdit(box_calculationSettings);
-        lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setMaximumSize(QSize(30, 16777215));
+        lineEdit_3Doutputang = new QLineEdit(box_calculationSettings);
+        lineEdit_3Doutputang->setObjectName(QStringLiteral("lineEdit_3Doutputang"));
+        lineEdit_3Doutputang->setMaximumSize(QSize(30, 16777215));
 
-        horizontalLayout_18->addWidget(lineEdit);
+        horizontalLayout_18->addWidget(lineEdit_3Doutputang);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1058,16 +1061,16 @@ public:
         horizontalLayout_17 = new QHBoxLayout();
         horizontalLayout_17->setSpacing(6);
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
-        radioButton_2 = new QRadioButton(box_calculationSettings);
-        radioButton_2->setObjectName(QStringLiteral("radioButton_2"));
+        radioButton_4Doutput = new QRadioButton(box_calculationSettings);
+        radioButton_4Doutput->setObjectName(QStringLiteral("radioButton_4Doutput"));
 
-        horizontalLayout_17->addWidget(radioButton_2);
+        horizontalLayout_17->addWidget(radioButton_4Doutput);
 
-        lineEdit_2 = new QLineEdit(box_calculationSettings);
-        lineEdit_2->setObjectName(QStringLiteral("lineEdit_2"));
-        lineEdit_2->setMaximumSize(QSize(30, 16777215));
+        lineEdit_4Doutputang = new QLineEdit(box_calculationSettings);
+        lineEdit_4Doutputang->setObjectName(QStringLiteral("lineEdit_4Doutputang"));
+        lineEdit_4Doutputang->setMaximumSize(QSize(30, 16777215));
 
-        horizontalLayout_17->addWidget(lineEdit_2);
+        horizontalLayout_17->addWidget(lineEdit_4Doutputang);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1151,21 +1154,21 @@ public:
         verticalLayout_15 = new QVBoxLayout();
         verticalLayout_15->setSpacing(6);
         verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
-        pushButton = new QPushButton(box_calculationSettings);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setMinimumSize(QSize(0, 50));
+        btn_calcPotential = new QPushButton(box_calculationSettings);
+        btn_calcPotential->setObjectName(QStringLiteral("btn_calcPotential"));
+        btn_calcPotential->setMinimumSize(QSize(0, 50));
         QFont font;
         font.setPointSize(14);
-        pushButton->setFont(font);
+        btn_calcPotential->setFont(font);
 
-        verticalLayout_15->addWidget(pushButton);
+        verticalLayout_15->addWidget(btn_calcPotential);
 
-        pushButton_2 = new QPushButton(box_calculationSettings);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
-        pushButton_2->setMinimumSize(QSize(0, 50));
-        pushButton_2->setFont(font);
+        btn_calcSmatrix = new QPushButton(box_calculationSettings);
+        btn_calcSmatrix->setObjectName(QStringLiteral("btn_calcSmatrix"));
+        btn_calcSmatrix->setMinimumSize(QSize(0, 50));
+        btn_calcSmatrix->setFont(font);
 
-        verticalLayout_15->addWidget(pushButton_2);
+        verticalLayout_15->addWidget(btn_calcSmatrix);
 
         btn_go = new QPushButton(box_calculationSettings);
         btn_go->setObjectName(QStringLiteral("btn_go"));
@@ -1187,25 +1190,9 @@ public:
         horizontalLayout_24->addLayout(verticalLayout_16);
 
         PRISMMainWindow->setCentralWidget(centralWidget);
-        tabs->raise();
-        horizontalSlider->raise();
-        horizontalSlider_2->raise();
-        checkBox_2->raise();
-        label_15->raise();
-        label_16->raise();
-        label_17->raise();
-        graphics_multislice_real->raise();
-        graphics_multislice_fourier->raise();
-        graphics_prism_real->raise();
-        graphics_prism_fourier->raise();
-        label_18->raise();
-        label_19->raise();
-        label_20->raise();
-        label_21->raise();
-        label_22->raise();
         menuBar = new QMenuBar(PRISMMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 764, 22));
+        menuBar->setGeometry(QRect(0, 0, 1000, 22));
         PRISMMainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(PRISMMainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -1216,7 +1203,7 @@ public:
 
         retranslateUi(PRISMMainWindow);
 
-        tabs->setCurrentIndex(2);
+        tabs->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(PRISMMainWindow);
@@ -1225,8 +1212,8 @@ public:
     void retranslateUi(QMainWindow *PRISMMainWindow)
     {
         PRISMMainWindow->setWindowTitle(QApplication::translate("PRISMMainWindow", "PRISMMainWindow", Q_NULLPTR));
-        label_23->setText(QString());
-        checkBox_2->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        label_23->setText(QApplication::translate("PRISMMainWindow", "Slice min/max", Q_NULLPTR));
+        checkBox_sqrtIntensity1->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
         label_15->setText(QApplication::translate("PRISMMainWindow", "Contrast", Q_NULLPTR));
         label_24->setText(QString());
         label_22->setText(QString());
@@ -1238,10 +1225,10 @@ public:
         label_21->setText(QApplication::translate("PRISMMainWindow", "PRISM", Q_NULLPTR));
         label_18->setText(QApplication::translate("PRISMMainWindow", "Realspace", Q_NULLPTR));
         label_19->setText(QApplication::translate("PRISMMainWindow", "Fourier Space", Q_NULLPTR));
-        checkBox_3->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        checkBox_sqrtIntensity2->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
         tabs->setTabText(tabs->indexOf(tab_probe), QApplication::translate("PRISMMainWindow", "Probe", Q_NULLPTR));
-        label_26->setText(QString());
-        checkBox_4->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
+        label_26->setText(QApplication::translate("PRISMMainWindow", "Angle min/max", Q_NULLPTR));
+        checkBox_sqrtIntensity3->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
         label_27->setText(QApplication::translate("PRISMMainWindow", "Contrast", Q_NULLPTR));
         label_28->setText(QString());
         label_29->setText(QString());
@@ -1283,17 +1270,17 @@ public:
         label_14->setText(QApplication::translate("PRISMMainWindow", "Y", Q_NULLPTR));
         box_calculationSettings->setTitle(QApplication::translate("PRISMMainWindow", "Calculation Settings", Q_NULLPTR));
         lbl_outputfile->setText(QApplication::translate("PRISMMainWindow", "Output File", Q_NULLPTR));
-        checkBox->setText(QApplication::translate("PRISMMainWindow", "Save projected potentials", Q_NULLPTR));
+        checkBox_saveProjectedPotential->setText(QApplication::translate("PRISMMainWindow", "Save projected potentials", Q_NULLPTR));
         label_12->setText(QString());
-        radioButton->setText(QApplication::translate("PRISMMainWindow", "3D output, step size (mrad)", Q_NULLPTR));
-        radioButton_2->setText(QApplication::translate("PRISMMainWindow", "4D output, step size (mrad)", Q_NULLPTR));
+        radioButton_3Doutput->setText(QApplication::translate("PRISMMainWindow", "3D output, step size (mrad)", Q_NULLPTR));
+        radioButton_4Doutput->setText(QApplication::translate("PRISMMainWindow", "4D output, step size (mrad)", Q_NULLPTR));
         lbl_numthreads->setText(QApplication::translate("PRISMMainWindow", "Num Threads", Q_NULLPTR));
         lbl_numgpus->setText(QApplication::translate("PRISMMainWindow", "Num GPUs", Q_NULLPTR));
         lbl_algo->setText(QApplication::translate("PRISMMainWindow", "Algorithm", Q_NULLPTR));
         radBtn_PRISM->setText(QApplication::translate("PRISMMainWindow", "PRISM", Q_NULLPTR));
         radBtn_Multislice->setText(QApplication::translate("PRISMMainWindow", "Multislice", Q_NULLPTR));
-        pushButton->setText(QApplication::translate("PRISMMainWindow", "Calculate Potentials", Q_NULLPTR));
-        pushButton_2->setText(QApplication::translate("PRISMMainWindow", "Calculate S-matrix", Q_NULLPTR));
+        btn_calcPotential->setText(QApplication::translate("PRISMMainWindow", "Calculate Potentials", Q_NULLPTR));
+        btn_calcSmatrix->setText(QApplication::translate("PRISMMainWindow", "Calculate S-matrix", Q_NULLPTR));
         btn_go->setText(QApplication::translate("PRISMMainWindow", "Full Calculation", Q_NULLPTR));
     } // retranslateUi
 
