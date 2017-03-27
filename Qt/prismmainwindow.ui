@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -59,13 +59,16 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_slicemin">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -75,7 +78,7 @@
                 <item>
                  <widget class="QSlider" name="slider_slicemin">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -89,13 +92,16 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_slicemax">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>30</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -105,7 +111,7 @@
                 <item>
                  <widget class="QSlider" name="slider_slicemax">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>

@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QMutex>
+#include <QImage>
+#include <QPixmap>
 #include <iostream>
 #include <complex>
 #include "meta.h"
@@ -27,13 +29,6 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
-   // PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
-  //  PRISM::Array3D<PRISM_FLOAT_PRECISION> pot;
-  //  PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-  //  PRISM::Array4D<PRISM_FLOAT_PRECISION> stack;
-  //  QMutex potentialLock;
-   // QMutex stackLock;
-   // QMutex ScompactLock;
 
 public slots:
 	void setInterpolationFactor();
@@ -55,6 +50,10 @@ public slots:
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
+    void updatePotentialImage();
+    void updateSliders_fromLineEdits();
+    void updateSlider_lineEdits_min(int);
+    void updateSlider_lineEdits_max(int);
 //    void testImage();
 
 protected:
@@ -76,7 +75,7 @@ protected:
 	void setAlgo(const PRISM::Algorithm algo);
 
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
-    PRISM::Array3D<PRISM_FLOAT_PRECISION> pot;
+    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
     PRISM::Array4D<PRISM_FLOAT_PRECISION> stack;
     QMutex potentialLock;
@@ -84,6 +83,9 @@ protected:
     bool potentialReady;
     //bool ScompactReady;
     //bool stackReady;
+
+    QImage potentialImage;
+//    QImage potenetialImage;
 
 
 };

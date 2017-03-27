@@ -23,7 +23,7 @@ namespace PRISM{
 			potBound = 1.0;
 			numFP = 8.0 / 8.0;
 			sliceThickness = 2;
-			cellDim = std::vector<size_t>{1,1,1}; // this is z,y,x format
+			cellDim = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
 			E0 = 80e3;
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;

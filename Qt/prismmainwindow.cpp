@@ -10,7 +10,8 @@
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PRISMMainWindow),
-    potentialReady(false)
+    potentialReady(false),
+    potentialImage(QImage())
 {
 	// build Qt generated interface
     ui->setupUi(this);
@@ -160,6 +161,11 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
+    connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
+    connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
+    connect(this->ui->slider_slicemin, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_min(int)));
+    connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max(int)));
+
 
 //    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
@@ -345,10 +351,45 @@ std::cout <<"starting working" << std::endl;
 worker->meta.toString();
 worker->start();
 std::cout <<"worker started" << std::endl;
+connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
 connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+
 }
 
+void PRISMMainWindow::updatePotentialImage(){
+    std::cout << "updatePotentialImage called" << std::endl;
+    if (potentialReady){
+        potentialImage = QImage(potential.get_dimj(), potential.get_dimi(), QImage::Format_Grayscale8);
+        this->ui->slider_slicemin->setMinimum(0);
+        this->ui->slider_slicemax->setMinimum(0);
+        this->ui->slider_slicemin->setMaximum(potential.get_dimk());
+        this->ui->slider_slicemax->setMaximum(potential.get_dimk());
+        this->ui->slider_slicemax->setValue(potential.get_dimk());
+    }
+}
 
+void PRISMMainWindow::updateSliders_fromLineEdits(){
+    this->ui->slider_slicemin->setValue(std::min(this->ui->lineEdit_slicemin->text().toInt(),
+                                                 this->ui->slider_slicemax->value()));
+    this->ui->slider_slicemax->setValue(std::max(this->ui->lineEdit_slicemax->text().toInt(),
+                                                 this->ui->slider_slicemin->value()));
+}
+
+void PRISMMainWindow::updateSlider_lineEdits_min(int val){
+    if (val <= this->ui->slider_slicemax->value()){
+        this->ui->lineEdit_slicemin->setText(QString::number(val));
+    } else {
+        this->ui->slider_slicemin->setValue(this->ui->slider_slicemax->value());
+    }
+}
+
+void PRISMMainWindow::updateSlider_lineEdits_max(int val){
+    if (val >= this->ui->slider_slicemin->value()){
+        this->ui->lineEdit_slicemax->setText(QString::number(val));
+    } else {
+        this->ui->slider_slicemax->setValue(this->ui->slider_slicemin->value());
+    }
+}
 
 PRISMMainWindow::~PRISMMainWindow()
 {

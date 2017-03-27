@@ -256,7 +256,7 @@ public:
         horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
         lineEdit_slicemin = new QLineEdit(tab_potential);
         lineEdit_slicemin->setObjectName(QStringLiteral("lineEdit_slicemin"));
-        lineEdit_slicemin->setEnabled(false);
+        lineEdit_slicemin->setEnabled(true);
         lineEdit_slicemin->setMaximumSize(QSize(30, 16777215));
         lineEdit_slicemin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -264,7 +264,7 @@ public:
 
         slider_slicemin = new QSlider(tab_potential);
         slider_slicemin->setObjectName(QStringLiteral("slider_slicemin"));
-        slider_slicemin->setEnabled(false);
+        slider_slicemin->setEnabled(true);
         slider_slicemin->setOrientation(Qt::Horizontal);
 
         horizontalLayout_23->addWidget(slider_slicemin);
@@ -277,7 +277,7 @@ public:
         horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
         lineEdit_slicemax = new QLineEdit(tab_potential);
         lineEdit_slicemax->setObjectName(QStringLiteral("lineEdit_slicemax"));
-        lineEdit_slicemax->setEnabled(false);
+        lineEdit_slicemax->setEnabled(true);
         lineEdit_slicemax->setMaximumSize(QSize(30, 16777215));
         lineEdit_slicemax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -285,7 +285,7 @@ public:
 
         slider_slicemax = new QSlider(tab_potential);
         slider_slicemax->setObjectName(QStringLiteral("slider_slicemax"));
-        slider_slicemax->setEnabled(false);
+        slider_slicemax->setEnabled(true);
         slider_slicemax->setOrientation(Qt::Horizontal);
 
         horizontalLayout_27->addWidget(slider_slicemax);
@@ -1227,7 +1227,7 @@ public:
 
         retranslateUi(PRISMMainWindow);
 
-        tabs->setCurrentIndex(2);
+        tabs->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(PRISMMainWindow);
@@ -1237,6 +1237,8 @@ public:
     {
         PRISMMainWindow->setWindowTitle(QApplication::translate("PRISMMainWindow", "PRISMMainWindow", Q_NULLPTR));
         label_23->setText(QApplication::translate("PRISMMainWindow", "Slice min/max", Q_NULLPTR));
+        lineEdit_slicemin->setText(QApplication::translate("PRISMMainWindow", "0", Q_NULLPTR));
+        lineEdit_slicemax->setText(QApplication::translate("PRISMMainWindow", "0", Q_NULLPTR));
         checkBox_sqrtIntensity1->setText(QApplication::translate("PRISMMainWindow", "Square Root Intensity", Q_NULLPTR));
         label_15->setText(QApplication::translate("PRISMMainWindow", "Contrast", Q_NULLPTR));
         label_24->setText(QString());
