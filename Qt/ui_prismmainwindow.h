@@ -256,6 +256,7 @@ public:
         horizontalLayout_23->setObjectName(QStringLiteral("horizontalLayout_23"));
         lineEdit_slicemin = new QLineEdit(tab_potential);
         lineEdit_slicemin->setObjectName(QStringLiteral("lineEdit_slicemin"));
+        lineEdit_slicemin->setEnabled(false);
         lineEdit_slicemin->setMaximumSize(QSize(30, 16777215));
         lineEdit_slicemin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -263,6 +264,7 @@ public:
 
         slider_slicemin = new QSlider(tab_potential);
         slider_slicemin->setObjectName(QStringLiteral("slider_slicemin"));
+        slider_slicemin->setEnabled(false);
         slider_slicemin->setOrientation(Qt::Horizontal);
 
         horizontalLayout_23->addWidget(slider_slicemin);
@@ -275,6 +277,7 @@ public:
         horizontalLayout_27->setObjectName(QStringLiteral("horizontalLayout_27"));
         lineEdit_slicemax = new QLineEdit(tab_potential);
         lineEdit_slicemax->setObjectName(QStringLiteral("lineEdit_slicemax"));
+        lineEdit_slicemax->setEnabled(false);
         lineEdit_slicemax->setMaximumSize(QSize(30, 16777215));
         lineEdit_slicemax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -282,6 +285,7 @@ public:
 
         slider_slicemax = new QSlider(tab_potential);
         slider_slicemax->setObjectName(QStringLiteral("slider_slicemax"));
+        slider_slicemax->setEnabled(false);
         slider_slicemax->setOrientation(Qt::Horizontal);
 
         horizontalLayout_27->addWidget(slider_slicemax);
@@ -291,6 +295,7 @@ public:
 
         checkBox_sqrtIntensity1 = new QCheckBox(tab_potential);
         checkBox_sqrtIntensity1->setObjectName(QStringLiteral("checkBox_sqrtIntensity1"));
+        checkBox_sqrtIntensity1->setEnabled(false);
 
         verticalLayout_17->addWidget(checkBox_sqrtIntensity1);
 
@@ -307,12 +312,14 @@ public:
 
         lineEdit_5 = new QLineEdit(tab_potential);
         lineEdit_5->setObjectName(QStringLiteral("lineEdit_5"));
+        lineEdit_5->setEnabled(false);
         lineEdit_5->setMaximumSize(QSize(30, 16777215));
 
         verticalLayout_18->addWidget(lineEdit_5);
 
         lineEdit_6 = new QLineEdit(tab_potential);
         lineEdit_6->setObjectName(QStringLiteral("lineEdit_6"));
+        lineEdit_6->setEnabled(false);
         lineEdit_6->setMaximumSize(QSize(30, 16777215));
 
         verticalLayout_18->addWidget(lineEdit_6);
@@ -438,6 +445,7 @@ public:
 
         checkBox_sqrtIntensity2 = new QCheckBox(tab_probe);
         checkBox_sqrtIntensity2->setObjectName(QStringLiteral("checkBox_sqrtIntensity2"));
+        checkBox_sqrtIntensity2->setEnabled(false);
 
         verticalLayout_22->addWidget(checkBox_sqrtIntensity2);
 
@@ -472,6 +480,7 @@ public:
         horizontalLayout_25->setObjectName(QStringLiteral("horizontalLayout_25"));
         lineEdit_angmin = new QLineEdit(tab_output);
         lineEdit_angmin->setObjectName(QStringLiteral("lineEdit_angmin"));
+        lineEdit_angmin->setEnabled(false);
         lineEdit_angmin->setMaximumSize(QSize(30, 16777215));
         lineEdit_angmin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -479,6 +488,7 @@ public:
 
         horizontalSlider_angmin = new QSlider(tab_output);
         horizontalSlider_angmin->setObjectName(QStringLiteral("horizontalSlider_angmin"));
+        horizontalSlider_angmin->setEnabled(false);
         horizontalSlider_angmin->setOrientation(Qt::Horizontal);
 
         horizontalLayout_25->addWidget(horizontalSlider_angmin);
@@ -491,6 +501,7 @@ public:
         horizontalLayout_31->setObjectName(QStringLiteral("horizontalLayout_31"));
         lineEdit_angmax = new QLineEdit(tab_output);
         lineEdit_angmax->setObjectName(QStringLiteral("lineEdit_angmax"));
+        lineEdit_angmax->setEnabled(false);
         lineEdit_angmax->setMaximumSize(QSize(30, 16777215));
         lineEdit_angmax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -498,6 +509,7 @@ public:
 
         slider_angmax = new QSlider(tab_output);
         slider_angmax->setObjectName(QStringLiteral("slider_angmax"));
+        slider_angmax->setEnabled(false);
         slider_angmax->setOrientation(Qt::Horizontal);
 
         horizontalLayout_31->addWidget(slider_angmax);
@@ -507,6 +519,7 @@ public:
 
         checkBox_sqrtIntensity3 = new QCheckBox(tab_output);
         checkBox_sqrtIntensity3->setObjectName(QStringLiteral("checkBox_sqrtIntensity3"));
+        checkBox_sqrtIntensity3->setEnabled(false);
 
         verticalLayout_24->addWidget(checkBox_sqrtIntensity3);
 
@@ -523,12 +536,14 @@ public:
 
         lineEdit_9 = new QLineEdit(tab_output);
         lineEdit_9->setObjectName(QStringLiteral("lineEdit_9"));
+        lineEdit_9->setEnabled(false);
         lineEdit_9->setMaximumSize(QSize(30, 16777215));
 
         verticalLayout_25->addWidget(lineEdit_9);
 
         lineEdit_10 = new QLineEdit(tab_output);
         lineEdit_10->setObjectName(QStringLiteral("lineEdit_10"));
+        lineEdit_10->setEnabled(false);
         lineEdit_10->setMaximumSize(QSize(30, 16777215));
 
         verticalLayout_25->addWidget(lineEdit_10);
@@ -661,6 +676,7 @@ public:
 
         lineEdit_tileX = new QLineEdit(box_sampleSettings);
         lineEdit_tileX->setObjectName(QStringLiteral("lineEdit_tileX"));
+        lineEdit_tileX->setEnabled(false);
         lineEdit_tileX->setMaximumSize(QSize(40, 16777215));
         lineEdit_tileX->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -690,6 +706,7 @@ public:
 
         lineEdit_tileY = new QLineEdit(box_sampleSettings);
         lineEdit_tileY->setObjectName(QStringLiteral("lineEdit_tileY"));
+        lineEdit_tileY->setEnabled(false);
         lineEdit_tileY->setMaximumSize(QSize(40, 16777215));
         lineEdit_tileY->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -719,6 +736,7 @@ public:
 
         lineEdit_tileZ = new QLineEdit(box_sampleSettings);
         lineEdit_tileZ->setObjectName(QStringLiteral("lineEdit_tileZ"));
+        lineEdit_tileZ->setEnabled(false);
         lineEdit_tileZ->setMaximumSize(QSize(40, 16777215));
         lineEdit_tileZ->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -889,6 +907,7 @@ public:
 
         spinBox_numFP = new QSpinBox(box_simulationSettings);
         spinBox_numFP->setObjectName(QStringLiteral("spinBox_numFP"));
+        spinBox_numFP->setEnabled(false);
         spinBox_numFP->setMaximumSize(QSize(40, 16777215));
         spinBox_numFP->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
@@ -975,6 +994,7 @@ public:
 
         lineedit_interpFactor_y = new QLineEdit(box_simulationSettings);
         lineedit_interpFactor_y->setObjectName(QStringLiteral("lineedit_interpFactor_y"));
+        lineedit_interpFactor_y->setEnabled(false);
         lineedit_interpFactor_y->setMaximumSize(QSize(30, 16777215));
 
         verticalLayout_8->addWidget(lineedit_interpFactor_y);
@@ -1063,11 +1083,13 @@ public:
         horizontalLayout_17->setObjectName(QStringLiteral("horizontalLayout_17"));
         radioButton_4Doutput = new QRadioButton(box_calculationSettings);
         radioButton_4Doutput->setObjectName(QStringLiteral("radioButton_4Doutput"));
+        radioButton_4Doutput->setEnabled(false);
 
         horizontalLayout_17->addWidget(radioButton_4Doutput);
 
         lineEdit_4Doutputang = new QLineEdit(box_calculationSettings);
         lineEdit_4Doutputang->setObjectName(QStringLiteral("lineEdit_4Doutputang"));
+        lineEdit_4Doutputang->setEnabled(false);
         lineEdit_4Doutputang->setMaximumSize(QSize(30, 16777215));
 
         horizontalLayout_17->addWidget(lineEdit_4Doutputang);
@@ -1156,6 +1178,7 @@ public:
         verticalLayout_15->setObjectName(QStringLiteral("verticalLayout_15"));
         btn_calcPotential = new QPushButton(box_calculationSettings);
         btn_calcPotential->setObjectName(QStringLiteral("btn_calcPotential"));
+        btn_calcPotential->setEnabled(true);
         btn_calcPotential->setMinimumSize(QSize(0, 50));
         QFont font;
         font.setPointSize(14);
@@ -1165,6 +1188,7 @@ public:
 
         btn_calcSmatrix = new QPushButton(box_calculationSettings);
         btn_calcSmatrix->setObjectName(QStringLiteral("btn_calcSmatrix"));
+        btn_calcSmatrix->setEnabled(false);
         btn_calcSmatrix->setMinimumSize(QSize(0, 50));
         btn_calcSmatrix->setFont(font);
 
@@ -1203,7 +1227,7 @@ public:
 
         retranslateUi(PRISMMainWindow);
 
-        tabs->setCurrentIndex(0);
+        tabs->setCurrentIndex(2);
 
 
         QMetaObject::connectSlotsByName(PRISMMainWindow);

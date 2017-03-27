@@ -4,6 +4,9 @@
 
 #ifndef PRISM_DEFINES_H
 #define PRISM_DEFINES_H
+
+#undef PRISM_ENABLE_GPU
+
 namespace PRISM {
 
 	enum class Algorithm {

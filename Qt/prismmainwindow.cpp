@@ -5,10 +5,12 @@
 #include <iostream>
 //#include "PRISM_entry.h"
 #include "configure.h"
+#include "prism_qthreads.h"
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::PRISMMainWindow)
+    ui(new Ui::PRISMMainWindow),
+    potentialReady(false)
 {
 	// build Qt generated interface
     ui->setupUi(this);
@@ -51,7 +53,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
     QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
     QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
-    QGraphicsScene* potentialScene = new QGraphicsScene(this);
+    potentialScene = new QGraphicsScene(this);
     QGraphicsScene* probeScene = new QGraphicsScene(this);
     QGraphicsScene* outputScene = new QGraphicsScene(this);
     potentialImage = potentialImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
@@ -157,8 +159,26 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
+    connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
+
+//    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
 }
+
+//    void PRISMMainWindow::testImage(){
+//        static int offset = 0;
+//        std::cout << "offset = " << offset << std::endl;
+
+//        int s = 1024;
+//        QImage image(s, s, QImage::Format_ARGB32);
+//        for (int i = 0; i < s; ++i){
+//            for (int j = 0; j < s; ++j){
+//                image.setPixel(i, j,  qRgba(i + offset, j + offset, offset, 255));
+//            }
+//        }
+//        offset++;
+//        this->potentialScene->addPixmap(QPixmap::fromImage(image));
+//    }
 
 
 void PRISMMainWindow::setAlgo_PRISM(){
@@ -219,13 +239,15 @@ void PRISMMainWindow::launch(){
 	std::cout << "Output filename = " << this->meta->filename_output << '\n';
 	std::cout << "Interpolation factor = " << this->meta->interpolationFactor << '\n';
 	std::cout << "pixelSize[0] = " << this->meta->realspace_pixelSize<< '\n';
-	PRISM::configure(*this->meta);
+
+    PRISM::configure(*this->meta);
 	int returnCode =  PRISM::execute_plan(*this->meta);
 	if (returnCode == 0){
 		std::cout << "Calculation complete" << std::endl;
 	} else {
 		std::cout << "Calculation returned error code " << returnCode << std::endl;
 	}
+
 }
 
 void PRISMMainWindow::setNumGPUs(const int& num){
@@ -317,6 +339,14 @@ void PRISMMainWindow::setE0_fromLineEdit(){
     }
 }
 
+void PRISMMainWindow::calculatePotential(){
+PotentialThread *worker = new PotentialThread(this);
+std::cout <<"starting working" << std::endl;
+worker->meta.toString();
+worker->start();
+std::cout <<"worker started" << std::endl;
+connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+}
 
 
 

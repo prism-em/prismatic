@@ -22,16 +22,37 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+#hardcoded!
+DEFINES += PRISM_ENABLE_GPU=0
 
 SOURCES += main.cpp\
-        prismmainwindow.cpp 
+        prismmainwindow.cpp \ 
+    ../src/configure.cpp \
+    ../src/getWorkID.cpp \
+    ../src/Multislice_entry.cpp \
+    ../src/Multislice.cpp \
+    ../src/PRISM_entry.cpp \
+    ../src/PRISM01.cpp \
+    ../src/PRISM02.cpp \
+    ../src/PRISM03.cpp \
+    ../src/projectedPotential.cpp \
+    ../src/prism_qthreads.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
-HEADERS  += prismmainwindow.h
+HEADERS  += prismmainwindow.h \
+    ../include/prism_qthreads.h
 QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \
     prismmainwindow.ui
-INCLUDEPATH += ../include
+INCLUDEPATH += ../include \
+/usr/local/include
 INCLUDEPATH += ../
-INCLUDEPATH += /usr/local/include /Developer/NVIDIA/CUDA-8.0/include/
+INCLUDEPATH += ../include/boost/
+#INCLUDEPATH += /usr/local/include /Developer/NVIDIA/CUDA-8.0/include/
 QMAKE_LFLAGS += -F /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt
-LIBS += -lprism_shared -L.
+#LIBS += -lprism_shared -L.
+
+#DISTFILES += \
+#    ../src/Multislice.cu \
+#    ../src/PRISM02.cu \
+#    ../src/PRISM03.cu \
+#    ../src/utility.cu

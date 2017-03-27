@@ -7,12 +7,14 @@
 #include <vector>
 #include <string>
 #include <cstddef>
+#include <iostream>
 #include "defines.h"
 namespace PRISM{
 
 	template <class T>
 	class Metadata{
 	public:
+		void toString();
 		Metadata(){
 			interpolationFactor = 5;
 			filename_atoms      = "/path/to/atoms.txt";
@@ -55,5 +57,28 @@ namespace PRISM{
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU
 		Algorithm algorithm;
 	};
+
+	template <class T>
+	void Metadata<T>::toString(){
+		std::cout << "interpolationFactor = 5" << interpolationFactor << std::endl;
+		std::cout << "filename_atoms = " <<  filename_atoms     << std::endl;
+		std::cout << "filename_output = " << filename_output  << std::endl;
+		std::cout << "realspace_pixelSize = " << realspace_pixelSize<< std::endl;
+		std::cout << "potBound = " << potBound << std::endl;
+		std::cout << "numFP = " << numFP << std::endl;
+		std::cout << "sliceThickness = " << sliceThickness<< std::endl;
+		std::cout << "E0 = " << E0 << std::endl;
+		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
+		std::cout << "NUM_GPUS = " << NUM_GPUS<< std::endl;
+		std::cout << "NUM_STREAMS_PER_GPU = " << NUM_STREAMS_PER_GPU<< std::endl;
+		std::cout << "NUM_THREADS = " << NUM_THREADS<< std::endl;
+		std::cout << "also_do_CPU_work = " << also_do_CPU_work << std::endl;
+		std::cout << "cpu_gpu_ratio = " << cpu_gpu_ratio  << std::endl;
+		std::cout << "stream_data = " << stream_data  << std::endl;
+		std::cout << "dxy = " << dxy << std::endl;
+		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
+		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
+		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;
+	}
 }
 #endif //PRISM_META_H
