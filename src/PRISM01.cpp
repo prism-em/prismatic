@@ -77,7 +77,12 @@ namespace PRISM {
 		});
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
-
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
+		                                                          QString::number(0) +
+                                                                  QString("/") +
+                                                                  QString::number(pars.numPlanes));
+#endif
 		// initialize the potential array
 		pars.pot = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.numPlanes,pars.imageSize[0], pars.imageSize[1]}});
 
@@ -90,13 +95,9 @@ namespace PRISM {
 		std::vector<std::thread> workers;
 		workers.reserve(pars.numPlanes);
 		cout << "Launching separate threads to compute each z-slice of potential.\n";
+
 		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
-#ifdef PRISM_BUILDING_GUI
-			pars.progressbar->updateCalcStatus(QString("Slice ") +
-                                               QString::number(a0) +
-                                               QString("/") +
-                                               QString::number(pars.numPlanes));
-#endif //PRISM_BUILDING_GUI
+
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){
 				// create a randon number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
@@ -125,6 +126,14 @@ namespace PRISM {
 					}
 				}
 				copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(a0,0,0));
+#ifdef PRISM_BUILDING_GUI
+				pars.progressbar->signalPotentialUpdate(a0 + 1, pars.numPlanes);
+//				pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
+//                                                          QString::number(a0 + 1) +
+//                                                          QString("/") +
+//                                                          QString::number(pars.numPlanes));
+
+#endif //PRISM_BUILDING_GUI
 			}));
 
 		}
@@ -168,7 +177,7 @@ namespace PRISM {
 		// precompute the unique potentials
 		fetch_potentials(potentialLookup, unique_species, xr, yr);
 		cout <<"project\n";
-		
+
 		// populate the slices with the projected potentials
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec, uLookup);
 	}

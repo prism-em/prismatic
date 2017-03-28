@@ -18,6 +18,10 @@ prism_progressbar::prism_progressbar(PRISMMainWindow *_parent) :
     MultisliceTotalYProbes(0)
 {
     ui->setupUi(this);
+    ui->progressBar->setValue(0);
+	connect(this, SIGNAL(updateCalcStatus(QString)), this, SLOT(updateCalcStatusMessage(QString)));
+	connect(this, SIGNAL(updateProgressBar(int)), ui->progressBar, SLOT(setValue(int)));
+
 }
 
 void prism_progressbar::setStepPotential(){
@@ -39,8 +43,20 @@ void prism_progressbar::update_calculatingPotential(long current, long total){
 //void prism_progressbar::setText(const QString str){
 //    ui->lbl_Description->setText(str);
 //}
-void prism_progressbar::updateCalcStatus(const QString str){
+void prism_progressbar::updateCalcStatusMessage(const QString str){
     ui->lbl_calcStatus->setText(str);
+}
+void prism_progressbar::signalCalcStatusMessage(const QString str){
+    emit updateCalcStatus(str);
+}
+void prism_progressbar::signalPotentialUpdate(const long current, const long total){
+	std::lock_guard<std::mutex> gatekeeper(dataLock);
+	potentialCurrentSlice = std::max(potentialCurrentSlice, current);
+	emit updateCalcStatus(QString("Slice ") +
+	                      QString::number(potentialCurrentSlice) +
+	                      QString("/") +
+	                      QString::number(total));
+	emit updateProgressBar(100*total/current);
 }
 prism_progressbar::~prism_progressbar()
 {

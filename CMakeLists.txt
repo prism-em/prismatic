@@ -129,7 +129,7 @@ if (PRISM_ENABLE_GUI)
         cuda_add_library(prism_shared
                             ${SOURCE_FILES}
                             ${CUDA_SOURCE_FILES}
-                            ${GUI_SOURCE_FILES}
+                            #${GUI_SOURCE_FILES}
                             SHARED)
         target_link_libraries(prism_shared
                                 ${CMAKE_THREAD_LIBS_INIT}
