@@ -95,10 +95,10 @@ namespace PRISM {
 		// using parallel calculation of each individual slice
 		std::vector<std::thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS);
-		cout << "Launching separate threads to compute each z-slice of potential.\n";
+
 		setWorkStartStop(0, pars.numPlanes, 1);
 		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
-
+			cout << "Launching thread #" << t << " to compute projected potential slices\n";
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup](){
 				// create a random number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
