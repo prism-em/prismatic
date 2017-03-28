@@ -27,6 +27,7 @@ class PRISMMainWindow : public QMainWindow
     // declare the thread classes as friends so that they can
     // access the protected mutex locks and arrays
     friend class PotentialThread;
+    friend class FullCalcThread;
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
@@ -35,7 +36,7 @@ public slots:
 	void setFilenameAtoms_fromDialog();
 	void setFilenameOutput_fromLineEdit();
 	void setFilenameOutput_fromDialog();
-	void launch();
+//	void launch();
     void setNumGPUs(const int& numGPUs);
     void setNumThreads(const int& numThreads);
     void setNumFP(const int& numFP);
@@ -50,6 +51,7 @@ public slots:
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
+    void calculateAll();
     void updatePotentialImage();
     void updatePotentialDisplay();
     void updatePotentialFloatImage();
@@ -85,10 +87,11 @@ private:
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
     PRISM::Array4D<PRISM_FLOAT_PRECISION> stack;
     QMutex potentialLock;
+    QMutex stackLock;
 
     bool potentialReady;
     //bool ScompactReady;
-    //bool stackReady;
+    bool stackReady;
 
     QImage potentialImage;
     PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;

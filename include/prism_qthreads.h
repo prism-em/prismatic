@@ -26,4 +26,20 @@ private:
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
+
+
+class FullCalcThread : public QThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullCalcThread();
+
+private:
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+    PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
+};
+
 #endif // PRISM_QTHREADS_H

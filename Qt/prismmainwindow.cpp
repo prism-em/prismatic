@@ -150,7 +150,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     //connect(this->ui->btn_outputfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameOutput_fromDialog()));
-	connect(this->ui->btn_go,SIGNAL(pressed()),this,SLOT(launch()));
+    //connect(this->ui->btn_go,SIGNAL(pressed()),this,SLOT(launch()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
@@ -165,6 +165,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
+    connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
+
     connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->slider_slicemin, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_min(int)));
@@ -247,7 +249,7 @@ void PRISMMainWindow::setFilenameOutput(const std::string& filename){
 	this->meta->filename_output = filename;
 }
 
-void PRISMMainWindow::launch(){
+/*void PRISMMainWindow::launch(){
 	std::cout << "Launching PRISM calculation with the following paramters:\n";
 	std::cout << "Atoms filename = " << this->meta->filename_atoms << '\n';
 	std::cout << "Output filename = " << this->meta->filename_output << '\n';
@@ -262,7 +264,7 @@ void PRISMMainWindow::launch(){
 		std::cout << "Calculation returned error code " << returnCode << std::endl;
 	}
 
-}
+}*/
 
 void PRISMMainWindow::setNumGPUs(const int& num){
     if (num > 0){
@@ -357,11 +359,21 @@ void PRISMMainWindow::calculatePotential(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
     PotentialThread *worker = new PotentialThread(this, progressbar);
-    std::cout <<"starting working" << std::endl;
     worker->meta.toString();
     worker->start();
-    std::cout <<"worker started" << std::endl;
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+}
+
+void PRISMMainWindow::calculateAll(){
+    prism_progressbar *progressbar = new prism_progressbar(this);
+    progressbar->show();
+    FullCalcThread *worker = new FullCalcThread(this, progressbar);
+    worker->meta.toString();
+    std::cout <<"Starting Full Calculation" << std::endl;
+    worker->start();
+   // connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 }

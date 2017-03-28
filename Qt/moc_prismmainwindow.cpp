@@ -22,7 +22,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_PRISMMainWindow_t {
     QByteArrayData data[32];
-    char stringdata0[645];
+    char stringdata0[651];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -37,41 +37,40 @@ QT_MOC_LITERAL(2, 39, 0), // ""
 QT_MOC_LITERAL(3, 40, 27), // "setFilenameAtoms_fromDialog"
 QT_MOC_LITERAL(4, 68, 30), // "setFilenameOutput_fromLineEdit"
 QT_MOC_LITERAL(5, 99, 28), // "setFilenameOutput_fromDialog"
-QT_MOC_LITERAL(6, 128, 6), // "launch"
-QT_MOC_LITERAL(7, 135, 10), // "setNumGPUs"
-QT_MOC_LITERAL(8, 146, 7), // "numGPUs"
-QT_MOC_LITERAL(9, 154, 13), // "setNumThreads"
-QT_MOC_LITERAL(10, 168, 10), // "numThreads"
-QT_MOC_LITERAL(11, 179, 8), // "setNumFP"
-QT_MOC_LITERAL(12, 188, 5), // "numFP"
-QT_MOC_LITERAL(13, 194, 25), // "setPixelSize_fromLineEdit"
-QT_MOC_LITERAL(14, 220, 24), // "setPotBound_fromLineEdit"
-QT_MOC_LITERAL(15, 245, 28), // "setAlphaBeamMax_fromLineEdit"
-QT_MOC_LITERAL(16, 274, 30), // "setSliceThickness_fromLineEdit"
-QT_MOC_LITERAL(17, 305, 24), // "setCellDimX_fromLineEdit"
-QT_MOC_LITERAL(18, 330, 24), // "setCellDimY_fromLineEdit"
-QT_MOC_LITERAL(19, 355, 24), // "setCellDimZ_fromLineEdit"
-QT_MOC_LITERAL(20, 380, 18), // "setE0_fromLineEdit"
-QT_MOC_LITERAL(21, 399, 13), // "setAlgo_PRISM"
-QT_MOC_LITERAL(22, 413, 18), // "setAlgo_Multislice"
-QT_MOC_LITERAL(23, 432, 18), // "calculatePotential"
-QT_MOC_LITERAL(24, 451, 20), // "updatePotentialImage"
-QT_MOC_LITERAL(25, 472, 22), // "updatePotentialDisplay"
-QT_MOC_LITERAL(26, 495, 25), // "updatePotentialFloatImage"
-QT_MOC_LITERAL(27, 521, 27), // "updateSliders_fromLineEdits"
-QT_MOC_LITERAL(28, 549, 20), // "updateContrastPotMin"
-QT_MOC_LITERAL(29, 570, 20), // "updateContrastPotMax"
-QT_MOC_LITERAL(30, 591, 26), // "updateSlider_lineEdits_min"
-QT_MOC_LITERAL(31, 618, 26) // "updateSlider_lineEdits_max"
+QT_MOC_LITERAL(6, 128, 10), // "setNumGPUs"
+QT_MOC_LITERAL(7, 139, 7), // "numGPUs"
+QT_MOC_LITERAL(8, 147, 13), // "setNumThreads"
+QT_MOC_LITERAL(9, 161, 10), // "numThreads"
+QT_MOC_LITERAL(10, 172, 8), // "setNumFP"
+QT_MOC_LITERAL(11, 181, 5), // "numFP"
+QT_MOC_LITERAL(12, 187, 25), // "setPixelSize_fromLineEdit"
+QT_MOC_LITERAL(13, 213, 24), // "setPotBound_fromLineEdit"
+QT_MOC_LITERAL(14, 238, 28), // "setAlphaBeamMax_fromLineEdit"
+QT_MOC_LITERAL(15, 267, 30), // "setSliceThickness_fromLineEdit"
+QT_MOC_LITERAL(16, 298, 24), // "setCellDimX_fromLineEdit"
+QT_MOC_LITERAL(17, 323, 24), // "setCellDimY_fromLineEdit"
+QT_MOC_LITERAL(18, 348, 24), // "setCellDimZ_fromLineEdit"
+QT_MOC_LITERAL(19, 373, 18), // "setE0_fromLineEdit"
+QT_MOC_LITERAL(20, 392, 13), // "setAlgo_PRISM"
+QT_MOC_LITERAL(21, 406, 18), // "setAlgo_Multislice"
+QT_MOC_LITERAL(22, 425, 18), // "calculatePotential"
+QT_MOC_LITERAL(23, 444, 12), // "calculateAll"
+QT_MOC_LITERAL(24, 457, 20), // "updatePotentialImage"
+QT_MOC_LITERAL(25, 478, 22), // "updatePotentialDisplay"
+QT_MOC_LITERAL(26, 501, 25), // "updatePotentialFloatImage"
+QT_MOC_LITERAL(27, 527, 27), // "updateSliders_fromLineEdits"
+QT_MOC_LITERAL(28, 555, 20), // "updateContrastPotMin"
+QT_MOC_LITERAL(29, 576, 20), // "updateContrastPotMax"
+QT_MOC_LITERAL(30, 597, 26), // "updateSlider_lineEdits_min"
+QT_MOC_LITERAL(31, 624, 26) // "updateSlider_lineEdits_max"
 
     },
     "PRISMMainWindow\0setInterpolationFactor\0"
     "\0setFilenameAtoms_fromDialog\0"
     "setFilenameOutput_fromLineEdit\0"
-    "setFilenameOutput_fromDialog\0launch\0"
-    "setNumGPUs\0numGPUs\0setNumThreads\0"
-    "numThreads\0setNumFP\0numFP\0"
-    "setPixelSize_fromLineEdit\0"
+    "setFilenameOutput_fromDialog\0setNumGPUs\0"
+    "numGPUs\0setNumThreads\0numThreads\0"
+    "setNumFP\0numFP\0setPixelSize_fromLineEdit\0"
     "setPotBound_fromLineEdit\0"
     "setAlphaBeamMax_fromLineEdit\0"
     "setSliceThickness_fromLineEdit\0"
@@ -79,8 +78,9 @@ QT_MOC_LITERAL(31, 618, 26) // "updateSlider_lineEdits_max"
     "setCellDimY_fromLineEdit\0"
     "setCellDimZ_fromLineEdit\0setE0_fromLineEdit\0"
     "setAlgo_PRISM\0setAlgo_Multislice\0"
-    "calculatePotential\0updatePotentialImage\0"
-    "updatePotentialDisplay\0updatePotentialFloatImage\0"
+    "calculatePotential\0calculateAll\0"
+    "updatePotentialImage\0updatePotentialDisplay\0"
+    "updatePotentialFloatImage\0"
     "updateSliders_fromLineEdits\0"
     "updateContrastPotMin\0updateContrastPotMax\0"
     "updateSlider_lineEdits_min\0"
@@ -106,10 +106,10 @@ static const uint qt_meta_data_PRISMMainWindow[] = {
        3,    0,  150,    2, 0x0a /* Public */,
        4,    0,  151,    2, 0x0a /* Public */,
        5,    0,  152,    2, 0x0a /* Public */,
-       6,    0,  153,    2, 0x0a /* Public */,
-       7,    1,  154,    2, 0x0a /* Public */,
-       9,    1,  157,    2, 0x0a /* Public */,
-      11,    1,  160,    2, 0x0a /* Public */,
+       6,    1,  153,    2, 0x0a /* Public */,
+       8,    1,  156,    2, 0x0a /* Public */,
+      10,    1,  159,    2, 0x0a /* Public */,
+      12,    0,  162,    2, 0x0a /* Public */,
       13,    0,  163,    2, 0x0a /* Public */,
       14,    0,  164,    2, 0x0a /* Public */,
       15,    0,  165,    2, 0x0a /* Public */,
@@ -135,10 +135,10 @@ static const uint qt_meta_data_PRISMMainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    7,
+    QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Void, QMetaType::Int,   11,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    8,
-    QMetaType::Void, QMetaType::Int,   10,
-    QMetaType::Void, QMetaType::Int,   12,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -172,21 +172,21 @@ void PRISMMainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         case 1: _t->setFilenameAtoms_fromDialog(); break;
         case 2: _t->setFilenameOutput_fromLineEdit(); break;
         case 3: _t->setFilenameOutput_fromDialog(); break;
-        case 4: _t->launch(); break;
-        case 5: _t->setNumGPUs((*reinterpret_cast< const int(*)>(_a[1]))); break;
-        case 6: _t->setNumThreads((*reinterpret_cast< const int(*)>(_a[1]))); break;
-        case 7: _t->setNumFP((*reinterpret_cast< const int(*)>(_a[1]))); break;
-        case 8: _t->setPixelSize_fromLineEdit(); break;
-        case 9: _t->setPotBound_fromLineEdit(); break;
-        case 10: _t->setAlphaBeamMax_fromLineEdit(); break;
-        case 11: _t->setSliceThickness_fromLineEdit(); break;
-        case 12: _t->setCellDimX_fromLineEdit(); break;
-        case 13: _t->setCellDimY_fromLineEdit(); break;
-        case 14: _t->setCellDimZ_fromLineEdit(); break;
-        case 15: _t->setE0_fromLineEdit(); break;
-        case 16: _t->setAlgo_PRISM(); break;
-        case 17: _t->setAlgo_Multislice(); break;
-        case 18: _t->calculatePotential(); break;
+        case 4: _t->setNumGPUs((*reinterpret_cast< const int(*)>(_a[1]))); break;
+        case 5: _t->setNumThreads((*reinterpret_cast< const int(*)>(_a[1]))); break;
+        case 6: _t->setNumFP((*reinterpret_cast< const int(*)>(_a[1]))); break;
+        case 7: _t->setPixelSize_fromLineEdit(); break;
+        case 8: _t->setPotBound_fromLineEdit(); break;
+        case 9: _t->setAlphaBeamMax_fromLineEdit(); break;
+        case 10: _t->setSliceThickness_fromLineEdit(); break;
+        case 11: _t->setCellDimX_fromLineEdit(); break;
+        case 12: _t->setCellDimY_fromLineEdit(); break;
+        case 13: _t->setCellDimZ_fromLineEdit(); break;
+        case 14: _t->setE0_fromLineEdit(); break;
+        case 15: _t->setAlgo_PRISM(); break;
+        case 16: _t->setAlgo_Multislice(); break;
+        case 17: _t->calculatePotential(); break;
+        case 18: _t->calculateAll(); break;
         case 19: _t->updatePotentialImage(); break;
         case 20: _t->updatePotentialDisplay(); break;
         case 21: _t->updatePotentialFloatImage(); break;
