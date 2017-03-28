@@ -58,6 +58,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #endif //PRISM_ENABLE_GPU
 
 
+
 //#define PRISM_ENABLE_DOUBLE_PRECISION
 #ifdef PRISM_ENABLE_DOUBLE_PRECISION
 #define MESSAGE "DOUBLE PRECISION"
@@ -83,4 +84,8 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define	PRISM_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
 #define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
+
+#ifdef PRISM_BUILDING_GUI
+class prism_progressbar;
+#endif
 #endif //PRISM_DEFINES_H

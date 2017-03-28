@@ -15,6 +15,10 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "projectedPotential.h"
+
+#ifdef PRISM_BUILDING_GUI
+#include "prism_progressbar.h"
+#endif
 namespace PRISM {
 	using namespace std;
 	void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,
@@ -123,7 +127,15 @@ namespace PRISM {
 
 	};
 
+#ifdef PRISM_BUILDING_GUI
+	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars, prism_progressbar *progressbar){
+//	progressbar->ui->lbl_Description->setText(QString("hey there"));
+	progressbar->setText("hey there");
+	//cout << "a = " << a << endl;
+#else
 	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
+	cout <<"MACRO WAS DEFINED" << endl;
+#endif //PRISM_BUILDING_GUI
 		//builds atomic potentials
 
 		// setup some coordinates

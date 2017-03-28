@@ -117,19 +117,19 @@ endif (PRISM_ENABLE_CLI)
 
 if (PRISM_ENABLE_GUI)
     # build GUI
-        
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_INCLUDE_CURRENT_DIR on)
     include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
-    #qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_qthreads.h)
-    #qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_progressbar.h)
-   # qt5_wrap_ui(ui_prismmainwindow.h ${CMAKE_SOURCE_DIR}/Qt/prismmainwindow.h)
+    include_directories(${Qt5Widgets_INCLUDE_DIRS})
+    #add_definitions(-DPRISM_BUILDING_GUI)
+
     if (PRISM_ENABLE_GPU)
         # build the shared CUDA library used by the GUI
         cuda_add_library(prism_shared
                             ${SOURCE_FILES}
                             ${CUDA_SOURCE_FILES}
+                            ${GUI_SOURCE_FILES}
                             SHARED)
         target_link_libraries(prism_shared
                                 ${CMAKE_THREAD_LIBS_INIT}
@@ -138,9 +138,7 @@ if (PRISM_ENABLE_GUI)
         cuda_add_cufft_to_target(prism_shared)
         cuda_add_executable(prism-gui
                                 ${SOURCE_FILES}
-                               # ${CUDA_SOURCE_FILES}
                                 ${GUI_SOURCE_FILES})
-
         target_link_libraries(prism-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
@@ -148,6 +146,7 @@ if (PRISM_ENABLE_GUI)
                                 ${FFTW_LIBRARIES}
                                 prism_shared)
         cuda_add_cufft_to_target(prism-gui)
+
     else (PRISM_ENABLE_GPU)
         add_executable(prism-gui
                         ${SOURCE_FILES}
@@ -161,4 +160,7 @@ if (PRISM_ENABLE_GUI)
                                 ${Boost_LIBRARY_DIRS}
                                 ${FFTW_LIBRARIES})
     endif (PRISM_ENABLE_GPU)
+    target_compile_definitions(prism-gui    PRIVATE PRISM_BUILDING_GUI=1)
+    target_compile_definitions(prism_shared PRIVATE PRISM_BUILDING_GUI=1)
+   # remove_definitions(-DPRISM_BUILDING_GUI)
 endif (PRISM_ENABLE_GUI)

@@ -13,6 +13,7 @@
 #include <numeric>
 #include "fftw3.h"
 #include "utility.h"
+
 namespace PRISM {
 	Array2D<PRISM_FLOAT_PRECISION> array2D_subset(const Array2D<PRISM_FLOAT_PRECISION> &arr,
 	                          const size_t &starty, const size_t &stepy, const size_t &stopy,

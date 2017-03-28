@@ -19,6 +19,10 @@
 #include <cuda_runtime.h>
 #endif //PRISM_ENABLE_GPU
 
+#ifdef PRISM_BUILDING_GPU
+#include "prism_progressbar.h"
+#endif
+
 namespace PRISM {
 
 	using entry_func     = int  (*)(Metadata<PRISM_FLOAT_PRECISION>&);

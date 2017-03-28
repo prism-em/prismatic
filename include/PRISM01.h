@@ -4,6 +4,7 @@
 
 #ifndef PRISM_PRISM01_H
 #define PRISM_PRISM01_H
+#include "defines.h"
 #include "params.h"
 #include <iostream>
 #include <algorithm>
@@ -16,7 +17,12 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "projectedPotential.h"
-namespace PRISM {
+
+//#ifdef PRISM_BUILDING_GUI
+//#include "prism_progressbar.h"
+//#endif
+
+ namespace PRISM {
 	 void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,
 	                      const std::vector<size_t>& atomic_species,
 	                      const Array1D<PRISM_FLOAT_PRECISION>& xr,
@@ -31,6 +37,11 @@ namespace PRISM {
 	                                 const Array1D<long>& yvec,
 	                                 const Array1D<PRISM_FLOAT_PRECISION>& uLookup);
 
-	 void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
+#ifdef PRISM_BUILDING_GUI
+	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
+#else
+	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars);
+#endif //PRISM_ENABLE_GPU
 }
 #endif //PRISM_PRISM01_H

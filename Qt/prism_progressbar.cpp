@@ -36,7 +36,9 @@ void prism_progressbar::update_calculatingPotential(long current, long total){
                                  QString::number(total));
 }
 
-
+void prism_progressbar::setText(QString str){
+    ui->lbl_Description->setText(str);
+}
 prism_progressbar::~prism_progressbar()
 {
     delete ui;

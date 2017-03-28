@@ -17,6 +17,7 @@
 #include "utility.h"
 #include "fftw3.h"
 #include "getWorkID.h"
+
 namespace PRISM{
 	using namespace std;
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);

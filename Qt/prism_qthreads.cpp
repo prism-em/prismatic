@@ -18,7 +18,8 @@ void PotentialThread::run(){
     std::cout << "Potential thread running" << std::endl;
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta);
     //prism_progressbar *progress = new prism_progressbar(this->parent);
-    PRISM::PRISM01(params);
+    PRISM::PRISM01(params, progressbar);
+    //PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     //std::cout<<"before copy this->parent->pot.at(0,0,0) = " << this->parent->pot.at(0,0,0) << std::endl;
     QMutexLocker gatekeeper(&this->parent->potentialLock);
