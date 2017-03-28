@@ -28,6 +28,24 @@ private:
 };
 
 
+class SMatrixThread : public QThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~SMatrixThread();
+
+//public slots:
+    // signals:
+    // void potentialReady(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+
+private:
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+    PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
+};
+
 class FullCalcThread : public QThread {
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;

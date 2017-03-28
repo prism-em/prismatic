@@ -16,26 +16,45 @@ class PotentialThread : public QThread {
 public:
     explicit PotentialThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PotentialThread();
-
-//public slots:
-   // signals:
-   // void potentialReady(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
-
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
 
-
-class FullCalcThread : public QThread {
+class SMatrixThread : public QThread {
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullCalcThread();
+    explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~SMatrixThread();
+private:
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+    PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
+};
 
+class FullPRISMCalcThread : public QThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullPRISMCalcThread();
+private:
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+    PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
+};
+
+class FullMultisliceCalcThread : public QThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullMultisliceCalcThread();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

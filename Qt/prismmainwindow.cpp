@@ -373,9 +373,14 @@ void PRISMMainWindow::calculatePotential(){
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
-    FullCalcThread *worker = new FullCalcThread(this, progressbar);
+//    if (meta->algorithm == PRISM::Algorithm::PRISM) {
+        FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
+//        std::cout <<"Starting Full PRISM Calculation" << std::endl;
+//    } else{
+//        FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
+//        std::cout <<"Starting Full Multislice Calculation" << std::endl;
+//    }
     worker->meta.toString();
-    std::cout <<"Starting Full Calculation" << std::endl;
     worker->start();
    // connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));

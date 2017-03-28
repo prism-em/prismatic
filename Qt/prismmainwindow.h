@@ -27,7 +27,10 @@ class PRISMMainWindow : public QMainWindow
     // declare the thread classes as friends so that they can
     // access the protected mutex locks and arrays
     friend class PotentialThread;
-    friend class FullCalcThread;
+    friend class SMatrixThread;
+    friend class FullPRISMCalcThread;
+    friend class FullMultisliceCalcThread;
+
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
@@ -87,10 +90,11 @@ private:
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
     PRISM::Array4D<PRISM_FLOAT_PRECISION> stack;
     QMutex potentialLock;
+	QMutex sMatrixLock;
     QMutex stackLock;
 
     bool potentialReady;
-    //bool ScompactReady;
+    bool ScompactReady;
     bool stackReady;
 
     QImage potentialImage;
