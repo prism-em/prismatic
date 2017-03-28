@@ -147,6 +147,7 @@ if (PRISM_ENABLE_GUI)
                                 prism_shared)
         cuda_add_cufft_to_target(prism-gui)
 
+    target_compile_definitions(prism_shared PRIVATE PRISM_BUILDING_GUI=1)
     else (PRISM_ENABLE_GPU)
         add_executable(prism-gui
                         ${SOURCE_FILES}
@@ -161,6 +162,5 @@ if (PRISM_ENABLE_GUI)
                                 ${FFTW_LIBRARIES})
     endif (PRISM_ENABLE_GPU)
     target_compile_definitions(prism-gui    PRIVATE PRISM_BUILDING_GUI=1)
-    target_compile_definitions(prism_shared PRIVATE PRISM_BUILDING_GUI=1)
    # remove_definitions(-DPRISM_BUILDING_GUI)
 endif (PRISM_ENABLE_GUI)
