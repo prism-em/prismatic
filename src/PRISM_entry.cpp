@@ -22,19 +22,19 @@
 
 namespace PRISM{
 	using namespace std;
-	int PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
+	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 
 
 		PRISM01(prism_pars);
 		cout << prism_pars.pot.at(0,0,0);
-		prism_pars.pot.toMRC_f("test.mrc");
+//		prism_pars.pot.toMRC_f("test.mrc");
 		PRISM02(prism_pars);
 
-		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
-		auto tmp_ptr = tmp.begin();
-		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
-		tmp.toMRC_f("debug_scompact.mrc");
+//		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
+//		auto tmp_ptr = tmp.begin();
+//		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
+//		tmp.toMRC_f("debug_scompact.mrc");
 
 		PRISM03(prism_pars);
 
@@ -52,7 +52,8 @@ namespace PRISM{
 
 		prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
 		std::cout << "PRISM Calculation complete.\n" << std::endl;
-		return 0;
+//		return 0;
+		return prism_pars;
 	}
 
 }

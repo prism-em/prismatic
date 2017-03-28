@@ -13,7 +13,7 @@
 
 
 namespace PRISM{
-	int Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
+	Parameters<PRISM_FLOAT_PRECISION> Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 
 		using vec_d = std::vector<PRISM_FLOAT_PRECISION>;
 		using Array3D = ArrayND<3, vec_d>;
@@ -72,7 +72,8 @@ namespace PRISM{
 
 
 		std::cout << "Calculation complete.\n" << std::endl;
-		return 0;
+//		return 0;
+		return prism_pars;
 	}
 
 }

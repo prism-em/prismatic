@@ -16,6 +16,6 @@
 //#include <vector>
 
 namespace PRISM{
-	int PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta);
+	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta);
 }
 #endif //PRISM_PRISM_ENTRY_H

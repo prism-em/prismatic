@@ -15,6 +15,6 @@
 
 
 namespace PRISM{
-	int Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta);
+	Parameters<PRISM_FLOAT_PRECISION> Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta);
 }
 #endif //PRISM_MULTISLICE_ENTRY_H

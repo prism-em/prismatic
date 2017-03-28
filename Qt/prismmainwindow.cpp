@@ -53,13 +53,13 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                        }");
 
 //    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
-//    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
+    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
 //
-//    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
-//    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
-    QPixmap potentialImage("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
-    QPixmap probeImage("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
-    QPixmap outputImage("/home/aj/hdd1/clion/PRISM/Qt/output.png");
+    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
+    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
+//    QPixmap potentialImage("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
+  //  QPixmap probeImage("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
+    //QPixmap outputImage("/home/aj/hdd1/clion/PRISM/Qt/output.png");
 
     potentialScene = new QGraphicsScene(this);
     QGraphicsScene* probeScene = new QGraphicsScene(this);
@@ -386,7 +386,7 @@ void PRISMMainWindow::updatePotentialImage(){
     //std::cout << "updatePotentialImage called" << std::endl;
     if (potentialReady){
       //  std::cout <<"updating potential image" << std::endl;
-        {
+            {
             QMutexLocker gatekeeper(&potentialLock);
             // create new empty image with appropriate dimensions
             potentialImage = QImage(potential.get_dimj(), potential.get_dimi(), QImage::Format_ARGB32);
@@ -395,18 +395,21 @@ void PRISMMainWindow::updatePotentialImage(){
             // update sliders to match dimensions of potential
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
+
             this->ui->slider_slicemin->setMaximum(potential.get_dimk());
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
+
             this->ui->slider_slicemax->setValue(potential.get_dimk());
+//            }
         }
-        updatePotentialFloatImage();
+//        updatePotentialFloatImage();
 
 }
 
 void PRISMMainWindow::updatePotentialFloatImage(){
    // std::cout << "updatePotentialFloatImage called" << std::endl;
     if (potentialReady){
-        //QMutexLocker gatekeeper(&potentialLock);
+        QMutexLocker gatekeeper(&potentialLock);
     //    std::cout <<"updating updatePotentialFloatImage" << std::endl;
 
         // integrate image into the float array, then convert to uchar
@@ -444,7 +447,7 @@ void PRISMMainWindow::updatePotentialFloatImage(){
 
 void PRISMMainWindow::updatePotentialDisplay(){
     if (potentialReady){
-        {
+//        {
             QMutexLocker gatekeeper(&potentialLock);
             for (auto j = 0; j < potential.get_dimj(); ++j){
                 for (auto i = 0; i < potential.get_dimi(); ++i){
@@ -457,7 +460,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
                     potentialImage.setPixel(j, i, qRgba(val,val,val,255));
                 }
             }
-        }
+//        }
         potentialScene->clear();
         QImage potentialImage_tmp = potentialImage.scaled(potentialScene->width(),
                                potentialScene->height(),

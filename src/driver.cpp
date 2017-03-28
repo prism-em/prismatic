@@ -44,7 +44,6 @@ cout << "ndevices = " << nDevices << endl;
 	prism_meta.filename_output = "prism_image.mrc";
 
 	PRISM::configure(prism_meta);
-	return PRISM::execute_plan(prism_meta);
-//	return 0;
-
+	PRISM::execute_plan(prism_meta);
+	return 0;
 }
