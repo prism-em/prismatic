@@ -13,9 +13,12 @@
 #include "meta.h"
 #include "ArrayND.h"
 #include "params.h"
-//#include "PRISM_entry.h"
-//#include "Multislice_entry.h"
-//#include "Multislice.h"
+
+#ifdef PRISM_ENABLE_GPU
+#define CUDA_API_PER_THREAD_DEFAULT_STREAM
+#include <cuda_runtime.h>
+#endif //PRISM_ENABLE_GPU
+
 namespace PRISM {
 
 	using entry_func     = int  (*)(Metadata<PRISM_FLOAT_PRECISION>&);
@@ -36,8 +39,6 @@ namespace PRISM {
 	extern format_output_func formatOutput_CPU;
 	extern fill_Scompact_func fill_Scompact;
 #ifdef PRISM_ENABLE_GPU
-#define CUDA_API_PER_THREAD_DEFAULT_STREAM
-#include <cuda_runtime.h>
 	using format_output_func_GPU = void (*)(Parameters<PRISM_FLOAT_PRECISION>&,
 	                                        PRISM_FLOAT_PRECISION *,
 	                                        const PRISM_FLOAT_PRECISION *,
@@ -50,7 +51,7 @@ namespace PRISM {
 	                                        const cudaStream_t&,
 	                                        const long&);
 	extern format_output_func_GPU formatOutput_GPU;
-#endif
+#endif //PRISM_ENABLE_GPU
 	void configure(Metadata<PRISM_FLOAT_PRECISION>&);
 }
 

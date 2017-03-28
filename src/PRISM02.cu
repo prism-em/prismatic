@@ -298,7 +298,7 @@ namespace PRISM {
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
-				workers_CPU.push_back([&pars, &fftw_plan_lock]() {
+				workers_CPU.push_back(thread([&pars, &fftw_plan_lock]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -333,7 +333,7 @@ namespace PRISM {
 				PRISM_FFTW_DESTROY_PLAN(plan_forward);
 				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 				gatekeeper.unlock();
-			});
+			}));
 		}
 		for (auto &t:workers_CPU)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
@@ -598,7 +598,7 @@ namespace PRISM {
 			//for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
-				workers_CPU.push_back([&pars, &fftw_plan_lock]() {
+				workers_CPU.push_back(thread([&pars, &fftw_plan_lock]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -632,7 +632,7 @@ namespace PRISM {
 				PRISM_FFTW_DESTROY_PLAN(plan_forward);
 				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 				gatekeeper.unlock();
-			});
+			}));
 		}
 		for (auto &t:workers_CPU)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();

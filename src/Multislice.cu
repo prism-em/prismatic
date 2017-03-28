@@ -36,6 +36,7 @@ namespace PRISM{
 									                const PRISM_FLOAT_PRECISION* alphaInd_d,
 									                const cufftHandle& plan,
 									                cudaStream_t& stream){
+		/*
 		if (ay==0 && ax == 0) {
 			cout << "dimj = " << dimj << endl;
 			cout << "dimi = " << dimi << endl;
@@ -78,6 +79,7 @@ namespace PRISM{
 			}
 		}
 
+		*/
 
 		// initialize psi
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
@@ -86,6 +88,7 @@ namespace PRISM{
 		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+			/*
 			if (ax == 0 && ay == 0) {
 				cout << " planeNum = " << planeNum << endl;
 				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
@@ -95,16 +98,18 @@ namespace PRISM{
 					cout << "end psi_ds[" << i << "] = " << ans_cx << endl;
 				}
 			}
-				cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+			 */
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*N], N);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
 			divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
 		}
-		cout << "pars.numPlanes = " << pars.numPlanes << endl;
+		//cout << "pars.numPlanes = " << pars.numPlanes << endl;
 
 
 		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
+		/*
 		if (ax == 0 && ay == 0){
 			std::complex<PRISM_FLOAT_PRECISION> ans_cx;
 			PRISM_FLOAT_PRECISION ans;
@@ -117,7 +122,9 @@ namespace PRISM{
 				cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans_cx), cudaMemcpyDeviceToHost));
 				cout << "end psi_intensity_ds[" << i << "] = " << ans << endl;
 			}
-		}formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
+		}
+		*/
+		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 }
 
 
