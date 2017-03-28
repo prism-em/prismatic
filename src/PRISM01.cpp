@@ -15,6 +15,7 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "projectedPotential.h"
+#include "getWorkID.h"
 
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -93,47 +94,57 @@ namespace PRISM {
 		//loop over each plane, perturb the atomic positions, and place the corresponding potential at each location
 		// using parallel calculation of each individual slice
 		std::vector<std::thread> workers;
-		workers.reserve(pars.numPlanes);
+		workers.reserve(pars.meta.NUM_THREADS);
 		cout << "Launching separate threads to compute each z-slice of potential.\n";
+		setWorkStartStop(0, pars.numPlanes, 1);
+		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
 
-		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
-
-			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){
-				// create a randon number generator to simulate thermal effects
+			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup](){
+				// create a random number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
 				normal_distribution<PRISM_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
 				Array1D<long> yp;
-				Array2D<PRISM_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
-				for (auto a2 = 0; a2 < x.size(); ++a2){
-					if (zPlane[a2]==a0){
-						const long dim0 = (long)pars.imageSize[0];
-						const long dim1 = (long)pars.imageSize[1];
-						const size_t cur_Z = Z_lookup[ID[a2]];
-						const PRISM_FLOAT_PRECISION X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
-//						const PRISM_FLOAT_PRECISION X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
-						xp = xvec + (long)X;
-						for (auto& i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
-						const PRISM_FLOAT_PRECISION Y = round((y[a2])/ pars.pixelSize[0]); // this line uses no thermal factor
-//						const PRISM_FLOAT_PRECISION Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
-						yp = yvec + (long)Y;
-						for (auto& i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
-						for (auto ii = 0; ii < xp.size(); ++ii){
-							for (auto jj = 0; jj < yp.size(); ++jj){
-								projectedPotential.at(yp[jj],xp[ii]) += potentialLookup.at(cur_Z,jj,ii);
+
+				size_t currentBeam, stop;
+				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
+					Array2D<PRISM_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+					while (currentBeam != stop) {
+						for (auto a2 = 0; a2 < x.size(); ++a2) {
+							if (zPlane[a2] == currentBeam) {
+								const long dim0 = (long) pars.imageSize[0];
+								const long dim1 = (long) pars.imageSize[1];
+								const size_t cur_Z = Z_lookup[ID[a2]];
+								const PRISM_FLOAT_PRECISION X = round(
+										(x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
+								//const PRISM_FLOAT_PRECISION X = round((x[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[0]);
+								xp = xvec + (long) X;
+								for (auto &i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
+								const PRISM_FLOAT_PRECISION Y = round(
+										(y[a2]) / pars.pixelSize[0]); // this line uses no thermal factor
+								//const PRISM_FLOAT_PRECISION Y = round((y[a2] + randn(de)*uLookup[cur_Z]) / pars.pixelSize[1]);
+								yp = yvec + (long) Y;
+								for (auto &i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
+								for (auto ii = 0; ii < xp.size(); ++ii) {
+									for (auto jj = 0; jj < yp.size(); ++jj) {
+										projectedPotential.at(yp[jj], xp[ii]) += potentialLookup.at(cur_Z, jj, ii);
+									}
+								}
 							}
 						}
-					}
-				}
-				copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(a0,0,0));
+						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
 #ifdef PRISM_BUILDING_GUI
-				pars.progressbar->signalPotentialUpdate(a0 + 1, pars.numPlanes);
+						pars.progressbar->signalPotentialUpdate(currentBeam + 1, pars.numPlanes);
 //				pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
-//                                                          QString::number(a0 + 1) +
+//                                                          QString::number(currentBeam + 1) +
 //                                                          QString("/") +
 //                                                          QString::number(pars.numPlanes));
 
 #endif //PRISM_BUILDING_GUI
+						++currentBeam;
+					}
+				}
+
 			}));
 
 		}
