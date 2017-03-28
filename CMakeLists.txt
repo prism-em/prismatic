@@ -15,7 +15,7 @@ if (PRISM_ENABLE_GPU)
 endif (PRISM_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
-#set(CMAKE_INCLUDE_CURRENT_DIR on)
+
 
 # create variables with various bundles of source files
 set(SOURCE_FILES
@@ -120,9 +120,11 @@ if (PRISM_ENABLE_GUI)
         
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR on)
     include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
-    qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_qthreads.h)
-    qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_progressbar.h)
+    #qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_qthreads.h)
+    #qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_progressbar.h)
+   # qt5_wrap_ui(ui_prismmainwindow.h ${CMAKE_SOURCE_DIR}/Qt/prismmainwindow.h)
     if (PRISM_ENABLE_GPU)
         # build the shared CUDA library used by the GUI
         cuda_add_library(prism_shared
@@ -136,7 +138,7 @@ if (PRISM_ENABLE_GUI)
         cuda_add_cufft_to_target(prism_shared)
         cuda_add_executable(prism-gui
                                 ${SOURCE_FILES}
-                                ${CUDA_SOURCE_FILES}
+                               # ${CUDA_SOURCE_FILES}
                                 ${GUI_SOURCE_FILES})
 
         target_link_libraries(prism-gui
