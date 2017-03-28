@@ -16,7 +16,8 @@ class prism_progressbar : public QDialog
 public:
     explicit prism_progressbar(PRISMMainWindow *parent);
     ~prism_progressbar();
-	void setText(QString str);
+    //void setText(const QString str);
+    void updateCalcStatus(const QString str);
 public slots:
     void setStepPotential();
     void update_calculatingPotential(long, long);

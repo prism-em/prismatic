@@ -85,7 +85,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 
-#ifdef PRISM_BUILDING_GUI
-class prism_progressbar;
-#endif
+//#ifdef PRISM_BUILDING_GUI
+//class prism_progressbar;
+//#endif
 #endif //PRISM_DEFINES_H

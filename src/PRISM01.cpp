@@ -91,6 +91,12 @@ namespace PRISM {
 		workers.reserve(pars.numPlanes);
 		cout << "Launching separate threads to compute each z-slice of potential.\n";
 		for (long a0 = 0; a0 < pars.numPlanes; ++a0){
+#ifdef PRISM_BUILDING_GUI
+			pars.progressbar->updateCalcStatus(QString("Slice ") +
+                                               QString::number(a0) +
+                                               QString("/") +
+                                               QString::number(pars.numPlanes));
+#endif //PRISM_BUILDING_GUI
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup,a0](){
 				// create a randon number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
@@ -127,15 +133,8 @@ namespace PRISM {
 
 	};
 
-#ifdef PRISM_BUILDING_GUI
-	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars, prism_progressbar *progressbar){
-//	progressbar->ui->lbl_Description->setText(QString("hey there"));
-	progressbar->setText("hey there");
-	//cout << "a = " << a << endl;
-#else
 	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
-	cout <<"MACRO WAS DEFINED" << endl;
-#endif //PRISM_BUILDING_GUI
+
 		//builds atomic potentials
 
 		// setup some coordinates

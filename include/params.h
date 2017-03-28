@@ -11,6 +11,9 @@
 #include "atom.h"
 #include "meta.h"
 //#include "configure.h"
+#ifdef PRISM_BUILDING_GUI
+class prism_progressbar;
+#endif
 namespace PRISM{
 	template <class T>
 	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
@@ -84,8 +87,15 @@ namespace PRISM{
 #ifdef PRISM_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 #endif // PRISM_ENABLE_GPU
+#ifdef PRISM_BUILDING_GUI
+	    prism_progressbar *progressbar;
+#endif
 		Parameters(){};
+#ifdef PRISM_BUILDING_GUI
+	    Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
+#else
 	    Parameters(Metadata<T> _meta) : meta(_meta){
+#endif
 
 		    constexpr double m = 9.109383e-31;
 		    constexpr double e = 1.602177e-19;
@@ -171,6 +181,7 @@ namespace PRISM{
 
 #endif //PRISM_ENABLE_GPU
 	    };
+
     };
 
 
