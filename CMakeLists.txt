@@ -12,7 +12,6 @@ set(PRISM_ENABLE_DOUBLE_PRECISION 0 CACHE BOOL PRISM_ENABLE_DOUBLE_PRECISION)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
 if (PRISM_ENABLE_GPU)
     set(NVCC_FLAGS_EXTRA "-arch=sm_35 -std=c++11")
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS_EXTRA})
 endif (PRISM_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -55,6 +54,7 @@ find_package(FFTW3 REQUIRED)
 if (PRISM_ENABLE_GPU)
     message("GPU support enabled")
     find_package(CUDA REQUIRED)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${NVCC_FLAGS_EXTRA})
 endif(PRISM_ENABLE_GPU)
 
 # find Qt modules, if building GUI
@@ -121,8 +121,8 @@ if (PRISM_ENABLE_GUI)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
     include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
-    qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/include/prism_qthreads.h)
-    qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/include/prism_qthreads.h)
+    qt5_wrap_cpp(PRISM_QTHREAD_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_qthreads.h)
+    qt5_wrap_cpp(PRISM_PROGRESSBAR_SOURCE ${CMAKE_SOURCE_DIR}/Qt/prism_progressbar.h)
     if (PRISM_ENABLE_GPU)
         # build the shared CUDA library used by the GUI
         cuda_add_library(prism_shared

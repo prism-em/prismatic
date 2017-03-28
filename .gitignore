@@ -1,5 +1,7 @@
 build/
+*.app/
 *.png
+*.dylib
 Qt/build*
 test/
 profile/

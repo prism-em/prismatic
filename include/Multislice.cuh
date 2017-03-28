@@ -1,6 +1,5 @@
 #ifndef PRISM_MULTISLICE_CUH
 #define PRISM_MULTISLICE_CUH
-#define CUDA_API_PER_THREAD_DEFAULT_STREAM
 #include <cuda_runtime.h>
 #include "params.h"
 #include "configure.h"

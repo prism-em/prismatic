@@ -770,7 +770,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			cufftErrchk(cufftDestroy(cufft_plan[s]));
 		}
 
-
+		for (auto j = 0; j < pars.meta.NUM_GPUS; ++j) {
+			cudaErrchk(cudaSetDevice(j));
+			cudaErrchk(cudaDeviceReset());
+		}
 	}
 
 	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars){
@@ -1096,7 +1099,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			cufftErrchk(cufftDestroy(cufft_plan[s]));
 		}
 
-
+		for (auto j = 0; j < pars.meta.NUM_GPUS; ++j) {
+			cudaErrchk(cudaSetDevice(j));
+			cudaErrchk(cudaDeviceReset());
+		}
 	}
 
 
@@ -1134,8 +1140,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		           yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
 
-if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
-if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
+//if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
+//if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
 
 
 		// Choose a good launch configuration
@@ -1166,15 +1172,15 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 		const size_t BlockSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
 
-		if (ax == 0 & ay == 0) {
-			cout << "aspect_ratio = " << aspect_ratio << endl;
-			cout << "BlockSizeX = " << BlockSizeX << endl;
-			cout << "BlockSizeZ = " << BlockSizeZ << endl;
-			cout << "BlockSizeY = " << BlockSizeY << endl;
-			cout << "target_blocks_per_sm = " << target_blocks_per_sm << endl;
-			cout << "total_blocks = " << total_blocks << endl;
-			cout << " pars.deviceProperties.multiProcessorCount = " <<  pars.deviceProperties.multiProcessorCount << endl;
-		}
+//		if (ax == 0 & ay == 0) {
+//			cout << "aspect_ratio = " << aspect_ratio << endl;
+//			cout << "BlockSizeX = " << BlockSizeX << endl;
+//			cout << "BlockSizeZ = " << BlockSizeZ << endl;
+//			cout << "BlockSizeY = " << BlockSizeY << endl;
+//			cout << "target_blocks_per_sm = " << target_blocks_per_sm << endl;
+//			cout << "total_blocks = " << total_blocks << endl;
+//			cout << " pars.deviceProperties.multiProcessorCount = " <<  pars.deviceProperties.multiProcessorCount << endl;
+//		}
 		dim3 grid(1, BlockSizeY, BlockSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
 //		dim3 block(4, 1, 1);
@@ -1432,15 +1438,15 @@ if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[
 		const size_t BlockSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
 
-		if (ax == 0 & ay == 0) {
-			cout << "aspect_ratio = " << aspect_ratio << endl;
-			cout << "BlockSizeX = " << BlockSizeX << endl;
-			cout << "BlockSizeZ = " << BlockSizeZ << endl;
-			cout << "BlockSizeY = " << BlockSizeY << endl;
-			cout << "target_blocks_per_sm = " << target_blocks_per_sm << endl;
-			cout << "total_blocks = " << total_blocks << endl;
-			cout << " pars.deviceProperties.multiProcessorCount = " <<  pars.deviceProperties.multiProcessorCount << endl;
-		}
+//		if (ax == 0 & ay == 0) {
+//			cout << "aspect_ratio = " << aspect_ratio << endl;
+//			cout << "BlockSizeX = " << BlockSizeX << endl;
+//			cout << "BlockSizeZ = " << BlockSizeZ << endl;
+//			cout << "BlockSizeY = " << BlockSizeY << endl;
+//			cout << "target_blocks_per_sm = " << target_blocks_per_sm << endl;
+//			cout << "total_blocks = " << total_blocks << endl;
+//			cout << " pars.deviceProperties.multiProcessorCount = " <<  pars.deviceProperties.multiProcessorCount << endl;
+//		}
 		dim3 grid(1, BlockSizeY, BlockSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
 //		dim3 block(4, 1, 1);
