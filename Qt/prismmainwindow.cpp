@@ -145,7 +145,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updatePotentialFloatImage()));
     connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
-
+    connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
 
 //    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
@@ -507,7 +507,6 @@ void PRISMMainWindow::updateContrastPotMax(){
 }
 
 void PRISMMainWindow::redrawImages(){
-
     ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
                                                                                 ui->lbl_image_potential->height(),
                                                                                 Qt::KeepAspectRatio)));
