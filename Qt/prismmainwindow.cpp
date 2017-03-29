@@ -371,6 +371,7 @@ void PRISMMainWindow::calculatePotential(){
 }
 
 void PRISMMainWindow::calculateAll(){
+    QMutexLocker gatekeeper(&this->calculationLock);
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
     if (meta->algorithm == PRISM::Algorithm::PRISM) {

@@ -92,6 +92,7 @@ private:
     QMutex potentialLock;
 	QMutex sMatrixLock;
     QMutex stackLock;
+    QMutex calculationLock;
 
     bool potentialReady;
     bool ScompactReady;
