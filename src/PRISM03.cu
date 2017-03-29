@@ -712,7 +712,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					Nstop = 0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size();
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
-					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+                    while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
@@ -1044,7 +1045,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
 //					early_CPU_stop = 0;
-					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+                    while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
