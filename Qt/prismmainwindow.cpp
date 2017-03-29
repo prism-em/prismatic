@@ -65,35 +65,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     probeImage_mr.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
     probeImage_mk.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
 
-
-
-    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
-                                                                                ui->lbl_image_potential->height(),
-                                                                                Qt::KeepAspectRatio)));
-
-    ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
-                                                                                   ui->lbl_image_probeInteractive->height(),
-                                                                                   Qt::KeepAspectRatio)));
-
-    ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
-                                                                          ui->lbl_image_output->height(),
-                                                                          Qt::KeepAspectRatio)));
-
-    ui->lbl_image_probe_pk->setPixmap(QPixmap::fromImage(probeImage_pr.scaled(ui->lbl_image_probe_pk->width(),
-                                                                              ui->lbl_image_probe_pk->height(),
-                                                                              Qt::KeepAspectRatio)));
-
-    ui->lbl_image_probe_pr->setPixmap(QPixmap::fromImage(probeImage_pk.scaled(ui->lbl_image_probe_pr->width(),
-                                                                              ui->lbl_image_probe_pr->height(),
-                                                                              Qt::KeepAspectRatio)));
-
-    ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(probeImage_mr.scaled(ui->lbl_image_probe_mk->width(),
-                                                                              ui->lbl_image_probe_mk->height(),
-                                                                              Qt::KeepAspectRatio)));
-
-    ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mr->width(),
-                                                                              ui->lbl_image_probe_mr->height(),
-                                                                              Qt::KeepAspectRatio)));
+    redrawImages();
 
 	// set initially displayed values based on the default parameters
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
@@ -534,15 +506,57 @@ void PRISMMainWindow::updateContrastPotMax(){
 //    updatePotentialDisplay();
 }
 
+void PRISMMainWindow::redrawImages(){
+
+    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
+                                                                                ui->lbl_image_potential->height(),
+                                                                                Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
+                                                                                   ui->lbl_image_probeInteractive->height(),
+                                                                                   Qt::KeepAspectRatio)));
+
+    ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
+                                                                          ui->lbl_image_output->height(),
+                                                                          Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probe_pk->setPixmap(QPixmap::fromImage(probeImage_pr.scaled(ui->lbl_image_probe_pk->width(),
+                                                                              ui->lbl_image_probe_pk->height(),
+                                                                              Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probe_pr->setPixmap(QPixmap::fromImage(probeImage_pk.scaled(ui->lbl_image_probe_pr->width(),
+                                                                              ui->lbl_image_probe_pr->height(),
+                                                                              Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(probeImage_mr.scaled(ui->lbl_image_probe_mk->width(),
+                                                                              ui->lbl_image_probe_mk->height(),
+                                                                              Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mr->width(),
+                                                                              ui->lbl_image_probe_mr->height(),
+                                                                              Qt::KeepAspectRatio)));
+    ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
+                                                                          ui->lbl_image_output->height(),
+                                                                          Qt::KeepAspectRatio)));
+    std::cout << "ui->lbl_image_output->width() = " << ui->lbl_image_output->width() << std::endl;
+    std::cout << "ui->lbl_image_output->height() = " << ui->lbl_image_output->height() << std::endl;
+
+}
 void PRISMMainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
-   ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
-                                                                                ui->lbl_image_potential->height(),
-                                                                                Qt::KeepAspectRatio)));
-   ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
-                                                                                  ui->lbl_image_probeInteractive->height(),
-                                                                                  Qt::KeepAspectRatio)));
+   redrawImages();
+//   ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
+//                                                                                ui->lbl_image_potential->height(),
+//                                                                                Qt::KeepAspectRatio)));
+
+//   ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
+//                                                                                  ui->lbl_image_probeInteractive->height(),
+//                                                                                  Qt::KeepAspectRatio)));
+
+//   ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
+//                                                                         ui->lbl_image_output->height(),
+//                                                                         Qt::KeepAspectRatio)));
 //   updatePotentialDisplay();
 }
 

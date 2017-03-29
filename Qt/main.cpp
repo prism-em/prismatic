@@ -4,7 +4,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     PRISMMainWindow w;
-    w.setGeometry(0,0,950,650);
+   //
     w.show();
+    w.setGeometry(0,0,950,650);
     return a.exec();
 }

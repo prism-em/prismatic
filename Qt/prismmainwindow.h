@@ -34,6 +34,7 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
+   void redrawImages();
 
 public slots:
 	void setInterpolationFactor();
