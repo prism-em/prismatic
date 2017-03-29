@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -484,7 +484,7 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_angmin">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
@@ -498,9 +498,9 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSlider_angmin">
+                 <widget class="QSlider" name="slider_angmin">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -514,7 +514,7 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_angmax">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
@@ -530,7 +530,7 @@
                 <item>
                  <widget class="QSlider" name="slider_angmax">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -561,9 +561,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_9">
+               <widget class="QLineEdit" name="contrast_outputMin">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
@@ -574,9 +574,9 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit_10">
+               <widget class="QLineEdit" name="contrast_outputMax">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="maximumSize">
                  <size>

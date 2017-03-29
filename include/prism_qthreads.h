@@ -16,11 +16,8 @@ class PotentialThread : public QThread {
 public:
     explicit PotentialThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PotentialThread();
-
-//public slots:
-   // signals:
-   // void potentialReady(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
-
+//signals:
+//    void potentialCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -35,11 +32,8 @@ class SMatrixThread : public QThread {
 public:
     explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~SMatrixThread();
-
-//public slots:
-    // signals:
-    // void potentialReady(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
-
+//signals:
+//    void ScompactCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -55,6 +49,8 @@ public:
     virtual ~FullCalcThread();
 signals:
     void potentialCalculated();
+    void ScompactCalculated();
+    void stackCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

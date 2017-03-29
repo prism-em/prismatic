@@ -44,6 +44,8 @@ public:
     virtual ~FullPRISMCalcThread();
 signals:
     void potentialCalculated();
+	void ScompactCalculated();
+	void outputCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -58,7 +60,9 @@ public:
     explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullMultisliceCalcThread();
 signals:
-    void potentialCalculated();
+	void potentialCalculated();
+	void ScompactCalculated();
+	void outputCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

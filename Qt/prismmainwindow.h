@@ -59,6 +59,9 @@ public slots:
     void updatePotentialImage();
     void updatePotentialDisplay();
     void updatePotentialFloatImage();
+    void updateOutputImage();
+    void updateOutputDisplay();
+    void updateOutputFloatImage();
     void updateSliders_fromLineEdits();
     void updateContrastPotMin();
     void updateContrastPotMax();
@@ -91,15 +94,15 @@ private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-    PRISM::Array4D<PRISM_FLOAT_PRECISION> stack;
+    PRISM::Array4D<PRISM_FLOAT_PRECISION> output;
     QMutex potentialLock;
 	QMutex sMatrixLock;
-    QMutex stackLock;
+    QMutex outputLock;
     QMutex calculationLock;
 
     bool potentialReady;
     bool ScompactReady;
-    bool stackReady;
+    bool outputReady;
 
     QImage potentialImage;
     QImage probeImage;
@@ -109,10 +112,12 @@ private:
     QImage probeImage_mk;
     QImage outputImage;
     PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> outputImage_float;
 
     PRISM_FLOAT_PRECISION contrast_potentialMin;
     PRISM_FLOAT_PRECISION contrast_potentialMax;
-
+    PRISM_FLOAT_PRECISION contrast_outputMin;
+    PRISM_FLOAT_PRECISION contrast_outputMax;
 //    QImage potenetialImage;
 
 };

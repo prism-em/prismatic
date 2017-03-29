@@ -29,7 +29,7 @@ SOURCES += main.cpp\
         prismmainwindow.cpp \ 
         prism_qthreads.cpp \
     ../src/configure.cpp \
-    ../src/getWorkID.cpp \
+    ../src/WorkDispatcher.cpp \
     ../src/Multislice_entry.cpp \
     ../src/Multislice.cpp \
     ../src/PRISM_entry.cpp \
@@ -40,7 +40,6 @@ SOURCES += main.cpp\
     prism_progressbar.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h \
-    ../include/prism_qthreads.h \
     prism_progressbar.h
 QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \

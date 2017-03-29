@@ -92,14 +92,13 @@ void FullPRISMCalcThread::run(){
         this->parent->ScompactReady = true;
     }
     std::cout << "copying S-Matrix" << std::endl;
-////    std::cout << "S-Matrix.at(0,0,0) = " << this->parent->Scompact.at(0,0,0) << std::endl;
-
+    emit ScompactCalculated();
 
     PRISM::PRISM03(params);
     {
-        QMutexLocker gatekeeper(&this->parent->stackLock);
-        this->parent->stack = params.stack;
-        this->parent->stackReady = true;
+        QMutexLocker gatekeeper(&this->parent->outputLock);
+        this->parent->output = params.stack;
+        this->parent->outputReady = true;
         size_t lower = 13;
         size_t upper = 18;
         PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
@@ -114,9 +113,10 @@ void FullPRISMCalcThread::run(){
 
         prism_image.toMRC_f(params.meta.filename_output.c_str());
     }
+    emit outputCalculated();
 
     std::cout << "Calculation complete" << std::endl;
-//    std::cout<<"after copy this->parent->pot.at(0,0,0) = " << this->parent->potential.at(0,0,0) << std::endl;
+    std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->output.at(0,0,0) << std::endl;
 }
 
 
@@ -143,9 +143,9 @@ void FullMultisliceCalcThread::run(){
 
     PRISM::Multislice(params);
     {
-        QMutexLocker gatekeeper(&this->parent->stackLock);
-        this->parent->stack = params.stack;
-        this->parent->stackReady = true;
+        QMutexLocker gatekeeper(&this->parent->outputLock);
+        this->parent->output = params.stack;
+        this->parent->outputReady = true;
         size_t lower = 13;
         size_t upper = 18;
         PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
@@ -160,9 +160,12 @@ void FullMultisliceCalcThread::run(){
 
         prism_image.toMRC_f(params.meta.filename_output.c_str());
     }
+    emit outputCalculated();
 
 
     std::cout << "Calculation complete" << std::endl;
+    std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->output.at(0,0,0) << std::endl;
+
 }
 
 PotentialThread::~PotentialThread(){}
