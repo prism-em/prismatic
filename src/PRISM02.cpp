@@ -12,7 +12,7 @@
 #include <complex>
 #include "utility.h"
 #include "configure.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 namespace PRISM {
 
 	using namespace std;
@@ -229,12 +229,13 @@ namespace PRISM {
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		setWorkStartStop(0, pars.numberBeams, 1);
+//		setWorkStartStop(0, pars.numberBeams, 1);
+        WorkDispatcher dispatcher(0, pars.numberBeams, 1);
 //		 setWorkStartStop(0, 1);
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching thread #" << t << " to compute beams\n";
-			workers.push_back(thread([&pars, &fftw_plan_lock]() {
+			workers.push_back(thread([&pars, &fftw_plan_lock, &dispatcher]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -250,8 +251,9 @@ namespace PRISM {
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop;
-				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
-					while (currentBeam != stop) {
+//				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
+                while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
+                    while (currentBeam != stop) {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);

@@ -16,7 +16,7 @@
 #include "params.h"
 #include "utility.h"
 #include "fftw3.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 
 namespace PRISM{
 	using namespace std;

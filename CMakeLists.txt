@@ -20,7 +20,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 # create variables with various bundles of source files
 set(SOURCE_FILES
         src/configure.cpp
-        src/getWorkID.cpp
+        src/WorkDispatcher.cpp
         src/Multislice.cpp
         src/PRISM01.cpp
         src/PRISM02.cpp

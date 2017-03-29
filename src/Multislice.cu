@@ -10,7 +10,7 @@
 #include "Multislice.h"
 #include "cuComplex.h"
 #include "cufft.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 #include <iostream>
 #include "fftw3.h"
 #include "utility.h"
@@ -291,7 +291,8 @@ namespace PRISM{
 
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 //		setWorkStartStop(0, 1);
 		cout << " pars.xp.size()  = " << pars.xp.size()  << endl;
 		cout << " pars.yp.size()  = " << pars.yp.size()  << endl;
@@ -316,7 +317,7 @@ namespace PRISM{
 			PRISM_FLOAT_PRECISION *current_output_ph           = output_ph[stream_count];
 			cufftHandle & current_cufft_plan = cufft_plan[stream_count];
 			// launch a new thread
-			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d,
+			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, &current_cufft_plan,
 					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
@@ -324,7 +325,8 @@ namespace PRISM{
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -360,7 +362,7 @@ namespace PRISM{
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
 				early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+					while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
@@ -576,7 +578,8 @@ namespace PRISM{
 
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];
@@ -598,7 +601,7 @@ namespace PRISM{
 			cufftHandle & current_cufft_plan                   = cufft_plan[stream_count];
 			// launch a new thread
 			// push_back is better whenever constructing a new object
-			workers_GPU.push_back(thread([&pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_alphaInd_d,
+			workers_GPU.push_back(thread([&pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, current_cufft_plan,
 					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
@@ -606,7 +609,8 @@ namespace PRISM{
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -642,7 +646,7 @@ namespace PRISM{
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 					// wait longer for everything to complete
 					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+					while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 						while (Nstart != Nstop) {
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();

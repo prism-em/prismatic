@@ -373,18 +373,28 @@ void PRISMMainWindow::calculatePotential(){
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
-//    if (meta->algorithm == PRISM::Algorithm::PRISM) {
+    if (meta->algorithm == PRISM::Algorithm::PRISM) {
         FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-//        std::cout <<"Starting Full PRISM Calculation" << std::endl;
-//    } else{
-//        FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
-//        std::cout <<"Starting Full Multislice Calculation" << std::endl;
-//    }
-    worker->meta.toString();
-    worker->start();
-   // connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
-    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+        std::cout <<"Starting Full PRISM Calculation" << std::endl;
+        worker->meta.toString();
+        worker->start();
+        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+    } else{
+        FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
+        std::cout <<"Starting Full Multislice Calculation" << std::endl;
+        worker->meta.toString();
+        worker->start();
+        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+    }
+//    worker->meta.toString();
+//    worker->start();
+//   // connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+//    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+//    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 }
 
 void PRISMMainWindow::updatePotentialImage(){

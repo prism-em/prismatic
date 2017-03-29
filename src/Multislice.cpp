@@ -18,7 +18,7 @@
 #include "params.h"
 #include "utility.h"
 #include "fftw3.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 #include "Multislice.h"
 namespace PRISM{
 	using namespace std;
@@ -234,13 +234,15 @@ namespace PRISM{
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';
 
-			workers.push_back(thread([&pars, t]() {
+			workers.push_back(thread([&pars, &dispatcher, t]() {
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();

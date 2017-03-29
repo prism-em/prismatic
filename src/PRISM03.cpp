@@ -13,7 +13,7 @@
 #include <vector>
 #include "fftw3.h"
 #include "utility.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 
 namespace PRISM {
 	using namespace std;
@@ -132,13 +132,15 @@ namespace PRISM {
 		// this may need to be adapted
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+        WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			// push_back is better whenever constructing a new object
-			workers.push_back(thread([&pars]() {
+			workers.push_back(thread([&pars, &dispatcher]() {
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+                while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -236,9 +238,9 @@ namespace PRISM {
 		PRISM_FLOAT_PRECISION scale = pow(pars.meta.interpolationFactor, 4);
 		pars.scale = scale;
 
-		// The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
-		// allocations/copies for chained operations I try to do things like create variables
-		// initially with at most one operation, and then perform in-place transforms if more is needed
+//		 The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
+//		 allocations/copies for chained operations I try to do things like create variables
+//		 initially with at most one operation, and then perform in-place transforms if more is needed
 
 		Array2D<PRISM_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.probeXtilt / pars.lambda);
 		Array2D<PRISM_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.probeYtilt / pars.lambda);
@@ -322,12 +324,13 @@ namespace PRISM {
 		// initialize the output stack to the correct size for the output mode
 		createStack_integrate(pars);
 
-		// perform some necessary setup transformations of the data
+//		 perform some necessary setup transformations of the data
 		transformIndices(pars);
 
 		// initialize/compute the probes
 		initializeProbes(pars);
 
+		cout << "building output" << endl;
 		// compute the final PRISM output
 		buildPRISMOutput(pars);
 	}

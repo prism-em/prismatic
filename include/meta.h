@@ -28,7 +28,7 @@ namespace PRISM{
 			alphaBeamMax = 24 / 1000.0;
 			NUM_GPUS = 1;
 			NUM_STREAMS_PER_GPU = 3;
-			NUM_THREADS = 1;
+			NUM_THREADS = 8;
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
 			also_do_CPU_work = true;
 //			also_do_CPU_work = false;

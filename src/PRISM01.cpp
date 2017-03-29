@@ -15,7 +15,7 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "projectedPotential.h"
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -69,6 +69,7 @@ namespace PRISM {
 			z[i]  = pars.atoms[i].z * pars.meta.cellDim[0];
 			ID[i] = pars.atoms[i].species;
 		}
+        cout <<"DEBUG1" << endl;
 
 		// compute the z-slice index for each atom
 		auto max_z = std::max_element(z.begin(), z.end());
@@ -84,6 +85,7 @@ namespace PRISM {
                                                                   QString("/") +
                                                                   QString::number(pars.numPlanes));
 #endif
+        cout << "after progress" << endl;
 		// initialize the potential array
 		pars.pot = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.numPlanes,pars.imageSize[0], pars.imageSize[1]}});
 
@@ -96,10 +98,12 @@ namespace PRISM {
 		std::vector<std::thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS);
 
-		setWorkStartStop(0, pars.numPlanes, 1);
+//		setWorkStartStop(0, pars.numPlanes, 1);
+		WorkDispatcher dispatcher(0, pars.numPlanes, 1);
 		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
-			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &zPlane, &yvec,&potentialLookup,&uLookup](){
+			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec,
+											 &zPlane, &yvec,&potentialLookup,&uLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
 				std::default_random_engine de(time(0));
 				normal_distribution<PRISM_FLOAT_PRECISION> randn(0,1);
@@ -107,7 +111,8 @@ namespace PRISM {
 				Array1D<long> yp;
 
 				size_t currentBeam, stop;
-				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
+				//while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
+				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
 					Array2D<PRISM_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 					while (currentBeam != stop) {
 						for (auto a2 = 0; a2 < x.size(); ++a2) {

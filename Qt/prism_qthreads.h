@@ -42,6 +42,8 @@ class FullPRISMCalcThread : public QThread {
 public:
     explicit FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullPRISMCalcThread();
+signals:
+    void potentialCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -55,6 +57,8 @@ class FullMultisliceCalcThread : public QThread {
 public:
     explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullMultisliceCalcThread();
+signals:
+    void potentialCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

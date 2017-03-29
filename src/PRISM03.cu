@@ -5,7 +5,7 @@
 #include <complex>
 #include <thread>
 #include <vector>
-#include "getWorkID.h"
+#include "WorkDispatcher.h"
 #include "PRISM03.cuh"
 #include "PRISM03.h"
 #include "configure.h"
@@ -640,7 +640,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+
 //		setWorkStartStop(0, 1, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
 
@@ -671,14 +673,14 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
 			// push_back is better whenever constructing a new object
-			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_d,
-					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
+			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_d, &dispatcher,													 current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -968,7 +970,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+//		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+
 //		setWorkStartStop(0, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
 
@@ -999,14 +1003,15 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FLOAT_PRECISION *current_output_ph              = output_ph[stream_count];
 
 			// push_back is better whenever constructing a new object
-			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_ds, permuted_Scompact_ph,
+			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_ds, permuted_Scompact_ph, &dispatcher,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t Nstart, Nstop, ay, ax;
-				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+//				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
