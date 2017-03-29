@@ -20,6 +20,7 @@ public:
     //void setText(const QString str);
     void signalCalcStatusMessage(const QString str);
     void signalPotentialUpdate(const long current, const long total);
+	void setProgress(int);
 public slots:
     void setStepPotential();
     void update_calculatingPotential(long, long);

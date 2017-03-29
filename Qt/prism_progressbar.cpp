@@ -43,6 +43,9 @@ void prism_progressbar::update_calculatingPotential(long current, long total){
 //void prism_progressbar::setText(const QString str){
 //    ui->lbl_Description->setText(str);
 //}
+void prism_progressbar::setProgress(int val){
+	emit updateProgressBar(val);
+}
 void prism_progressbar::updateCalcStatusMessage(const QString str){
     ui->lbl_calcStatus->setText(str);
 }
@@ -53,7 +56,7 @@ void prism_progressbar::signalPotentialUpdate(const long current, const long tot
 	std::lock_guard<std::mutex> gatekeeper(dataLock);
 	potentialCurrentSlice = std::max(potentialCurrentSlice, current);
 	emit updateCalcStatus(QString("Slice ") +
-	                      QString::number(potentialCurrentSlice) +
+	                      QString::number(potentialCurrentSlice + 1) +
 	                      QString("/") +
 	                      QString::number(total));
 	emit updateProgressBar(100*(current+1)/total);

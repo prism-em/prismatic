@@ -83,39 +83,37 @@ void FullPRISMCalcThread::run(){
     emit potentialCalculated();
 
     PRISM::PRISM02(params);
-//    // acquire the mutex so we can safely copy to the GUI copy of the potential
-//    {
-//        QMutexLocker gatekeeper(&this->parent->sMatrixLock);
-//        // perform copy
-//        this->parent->Scompact = params.Scompact;
-//        // indicate that the potential is ready
-//        this->parent->ScompactReady = true;
-//    }
-//    std::cout << "copying S-Matrix" << std::endl;
+    // acquire the mutex so we can safely copy to the GUI copy of the potential
+    {
+        QMutexLocker gatekeeper(&this->parent->sMatrixLock);
+        // perform copy
+        this->parent->Scompact = params.Scompact;
+        // indicate that the potential is ready
+        this->parent->ScompactReady = true;
+    }
+    std::cout << "copying S-Matrix" << std::endl;
 ////    std::cout << "S-Matrix.at(0,0,0) = " << this->parent->Scompact.at(0,0,0) << std::endl;
 
 
-//    PRISM::PRISM03(params);
-//    {
-//        QMutexLocker gatekeeper(&this->parent->stackLock);
-//        this->parent->stack = params.stack;
-//        this->parent->stackReady = true;
-//        size_t lower = 13;
-//        size_t upper = 18;
-//        PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
-//        prism_image = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{params.stack.get_diml(), params.stack.get_dimk()}});
-//        for (auto y = 0; y < params.stack.get_diml(); ++y){
-//            for (auto x = 0; x < params.stack.get_dimk(); ++x){
-//                for (auto b = lower; b < upper; ++b){
-//                    prism_image.at(y,x) += params.stack.at(y,x,b,0);
-//                }
-//            }
-//        }
-//
-//        prism_image.toMRC_f(params.meta.filename_output.c_str());
-//    }
+    PRISM::PRISM03(params);
+    {
+        QMutexLocker gatekeeper(&this->parent->stackLock);
+        this->parent->stack = params.stack;
+        this->parent->stackReady = true;
+        size_t lower = 13;
+        size_t upper = 18;
+        PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
+        prism_image = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{params.stack.get_diml(), params.stack.get_dimk()}});
+        for (auto y = 0; y < params.stack.get_diml(); ++y){
+            for (auto x = 0; x < params.stack.get_dimk(); ++x){
+                for (auto b = lower; b < upper; ++b){
+                    prism_image.at(y,x) += params.stack.at(y,x,b,0);
+                }
+            }
+        }
 
-
+        prism_image.toMRC_f(params.meta.filename_output.c_str());
+    }
 
     std::cout << "Calculation complete" << std::endl;
 //    std::cout<<"after copy this->parent->pot.at(0,0,0) = " << this->parent->potential.at(0,0,0) << std::endl;

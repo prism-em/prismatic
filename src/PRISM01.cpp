@@ -139,7 +139,7 @@ namespace PRISM {
 						}
 						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
 #ifdef PRISM_BUILDING_GUI
-						pars.progressbar->signalPotentialUpdate(currentBeam + 1, pars.numPlanes);
+                        pars.progressbar->signalPotentialUpdate(currentBeam, pars.numPlanes);
 //				pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
 //                                                          QString::number(currentBeam + 1) +
 //                                                          QString("/") +
@@ -155,7 +155,9 @@ namespace PRISM {
 		}
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
-
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->setProgress(100);
+#endif //PRISM_BUILDING_GUI
 	};
 
 	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
