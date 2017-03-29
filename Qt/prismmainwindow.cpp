@@ -373,6 +373,10 @@ void PRISMMainWindow::calculatePotential(){
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
+
+    // there is a global lock on the calculation to prevent memory access errors to static
+    // variables within the calculation, but we need to make sure the meta parameters are copied
+    // outside of the lock so that when the calculation does run they are correct
     if (meta->algorithm == PRISM::Algorithm::PRISM) {
         FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
         std::cout <<"Starting Full PRISM Calculation" << std::endl;
