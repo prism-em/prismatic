@@ -371,12 +371,12 @@ void PRISMMainWindow::calculatePotential(){
 }
 
 void PRISMMainWindow::calculateAll(){
-    QMutexLocker gatekeeper(&this->calculationLock);
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
     if (meta->algorithm == PRISM::Algorithm::PRISM) {
         FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
         std::cout <<"Starting Full PRISM Calculation" << std::endl;
+        QMutexLocker gatekeeper(&this->calculationLock);
         worker->meta.toString();
         worker->start();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
@@ -385,6 +385,7 @@ void PRISMMainWindow::calculateAll(){
     } else{
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
+        QMutexLocker gatekeeper(&this->calculationLock);
         worker->meta.toString();
         worker->start();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
