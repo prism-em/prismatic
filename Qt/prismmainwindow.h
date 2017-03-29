@@ -84,7 +84,7 @@ protected:
 private:
     Ui::PRISMMainWindow *ui;
     PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
-    QGraphicsScene *potentialScene;
+//    QGraphicsScene *potentialScene;
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;

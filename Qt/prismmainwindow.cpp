@@ -59,19 +59,22 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QPixmap probeImage("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
     QPixmap outputImage("/home/aj/hdd1/clion/PRISM/Qt/output.png");
 
-    potentialScene = new QGraphicsScene(this);
+//    potentialScene = new QGraphicsScene(this);
     QGraphicsScene* probeScene = new QGraphicsScene(this);
     QGraphicsScene* outputScene = new QGraphicsScene(this);
     potentialImage = potentialImage.scaled(550,550, Qt::KeepAspectRatio);
 
     probeImage     = probeImage.scaled(ui->graphicsView_probe->width()*0.9, ui->graphicsView_probe->height()*0.9, Qt::KeepAspectRatio);
-    probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+//    probeImage     = probeImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+//    outputImage    = outputImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
+    probeImage     = probeImage.scaled(550,550, Qt::KeepAspectRatio);
+    outputImage    = outputImage.scaled(550,550, Qt::KeepAspectRatio);
 
-    outputImage    = outputImage.scaled(ui->graphicsView_potential->width()*0.9, ui->graphicsView_potential->height()*0.9, Qt::KeepAspectRatio);
 
 
 
-    potentialScene->addPixmap(potentialImage);
+//    potentialScene->addPixmap(potentialImage);
+    ui->lbl_image_potential->setPixmap(potentialImage);
     probeScene->addPixmap(probeImage);
     outputScene->addPixmap(outputImage);
 
@@ -83,7 +86,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 //    potentialScene->setSceneRect(0,0,250,250);
    // probeScene->setSceneRect(probeImage.rect());
   //  outputScene->setSceneRect(outputImage.rect());
-    ui->graphicsView_potential->setScene(potentialScene);
+//    ui->graphicsView_potential->setScene(potentialScene);
    // ui->graphicsView_potential->fitInView(potentialImage.rect());
     ui->graphicsView_probe->setScene(probeScene);
    // ui->graphicsView_probe->setScene(potentialScene);
@@ -480,18 +483,23 @@ void PRISMMainWindow::updatePotentialDisplay(){
                 }
             }
 //        }
-        potentialScene->clear();
-        QImage potentialImage_tmp = potentialImage.scaled(potentialScene->width(),
-                               potentialScene->height(),
+//        potentialScene->clear();
+//        QImage potentialImage_tmp = potentialImage.scaled(potentialScene->width(),
+//                               potentialScene->height(),
+//                               Qt::KeepAspectRatio);
+        QImage potentialImage_tmp = potentialImage.scaled(ui->lbl_image_potential->width(),
+                               ui->lbl_image_potential->height(),
                                Qt::KeepAspectRatio);
-        potentialScene->addPixmap(QPixmap::fromImage(potentialImage_tmp));
+//        potentialScene->addPixmap(QPixmap::fromImage(potentialImage_tmp));
+        ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage_tmp));
+
 //        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(potentialScene->width(),
 //                                                                           potentialScene->height(),
 //                                                                           Qt::KeepAspectRatio)));
 //        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(550,
 //                                                                           550,
 //                                                                           Qt::KeepAspectRatio)));
-        potentialScene->setSceneRect(potentialImage_tmp.rect());
+//        potentialScene->setSceneRect(potentialImage_tmp.rect());
        // potentialScene->setAlignment(Qt::AlignCenter);
     }
 }
