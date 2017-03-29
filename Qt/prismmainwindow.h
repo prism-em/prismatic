@@ -101,6 +101,12 @@ private:
     bool stackReady;
 
     QImage potentialImage;
+    QImage probeImage;
+    QImage probeImage_pr;
+    QImage probeImage_pk;
+    QImage probeImage_mr;
+    QImage probeImage_mk;
+    QImage outputImage;
     PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
 
     PRISM_FLOAT_PRECISION contrast_potentialMin;
