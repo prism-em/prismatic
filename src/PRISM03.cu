@@ -707,7 +707,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size();
@@ -1039,7 +1039,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
 					Nstop = 0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);

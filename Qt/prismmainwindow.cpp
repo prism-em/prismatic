@@ -52,14 +52,12 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                        padding: 0 3px 0px 3px;\
                                        }");
 
-//    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/potential.png");
-    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
-//
-    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
-    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
-//    QPixmap potentialImage("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
-  //  QPixmap probeImage("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
-    //QPixmap outputImage("/home/aj/hdd1/clion/PRISM/Qt/output.png");
+//    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
+//    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
+//    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
+    QPixmap potentialImage("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
+    QPixmap probeImage("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
+    QPixmap outputImage("/home/aj/hdd1/clion/PRISM/Qt/output.png");
 
     potentialScene = new QGraphicsScene(this);
     QGraphicsScene* probeScene = new QGraphicsScene(this);

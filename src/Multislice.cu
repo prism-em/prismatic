@@ -356,7 +356,7 @@ namespace PRISM{
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 				Nstop = 0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
@@ -640,7 +640,7 @@ namespace PRISM{
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 					Nstop = 0;
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to

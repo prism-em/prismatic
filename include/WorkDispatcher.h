@@ -6,6 +6,7 @@
 #define PRISM_WORKDISPATCHER_H
 #include "params.h"
 #include "configure.h"
+#include <mutex>
 namespace PRISM {
     class WorkDispatcher {
     public:
