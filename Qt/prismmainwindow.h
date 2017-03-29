@@ -34,6 +34,7 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
     ~PRISMMainWindow();
+
 public slots:
 	void setInterpolationFactor();
 	void setFilenameAtoms_fromDialog();
@@ -63,6 +64,7 @@ public slots:
     void updateContrastPotMax();
     void updateSlider_lineEdits_min(int);
     void updateSlider_lineEdits_max(int);
+    void resizeEvent(QResizeEvent* event);
 
 //    void testImage();
 

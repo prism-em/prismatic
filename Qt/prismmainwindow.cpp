@@ -490,8 +490,10 @@ void PRISMMainWindow::updatePotentialDisplay(){
         QImage potentialImage_tmp = potentialImage.scaled(ui->lbl_image_potential->width(),
                                ui->lbl_image_potential->height(),
                                Qt::KeepAspectRatio);
+        std::cout << "label width = " << ui->lbl_image_potential->width() << std::endl;
 //        potentialScene->addPixmap(QPixmap::fromImage(potentialImage_tmp));
         ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage_tmp));
+//        ui->lbl_image_potential->setMinimumSize(1, 1);
 
 //        potentialScene->addPixmap(QPixmap::fromImage(potentialImage.scaled(potentialScene->width(),
 //                                                                           potentialScene->height(),
@@ -534,6 +536,13 @@ void PRISMMainWindow::updateContrastPotMax(){
     contrast_potentialMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMax->text().toDouble();
     updatePotentialDisplay();
 }
+
+void PRISMMainWindow::resizeEvent(QResizeEvent* event)
+{
+   QMainWindow::resizeEvent(event);
+   updatePotentialDisplay();
+}
+
 PRISMMainWindow::~PRISMMainWindow()
 {
     delete ui;
