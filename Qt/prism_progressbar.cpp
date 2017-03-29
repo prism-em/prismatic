@@ -56,7 +56,7 @@ void prism_progressbar::signalPotentialUpdate(const long current, const long tot
 	                      QString::number(potentialCurrentSlice) +
 	                      QString("/") +
 	                      QString::number(total));
-	emit updateProgressBar(100*current/total);
+	emit updateProgressBar(100*(current+1)/total);
 }
 prism_progressbar::~prism_progressbar()
 {

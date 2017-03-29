@@ -376,18 +376,18 @@ void PRISMMainWindow::calculateAll(){
     // variables within the calculation, but we need to make sure the meta parameters are copied
     // outside of the lock so that when the calculation does run they are correct
     if (meta->algorithm == PRISM::Algorithm::PRISM) {
-        FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
+	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
+	    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+
         std::cout <<"Starting Full PRISM Calculation" << std::endl;
-        QMutexLocker gatekeeper(&this->calculationLock);
         worker->meta.toString();
         worker->start();
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+
     } else{
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
-        QMutexLocker gatekeeper(&this->calculationLock);
         worker->meta.toString();
         worker->start();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));

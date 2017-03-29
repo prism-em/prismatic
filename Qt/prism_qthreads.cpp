@@ -36,6 +36,7 @@ void SMatrixThread::run(){
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
     // calculate potential if it hasn't been already
     if (!this->parent->potentialReady){
+	    QMutexLocker calculationLocker(&this->parent->calculationLock);
         // calculate potential
         PRISM::PRISM01(params);
         // acquire the mutex so we can safely copy to the GUI copy of the potential
@@ -69,6 +70,7 @@ parent(_parent), progressbar(_progressbar){
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+	QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
     PRISM::PRISM01(params);
@@ -130,6 +132,7 @@ FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, pri
 void FullMultisliceCalcThread::run(){
     std::cout << "Full Multislice Calculation thread running" << std::endl;
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+	QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::configure(meta);
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
