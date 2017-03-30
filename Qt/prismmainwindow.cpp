@@ -136,6 +136,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
+    connect(this->ui->lineEdit_probedxy, SIGNAL(editingFinished()), this, SLOT(setprobe_dxy_fromLineEdit()));
     connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -343,6 +344,13 @@ void PRISMMainWindow::setE0_fromLineEdit(){
     }
 }
 
+void PRISMMainWindow::setprobe_dxy_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probedxy->text().toDouble();
+    if (val > 0){
+        this->meta->dxy = val;
+        std::cout << "Setting dxy to " << val << std::endl;
+    }
+}
 void PRISMMainWindow::calculatePotential(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
@@ -364,6 +372,7 @@ void PRISMMainWindow::calculateAll(){
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+//        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));
         std::cout <<"Starting Full PRISM Calculation" << std::endl;
         worker->meta.toString();
         worker->start();
@@ -375,6 +384,7 @@ void PRISMMainWindow::calculateAll(){
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+//        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));
         worker->start();
     }
 //    worker->meta.toString();
@@ -470,6 +480,7 @@ void PRISMMainWindow::updateOutputImage(){
 	        this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0]));
 	        this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1]));
         }
+    updateOutputFloatImage();
 }
 
 void PRISMMainWindow::updateOutputFloatImage(){
