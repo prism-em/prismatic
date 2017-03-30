@@ -72,6 +72,7 @@ public slots:
 	void updateSlider_lineEdits_min_ang(int val);
     void resizeEvent(QResizeEvent* event);
     void redrawImages();
+    void saveCurrentOutputImage();
 
 
 //    void testImage();

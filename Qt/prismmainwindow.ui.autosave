@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -1477,6 +1477,9 @@
               <widget class="QCheckBox" name="checkBox_saveProjectedPotential">
                <property name="text">
                 <string>Save projected potentials</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>

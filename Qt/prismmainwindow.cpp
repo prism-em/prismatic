@@ -158,6 +158,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
+    connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
 
 //    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
@@ -458,7 +459,7 @@ void PRISMMainWindow::updateOutputImage(){
             {
             QMutexLocker gatekeeper(&outputLock);
             // create new empty image with appropriate dimensions
-            outputImage = QImage(output.get_dimj(), output.get_dimi(), QImage::Format_ARGB32);
+            outputImage = QImage(output.get_diml(), output.get_dimk(), QImage::Format_ARGB32);
             }
             // update sliders to match dimensions of output, which also triggers a redraw of the image
             this->ui->slider_angmin->setMinimum(0);
@@ -473,29 +474,35 @@ void PRISMMainWindow::updateOutputImage(){
 
 void PRISMMainWindow::updateOutputFloatImage(){
     if (outputReady){
+        std::cout << "updateOutputFloatImage " << std::endl;
+
         QMutexLocker gatekeeper(&outputLock);
 
         // integrate image into the float array, then convert to uchar
-        size_t min_layer = this->ui->slider_slicemin->value();
-        size_t max_layer = this->ui->slider_slicemax->value();
-        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_dimj(), output.get_dimi()}});
-        for (auto k = min_layer; k <= max_layer; ++k){
-            for (auto j = 0; j < output.get_dimj(); ++j){
-                for (auto i = 0; i < output.get_dimi(); ++i){
-                    outputImage_float.at(j,i) += output.at(k - 1,j ,i);
+        size_t min_layer = this->ui->slider_angmin->value();
+        size_t max_layer = this->ui->slider_angmax->value();
+        std::cout << "min_layer = " << min_layer << std::endl;
+        std::cout << "max_layer = " << max_layer << std::endl;
+        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_diml(), output.get_dimk()}});
+        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
+         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
+        for (auto j = 0; j < output.get_diml(); ++j){
+            for (auto i = 0; i < output.get_dimk(); ++i){
+                 for (auto k = min_layer; k <= max_layer; ++k){
+                    outputImage_float.at(j,i) += output.at(j, i, k, 0);
                 }
             }
         }
 
         // get max/min values for contrast setting
         auto minval = std::min_element(outputImage_float.begin(),
-                                                 outputImage_float.end());
+                                       outputImage_float.end());
         auto maxval = std::max_element(outputImage_float.begin(),
-                                                 outputImage_float.end());
+                                       outputImage_float.end());
         contrast_outputMin = *minval;
         contrast_outputMax = *maxval;
-        ui->lineEdit_contrastPotMin->setText(QString::number(contrast_outputMin));
-        ui->lineEdit_contrastPotMax->setText(QString::number(contrast_outputMax));
+        ui->contrast_outputMin->setText(QString::number(contrast_outputMin));
+        ui->contrast_outputMax->setText(QString::number(contrast_outputMax));
     }
     updateOutputDisplay();
 }
@@ -503,8 +510,8 @@ void PRISMMainWindow::updateOutputFloatImage(){
 void PRISMMainWindow::updateOutputDisplay(){
     if (outputReady){
             QMutexLocker gatekeeper(&outputLock);
-            for (auto j = 0; j < output.get_dimj(); ++j){
-                for (auto i = 0; i < output.get_dimi(); ++i){
+            for (auto j = 0; j < output.get_diml(); ++j){
+                for (auto i = 0; i < output.get_dimk(); ++i){
                     uchar val = getUcharFromFloat(outputImage_float.at(j,i),
                                                   contrast_outputMin,
                                                   contrast_outputMax);
@@ -513,19 +520,14 @@ void PRISMMainWindow::updateOutputDisplay(){
             }
 
         QImage outputImage_tmp = outputImage.scaled(ui->lbl_image_output->width(),
-                               ui->lbl_image_output->height(),
-                               Qt::KeepAspectRatio);
+                                                    ui->lbl_image_output->height(),
+                                                    Qt::KeepAspectRatio);
 
         ui->lbl_image_output->setPixmap(QPixmap::fromImage( outputImage.scaled(ui->lbl_image_output->width(),
-                                                                                     ui->lbl_image_output->height(),
-                                                                                     Qt::KeepAspectRatio)));
+                                                                               ui->lbl_image_output->height(),
+                                                                               Qt::KeepAspectRatio)));
     }
 }
-
-
-
-
-
 
 void PRISMMainWindow::updateSliders_fromLineEdits(){
     this->ui->slider_slicemin->setValue(std::min(this->ui->lineEdit_slicemin->text().toInt(),
@@ -538,17 +540,13 @@ void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
     (detectorAngles[1]-detectorAngles[0]);
     PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
     (detectorAngles[1]-detectorAngles[0]);
-    std::cout << "minval = " << minval << std::endl;
-    std::cout << "maxval = " << maxval << std::endl;
     this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
                                                  this->ui->slider_angmax->value()));
     this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval),
                                                  this->ui->slider_angmin->value()));
     updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
     updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
-//	this->ui->slider_angmax->setValue(std::max((int)( (this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
-//			                                           (detectorAngles[1]-detectorAngles[0])),
-//	                                             this->ui->slider_angmin->value()));
+
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min(int val){
@@ -580,11 +578,8 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
-//	std::cout << "val = " << val << std::endl;
 	if (val <= this->ui->slider_angmax->value()){
 		double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
-		std::cout << "val = " << val << std::endl;
-		std::cout << "scaled_val = " << scaled_val << std::endl;
 		this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
 	} else {
 		this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
@@ -598,8 +593,16 @@ void PRISMMainWindow::updateContrastPotMin(){
 }
 void PRISMMainWindow::updateContrastPotMax(){
     contrast_potentialMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMax->text().toDouble();
+    updatePotentialDisplay();
+
 }
 
+void PRISMMainWindow::saveCurrentOutputImage(){
+    if (outputReady){
+            QMutexLocker gatekeeper(&outputLock);
+            outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
+    }
+}
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
 //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
@@ -639,20 +642,7 @@ void PRISMMainWindow::redrawImages(){
 void PRISMMainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
-//   updatePotentialDisplay();
    redrawImages();
-//   ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
-//                                                                                ui->lbl_image_potential->height(),
-//                                                                                Qt::KeepAspectRatio)));
-
-//   ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
-//                                                                                  ui->lbl_image_probeInteractive->height(),
-//                                                                                  Qt::KeepAspectRatio)));
-
-//   ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
-//                                                                         ui->lbl_image_output->height(),
-//                                                                         Qt::KeepAspectRatio)));
-//   updatePotentialDisplay();
 }
 
 PRISMMainWindow::~PRISMMainWindow()
@@ -664,16 +654,8 @@ PRISMMainWindow::~PRISMMainWindow()
 unsigned char getUcharFromFloat(PRISM_FLOAT_PRECISION val,
                                 PRISM_FLOAT_PRECISION contrast_low,
                                 PRISM_FLOAT_PRECISION contrast_high){
-   // static uchar a = 0;
-    //std::cout << "contrast_low = " << contrast_low << std::endl;
-    //std::cout << "contrast_high = " << contrast_high << std::endl;
-    //std::cout << "val = " << val << std::endl;
 
     if (val <= contrast_low)  return 0;
     if (val >= contrast_high) return 255;
-   // std::cout << "val = " << val / contrast_high * 255 << std::endl;
     return (unsigned char)( val / contrast_high * 255);
-    //return a++;
 }
-
-
