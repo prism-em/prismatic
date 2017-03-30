@@ -41,7 +41,7 @@ cout << "ndevices = " << nDevices << endl;
 		cout << "PRISM: Correct syntax is prism filename [interpolation factor]" << endl;
 		return 0;
 	}
-	prism_meta.filename_output = "prism_image.mrc";
+	prism_meta.filename_output = "stack.mrc";
 
 	PRISM::configure(prism_meta);
 	PRISM::execute_plan(prism_meta);

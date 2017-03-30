@@ -101,19 +101,11 @@ void FullPRISMCalcThread::run(){
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
-        size_t lower = 13;
-        size_t upper = 18;
-        PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
-        prism_image = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{params.stack.get_diml(), params.stack.get_dimk()}});
-        for (auto y = 0; y < params.stack.get_diml(); ++y){
-            for (auto x = 0; x < params.stack.get_dimk(); ++x){
-                for (auto b = lower; b < upper; ++b){
-                    prism_image.at(y,x) += params.stack.at(y,x,b,0);
-                }
-            }
-        }
-
-        prism_image.toMRC_f(params.meta.filename_output.c_str());
+        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
+        {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
+         auto ptr = reshaped_output.begin();
+         for (auto &i:params.stack)*ptr++=i;
+         reshaped_output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
 
@@ -150,19 +142,11 @@ void FullMultisliceCalcThread::run(){
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
-        size_t lower = 13;
-        size_t upper = 18;
-        PRISM::Array2D<PRISM_FLOAT_PRECISION> prism_image;
-        prism_image = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{params.stack.get_diml(), params.stack.get_dimk()}});
-        for (auto y = 0; y < params.stack.get_diml(); ++y){
-            for (auto x = 0; x < params.stack.get_dimk(); ++x){
-                for (auto b = lower; b < upper; ++b){
-                    prism_image.at(y,x) += params.stack.at(y,x,b,0);
-                }
-            }
-        }
-
-        prism_image.toMRC_f(params.meta.filename_output.c_str());
+        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
+        {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
+         auto ptr = reshaped_output.begin();
+         for (auto &i:params.stack)*ptr++=i;
+         reshaped_output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
 

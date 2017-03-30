@@ -31,7 +31,14 @@ namespace PRISM{
 			}
 		}
 
-		prism_image.toMRC_f(prism_pars.meta.filename_output.c_str());
+		prism_image.toMRC_f("multislice_image.mrc");
+
+		PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
+				{{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(), prism_pars.stack.get_dimj()}});
+		auto ptr = reshaped_output.begin();
+		for (auto &i:prism_pars.stack)*ptr++=i;
+		reshaped_output.toMRC_f(prism_pars.meta.filename_output.c_str());
+
 		std::cout << "Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}
