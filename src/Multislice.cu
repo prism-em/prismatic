@@ -174,8 +174,12 @@ namespace PRISM{
 
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
-		cudaStream_t streams[total_num_streams];
-		cufftHandle cufft_plan[total_num_streams];
+        cudaStream_t *streams   = new cudaStream_t[total_num_streams];
+        cufftHandle *cufft_plan = new cufftHandle[total_num_streams];
+//		cudaStream_t streams[total_num_streams];
+//		cufftHandle cufft_plan[total_num_streams];
+
+
 		cout <<"total_num_streams = " << total_num_streams<< endl;
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
@@ -196,8 +200,8 @@ namespace PRISM{
 		PRISM_FLOAT_PRECISION                *qxa_ph;
 		PRISM_FLOAT_PRECISION                *qya_ph;
 		PRISM_FLOAT_PRECISION                *alphaInd_ph;
-		PRISM_FLOAT_PRECISION                *output_ph[total_num_streams];
-
+//		PRISM_FLOAT_PRECISION                *output_ph[total_num_streams];
+		PRISM_FLOAT_PRECISION                **output_ph = new PRISM_FLOAT_PRECISION*[total_num_streams];
 		// allocate pinned memory
 		cudaErrchk(cudaMallocHost((void **)&PsiProbeInit_ph, pars.psiProbeInit.size()*sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **)&trans_ph,        pars.transmission.size()*sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
@@ -218,17 +222,28 @@ namespace PRISM{
 
 
 		// pointers to read-only GPU memory (one copy per GPU)
-		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
-		PRISM_CUDA_COMPLEX_FLOAT *trans_d[pars.meta.NUM_GPUS];
-		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qxa_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qya_d[pars.meta.NUM_GPUS];
-	    PRISM_FLOAT_PRECISION    *alphaInd_d[pars.meta.NUM_GPUS];
+		PRISM_CUDA_COMPLEX_FLOAT **PsiProbeInit_d = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
+		PRISM_CUDA_COMPLEX_FLOAT **trans_d		  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
+		PRISM_CUDA_COMPLEX_FLOAT **prop_d 		  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **qxa_d 		  = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **qya_d 		  = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **alphaInd_d     = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
 
 		// pointers to read/write GPU memory (one per stream)
-		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
-		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
-		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];
+		PRISM_CUDA_COMPLEX_FLOAT **psi_ds 			   = new PRISM_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		PRISM_FLOAT_PRECISION    **psi_intensity_ds    = new PRISM_FLOAT_PRECISION*[total_num_streams];
+		PRISM_FLOAT_PRECISION    **integratedOutput_ds = new PRISM_FLOAT_PRECISION*[total_num_streams];
+//		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
+//		PRISM_CUDA_COMPLEX_FLOAT *trans_d[pars.meta.NUM_GPUS];
+//		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
+//		PRISM_FLOAT_PRECISION    *qxa_d[pars.meta.NUM_GPUS];
+//		PRISM_FLOAT_PRECISION    *qya_d[pars.meta.NUM_GPUS];
+//	    PRISM_FLOAT_PRECISION    *alphaInd_d[pars.meta.NUM_GPUS];
+//
+//		// pointers to read/write GPU memory (one per stream)
+//		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
+//		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
+//		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];
 
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
@@ -444,9 +459,18 @@ namespace PRISM{
 			cudaErrchk(cudaSetDevice(j));
 			cudaErrchk(cudaDeviceReset());
 		}
-
-//		// make sure the copy is finished
-//		copy_t.join();
+		delete[] streams;
+		delete[] cufft_plan;
+		delete[] PsiProbeInit_d;
+		delete[] trans_d;
+		delete[] prop_d;
+		delete[] qxa_d;
+		delete[] qya_d;
+		delete[] alphaInd_d;
+		delete[] psi_ds;
+		delete[] psi_intensity_ds;
+		delete[] integratedOutput_ds;
+		delete[] output_ph;
 	}
 
 
@@ -462,8 +486,8 @@ namespace PRISM{
 
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
-		cudaStream_t streams[total_num_streams];
-		cufftHandle cufft_plan[total_num_streams];
+        cudaStream_t *streams   = new cudaStream_t[total_num_streams];
+        cufftHandle *cufft_plan = new cufftHandle[total_num_streams];
 		cout <<"total_num_streams = " << total_num_streams<< endl;
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
@@ -484,8 +508,8 @@ namespace PRISM{
 		PRISM_FLOAT_PRECISION                *qxa_ph;
 		PRISM_FLOAT_PRECISION                *qya_ph;
 		PRISM_FLOAT_PRECISION                *alphaInd_ph;
-		PRISM_FLOAT_PRECISION                *output_ph[total_num_streams];
-
+//		PRISM_FLOAT_PRECISION                *output_ph[total_num_streams];
+		PRISM_FLOAT_PRECISION                **output_ph = new PRISM_FLOAT_PRECISION*[total_num_streams];
 		// allocate pinned memory
 		cudaErrchk(cudaMallocHost((void **)&PsiProbeInit_ph, pars.psiProbeInit.size()*sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **)&trans_ph,        pars.transmission.size()*sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
@@ -506,17 +530,29 @@ namespace PRISM{
 
 
 		// pointers to read-only GPU memory (one copy per GPU)
-		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
-		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qxa_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *qya_d[pars.meta.NUM_GPUS];
-		PRISM_FLOAT_PRECISION    *alphaInd_d[pars.meta.NUM_GPUS];
+		PRISM_CUDA_COMPLEX_FLOAT **PsiProbeInit_d = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
+		PRISM_CUDA_COMPLEX_FLOAT **prop_d 	   	  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **qxa_d 		  = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **qya_d 		  = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
+		PRISM_FLOAT_PRECISION    **alphaInd_d 	  = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
 
 		// pointers to read/write GPU memory (one per stream)
-		PRISM_CUDA_COMPLEX_FLOAT *trans_ds[total_num_streams];
-		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
-		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
-		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];
+		PRISM_CUDA_COMPLEX_FLOAT **trans_ds 		   = new PRISM_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		PRISM_CUDA_COMPLEX_FLOAT **psi_ds  		       = new PRISM_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		PRISM_FLOAT_PRECISION    **psi_intensity_ds    = new PRISM_FLOAT_PRECISION*[total_num_streams];
+		PRISM_FLOAT_PRECISION    **integratedOutput_ds = new PRISM_FLOAT_PRECISION*[total_num_streams];
+//		// pointers to read-only GPU memory (one copy per GPU)
+//		PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d[pars.meta.NUM_GPUS];
+//		PRISM_CUDA_COMPLEX_FLOAT *prop_d[pars.meta.NUM_GPUS];
+//		PRISM_FLOAT_PRECISION    *qxa_d[pars.meta.NUM_GPUS];
+//		PRISM_FLOAT_PRECISION    *qya_d[pars.meta.NUM_GPUS];
+//		PRISM_FLOAT_PRECISION    *alphaInd_d[pars.meta.NUM_GPUS];
+//
+//		// pointers to read/write GPU memory (one per stream)
+//		PRISM_CUDA_COMPLEX_FLOAT *trans_ds[total_num_streams];
+//		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
+//		PRISM_FLOAT_PRECISION    *psi_intensity_ds[total_num_streams];
+//		PRISM_FLOAT_PRECISION    *integratedOutput_ds[total_num_streams];
 
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
@@ -729,9 +765,18 @@ namespace PRISM{
 			cudaErrchk(cudaSetDevice(j));
 			cudaErrchk(cudaDeviceReset());
 		}
-
-//		// make sure the copy is finished
-//		copy_t.join();
+		delete[] streams;
+		delete[] cufft_plan;
+		delete[] PsiProbeInit_d;
+		delete[] trans_ds;
+		delete[] prop_d;
+		delete[] qxa_d;
+		delete[] qya_d;
+		delete[] alphaInd_d;
+		delete[] psi_ds;
+		delete[] psi_intensity_ds;
+		delete[] integratedOutput_ds;
+		delete[] output_ph;
 	}
 
 }
