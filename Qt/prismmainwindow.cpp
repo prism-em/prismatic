@@ -120,6 +120,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	}
 #ifndef PRISM_ENABLE_GPU
 	this->ui->spinBox_numGPUs->setEnabled(false);
+    this->ui->checkBox_streamdata->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
 
 	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
@@ -160,7 +161,10 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
     connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
+    connect(this->ui->checkBox_streamdata, SIGNAL(toggled(bool)), this, SLOT(toggleStreamingMode()));
 
+
+    this->ui->checkBox_streamdata->setChecked(false);
 //    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
 }
@@ -614,6 +618,11 @@ void PRISMMainWindow::saveCurrentOutputImage(){
             outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
+
+void PRISMMainWindow::toggleStreamingMode(){
+    meta->stream_data = ui->checkBox_streamdata->isChecked() ? true:false;
+}
+
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
 //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
@@ -655,6 +664,7 @@ void PRISMMainWindow::resizeEvent(QResizeEvent* event)
    QMainWindow::resizeEvent(event);
    redrawImages();
 }
+
 
 PRISMMainWindow::~PRISMMainWindow()
 {

@@ -74,6 +74,7 @@ public slots:
     void resizeEvent(QResizeEvent* event);
     void redrawImages();
     void saveCurrentOutputImage();
+    void toggleStreamingMode();
 
 
 //    void testImage();
