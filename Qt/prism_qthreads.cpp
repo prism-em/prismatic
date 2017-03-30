@@ -23,6 +23,8 @@ void PotentialThread::run(){
     this->parent->potential = params.pot;
     // indicate that the potential is ready
     this->parent->potentialReady = true;
+    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+
 }
 
 SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
@@ -45,7 +47,10 @@ void SMatrixThread::run(){
         this->parent->potential = params.pot;
         // indicate that the potential is ready
         this->parent->potentialReady = true;
+        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
+
+
     std::cout << "calculating S-Matrix" << std::endl;
     // calculate S-Matrix
     PRISM::PRISM02(params);
@@ -79,6 +84,7 @@ void FullPRISMCalcThread::run(){
         QMutexLocker gatekeeper(&this->parent->potentialLock);
         this->parent->potential = params.pot;
         this->parent->potentialReady = true;
+        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     emit potentialCalculated();
 
@@ -132,6 +138,7 @@ void FullMultisliceCalcThread::run(){
         QMutexLocker gatekeeper(&this->parent->potentialLock);
         this->parent->potential = params.pot;
         this->parent->potentialReady = true;
+        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     emit potentialCalculated();
 

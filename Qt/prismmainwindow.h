@@ -75,6 +75,7 @@ public slots:
     void redrawImages();
     void saveCurrentOutputImage();
     void toggleStreamingMode();
+    void toggleSaveProjectedPotential();
 
 
 //    void testImage();
@@ -111,6 +112,7 @@ private:
     bool potentialReady;
     bool ScompactReady;
     bool outputReady;
+    bool saveProjectedPotential;
 
     QImage potentialImage;
     QImage probeImage;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>914</height>
+    <height>933</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1546,6 +1546,9 @@ Thickness (A)</string>
                <property name="checked">
                 <bool>true</bool>
                </property>
+               <property name="autoExclusive">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item>
@@ -1699,12 +1702,21 @@ Thickness (A)</string>
                  <property name="text">
                   <string>PRISM</string>
                  </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
                <item>
                 <widget class="QRadioButton" name="radBtn_Multislice">
                  <property name="text">
                   <string>Multislice</string>
+                 </property>
+                 <property name="autoExclusive">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>

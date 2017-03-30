@@ -26,8 +26,6 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	// set window title
     setWindowTitle("PRISM");
 
-
-
     ui->box_sampleSettings->setStyleSheet("QGroupBox { \
                                           border: 1px solid gray;\
                                           border-radius: 9px;\
@@ -124,14 +122,16 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	this->ui->spinBox_numGPUs->setEnabled(false);
     this->ui->checkBox_streamdata->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
+    ui->radioButton_3Doutput->setChecked(true);
+    ui->radioButton_3Doutput->setEnabled(false);
 
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe\nStep (\u212B)"));
-    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = "));
+    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
-    ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\\nSize (\u212B)"));
+    ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
 
     this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
@@ -174,6 +174,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
     connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
     connect(this->ui->checkBox_streamdata, SIGNAL(toggled(bool)), this, SLOT(toggleStreamingMode()));
+    connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)), this, SLOT(toggleSaveProjectedPotential()));
 
 
     this->ui->checkBox_streamdata->setChecked(false);
@@ -635,6 +636,9 @@ void PRISMMainWindow::saveCurrentOutputImage(){
 
 void PRISMMainWindow::toggleStreamingMode(){
     meta->stream_data = ui->checkBox_streamdata->isChecked() ? true:false;
+}
+void PRISMMainWindow::toggleSaveProjectedPotential(){
+    this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
 }
 
 void PRISMMainWindow::redrawImages(){
