@@ -101,7 +101,7 @@ namespace PRISM{
 		    constexpr double m = 9.109383e-31;
 		    constexpr double e = 1.602177e-19;
 		    constexpr double c = 299792458;
-		    constexpr double h = 6.62607e-34;
+		    //constexpr double h = 6.62607e-34;
 		    const double pi = std::acos(-1);
 
 		    // should make these settable elsewhere

@@ -132,28 +132,29 @@ if (PRISM_ENABLE_GUI)
 
     if (PRISM_ENABLE_GPU)
         # build the shared CUDA library used by the GUI
-        cuda_add_library(prism_shared
-                            ${SOURCE_FILES}
-                            ${CUDA_SOURCE_FILES}
-                            #${GUI_SOURCE_FILES}
-                            SHARED)
-        target_link_libraries(prism_shared
-                                ${CMAKE_THREAD_LIBS_INIT}
-                                ${Boost_LIBRARY_DIRS}
-                                ${FFTW_LIBRARIES})
-        cuda_add_cufft_to_target(prism_shared)
+	#cuda_add_library(prism_shared
+	#                    ${SOURCE_FILES}
+	#                    ${CUDA_SOURCE_FILES}
+	#                    #${GUI_SOURCE_FILES}
+	#                    SHARED)
+	#target_link_libraries(prism_shared
+	#                        ${CMAKE_THREAD_LIBS_INIT}
+	#                        ${Boost_LIBRARY_DIRS}
+	#                        ${FFTW_LIBRARIES})
+	#cuda_add_cufft_to_target(prism_shared)
         cuda_add_executable(prism-gui
                                 ${SOURCE_FILES}
-                                ${GUI_SOURCE_FILES})
+                                ${GUI_SOURCE_FILES}
+				${CUDA_SOURCE_FILES})
         target_link_libraries(prism-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
                                 ${Boost_LIBRARY_DIRS}
-                                ${FFTW_LIBRARIES}
-                                prism_shared)
+                                ${FFTW_LIBRARIES})
+				#                 prism_shared)
         cuda_add_cufft_to_target(prism-gui)
 
-    target_compile_definitions(prism_shared PRIVATE PRISM_BUILDING_GUI=1)
+	# target_compile_definitions(prism_shared PRIVATE PRISM_BUILDING_GUI=1)
     else (PRISM_ENABLE_GPU)
         add_executable(prism-gui
                         ${SOURCE_FILES}
