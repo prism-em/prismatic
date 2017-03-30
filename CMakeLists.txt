@@ -94,7 +94,7 @@ if (PRISM_ENABLE_CLI)
     # build CLI
     include_directories(${CMAKE_SOURCE_DIR}/include
                             ${Boost_INCLUDE_DIRS}
-                            ${FFTW_INCLUDES})
+			    ${FFTW_INCLUDE_DIR})
     if (PRISM_ENABLE_GPU)
 
         cuda_add_executable(prism
