@@ -111,6 +111,7 @@ namespace PRISM {
 				Array1D<long> yp;
 
 				size_t currentBeam, stop;
+                currentBeam=stop=0;
 				//while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
 					Array2D<PRISM_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});

@@ -325,6 +325,7 @@ namespace PRISM{
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
 				size_t Nstart, Nstop, ay, ax;
+				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
@@ -358,7 +359,7 @@ namespace PRISM{
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
-				Nstop = 0;
+				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
 				early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
@@ -609,6 +610,7 @@ namespace PRISM{
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
 				size_t Nstart, Nstop, ay, ax;
+				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
@@ -642,7 +644,7 @@ namespace PRISM{
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, early_CPU_stop, ay, ax;
-					Nstop = 0;
+					Nstart=Nstop=0;
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 					// wait longer for everything to complete
 					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);

@@ -251,6 +251,7 @@ namespace PRISM {
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop;
+                currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
                 while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
                     while (currentBeam != stop) {

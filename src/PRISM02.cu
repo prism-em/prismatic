@@ -264,6 +264,7 @@ namespace PRISM {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
 				size_t currentBeam, stop;
+				currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
@@ -317,7 +318,8 @@ namespace PRISM {
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop, early_CPU_stop;
-				stop = pars.numberBeams;
+				currentBeam=stop=0;
+//				stop = pars.numberBeams;
 //				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
 				early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
 //                early_CPU_stop = stop;
@@ -568,6 +570,7 @@ namespace PRISM {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
 				size_t currentBeam, stop;
+				currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
@@ -621,7 +624,7 @@ namespace PRISM {
 				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop, early_CPU_stop;
-				stop = 0;
+				currentBeam=stop=0;
 				//early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
 				early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment

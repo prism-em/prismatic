@@ -679,6 +679,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t Nstart, Nstop, ay, ax;
+                Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
@@ -709,7 +710,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
-					Nstop = 0;
+                    Nstart=Nstop=0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size();
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
@@ -1011,6 +1012,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 				size_t Nstart, Nstop, ay, ax;
+                Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
@@ -1041,7 +1043,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
-					Nstop = 0;
+                    Nstart=Nstop=0;
 //					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
 //					early_CPU_stop = 0;

@@ -139,6 +139,7 @@ namespace PRISM {
 			// push_back is better whenever constructing a new object
 			workers.push_back(thread([&pars, &dispatcher]() {
 				size_t Nstart, Nstop, ay, ax;
+				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
                 while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
