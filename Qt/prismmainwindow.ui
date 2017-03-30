@@ -702,6 +702,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="btn_saveCoordinates">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -947,7 +950,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_5">
+                <widget class="QLabel" name="lbl_angstrom">
                  <property name="text">
                   <string>A</string>
                  </property>
@@ -1049,7 +1052,7 @@
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>40</width>
+                     <width>30</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -1088,7 +1091,7 @@
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>40</width>
+                     <width>30</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -1127,7 +1130,7 @@
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>40</width>
+                     <width>30</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -1194,7 +1197,7 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
-                <widget class="QLabel" name="label_10">
+                <widget class="QLabel" name="lbl_lambda">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                    <horstretch>0</horstretch>
@@ -1210,7 +1213,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_11">
+                <widget class="QLabel" name="lbl_alphaMax">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                    <horstretch>0</horstretch>
@@ -1273,7 +1276,7 @@
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_34">
                  <item>
-                  <widget class="QLabel" name="label_28">
+                  <widget class="QLabel" name="lbl_probeStep">
                    <property name="minimumSize">
                     <size>
                      <width>50</width>
@@ -1316,7 +1319,7 @@ Step (A)</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <item>
-                  <widget class="QLabel" name="label_sliceThickness">
+                  <widget class="QLabel" name="lbl_sliceThickness">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -1326,7 +1329,7 @@ Step (A)</string>
                    <property name="minimumSize">
                     <size>
                      <width>85</width>
-                     <height>40</height>
+                     <height>30</height>
                     </size>
                    </property>
                    <property name="text">
@@ -1351,7 +1354,7 @@ Thickness (A)</string>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>40</width>
+                     <width>30</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -1540,10 +1543,16 @@ Thickness (A)</string>
                <property name="text">
                 <string>3D output, step size (mrad)</string>
                </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item>
               <widget class="QLineEdit" name="lineEdit_3Doutputang">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="maximumSize">
                 <size>
                  <width>30</width>

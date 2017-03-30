@@ -28,6 +28,7 @@ namespace PRISM{
     class Parameters {
     public:
 
+	    void calculateLambda();
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> stack;
@@ -116,8 +117,8 @@ namespace PRISM{
 		    zTotal = meta.cellDim[0];
 		    xTiltShift = -zTotal * tan(probeXtilt);
 		    yTiltShift = -zTotal * tan(probeYtilt);
-
-		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
+			calculateLambda();
+//		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
 		                       (2 * m * c * c + e * meta.E0));
 
@@ -184,6 +185,14 @@ namespace PRISM{
 
     };
 
+	template <class T>
+	void Parameters<T>::calculateLambda(){
+		constexpr double m = 9.109383e-31;
+		constexpr double e = 1.602177e-19;
+		constexpr double c = 299792458;
+		constexpr double h = 6.62607e-34;
+		lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
+	}
 
 }
 #endif //PRISM_PARAMS_H

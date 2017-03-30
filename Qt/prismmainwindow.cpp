@@ -12,6 +12,7 @@ bool validateFilename(const std::string str){
     std::ifstream f(str);
     return f.good();
 }
+PRISM_FLOAT_PRECISION calculateLambda(PRISM::Metadata<PRISM_FLOAT_PRECISION> meta);
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,7 +24,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 	// set window title
-	this->setWindowTitle("PRISM");
+    setWindowTitle("PRISM");
+
 
 
     ui->box_sampleSettings->setStyleSheet("QGroupBox { \
@@ -123,7 +125,17 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     this->ui->checkBox_streamdata->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
 
-	this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
+    ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
+    ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
+    ui->lbl_probeStep->setText(QString::fromUtf8("Probe\nStep (\u212B)"));
+    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = "));
+    ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
+    ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
+    ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\\nSize (\u212B)"));
+
+    this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
+
+    // connect signals and slots
     connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
@@ -341,10 +353,12 @@ void PRISMMainWindow::setCellDimZ_fromLineEdit(){
 }
 
 void PRISMMainWindow::setE0_fromLineEdit(){
-    int val = this->ui->lineEdit_E0->text().toInt();
+    double val = this->ui->lineEdit_E0->text().toDouble();
     if (val > 0){
-        this->meta->E0 = val * 1e3;
+        meta->E0 = val * 1e3;
         std::cout << "Setting E0 to " << val << std::endl;
+        ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
+
     }
 }
 
@@ -679,4 +693,12 @@ unsigned char getUcharFromFloat(PRISM_FLOAT_PRECISION val,
     if (val <= contrast_low)  return 0;
     if (val >= contrast_high) return 255;
     return (unsigned char)( val / contrast_high * 255);
+}
+
+PRISM_FLOAT_PRECISION calculateLambda(PRISM::Metadata<PRISM_FLOAT_PRECISION> meta){
+	constexpr double m = 9.109383e-31;
+	constexpr double e = 1.602177e-19;
+	constexpr double c = 299792458;
+	constexpr double h = 6.62607e-34;
+	return (PRISM_FLOAT_PRECISION)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 }
