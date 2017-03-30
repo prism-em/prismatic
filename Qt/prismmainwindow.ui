@@ -475,7 +475,7 @@
               <item>
                <widget class="QLabel" name="label_26">
                 <property name="text">
-                 <string>Angle min/max</string>
+                 <string>Angle min/max (mrads)</string>
                 </property>
                </widget>
               </item>
@@ -488,7 +488,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>30</width>
+                    <width>60</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -518,7 +518,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>30</width>
+                    <width>60</width>
                     <height>16777215</height>
                    </size>
                   </property>

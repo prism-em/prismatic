@@ -98,6 +98,8 @@ void FullPRISMCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
         this->parent->output = params.stack;
+	    this->parent->detectorAngles = params.detectorAngles;
+	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
         size_t lower = 13;
         size_t upper = 18;
@@ -145,6 +147,8 @@ void FullMultisliceCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
         this->parent->output = params.stack;
+	    this->parent->detectorAngles = params.detectorAngles;
+	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
         size_t lower = 13;
         size_t upper = 18;

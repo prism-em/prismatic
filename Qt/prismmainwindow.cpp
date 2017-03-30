@@ -147,6 +147,12 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max(int)));
     connect(this->ui->slider_slicemin, SIGNAL(valueChanged(int)), this, SLOT(updatePotentialFloatImage()));
     connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updatePotentialFloatImage()));
+	connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_min_ang(int)));
+	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max_ang(int)));
+	connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
+	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
+	connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
+	connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
@@ -444,19 +450,22 @@ void PRISMMainWindow::updatePotentialDisplay(){
 }
 
 void PRISMMainWindow::updateOutputImage(){
+
     if (outputReady){
+	    std::cout << "updateOutputImage " << std::endl;
             {
             QMutexLocker gatekeeper(&outputLock);
             // create new empty image with appropriate dimensions
             outputImage = QImage(output.get_dimj(), output.get_dimi(), QImage::Format_ARGB32);
             }
-
-            // update sliders to match dimensions of Output, which also triggers a redraw of the image
-            this->ui->slider_angmin->setMinimum(1);
-            this->ui->slider_angmax->setMinimum(1);
-            this->ui->slider_angmin->setMaximum(output.get_dimk());
-            this->ui->slider_angmax->setMaximum(output.get_dimk());
-            this->ui->slider_angmax->setValue(output.get_dimk());
+            // update sliders to match dimensions of output, which also triggers a redraw of the image
+            this->ui->slider_angmin->setMinimum(0);
+            this->ui->slider_angmax->setMinimum(0);
+            this->ui->slider_angmin->setMaximum(detectorAngles.size() - 1);
+            this->ui->slider_angmax->setMaximum(detectorAngles.size() - 1);
+            this->ui->slider_angmax->setValue(detectorAngles.size() - 1);
+	        this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0]));
+	        this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1]));
         }
 }
 
@@ -522,6 +531,15 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
     this->ui->slider_slicemax->setValue(std::max(this->ui->lineEdit_slicemax->text().toInt(),
                                                  this->ui->slider_slicemin->value()));
 }
+//void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
+//	double val1 = (this->ui->lineEdit_slicemin->text().toDouble() - detectorAngles[0]) /
+//	(detectorAngles[1]-detectorAngles[0]));
+//	this->ui->slider_angmin->setValue(std::min( ,
+//	                                             this->ui->slider_slicemax->value()));
+//	this->ui->slider_angmax->setValue(std::max((int)( (this->ui->lineEdit_slicemax->text().toDouble() - detectorAngles[0]) /
+//			                                           (detectorAngles[1]-detectorAngles[0])),
+//	                                             this->ui->slider_slicemin->value()));
+//}
 
 void PRISMMainWindow::updateSlider_lineEdits_min(int val){
     if (val <= this->ui->slider_slicemax->value()){
@@ -538,6 +556,31 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
         this->ui->slider_slicemax->setValue(this->ui->slider_slicemin->value());
     }
 }
+
+void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
+
+	if (val >= this->ui->slider_angmin->value()){
+		double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+		std::cout << "val = " << val << std::endl;
+		std::cout << "scaled_val = " << scaled_val << std::endl;
+		this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
+	} else {
+		this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
+	}
+}
+
+void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
+//	std::cout << "val = " << val << std::endl;
+	if (val <= this->ui->slider_angmax->value()){
+		double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+		std::cout << "val = " << val << std::endl;
+		std::cout << "scaled_val = " << scaled_val << std::endl;
+		this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
+	} else {
+		this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
+	}
+}
+
 
 void PRISMMainWindow::updateContrastPotMin(){
     contrast_potentialMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMin->text().toDouble();
