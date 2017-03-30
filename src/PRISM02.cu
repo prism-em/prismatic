@@ -456,7 +456,8 @@ namespace PRISM {
 		// pointers to pinned host memory for async transfers
 		std::complex<PRISM_FLOAT_PRECISION> *trans_ph;
 		std::complex<PRISM_FLOAT_PRECISION> *prop_ph;
-		std::complex<PRISM_FLOAT_PRECISION> *Scompact_slice_ph[total_num_streams];
+//		std::complex<PRISM_FLOAT_PRECISION> *Scompact_slice_ph[total_num_streams];
+        std::complex<PRISM_FLOAT_PRECISION> **Scompact_slice_ph = new std::complex<PRISM_FLOAT_PRECISION>*[total_num_streams];
 		size_t *qxInd_ph;
 		size_t *qyInd_ph;
 		size_t *beamsIndex_ph;
@@ -741,6 +742,7 @@ namespace PRISM {
 		delete[] beamsIndex_d;
 		delete[] psi_ds;
 		delete[] psi_small_ds;
+        delete[] Scompact_slice_ph;
 	}
 
 }
