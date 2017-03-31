@@ -378,6 +378,8 @@ namespace PRISM {
 			for (auto i = 0; i < this->size(); ++i)data_buffer[i] = data[i];
 			f.write((char*)data_buffer,this->size()*sizeof(float));
 			delete[] data_buffer;
+		} else {
+			std::cout << "error opening file " << filename << std::endl;
 		}
 	}
 

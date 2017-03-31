@@ -111,6 +111,7 @@ void FullPRISMCalcThread::run(){
         {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
          auto ptr = reshaped_output.begin();
          for (auto &i:params.stack)*ptr++=i;
+         std::cout << "saving to " << params.meta.filename_output.c_str() << std::endl;
          reshaped_output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();

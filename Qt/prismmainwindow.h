@@ -76,6 +76,7 @@ public slots:
     void saveCurrentOutputImage();
     void toggleStreamingMode();
     void toggleSaveProjectedPotential();
+    void enableOutputWidgets();
 
 
 //    void testImage();

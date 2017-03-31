@@ -102,6 +102,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 		ss << (this->meta->E0 *1e-3);
 		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
 		ss.str("");
+        ss << (this->meta->dxy);
+        this->ui->lineEdit_probedxy->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
@@ -389,6 +392,7 @@ void PRISMMainWindow::calculateAll(){
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
 	    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
+        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 //        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));
@@ -401,6 +405,7 @@ void PRISMMainWindow::calculateAll(){
         worker->meta.toString();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
+        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 //        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));
@@ -482,7 +487,6 @@ void PRISMMainWindow::updatePotentialDisplay(){
 }
 
 void PRISMMainWindow::updateOutputImage(){
-
     if (outputReady){
 	    std::cout << "updateOutputImage " << std::endl;
             {
@@ -566,17 +570,18 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
                                                  this->ui->slider_slicemin->value()));
 }
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
-    PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
-    (detectorAngles[1]-detectorAngles[0]);
-    PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
-    (detectorAngles[1]-detectorAngles[0]);
-    this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
-                                                 this->ui->slider_angmax->value()));
-    this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval),
-                                                 this->ui->slider_angmin->value()));
-    updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
-    updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
-
+    if (outputReady){
+        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
+        (detectorAngles[1]-detectorAngles[0]);
+        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
+        (detectorAngles[1]-detectorAngles[0]);
+        this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
+                                                     this->ui->slider_angmax->value()));
+        this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval),
+                                                     this->ui->slider_angmin->value()));
+        updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
+        updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
+    }
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min(int val){
@@ -596,24 +601,27 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
-
-	if (val >= this->ui->slider_angmin->value()){
-		double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
-		std::cout << "val = " << val << std::endl;
-		std::cout << "scaled_val = " << scaled_val << std::endl;
-		this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
-	} else {
-		this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
-	}
+    if (outputReady){
+        if (val >= this->ui->slider_angmin->value()){
+            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+            std::cout << "val = " << val << std::endl;
+            std::cout << "scaled_val = " << scaled_val << std::endl;
+            this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
+        } else {
+            this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
+        }
+    }
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
-	if (val <= this->ui->slider_angmax->value()){
-		double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
-		this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
-	} else {
-		this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
-	}
+    if (outputReady){
+        if (val <= this->ui->slider_angmax->value()){
+            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+            this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
+        } else {
+            this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
+        }
+    }
 }
 
 
@@ -641,6 +649,14 @@ void PRISMMainWindow::toggleSaveProjectedPotential(){
     this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
 }
 
+void PRISMMainWindow::enableOutputWidgets(){
+    ui->slider_angmax->setEnabled(true);
+    ui->slider_angmin->setEnabled(true);
+    ui->contrast_outputMax->setEnabled(true);
+    ui->contrast_outputMin->setEnabled(true);
+    ui->lineEdit_angmin->setEnabled(true);
+    ui->lineEdit_angmax->setEnabled(true);
+}
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
 //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
@@ -694,9 +710,11 @@ unsigned char getUcharFromFloat(PRISM_FLOAT_PRECISION val,
                                 PRISM_FLOAT_PRECISION contrast_low,
                                 PRISM_FLOAT_PRECISION contrast_high){
 
-    if (val <= contrast_low)  return 0;
-    if (val >= contrast_high) return 255;
-    return (unsigned char)( val / contrast_high * 255);
+    if (val < contrast_low)  return 0;
+    if (val > contrast_high) return 255;
+//    return (unsigned char)( val / contrast_high * 255);
+    return (unsigned char)( (val - contrast_low) / (contrast_high - contrast_low) * 255);
+
 }
 
 PRISM_FLOAT_PRECISION calculateLambda(PRISM::Metadata<PRISM_FLOAT_PRECISION> meta){

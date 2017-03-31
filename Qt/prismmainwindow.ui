@@ -484,7 +484,7 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_angmin">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
@@ -503,7 +503,7 @@
                 <item>
                  <widget class="QSlider" name="slider_angmin">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -517,7 +517,7 @@
                 <item>
                  <widget class="QLineEdit" name="lineEdit_angmax">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="maximumSize">
                    <size>
@@ -536,7 +536,7 @@
                 <item>
                  <widget class="QSlider" name="slider_angmax">
                   <property name="enabled">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -559,7 +559,7 @@
               <item>
                <widget class="QLineEdit" name="contrast_outputMin">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
@@ -575,7 +575,7 @@
               <item>
                <widget class="QLineEdit" name="contrast_outputMax">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="maximumSize">
                  <size>
@@ -976,7 +976,6 @@
           </layout>
          </item>
         </layout>
-        <zorder></zorder>
        </widget>
       </item>
       <item>
@@ -1469,7 +1468,6 @@ Thickness (A)</string>
           </layout>
          </item>
         </layout>
-        <zorder></zorder>
        </widget>
       </item>
       <item>
@@ -1807,7 +1805,6 @@ Thickness (A)</string>
           </layout>
          </item>
         </layout>
-        <zorder></zorder>
        </widget>
       </item>
      </layout>

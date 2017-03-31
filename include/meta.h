@@ -36,7 +36,7 @@ namespace PRISM{
 			cpu_gpu_ratio = 0.07; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 //			stream_data = true;
 			stream_data = false;
-			dxy = 0.25 * 2;
+			dxy = 0.25;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
