@@ -60,15 +60,15 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 //    QPixmap potentialImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism.png");
 //    QPixmap probeImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/probe.png");
 //    QPixmap outputImage("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/output.png");
-//    QPixmap potentialImage("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
-    potentialImage.load("/home/aj/hdd1/clion/PRISM/Qt/prism.png");
+//    QPixmap potentialImage("prism.png");
+    potentialImage.load("prism.png");
 
-    probeImage.load("/home/aj/hdd1/clion/PRISM/Qt/probe.png");
-    outputImage.load("/home/aj/hdd1/clion/PRISM/Qt/output.png");
-    probeImage_pr.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
-    probeImage_pk.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
-    probeImage_mr.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
-    probeImage_mk.load("/home/aj/hdd1/clion/PRISM/Qt/airy.png");
+    probeImage.load("probe.png");
+    outputImage.load("output.png");
+    probeImage_pr.load("airy.png");
+    probeImage_pk.load("airy.png");
+    probeImage_mr.load("airy.png");
+    probeImage_mk.load("airy.png");
 
     redrawImages();
     ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
