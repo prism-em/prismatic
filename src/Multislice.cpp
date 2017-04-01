@@ -235,6 +235,7 @@ namespace PRISM{
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';

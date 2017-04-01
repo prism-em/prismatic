@@ -167,7 +167,7 @@ namespace PRISM{
 
     __host__ void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars){
 
-
+		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
 		using namespace std;
@@ -190,7 +190,7 @@ namespace PRISM{
 
 
 		vector<thread> workers_GPU;
-		workers_GPU.resize(total_num_streams); // prevents multiple reallocations
+		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 
 
 		// pointers to pinned host memory for async transfers

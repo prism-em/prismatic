@@ -327,7 +327,7 @@ namespace PRISM {
 				currentBeam=stop=0;
 //				stop = pars.numberBeams;
 //				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
-				early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
+				early_CPU_stop = pars.numberBeams - (1/pars.meta.cpu_gpu_ratio);
 //                early_CPU_stop = stop;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment

@@ -33,16 +33,34 @@ cout << "ndevices = " << nDevices << endl;
 #endif	
 	prism_meta.algorithm = PRISM::Algorithm::PRISM;
 //	prism_meta.algorithm = PRISM::Algorithm::Multislice;
+	if (argc > 3){
+		prism_meta.algorithm = string(argv[3]) == "m"?PRISM::Algorithm::Multislice:PRISM::Algorithm::PRISM;
+	}
+
+	if (argc > 4){
+		prism_meta.dxy = (PRISM_FLOAT_PRECISION)atof(argv[4]);
+	}
+
+	if (argc > 5){
+		prism_meta.realspace_pixelSize = (PRISM_FLOAT_PRECISION)atof(argv[5]);
+	}
+
+	if (argc > 6){
+		prism_meta.sliceThickness = (PRISM_FLOAT_PRECISION)atof(argv[6]);
+	}
 
 	std::string filename;
 	if (argc>1) {
 		prism_meta.filename_atoms = std::string(argv[1]);
 	} else{
-		cout << "PRISM: Correct syntax is prism filename [interpolation factor]" << endl;
+		cout << "PRISM: Correct syntax is prism filename [interpolation factor] [algorithm] [probe spacing]  [pixel size] [slice thickness]" << endl;
 		return 0;
 	}
+
+
 	prism_meta.filename_output = "stack.mrc";
 
+	prism_meta.toString();
 	PRISM::configure(prism_meta);
 	PRISM::execute_plan(prism_meta);
 	return 0;
