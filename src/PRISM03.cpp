@@ -16,6 +16,7 @@
 #include "WorkDispatcher.h"
 
 namespace PRISM {
+	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 	using namespace std;
 	const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 	// this might seem a strange way to get pi, but it's slightly more future proof
@@ -128,7 +129,8 @@ namespace PRISM {
 		// launch threads to compute results for batches of xp, yp
 		// I do this by dividing the xp points among threads, and each computes
 		// all of the relevant yp for each of its xp. This seems an okay strategy
-		// as long as the number of xp and yp are similar. If that is not the case
+		// as long as the number of xp and yp are similar.
+		// If that is not the case
 		// this may need to be adapted
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
@@ -141,13 +143,28 @@ namespace PRISM {
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-                while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-					while (Nstart != Nstop) {
-						ay = Nstart / pars.xp.size();
-						ax = Nstart % pars.xp.size();
-						buildSignal_CPU(pars, ay, ax);
-						++Nstart;
-					}
+                 if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+					 Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
+							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
+
+
+					 PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																   FFTW_FORWARD, FFTW_MEASURE);
+					 gatekeeper.unlock();
+					 do {
+						 while (Nstart != Nstop) {
+							 ay = Nstart / pars.xp.size();
+							 ax = Nstart % pars.xp.size();
+							 buildSignal_CPU(pars, ay, ax, plan, psi);
+							 ++Nstart;
+						 }
+					 } while(dispatcher.getWork(Nstart, Nstop));
+					 gatekeeper.lock();
+					 PRISM_FFTW_DESTROY_PLAN(plan);
+					 gatekeeper.unlock();
 				}
 			}));
 		}
@@ -159,10 +176,12 @@ namespace PRISM {
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                     const size_t &ay,
-	                     const size_t &ax){
+	                     const size_t &ax,
+						 PRISM_FFTW_PLAN& plan,
+						 Array2D<std::complex<PRISM_FLOAT_PRECISION> >& psi){
 		// build the output for a single probe position using CPU resources
 
-		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+//
 		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
 
@@ -179,8 +198,9 @@ namespace PRISM {
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		for (auto a5 = 0; a5 < pars.meta.numFP; ++a5) {
-			Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >(
-					{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+			memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
+//			psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >(
+//					{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 				PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
@@ -203,17 +223,18 @@ namespace PRISM {
 
 			// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 			// to the plan creation methods
-			unique_lock<mutex> gatekeeper(fftw_plan_lock);
-			PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-			                                              FFTW_FORWARD, FFTW_ESTIMATE);
+//			unique_lock<mutex> gatekeeper(fftw_plan_lock);
+//			PRISM_FFTW_PLAN plan2 = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//			                                              FFTW_FORWARD, FFTW_ESTIMATE);
 
-			gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+//			gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 			PRISM_FFTW_EXECUTE(plan);
-			gatekeeper.lock();
-			PRISM_FFTW_DESTROY_PLAN(plan);
-			gatekeeper.unlock();
+//			PRISM_FFTW_EXECUTE(plan2);
+//			gatekeeper.lock();
+//			PRISM_FFTW_DESTROY_PLAN(plan);
+//			gatekeeper.unlock();
 
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj) {
 				for (auto ii = 0; ii < intOutput.get_dimi(); ++ii) {

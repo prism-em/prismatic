@@ -25,8 +25,10 @@ namespace PRISM {
 	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                 const size_t &ay,
-	                 const size_t &ax);
+						 const size_t &ay,
+						 const size_t &ax,
+						 PRISM_FFTW_PLAN& plan,
+						 Array2D<std::complex<PRISM_FLOAT_PRECISION> >& psi);
 
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);

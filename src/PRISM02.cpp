@@ -244,11 +244,11 @@ namespace PRISM {
 				PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                                      FFTW_FORWARD, FFTW_ESTIMATE);
+				                                                      FFTW_FORWARD, FFTW_MEASURE);
 				PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-				                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
+				                                                      FFTW_BACKWARD, FFTW_MEASURE);
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop;
                 currentBeam=stop=0;
