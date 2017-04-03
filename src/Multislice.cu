@@ -402,6 +402,7 @@ namespace PRISM{
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								++Nstart;
 							}
+if (Nstop >= early_CPU_stop) break;
 						} while(dispatcher.getWork(Nstart, Nstop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
@@ -729,6 +730,7 @@ namespace PRISM{
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								++Nstart;
 							}
+if (Nstop >= early_CPU_stop) break;
 						} while(dispatcher.getWork(Nstart, Nstop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);

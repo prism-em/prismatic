@@ -737,6 +737,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 								++Nstart;
 							}
+if (Nstop >= early_CPU_stop) break;
 						} while(dispatcher.getWork(Nstart, Nstop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
@@ -1117,6 +1118,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 								++Nstart;
 							}
+if (Nstop >= early_CPU_stop) break;
 						} while(dispatcher.getWork(Nstart, Nstop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
