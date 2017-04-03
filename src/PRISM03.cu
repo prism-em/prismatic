@@ -14,6 +14,7 @@
 #include "utility.cuh"
 
 namespace PRISM {
+    extern std::mutex fftw_plan_lock;
 
 	// define some constants
 	__device__ __constant__ float pi_f                  = PI;
@@ -718,16 +719,29 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //					early_CPU_stop = pars.xp.size() * pars.yp.size();
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-                    while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-						while (Nstart != Nstop) {
-							ay = Nstart / pars.xp.size();
-							ax = Nstart % pars.xp.size();
-							buildSignal_CPU(pars, ay, ax);
-							++Nstart;
-						}
-						if (Nstop >= early_CPU_stop) break;
+					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
+								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+						unique_lock<mutex> gatekeeper(fftw_plan_lock);
+
+
+						PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																	  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																	  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																	  FFTW_FORWARD, FFTW_MEASURE);
+						gatekeeper.unlock();
+						do {
+							while (Nstart != Nstop) {
+								ay = Nstart / pars.xp.size();
+								ax = Nstart % pars.xp.size();
+								buildSignal_CPU(pars, ay, ax, plan, psi);
+								++Nstart;
+							}
+						} while(dispatcher.getWork(Nstart, Nstop));
+						gatekeeper.lock();
+						PRISM_FFTW_DESTROY_PLAN(plan);
+						gatekeeper.unlock();
 					}
-					cout << "CPU worker #" << t << " finished\n";
 				}));
 			}
 			cout << "Waiting for CPU threads...\n";
@@ -1085,16 +1099,29 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
 //					early_CPU_stop = 0;
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-                    while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-						while (Nstart != Nstop) {
-							ay = Nstart / pars.xp.size();
-							ax = Nstart % pars.xp.size();
-							buildSignal_CPU(pars, ay, ax);
-							++Nstart;
-						}
-						if (Nstop >= early_CPU_stop) break;
+					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
+								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+						unique_lock<mutex> gatekeeper(fftw_plan_lock);
+
+
+						PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																	  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																	  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																	  FFTW_FORWARD, FFTW_MEASURE);
+						gatekeeper.unlock();
+						do {
+							while (Nstart != Nstop) {
+								ay = Nstart / pars.xp.size();
+								ax = Nstart % pars.xp.size();
+								buildSignal_CPU(pars, ay, ax, plan, psi);
+								++Nstart;
+							}
+						} while(dispatcher.getWork(Nstart, Nstop));
+						gatekeeper.lock();
+						PRISM_FFTW_DESTROY_PLAN(plan);
+						gatekeeper.unlock();
 					}
-					cout << "CPU worker #" << t << " finished\n";
 				}));
 			}
 			cout << "Waiting for CPU threads...\n";

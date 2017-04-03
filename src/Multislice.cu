@@ -17,7 +17,7 @@
 #include "utility.cuh"
 
 namespace PRISM{
-
+	extern std::mutex fftw_plan_lock;
 	// computes the result of probe position ay,ax using the GPU. The effect of this function is the same as getMultisliceProbe_CPU
 	__host__ void getMultisliceProbe_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                                PRISM_CUDA_COMPLEX_FLOAT* trans_d,
@@ -378,14 +378,35 @@ namespace PRISM{
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
 				early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-					while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
-						while (Nstart != Nstop) {
-							ay = Nstart / pars.xp.size();
-							ax = Nstart % pars.xp.size();
-							getMultisliceProbe_CPU(pars, ay, ax);
-							++Nstart;
-						}
-						if (Nstop >= early_CPU_stop) break;
+					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+						unique_lock<mutex> gatekeeper(fftw_plan_lock);
+						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  FFTW_FORWARD, FFTW_MEASURE);
+						PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  FFTW_BACKWARD, FFTW_MEASURE);
+						gatekeeper.unlock();
+						do {
+							//	cout << "Nstop = " << Nstop << endl;
+							while (Nstart != Nstop) {
+								ay = Nstart / pars.xp.size();
+								ax = Nstart % pars.xp.size();
+//                            if (ay==7){
+//                                cout << "ax = " << ax << endl;
+//								cout << "ay = " << ay << endl;
+//                            }
+								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+								++Nstart;
+							}
+						} while(dispatcher.getWork(Nstart, Nstop));
+						gatekeeper.lock();
+						PRISM_FFTW_DESTROY_PLAN(plan_forward);
+						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+						gatekeeper.unlock();
 					}
 					cout << "CPU worker #" << t << " finished\n";
 			
@@ -684,14 +705,35 @@ namespace PRISM{
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 					// wait longer for everything to complete
 					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-					while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
-						while (Nstart != Nstop) {
-							ay = Nstart / pars.xp.size();
-							ax = Nstart % pars.xp.size();
-							getMultisliceProbe_CPU(pars, ay, ax);
-							++Nstart;
-						}
-						if (Nstop >= early_CPU_stop) break;
+					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+						unique_lock<mutex> gatekeeper(fftw_plan_lock);
+						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  FFTW_FORWARD, FFTW_MEASURE);
+						PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																			  FFTW_BACKWARD, FFTW_MEASURE);
+						gatekeeper.unlock();
+						do {
+							//	cout << "Nstop = " << Nstop << endl;
+							while (Nstart != Nstop) {
+								ay = Nstart / pars.xp.size();
+								ax = Nstart % pars.xp.size();
+//                            if (ay==7){
+//                                cout << "ax = " << ax << endl;
+//								cout << "ay = " << ay << endl;
+//                            }
+								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+								++Nstart;
+							}
+						} while(dispatcher.getWork(Nstart, Nstop));
+						gatekeeper.lock();
+						PRISM_FFTW_DESTROY_PLAN(plan_forward);
+						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+						gatekeeper.unlock();
 					}
 					cout << "CPU worker #" << t << " finished\n";
 
