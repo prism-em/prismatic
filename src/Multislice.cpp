@@ -24,6 +24,7 @@ namespace PRISM{
 	using namespace std;
 	static const PRISM_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
@@ -165,9 +166,9 @@ namespace PRISM{
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                       Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                                       const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
-	                                       const size_t& ay,
-	                                       const size_t& ax){
-
+	                                       const size_t ay,
+	                                       const size_t ax){
+//		cout << "integrating"<<endl;
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
@@ -175,34 +176,39 @@ namespace PRISM{
 		auto idx = alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
+//				if(ax==7&ay==7)cout<<"*counts = " << *counts << endl;
 				pars.stack.at(ay,ax,(*idx)-1, 0) += *counts;
 			}
 			++idx;
 		};
+//		cout << "done"<<endl;
 	}
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                            const size_t& ay,
-	                            const size_t& ax){
-		static mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+	                            const size_t ay,
+	                            const size_t ax,
+								PRISM_FFTW_PLAN& plan_forward,
+								PRISM_FFTW_PLAN& plan_inverse,
+								Array2D<complex<PRISM_FLOAT_PRECISION> >& psi){
+
 
 		// populates the output stack for Multislice simulation using the CPU. The number of
 		// threads used is determined by pars.meta.NUM_THREADS
 
-		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+//		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 
-
+        psi = pars.psiProbeInit;
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 		// to the plan creation methods
-		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
-		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
-		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+//		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+//		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
+//		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
+//		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 		{
 			auto qxa_ptr = pars.qxa.begin();
 			auto qya_ptr = pars.qya.begin();
@@ -212,23 +218,32 @@ namespace PRISM{
 
 
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+//			cout <<"a2 = " << a2 << endl;
+//			cout << "pars.prop.size = " << pars.prop.size() << endl;
+//			cout << "psi.get_dimi() = " << psi.get_dimi() << endl;
+//			cout << "psi.get_dimj() = " << psi.get_dimj() << endl;
 			PRISM_FFTW_EXECUTE(plan_inverse);
+//			cout <<"fft" << endl;
 			complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
 			for (auto& p:psi)p *= (*t_ptr++); // transmit
+//			cout <<"transmit" << endl;
 			PRISM_FFTW_EXECUTE(plan_forward);
 			auto p_ptr = pars.prop.begin();
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
 			for (auto& p:psi)p /= psi.size(); // scale FFT
 
 		}
-		gatekeeper.lock();
-		PRISM_FFTW_DESTROY_PLAN(plan_forward);
-		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
-		gatekeeper.unlock();
+//		gatekeeper.lock();
+//		PRISM_FFTW_DESTROY_PLAN(plan_forward);
+//		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+//		gatekeeper.unlock();
 		formatOutput_CPU(pars, psi, pars.alphaInd, ay, ax);
 	}
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
+		cout << "pars.xp.size() * pars.yp.size() = " << pars.xp.size() * pars.yp.size() << endl;
+		cout << "pars.imageSize[0] = " << pars.imageSize[0] << endl;
+		cout << "pars.imageSize[1] = " << pars.imageSize[1] << endl;
 		cout << "CPU version" << endl;
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
@@ -244,13 +259,35 @@ namespace PRISM{
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-					while (Nstart != Nstop) {
-						ay = Nstart / pars.xp.size();
-						ax = Nstart % pars.xp.size();
-						getMultisliceProbe_CPU(pars, ay, ax);
-						++Nstart;
-					}
+				if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+					Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+					unique_lock<mutex> gatekeeper(fftw_plan_lock);
+					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																		  FFTW_FORWARD, FFTW_MEASURE);
+					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+																		  FFTW_BACKWARD, FFTW_MEASURE);
+                    gatekeeper.unlock();
+                    do {
+						//	cout << "Nstop = " << Nstop << endl;
+						while (Nstart != Nstop) {
+							ay = Nstart / pars.xp.size();
+							ax = Nstart % pars.xp.size();
+//                            if (ay==7){
+//                                cout << "ax = " << ax << endl;
+//								cout << "ay = " << ay << endl;
+//                            }
+							getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+							++Nstart;
+						}
+					} while(dispatcher.getWork(Nstart, Nstop));
+					gatekeeper.lock();
+					PRISM_FFTW_DESTROY_PLAN(plan_forward);
+					PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+					gatekeeper.unlock();
 				}
 				cout << "CPU worker #" << t << " finished\n";
 			}));

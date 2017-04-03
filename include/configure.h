@@ -33,8 +33,8 @@ namespace PRISM {
 	using format_output_func = void (*)( Parameters<PRISM_FLOAT_PRECISION>&,
 	                                     Array2D< std::complex<PRISM_FLOAT_PRECISION> >&,
 	                                     const Array2D<PRISM_FLOAT_PRECISION>&,
-	                                     const size_t&,
-	                                     const size_t&);
+	                                     const size_t,
+	                                     const size_t);
 	using fill_Scompact_func = void(*)(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
 	extern entry_func execute_plan;

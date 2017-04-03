@@ -33,12 +33,15 @@ namespace PRISM{
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                             Array2D< complex<PRISM_FLOAT_PRECISION> >& psi,
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
-	                             const size_t& ay,
-	                             const size_t& ax);
+	                             const size_t ay,
+	                             const size_t ax);
 
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
-                                const size_t& ay,
-                                const size_t& ax);
+                                const size_t ay,
+                                const size_t ax,
+								PRISM_FFTW_PLAN& plan_forward,
+								PRISM_FFTW_PLAN& plan_inverse,
+								Array2D<complex<PRISM_FLOAT_PRECISION> >& psi);
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
