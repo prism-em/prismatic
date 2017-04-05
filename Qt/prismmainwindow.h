@@ -67,6 +67,8 @@ public slots:
 	void updateSliders_fromLineEdits_ang();
     void updateContrastPotMin();
     void updateContrastPotMax();
+    void updateContrastAngMin();
+    void updateContrastAngMax();
     void updateSlider_lineEdits_min(int);
     void updateSlider_lineEdits_max(int);
 	void updateSlider_lineEdits_max_ang(int val);
