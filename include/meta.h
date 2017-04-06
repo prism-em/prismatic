@@ -60,7 +60,7 @@ namespace PRISM{
 
 	template <class T>
 	void Metadata<T>::toString(){
-		std::cout << "interpolationFactor = 5" << interpolationFactor << std::endl;
+		std::cout << "interpolationFactor = " << interpolationFactor << std::endl;
 		std::cout << "filename_atoms = " <<  filename_atoms     << std::endl;
 		std::cout << "filename_output = " << filename_output  << std::endl;
 		std::cout << "realspace_pixelSize = " << realspace_pixelSize<< std::endl;

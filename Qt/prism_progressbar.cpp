@@ -62,6 +62,7 @@ void prism_progressbar::signalDescriptionMessage(const QString str){
 void prism_progressbar::signalScompactUpdate(const long current, const long total){
     std::lock_guard<std::mutex> gatekeeper(dataLock);
     SMatrixCurrentBeam = std::max(SMatrixCurrentBeam, current);
+    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
     emit updateCalcStatus(QString("Slice ") +
                           QString::number(SMatrixCurrentBeam + 1) +
                           QString("/") +

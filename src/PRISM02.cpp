@@ -222,10 +222,10 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
 
-        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
-                                                  QString::number(0) +
-                                                  QString("/") +
-                                                  QString::number(pars.numberBeams));
+//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+//                                                  QString::number(0) +
+//                                                  QString("/") +
+//                                                  QString::number(pars.numberBeams));
 #endif
 		mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -270,10 +270,11 @@ namespace PRISM {
 						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
 #ifdef PRISM_BUILDING_GUI
                         pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
-//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
-//                                                  QString::number(currentBeam) +
-//                                                  QString("/") +
-//                                                  QString::number(pars.numberBeams));
+
+        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+                                                  QString::number(currentBeam) +
+                                                  QString("/") +
+                                                  QString::number(pars.numberBeams));
 #endif
                         ++currentBeam;
 					}
@@ -289,6 +290,10 @@ namespace PRISM {
 		for (auto &t:workers)t.join();
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->setProgress(100);
+        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+                                                  QString::number(pars.numberBeams) +
+                                                  QString("/") +
+                                                  QString::number(pars.numberBeams));
 #endif //PRISM_BUILDING_GUI
 	}
 
