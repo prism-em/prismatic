@@ -21,15 +21,20 @@ public:
     void signalCalcStatusMessage(const QString str);
     void signalPotentialUpdate(const long current, const long total);
 	void setProgress(int);
+    void signalDescriptionMessage(const QString str);
+    void signalScompactUpdate(const long current, const long total);
 public slots:
     void setStepPotential();
     void update_calculatingPotential(long, long);
     void updateCalcStatusMessage(const QString str);
+    void updateDescription(const QString str);
+
 
 //    void update_calculatingSMatrix(int, int);
 //    void update_calculatingPRISM(int, int, int, int);
 //    void update_calculatingMultislice(int, int, int, int);
 signals:
+    void updateDescriptionMessage(const QString str);
     void updateCalcStatus(const QString str);
 	void updateProgressBar(int value);
 private:

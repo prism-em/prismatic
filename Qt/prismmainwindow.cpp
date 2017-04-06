@@ -395,6 +395,7 @@ void PRISMMainWindow::calculateAll(){
 	    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 //        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));
@@ -406,6 +407,7 @@ void PRISMMainWindow::calculateAll(){
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(potentialCalculated()), progressbar, SLOT(close()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));

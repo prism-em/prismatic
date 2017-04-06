@@ -13,6 +13,9 @@
 #include "utility.h"
 #include "configure.h"
 #include "WorkDispatcher.h"
+#ifdef PRISM_BUILDING_GUI
+#include "prism_progressbar.h"
+#endif
 namespace PRISM {
 
 	using namespace std;
@@ -216,7 +219,14 @@ namespace PRISM {
 
 	void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// populates the compact S-matrix using CPU resources
+#ifdef PRISM_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
 
+        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+                                                  QString::number(0) +
+                                                  QString("/") +
+                                                  QString::number(pars.numberBeams));
+#endif
 		mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.numberBeams, pars.imageSize[0] / 2, pars.imageSize[1] / 2}});
@@ -258,7 +268,14 @@ namespace PRISM {
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
-						++currentBeam;
+#ifdef PRISM_BUILDING_GUI
+                        pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
+//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+//                                                  QString::number(currentBeam) +
+//                                                  QString("/") +
+//                                                  QString::number(pars.numberBeams));
+#endif
+                        ++currentBeam;
 					}
 				}
 				// clean up
@@ -270,6 +287,9 @@ namespace PRISM {
 		}
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
+#ifdef PRISM_BUILDING_GUI
+        pars.progressbar->setProgress(100);
+#endif //PRISM_BUILDING_GUI
 	}
 
 	void PRISM02(Parameters<PRISM_FLOAT_PRECISION> &pars) {
