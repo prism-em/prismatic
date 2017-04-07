@@ -271,10 +271,10 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
                         pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
 
-        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
-                                                  QString::number(currentBeam) +
-                                                  QString("/") +
-                                                  QString::number(pars.numberBeams));
+//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
+//                                                  QString::number(currentBeam) +
+//                                                  QString("/") +
+//                                                  QString::number(pars.numberBeams));
 #endif
                         ++currentBeam;
 					}

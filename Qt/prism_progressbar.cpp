@@ -59,18 +59,9 @@ void prism_progressbar::signalCalcStatusMessage(const QString str){
 void prism_progressbar::signalDescriptionMessage(const QString str){
     emit updateDescriptionMessage(str);
 }
-void prism_progressbar::signalScompactUpdate(const long current, const long total){
-    std::lock_guard<std::mutex> gatekeeper(dataLock);
-    SMatrixCurrentBeam = std::max(SMatrixCurrentBeam, current);
-    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
-    emit updateCalcStatus(QString("Slice ") +
-                          QString::number(SMatrixCurrentBeam + 1) +
-                          QString("/") +
-                          QString::number(total));
-    emit updateProgressBar(100*(current+1)/total);
-}
+
 void prism_progressbar::signalPotentialUpdate(const long current, const long total){
-	std::lock_guard<std::mutex> gatekeeper(dataLock);
+    std::lock_guard<std::mutex> gatekeeper(potentialLock);
 	potentialCurrentSlice = std::max(potentialCurrentSlice, current);
 	emit updateCalcStatus(QString("Slice ") +
 	                      QString::number(potentialCurrentSlice + 1) +
@@ -78,6 +69,27 @@ void prism_progressbar::signalPotentialUpdate(const long current, const long tot
 	                      QString::number(total));
 	emit updateProgressBar(100*(current+1)/total);
 }
+void prism_progressbar::signalScompactUpdate(const long current, const long total){
+    std::lock_guard<std::mutex> gatekeeper(sMatrixLock);
+    SMatrixCurrentBeam = std::max(SMatrixCurrentBeam, current);
+//    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
+    emit updateCalcStatus(QString("Slice ") +
+                          QString::number(SMatrixCurrentBeam + 1) +
+                          QString("/") +
+                          QString::number(total));
+    emit updateProgressBar(100*(SMatrixCurrentBeam+1)/total);
+}
+void prism_progressbar::signalOutputUpdate(const long current, const long total){
+    std::lock_guard<std::mutex> gatekeeper(outputLock);
+    currentProbe= std::max(PRISMCurrentProbe, current);
+//    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
+    emit updateCalcStatus(QString("Probe Position ") +
+                          QString::number(currentProbe + 1) +
+                          QString("/") +
+                          QString::number(total));
+    emit updateProgressBar(100*(currentProbe+1)/total);
+}
+
 prism_progressbar::~prism_progressbar()
 {
     delete ui;

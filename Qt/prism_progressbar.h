@@ -23,6 +23,7 @@ public:
 	void setProgress(int);
     void signalDescriptionMessage(const QString str);
     void signalScompactUpdate(const long current, const long total);
+    void signalOutputUpdate(const long current, const long total);
 public slots:
     void setStepPotential();
     void update_calculatingPotential(long, long);
@@ -37,6 +38,7 @@ signals:
     void updateDescriptionMessage(const QString str);
     void updateCalcStatus(const QString str);
 	void updateProgressBar(int value);
+
 private:
     Ui::prism_progressbar *ui;
     PRISMMainWindow *parent;
@@ -47,14 +49,8 @@ private:
     long potentialTotalSlices;
     long SMatrixCurrentBeam;
     long SMatrixTotalBeams;
-    long PRISMCurrentXProbe;
-    long PRISMTotalXProbes;
-    long PRISMCurrentYProbe;
-    long PRISMTotalYProbes;
-    long MultisliceCurrentXProbe;
-    long MultisliceTotalXProbes;
-    long MultisliceCurrentYProbe;
-    long MultisliceTotalYProbes;
+    long currentProbe;
+    long totalProbes;
 
 };
 

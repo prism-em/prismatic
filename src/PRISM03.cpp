@@ -14,7 +14,9 @@
 #include "fftw3.h"
 #include "utility.h"
 #include "WorkDispatcher.h"
-
+#ifdef PRISM_BUILDING_GUI
+#include "prism_progressbar.h"
+#endif
 namespace PRISM {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 	using namespace std;
@@ -132,6 +134,11 @@ namespace PRISM {
 		// as long as the number of xp and yp are similar.
 		// If that is not the case
 		// this may need to be adapted
+#ifdef PRISM_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing final output");
+
+#endif
+
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
@@ -159,6 +166,14 @@ namespace PRISM {
 							 ay = Nstart / pars.xp.size();
 							 ax = Nstart % pars.xp.size();
 							 buildSignal_CPU(pars, ay, ax, plan, psi);
+#ifdef PRISM_BUILDING_GUI
+        pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+
+//        pars.progressbar->signalCalcStatusMessage(QString("Probe Position ") +
+//                                                  QString::number(Nstart) +
+//                                                  QString("/") +
+//                                                  QString::number(pars.xp.size() * pars.yp.size()));
+#endif
 							 ++Nstart;
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));
