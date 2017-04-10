@@ -30,6 +30,7 @@ class PRISMMainWindow : public QMainWindow
     friend class SMatrixThread;
     friend class FullPRISMCalcThread;
     friend class FullMultisliceCalcThread;
+    friend class prism_progressbar;
 
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);

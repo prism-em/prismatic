@@ -8,14 +8,8 @@ prism_progressbar::prism_progressbar(PRISMMainWindow *_parent) :
     potentialTotalSlices(0),
     SMatrixCurrentBeam(0),
     SMatrixTotalBeams(0),
-    PRISMCurrentXProbe(0),
-    PRISMTotalXProbes(0),
-    PRISMCurrentYProbe(0),
-    PRISMTotalYProbes(0),
-    MultisliceCurrentXProbe(0),
-    MultisliceTotalXProbes(0),
-    MultisliceCurrentYProbe(0),
-    MultisliceTotalYProbes(0)
+    currentProbe(0),
+    totalProbes(0)
 {
     ui->setupUi(this);
     ui->progressBar->setValue(0);
@@ -61,7 +55,7 @@ void prism_progressbar::signalDescriptionMessage(const QString str){
 }
 
 void prism_progressbar::signalPotentialUpdate(const long current, const long total){
-    std::lock_guard<std::mutex> gatekeeper(potentialLock);
+//    std::lock_guard<std::mutex> gatekeeper(this->parent->potentialLock);
 	potentialCurrentSlice = std::max(potentialCurrentSlice, current);
 	emit updateCalcStatus(QString("Slice ") +
 	                      QString::number(potentialCurrentSlice + 1) +
@@ -70,7 +64,7 @@ void prism_progressbar::signalPotentialUpdate(const long current, const long tot
 	emit updateProgressBar(100*(current+1)/total);
 }
 void prism_progressbar::signalScompactUpdate(const long current, const long total){
-    std::lock_guard<std::mutex> gatekeeper(sMatrixLock);
+//    std::lock_guard<std::mutex> gatekeeper(this->parent->sMatrixLock);
     SMatrixCurrentBeam = std::max(SMatrixCurrentBeam, current);
 //    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
     emit updateCalcStatus(QString("Slice ") +
@@ -80,8 +74,8 @@ void prism_progressbar::signalScompactUpdate(const long current, const long tota
     emit updateProgressBar(100*(SMatrixCurrentBeam+1)/total);
 }
 void prism_progressbar::signalOutputUpdate(const long current, const long total){
-    std::lock_guard<std::mutex> gatekeeper(outputLock);
-    currentProbe= std::max(PRISMCurrentProbe, current);
+//    std::lock_guard<std::mutex> gatekeeper(this->parent->outputLock);
+    currentProbe = std::max(currentProbe, current);
 //    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
     emit updateCalcStatus(QString("Probe Position ") +
                           QString::number(currentProbe + 1) +
