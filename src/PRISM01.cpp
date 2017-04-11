@@ -17,9 +17,13 @@
 #include "projectedPotential.h"
 #include "WorkDispatcher.h"
 
+#undef PRISM_BUILDING_GUI
+
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
+
+
 namespace PRISM {
 	using namespace std;
 	void fetch_potentials(Array3D<PRISM_FLOAT_PRECISION>& potentials,

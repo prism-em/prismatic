@@ -14,9 +14,14 @@
 #include "fftw3.h"
 #include "utility.h"
 #include "WorkDispatcher.h"
+
+#undef PRISM_BUILDING_GUI
+
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
+
+
 namespace PRISM {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 	using namespace std;
@@ -151,7 +156,7 @@ namespace PRISM {
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
                  if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-					 Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
+                     Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
 
@@ -167,7 +172,7 @@ namespace PRISM {
 							 ax = Nstart % pars.xp.size();
 							 buildSignal_CPU(pars, ay, ax, plan, psi);
 #ifdef PRISM_BUILDING_GUI
-        pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+ //       pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 
 //        pars.progressbar->signalCalcStatusMessage(QString("Probe Position ") +
 //                                                  QString::number(Nstart) +
@@ -178,6 +183,7 @@ namespace PRISM {
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));
 					 gatekeeper.lock();
+                     cout <<"destroying plan"<<endl;
 					 PRISM_FFTW_DESTROY_PLAN(plan);
 					 gatekeeper.unlock();
 				}
@@ -194,12 +200,13 @@ namespace PRISM {
 	                     const size_t &ax,
 						 PRISM_FFTW_PLAN& plan,
 						 Array2D<std::complex<PRISM_FLOAT_PRECISION> >& psi){
+//        cout <<"ax, ay = " << ax << " ," << ay << endl;
 		// build the output for a single probe position using CPU resources
 
 //
 		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
-
+//cout <<"debug1" << endl;
 		PRISM_FLOAT_PRECISION x0 = pars.xp[ax] / pars.pixelSizeOutput[1];
 		PRISM_FLOAT_PRECISION y0 = pars.yp[ay] / pars.pixelSizeOutput[0];
 		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
@@ -216,9 +223,15 @@ namespace PRISM {
 			memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
 //			psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >(
 //					{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+//            cout <<"debug2" << endl;
+//            cout << "pars.beamsIndex.size() = " << pars.beamsIndex.size() << endl;
+//            cout << "pars.psiProbeInit.at(0, 0) = " << pars.psiProbeInit.at(0, 0) << endl;
 			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 				PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
+//                cout <<"a4 = " <<a4 << endl;
+
+                //TODO: PROBLEM SEEMS TO BE HERE FOR SEGFAULT AT F=4
 				if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
 					PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
 					PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
@@ -226,11 +239,13 @@ namespace PRISM {
 							-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) +
 							               q0_1 * (pars.yp[ay] + pars.yTiltShift)));
 					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
+//                    cout << "tmp_const = " << tmp_const << endl;
 					auto psi_ptr = psi.begin();
 					for (auto j = 0; j < y.size(); ++j) {
 						for (auto i = 0; i < x.size(); ++i) {
 							// access contiguously for performance
-							*psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+                            *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+
 						}
 					}
 				}
@@ -238,16 +253,17 @@ namespace PRISM {
 
 			// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 			// to the plan creation methods
-//			unique_lock<mutex> gatekeeper(fftw_plan_lock);
-//			PRISM_FFTW_PLAN plan2 = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-//			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-//			                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-//			                                              FFTW_FORWARD, FFTW_ESTIMATE);
+//            unique_lock<mutex> gatekeeper(fftw_plan_lock);
+//            PRISM_FFTW_PLAN plan2 = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//                                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//                                                          reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//                                                          FFTW_FORWARD, FFTW_ESTIMATE);
+//            cout <<"debug3" << endl;
 
-//			gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
-			PRISM_FFTW_EXECUTE(plan);
-//			PRISM_FFTW_EXECUTE(plan2);
-//			gatekeeper.lock();
+//            gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+            PRISM_FFTW_EXECUTE(plan);
+//            PRISM_FF TW_EXECUTE(plan2);
+//            gatekeeper.lock();
 //			PRISM_FFTW_DESTROY_PLAN(plan);
 //			gatekeeper.unlock();
 
@@ -258,11 +274,26 @@ namespace PRISM {
 			}
 		}
 
+//        cout <<"debug4" << endl;
+//        for (auto &s : psi)cout <<s << endl;
+
+
 //         update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
 				pars.stack.at(ay, ax, (*idx) - 1, 0) += *counts * pars.scale;
+                if (isinf(*counts * pars.scale) | isnan(*counts * pars.scale)){
+//                cout <<" *counts * pars.scale = " << *counts * pars.scale << endl;
+//                cout << "intOutput.get_dimj() = " << intOutput.get_dimj() << endl;
+//                cout << "intOutput.get_dimi() = " << intOutput.get_dimi() << endl;
+//                cout << "pars.scale = " << pars.scale << endl;
+//cout << "starting " << endl;
+//for (auto &s : intOutput)cout <<s << endl;
+//for (auto &s : psi)cout <<s << endl;
+
+					int a=0;
+                }
 			}
 			++idx;
 		};

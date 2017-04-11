@@ -16,6 +16,7 @@
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
+
 namespace PRISM {
 
 	using namespace std;
