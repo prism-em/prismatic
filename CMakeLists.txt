@@ -27,14 +27,16 @@ set(SOURCE_FILES
         src/PRISM03.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
-	    src/projectedPotential.cpp)
+	    src/projectedPotential.cpp
+        src/parseInput.cpp)
 
 if (PRISM_ENABLE_GUI)
 set(GUI_SOURCE_FILES
         Qt/main.cpp
         Qt/prismmainwindow.cpp
 	    Qt/prism_qthreads.cpp
-        Qt/prism_progressbar.cpp)
+        Qt/prism_progressbar.cpp
+        src/parseInput.cpp)
 endif (PRISM_ENABLE_GUI)
 
 if (PRISM_ENABLE_GPU)

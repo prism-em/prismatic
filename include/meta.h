@@ -18,7 +18,8 @@ namespace PRISM{
 		Metadata(){
 			interpolationFactor = 5;
 			filename_atoms      = "/path/to/atoms.txt";
-			filename_output     = "/path/to/output.mrc";
+			//filename_output     = "/path/to/output.mrc";
+			filename_output     = "output.mrc";
 			realspace_pixelSize = 100.0 / 1000.0;
 			potBound = 1.0;
 			numFP = 8.0 / 8.0;
@@ -30,9 +31,8 @@ namespace PRISM{
 			NUM_STREAMS_PER_GPU = 3;
 			NUM_THREADS = 4;
 			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
-//			also_do_CPU_work = true;
-			also_do_CPU_work = false;
-			//cpu_gpu_ratio = 1 / 15; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
+			also_do_CPU_work = true;
+//			also_do_CPU_work = false;
 			cpu_gpu_ratio = 0.05; // relative speed of job completion between cpu and gpu, used to determine early stopping point for cpu work
 //			stream_data = true;
 			stream_data = false;
