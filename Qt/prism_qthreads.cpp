@@ -34,11 +34,12 @@ SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progr
 }
 
 void SMatrixThread::run(){
+    QMutexLocker calculationLocker(&this->parent->calculationLock);
+
     // create parameters
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
     // calculate potential if it hasn't been already
     if (!this->parent->potentialReady){
-	    QMutexLocker calculationLocker(&this->parent->calculationLock);
         // calculate potential
         PRISM::PRISM01(params);
         // acquire the mutex so we can safely copy to the GUI copy of the potential
@@ -61,7 +62,7 @@ void SMatrixThread::run(){
     // indicate that the potential is ready
     this->parent->ScompactReady = true;
     std::cout << "copying S-Matrix" << std::endl;
-    std::cout << "S-Matrix.at(0,0,0) = " << this->parent->Scompact.at(0,0,0) << std::endl;
+//    std::cout << "S-Matrix.at(0,0,0) = " << this->parent->Scompact.at(0,0,0) << std::endl;
 }
 
 
@@ -74,8 +75,8 @@ parent(_parent), progressbar(_progressbar){
 
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
+    QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
-	QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
     PRISM::PRISM01(params);
@@ -98,14 +99,16 @@ void FullPRISMCalcThread::run(){
         this->parent->ScompactReady = true;
     }
     std::cout << "copying S-Matrix" << std::endl;
-    emit ScompactCalculated();
+//    emit ScompactCalculated();
 
     PRISM::PRISM03(params);
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
+
         this->parent->output = params.stack;
-	    this->parent->detectorAngles = params.detectorAngles;
-	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
+        this->parent->detectorAngles = params.detectorAngles;
+
+        for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
         PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
         {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
@@ -120,6 +123,7 @@ void FullPRISMCalcThread::run(){
 
          std::cout<<"params.stack.at(0,0,0) = " << params.stack.at(0,0,0) << std::endl;
          std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->output.at(0,0,0) << std::endl;
+
     }
     emit outputCalculated();
 

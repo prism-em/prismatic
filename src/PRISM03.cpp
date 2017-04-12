@@ -140,7 +140,7 @@ namespace PRISM {
 		// If that is not the case
 		// this may need to be adapted
 #ifdef PRISM_BUILDING_GUI
-        pars.progressbar->signalDescriptionMessage("Computing final output");
+//        pars.progressbar->signalDescriptionMessage("Computing final output");
 
 #endif
 
@@ -211,11 +211,19 @@ namespace PRISM {
 		PRISM_FLOAT_PRECISION y0 = pars.yp[ay] / pars.pixelSizeOutput[0];
 		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
 		transform(x.begin(), x.end(), x.begin(), [&pars](PRISM_FLOAT_PRECISION &a) {
-			return fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]);
+//			return fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]);
+            return fmod((PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1] +
+                    fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]),
+                    (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]);
+
 		});
 		Array1D<PRISM_FLOAT_PRECISION> y = pars.yVec + round(y0);
 		transform(y.begin(), y.end(), y.begin(), [&pars](PRISM_FLOAT_PRECISION &a) {
-			return fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]);
+//			return fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]);
+            return fmod((PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0] +
+                    fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]),
+                    (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]);
+
 		});
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
@@ -231,7 +239,6 @@ namespace PRISM {
 				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
 //                cout <<"a4 = " <<a4 << endl;
 
-                //TODO: PROBLEM SEEMS TO BE HERE FOR SEGFAULT AT F=4
 				if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
 					PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
 					PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
@@ -241,10 +248,55 @@ namespace PRISM {
 					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
 //                    cout << "tmp_const = " << tmp_const << endl;
 					auto psi_ptr = psi.begin();
+                    if (ay==0 & ax==0){
+                        for (auto i=0; i < pars.xp.size(); ++i){
+                            cout << "pars.xp[" << i << "] = " << pars.xp[i] << endl;
+                        }
+//                        for (auto i=0; i < y.size(); ++i){
+//                            cout << "y[" << i << "] = " << y[i] << endl;
+//                        }
+                        for (auto i=0; i < x.size(); ++i){
+                            cout << "x[" << i << "] = " << x[i] << endl;
+                        }
+//                        for (auto i=0; i < pars.xVec.size(); ++i){
+//                            cout << "pars.xVec[" << i << "] = " << pars.xVec[i] << endl;
+//                        }
+//                        for (auto i=0; i < pars.yVec.size(); ++i){
+//                            cout << "pars.yVec[" << i << "] = " << pars.yVec[i] << endl;
+//                        }
+//                        cout << "x0 = " << x0 << endl;
+//                        cout << "y0 = " << y0 << endl;
+//                        cout << "pars.xp[ax] = " << pars.xp[ax] << endl;
+//                        cout << "pars.pixelSizeOutput[1] = " << pars.pixelSizeOutput[1] << endl;
+//                        cout << "pars.yp[ay] = " << pars.yp[ay] << endl;
+//                        cout << "pars.pixelSizeOutput[0] = " << pars.pixelSizeOutput[0] << endl;
+
+
+                    }
 					for (auto j = 0; j < y.size(); ++j) {
 						for (auto i = 0; i < x.size(); ++i) {
+
+
 							// access contiguously for performance
+                            //TODO: PROBLEM SEEMS TO BE THIS LINE FOR SEGFAULT AT F=4
+
+//                            *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+//                            *psi_ptr++ += tmp_const;
+                            if (a4 >= pars.Scompact.get_dimk() | y[j] >= pars.Scompact.get_dimj() | x[i] >= pars.Scompact.get_dimi()){
+                            cout << "pars.Scompact.get_dimi() = " << pars.Scompact.get_dimi() << endl;
+                            cout << "pars.Scompact.get_dimj() = " << pars.Scompact.get_dimj() << endl;
+                            cout << "pars.Scompact.get_dimk() = " << pars.Scompact.get_dimk() << endl;
+                            cout << "a4 = " << a4 << endl;
+                            cout << "y[j] = " << y[j] << endl;
+                            cout << "x[i] = " << x[i] << endl;
+//                            *psi_ptr++ += pars.Scompact.at(a4, y[j], x[i]);
+
+                            }
                             *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+//                             *psi_ptr++ += pars.Scompact.at(a4, y[j], x[i]);
+//                             *psi_ptr++ = pars.Scompact.at(a4, y[j], x[i]);
+//                            *psi_ptr++ = pars.Scompact.at(0, 0, 0);
+//                            *psi_ptr++ += 1;
 
 						}
 					}

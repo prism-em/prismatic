@@ -228,7 +228,7 @@ namespace PRISM {
 //                                                  QString("/") +
 //                                                  QString::number(pars.numberBeams));
 #endif
-		mutex fftw_plan_lock;
+        extern mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.numberBeams, pars.imageSize[0] / 2, pars.imageSize[1] / 2}});
 		pars.transmission = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -246,7 +246,7 @@ namespace PRISM {
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching thread #" << t << " to compute beams\n";
-			workers.push_back(thread([&pars, &fftw_plan_lock, &dispatcher]() {
+            workers.push_back(thread([&pars, &dispatcher]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
