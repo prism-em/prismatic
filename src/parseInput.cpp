@@ -19,11 +19,20 @@ namespace PRISM {
     }
     void printHelp() {
         std::cout << "Options:\n";
-        std::cout << "-f filename : input file containing atomic coordinates and species. Should be a \
+        std::cout << "-f interpolation_factor : PRISM interpolation factor\n";
+        std::cout << "-g num_GPUs : number of GPUs to use\n";
+        std::cout << "-i filename : input file containing atomic coordinates and species. Should be a \
                   comma-separated text file with one row per atom of the form x, y, z, Z where Z is the atomic number.\n";
+        std::cout << "-j num_threads : number of CPU threads to use\n";
         std::cout << "-o filename : output filename\n";
-
+        std::cout << "-s num_streams : number of CUDA streams to create per GPU\n";
     }
+
+    ParseResult parse_h(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+        printHelp();
+        return ParseResult::Failure;
+    };
 
     ParseResult parse_i(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -47,7 +56,6 @@ namespace PRISM {
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for PRISM interpolation factor (syntax is -f interpolation_factor)\n";
             return ParseResult::Failure;
         }
-        meta.filename_atoms = std::string((*argv)[1]);
         argc-=2;
         argv[0]+=2;
         return ParseResult::Success;
@@ -115,6 +123,21 @@ namespace PRISM {
         return ParseResult::Success;
     };
 
+    ParseResult parse_p(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No pixel size provided for -p (syntax is -p pixel_size)\n";
+            return ParseResult::Failure;
+        }
+        if ( (meta.realspace_pixelSize = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for pixel size  (syntax is -p pixel_size)\n";
+            return ParseResult::Failure;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return ParseResult::Success;
+    };
+
     bool parseInputs(Metadata<PRISM_FLOAT_PRECISION> &meta,
                      int &argc, const char ***argv) {
         if (argc==1)return true; // case of no inputs to parse
@@ -128,12 +151,14 @@ namespace PRISM {
         return false;
     }
     static std::map<std::string, parseFunction> parser{
-            {"-i", parse_i},
-            {"-f", parse_f},
-            {"-o", parse_o},
-            {"-j", parse_j},
-            {"-s", parse_s},
-            {"-g", parse_g}
+            {"--input_file", parse_i}, {"-i", parse_i},
+            {"--interp_factor", parse_f}, {"-f", parse_f},
+            {"--output_file", parse_o}, {"-o", parse_o},
+            {"--num_threads", parse_j}, {"-j", parse_j},
+            {"--num_streams", parse_s}, {"-s", parse_s},
+            {"--num_gpus", parse_g}, {"-g", parse_g},
+            {"--help", parse_h}, {"-h", parse_h},
+            {"--pixel_size", parse_p}, {"-p", parse_p}
     };
     ParseResult parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){
