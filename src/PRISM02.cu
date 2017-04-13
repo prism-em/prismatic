@@ -326,9 +326,7 @@ namespace PRISM {
 				size_t currentBeam, stop, early_CPU_stop;
 				currentBeam=stop=0;
 //				stop = pars.numberBeams;
-//				early_CPU_stop = stop * (1-pars.meta.cpu_gpu_ratio);
-				//early_CPU_stop = pars.numberBeams - (1/pars.meta.cpu_gpu_ratio);
-				early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams * (1-pars.meta.cpu_gpu_ratio));
+				early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
 //                early_CPU_stop = stop;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
@@ -656,8 +654,7 @@ namespace PRISM {
 				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 				size_t currentBeam, stop, early_CPU_stop;
 				currentBeam=stop=0;
-				early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams * (1-pars.meta.cpu_gpu_ratio));
-				//early_CPU_stop = stop - (1/pars.meta.cpu_gpu_ratio);
+				early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
 					while (currentBeam != stop) {

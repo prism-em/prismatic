@@ -53,7 +53,7 @@ public slots:
     void setCellDimY_fromLineEdit();
     void setCellDimZ_fromLineEdit();
     void setE0_fromLineEdit();
-    void setprobe_dxy_fromLineEdit();
+    void setprobe_step_fromLineEdit();
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();

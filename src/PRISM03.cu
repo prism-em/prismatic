@@ -716,9 +716,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
                     Nstart=Nstop=0;
-//					early_CPU_stop = pars.xp.size() * pars.yp.size();
-//					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio));
+                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
@@ -1097,10 +1095,7 @@ if (Nstop >= early_CPU_stop) break;
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
                     Nstart=Nstop=0;
-//					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
-					//early_CPU_stop = pars.xp.size() * pars.yp.size() - (1./pars.meta.cpu_gpu_ratio);
-                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio));
-//					early_CPU_stop = 0;
+                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (

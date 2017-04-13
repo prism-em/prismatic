@@ -102,8 +102,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 		ss << (this->meta->E0 *1e-3);
 		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
 		ss.str("");
-        ss << (this->meta->dxy);
-        this->ui->lineEdit_probedxy->setText(QString::fromStdString(ss.str()));
+        ss << (this->meta->probe_step);
+        this->ui->lineEdit_probeStep->setText(QString::fromStdString(ss.str()));
         ss.str("");
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
@@ -152,7 +152,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
-    connect(this->ui->lineEdit_probedxy, SIGNAL(editingFinished()), this, SLOT(setprobe_dxy_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStep, SIGNAL(editingFinished()), this, SLOT(setprobe_step_fromLineEdit()));
     connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -368,11 +368,11 @@ void PRISMMainWindow::setE0_fromLineEdit(){
     }
 }
 
-void PRISMMainWindow::setprobe_dxy_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probedxy->text().toDouble();
+void PRISMMainWindow::setprobe_step_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStep->text().toDouble();
     if (val > 0){
-        this->meta->dxy = val;
-        std::cout << "Setting dxy to " << val << std::endl;
+        this->meta->probe_step = val;
+        std::cout << "Setting probe_step to " << val << std::endl;
     }
 }
 void PRISMMainWindow::calculatePotential(){

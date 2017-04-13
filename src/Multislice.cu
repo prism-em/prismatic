@@ -377,7 +377,7 @@ namespace PRISM{
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
-				early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
+				early_CPU_stop = std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
 					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -705,7 +705,7 @@ if (Nstop >= early_CPU_stop) break;
 					Nstart=Nstop=0;
 					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 					// wait longer for everything to complete
-					early_CPU_stop = pars.xp.size() * pars.yp.size() * (1-pars.meta.cpu_gpu_ratio);
+					early_CPU_stop = std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
 					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);

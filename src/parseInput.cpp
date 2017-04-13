@@ -290,7 +290,7 @@ namespace PRISM {
             cout << "No probe step provided for -r (syntax is -r probe_step (in Angstroms))\n";
             return ParseResult::Failure;
         }
-        if ( (meta.dxy = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probe_step = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -r probe_step (in Angstroms))\n";
             return ParseResult::Failure;
         }
