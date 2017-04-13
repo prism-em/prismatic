@@ -79,6 +79,11 @@ namespace PRISM{
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
 		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;
+        if (algorithm == PRISM::Algorithm::PRISM){
+            std::cout << "Algorithm: PRISM" << std::endl;
+        } else {
+			std::cout << "Algorithm: Multislice" << std::endl;
+		}
 	}
 }
 #endif //PRISM_META_H
