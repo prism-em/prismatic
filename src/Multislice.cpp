@@ -106,14 +106,13 @@ namespace PRISM{
 	}
 
 	void setupDetector_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		pars.dr = (PRISM_FLOAT_PRECISION)2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
-		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr, pars.alphaMax - pars.dr / 2);
+		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.dr / 2, pars.meta.dr, pars.alphaMax - pars.meta.dr / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		pars.Ndet = pars.detectorAngles.size();
 		Array2D<PRISM_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
-		pars.alphaInd = (alpha + pars.dr/2) / pars.dr;
+		pars.alphaInd = (alpha + pars.meta.dr/2) / pars.meta.dr;
 		for (auto& q : pars.alphaInd) q = std::round(q);
 		pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
 	}

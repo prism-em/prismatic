@@ -16,23 +16,9 @@ namespace PRISM{
 	Parameters<PRISM_FLOAT_PRECISION> Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		PRISM01(prism_pars);
-//		prism_pars.pot.toMRC_f("DEBUG.mrc");
 		Multislice(prism_pars);
-		size_t lower = 13;
-		size_t upper = 18;
-		Array2D<PRISM_FLOAT_PRECISION> prism_image;
-		prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk()}});
 
-		for (auto y = 0; y < prism_pars.stack.get_diml(); ++y){
-			for (auto x = 0; x < prism_pars.stack.get_dimk(); ++x){
-				for (auto b = lower; b < upper; ++b){
-					prism_image.at(y,x) += prism_pars.stack.at(y,x,b,0);
-				}
-			}
-		}
-
-		prism_image.toMRC_f("multislice_image.mrc");
-
+		// for now stack is a 4D array so here I convert to 3D to save it
 		PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
 				{{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(), prism_pars.stack.get_dimj()}});
 		auto ptr = reshaped_output.begin();

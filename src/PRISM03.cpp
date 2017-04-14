@@ -66,11 +66,10 @@ namespace PRISM {
 	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// setup coordinates related to detector size, angles, and image output
 
-		pars.dr = 2.5 / 1000;
 		pars.alphaMax = pars.qMax * pars.lambda;
 
-		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.dr / 2, pars.dr,
-		                                                              pars.alphaMax - pars.dr / 2);
+		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.dr / 2, pars.meta.dr,
+		                                                              pars.alphaMax - pars.meta.dr / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
@@ -180,6 +179,7 @@ namespace PRISM {
 					 gatekeeper.lock();
                      cout <<"destroying plan"<<endl;
 					 PRISM_FFTW_DESTROY_PLAN(plan);
+//					 cout <<"plan destroyed"<<endl;
 					 gatekeeper.unlock();
 				}
 			}));
@@ -287,7 +287,7 @@ namespace PRISM {
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),
 		          [&pars](const PRISM_FLOAT_PRECISION &a) {
-			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.dr);
+			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.dr);
 		          });
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),

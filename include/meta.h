@@ -37,6 +37,7 @@ namespace PRISM{
 //			stream_data = true;
 			stream_data = false;
             probe_step = 0.25;
+			dr = 2.5 / 1000;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
@@ -52,6 +53,7 @@ namespace PRISM{
 		T gpu_cpu_ratio;
 		T E0; // electron energy
 		T alphaBeamMax; // max semi angle for probe
+		T dr;
 		size_t NUM_THREADS; // number of CPU threads to use
 		size_t NUM_GPUS; // number of GPUs to use
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU
