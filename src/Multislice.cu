@@ -210,7 +210,7 @@ namespace PRISM{
 		cudaErrchk(cudaMallocHost((void **)&qya_ph,          pars.qya.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **)&alphaInd_ph,     pars.alphaInd.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.stack.get_dimj() * pars.stack.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimj() * pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		// copy host memory to pinned
 		memcpy(PsiProbeInit_ph, &pars.psiProbeInit[0], pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
@@ -432,11 +432,11 @@ if (Nstop >= early_CPU_stop) break;
 		// copy the results of the GPU, which are in pinned memory, back to the actual stack. The CPU work populates the
 		// beginning, so make sure to copy from the offset of where the GPU started. Launch this copy on a background thread
 		// while we cleanup the GPU
-//		const size_t GPU_start_offset = (size_t)CPU_stop*pars.stack.get_dimk()*pars.stack.get_dimj()*pars.stack.get_dimi();
+//		const size_t GPU_start_offset = (size_t)CPU_stop*pars.output.get_dimk()*pars.output.get_dimj()*pars.output.get_dimi();
 //		std::thread copy_t([&GPU_start_offset, &pars, &stack_ph](){
-//			memcpy(&pars.stack[GPU_start_offset],
+//			memcpy(&pars.output[GPU_start_offset],
 //			       &stack_ph[GPU_start_offset],
-//			       (pars.stack.size()-GPU_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
+//			       (pars.output.size()-GPU_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
 //		});
 
 		// synchronize GPUs and cleanup data
@@ -540,7 +540,7 @@ if (Nstop >= early_CPU_stop) break;
 		cudaErrchk(cudaMallocHost((void **)&qya_ph,          pars.qya.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **)&alphaInd_ph,     pars.alphaInd.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.stack.get_dimj() * pars.stack.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimj() * pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		// copy host memory to pinned
 		memcpy(PsiProbeInit_ph, &pars.psiProbeInit[0], pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
@@ -760,11 +760,11 @@ if (Nstop >= early_CPU_stop) break;
 		// copy the results of the GPU, which are in pinned memory, back to the actual stack. The CPU work populates the
 		// beginning, so make sure to copy from the offset of where the GPU started. Launch this copy on a background thread
 		// while we cleanup the GPU
-//		const size_t GPU_start_offset = (size_t)CPU_stop*pars.stack.get_dimk()*pars.stack.get_dimj()*pars.stack.get_dimi();
+//		const size_t GPU_start_offset = (size_t)CPU_stop*pars.output.get_dimk()*pars.output.get_dimj()*pars.output.get_dimi();
 //		std::thread copy_t([&GPU_start_offset, &pars, &stack_ph](){
-//			memcpy(&pars.stack[GPU_start_offset],
+//			memcpy(&pars.output[GPU_start_offset],
 //			       &stack_ph[GPU_start_offset],
-//			       (pars.stack.size()-GPU_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
+//			       (pars.output.size()-GPU_start_offset) * sizeof(PRISM_FLOAT_PRECISION));
 //		});
 
 		// synchronize GPUs and cleanup data

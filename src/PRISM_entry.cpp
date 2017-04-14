@@ -48,7 +48,7 @@ namespace PRISM{
 //		}
 //
 //		prism_image.toMRC_f("prism_image.mrc");
-        prism_pars.stack.toMRC_f(prism_pars.meta.filename_output.c_str());
+        prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
         std::cout << "PRISM Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}

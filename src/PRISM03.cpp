@@ -109,9 +109,9 @@ namespace PRISM {
 	}
 
 	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars) {
-		// create output stack of a size corresponding to 3D mode (integration)
+		// create output of a size corresponding to 3D mode (integration)
 
-		pars.stack = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		pars.output = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars) {
@@ -253,11 +253,11 @@ namespace PRISM {
 			}
 		}
 
-//         update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
-				pars.stack.at(ay, ax, (*idx) - 1) += *counts * pars.scale;
+				pars.output.at(ay, ax, (*idx) - 1) += *counts * pars.scale;
 			}
 			++idx;
 		};
@@ -353,7 +353,7 @@ namespace PRISM {
 		// setup Fourier coordinates for the S-matrix
 		setupFourierCoordinates(pars);
 
-		// initialize the output stack to the correct size for the output mode
+		// initialize the output to the correct size for the output mode
 		createStack_integrate(pars);
 
 //		 perform some necessary setup transformations of the data

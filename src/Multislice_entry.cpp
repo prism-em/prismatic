@@ -17,7 +17,7 @@ namespace PRISM{
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		PRISM01(prism_pars);
 		Multislice(prism_pars);
-		prism_pars.stack.toMRC_f(prism_pars.meta.filename_output.c_str());
+		prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 		std::cout << "Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}

@@ -105,24 +105,24 @@ void FullPRISMCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
 
-        this->parent->output = params.stack;
+        this->parent->output = params.output;
         this->parent->detectorAngles = params.detectorAngles;
 
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
 //        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
-//        {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
+//        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //         auto ptr = reshaped_output.begin();
-//         for (auto &i:params.stack)*ptr++=i;
+//         for (auto &i:params.output)*ptr++=i;
 //         std::cout << "saving to " << params.meta.filename_output.c_str() << std::endl;
 //         reshaped_output.toMRC_f(params.meta.filename_output.c_str());
-        params.stack.toMRC_f(params.meta.filename_output.c_str());
-//         std::cout << "params.stack.get_dimk() = "<< params.stack.get_dimk() << std::endl;
-//         std::cout << "params.stack.get_diml() = "<< params.stack.get_diml() << std::endl;
-//        std::cout << "params.stack.get_dimj() = "<< params.stack.get_dimj() << std::endl;
-//         std::cout << "params.stack.get_dimi() = "<< params.stack.get_dimi() << std::endl;
+        params.output.toMRC_f(params.meta.filename_output.c_str());
+//         std::cout << "params.output.get_dimk() = "<< params.output.get_dimk() << std::endl;
+//         std::cout << "params.output.get_diml() = "<< params.output.get_diml() << std::endl;
+//        std::cout << "params.output.get_dimj() = "<< params.output.get_dimj() << std::endl;
+//         std::cout << "params.output.get_dimi() = "<< params.output.get_dimi() << std::endl;
 //
-//         std::cout<<"params.stack.at(0,0,0) = " << params.stack.at(0,0,0) << std::endl;
+//         std::cout<<"params.output.at(0,0,0) = " << params.output.at(0,0,0) << std::endl;
 //         std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->output.at(0,0,0) << std::endl;
 
     }
@@ -157,16 +157,16 @@ void FullMultisliceCalcThread::run(){
     PRISM::Multislice(params);
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
-        this->parent->output = params.stack;
+        this->parent->output = params.output;
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
 //        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
-//        {{params.stack.get_diml(), params.stack.get_dimk(), params.stack.get_dimj()}});
+//        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //        auto ptr = reshaped_output.begin();
-//        for (auto &i:params.stack)*ptr++=i;
+//        for (auto &i:params.output)*ptr++=i;
 //        reshaped_output.toMRC_f(params.meta.filename_output.c_str());
-        params.stack.toMRC_f(params.meta.filename_output.c_str());
+        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
 

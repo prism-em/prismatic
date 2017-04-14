@@ -159,7 +159,7 @@ namespace PRISM{
 	}
 
 	void createStack(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		pars.stack = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		pars.output = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISM_FLOAT_PRECISION>& pars,
@@ -176,7 +176,7 @@ namespace PRISM{
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
 //				if(ax==7&ay==7)cout<<"*counts = " << *counts << endl;
-				pars.stack.at(ay,ax,(*idx)-1) += *counts;
+				pars.output.at(ay,ax,(*idx)-1) += *counts;
 			}
 			++idx;
 		};
