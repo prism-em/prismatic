@@ -11,19 +11,27 @@
 namespace PRISM {
     using namespace std;
 
-
-    void printSyntax() {
-        std::cout << "Syntax is ./prism [options]" << std::endl;
-    }
     void printHelp() {
-        std::cout << "Options:\n";
-        std::cout << "-f interpolation_factor : PRISM interpolation factor\n";
-        std::cout << "-g num_GPUs : number of GPUs to use\n";
-        std::cout << "-i filename : input file containing atomic coordinates and species. Should be a \
-                  comma-separated text file with one row per atom of the form x, y, z, Z where Z is the atomic number.\n";
-        std::cout << "-j num_threads : number of CPU threads to use\n";
-        std::cout << "-o filename : output filename\n";
-        std::cout << "-s num_streams : number of CUDA streams to create per GPU\n";
+        std::cout << "The following options are available with `prism`, each documented as long form (short form) *parameters* : description\n"
+                "\n"
+                "* --input-file (-i) filename : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z \n"
+                "* --output-file(-o) filename : output filename\n"
+                "* --interp-factor (-f) number : PRISM interpolation factor\n"
+                "* --num-threads (-j) value : number of CPU threads to use\n"
+                "* --num-streams (-S) value : number of CUDA streams to create per GPU\n"
+                "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms)\n"
+                "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.\n"
+                "* --help(-h) : print information about the available options\n"
+                "* --pixel-size (-p) pixel_size : size of simulation pixel size\n"
+                "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)\n"
+                "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice\n"
+                "* --energy (-E) value : the energy of the electron beam (in keV)\n"
+                "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)\n"
+                "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)\n"
+                "* --also-do-cpu-work (-C) 0/1 : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
+                "* --force-streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
+                "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
+                "* --num-FP (-F) value : number of frozen phonon configurations to calculate";
     }
 
     ParseResult parse_a(Metadata<PRISM_FLOAT_PRECISION>& meta,
@@ -316,23 +324,23 @@ namespace PRISM {
     using parseFunction = ParseResult (*)(Metadata<PRISM_FLOAT_PRECISION>& meta,
                                           int& argc, const char*** argv);
     static std::map<std::string, parseFunction> parser{
-            {"--input_file", parse_i}, {"-i", parse_i},
-            {"--interp_factor", parse_f}, {"-f", parse_f},
-            {"--output_file", parse_o}, {"-o", parse_o},
-            {"--num_threads", parse_j}, {"-j", parse_j},
-            {"--num_streams", parse_S}, {"-S", parse_S},
-            {"--slice_thickness", parse_s}, {"-s", parse_s},
-            {"--num_gpus", parse_g}, {"-g", parse_g},
+            {"--input-file", parse_i}, {"-i", parse_i},
+            {"--interp-factor", parse_f}, {"-f", parse_f},
+            {"--output-file", parse_o}, {"-o", parse_o},
+            {"--num-threads", parse_j}, {"-j", parse_j},
+            {"--num-streams", parse_S}, {"-S", parse_S},
+            {"--slice-thickness", parse_s}, {"-s", parse_s},
+            {"--num-gpus", parse_g}, {"-g", parse_g},
             {"--help", parse_h}, {"-h", parse_h},
-            {"--pixel_size", parse_p}, {"-p", parse_p},
-            {"--cell_dimension", parse_c}, {"-c", parse_c},
+            {"--pixel-size", parse_p}, {"-p", parse_p},
+            {"--cell-dimension", parse_c}, {"-c", parse_c},
             {"--algorithm", parse_a}, {"-a", parse_a},
             {"--energy", parse_E}, {"-E", parse_E},
-            {"--alpha_max", parse_A}, {"-A", parse_A},
-            {"--potential_bound", parse_P}, {"-P", parse_P},
-            {"--also_do_cpu_work", parse_C}, {"-C", parse_C},
-            {"--force_streaming_mode", parse_force_streaming_mode},
-            {"--probe_step", parse_r}, {"-r", parse_r},
+            {"--alpha-max", parse_A}, {"-A", parse_A},
+            {"--potential-bound", parse_P}, {"-P", parse_P},
+            {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
+            {"--force-streaming-mode", parse_force_streaming_mode},
+            {"--probe-step", parse_r}, {"-r", parse_r},
             {"--num-FP", parse_F}, {"-F", parse_F}
     };
     ParseResult parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,

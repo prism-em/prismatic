@@ -13,7 +13,6 @@ namespace PRISM{
                             int& argc, const char*** argv);
     ParseResult parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
-    void printSyntax();
     void printHelp();
 }
 #endif //PRISM_PARSEINPUT_H
