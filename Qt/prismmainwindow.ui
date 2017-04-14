@@ -563,12 +563,12 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>60</width>
+                  <width>75</width>
                   <height>16777215</height>
                  </size>
                 </property>
                 <property name="maxLength">
-                 <number>6</number>
+                 <number>16</number>
                 </property>
                </widget>
               </item>
@@ -579,12 +579,12 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>60</width>
+                  <width>75</width>
                   <height>16777215</height>
                  </size>
                 </property>
                 <property name="maxLength">
-                 <number>6</number>
+                 <number>16</number>
                 </property>
                </widget>
               </item>

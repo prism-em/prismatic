@@ -24,8 +24,6 @@ namespace PRISM{
 	using namespace std;
 	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
-
-
 		PRISM01(prism_pars);
 //		prism_pars.pot.toMRC_f("debug_potential.mrc");
 		PRISM02(prism_pars);
@@ -50,16 +48,9 @@ namespace PRISM{
 //		}
 //
 //		prism_image.toMRC_f("prism_image.mrc");
-
-		// for now stack is a 4D array so here I convert to 3D to save it
-		PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
-				{{prism_pars.stack.get_diml(), prism_pars.stack.get_dimk(), prism_pars.stack.get_dimj()}});
-		auto ptr = reshaped_output.begin();
-		for (auto &i:prism_pars.stack)*ptr++=i;
-		reshaped_output.toMRC_f(prism_pars.meta.filename_output.c_str());
-		std::cout << "PRISM Calculation complete.\n" << std::endl;
+        prism_pars.stack.toMRC_f(prism_pars.meta.filename_output.c_str());
+        std::cout << "PRISM Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}
-
 }
 #endif //PRISM_PRISM_ENTRY_H

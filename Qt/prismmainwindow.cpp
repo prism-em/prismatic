@@ -496,7 +496,7 @@ void PRISMMainWindow::updateOutputImage(){
             {
             QMutexLocker gatekeeper(&outputLock);
             // create new empty image with appropriate dimensions
-            outputImage = QImage(output.get_diml(), output.get_dimk(), QImage::Format_ARGB32);
+            outputImage = QImage(output.get_dimk(), output.get_dimj(), QImage::Format_ARGB32);
             }
             // update sliders to match dimensions of output, which also triggers a redraw of the image
             this->ui->slider_angmin->setMinimum(0);
@@ -521,13 +521,13 @@ void PRISMMainWindow::updateOutputFloatImage(){
         size_t max_layer = this->ui->slider_angmax->value();
         std::cout << "min_layer = " << min_layer << std::endl;
         std::cout << "max_layer = " << max_layer << std::endl;
-        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_diml(), output.get_dimk()}});
-        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
-         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
-        for (auto j = 0; j < output.get_diml(); ++j){
-            for (auto i = 0; i < output.get_dimk(); ++i){
+        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
+//        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
+//         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
+        for (auto j = 0; j < output.get_dimk(); ++j){
+            for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
-                    outputImage_float.at(j,i) += output.at(j, i, k, 0);
+                    outputImage_float.at(j,i) += output.at(j, i, k);
                 }
             }
         }
@@ -548,8 +548,8 @@ void PRISMMainWindow::updateOutputFloatImage(){
 void PRISMMainWindow::updateOutputDisplay(){
     if (outputReady){
             QMutexLocker gatekeeper(&outputLock);
-            for (auto j = 0; j < output.get_diml(); ++j){
-                for (auto i = 0; i < output.get_dimk(); ++i){
+            for (auto j = 0; j < output.get_dimk(); ++j){
+                for (auto i = 0; i < output.get_dimj(); ++i){
                     uchar val = getUcharFromFloat(outputImage_float.at(j,i),
                                                   contrast_outputMin,
                                                   contrast_outputMax);

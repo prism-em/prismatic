@@ -4,7 +4,7 @@
 
 #include "WorkDispatcher.h"
 #include <mutex>
-// helper function for dispatching work
+// helper function for dispatching work to various CPU/GPU worker threads
 
 namespace PRISM {
         WorkDispatcher::WorkDispatcher(size_t _current,

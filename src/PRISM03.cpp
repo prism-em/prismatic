@@ -111,7 +111,7 @@ namespace PRISM {
 	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// create output stack of a size corresponding to 3D mode (integration)
 
-		pars.stack = zeros_ND<4, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet, 1}});
+		pars.stack = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars) {
@@ -257,7 +257,7 @@ namespace PRISM {
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
-				pars.stack.at(ay, ax, (*idx) - 1, 0) += *counts * pars.scale;
+				pars.stack.at(ay, ax, (*idx) - 1) += *counts * pars.scale;
 			}
 			++idx;
 		};

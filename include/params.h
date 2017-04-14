@@ -31,7 +31,7 @@ namespace PRISM{
 	    void calculateLambda();
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
-	    Array4D<T> stack;
+	    Array3D<T> stack;
 		Array3D<T> pot;
 	    Array3D<std::complex<PRISM_FLOAT_PRECISION> > transmission;
 

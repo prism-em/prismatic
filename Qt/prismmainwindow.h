@@ -106,7 +106,7 @@ private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
     PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-    PRISM::Array4D<PRISM_FLOAT_PRECISION> output;
+    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
 	PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
     QMutex potentialLock;
 	QMutex sMatrixLock;
