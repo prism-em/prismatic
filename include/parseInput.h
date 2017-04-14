@@ -8,10 +8,9 @@
 #include "meta.h"
 
 namespace PRISM{
-    enum class ParseResult{Success, Failure, Help};
     bool parseInputs(Metadata<PRISM_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
-    ParseResult parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
     void printHelp();
 }

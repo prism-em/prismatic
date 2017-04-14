@@ -5,11 +5,17 @@
 using namespace std;
 int main(int argc, const char** argv) {
 	PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+
+	// parse command line options
 	if (!PRISM::parseInputs(meta, argc, &argv))return 1;
-    cout << "Successful parsing" << endl;
+
+	// print metadata
     meta.toString();
-	meta.toString();
+
+	// configure simulation behavior
 	PRISM::configure(meta);
+
+	// execute simulation
 	PRISM::execute_plan(meta);
 	return 0;
 }
