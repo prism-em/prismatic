@@ -29,7 +29,7 @@ namespace PRISM {
                 "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)\n"
                 "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)\n"
                 "* --also-do-cpu-work (-C) 0/1 : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
-                "* --force-streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
+                "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
                 "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate";
     }
@@ -107,18 +107,16 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_force_streaming_mode(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_streaming_mode(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
-        cout << "--force_streaming_mode not implemented\n";
-        return false;
-//        if (argc < 2){
-//            cout << "No state provided for -C (syntax is -f 0/1)\n";
-//            return false;
-//        }
-//        meta.stream_data = std::string((*argv)[1]) == "0" ? false : true;
-//        argc-=2;
-//        argv[0]+=2;
-//        return true;
+        if (argc < 2){
+            cout << "No state provided for -C (syntax is -f 0/1)\n";
+            return false;
+        }
+        meta.transfer_mode = std::string((*argv)[1]) == "0" ? PRISM::StreamingMode::SingleXfer :  PRISM::StreamingMode::Stream;
+        argc-=2;
+        argv[0]+=2;
+        return true;
     };
 
     bool parse_h(Metadata<PRISM_FLOAT_PRECISION>& meta,
@@ -336,7 +334,7 @@ namespace PRISM {
             {"--alpha-max", parse_A}, {"-A", parse_A},
             {"--potential-bound", parse_P}, {"-P", parse_P},
             {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
-            {"--force-streaming-mode", parse_force_streaming_mode},
+            {"--streaming-mode", parse_streaming_mode},
             {"--probe-step", parse_r}, {"-r", parse_r},
             {"--num-FP", parse_F}, {"-F", parse_F}
     };

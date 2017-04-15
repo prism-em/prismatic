@@ -11,6 +11,7 @@
 #include "defines.h"
 namespace PRISM{
 
+    enum class StreamingMode{Stream, SingleXfer, Auto};
 	template <class T>
 	class Metadata{
 	public:
@@ -30,12 +31,10 @@ namespace PRISM{
 			NUM_GPUS = 4;
 			NUM_STREAMS_PER_GPU = 3;
 			NUM_THREADS = 4;
-			algorithm = Algorithm::PRISM; // 0 PRISM; 1 Multislice
+			algorithm = Algorithm::PRISM;
 			also_do_CPU_work = true;
-//			also_do_CPU_work = false;
 			gpu_cpu_ratio = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-//			stream_data = true;
-			stream_data = false;
+			transfer_mode = StreamingMode::Auto;
             probe_step = 0.25;
 			dr = 2.5 / 1000;
 		}
@@ -48,7 +47,7 @@ namespace PRISM{
 		T sliceThickness; // thickness of slice in Z
 		T probe_step;
 		bool also_do_CPU_work; // what fraction of computation to do on the cpu vs gpu
-		bool stream_data;
+        StreamingMode transfer_mode;
 		std::vector<size_t> cellDim; // this is z,y,x format
 		T gpu_cpu_ratio;
 		T E0; // electron energy
@@ -71,12 +70,7 @@ namespace PRISM{
 		std::cout << "sliceThickness = " << sliceThickness<< std::endl;
 		std::cout << "E0 = " << E0 << std::endl;
 		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
-		std::cout << "NUM_GPUS = " << NUM_GPUS<< std::endl;
-		std::cout << "NUM_STREAMS_PER_GPU = " << NUM_STREAMS_PER_GPU<< std::endl;
 		std::cout << "NUM_THREADS = " << NUM_THREADS<< std::endl;
-		std::cout << "also_do_CPU_work = " << also_do_CPU_work << std::endl;
-		std::cout << "gpu_cpu_ratio = " << gpu_cpu_ratio  << std::endl;
-		std::cout << "stream_data = " << stream_data  << std::endl;
 		std::cout << "probe_step = " << probe_step << std::endl;
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
@@ -86,6 +80,21 @@ namespace PRISM{
         } else {
 			std::cout << "Algorithm: Multislice" << std::endl;
 		}
+
+#ifdef PRISM_ENABLE_GPU
+        std::cout << "NUM_GPUS = " << NUM_GPUS<< std::endl;
+        std::cout << "NUM_STREAMS_PER_GPU = " << NUM_STREAMS_PER_GPU<< std::endl;
+        std::cout << "also_do_CPU_work = " << also_do_CPU_work << std::endl;
+        std::cout << "gpu_cpu_ratio = " << gpu_cpu_ratio  << std::endl;
+		if (transfer_mode == PRISM::StreamingMode::Auto){
+			std::cout << "Data Transfer Mode : Auto" << std::endl;
+		} else if (transfer_mode == PRISM::StreamingMode::SingleXfer){
+			std::cout << "Data Transfer : Single Transfer" << std::endl;
+		} else {
+			std::cout << "Data Transfer : Streaming" << std::endl;
+		}
+#endif // PRISM_ENABLE_GPU
 	}
+
 }
 #endif //PRISM_META_H

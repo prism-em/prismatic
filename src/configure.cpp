@@ -26,8 +26,14 @@ namespace PRISM {
 	prism_output_func buildPRISMOutput;
 	format_output_func formatOutput_CPU;
 	fill_Scompact_func fill_Scompact;
+
 #ifdef PRISM_ENABLE_GPU
+    template <class T>
+    StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta){
+        return PRISM::StreamingMode::Stream;
+    }
 	format_output_func_GPU formatOutput_GPU;
+
 #endif
 	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
 		formatOutput_CPU = formatOutput_CPU_integrate;
@@ -38,7 +44,10 @@ namespace PRISM {
 			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
-			if (meta.stream_data) {
+            if (meta.transfer_mode == PRISM::StreamingMode::Auto){
+            	meta.transfer_mode = transferMethodAutoChooser(meta);
+            }
+			if (meta.transfer_mode == PRISM::StreamingMode::Stream) {
 				cout << "Using streaming method\n";
 				fill_Scompact = fill_Scompact_GPU_streaming;
 				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
@@ -56,7 +65,7 @@ namespace PRISM {
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
 			std::cout << "Using GPU codes" << std::endl;
-			if (meta.stream_data) {
+			if (meta.transfer_mode) {
 				cout << "Using streaming method\n";
 				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
 			} else {

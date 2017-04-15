@@ -55,6 +55,9 @@ namespace PRISM {
 	                                        const cudaStream_t&,
 	                                        const long&);
 	extern format_output_func_GPU formatOutput_GPU;
+
+	template <class T>
+	StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta);
 #endif //PRISM_ENABLE_GPU
 	void configure(Metadata<PRISM_FLOAT_PRECISION>&);
 }

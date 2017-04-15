@@ -656,7 +656,7 @@ void PRISMMainWindow::saveCurrentOutputImage(){
 }
 
 void PRISMMainWindow::toggleStreamingMode(){
-    meta->stream_data = ui->checkBox_streamdata->isChecked() ? true:false;
+    meta->transfer_mode = ui->checkBox_streamdata->isChecked() ? PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
 }
 void PRISMMainWindow::toggleSaveProjectedPotential(){
     this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
