@@ -709,8 +709,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-//			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
-			for (auto t = 0; t < 1; ++t) {
+			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+//			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
@@ -736,7 +736,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 								++Nstart;
 							}
-if (Nstop >= early_CPU_stop) break;
+						if (Nstop >= early_CPU_stop) break;
 						} while(dispatcher.getWork(Nstart, Nstop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);

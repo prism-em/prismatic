@@ -484,8 +484,9 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 
 //	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	cudaErrchk(cudaStreamSynchronize(stream));
-	const size_t stack_start_offset = ay*pars.stack.get_dimk()*pars.stack.get_dimj()+ ax*pars.stack.get_dimj();
-	memcpy(&pars.stack[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
+	//const size_t stack_start_offset = ay*pars.output.get_dimk()*pars.output.get_dimj()+ ax*pars.output.get_dimj();
+	const size_t stack_start_offset = ay*pars.output.get_dimj()*pars.output.get_dimi()+ ax*pars.output.get_dimi();
+	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
 }
 // TODO: double version of above
 

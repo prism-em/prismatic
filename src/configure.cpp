@@ -75,7 +75,10 @@ namespace PRISM {
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
 			std::cout << "Using GPU codes" << std::endl;
-			if (meta.transfer_mode) {
+			if (meta.transfer_mode == PRISM::StreamingMode::Auto){
+				meta.transfer_mode = transferMethodAutoChooser(meta);
+			}
+			if (meta.transfer_mode == PRISM::StreamingMode::Stream) {
 				cout << "Using streaming method\n";
 				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
 			} else {
