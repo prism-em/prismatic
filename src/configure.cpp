@@ -30,6 +30,16 @@ namespace PRISM {
 #ifdef PRISM_ENABLE_GPU
     template <class T>
     StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta){
+        // query all devices and choose based on the minimum compute capability
+        // get the total memory on device
+        // based on whether the algo is prism or multislice, estimate the largest array and trigger streaming
+        // safely far from this limit
+        // For PRISM: limit should be the maximum size of the potential or Scompact
+        // which is imageSize/2 x imageSize/2 * numberBeams of type complex float/double
+        // numberBeams can be calculated again here... not a big deal
+        // For Multislice: limit is the potential array which is imageSize x imageSize x numPlanes of type float/double
+
+        //placeholder for now
         return PRISM::StreamingMode::Stream;
     }
 	format_output_func_GPU formatOutput_GPU;
