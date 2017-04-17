@@ -143,10 +143,3 @@ The following options are available with `prism`, each documented as **_long for
 * --**_probe-step (-r)_** *step_size* : step size of the probe (in Angstroms)
 * --**_num-FP (-F)_** *number* : number of frozen phonon configurations to calculate
 
-## Implementation Details
-
-*Note: we following the standard NVIDIA naming convention and interchangeably refer to the CPU as the "host" and to the GPU as the "device".*
-
-PRISM is implemented in C++/CUDA using mainly the [C++ standard library](http://en.cppreference.com/w/) and the [CUDA Thrust library](https://github.com/thrust/thrust). Host FFTs are computed using the [FFTW library](http://www.fftw.org/). 
-
-Multi-dimensional arrays in PRISM such as [PRISM::Array2D](Array2D.h) are implemented as a thin wrapper containing the size of each dimension and a vector-like array (that is, a [std::vector](http://en.cppreference.com/w/cpp/container/vector), [thrust::host_vector](https://thrust.github.io/doc/classthrust_1_1host__vector.html), or [thrust::device_vector](https://thrust.github.io/doc/classthrust_1_1device__vector.html)). These vector objects must support at least `.begin()` and `.end()` iterators as PRISM uses modern C++11 constructs such as [range-based for loops](http://en.cppreference.com/w/cpp/language/range-for). The reason for using a custom array class is to maximize performance by ensuring the underlying data is contiguous in memory while also leveraging the host-device memory transfer overhead convenience provided by `thrust::device_vector` and `thrust::host_vector`.
