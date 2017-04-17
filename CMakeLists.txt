@@ -11,7 +11,7 @@ set(PRISM_ENABLE_DOUBLE_PRECISION 0 CACHE BOOL PRISM_ENABLE_DOUBLE_PRECISION)
 # specify compiler flags
 #set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-O3")
 if (PRISM_ENABLE_GPU)
-    set(NVCC_FLAGS_EXTRA "-arch=sm_35 -std=c++11")
+    set(NVCC_FLAGS_EXTRA "-arch=sm_30 -std=c++11")
 endif (PRISM_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -173,3 +173,5 @@ if (PRISM_ENABLE_GUI)
     target_compile_definitions(prism-gui    PRIVATE PRISM_BUILDING_GUI=1)
    # remove_definitions(-DPRISM_BUILDING_GUI)
 endif (PRISM_ENABLE_GUI)
+
+install(TARGETS prism prism-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
