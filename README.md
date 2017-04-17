@@ -28,28 +28,7 @@ If you are building the GUI from source, you will also need [Qt5](https://www.qt
 #### Getting the source code 
 
 Once the dependencies are installed get the PRISM source either from [compressed source files](www.example.com) or directly 
-from [Github](www.example.com) using `git clone`:
-
-#### Setting CMake options
-
-All aspects of how PRISM is compiled, such as whether or not to include GUI or GPU support, are controlled through CMake variables.
-There are at least four different ways to adjust these:
-
-If you are using the CMake GUI, then options are turned on/off with check boxes
-and paths are set by clicking browse and navigating to the file/folder of interest.   
-
-If you are using the command line tool, `cmake`, then options are set with the `-D` (Define) flag. For example, 
-to set `My_Variable` to 0 one would add `-DMY_VARIABLE=0` to the call to `cmake` (see the sections on enabling GUI or GPU support for more examples).
-
-There is also the hybrid "command-line GUI" option, `ccmake`, which provides an interactive way to adjust CMake options from the command line.
-
-Finally, you can also directly edit a file called `CMakeCache.txt`. The first time you run CMake for a given project
-this special file will be created containing all of the option settings. Whenever you generate a project or Makefile, the options
-will be read for the `CMakeCache.txt` file, so options can be changed here directly.
-
-**_Note_**: Any time you change CMake options for a particular project you must regenerate the build files and recompile
-before the changes will actually take effect
-
+from [Github](www.example.com) using `git clone`
 
 #### Building with CMake from the command line
 
@@ -97,6 +76,27 @@ make install
 ```
 
 which may require `sudo` privileges. This will place the files in `/usr/local/bin` on Unix systems. 
+
+
+#### Setting CMake options
+
+All aspects of how PRISM is compiled, such as whether or not to include GUI or GPU support, are controlled through CMake variables.
+There are at least four different ways to adjust these:
+
+If you are using the CMake GUI, then options are turned on/off with check boxes
+and paths are set by clicking browse and navigating to the file/folder of interest.   
+
+If you are using the command line tool, `cmake`, then options are set with the `-D` (Define) flag. For example, 
+to set `My_Variable` to 0 one would add `-DMY_VARIABLE=0` to the call to `cmake` (see the sections on enabling GUI or GPU support for more examples).
+
+There is also the hybrid "command-line GUI" option, `ccmake`, which provides an interactive way to adjust CMake options from the command line.
+
+Finally, you can also directly edit a file called `CMakeCache.txt`. The first time you run CMake for a given project
+this special file will be created containing all of the option settings. Whenever you generate a project or Makefile, the options
+will be read for the `CMakeCache.txt` file, so options can be changed here directly.
+
+**_Note_**: Any time you change CMake options for a particular project you must regenerate the build files and recompile
+before the changes will actually take effect
 
 ## Enabling GPU support
 
