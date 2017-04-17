@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>potential.png</file>
+        <file>probe.png</file>
+        <file>output.png</file>
+        <file>prism.png</file>
+        <file>airy.png</file>
+    </qresource>
+</RCC>

@@ -59,3 +59,6 @@ QMAKE_LFLAGS += -F /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt
 #    ../src/PRISM02.cu \
 #    ../src/PRISM03.cu \
 #    ../src/utility.cu
+
+RESOURCES += \
+    prism_resources.qrc

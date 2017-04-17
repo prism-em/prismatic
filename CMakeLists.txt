@@ -27,16 +27,17 @@ set(SOURCE_FILES
         src/PRISM03.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
-	    src/projectedPotential.cpp
+	src/projectedPotential.cpp
         src/parseInput.cpp)
 
 if (PRISM_ENABLE_GUI)
 set(GUI_SOURCE_FILES
         Qt/main.cpp
         Qt/prismmainwindow.cpp
-	    Qt/prism_qthreads.cpp
+	Qt/prism_qthreads.cpp
         Qt/prism_progressbar.cpp
-        src/parseInput.cpp)
+        src/parseInput.cpp
+	Qt/prism_resources.qrc)
 endif (PRISM_ENABLE_GUI)
 
 if (PRISM_ENABLE_GPU)
@@ -127,6 +128,8 @@ if (PRISM_ENABLE_GUI)
     # build GUI
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTORCC ON)
+    QT5_ADD_RESOURCES(Qt/prism_resources.qrc)
     set(CMAKE_INCLUDE_CURRENT_DIR on)
     include_directories(${CMAKE_SOURCE_DIR}/Qt ${CMAKE_SOURCE_DIR}/include)
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
@@ -172,6 +175,7 @@ if (PRISM_ENABLE_GUI)
     endif (PRISM_ENABLE_GPU)
     target_compile_definitions(prism-gui    PRIVATE PRISM_BUILDING_GUI=1)
    # remove_definitions(-DPRISM_BUILDING_GUI)
+    install(TARGETS prism-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif (PRISM_ENABLE_GUI)
 
-install(TARGETS prism prism-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS prism RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
