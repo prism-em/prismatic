@@ -60,6 +60,10 @@ namespace PRISM {
 	        ArrayND<N, T> operator+(const ArrayND<N, T>& other)const;
 	        ArrayND<N, T> operator*(const ArrayND<N, T>& other)const;
 	        ArrayND<N, T> operator/(const ArrayND<N, T>& other)const;
+			ArrayND<N, T>& operator-=(const ArrayND<N, T>& other);
+			ArrayND<N, T>& operator+=(const ArrayND<N, T>& other);
+			ArrayND<N, T>& operator*=(const ArrayND<N, T>& other);
+			ArrayND<N, T>& operator/=(const ArrayND<N, T>& other);
 	        ArrayND<N, T> operator-(const typename T::value_type& val)const;
 	        ArrayND<N, T> operator+(const typename T::value_type& val)const;
 	        ArrayND<N, T> operator*(const typename T::value_type& val)const;
@@ -300,7 +304,33 @@ namespace PRISM {
 		return *this;
 	}
 
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator-=(const ArrayND<N, T>& other){
+        auto o = other.begin();
+		for (auto& i:*this)i-=*o++;
+		return *this;
+	}
 
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator+=(const ArrayND<N, T>& other){
+		auto o = other.begin();
+		for (auto& i:*this)i+=*o++;
+		return *this;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator*=(const ArrayND<N, T>& other){
+		auto o = other.begin();
+		for (auto& i:*this)i*=*o++;
+		return *this;
+	}
+
+	template <size_t N, class T>
+	ArrayND<N, T>& ArrayND<N, T>::operator/=(const ArrayND<N, T>& other){
+		auto o = other.begin();
+		for (auto& i:*this)i/=*o++;
+		return *this;
+	}
 
     template <size_t N, class T>
     PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N> dims){

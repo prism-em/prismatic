@@ -17,7 +17,22 @@ namespace PRISM{
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		PRISM01(prism_pars);
 		Multislice(prism_pars);
-		prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
+
+		if (prism_pars.meta.numFP == 1) {
+			prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
+		} else {
+			// run the rest of the frozen phonons
+			Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
+			for (auto fp_num = 1; fp_num < prism_pars.meta.numFP; ++fp_num){
+				cout << "Frozen Phonon #" << fp_num << endl;
+				Multislice(prism_pars);
+				net_output += prism_pars.output;
+			}
+			// divide to take average
+			for (auto&i:net_output) i/=prism_pars.meta.numFP;
+			net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
+		}
+
 		std::cout << "Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}

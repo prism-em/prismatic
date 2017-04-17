@@ -31,7 +31,7 @@ namespace PRISM {
                 "* --also-do-cpu-work (-C) 0/1 : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
                 "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
                 "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
-                "* --num-FP (-F) value : number of frozen phonon configurations to calculate";
+                "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n";
     }
 
     bool parse_a(Metadata<PRISM_FLOAT_PRECISION>& meta,

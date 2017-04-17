@@ -223,27 +223,26 @@ namespace PRISM {
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
         // TODO: clean up this loop and handle FP
-		for (auto a5 = 0; a5 < pars.meta.numFP; ++a5) {
-			memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
-			for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
-				PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
-				PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
+		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
+		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
+			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
+			PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
 
-				if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
-					PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
-					PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
-					std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(
-							-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) +
-							               q0_1 * (pars.yp[ay] + pars.yTiltShift)));
-					const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
-					auto psi_ptr = psi.begin();
-					for (auto j = 0; j < y.size(); ++j) {
-						for (auto i = 0; i < x.size(); ++i) {
-                            *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
-						}
+			if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
+				PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
+				PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
+				std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(
+						-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) +
+									   q0_1 * (pars.yp[ay] + pars.yTiltShift)));
+				const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
+				auto psi_ptr = psi.begin();
+				for (auto j = 0; j < y.size(); ++j) {
+					for (auto i = 0; i < x.size(); ++i) {
+						*psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
 					}
 				}
 			}
+		}
 
             PRISM_FFTW_EXECUTE(plan);
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj) {
@@ -251,7 +250,7 @@ namespace PRISM {
 					intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2);
 				}
 			}
-		}
+
 
 
 //         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
