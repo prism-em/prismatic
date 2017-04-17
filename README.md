@@ -5,7 +5,7 @@ C++/CUDA implementation of compact S-matrix formulism for fast Multislice simula
 
 ## Binary Installers
 
-**Links to binary installers should go here in the future**
+*Links to binary installers should go here in the future*
 
 ## Building PRISM from the source code
 
@@ -100,7 +100,7 @@ before the changes will actually take effect
 ## Enabling GPU support
 
 To enable GPU support, set the CMake variable `PRISM_ENABLE_GPU=1`. You must have the CUDA toolkit installed and the 
-appropriate paths setup as described [in the CUDA documentation]() so that CMake
+appropriate paths setup as described [in the CUDA documentation](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/#post-installation-actions) so that CMake
 may find `nvcc` and the necessary libraries to build/run PRISM. 
 
 ## Enabling the GUI
