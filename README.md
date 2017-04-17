@@ -35,8 +35,7 @@ from [Github](www.example.com) using `git clone`
 To build PRISM from the command line with CMake, open a terminal and navigate to the top of the source directory 
 
 ```
-git clone git@github.com:apryor6/PRISM.git
-cd PRISM/
+cd /path/to/PRISM/
 ```
 
 Conventional CMake practice is to use out-of-source builds, which means we will compile the source code into
