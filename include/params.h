@@ -1,6 +1,8 @@
-//
-// Created by AJ Pryor on 2/13/17.
-//
+// Copyright Alan (AJ) Pryor, Jr. 2017
+// Transcribed from MATLAB code by Colin Ophus
+// PRISM is distributed under the GNU General Public License (GPL)
+// If you use PRISM, we ask that you cite the following papers:
+
 #ifndef PRISM_PARAMS_H
 #define PRISM_PARAMS_H
 #include <vector>

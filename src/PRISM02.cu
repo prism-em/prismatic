@@ -1,3 +1,8 @@
+// Copyright Alan (AJ) Pryor, Jr. 2017
+// Transcribed from MATLAB code by Colin Ophus
+// PRISM is distributed under the GNU General Public License (GPL)
+// If you use PRISM, we ask that you cite the following papers:
+
 // For variable naming, the suffixes are "_d" for "device" (1 copy per GPU), "_ds" for "device stream (1 copy per stream), "_ph" for "pinned host"
 
 #include "PRISM02.cuh"
