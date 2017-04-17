@@ -1,5 +1,5 @@
 # PRISM
-C++/CUDA implementation of compact S-matrix formulism for fast Multislice simulation of electron micrographs. PRISM is capable of producing simulated micrographs with tolerable error compared with the original implementation by [Kirkland](http://people.ccmr.cornell.edu/~kirkland/) while providing computational acceleration of over ###x.
+C++/CUDA implementation of compact S-matrix formulism for fast Multislice simulation of electron micrographs.
 
 ## Installation
 
