@@ -67,7 +67,7 @@ For faster compilation, add the `-j` switch to `make` to use multiple threads, f
 make -j 8
 ```
 
-If this succeeds, the executable files `prism` and `prism-gui` have been built and can be run from within the build directory. To permanently 
+If this succeeds, the executable file `prism` has been built and can be run from within the build directory. To permanently 
 install them, invoke
 
 ``` 
