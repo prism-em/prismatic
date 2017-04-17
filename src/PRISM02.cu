@@ -303,7 +303,7 @@ namespace PRISM {
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 //			setWorkStartStop(0, pars.numberBeams);
-			WorkDispatcher dispatcher(0, pars.numberBeams, 1);
+//			WorkDispatcher dispatcher(0, pars.numberBeams, 1);
 			cout << " pars.numberBeams = " << pars.numberBeams << endl;
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 //			for (auto t = 0; t < 1; ++t) {
@@ -313,8 +313,13 @@ namespace PRISM {
 				size_t currentBeam, stop, early_CPU_stop;
 				currentBeam=stop=0;
 //				stop = pars.numberBeams;
-					early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
-					if (dispatcher.getWork(currentBeam, stop)) {
+					if (pars.meta.NUM_GPUS > 0){
+						// if there are no GPUs, make sure to do all work on CPU
+						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+					} else {
+						early_CPU_stop = pars.numberBeams;
+					}
+					if (dispatcher.getWork(currentBeam, stop, early_CPU_stop)) {
 						// allocate array for psi just once per thread
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 								{{pars.imageSize[0], pars.imageSize[1]}});
@@ -341,7 +346,7 @@ namespace PRISM {
 								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
-						} while (dispatcher.getWork(currentBeam, stop));
+						} while (dispatcher.getWork(currentBeam, stop, early_CPU_stop));
 						// clean up
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
@@ -637,7 +642,7 @@ namespace PRISM {
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
 //			setWorkStartStop(0, pars.numberBeams);
-			WorkDispatcher dispatcher(0, pars.numberBeams, 1);
+//			WorkDispatcher dispatcher(0, pars.numberBeams, 1);
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 //			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching thread #" << t << " to compute beams\n";
@@ -645,8 +650,15 @@ namespace PRISM {
 
 				size_t currentBeam, stop, early_CPU_stop;
 				currentBeam=stop=0;
-				early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
-				if (dispatcher.getWork(currentBeam, stop)) {
+
+                                if (pars.meta.NUM_GPUS > 0){
+                                      // if there are no GPUs, make sure to do all work on CPU
+                                        early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+   	                        } else {
+                                        early_CPU_stop = pars.numberBeams;
+                                }
+cout << "early_CPU_stop  = " << early_CPU_stop << endl;
+				if (dispatcher.getWork(currentBeam, stop, early_CPU_stop)) {
 					// allocate array for psi just once per thread
 					Array2D<complex<PRISM_FLOAT_PRECISION>> psi = PRISM::zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0], pars.imageSize[1]}});
 
@@ -671,7 +683,7 @@ namespace PRISM {
 							++currentBeam;
 						}
 						if (currentBeam >= early_CPU_stop) break;
-					} while (dispatcher.getWork(currentBeam, stop));
+					} while (dispatcher.getWork(currentBeam, stop, early_CPU_stop));
 					// clean up
 					gatekeeper.lock();
 					PRISM_FFTW_DESTROY_PLAN(plan_forward);

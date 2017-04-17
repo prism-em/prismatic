@@ -377,8 +377,13 @@ namespace PRISM{
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
-				early_CPU_stop = std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
-					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+                                if (pars.meta.NUM_GPUS > 0){
+                                      // if there are no GPUs, make sure to do all work on CPU
+                                        early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                                } else {
+                                        early_CPU_stop = pars.xp.size() * pars.yp.size();
+                                }
+					if (dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
@@ -402,8 +407,8 @@ namespace PRISM{
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								++Nstart;
 							}
-if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop));
+							if (Nstop >= early_CPU_stop) break;
+						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
@@ -701,12 +706,17 @@ if (Nstop >= early_CPU_stop) break;
 				cout << "Launching CPU worker #" << t << '\n';
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
-					size_t Nstart, Nstop, early_CPU_stop, ay, ax;
-					Nstart=Nstop=0;
-					// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
-					// wait longer for everything to complete
-					early_CPU_stop = std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
-					if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
+				Nstart=Nstop=0;
+				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
+				// wait longer for everything to complete
+                                if (pars.meta.NUM_GPUS > 0){
+                                      // if there are no GPUs, make sure to do all work on CPU
+                                        early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                                } else {
+                                        early_CPU_stop = pars.xp.size() * pars.yp.size();
+                                }
+					if (dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
@@ -730,8 +740,8 @@ if (Nstop >= early_CPU_stop) break;
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								++Nstart;
 							}
-if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop));
+							if (Nstop >= early_CPU_stop) break;
+						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);

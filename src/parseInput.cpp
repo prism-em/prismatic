@@ -205,6 +205,12 @@ namespace PRISM {
             cout << "No number of GPUs provided (syntax is -g num_GPUs)\n";
             return false;
         }
+        if ( (string((*argv)[1]) == "0") ){
+            meta.NUM_GPUS = 0;
+            argc-=2;
+            argv[0]+=2;
+            return true;
+        }
         if ( (meta.NUM_GPUS = atoi((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of GPUs (syntax is -g num_GPUs)\n";
             return false;

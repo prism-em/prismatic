@@ -14,7 +14,7 @@ namespace PRISM {
                        size_t _stop,
                        size_t _num_per_call);
 
-        bool getWork(size_t& job_start, size_t& job_stop);
+        bool getWork(size_t& job_start, size_t& job_stop, size_t cpu_early_stop=SIZE_MAX);
     private:
         std::mutex lock;
         size_t current, stop, num_per_call;

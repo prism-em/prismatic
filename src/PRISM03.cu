@@ -715,10 +715,15 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
-                    Nstart=Nstop=0;
-                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                    		Nstart=Nstop=0;
+                                if (pars.meta.NUM_GPUS > 0){
+                                      // if there are no GPUs, make sure to do all work on CPU
+                    	        	early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                                } else {
+                                        early_CPU_stop = pars.xp.size() * pars.yp.size();
+                                }
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -737,7 +742,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								++Nstart;
 							}
 						if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop));
+						} while(dispatcher.getWork(Nstart, Nstop,  early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();
@@ -1094,10 +1099,15 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
-                    Nstart=Nstop=0;
-                    early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                    		Nstart=Nstop=0;
+                                if (pars.meta.NUM_GPUS > 0){
+                                      // if there are no GPUs, make sure to do all work on CPU
+                                        early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                                } else {
+                                        early_CPU_stop = pars.xp.size() * pars.yp.size();
+                                }
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -1115,8 +1125,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 								++Nstart;
 							}
-if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop));
+							if (Nstop >= early_CPU_stop) break;
+						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();
@@ -1133,6 +1143,7 @@ if (Nstop >= early_CPU_stop) break;
 		cout << "Waiting for GPU threads...\n";
 		for (auto &t:workers_GPU)t.join();
 
+		cout << "Synchronizing" << endl;
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
 			cudaSetDevice(g);
 			cudaDeviceSynchronize();

@@ -253,6 +253,7 @@ namespace PRISM {
 			}
 		}
 
+
 //         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
