@@ -3,11 +3,11 @@ C++/CUDA implementation of compact S-matrix formulism for fast Multislice simula
 
 ## Installation
 
-### Binary Installers
+## Binary Installers
 
 **Links to binary installers should go here in the future**
 
-### Building PRISM from the source code
+## Building PRISM from the source code
 
 PRISM is built on top of [CMake](https://cmake.org/), a cross-platform compilation utility that 
 allows a single source tree to be compiled into a variety of formats including UNIX Makefiles, 
@@ -25,12 +25,12 @@ PRISM was developed using CUDA 8.0, but likely works with older versions as well
 
 If you are building the GUI from source, you will also need [Qt5](https://www.qt.io).
 
-#### Getting the source code 
+### Getting the source code 
 
 Once the dependencies are installed get the PRISM source either from [compressed source files](www.example.com) or directly 
 from [Github](www.example.com) using `git clone`
 
-#### Building with CMake from the command line
+## Building with CMake from the command line
 
 To build PRISM from the command line with CMake, open a terminal and navigate to the top of the source directory 
 
@@ -77,7 +77,7 @@ make install
 which may require `sudo` privileges. This will place the files in `/usr/local/bin` on Unix systems. 
 
 
-#### Setting CMake options
+### Setting CMake options
 
 All aspects of how PRISM is compiled, such as whether or not to include GUI or GPU support, are controlled through CMake variables.
 There are at least four different ways to adjust these:
