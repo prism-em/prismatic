@@ -1446,91 +1446,46 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
 		long x1,y1;
-		y1 = pars.yVec[0] + std::round(yp / pars.pixelSizeOutput[0]);
-		x1 = pars.xVec[0] + std::round(xp / pars.pixelSizeOutput[1]);
-//		if (ay == 0 && ax == 0) {
-//			cout << "x1 = " << x1 << endl;
-//			cout << "y1 = " << y1 << endl;
-//			cout << " pars.xVec[0 = " <<  pars.xVec[0] << endl;
-//			cout << " pars.yVec[0 = " <<  pars.yVec[0] << endl;
-//
-//		}
+		y1 = pars.yVec[0] + std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]);
+		x1 = pars.xVec[0] + std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1]);
 
-		if ( (y1 + pars.imageSizeReduce[0]) > pars.Scompact.get_dimj()){throw std::domain_error("Attempting to stream out of bounds value due to wrap around");}
-		if ( (x1 + pars.imageSizeReduce[1]) > pars.Scompact.get_dimi()){throw std::domain_error("Attempting to stream out of bounds value due to wrap around");}
-
-//		for (auto row = 0; row < pars.imageSizeReduce[0]; ++row){
-//			cudaErrchk(cudaMemcpy(&permuted_Scompact_ds[row*pars.imageSizeReduce[1]*pars.numberBeams],
-//			                      &permuted_Scompact_ph[(y1 + row)*pars.numberBeams*pars.Scompact.get_dimi() + x1 * pars.numberBeams],
-//			                      pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-//			                      cudaMemcpyHostToDevice));
-//		}
-		cout << "debug1 " << endl;
-		cout << "y1 = " << y1 << endl;
-		cout << "x1 = " << x1 << endl;
-		cout << "pars.numberBeams = " << pars.numberBeams << endl;
-		cout << "pars.Scompact.get_dimi()= " << pars.Scompact.get_dimi()<< endl;
-		cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
-		                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-		                             &permuted_Scompact_ph[y1*pars.numberBeams*pars.Scompact.get_dimi() + x1 * pars.numberBeams],
-		                             pars.Scompact.get_dimi() * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
-		                             pars.imageSizeReduce[1] * pars.numberBeams  * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-		                             pars.imageSizeReduce[0],
-		                             cudaMemcpyHostToDevice,
-		                             stream));
-
-		cout << "debug2 " << endl;
-
-//		cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
-//		                             pars.imageSizeReduce[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-//		                             &permuted_Scompact_ph[0],
-//		                             pars.Scompact.get_dimi() * pars.Scompact.get_dimk() * sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
-//		                             pars.imageSizeReduce[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-//		                             pars.imageSizeReduce[0],
-//		                             cudaMemcpyHostToDevice,
-//		                             stream));
-//		cudaErrchk(cudaMemcpy(permuted_Scompact_ds,
-//		                      &permuted_Scompact_ph[0],
-//		                             pars.imageSizeReduce[1] *pars.imageSizeReduce[0]*pars.numberBeams* sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-//		                             cudaMemcpyHostToDevice));
-//		Array3D<complex<float> > debug_sc = zeros_ND<3, complex<float> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1], pars.numberBeams}});
-//	if (ax == 0 && ay == 0) {
-//		cout << "pars.Scompact.at(0,0,0) = " << pars.Scompact.at(0,0,0) << endl;
-//		cout << "pars.Scompact.at(1,0,0) = " << pars.Scompact.at(1,0,0) << endl;
-//		cout << "pars.Scompact.at(2,0,0) = " << pars.Scompact.at(2,0,0) << endl;
-//
-//		cudaErrchk(cudaMemcpy(&debug_sc[0],
-//		                      permuted_Scompact_ds,
-//		                      pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * pars.numberBeams *
-//		                      sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-//		                      cudaMemcpyDeviceToHost));
-//
-//		for (auto i = 0; i < 10; ++i) {
-//			cout << "debug_sc[" << i << "] = " << debug_sc[i] << endl;
-//		}
-//
-//		cout << "pars.Scompact.at(0,y1,x1) = " << pars.Scompact.at(0,y1,x1) << endl;
-//		cout << "pars.Scompact.at(1,y1,x1) = " << pars.Scompact.at(1,y1,x1) << endl;
-//		cout << "pars.Scompact.at(2,y1,x1) = " << pars.Scompact.at(2,y1,x1) << endl;
-//		cout << "pars.Scompact.at(0,y1,x1 + 1) = " << pars.Scompact.at(0,y1,x1 + 1) << endl;
-//		cout << "pars.Scompact.at(0,y1+1,x1) = " << pars.Scompact.at(0,y1+1,x1) << endl;
-//		cout << "pars.Scompact.at(1,y1+1,x1) = " << pars.Scompact.at(1,y1+1,x1) << endl;
-//		cout << "pars.Scompact.at(2,y1+1,x1+1) = " << pars.Scompact.at(2,y1+1,x1+1) << endl;
-//		cout << "pars.Scompact.at(0,0,1) = " << pars.Scompact.at(0,0,1) << endl;
-//		cout << "pars.Scompact.at(0,1,0) = " << pars.Scompact.at(0,1,0) << endl;
-//
-//
-//
-//		cout << "debug_sc.at(0,0,0) = " << debug_sc.at(0,0,0) << endl;
-//		cout << "debug_sc.at(1,0,0) = " << debug_sc.at(0,0,1) << endl;
-//		cout << "debug_sc.at(2,0,0) = " << debug_sc.at(0,0,2) << endl;
-//		cout << "debug_sc.at(0,0+1,0) = " << debug_sc.at(1,0,0) << endl;
-//		cout << "debug_sc.at(1,0+1,0) = " << debug_sc.at(1,0,1) << endl;
-//		cout << "debug_sc.at(2,0+1,0+1) = " << debug_sc.at(1,1,2) << endl;
-//		cout << "debug_sc.at(0,y1,x1 + 1) = " << debug_sc.at(0,1,0) << endl;
-//	}
-//		if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[0] = " << pars.imageSizeReduce[0] << endl;
-//		if (ay==0&&ax==0)		cout << "pars.imageSizeReduce[1] = " << pars.imageSizeReduce[1] << endl;
+		// copy the relevant data of the compact S-matrix to the device. Ideally, this can be done as a single strided copy;
+		// however, if there is wrap-around of the coordinates then the data for each coordinate is copied individually.
+		// This could likely be optimized into a smaller number of larger copies by determining where the wrap-around split
+		// occurs
+		if (y1 >= 0 & x1 >= 0 & (y1 + pars.imageSizeReduce[0] < pars.Scompact.get_dimj()) & (x1 + pars.imageSizeReduce[1] < pars.Scompact.get_dimi())) {
+			// coordinates are all in bounds, perform one large copy. It's really a 3D array even though I use the strided 2D copy
+			cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
+			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
+			                             &permuted_Scompact_ph[y1 * pars.numberBeams * pars.Scompact.get_dimi() +
+			                                                   x1 * pars.numberBeams],
+			                             pars.Scompact.get_dimi() * pars.numberBeams *
+			                             sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
+			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
+			                             pars.imageSizeReduce[0],
+			                             cudaMemcpyHostToDevice,
+			                             stream));
+		} else {
+			// copy all beams for each coordinate separately
+			for (long yy = 0, y_shifted = y1; yy < pars.imageSizeReduce[0]; ++yy, ++y_shifted) {
+				for (long xx = 0, x_shifted = x1; xx < pars.imageSizeReduce[1]; ++xx, ++x_shifted) {
+					long y_offset, x_offset;
+					y_offset = ((long) pars.imageSizeOutput[0] + (y_shifted % (long) pars.imageSizeOutput[0])) %
+					           (long) pars.imageSizeOutput[0];
+					x_offset = ((long) pars.imageSizeOutput[1] + (x_shifted % (long) pars.imageSizeOutput[1])) %
+					           (long) pars.imageSizeOutput[1];
+					cudaErrchk(cudaMemcpyAsync(&permuted_Scompact_ds[yy * pars.imageSizeReduce[1] * pars.numberBeams +
+					                                                 xx * pars.numberBeams],
+					                           &permuted_Scompact_ph[
+							                           y_offset * pars.numberBeams * pars.Scompact.get_dimi() +
+							                           x_offset * pars.numberBeams],
+					                           pars.numberBeams *
+					                           sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
+					                           cudaMemcpyHostToDevice,
+					                           stream));
+				}
+			}
+		}
 
 		// re-center the indices
 		zeroIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
