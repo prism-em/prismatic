@@ -549,7 +549,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		PRISM_FLOAT_PRECISION    **qyaReduce_d    		= new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
 		PRISM_FLOAT_PRECISION    **alphaInd_d 	  		= new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
 		size_t                   **yBeams_d 	  		= new size_t*[pars.meta.NUM_GPUS];
-		size_t                   **xBeams_d 	 		 = new size_t*[pars.meta.NUM_GPUS];
+		size_t                   **xBeams_d 	 	    = new size_t*[pars.meta.NUM_GPUS];
 
 		// pointers to read/write GPU memory (one per stream)
 
@@ -1258,11 +1258,31 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
+		long t  = 0;
+		cudaMemcpy(&t, y_ds, sizeof(float), cudaMemcpyDeviceToHost);
+		if (ay == 0 & ax == 0) {
+			cout << "t = " << t << endl;
+			cout << "(idx - N/2 + by) % imageSize = "
+			     << (0 - (long) pars.imageSizeReduce[0] / 2 + (long) std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0])) %
+					     (long)pars.imageSize[0] << endl;
+			cout << "pars.imageSizeReduce[0]= " << pars.imageSizeReduce[0] << endl;
+			cout << "yp = " << yp << endl;
+			cout << "y0 = " << pars.yp[ay]/pars.pixelSizeOutput[0] << endl;
+			cout << "pars.pixelSizeOutput[1]= " << pars.pixelSizeOutput[1] << endl;
+			cout << "pars.imageSize[0] = " << pars.imageSize[0] << endl;
+			cout << "by = " << (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0])<< endl;
+			cout << "imageSize = " << (long)pars.imageSize[0] << endl;
+			cout << "N = " << (long)pars.imageSizeReduce[0] << endl;
+		}
+// shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+//			y_ds, std::round(yp / pars.pixelSizeOutput[0]), pars.imageSize[0], pars.imageSizeReduce[0]);
 		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
-			y_ds, std::round(yp / pars.pixelSizeOutput[0]),pars.imageSize[0], pars.imageSizeReduce[0]);
-
+				y_ds, (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSizeOutput[0], (long)pars.imageSizeReduce[0]);
+		long t2  = 0;
+		cudaMemcpy(&t2, y_ds, sizeof(long), cudaMemcpyDeviceToHost);
+		if (ay == 0 & ax == 0)cout << "t2 = " << t2 << endl;
 		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
-			x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSize[1], pars.imageSizeReduce[1]);
+			x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSizeOutput[1], pars.imageSizeReduce[1]);
 
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
@@ -1453,20 +1473,36 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// however, if there is wrap-around of the coordinates then the data for each coordinate is copied individually.
 		// This could likely be optimized into a smaller number of larger copies by determining where the wrap-around split
 		// occurs
-		if (y1 >= 0 & x1 >= 0 & (y1 + pars.imageSizeReduce[0] < pars.Scompact.get_dimj()) & (x1 + pars.imageSizeReduce[1] < pars.Scompact.get_dimi())) {
-			// coordinates are all in bounds, perform one large copy. It's really a 3D array even though I use the strided 2D copy
-			cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
-			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-			                             &permuted_Scompact_ph[y1 * pars.numberBeams * pars.Scompact.get_dimi() +
-			                                                   x1 * pars.numberBeams],
-			                             pars.Scompact.get_dimi() * pars.numberBeams *
-			                             sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
-			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
-			                             pars.imageSizeReduce[0],
-			                             cudaMemcpyHostToDevice,
-			                             stream));
-		} else {
+
+//		if (y1 >= 0 & x1 >= 0 & (y1 + pars.imageSizeReduce[0] < pars.Scompact.get_dimj()) & (x1 + pars.imageSizeReduce[1] < pars.Scompact.get_dimi())) {
+//			// coordinates are all in bounds, perform one large copy. It's really a 3D array even though I use the strided 2D copy
+//			cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
+//			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
+//			                             &permuted_Scompact_ph[y1 * pars.numberBeams * pars.Scompact.get_dimi() +
+//			                                                   x1 * pars.numberBeams],
+//			                             pars.Scompact.get_dimi() * pars.numberBeams *
+//			                             sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
+//			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
+//			                             pars.imageSizeReduce[0],
+//			                             cudaMemcpyHostToDevice,
+//			                             stream));
+//		} else {
+//			cout <<"INDIVIDUAL COPYING\n";
 			// copy all beams for each coordinate separately
+		if (ax==0 & ay==0){
+			for (auto i = 0; i < 10; ++i) {
+				long y_offset, x_offset;
+				y_offset = ((long) pars.imageSizeOutput[0] + (y1+i % (long) pars.imageSizeOutput[0])) %
+				           (long) pars.imageSizeOutput[0];
+				cout << "y_offset["<<i<<"] = " << y_offset << endl;
+				x_offset = ((long) pars.imageSizeOutput[1] + (x1+i % (long) pars.imageSizeOutput[1])) %
+				           (long) pars.imageSizeOutput[1];
+				cout << "x_offset["<<i<<"] = " << x_offset << endl;
+			}
+			cout << "pars.Scompact.get_dimi()  = " << pars.Scompact.get_dimi() << endl;
+			cout << "pars.Scompact.get_dimj()  = " << pars.Scompact.get_dimj() << endl;
+			cout << "pars.Scompact.get_dimk()  = " << pars.Scompact.get_dimk() << endl;
+		}
 			for (long yy = 0, y_shifted = y1; yy < pars.imageSizeReduce[0]; ++yy, ++y_shifted) {
 				for (long xx = 0, x_shifted = x1; xx < pars.imageSizeReduce[1]; ++xx, ++x_shifted) {
 					long y_offset, x_offset;
@@ -1474,33 +1510,50 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					           (long) pars.imageSizeOutput[0];
 					x_offset = ((long) pars.imageSizeOutput[1] + (x_shifted % (long) pars.imageSizeOutput[1])) %
 					           (long) pars.imageSizeOutput[1];
+
+//					y_offset = ((long) pars.imageSize[0] + (y_shifted % (long) pars.imageSize[0])) %
+//					           (long) pars.imageSize[0];
+//					x_offset = ((long) pars.imageSize[1] + (x_shifted % (long) pars.imageSize[1])) %
+//					           (long) pars.imageSize[1];
+//					y_offset = ((long) pars.imageSizeOutput[0] + (y_shifted % (long) pars.imageSize[0])) %
+//					           (long) pars.imageSizeOutput[0];
+//					x_offset = ((long) pars.imageSizeOutput[1] + (x_shifted % (long) pars.imageSize[1])) %
+//					           (long) pars.imageSizeOutput[1];
 					cudaErrchk(cudaMemcpyAsync(&permuted_Scompact_ds[yy * pars.imageSizeReduce[1] * pars.numberBeams +
 					                                                 xx * pars.numberBeams],
 					                           &permuted_Scompact_ph[
 							                           y_offset * pars.numberBeams * pars.Scompact.get_dimi() +
 							                           x_offset * pars.numberBeams],
-					                           pars.numberBeams *
-					                           sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
+					                           pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT), // corresponds to stride between permuted Scompact elements in k-direction
 					                           cudaMemcpyHostToDevice,
 					                           stream));
 				}
 			}
-		}
+//		}
 
 		// re-center the indices
-		zeroIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+		resetIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				y_ds, pars.imageSizeReduce[0]);
 
-		zeroIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+		resetIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				x_ds, pars.imageSizeReduce[1]);
+//		zeroIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+//				y_ds, pars.imageSizeReduce[0]);
+//
+//		zeroIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+//				x_ds, pars.imageSizeReduce[1]);
 
-//		if (ax ==0 && ay == 0) {
-//			long y_ds_t, x_ds_t;
-//			cudaErrchk(cudaMemcpy(&y_ds_t, y_ds, sizeof(long), cudaMemcpyDeviceToHost));
-//			cudaErrchk(cudaMemcpy(&x_ds_t, x_ds, sizeof(long), cudaMemcpyDeviceToHost));
-//			cout << "y_ds_t = " << y_ds_t << endl;
-//			cout << "x_ds_t = " << x_ds_t << endl;
-//		}
+		if (ax ==0 && ay == 0) {
+			long y_ds_t, x_ds_t;
+			cudaErrchk(cudaMemcpy(&y_ds_t, y_ds, sizeof(long), cudaMemcpyDeviceToHost));
+			cudaErrchk(cudaMemcpy(&x_ds_t, x_ds, sizeof(long), cudaMemcpyDeviceToHost));
+			cout << "y_ds_t = " << y_ds_t << endl;
+			cout << "x_ds_t = " << x_ds_t << endl;
+			cudaErrchk(cudaMemcpy(&y_ds_t, y_ds+2, sizeof(long), cudaMemcpyDeviceToHost));
+			cudaErrchk(cudaMemcpy(&x_ds_t, x_ds+2, sizeof(long), cudaMemcpyDeviceToHost));
+			cout << "y_ds_t = " << y_ds_t << endl;
+			cout << "x_ds_t = " << x_ds_t << endl;
+		}
 		// Choose a good launch configuration
 		// Heuristically use 2^p / 2 as the block size where p is the first power of 2 greater than the number of elements to work on.
 		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long

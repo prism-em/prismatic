@@ -301,10 +301,12 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
 
 __global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N){
 
-		int idx = threadIdx.x + blockDim.x * blockIdx.x;
+		//int idx = threadIdx.x + blockDim.x * blockIdx.x;
+		long idx = threadIdx.x + blockDim.x * blockIdx.x;
 		if (idx < N){
-			//vec_out[idx] = (imageSize + (idx - N/2 + by) % imageSize) % imageSize;
-			vec_out[idx] =  (idx - N/2 + by) % imageSize;
+			vec_out[idx] = (imageSize + ((idx - N/2 + by) % imageSize)) % imageSize;
+//			vec_out[idx] =  (idx - N/2 + by) % imageSize;
+//			vec_out[idx] = 0;
 		}
 	}
 
@@ -313,6 +315,14 @@ __global__ void zeroIndices(long* vec_out, const long N){
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	if (idx < N){
 		vec_out[idx] = vec_out[idx] - vec_out[0];
+	}
+}
+
+__global__ void resetIndices(long* vec_out, const long N){
+
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N){
+		vec_out[idx] = idx;
 	}
 }
 
