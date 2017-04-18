@@ -43,7 +43,7 @@ namespace PRISM {
         // For Multislice: limit is the potential array which is imageSize x imageSize x numPlanes of type float/double
 
         //placeholder for now
-        return PRISM::StreamingMode::Stream;
+        return PRISM::StreamingMode::SingleXfer;
     }
 	format_output_func_GPU formatOutput_GPU;
 

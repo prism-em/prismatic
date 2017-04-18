@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <mutex>
 #include "ArrayND.h"
 #include <complex>
 #include "atom.h"
@@ -26,8 +27,14 @@ namespace PRISM{
 	template <class T>
 	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
 
+//#ifndef NDEBUG
+	// for monitoring memory consumption on GPU
+	static std::mutex mem_lock;
+//#endif //NDEBUG
+
     template <class T>
     class Parameters {
+
     public:
 
 	    void calculateLambda();
@@ -89,6 +96,10 @@ namespace PRISM{
 	    size_t numberBeams;
 #ifdef PRISM_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
+//#ifndef NDEBUG
+		// for monitoring memory consumption on GPU
+	    size_t max_mem;
+//#endif //NDEBUG
 #endif // PRISM_ENABLE_GPU
 #ifdef PRISM_BUILDING_GUI
 	    prism_progressbar *progressbar;

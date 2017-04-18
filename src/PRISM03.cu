@@ -687,6 +687,19 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
+
+
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
+
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
@@ -1072,6 +1085,18 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
 					                                current_output_ph, &current_cufft_plan, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
+
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
+
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
@@ -1405,6 +1430,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	                               PRISM_FLOAT_PRECISION *integratedOutput_ds,
 	                               const cufftHandle &cufft_plan,
 	                               const cudaStream_t& stream){
+
 		// the coordinates y and x of the output image phi map to z and y of the permuted S compact matrix
 		const PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISM_FLOAT_PRECISION xp = pars.xp[ax];
@@ -1429,6 +1455,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			cout << " pars.yVec[0 = " <<  pars.yVec[0] << endl;
 //
 //		}
+
 		if ( (y1 + pars.imageSizeReduce[0]) > pars.Scompact.get_dimj()){throw std::domain_error("Attempting to stream out of bounds value due to wrap around");}
 		if ( (x1 + pars.imageSizeReduce[1]) > pars.Scompact.get_dimi()){throw std::domain_error("Attempting to stream out of bounds value due to wrap around");}
 
@@ -1438,6 +1465,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			                      pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
 //			                      cudaMemcpyHostToDevice));
 //		}
+		cout << "debug1 " << endl;
+		cout << "y1 = " << y1 << endl;
+		cout << "x1 = " << x1 << endl;
+		cout << "pars.numberBeams = " << pars.numberBeams << endl;
+		cout << "pars.Scompact.get_dimi()= " << pars.Scompact.get_dimi()<< endl;
 		cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
 		                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
 		                             &permuted_Scompact_ph[y1*pars.numberBeams*pars.Scompact.get_dimi() + x1 * pars.numberBeams],
@@ -1447,7 +1479,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		                             cudaMemcpyHostToDevice,
 		                             stream));
 
-
+		cout << "debug2 " << endl;
 
 //		cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
 //		                             pars.imageSizeReduce[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
@@ -1517,6 +1549,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// Choose a good launch configuration
 		// Heuristically use 2^p / 2 as the block size where p is the first power of 2 greater than the number of elements to work on.
 		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long
+
 		size_t p = getNextPower2(pars.numberBeams);
 		const size_t BlockSizeX = (size_t)std::max(1.0, pow(2,p) / 2);
 
@@ -1626,6 +1659,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// convert to squared intensity
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psi_intensity_ds, psi_ds, psi_size);
+
 
 		// output calculation result
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph,

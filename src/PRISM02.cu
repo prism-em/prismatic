@@ -274,6 +274,17 @@ namespace PRISM {
 					                                current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
+
 				size_t currentBeam, stop;
 				currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) {
@@ -611,6 +622,17 @@ namespace PRISM {
 					                                current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                                current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
+
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
 
 				size_t currentBeam, stop;
 				currentBeam=stop=0;
