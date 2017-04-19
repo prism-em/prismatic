@@ -457,7 +457,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	using namespace std;
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		// construct the PRISM output array using GPUs
-
+		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		// set device flags
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
 			cudaErrchk(cudaSetDevice(g));

@@ -74,7 +74,7 @@ namespace PRISM {
 			z[i]  = pars.atoms[i].z * pars.meta.cellDim[0];
 			ID[i] = pars.atoms[i].species;
 		}
-        cout <<"DEBUG1" << endl;
+
 
 		// compute the z-slice index for each atom
 		auto max_z = std::max_element(z.begin(), z.end());
@@ -90,9 +90,9 @@ namespace PRISM {
                                                                   QString("/") +
                                                                   QString::number(pars.numPlanes));
 #endif
-        cout << "after progress" << endl;
+
 		// initialize the potential array
-		pars.pot = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.numPlanes,pars.imageSize[0], pars.imageSize[1]}});
+		pars.pot = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.numPlanes, pars.imageSize[0], pars.imageSize[1]}});
 
 		// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
 		map<size_t, size_t> Z_lookup;

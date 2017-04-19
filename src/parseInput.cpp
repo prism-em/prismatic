@@ -228,7 +228,7 @@ namespace PRISM {
             cout << "No slice thickness provided (syntax is -s slice_thickness (in Angstroms))\n";
             return false;
         }
-        if ( (meta.sliceThickness = atoi((*argv)[1])) == 0){
+        if ( (meta.sliceThickness = atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for slice_thickness (syntax is -s slice_thickness (in Angstroms))\n";
             return false;
         }

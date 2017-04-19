@@ -105,10 +105,10 @@ namespace PRISM {
 
 	void fill_Scompact_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars) {
 		// This version transfers the entire transmission matrix a single time, which results in faster execution but requires more memory
-		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
-		}
+//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+//			cudaErrchk(cudaSetDevice(g));
+//			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
+//		}
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
@@ -183,6 +183,9 @@ namespace PRISM {
 //		PRISM_CUDA_COMPLEX_FLOAT *psi_ds[total_num_streams];
 //		PRISM_CUDA_COMPLEX_FLOAT *psi_small_ds[total_num_streams];
 
+		cout << "Allocating..\n";
+		cout << "pars.pot.size() = " << pars.pot.size() << endl;
+		cout << "pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT))= " << pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)<< endl;
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
