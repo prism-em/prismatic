@@ -30,7 +30,7 @@ namespace PRISM {
 	format_output_func formatOutput_CPU;
 	fill_Scompact_func fill_Scompact;
 
-//#ifdef PRISM_ENABLE_GPU
+#ifdef PRISM_ENABLE_GPU
     template <class T>
     StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta) {
 		// query all devices and choose based on the minimum compute capability
@@ -48,7 +48,8 @@ namespace PRISM {
 		Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
 		std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
 		               [&f, &meta](size_t &a) {
-			               return (size_t) (f * round(((T) a) / meta.realspace_pixelSize / f));
+//			               return (size_t) (f * round(((T) a) / meta.realspace_pixelSize / f));
+                           return (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
 		               });
 		size_t estimatedPotentialSize = (meta.cellDim[0] / meta.sliceThickness) * imageSize[0] * imageSize[1] *
 		                                sizeof(std::complex<PRISM_FLOAT_PRECISION>);
@@ -114,16 +115,20 @@ namespace PRISM {
 			estimatedMaxMemoryUsage = std::max(estimatedSMatrixSize, estimatedPotentialSize);
 		}
 
+#ifdef PRISM_ENABLE_GPU
 		size_t available_memory;
 		cudaErrchk(cudaMemGetInfo(NULL, &available_memory));
 		cout << "available_memory = " << available_memory << endl;
+		cout << "estimated memory usage for single transfer method = " << estimatedMaxMemoryUsage  << endl;
 		return (estimatedMaxMemoryUsage > memoryThreshholdFraction * available_memory) ?
 		       PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
-//        return PRISM::StreamingMode::SingleXfer;
+#else
+        return PRISM::StreamingMode::SingleXfer;
+#endif //PRISM_ENABLE_GPU
     }
 	format_output_func_GPU formatOutput_GPU;
 
-//#endif
+#endif
 	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
 		formatOutput_CPU = formatOutput_CPU_integrate;
 #ifdef PRISM_ENABLE_GPU

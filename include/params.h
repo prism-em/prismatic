@@ -139,7 +139,7 @@ namespace PRISM{
 		    Array1D<size_t> _imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
 		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
 		                   [&f, this](size_t &a) {
-			                   return (size_t) (f * round(((T)a) / meta.realspace_pixelSize / f));
+			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
 		                   });
 		    this->imageSize = _imageSize;
 

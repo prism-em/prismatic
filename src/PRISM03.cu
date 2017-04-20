@@ -696,7 +696,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-					cout << "max_mem = " << pars.max_mem << '\n';
+//					cout << "max_mem = " << pars.max_mem << '\n';
 				}
 #endif // NDEBUG
 
@@ -1265,11 +1265,16 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			y_ds, std::round(yp / pars.pixelSizeOutput[0]), pars.imageSize[0], pars.imageSizeReduce[0]);
 		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				y_ds, (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSizeOutput[0], (long)pars.imageSizeReduce[0]);
+//		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+//				y_ds, (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSize[0], (long)pars.imageSizeReduce[0]);
+
 		long t2  = 0;
 		cudaMemcpy(&t2, y_ds, sizeof(long), cudaMemcpyDeviceToHost);
 		if (ay == 0 & ax == 0)cout << "t2 = " << t2 << endl;
 		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 			x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSizeOutput[1], pars.imageSizeReduce[1]);
+//		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
+//				x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSize[1], pars.imageSizeReduce[1]);
 
 		computePhaseCoeffs <<<(pars.numberBeams - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,

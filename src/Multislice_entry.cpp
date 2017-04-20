@@ -33,7 +33,9 @@ namespace PRISM{
 			for (auto&i:net_output) i/=prism_pars.meta.numFP;
 			net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
 		}
-
+#ifdef PRISM_ENABLE_GPU
+		cout << "peak GPU memory usage = " << prism_pars.max_mem << '\n';
+#endif //PRISM_ENABLE_GPU
 		std::cout << "Calculation complete.\n" << std::endl;
 		return prism_pars;
 	}

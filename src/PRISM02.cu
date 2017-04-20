@@ -284,7 +284,7 @@ namespace PRISM {
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-					cout << "max_mem = " << pars.max_mem << '\n';
+//					cout << "max_mem = " << pars.max_mem << '\n';
 				}
 #endif // NDEBUG
 
@@ -447,10 +447,10 @@ namespace PRISM {
 
 	void fill_Scompact_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars) {
 		// This version streams each slice of the transmission matrix, which is less efficient but can tolerate very large arrays
-		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
-		}
+//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+//			cudaErrchk(cudaSetDevice(g));
+//			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
+//		}
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);

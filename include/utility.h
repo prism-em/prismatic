@@ -16,6 +16,7 @@ namespace PRISM{
 		for (auto i = start; i <= stop; i += step) {
 			result.push_back(i);
 		}
+		if (result.empty())result.push_back(start);
 		return result;
 	};
 template <class T>

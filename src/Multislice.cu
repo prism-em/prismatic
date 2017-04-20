@@ -344,6 +344,18 @@ namespace PRISM{
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
+
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+//					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
+
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
@@ -677,6 +689,19 @@ namespace PRISM{
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
+
+
+#ifndef NDEBUG
+				{
+//					 check memory usage on the GPU
+					std::lock_guard<mutex> lock(PRISM::mem_lock);
+					size_t free_mem, total_mem;
+					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
+					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
+//					cout << "max_mem = " << pars.max_mem << '\n';
+				}
+#endif // NDEBUG
+
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
