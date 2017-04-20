@@ -34,16 +34,21 @@ namespace PRISM{
 
 //		size_t lower = 13;
 //		size_t upper = 18;
-//		Array2D<PRISM_FLOAT_PRECISION> prism_image;
-//		prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_pars.output.get_dimk(), prism_pars.output.get_dimj()}});
-//		for (auto y = 0; y < prism_pars.output.get_dimk(); ++y){
-//			for (auto x = 0; x < prism_pars.output.get_dimj(); ++x){
-//				for (auto b = lower; b < upper; ++b){
-//					prism_image.at(y,x) += prism_pars.output.at(y,x,b);
-//				}
-//			}
-//		}
+		size_t lower = 0;
+		size_t upper = 1;
+		Array2D<PRISM_FLOAT_PRECISION> prism_image;
+		prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_pars.output.get_dimk(), prism_pars.output.get_dimj()}});
+		for (auto y = 0; y < prism_pars.output.get_dimk(); ++y){
+			for (auto x = 0; x < prism_pars.output.get_dimj(); ++x){
+				for (auto b = lower; b < upper; ++b){
+					prism_image.at(y,x) += prism_pars.output.at(y,x,b);
+				}
+			}
+		}
 //		prism_image.toMRC_f("prism_image.mrc");
+		std::string image_filename = std::string("prism_image") + prism_pars.meta.filename_output;
+		prism_image.toMRC_f(image_filename.c_str());
+
         if (prism_pars.meta.numFP == 1) {
             prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
         } else {
