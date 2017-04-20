@@ -614,22 +614,18 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
 			                           pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxaReduce_d[g], &qxaReduce_ph[0],
 			                           pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qyaReduce_d[g], &qyaReduce_ph[0],
 			                           pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
 			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(yBeams_d[g], &yBeams_ph[0],
 			                           pars.xyBeams.get_dimj() * sizeof(size_t), cudaMemcpyHostToDevice,
 			                           streams[stream_id]));
@@ -1011,22 +1007,18 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			                           cudaMemcpyHostToDevice, streams[stream_id]));
 
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
 			                           pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxaReduce_d[g], &qxaReduce_ph[0],
 			                           pars.qxaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qyaReduce_d[g], &qyaReduce_ph[0],
 			                           pars.qyaReduce.size() * sizeof(PRISM_FLOAT_PRECISION), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
 			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(yBeams_d[g], &yBeams_ph[0],
 			                           pars.xyBeams.get_dimj() * sizeof(size_t), cudaMemcpyHostToDevice,
 			                           streams[stream_id]));
@@ -1268,9 +1260,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 //				y_ds, (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSize[0], (long)pars.imageSizeReduce[0]);
 
-		long t2  = 0;
-		cudaMemcpy(&t2, y_ds, sizeof(long), cudaMemcpyDeviceToHost);
-		if (ay == 0 & ax == 0)cout << "t2 = " << t2 << endl;
 		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 			x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSizeOutput[1], pars.imageSizeReduce[1]);
 //		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
@@ -1280,12 +1269,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
-
 		// Choose a good launch configuration
 		// Heuristically use 2^p / 2 as the block size where p is the first power of 2 greater than the number of elements to work on.
 		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long
 		size_t p = getNextPower2(pars.numberBeams);
-		const size_t BlockSizeX = (size_t)std::max(1.0, pow(2,p) / 2);
+		const size_t BlockSizeX = min((size_t)pars.deviceProperties.maxThreadsPerBlock,(size_t)std::max(1.0, pow(2,p) / 2));
 
 		// Determine maximum threads per streaming multiprocessor based on the compute capability of the device
 		size_t max_threads_per_sm;
@@ -1316,10 +1304,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
-
-//		scaleReduceS<4> <<< grid, block, smem, stream >>> (
-//				permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-//				pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
 
 		// Launch kernel. Block size must be visible at compile time so we use a switch statement
 		switch (BlockSizeX) {
@@ -1359,14 +1343,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			scaleReduceS<4> <<< grid, block, smem, stream >>> (
 					permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-			case 2 :
-			scaleReduceS<2> <<< grid, block, smem, stream >>> (
-					permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
 			default :
-			scaleReduceS<1> <<< grid, block, smem, stream >>> (
-					permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
+				scaleReduceS<2> <<< grid, block, smem, stream >>> (
+						permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+								pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
 		}
 
 
@@ -1472,7 +1452,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long
 
 		size_t p = getNextPower2(pars.numberBeams);
-		const size_t BlockSizeX = (size_t)std::max(1.0, pow(2,p) / 2);
+		const size_t BlockSizeX = min((size_t)pars.deviceProperties.maxThreadsPerBlock,(size_t)std::max(1.0, pow(2,p) / 2));
 
 		// Determine maximum threads per streaming multiprocessor based on the compute capability of the device
 		size_t max_threads_per_sm;
@@ -1554,12 +1534,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				scaleReduceS<4> <<< grid, block, smem, stream >>> (
 						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
 						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-			case 2 :
-				scaleReduceS<2> <<< grid, block, smem, stream >>> (
-						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
 			default :
-				scaleReduceS<1> <<< grid, block, smem, stream >>> (
+				scaleReduceS<2> <<< grid, block, smem, stream >>> (
 						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
 						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
 		}
