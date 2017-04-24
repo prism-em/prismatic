@@ -23,6 +23,7 @@ namespace PRISM{
 			prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 		} else {
 			// run the rest of the frozen phonons
+			++prism_pars.meta.fpNum;
 			Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
 			for (auto fp_num = 1; fp_num < prism_pars.meta.numFP; ++fp_num){
 				cout << "Frozen Phonon #" << fp_num << endl;

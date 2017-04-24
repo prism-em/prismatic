@@ -6,6 +6,8 @@
 #ifndef PRISM_UTILITY_H
 #define PRISM_UTILITY_H
 #include <vector>
+#include <string>
+#include <sstream>
 namespace PRISM{
 	template<class T>
 	std::vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
@@ -31,6 +33,17 @@ template <class T>
 		return result;
 	};
 
+
+	template <class T>
+	std::string generateFilename(const Parameters<T>& pars, const size_t ay, const size_t ax){
+		std::string result = pars.meta.filename_output.substr(0, pars.meta.filename_output.find_last_of("."));
+		std::stringstream ss;
+        ss << "_X"  << ax << "_Y" << ay << "_FP" << pars.meta.fpNum;
+        //result += "_X" + std::string(ax) + "_Y" + std::string(ay) + "_FP" + std::string(pars.meta.fpNum);
+		result += ss.str() + pars.meta.filename_output.substr(pars.meta.filename_output.find_last_of("."));
+		return result;
+
+	}
 
 }
 #endif //PRISM_UTILITY_H

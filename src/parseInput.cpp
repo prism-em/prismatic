@@ -32,7 +32,8 @@ namespace PRISM {
                 "* --also-do-cpu-work (-C) 0/1 : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
                 "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
                 "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
-                "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n";
+                "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
+                "* --save-4D-output (-4D) bool : Also save the 2D output at the detector for each probe (4D output mode)\n";
     }
 
     bool parse_a(Metadata<PRISM_FLOAT_PRECISION>& meta,
@@ -298,7 +299,7 @@ namespace PRISM {
     };
 
     bool parse_r(Metadata<PRISM_FLOAT_PRECISION>& meta,
-                        int& argc, const char*** argv){
+                       int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe step provided for -r (syntax is -r probe_step (in Angstroms))\n";
             return false;
@@ -307,6 +308,18 @@ namespace PRISM {
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_4D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -4D (syntax is -4D bool)\n";
+            return false;
+        }
+        meta.save4DOutput = std::string((*argv)[1]) == "0" ? false : true;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -343,7 +356,8 @@ namespace PRISM {
             {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
             {"--streaming-mode", parse_streaming_mode},
             {"--probe-step", parse_r}, {"-r", parse_r},
-            {"--num-FP", parse_F}, {"-F", parse_F}
+            {"--num-FP", parse_F}, {"-F", parse_F},
+            {"--save-4D-output", parse_4D}, {"-4D", parse_4D}
     };
     bool parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){
