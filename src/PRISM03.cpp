@@ -7,6 +7,7 @@
 #include "params.h"
 #include <iostream>
 #include <algorithm>
+#include <string>
 #include <cmath>
 #include <thread>
 #include <mutex>
@@ -252,8 +253,11 @@ namespace PRISM {
 				}
 			}
 
-
-
+        //save 4D output if applicable
+         if (pars.meta.save4DOutput) {
+			std::string section4DFilename = generateFilename(pars, ay, ax);
+			intOutput.toMRC_f(section4DFilename.c_str());
+		}
 //         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {

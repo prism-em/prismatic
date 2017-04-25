@@ -9,6 +9,7 @@
 #include "cuComplex.h"
 //#include <cuda_runtime.h>
 #include "configure.h"
+#include "utility.h"
 // define some constants
 //__device__ __constant__ float pi_f       = PI;
 //__device__ __constant__ cuFloatComplex i_f     = {0, 1};

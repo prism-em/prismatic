@@ -966,9 +966,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// allocate memory per stream and zero it
 		for (auto s = 0; s < total_num_streams; ++s) {
+			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &permuted_Scompact_ds[s],
 			                      pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &psi_ds[s],
 			                      pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &phaseCoeffs_ds[s],

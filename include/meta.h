@@ -25,6 +25,7 @@ namespace PRISM{
 			realspace_pixelSize = 0.1;
 			potBound = 1.0;
 			numFP = 1;
+            fpNum = 1;
 			sliceThickness = 2.0;
 			cellDim = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
 			E0 = 80e3;
@@ -34,6 +35,7 @@ namespace PRISM{
 			NUM_THREADS = 4;
 			algorithm = Algorithm::PRISM;
 			also_do_CPU_work = true;
+            save4DOutput = false;
 			gpu_cpu_ratio = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
 			transfer_mode = StreamingMode::Auto;
             probe_step = 0.25;
@@ -45,9 +47,11 @@ namespace PRISM{
 		T realspace_pixelSize; // pixel size
 		T potBound; // bounding integration radius for potential calculation
 		size_t numFP; // number of frozen phonon configurations to compute
+		size_t fpNum; // current frozen phonon number
 		T sliceThickness; // thickness of slice in Z
 		T probe_step;
 		bool also_do_CPU_work; // what fraction of computation to do on the cpu vs gpu
+        bool save4DOutput;
         StreamingMode transfer_mode;
 		std::vector<size_t> cellDim; // this is z,y,x format
 		T gpu_cpu_ratio;

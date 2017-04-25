@@ -486,7 +486,25 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
                                 const size_t& dimi,
                                 const cudaStream_t& stream,
                                 const long& scale){
+
+    //save 4D output if applicable
+    if (pars.meta.save4DOutput) {
+		// This section could be improved. It currently makes a new 2D array, copies to it, and
+		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
+		// memory isn't pinned, so the memcpy is not asynchronous.
+        std::string section4DFilename = generateFilename(pars, ay, ax);
+        PRISM::Array2D<PRISM_FLOAT_PRECISION> currentImage = PRISM::zeros_ND<2,PRISM_FLOAT_PRECISION>(
+				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+        cudaErrchk(cudaMemcpyAsync(&currentImage[0],
+								   psi_intensity_ds,
+								   pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION),
+								   cudaMemcpyDeviceToHost,
+								   stream));
+		currentImage.toMRC_f(section4DFilename.c_str());
+    }
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
+
+
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
 	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);

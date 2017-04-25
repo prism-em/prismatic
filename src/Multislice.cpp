@@ -168,6 +168,13 @@ namespace PRISM{
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
+
+		//save 4D output if applicable
+		if (pars.meta.save4DOutput) {
+			std::string section4DFilename = generateFilename(pars, ay, ax);
+			intOutput.toMRC_f(section4DFilename.c_str());
+		}
+
 		//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
