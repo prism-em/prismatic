@@ -1409,7 +1409,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// and handle them accordingly.
 
 		if (y1 >= 0 & x1 >= 0 & (y1 + pars.imageSizeReduce[0] < pars.Scompact.get_dimj()) & (x1 + pars.imageSizeReduce[1] < pars.Scompact.get_dimi())) {
-
+			cout << "Best case" << endl;
 			// Best case -- coordinates are all in bounds, perform one large copy. It's really a 3D array even though I use the strided 2D copy
 			cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
 			                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
@@ -1434,7 +1434,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				left_side  = -1 * y1; // corresponds to number of elements left of the 0 index
 				right_side = pars.yVec.size() - left_side;
 			} else { // y1 + pars.imageSizeReduce[0] > pars.Scompact.get_dimj()
-				right_side = std::max(y1 + (long)pars.imageSizeReduce[0] - (long)pars.Scompact.get_dimj(), (long) pars.imageSizeReduce[0]); // corresponds to number of elements out of bounds on the right
+				right_side = y1 + (long)pars.imageSizeReduce[0] - (long)pars.Scompact.get_dimj(); // corresponds to number of elements out of bounds on the right
+				if (right_side < 0 ) right_side = (long) pars.imageSizeReduce[0];
 				left_side = std::max((long)pars.yVec.size() - right_side, (long)0);
 			}
 
@@ -1466,15 +1467,13 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		}else { // Need to break up into smaller transfers
 			long y_offset, left_side, right_side;
 			if (x1 < 0){ // indexing out of bounds to the left
-				for (long yy = 0, y_shifted = y1; yy < pars.imageSizeReduce[0]; ++yy, ++y_shifted) {
 					left_side  = -1 * x1; // corresponds to number of elements left of the 0 index
 					right_side = pars.xVec.size() - left_side;
-				}
+//				}
 			} else { // indexing out of bounds to the right
-				for (long yy = 0, y_shifted = y1; yy < pars.imageSizeReduce[0]; ++yy, ++y_shifted) {
-					right_side = std::max(x1 + (long)pars.imageSizeReduce[1] - (long)pars.Scompact.get_dimi(), (long) pars.imageSizeReduce[1]); // corresponds to number of elements out of bounds on the right
-					left_side = std::max((long)pars.xVec.size() - right_side, (long)0);
-				}
+				right_side = x1 + (long)pars.imageSizeReduce[1] - (long)pars.Scompact.get_dimi(); // corresponds to number of elements out of bounds on the right
+				if (right_side < 0 ) right_side = (long) pars.imageSizeReduce[1];
+				left_side = std::max((long)pars.xVec.size() - right_side, (long)0);
 			}
 
 			// perform the pair of 2D copies for each Y
