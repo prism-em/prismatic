@@ -19,7 +19,8 @@ namespace PRISM {
 #include <cstdlib>
 #include "cufft.h"
 
-#define BLOCK_SIZE1D 1024
+//#define BLOCK_SIZE1D 1024
+#define BLOCK_SIZE1D 512
 #define PI 3.14159265359
 // helpful function for checking CUDA errors.
 // Source: http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
