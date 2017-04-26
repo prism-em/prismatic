@@ -492,8 +492,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// allocate pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaMallocHost((void **) &output_ph[s],
-			                          pars.output.get_dimj() * pars.output.get_dimi() *
-			                          sizeof(PRISM_FLOAT_PRECISION)));
+			                          pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		cudaErrchk(cudaMallocHost((void **) &permuted_Scompact_ph, pars.Scompact.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
@@ -506,8 +505,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// copy host memory to pinned
 		for (auto s = 0; s < total_num_streams; ++s) {
-			memset(output_ph[s], 0, pars.output.get_dimj() * pars.output.get_dimi() *
-			                        sizeof(PRISM_FLOAT_PRECISION));
+			memset(output_ph[s], 0, pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION));
 		}
 
 
@@ -873,8 +871,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// allocate pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaMallocHost((void **) &output_ph[s],
-			                          pars.output.get_dimj() * pars.output.get_dimi() *
-			                          sizeof(PRISM_FLOAT_PRECISION)));
+			                          pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		cudaErrchk(cudaMallocHost((void **) &permuted_Scompact_ph, pars.Scompact.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &PsiProbeInit_ph, pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
@@ -887,8 +884,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// copy host memory to pinned
 		for (auto s = 0; s < total_num_streams; ++s) {
-			memset(output_ph[s], 0, pars.output.get_dimj() * pars.output.get_dimi() *
-			                        sizeof(PRISM_FLOAT_PRECISION));
+			memset(output_ph[s], 0, pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION));
 		}
 
 

@@ -215,7 +215,7 @@ namespace PRISM{
 		cudaErrchk(cudaMallocHost((void **)&qya_ph,          pars.qya.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **)&alphaInd_ph,     pars.alphaInd.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimj() * pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		// copy host memory to pinned
 		memcpy(PsiProbeInit_ph, &pars.psiProbeInit[0], pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
@@ -562,7 +562,7 @@ namespace PRISM{
 		cudaErrchk(cudaMallocHost((void **)&qya_ph,          pars.qya.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		cudaErrchk(cudaMallocHost((void **)&alphaInd_ph,     pars.alphaInd.size()*sizeof(PRISM_FLOAT_PRECISION)));
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimj() * pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMallocHost((void **) &output_ph[s], pars.output.get_dimi() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 		// copy host memory to pinned
 		memcpy(PsiProbeInit_ph, &pars.psiProbeInit[0], pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
