@@ -18,38 +18,37 @@ namespace PRISM{
 	public:
 		void toString();
 		Metadata(){
-			interpolationFactor = 5;
-			filename_atoms      = "/path/to/atoms.txt";
-			filename_output     = "output.mrc";
-			realspace_pixelSize = 0.1;
-			potBound            = 1.0;
-			numFP               = 1;
-            fpNum               = 1;
-			sliceThickness      = 2.0;
-			cellDim             = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
-			E0                  = 80e3;
-			alphaBeamMax        = 24 / 1000.0;
-			NUM_GPUS            = 4;
-			NUM_STREAMS_PER_GPU = 3;
-			NUM_THREADS         = 4;
-			gpu_cpu_ratio       = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-            probe_step          = 0.25;
+			interpolationFactor   = 5;
+			filename_atoms        = "/path/to/atoms.txt";
+			filename_output       = "output.mrc";
+			realspace_pixelSize   = 0.1;
+			potBound              = 1.0;
+			numFP                 = 1;
+            fpNum                 = 1;
+			sliceThickness        = 2.0;
+			cellDim               = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
+			E0                    = 80e3;
+			alphaBeamMax          = 24 / 1000.0;
+			NUM_GPUS              = 4;
+			NUM_STREAMS_PER_GPU   = 3;
+			NUM_THREADS           = 4;
+			gpu_cpu_ratio         = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
+            probe_step            = 0.25;
 
 			//add to cli
-			detector_angle_step                  = 2.5 / 1000;
-			probeXtilt          = 0;
-			probeYtilt          = 0;
-			probeDefocus        = 0.0;
-			probeSemiangle      = 20.0 / 1000;
-			algorithm           = Algorithm::PRISM;
-			also_do_CPU_work    = true;
-			save2DOutput        = false;
-			save3DOutput        = true;
-			save4DOutput        = false;
-
+			detector_angle_step   = 2.5 / 1000;
+			probeXtilt            = 0;
+			probeYtilt            = 0;
+			probeDefocus          = 0.0;
+			probeSemiangle        = 20.0 / 1000;
+			algorithm             = Algorithm::PRISM;
+			also_do_CPU_work      = true;
+			save2DOutput          = false;
+			save3DOutput          = true;
+			save4DOutput          = false;
 			integration_angle_min = 0;
 			integration_angle_max = detector_angle_step;
-			transfer_mode       = StreamingMode::Auto;
+			transfer_mode         = StreamingMode::Auto;
 		}
 		size_t interpolationFactor; // PRISM f parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)

@@ -24,16 +24,23 @@ namespace PRISM {
                 "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.\n"
                 "* --help(-h) : print information about the available options\n"
                 "* --pixel-size (-p) pixel_size : size of simulation pixel size\n"
+		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins"
                 "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)\n"
                 "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice\n"
                 "* --energy (-E) value : the energy of the electron beam (in keV)\n"
                 "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)\n"
                 "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)\n"
-                "* --also-do-cpu-work (-C) 0/1 : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
+                "* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
                 "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
                 "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
+	            "* --probe-xtilt (-tx) value : probe X tilt\n"
+                "* --probe-ytilt (-ty) value : probe X tilt\n"
+                "* --probe-defocus (-df) value : probe defocus\n"
+                "* --probe-semiangle (-sa) value : maximum probe semiangle\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
-                "* --save-4D-output (-4D) bool : Also save the 2D output at the detector for each probe (4D output mode)\n";
+		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (2D output mode)\n";
+	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n";
+                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
     }
 
     bool parse_a(Metadata<PRISM_FLOAT_PRECISION>& meta,
@@ -108,6 +115,21 @@ namespace PRISM {
         argv[0]+=2;
         return true;
     };
+
+	bool parse_d(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No detector angle step provided for -d (syntax is -d detector_step (in mrad))\n";
+			return false;
+		}
+		if ( (meta.detector_angle_step = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for potential bound (syntax is -d detector_step (in mrad)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
 
     bool parse_streaming_mode(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -313,6 +335,66 @@ namespace PRISM {
         return true;
     };
 
+    bool parse_tx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
+            return false;
+        }
+        if ( (meta.probeXtilt = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_ty(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No probe tilt provided for -ty (syntax is -ty probe_tilt)\n";
+            return false;
+        }
+        if ( (meta.probeYtilt = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -ty (syntax is -ty probe_tilt\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_df(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No defocus value provided for -df (syntax is -df defocus_value)\n";
+            return false;
+        }
+        if ( (meta.probeDefocus = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_sa(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No probe semiangle provided for -sa (syntax is -sa probe_semiangle)\n";
+            return false;
+        }
+        if ( (meta.probeSemiangle = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -sa (syntax is -sa probe_semiangle\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_2D(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 3){
@@ -380,6 +462,7 @@ namespace PRISM {
             {"--num-gpus", parse_g}, {"-g", parse_g},
             {"--help", parse_h}, {"-h", parse_h},
             {"--pixel-size", parse_p}, {"-p", parse_p},
+            {"--detector-angle-step", parse_d}, {"-d", parse_d},
             {"--cell-dimension", parse_c}, {"-c", parse_c},
             {"--algorithm", parse_a}, {"-a", parse_a},
             {"--energy", parse_E}, {"-E", parse_E},
@@ -388,6 +471,10 @@ namespace PRISM {
             {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
             {"--streaming-mode", parse_streaming_mode},
             {"--probe-step", parse_r}, {"-r", parse_r},
+            {"--probe-xtilt", parse_tx}, {"-tx", parse_tx},
+            {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
+            {"--probe-defocus", parse_df}, {"-df", parse_df},
+            {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
