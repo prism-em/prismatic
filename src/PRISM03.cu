@@ -1395,6 +1395,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 				yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
+
+		// Copy the relevant portion of the Scompact matrix. This can be accomplished with ideally one but at most 4 strided 3-D memory copies
+		// depending on whether or not the coordinates wrap around.
 		long x1,y1;
 		y1 = pars.yVec[0] + std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]);
 		x1 = pars.xVec[0] + std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1]);

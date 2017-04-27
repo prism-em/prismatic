@@ -313,6 +313,38 @@ namespace PRISM {
         return true;
     };
 
+    bool parse_2D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 3){
+            cout << "Not enough arguments for -2D (syntax is -2D ang_min ang_max)\n";
+            return false;
+        }
+        meta.save2DOutput = true;
+        if ( string((*argv)[1]) != "0" & (meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max\n";
+            return false;
+        }
+        if ( (meta.integration_angle_max = (PRISM_FLOAT_PRECISION)atof((*argv)[2])) == 0){
+            cout << "Invalid value \"" << (*argv)[2] << "\" provided for maximum integration angle (syntax is -2D ang_min ang_max)\n";
+            return false;
+        }
+        argc-=3;
+        argv[0]+=3;
+        return true;
+    };
+
+    bool parse_3D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -3D (syntax is -3D bool)\n";
+            return false;
+        }
+        meta.save3DOutput = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_4D(Metadata<PRISM_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
@@ -357,6 +389,8 @@ namespace PRISM {
             {"--streaming-mode", parse_streaming_mode},
             {"--probe-step", parse_r}, {"-r", parse_r},
             {"--num-FP", parse_F}, {"-F", parse_F},
+            {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
+            {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D}
     };
     bool parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,

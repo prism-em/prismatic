@@ -20,7 +20,7 @@ namespace PRISM{
 		Multislice(prism_pars);
 
 		if (prism_pars.meta.numFP == 1) {
-			prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
+			if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 		} else {
 			// run the rest of the frozen phonons
 			++prism_pars.meta.fpNum;
@@ -32,25 +32,28 @@ namespace PRISM{
 			}
 			// divide to take average
 			for (auto&i:net_output) i/=prism_pars.meta.numFP;
-			net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
+			if (prism_pars.meta.save3DOutput)net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
 		}
 
-
-		size_t lower = 0;
-		size_t upper = 1;
-		Array2D<PRISM_FLOAT_PRECISION> prism_image;
-		prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_pars.output.get_dimk(), prism_pars.output.get_dimj()}});
-		for (auto y = 0; y < prism_pars.output.get_dimk(); ++y){
-			for (auto x = 0; x < prism_pars.output.get_dimj(); ++x){
-				for (auto b = lower; b < upper; ++b){
-					prism_image.at(y,x) += prism_pars.output.at(y,x,b);
+		if (prism_pars.meta.save2DOutput) {
+//			size_t lower = 0;
+//			size_t upper = 1;
+			size_t lower = std::max((size_t)0, (size_t)(prism_pars.meta.integration_angle_min / prism_pars.meta.detector_angle_step));
+			size_t upper = std::min(prism_pars.detectorAngles.size(), (size_t) (prism_pars.meta.integration_angle_max / prism_pars.meta.detector_angle_step));
+			Array2D<PRISM_FLOAT_PRECISION> prism_image;
+			prism_image = zeros_ND<2, PRISM_FLOAT_PRECISION>(
+					{{prism_pars.output.get_dimk(), prism_pars.output.get_dimj()}});
+			for (auto y = 0; y < prism_pars.output.get_dimk(); ++y) {
+				for (auto x = 0; x < prism_pars.output.get_dimj(); ++x) {
+					for (auto b = lower; b < upper; ++b) {
+						prism_image.at(y, x) += prism_pars.output.at(y, x, b);
+					}
 				}
 			}
-		}
 //		prism_image.toMRC_f("prism_image.mrc");
-		std::string image_filename = std::string("multislice_image") + prism_pars.meta.filename_output;
-		prism_image.toMRC_f(image_filename.c_str());
-
+			std::string image_filename = std::string("multislice_image_") + prism_pars.meta.filename_output;
+			prism_image.toMRC_f(image_filename.c_str());
+		}
 #ifdef PRISM_ENABLE_GPU
 		cout << "peak GPU memory usage = " << prism_pars.max_mem << '\n';
 #endif //PRISM_ENABLE_GPU

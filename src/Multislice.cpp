@@ -104,19 +104,19 @@ namespace PRISM{
 
 	void setupDetector_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		pars.alphaMax = pars.qMax * pars.lambda;
-		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.dr / 2, pars.meta.dr, pars.alphaMax - pars.meta.dr / 2);
+		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detector_angle_step / 2, pars.meta.detector_angle_step, pars.alphaMax - pars.meta.detector_angle_step / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		pars.Ndet = pars.detectorAngles.size();
 		Array2D<PRISM_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
-		pars.alphaInd = (alpha + pars.meta.dr/2) / pars.meta.dr;
+		pars.alphaInd = (alpha + pars.meta.detector_angle_step/2) / pars.meta.detector_angle_step;
 		for (auto& q : pars.alphaInd) q = std::round(q);
 		pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
 	}
 
 	void setupProbes_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
-		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangle/ pars.lambda; // currently a single semiangle
+		PRISM_FLOAT_PRECISION qProbeMax = pars.meta.probeSemiangle/ pars.lambda; // currently a single semiangle
 		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
 		Array2D<complex<PRISM_FLOAT_PRECISION> > psi;
 		psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
@@ -131,7 +131,7 @@ namespace PRISM{
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocus * q2_t); // TODO: fix hardcoded length-1 defocus
+			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t); // TODO: fix hardcoded length-1 defocus
 			          return a;
 		          });
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),

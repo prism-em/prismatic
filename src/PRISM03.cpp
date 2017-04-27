@@ -70,8 +70,8 @@ namespace PRISM {
 
 		pars.alphaMax = pars.qMax * pars.lambda;
 
-		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.dr / 2, pars.meta.dr,
-		                                                              pars.alphaMax - pars.meta.dr / 2);
+		vector<PRISM_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detector_angle_step / 2, pars.meta.detector_angle_step,
+		                                                              pars.alphaMax - pars.meta.detector_angle_step / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
@@ -279,8 +279,8 @@ namespace PRISM {
 //		 allocations/copies for chained operations I try to do things like create variables
 //		 initially with at most one operation, and then perform in-place transforms if more is needed
 
-		Array2D<PRISM_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.probeXtilt / pars.lambda);
-		Array2D<PRISM_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.probeYtilt / pars.lambda);
+		Array2D<PRISM_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.meta.probeXtilt / pars.lambda);
+		Array2D<PRISM_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.meta.probeYtilt / pars.lambda);
 		transform(qxaShift.begin(), qxaShift.end(),
 		          qyaShift.begin(), pars.q2.begin(),
 		          [](const PRISM_FLOAT_PRECISION &a, const PRISM_FLOAT_PRECISION &b) { return a * a + b * b; });
@@ -292,7 +292,7 @@ namespace PRISM {
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),
 		          [&pars](const PRISM_FLOAT_PRECISION &a) {
-			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.dr);
+			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.detector_angle_step);
 		          });
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),
@@ -310,7 +310,7 @@ namespace PRISM {
 
 		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-		PRISM_FLOAT_PRECISION qProbeMax = pars.probeSemiangle / pars.lambda;
+		PRISM_FLOAT_PRECISION qProbeMax = pars.meta.probeSemiangle / pars.lambda;
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q1.begin(), pars.psiProbeInit.begin(),
 		          [&pars, &qProbeMax](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q1_t) {
@@ -323,7 +323,7 @@ namespace PRISM {
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.probeDefocus * q2_t);
+			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
 			          return a;
 		          });
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
