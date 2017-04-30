@@ -38,8 +38,8 @@ namespace PRISM {
                 "* --probe-defocus (-df) value : probe defocus\n"
                 "* --probe-semiangle (-sa) value : maximum probe semiangle\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
-		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (2D output mode)\n";
-	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n";
+		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (2D output mode)\n"
+	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n"
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
     }
 
@@ -402,12 +402,12 @@ namespace PRISM {
             return false;
         }
         meta.save2DOutput = true;
-        if ( string((*argv)[1]) != "0" & (meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max\n";
+        if ( string((*argv)[1]) != "0" & (meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max (in mrad)\n";
             return false;
         }
-        if ( (meta.integration_angle_max = (PRISM_FLOAT_PRECISION)atof((*argv)[2])) == 0){
-            cout << "Invalid value \"" << (*argv)[2] << "\" provided for maximum integration angle (syntax is -2D ang_min ang_max)\n";
+        if ( (meta.integration_angle_max = (PRISM_FLOAT_PRECISION)atof((*argv)[2]) / 1000) == 0){
+            cout << "Invalid value \"" << (*argv)[2] << "\" provided for maximum integration angle (syntax is -2D ang_min ang_max (in mrad))\n";
             return false;
         }
         argc-=3;
