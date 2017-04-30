@@ -105,6 +105,37 @@ namespace PRISM{
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
 		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;
+		std::cout << "probeDefocus = " << probeDefocus<< std::endl;
+		std::cout << "probeSemiangle = " << probeSemiangle<< std::endl;
+		std::cout << "detector_angle_step = " << detector_angle_step<< std::endl;
+		std::cout << "probeXtilt = " << probeXtilt<< std::endl;
+		std::cout << "probeYtilt = " << probeYtilt<< std::endl;
+		std::cout << "scanWindowXMin = " << scanWindowXMin<< std::endl;
+		std::cout << "scanWindowXMax = " << scanWindowXMax<< std::endl;
+		std::cout << "scanWindowYMin = " << scanWindowYMin<< std::endl;
+		std::cout << "scanWindowYMax = " << scanWindowYMax<< std::endl;
+		std::cout << "integration_angle_min = " << integration_angle_min<< std::endl;
+		std::cout << "integration_angle_max = " << integration_angle_max<< std::endl;
+		if (also_do_CPU_work) {
+			std::cout << "also_do_CPU_work = true" << std::endl;
+		} else {
+			std::cout << "also_do_CPU_work = false" << std::endl;
+		}
+		if (save2DOutput) {
+			std::cout << "save2DOutput = true" << std::endl;
+		} else {
+			std::cout << "save2DOutput = false" << std::endl;
+		}
+		if (save3DOutput) {
+			std::cout << "save3DOutput = true" << std::endl;
+		} else {
+			std::cout << "save3DOutput = false" << std::endl;
+		}
+		if (save4DOutput) {
+			std::cout << "save4DOutput = true" << std::endl;
+		} else {
+			std::cout << "save4DOutput = false" << std::endl;
+		}
         if (algorithm == PRISM::Algorithm::PRISM){
             std::cout << "Algorithm: PRISM" << std::endl;
         } else {

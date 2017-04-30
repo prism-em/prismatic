@@ -37,6 +37,8 @@ namespace PRISM {
                 "* --probe-ytilt (-ty) value : probe X tilt\n"
                 "* --probe-defocus (-df) value : probe defocus\n"
                 "* --probe-semiangle (-sa) value : maximum probe semiangle\n"
+                "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1)\n"
+                "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1)\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (2D output mode)\n"
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n"
@@ -395,6 +397,63 @@ namespace PRISM {
         return true;
     };
 
+	bool parse_wx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 3){
+			cout << "Invalid window provided for -wx (syntax is -wx min max (in fractional coordinates))\n";
+			return false;
+		}
+		PRISM_FLOAT_PRECISION minval, maxval;
+		minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
+
+		if ( minval == 0 & std::string((*argv)[1]) != "0"){
+			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window X (syntax is -wx min max (in fractional coordinates))\n";
+			return false;
+		}
+		if ( maxval == 0 & std::string((*argv)[2]) != "0"){
+			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window X (syntax is -wx min max (in fractional coordinates))\n";
+			return false;
+		}
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the X scan is greater than the maximum(" << maxval <<")." << endl;
+         return false;
+        }
+        meta.scanWindowXMin = minval;
+        meta.scanWindowXMax = maxval;
+		argc-=3;
+		argv[0]+=3;
+		return true;
+	};
+
+    bool parse_wy(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 3){
+            cout << "Invalid window provided for -wy (syntax is -wy min max (in fractional coordinates))\n";
+            return false;
+        }
+        PRISM_FLOAT_PRECISION minval, maxval;
+        minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
+        if ( minval == 0 & std::string((*argv)[1]) != "0"){
+            cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window y (syntax is -wx min max (in fractional coordinates))\n";
+            return false;
+        }
+        if ( maxval == 0 & std::string((*argv)[2]) != "0"){
+            cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window y (syntax is -wy min max (in fractional coordinates))\n";
+            return false;
+        }
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the X scan is greater than the maximum(" << maxval <<")." << endl;
+            return false;
+        }
+        meta.scanWindowYMin = minval;
+        meta.scanWindowYMax = maxval;
+        argc-=3;
+        argv[0]+=3;
+        return true;
+    };
+
     bool parse_2D(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 3){
@@ -475,6 +534,8 @@ namespace PRISM {
             {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
             {"--probe-defocus", parse_df}, {"-df", parse_df},
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
+            {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
+            {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
