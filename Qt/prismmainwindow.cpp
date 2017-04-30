@@ -437,32 +437,35 @@ void PRISMMainWindow::calculateAll(){
 void PRISMMainWindow::updatePotentialImage(){
     if (potentialReady){
             {
-            QMutexLocker gatekeeper(&potentialLock);
+//            QMutexLocker gatekeeper(&potentialLock);
+            QMutexLocker gatekeeper(&dataLock);
+
             // create new empty image with appropriate dimensions
-            potentialImage = QImage(potential.get_dimj(), potential.get_dimi(), QImage::Format_ARGB32);
+            potentialImage = QImage(pars.pot.get_dimj(), pars.pot.get_dimi(), QImage::Format_ARGB32);
             }
 
             // update sliders to match dimensions of potential, which also triggers a redraw of the image
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
-            this->ui->slider_slicemin->setMaximum(potential.get_dimk());
-            this->ui->slider_slicemax->setMaximum(potential.get_dimk());
-            this->ui->slider_slicemax->setValue(potential.get_dimk());
+            this->ui->slider_slicemin->setMaximum(pars.pot.get_dimk());
+            this->ui->slider_slicemax->setMaximum(pars.pot.get_dimk());
+            this->ui->slider_slicemax->setValue(pars.pot.get_dimk());
         }
 }
 
 void PRISMMainWindow::updatePotentialFloatImage(){
     if (potentialReady){
-        QMutexLocker gatekeeper(&potentialLock);
+//        QMutexLocker gatekeeper(&potentialLock);
+        QMutexLocker gatekeeper(&dataLock);
 
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_slicemin->value();
         size_t max_layer = this->ui->slider_slicemax->value();
-        potentialImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{potential.get_dimj(), potential.get_dimi()}});
+        potentialImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
         for (auto k = min_layer; k <= max_layer; ++k){
-            for (auto j = 0; j < potential.get_dimj(); ++j){
-                for (auto i = 0; i < potential.get_dimi(); ++i){
-                    potentialImage_float.at(j,i) += potential.at(k - 1,j ,i);
+            for (auto j = 0; j < pars.pot.get_dimj(); ++j){
+                for (auto i = 0; i < pars.pot.get_dimi(); ++i){
+                    potentialImage_float.at(j,i) += pars.pot.at(k - 1,j ,i);
                 }
             }
         }
@@ -482,9 +485,11 @@ void PRISMMainWindow::updatePotentialFloatImage(){
 
 void PRISMMainWindow::updatePotentialDisplay(){
     if (potentialReady){
-            QMutexLocker gatekeeper(&potentialLock);
-            for (auto j = 0; j < potential.get_dimj(); ++j){
-                for (auto i = 0; i < potential.get_dimi(); ++i){
+//            QMutexLocker gatekeeper(&potentialLock);
+            QMutexLocker gatekeeper(&dataLock);
+
+            for (auto j = 0; j < pars.pot.get_dimj(); ++j){
+                for (auto i = 0; i < pars.pot.get_dimi(); ++i){
                     uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
                                                   contrast_potentialMin,
                                                   contrast_potentialMax);
@@ -506,9 +511,11 @@ void PRISMMainWindow::updateOutputImage(){
     if (outputReady){
 	    std::cout << "updateOutputImage " << std::endl;
             {
-            QMutexLocker gatekeeper(&outputLock);
+//            QMutexLocker gatekeeper(&outputLock);
+            QMutexLocker gatekeeper(&dataLock);
+
             // create new empty image with appropriate dimensions
-            outputImage = QImage(output.get_dimk(), output.get_dimj(), QImage::Format_ARGB32);
+            outputImage = QImage(pars.output.get_dimk(), pars.output.get_dimj(), QImage::Format_ARGB32);
             }
             // update sliders to match dimensions of output, which also triggers a redraw of the image
             this->ui->slider_angmin->setMinimum(0);
@@ -526,20 +533,21 @@ void PRISMMainWindow::updateOutputFloatImage(){
     if (outputReady){
         std::cout << "updateOutputFloatImage " << std::endl;
 
-        QMutexLocker gatekeeper(&outputLock);
+//        QMutexLocker gatekeeper(&outputLock);
+        QMutexLocker gatekeeper(&dataLock);
 
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_angmin->value();
         size_t max_layer = this->ui->slider_angmax->value();
         std::cout << "min_layer = " << min_layer << std::endl;
         std::cout << "max_layer = " << max_layer << std::endl;
-        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
+        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.output.get_dimk(), pars.output.get_dimj()}});
 //        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
 //         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
-        for (auto j = 0; j < output.get_dimk(); ++j){
-            for (auto i = 0; i < output.get_dimj(); ++i){
+        for (auto j = 0; j < pars.output.get_dimk(); ++j){
+            for (auto i = 0; i < pars.output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
-                    outputImage_float.at(j,i) += output.at(j, i, k);
+                    outputImage_float.at(j,i) += pars.output.at(j, i, k);
                 }
             }
         }
@@ -559,9 +567,10 @@ void PRISMMainWindow::updateOutputFloatImage(){
 
 void PRISMMainWindow::updateOutputDisplay(){
     if (outputReady){
-            QMutexLocker gatekeeper(&outputLock);
-            for (auto j = 0; j < output.get_dimk(); ++j){
-                for (auto i = 0; i < output.get_dimj(); ++i){
+//            QMutexLocker gatekeeper(&outputLock);
+        QMutexLocker gatekeeper(&dataLock);
+            for (auto j = 0; j < pars.output.get_dimk(); ++j){
+                for (auto i = 0; i < pars.output.get_dimj(); ++i){
                     uchar val = getUcharFromFloat(outputImage_float.at(j,i),
                                                   contrast_outputMin,
                                                   contrast_outputMax);
@@ -662,8 +671,9 @@ void PRISMMainWindow::updateContrastAngMax(){
 
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (outputReady){
-            QMutexLocker gatekeeper(&outputLock);
-            outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
+//            QMutexLocker gatekeeper(&outputLock);
+        QMutexLocker gatekeeper(&dataLock);
+        outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
 

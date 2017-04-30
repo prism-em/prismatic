@@ -107,15 +107,18 @@ protected:
 private:
     Ui::PRISMMainWindow *ui;
     PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
+    PRISM::Parameters<PRISM_FLOAT_PRECISION> pars;
 //    QGraphicsScene *potentialScene;
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
-    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
-    PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
-	PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
-    QMutex potentialLock;
-	QMutex sMatrixLock;
-    QMutex outputLock;
+//    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
+//    PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
+//    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
+    PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
+
+//    QMutex potentialLock;
+//    QMutex sMatrixLock;
+//    QMutex outputLock;
+    QMutex dataLock;
     QMutex calculationLock;
 
     bool potentialReady;
@@ -130,6 +133,7 @@ private:
     QImage probeImage_mr;
     QImage probeImage_mk;
     QImage outputImage;
+
     PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
     PRISM::Array2D<PRISM_FLOAT_PRECISION> outputImage_float;
 

@@ -23,9 +23,10 @@ void PotentialThread::run(){
     // calculate potential
     PRISM::PRISM01(params);
     // acquire the mutex so we can safely copy to the GUI copy of the potential
-    QMutexLocker gatekeeper(&this->parent->potentialLock);
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
-    this->parent->potential = params.pot;
+    this->parent->pars = params;
+//    this->parent->potential = params.pot;
     // indicate that the potential is ready
     this->parent->potentialReady = true;
     if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
@@ -48,9 +49,12 @@ void SMatrixThread::run(){
         // calculate potential
         PRISM::PRISM01(params);
         // acquire the mutex so we can safely copy to the GUI copy of the potential
-        QMutexLocker gatekeeper(&this->parent->potentialLock);
+//        QMutexLocker gatekeeper(&this->parent->potentialLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+
         // perform copy
-        this->parent->potential = params.pot;
+        this->parent->pars = params;
+//        this->parent->potential = params.pot;
         // indicate that the potential is ready
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
@@ -61,12 +65,15 @@ void SMatrixThread::run(){
     // calculate S-Matrix
     PRISM::PRISM02(params);
     // acquire the mutex so we can safely copy to the GUI copy of the potential
-    QMutexLocker gatekeeper(&this->parent->sMatrixLock);
+//    QMutexLocker gatekeeper(&this->parent->sMatrixLock);
+    QMutexLocker gatekeeper(&this->parent->dataLock);
+
     // perform copy
-    this->parent->Scompact = params.Scompact;
+    this->parent->pars = params;
+//    this->parent->Scompact = params.Scompact;
     // indicate that the potential is ready
     this->parent->ScompactReady = true;
-    std::cout << "copying S-Matrix" << std::endl;
+//    std::cout << "copying S-Matrix" << std::endl;
 //    std::cout << "S-Matrix.at(0,0,0) = " << this->parent->Scompact.at(0,0,0) << std::endl;
 }
 
@@ -87,8 +94,10 @@ void FullPRISMCalcThread::run(){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
-        QMutexLocker gatekeeper(&this->parent->potentialLock);
-        this->parent->potential = params.pot;
+//        QMutexLocker gatekeeper(&this->parent->potentialLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
+//        this->parent->potential = params.pot;
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
@@ -97,9 +106,12 @@ void FullPRISMCalcThread::run(){
     PRISM::PRISM02(params);
     // acquire the mutex so we can safely copy to the GUI copy of the potential
     {
-        QMutexLocker gatekeeper(&this->parent->sMatrixLock);
+//        QMutexLocker gatekeeper(&this->parent->sMatrixLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+
         // perform copy
-        this->parent->Scompact = params.Scompact;
+        this->parent->pars = params;
+//        this->parent->Scompact = params.Scompact;
         // indicate that the potential is ready
         this->parent->ScompactReady = true;
     }
@@ -108,9 +120,11 @@ void FullPRISMCalcThread::run(){
 
     PRISM::PRISM03(params);
     {
-        QMutexLocker gatekeeper(&this->parent->outputLock);
+//        QMutexLocker gatekeeper(&this->parent->outputLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
 
-        this->parent->output = params.output;
+//        this->parent->output = params.output;
         this->parent->detectorAngles = params.detectorAngles;
 
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
@@ -152,8 +166,10 @@ void FullMultisliceCalcThread::run(){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
-        QMutexLocker gatekeeper(&this->parent->potentialLock);
-        this->parent->potential = params.pot;
+//        QMutexLocker gatekeeper(&this->parent->potentialLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
+//        this->parent->potential = params.pot;
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
@@ -161,8 +177,9 @@ void FullMultisliceCalcThread::run(){
 
     PRISM::Multislice(params);
     {
-        QMutexLocker gatekeeper(&this->parent->outputLock);
-        this->parent->output = params.output;
+//        QMutexLocker gatekeeper(&this->parent->outputLock);
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
@@ -177,7 +194,7 @@ void FullMultisliceCalcThread::run(){
 
 
     std::cout << "Calculation complete" << std::endl;
-    std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->output.at(0,0,0) << std::endl;
+    std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->pars.output.at(0,0,0) << std::endl;
 
 }
 
