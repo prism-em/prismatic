@@ -456,6 +456,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 	using namespace std;
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars){
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalDescriptionMessage("Computing final output");
+#endif
+
 		// construct the PRISM output array using GPUs
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		// set device flags
@@ -706,6 +710,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						                           current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
 						                           current_phaseCoeffs_ds, current_psi_intensity_ds, current_y_ds,
 						                           current_x_ds, current_output_ph, current_integratedOutput_ds, current_cufft_plan, current_stream );
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 //						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
 						++Nstart;
 					}
@@ -751,6 +758,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 								buildSignal_CPU(pars, ay, ax, plan, psi);
+#ifdef PRISM_BUILDING_GUI
+								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 								++Nstart;
 							}
 						if (Nstop >= early_CPU_stop) break;
@@ -833,6 +843,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	}
 
 	void buildPRISMOutput_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars){
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalDescriptionMessage("Computing final output");
+#endif
+
 		// construct the PRISM output array using GPUs
 
 		// set device flags
@@ -1097,7 +1111,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						                          current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
 						                          current_phaseCoeffs_ds, current_psi_intensity_ds, current_y_ds,
 						                          current_x_ds, current_output_ph, current_integratedOutput_ds, current_cufft_plan, current_stream );
-//						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 						++Nstart;
 					}
 				}
@@ -1141,6 +1157,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 								buildSignal_CPU(pars, ay, ax, plan, psi);
+#ifdef PRISM_BUILDING_GUI
+								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;

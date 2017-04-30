@@ -104,11 +104,12 @@ namespace PRISM {
 	}
 
 	void fill_Scompact_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars) {
+
 		// This version transfers the entire transmission matrix a single time, which results in faster execution but requires more memory
-//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-//			cudaErrchk(cudaSetDevice(g));
-//			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
-//		}
+
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
+#endif
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
@@ -306,6 +307,9 @@ namespace PRISM {
 						                                  current_cufft_plan,
 						                                  current_cufft_plan_small,
 						                                  current_stream);
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
+#endif
 						++currentBeam;
 					}
 				}
@@ -362,6 +366,9 @@ namespace PRISM {
 								memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 								propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
 								                       fftw_plan_lock);
+#ifdef PRISM_BUILDING_GUI
+								pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
+#endif
 								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
@@ -446,11 +453,11 @@ namespace PRISM {
 
 
 	void fill_Scompact_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars) {
+
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
+#endif
 		// This version streams each slice of the transmission matrix, which is less efficient but can tolerate very large arrays
-//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-//			cudaErrchk(cudaSetDevice(g));
-//			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
-//		}
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);

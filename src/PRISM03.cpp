@@ -140,7 +140,6 @@ namespace PRISM {
 		// this may need to be adapted
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing final output");
-
 #endif
 
 		vector<thread> workers;
@@ -169,11 +168,6 @@ namespace PRISM {
 							 buildSignal_CPU(pars, ay, ax, plan, psi);
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
-
-//        pars.progressbar->signalCalcStatusMessage(QString("Probe Position ") +
-//                                                  QString::number(Nstart) +
-//                                                  QString("/") +
-//                                                  QString::number(pars.xp.size() * pars.yp.size()));
 #endif
 							 ++Nstart;
 						 }

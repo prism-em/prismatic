@@ -18,8 +18,6 @@
 #include "projectedPotential.h"
 #include "WorkDispatcher.h"
 
-#undef PRISM_BUILDING_GUI
-
 #ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
@@ -84,7 +82,13 @@ namespace PRISM {
 		});
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
+		cout<<"huh?"<<endl;
+#ifdef HEY
+        cout<<"huh???"<<endl;
+
+#endif
 #ifdef PRISM_BUILDING_GUI
+        cout << "helloooooooooooooooooooo" << endl;
 		pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
 		                                                          QString::number(0) +
                                                                   QString("/") +

@@ -9,6 +9,9 @@
 #include "params.h"
 #include "configure.h"
 #include <complex>
+#ifdef PRISM_BUILDING_GUI
+#include "prism_progressbar.h"
+#endif
 namespace PRISM {
 
     void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars);

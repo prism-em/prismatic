@@ -20,7 +20,7 @@
 #include <cuda_runtime.h>
 #endif //PRISM_ENABLE_GPU
 
-#ifdef PRISM_BUILDING_GPU
+#ifdef PRISM_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
 

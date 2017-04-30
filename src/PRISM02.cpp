@@ -224,11 +224,6 @@ namespace PRISM {
 		// populates the compact S-matrix using CPU resources
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
-
-//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
-//                                                  QString::number(0) +
-//                                                  QString("/") +
-//                                                  QString::number(pars.numberBeams));
 #endif
         extern mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -273,11 +268,6 @@ namespace PRISM {
 						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
 #ifdef PRISM_BUILDING_GUI
                         pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
-
-//        pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
-//                                                  QString::number(currentBeam) +
-//                                                  QString("/") +
-//                                                  QString::number(pars.numberBeams));
 #endif
                         ++currentBeam;
 					}
