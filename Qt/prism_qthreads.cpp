@@ -89,9 +89,10 @@ void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
     QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
-//    if (!this->parent->potentialReady){
+    if (!this->parent->potentialReady){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
@@ -103,11 +104,12 @@ void FullPRISMCalcThread::run(){
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     emit potentialCalculated();
-//    } else {
-//        QMutexLocker gatekeeper(&this->parent->dataLock);
-//        params = this->parent->pars;
-//        std::cout << "Potential already calculated. Using existing result." << std::endl;
-//    }
+    } else {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        params = this->parent->pars;
+        params.progressbar = progressbar;
+        std::cout << "Potential already calculated. Using existing result." << std::endl;
+    }
 
     PRISM::PRISM02(params);
     // acquire the mutex so we can safely copy to the GUI copy of the potential

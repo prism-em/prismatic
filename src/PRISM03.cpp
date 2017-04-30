@@ -48,11 +48,11 @@ namespace PRISM {
 
 	inline void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		xR[0] = 0.1 * pars.meta.cellDim[2];
-		xR[1] = 0.9 * pars.meta.cellDim[2];
+		xR[0] = pars.meta.scanWindowXMin * pars.meta.cellDim[2];
+		xR[1] = pars.meta.scanWindowYMin * pars.meta.cellDim[2];
 		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		yR[0] = 0.1 * pars.meta.cellDim[1];
-		yR[1] = 0.9 * pars.meta.cellDim[1];
+		yR[0] = pars.meta.scanWindowYMin * pars.meta.cellDim[1];
+		yR[1] = pars.meta.scanWindowYMax * pars.meta.cellDim[1];
 
 		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_step / 2, pars.meta.probe_step,
 		                                                  xR[1] - pars.meta.probe_step / 2);

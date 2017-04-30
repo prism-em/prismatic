@@ -85,6 +85,15 @@ public slots:
     void toggleStreamingMode();
     void toggleSaveProjectedPotential();
     void enableOutputWidgets();
+    void setprobe_defocus_fromLineEdit();
+    void setDetector_angle_step_fromLineEdit();
+    void setprobe_Xtilt_fromLineEdit();
+    void setprobe_Ytilt_fromLineEdit();
+    void setscan_WindowXMin_fromLineEdit();
+    void setscan_WindowXMax_fromLineEdit();
+    void setscan_WindowYMin_fromLineEdit();
+    void setscan_WindowYMax_fromLineEdit();
+
 
 
 //    void testImage();

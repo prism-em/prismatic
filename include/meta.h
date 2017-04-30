@@ -35,12 +35,16 @@ namespace PRISM{
 			gpu_cpu_ratio         = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
             probe_step            = 0.25;
 
-			//add to cli
+			probeDefocus          = 0.0;
+			probeSemiangle        = 20.0 / 1000;
 			detector_angle_step   = 2.5 / 1000;
 			probeXtilt            = 0;
 			probeYtilt            = 0;
-			probeDefocus          = 0.0;
-			probeSemiangle        = 20.0 / 1000;
+			scanWindowXMin        = 0.1;
+			scanWindowXMax        = 0.9;
+			scanWindowYMin        = 0.1;
+			scanWindowYMax        = 0.9;
+
 			algorithm             = Algorithm::PRISM;
 			also_do_CPU_work      = true;
 			save2DOutput          = false;
@@ -68,6 +72,10 @@ namespace PRISM{
 		T probeSemiangle;
 		T probeXtilt;
 		T probeYtilt;
+		T scanWindowXMin;
+		T scanWindowXMax;
+		T scanWindowYMin;
+		T scanWindowYMax;
 		size_t NUM_THREADS; // number of CPU threads to use
 		size_t NUM_GPUS; // number of GPUs to use
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU

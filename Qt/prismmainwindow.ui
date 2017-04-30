@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>992</height>
+    <height>1047</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1522,17 +1522,7 @@ Thickness (A)</string>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_36">
                    <item>
-                    <widget class="QLineEdit" name="lineEdit">
-                     <property name="maximumSize">
-                      <size>
-                       <width>30</width>
-                       <height>16777215</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="lineEdit_scanWindowX">
+                    <widget class="QLineEdit" name="lineEdit_scanWindowXMin">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
@@ -1541,6 +1531,19 @@ Thickness (A)</string>
                      </property>
                      <property name="text">
                       <string>0.1</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_scanWindowXMax">
+                     <property name="maximumSize">
+                      <size>
+                       <width>30</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>0.9</string>
                      </property>
                     </widget>
                    </item>
@@ -1622,22 +1625,28 @@ Thickness (A)</string>
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_37">
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_2">
+                    <widget class="QLineEdit" name="lineEdit_scanWindowYMin">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="text">
+                      <string>0.1</string>
+                     </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_scanWindowY">
+                    <widget class="QLineEdit" name="lineEdit_scanWindowYMax">
                      <property name="maximumSize">
                       <size>
                        <width>30</width>
                        <height>16777215</height>
                       </size>
+                     </property>
+                     <property name="text">
+                      <string>0.9</string>
                      </property>
                     </widget>
                    </item>

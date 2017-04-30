@@ -117,6 +117,30 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
         ss << (this->meta->probe_step);
         this->ui->lineEdit_probeStep->setText(QString::fromStdString(ss.str()));
         ss.str("");
+        ss << (this->meta->probeDefocus);
+        this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->probeXtilt);
+        this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->probeYtilt);
+        this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->detector_angle_step);
+        this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->scanWindowXMin);
+        this->ui->lineEdit_scanWindowXMin->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->scanWindowXMax);
+        this->ui->lineEdit_scanWindowXMax->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->scanWindowYMin);
+        this->ui->lineEdit_scanWindowYMin->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->scanWindowYMax);
+        this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
@@ -164,7 +188,14 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStep, SIGNAL(editingFinished()), this, SLOT(setprobe_step_fromLineEdit()));
+    connect(this->ui->lineEdit_probeDefocus, SIGNAL(editingFinished()), this, SLOT(setprobe_defocus_fromLineEdit()));
+    connect(this->ui->lineEdit_detectorAngle, SIGNAL(editingFinished()), this, SLOT(setDetector_angle_step_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltX, SIGNAL(editingFinished()), this, SLOT(setprobe_Xtilt_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobe_Ytilt_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMax_fromLineEdit()));
     connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -388,6 +419,80 @@ void PRISMMainWindow::setprobe_step_fromLineEdit(){
         std::cout << "Setting probe_step to " << val << std::endl;
     }
 }
+
+void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble();
+    if (val > 0){
+        this->meta->probeDefocus = val;
+        std::cout << "Setting probe defocus to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_detectorAngle->text().toDouble();
+    if (val > 0){
+        this->meta->detector_angle_step = val;
+        std::cout << "Setting detector angle step to " << val << std::endl;
+    }
+}
+
+
+void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltX->text().toDouble();
+    if (val > 0){
+        this->meta->probeXtilt = val;
+        std::cout << "Setting probe X tilt to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toDouble();
+    if (val > 0){
+        this->meta->probeYtilt = val;
+        std::cout << "Setting probe Y tilt to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMin->text().toDouble();
+    val = std::min(this->meta->scanWindowXMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    if (val > 0){
+        this->meta->scanWindowXMin = val;
+        std::cout << "Setting scan window X min to " << val << std::endl;
+    }
+    ui->lineEdit_scanWindowXMin->setText(QString::number(val));
+}
+
+void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMax->text().toDouble();
+    val = std::max(this->meta->scanWindowXMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    if (val > 0){
+        this->meta->scanWindowXMax = val;
+        std::cout << "Setting scan window X max to " << val << std::endl;
+    }
+    ui->lineEdit_scanWindowXMax->setText(QString::number(val));
+}
+
+void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMin->text().toDouble();
+    val = std::min(this->meta->scanWindowYMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    if (val > 0){
+        this->meta->scanWindowYMin = val;
+        std::cout << "Setting scan window Y min to " << val << std::endl;
+    }
+    ui->lineEdit_scanWindowYMin->setText(QString::number(val));
+}
+
+void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMax->text().toDouble();
+    val = std::max(this->meta->scanWindowYMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    if (val > 0){
+        this->meta->scanWindowYMax = val;
+        std::cout << "Setting scan window Y max to " << val << std::endl;
+    }
+    ui->lineEdit_scanWindowYMax->setText(QString::number(val));
+}
+
 void PRISMMainWindow::calculatePotential(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
