@@ -106,8 +106,9 @@ namespace PRISM {
 	void fill_Scompact_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars) {
 
 		// This version transfers the entire transmission matrix a single time, which results in faster execution but requires more memory
-
+	cout <<"entering here" << endl;
 #ifdef PRISM_BUILDING_GUI
+		cout << "should update " << endl;
 		pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
 #endif
 		//initialize data
