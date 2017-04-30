@@ -246,6 +246,7 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
         this->setFilenameAtoms(filename.toStdString());
         ui->btn_go->setEnabled(true);
         ui->btn_calcPotential->setEnabled(true);
+        this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename.toStdString() + std::string(")"))));
     }
 }
 
