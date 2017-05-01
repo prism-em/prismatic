@@ -33,6 +33,7 @@ class PRISMMainWindow : public QMainWindow
     // access the protected mutex locks and arrays
     friend class PotentialThread;
     friend class SMatrixThread;
+    friend class ProbeThread;
     friend class FullPRISMCalcThread;
     friend class FullMultisliceCalcThread;
     friend class prism_progressbar;
@@ -62,6 +63,7 @@ public slots:
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
+    void calculateSMatrix();
     void calculateAll();
     void updatePotentialImage();
     void updatePotentialDisplay();
@@ -93,7 +95,7 @@ public slots:
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();
     void setscan_WindowYMax_fromLineEdit();
-
+    void resetCalculation();
 
 
 //    void testImage();

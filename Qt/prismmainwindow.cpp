@@ -23,6 +23,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::PRISMMainWindow),
     potentialReady(false),
+    ScompactReady(false),
+    outputReady(false),
+    saveProjectedPotential(false),
     potentialImage(QImage())
 {
 	// build Qt generated interface
@@ -200,6 +203,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
+    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(calculateSMatrix()));
     connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
     connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
@@ -226,24 +230,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
 
 
     this->ui->checkBox_streamdata->setChecked(false);
-//    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(testImage()));
 
 }
 
-//    void PRISMMainWindow::testImage(){
-//        static int offset = 0;
-//        std::cout << "offset = " << offset << std::endl;
-
-//        int s = 1024;
-//        QImage image(s, s, QImage::Format_ARGB32);
-//        for (int i = 0; i < s; ++i){
-//            for (int j = 0; j < s; ++j){
-//                image.setPixel(i, j,  qRgba(i + offset, j + offset, offset, 255));
-//            }
-//        }
-//        offset++;
-//        this->potentialScene->addPixmap(QPixmap::fromImage(image));
-//    }
 
 
 void PRISMMainWindow::setAlgo_PRISM(){
@@ -256,6 +245,7 @@ void PRISMMainWindow::setAlgo_Multislice(){
 }
 void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
 	this->meta->algorithm = algo;
+    resetCalculation();
 }
 
 void PRISMMainWindow::setInterpolationFactor(){
@@ -267,6 +257,7 @@ void PRISMMainWindow::setInterpolationFactor(){
 	} else{
         std::cout << "Invalid interpolation factor input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
 	}
+    resetCalculation();
 }
 
 
@@ -279,6 +270,7 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
         ui->btn_calcPotential->setEnabled(true);
         this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename.toStdString() + std::string(")"))));
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setFilenameOutput_fromDialog(){
@@ -286,47 +278,34 @@ void PRISMMainWindow::setFilenameOutput_fromDialog(){
 	filename = QFileDialog::getOpenFileName(this, tr("AnyFile"), filename);
 	this->ui->lineedit_outputfile->setText(filename);
 	this->setFilenameOutput(filename.toStdString());
+    resetCalculation();
 }
 
 
 void PRISMMainWindow::setFilenameOutput_fromLineEdit(){
 	const std::string& filename = this->ui->lineedit_outputfile->text().toStdString();
 	this->setFilenameOutput(filename);
+    resetCalculation();
 }
 
 void PRISMMainWindow::setFilenameAtoms(const std::string& filename){
 	std::cout << "Setting atoms filename to " << filename << std::endl;
 	this->meta->filename_atoms = filename;
+    resetCalculation();
 }
 
 void PRISMMainWindow::setFilenameOutput(const std::string& filename){
 	std::cout << "Setting output filename to " << filename << std::endl;
 	this->meta->filename_output = filename;
+    resetCalculation();
 }
 
-/*void PRISMMainWindow::launch(){
-	std::cout << "Launching PRISM calculation with the following paramters:\n";
-	std::cout << "Atoms filename = " << this->meta->filename_atoms << '\n';
-	std::cout << "Output filename = " << this->meta->filename_output << '\n';
-	std::cout << "Interpolation factor = " << this->meta->interpolationFactor << '\n';
-	std::cout << "pixelSize[0] = " << this->meta->realspace_pixelSize<< '\n';
-
-    PRISM::configure(*this->meta);
-	int returnCode =  PRISM::execute_plan(*this->meta);
-	if (returnCode == 0){
-		std::cout << "Calculation complete" << std::endl;
-	} else {
-		std::cout << "Calculation returned error code " << returnCode << std::endl;
-	}
-
-}*/
 
 void PRISMMainWindow::setNumGPUs(const int& num){
     if (num > 0){
         this->meta->NUM_GPUS = num;
         std::cout << "Setting number of GPUs to " << num << std::endl;
     }
-
 }
 
 void PRISMMainWindow::setNumThreads(const int& num){
@@ -334,7 +313,6 @@ void PRISMMainWindow::setNumThreads(const int& num){
         this->meta->NUM_THREADS = num;
         std::cout << "Setting number of CPU Threads to " << num << std::endl;
     }
-
 }
 
 void PRISMMainWindow::setNumFP(const int& num){
@@ -342,7 +320,7 @@ void PRISMMainWindow::setNumFP(const int& num){
         this->meta->numFP = num;
         std::cout << "Setting number of frozen phonon configurations to " << num << std::endl;
     }
-
+    resetCalculation();
 }
 
 void PRISMMainWindow::setPixelSize_fromLineEdit(){
@@ -352,6 +330,7 @@ void PRISMMainWindow::setPixelSize_fromLineEdit(){
         this->meta->realspace_pixelSize = val;
         std::cout << "Setting X/Y pixel size to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setPotBound_fromLineEdit(){
@@ -360,6 +339,7 @@ void PRISMMainWindow::setPotBound_fromLineEdit(){
         this->meta->potBound = val;
         std::cout << "Setting potential bound to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
@@ -368,6 +348,7 @@ void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
         this->meta->alphaBeamMax = val;
         std::cout << "Setting alphaBeamMax to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setSliceThickness_fromLineEdit(){
@@ -376,6 +357,7 @@ void PRISMMainWindow::setSliceThickness_fromLineEdit(){
         this->meta->sliceThickness = val;
         std::cout << "Setting sliceThickness to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimX_fromLineEdit(){
@@ -384,6 +366,7 @@ void PRISMMainWindow::setCellDimX_fromLineEdit(){
         this->meta->cellDim[2] = (size_t)val;
         std::cout << "Setting X cell dimension to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimY_fromLineEdit(){
@@ -392,6 +375,7 @@ void PRISMMainWindow::setCellDimY_fromLineEdit(){
         this->meta->cellDim[1] = (size_t)val;
         std::cout << "Setting Y cell dimension to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimZ_fromLineEdit(){
@@ -400,6 +384,7 @@ void PRISMMainWindow::setCellDimZ_fromLineEdit(){
         this->meta->cellDim[0] = (size_t)val;
         std::cout << "Setting Z cell dimension to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setE0_fromLineEdit(){
@@ -408,8 +393,8 @@ void PRISMMainWindow::setE0_fromLineEdit(){
         meta->E0 = val * 1e3;
         std::cout << "Setting E0 to " << val << std::endl;
         ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
-
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setprobe_step_fromLineEdit(){
@@ -418,6 +403,7 @@ void PRISMMainWindow::setprobe_step_fromLineEdit(){
         this->meta->probe_step = val;
         std::cout << "Setting probe_step to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
@@ -426,6 +412,7 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
         this->meta->probeDefocus = val;
         std::cout << "Setting probe defocus to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
@@ -434,6 +421,7 @@ void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
         this->meta->detector_angle_step = val;
         std::cout << "Setting detector angle step to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 
@@ -443,6 +431,7 @@ void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
         this->meta->probeXtilt = val;
         std::cout << "Setting probe X tilt to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
@@ -451,6 +440,7 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
         this->meta->probeYtilt = val;
         std::cout << "Setting probe Y tilt to " << val << std::endl;
     }
+    resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
@@ -461,6 +451,7 @@ void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
         std::cout << "Setting scan window X min to " << val << std::endl;
     }
     ui->lineEdit_scanWindowXMin->setText(QString::number(val));
+    resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
@@ -471,6 +462,7 @@ void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
         std::cout << "Setting scan window X max to " << val << std::endl;
     }
     ui->lineEdit_scanWindowXMax->setText(QString::number(val));
+    resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
@@ -481,6 +473,7 @@ void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
         std::cout << "Setting scan window Y min to " << val << std::endl;
     }
     ui->lineEdit_scanWindowYMin->setText(QString::number(val));
+    resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
@@ -491,14 +484,27 @@ void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
         std::cout << "Setting scan window Y max to " << val << std::endl;
     }
     ui->lineEdit_scanWindowYMax->setText(QString::number(val));
+    resetCalculation();
 }
 
 void PRISMMainWindow::calculatePotential(){
+    resetCalculation();
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+    worker->start();
+}
+
+void PRISMMainWindow::calculateSMatrix(){
+    prism_progressbar *progressbar = new prism_progressbar(this);
+    progressbar->show();
+    SMatrixThread *worker = new SMatrixThread(this, progressbar);
+    worker->meta.toString();
+//    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
     worker->start();
@@ -798,6 +804,12 @@ void PRISMMainWindow::enableOutputWidgets(){
     ui->lineEdit_angmin->setEnabled(true);
     ui->lineEdit_angmax->setEnabled(true);
 }
+void PRISMMainWindow::resetCalculation(){
+    potentialReady = false;
+    ScompactReady  = false;
+    outputReady    = false;
+}
+
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
 //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),

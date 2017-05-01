@@ -461,12 +461,12 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 #endif
 
 		// construct the PRISM output array using GPUs
-		cout << "pars.numPlanes = " << pars.numPlanes << endl;
-		// set device flags
-		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
-			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
-		}
+//		cout << "pars.numPlanes = " << pars.numPlanes << endl;
+//		 set device flags
+//		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g){
+//			cudaErrchk(cudaSetDevice(g));
+//			cudaErrchk(cudaSetDeviceFlags(cudaDeviceBlockingSync));
+//		}
 
 		// create CUDA streams and cuFFT plans
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;

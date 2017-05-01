@@ -34,6 +34,25 @@ class SMatrixThread : public QThread {
 public:
     explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~SMatrixThread();
+signals:
+    void potentialCalculated();
+    void ScompactCalculated();
+private:
+    PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+    PRISMMainWindow *parent;
+    prism_progressbar *progressbar;
+};
+
+class ProbeThread : public QThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit ProbeThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~ProbeThread();
+signals:
+    void potentialCalculated();
+    void ScompactCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
