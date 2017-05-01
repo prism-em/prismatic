@@ -48,14 +48,19 @@ class ProbeThread : public QThread {
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit ProbeThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    explicit ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *progressbar);
     virtual ~ProbeThread();
 signals:
     void potentialCalculated();
     void ScompactCalculated();
+    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
+    PRISM_FLOAT_PRECISION X, Y;
     prism_progressbar *progressbar;
 };
 

@@ -65,6 +65,7 @@ public slots:
     void calculatePotential();
     void calculateSMatrix();
     void calculateAll();
+    void calculateProbe();
     void updatePotentialImage();
     void updatePotentialDisplay();
     void updatePotentialFloatImage();
@@ -96,8 +97,16 @@ public slots:
     void setscan_WindowYMin_fromLineEdit();
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
+    void updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 
-
+//signals:
+//    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+//    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+//    void signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+//    void signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void testImage();
 
 protected:

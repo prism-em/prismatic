@@ -27,11 +27,10 @@ void PotentialThread::run(){
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
     this->parent->pars = params;
-//    this->parent->potential = params.pot;
     // indicate that the potential is ready
     this->parent->potentialReady = true;
     if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-
+    std::cout << "Projected potential calculation complete" << std::endl;
 }
 
 SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
@@ -49,11 +48,6 @@ void SMatrixThread::run(){
     if (!this->parent->potentialReady){
         // calculate potential
         PRISM::PRISM01(params);
-//        QMutexLocker gatekeeper(&this->parent->dataLock);
-
-        // perform copy
-//        this->parent->pars = params;
-//        this->parent->potential = params.pot;
         // indicate that the potential is ready
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
@@ -67,7 +61,6 @@ void SMatrixThread::run(){
     }
 
 
-    std::cout << "calculating S-Matrix" << std::endl;
 //    // calculate S-Matrix
     PRISM::PRISM02(params);
 ////    QMutexLocker gatekeeper(&this->parent->sMatrixLock);
@@ -76,11 +69,12 @@ void SMatrixThread::run(){
 //    // perform copy
     this->parent->pars = params;
     this->parent->ScompactReady = true;
+    std::cout << "S-matrix calculation complete" << std::endl;
 }
 
 
-ProbeThread::ProbeThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
-parent(_parent), progressbar(_progressbar){
+ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar) :
+parent(_parent), X(_X), Y(_Y), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
     this->meta = *(parent->getMetadata());
 }
@@ -147,6 +141,22 @@ void ProbeThread::run(){
         PRISM::initializeProbes(params);
         this->parent->probeSetupReady = true;
     }
+
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> pk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{100, 100}});
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> pr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{100, 100}});
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> mk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{100, 100}});
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> mr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{100, 100}});
+
+    int a = 0;
+    for (auto &i:pk)i=++a;
+    for (auto &i:pr)i=++a;
+    for (auto &i:mk)i=++a;
+    for (auto &i:mr)i=++a;
+    emit signalProbeK_PRISM(pk);
+    emit signalProbeR_PRISM(pr);
+    emit signalProbeK_Multislice(mk);
+    emit signalProbeR_Multislice(mr);
+
 }
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
@@ -211,8 +221,7 @@ void FullPRISMCalcThread::run(){
         params.output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
-
-    std::cout << "Calculation complete" << std::endl;
+    std::cout << "PRISM calculation complete" << std::endl;
 }
 
 
@@ -265,11 +274,7 @@ void FullMultisliceCalcThread::run(){
         params.output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
-
-
-    std::cout << "Calculation complete" << std::endl;
-    std::cout<<"after copy this->parent->output.at(0,0,0) = " << this->parent->pars.output.at(0,0,0) << std::endl;
-
+    std::cout << "Multislice calculation complete" << std::endl;
 }
 
 PotentialThread::~PotentialThread(){}
