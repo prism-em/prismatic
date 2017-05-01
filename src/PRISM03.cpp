@@ -46,7 +46,7 @@ namespace PRISM {
 		return result;
 	}
 
-	inline void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = pars.meta.scanWindowXMin * pars.meta.cellDim[2];
 		xR[1] = pars.meta.scanWindowXMax * pars.meta.cellDim[2];
@@ -65,7 +65,7 @@ namespace PRISM {
 		pars.yp = yp;
 	}
 
-	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// setup coordinates related to detector size, angles, and image output
 
 		pars.alphaMax = pars.qMax * pars.lambda;
@@ -85,7 +85,7 @@ namespace PRISM {
 		pars.Ndet = pars.detectorAngles.size();
 	}
 
-	inline void setupBeams_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	 void setupBeams_2(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// setup some coordinates for the beams
 
 		Array2D<PRISM_FLOAT_PRECISION> beamsReduce = array2D_subset(pars.beamsOutput,
@@ -110,13 +110,13 @@ namespace PRISM {
 		}
 	}
 
-	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// create output of a size corresponding to 3D mode (integration)
 
 		pars.output = zeros_ND<3, PRISM_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
-	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// create Fourier space coordinates
 
 		pars.qxaReduce = array2D_subset(pars.qxaOutput,
@@ -262,7 +262,7 @@ namespace PRISM {
 		};
 	}
 
-	inline void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars){
+	void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		// setup some relevant coordinates
 
 		pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
@@ -299,7 +299,7 @@ namespace PRISM {
 		          [&pars](const PRISM_FLOAT_PRECISION &a) { return (a < pars.Ndet) ? 1 : 0; });
 	}
 
-	inline void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars){
+	 void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars){
 		// initialize the probe
 
 		pars.psiProbeInit = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(

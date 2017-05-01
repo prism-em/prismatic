@@ -136,6 +136,7 @@ private:
     bool ScompactReady;
     bool outputReady;
     bool saveProjectedPotential;
+    bool probeSetupReady;
 
     QImage potentialImage;
     QImage probeImage;

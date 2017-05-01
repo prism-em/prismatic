@@ -26,6 +26,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     ScompactReady(false),
     outputReady(false),
     saveProjectedPotential(false),
+    probeSetupReady(false),
     potentialImage(QImage())
 {
 	// build Qt generated interface
@@ -227,7 +228,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
     connect(this->ui->checkBox_streamdata, SIGNAL(toggled(bool)), this, SLOT(toggleStreamingMode()));
     connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)), this, SLOT(toggleSaveProjectedPotential()));
-
+    connect(this->ui->btn_reset, SIGNAL(clicked()), this, SLOT(resetCalculation()));
 
     this->ui->checkBox_streamdata->setChecked(false);
 
@@ -805,9 +806,11 @@ void PRISMMainWindow::enableOutputWidgets(){
     ui->lineEdit_angmax->setEnabled(true);
 }
 void PRISMMainWindow::resetCalculation(){
-    potentialReady = false;
-    ScompactReady  = false;
-    outputReady    = false;
+    std::cout << "Resetting Calculation" << std::endl;
+    potentialReady  = false;
+    ScompactReady   = false;
+    outputReady     = false;
+    probeSetupReady = false;
 }
 
 void PRISMMainWindow::redrawImages(){

@@ -9,9 +9,9 @@
 prism_progressbar::prism_progressbar(PRISMMainWindow *_parent) :
     parent(_parent),
     ui(new Ui::prism_progressbar),
-    potentialCurrentSlice(0),
+    potentialCurrentSlice(-1),
     potentialTotalSlices(0),
-    SMatrixCurrentBeam(0),
+    SMatrixCurrentBeam(-1),
     SMatrixTotalBeams(0),
     currentProbe(0),
     totalProbes(0)
@@ -35,7 +35,7 @@ void prism_progressbar::setStepPotential(){
 void prism_progressbar::update_calculatingPotential(long current, long total){
     potentialCurrentSlice = std::max(potentialCurrentSlice, current);
     ui->lbl_calcStatus->setText(QString("Slice ") +
-                                 QString::number(current) +
+                                 QString::number(current + 1) +
                                  QString("/") +
                                  QString::number(total));
 }

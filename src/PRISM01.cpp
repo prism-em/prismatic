@@ -83,10 +83,7 @@ namespace PRISM {
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
 #ifdef PRISM_BUILDING_GUI
-		pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
-		                                                          QString::number(0) +
-                                                                  QString("/") +
-                                                                  QString::number(pars.numPlanes));
+		pars.progressbar->signalPotentialUpdate(0, pars.numPlanes);
 #endif
 
 		// initialize the potential array
@@ -144,11 +141,6 @@ namespace PRISM {
 						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
 #ifdef PRISM_BUILDING_GUI
                         pars.progressbar->signalPotentialUpdate(currentBeam, pars.numPlanes);
-//				pars.progressbar->signalCalcStatusMessage(QString("Slice ") +
-//                                                          QString::number(currentBeam + 1) +
-//                                                          QString("/") +
-//                                                          QString::number(pars.numPlanes));
-
 #endif //PRISM_BUILDING_GUI
 						++currentBeam;
 					}

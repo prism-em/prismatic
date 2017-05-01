@@ -224,6 +224,7 @@ namespace PRISM {
 		// populates the compact S-matrix using CPU resources
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
+		pars.progressbar->signalScompactUpdate(-1, pars.numberBeams);
 #endif
         extern mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(

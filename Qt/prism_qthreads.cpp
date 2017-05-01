@@ -123,26 +123,30 @@ void ProbeThread::run(){
         params.progressbar = progressbar;
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
-    // setup necessary coordinates
-    PRISM::setupCoordinates_2(params);
 
-    // setup angles of detector and image sizes
-    PRISM::setupDetector(params);
+    if (!this->parent->probeSetupReady){
+        // setup necessary coordinates
+        PRISM::setupCoordinates_2(params);
 
-    // setup coordinates and indices for the beams
-    PRISM::setupBeams_2(params);
+        // setup angles of detector and image sizes
+        PRISM::setupDetector(params);
 
-    // setup Fourier coordinates for the S-matrix
-    PRISM::setupFourierCoordinates(params);
+        // setup coordinates and indices for the beams
+        PRISM::setupBeams_2(params);
 
-    // initialize the output to the correct size for the output mode
-    PRISM::createStack_integrate(params);
+        // setup Fourier coordinates for the S-matrix
+        PRISM::setupFourierCoordinates(params);
 
-//		 perform some necessary setup transformations of the data
-    PRISM::transformIndices(params);
+        // initialize the output to the correct size for the output mode
+        PRISM::createStack_integrate(params);
 
-    // initialize/compute the probes
-    PRISM::initializeProbes(params);
+    //		 perform some necessary setup transformations of the data
+        PRISM::transformIndices(params);
+
+        // initialize/compute the probes
+        PRISM::initializeProbes(params);
+        this->parent->probeSetupReady = true;
+    }
 }
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :

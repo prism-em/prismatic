@@ -25,13 +25,13 @@ namespace PRISM {
 //	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars);
 //	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
-	inline void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void setupBeams_2(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars);
-	inline void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void setupCoordinates_2(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void setupDetector(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void setupBeams_2(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void createStack_integrate(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 						 const size_t &ay,
