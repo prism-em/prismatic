@@ -85,7 +85,65 @@ parent(_parent), progressbar(_progressbar){
     this->meta = *(parent->getMetadata());
 }
 
-void ProbeThread::run(){};
+void ProbeThread::run(){
+    PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+    QMutexLocker calculationLocker(&this->parent->calculationLock);
+
+    PRISM::configure(meta);
+    if (!this->parent->potentialReady){
+    PRISM::PRISM01(params);
+    std::cout <<"Potential Calculated" << std::endl;
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
+        this->parent->potentialReady = true;
+        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+    }
+    emit potentialCalculated();
+    } else {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        params = this->parent->pars;
+        params.progressbar = progressbar;
+        std::cout << "Potential already calculated. Using existing result." << std::endl;
+    }
+
+    if (!this->parent->ScompactReady){
+    PRISM::PRISM02(params);
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+
+        // perform copy
+        this->parent->pars = params;
+        // indicate that the potential is ready
+        this->parent->ScompactReady = true;
+    }
+    } else {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        params = this->parent->pars;
+        params.progressbar = progressbar;
+        std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
+    }
+    // setup necessary coordinates
+    PRISM::setupCoordinates_2(params);
+
+    // setup angles of detector and image sizes
+    PRISM::setupDetector(params);
+
+    // setup coordinates and indices for the beams
+    PRISM::setupBeams_2(params);
+
+    // setup Fourier coordinates for the S-matrix
+    PRISM::setupFourierCoordinates(params);
+
+    // initialize the output to the correct size for the output mode
+    PRISM::createStack_integrate(params);
+
+//		 perform some necessary setup transformations of the data
+    PRISM::transformIndices(params);
+
+    // initialize/compute the probes
+    PRISM::initializeProbes(params);
+}
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
