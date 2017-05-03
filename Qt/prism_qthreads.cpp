@@ -98,6 +98,7 @@ void ProbeThread::run(){
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
+    std::cout <<"emitting signal" <<std::endl;
     emit potentialCalculated();
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);

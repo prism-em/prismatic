@@ -549,7 +549,8 @@ void PRISMMainWindow::calculateProbe(){
     currently_calculated_Y = Y;
     ProbeThread *worker = new ProbeThread(this, X, Y, progressbar);
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
+    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+//    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
 
     connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -566,7 +567,6 @@ void PRISMMainWindow::calculateProbe(){
 void PRISMMainWindow::updatePotentialImage(){
     if (potentialReady){
             {
-//            QMutexLocker gatekeeper(&potentialLock);
             QMutexLocker gatekeeper(&dataLock);
 
             // create new empty image with appropriate dimensions
@@ -578,6 +578,9 @@ void PRISMMainWindow::updatePotentialImage(){
             this->ui->slider_slicemax->setMinimum(1);
             this->ui->slider_slicemin->setMaximum(pars.pot.get_dimk());
             this->ui->slider_slicemax->setMaximum(pars.pot.get_dimk());
+
+            // I set the value to 0 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
+            this->ui->slider_slicemax->setValue(0);
             this->ui->slider_slicemax->setValue(pars.pot.get_dimk());
         }
 }
