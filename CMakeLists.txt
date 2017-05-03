@@ -34,8 +34,9 @@ set(SOURCE_FILES
         src/PRISM03.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
-	src/projectedPotential.cpp
-        src/parseInput.cpp)
+	    src/projectedPotential.cpp
+        src/parseInput.cpp
+        src/utility.cpp)
 
 if (PRISM_ENABLE_GUI)
 set(GUI_SOURCE_FILES

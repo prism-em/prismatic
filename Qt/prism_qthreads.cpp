@@ -9,6 +9,7 @@
 #include "PRISM02.h"
 #include "PRISM03.h"
 #include "Multislice.h"
+#include "utility.h"
 #include <iostream>
 
 PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
@@ -81,6 +82,8 @@ parent(_parent), X(_X), Y(_Y), progressbar(_progressbar){
 
 void ProbeThread::run(){
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+//    PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
+
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     PRISM::configure(meta);
@@ -89,7 +92,9 @@ void ProbeThread::run(){
     std::cout <<"Potential Calculated" << std::endl;
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
+//        params_multi = params;
         this->parent->pars = params;
+//        this->parent->pars_multi = params_multi;
         this->parent->potentialReady = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
@@ -97,6 +102,7 @@ void ProbeThread::run(){
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
+//        params_multi = this->parent->pars;
         params.progressbar = progressbar;
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
@@ -108,18 +114,69 @@ void ProbeThread::run(){
 
         // perform copy
         this->parent->pars = params;
+//        this->parent->pars_multi = params_multi;
         // indicate that the potential is ready
         this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
+//        params_multi = this->parent->pars_multi;
         params.progressbar = progressbar;
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
 
-    if (!this->parent->probeSetupReady){
-        // setup necessary coordinates
+//    if (!this->parent->probeSetupReady){
+////        params_multi = this->parent->pars_multi;
+//        // setup necessary coordinates
+//        PRISM::setupCoordinates_2(params);
+
+//        // setup angles of detector and image sizes
+//        PRISM::setupDetector(params);
+
+//        // setup coordinates and indices for the beams
+//        PRISM::setupBeams_2(params);
+
+//        // setup Fourier coordinates for the S-matrix
+//        PRISM::setupFourierCoordinates(params);
+
+//        // initialize the output to the correct size for the output mode
+//        PRISM::createStack_integrate(params);
+
+//    //  perform some necessary setup transformations of the data
+//        PRISM::transformIndices(params);
+
+//        // initialize/compute the probes
+//        PRISM::initializeProbes(params);
+
+////        /////
+////        // setup coordinates and build propagators
+////        PRISM::setupCoordinates_multislice(params_multi);
+
+////        // setup detector coordinates and angles
+////        PRISM::setupDetector_multislice(params_multi);
+
+////        // create initial probes
+////        PRISM::setupProbes_multislice(params_multi);
+
+
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        // perform copy
+//        this->parent->pars = params;
+////        this->parent->pars_multi = params_multi;
+//        this->parent->probeSetupReady = true;
+//    } else  {
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        params = this->parent->pars;
+////        params_multi = this->parent->pars_multi;
+//        params.progressbar = progressbar;
+//    }
+
+    std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > > prism_probes, multislice_probes;
+
+PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
+//        params_multi = this->parent->pars_multi;
+//         setup necessary coordinates
         PRISM::setupCoordinates_2(params);
 
         // setup angles of detector and image sizes
@@ -134,21 +191,73 @@ void ProbeThread::run(){
         // initialize the output to the correct size for the output mode
         PRISM::createStack_integrate(params);
 
-    //		 perform some necessary setup transformations of the data
+    //  perform some necessary setup transformations of the data
         PRISM::transformIndices(params);
 
         // initialize/compute the probes
         PRISM::initializeProbes(params);
 
+        prism_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
+
+
+
+        // setup coordinates and build propagators
+        PRISM::setupCoordinates_multislice(params_multi);
+
+        // setup detector coordinates and angles
+        PRISM::setupDetector_multislice(params_multi);
+
+        // create initial probes
+        PRISM::setupProbes_multislice(params_multi);
+
+        // create transmission array
+        PRISM::createTransmission(params_multi);
+
+        // initialize output stack
+        PRISM::createStack(params_multi);
+
+        multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
+
+//        /////
+//        // setup coordinates and build propagators
+//        PRISM::setupCoordinates_multislice(params);
+
+//        // setup detector coordinates and angles
+//        PRISM::setupDetector_multislice(params);
+
+//        // create initial probes
+//        PRISM::setupProbes_multislice(params);
+
+//        // create transmission array
+//        PRISM::createTransmission(params);
+
+//        // initialize output stack
+//        PRISM::createStack(params);
+
+//        multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params, X, Y);
+
+        // CHANGE THIS!!
+        // !!!!
+        // !!!
+//        prism_probes = multislice_probes;
+
+        PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
+        for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
+            for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
+            debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
+            }
+        }
+        debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
+
+
         QMutexLocker gatekeeper(&this->parent->dataLock);
         // perform copy
         this->parent->pars = params;
+//        this->parent->pars_multi = params_multi;
         this->parent->probeSetupReady = true;
-    } else  {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-    }
+
+
+
 
 
 //    int a = 0;
@@ -157,11 +266,14 @@ void ProbeThread::run(){
 //    for (auto &i:mk)i=++a;
 //    for (auto &i:mr)i=++a;
 
-    std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > > prism_probes, multislice_probes;
-    prism_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
+//    std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > > prism_probes, multislice_probes;
+//    prism_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
 //    multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params, X, Y);
 
-    multislice_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
+//    multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
+//    prism_probes = upsamplePRISMProbe(prism_probes.first, multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi());
+    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
+    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
 
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
@@ -170,22 +282,40 @@ void ProbeThread::run(){
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
+
     for (auto i = 0; i < prism_probes.first.size(); ++i){
-        pr[i] =  std::abs(prism_probes.first[i]);
+        pr[i] =  std::log(std::abs(prism_probes.first[i]));
     }
     for (auto i = 0; i < prism_probes.second.size(); ++i){
-        pk[i] =  std::abs(prism_probes.second[i]);
+        pk[i] =  std::log(std::abs(prism_probes.second[i]));
     }
-    for (auto i = 0; i < prism_probes.first.size(); ++i){
-        mr[i] =  std::abs(multislice_probes.first[i]);
+    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+        mr[i] =  std::log(std::abs(multislice_probes.first[i]));
+    }
+    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+        mk[i] =  std::log(std::abs(multislice_probes.second[i]));
     }
     for (auto i = 0; i < prism_probes.second.size(); ++i){
-        mk[i] =  std::abs(multislice_probes.second[i]);
+        diffr[i] =  std::log(std::abs(pr[i] - mr[i]));
+        diffk[i] =  std::log(std::abs(pk[i] - mk[i]));
     }
-    for (auto i = 0; i < prism_probes.second.size(); ++i){
-        diffr[i] =  std::abs(pr[i] - mr[i]);
-        diffk[i] =  std::abs(pk[i] - mk[i]);
-    }
+
+//    for (auto i = 0; i < prism_probes.first.size(); ++i){
+//        pr[i] =  std::abs(prism_probes.first[i]);
+//    }
+//    for (auto i = 0; i < prism_probes.second.size(); ++i){
+//        pk[i] =  std::abs(prism_probes.second[i]);
+//    }
+//    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+//        mr[i] =  std::abs(multislice_probes.first[i]);
+//    }
+//    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+//        mk[i] =  std::abs(multislice_probes.second[i]);
+//    }
+//    for (auto i = 0; i < prism_probes.second.size(); ++i){
+//        diffr[i] =  std::abs(pr[i] - mr[i]);
+//        diffk[i] =  std::abs(pk[i] - mk[i]);
+//    }
     emit signalProbeR_PRISM(pr);
     emit signalProbeK_PRISM(pk);
     emit signalProbeR_Multislice(mr);

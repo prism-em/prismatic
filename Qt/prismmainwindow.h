@@ -129,6 +129,8 @@ private:
     Ui::PRISMMainWindow *ui;
     PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
     PRISM::Parameters<PRISM_FLOAT_PRECISION> pars;
+    PRISM::Parameters<PRISM_FLOAT_PRECISION> pars_multi;
+
 //    QGraphicsScene *potentialScene;
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
 //    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;

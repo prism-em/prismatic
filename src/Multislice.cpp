@@ -144,6 +144,7 @@ namespace PRISM{
 		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
 					return a / norm_constant;
 				});
+		cout << "pars.psiProbeInit.at(0,0) = " << pars.psiProbeInit.at(0,0) << endl;
 	}
 
 	void createTransmission(Parameters<PRISM_FLOAT_PRECISION>& pars){
@@ -164,7 +165,6 @@ namespace PRISM{
 	                                       const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
 	                                       const size_t ay,
 	                                       const size_t ax){
-//		cout << "integrating"<<endl;
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
@@ -197,11 +197,11 @@ namespace PRISM{
 		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_FORWARD, FFTW_MEASURE);
+		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
 		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      FFTW_BACKWARD, FFTW_MEASURE);
+		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
 		{
 			auto qxa_ptr = pars.qxa.begin();
