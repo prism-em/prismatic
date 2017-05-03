@@ -283,31 +283,31 @@ PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
 //if (parent->ui->checkBox_log->checked()){
-    for (auto i = 0; i < prism_probes.first.size(); ++i){
-        pr[i] =  std::log(std::abs(prism_probes.first[i]));
-    }
-    for (auto i = 0; i < prism_probes.second.size(); ++i){
-        pk[i] =  std::log(std::abs(prism_probes.second[i]));
-    }
-    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-        mr[i] =  std::log(std::abs(multislice_probes.first[i]));
-    }
-    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-        mk[i] =  std::log(std::abs(multislice_probes.second[i]));
-    }
-//} else{
 //    for (auto i = 0; i < prism_probes.first.size(); ++i){
-//        pr[i] =  std::abs(prism_probes.first[i]);
+//        pr[i] =  std::log(std::abs(prism_probes.first[i]));
 //    }
 //    for (auto i = 0; i < prism_probes.second.size(); ++i){
-//        pk[i] = std::abs(prism_probes.second[i]);
+//        pk[i] =  std::log(std::abs(prism_probes.second[i]));
 //    }
 //    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-//        mr[i] =  std::abs(multislice_probes.first[i]);
+//        mr[i] =  std::log(std::abs(multislice_probes.first[i]));
 //    }
 //    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-//        mk[i] =  std::abs(multislice_probes.second[i]);
+//        mk[i] =  std::log(std::abs(multislice_probes.second[i]));
 //    }
+//} else{
+    for (auto i = 0; i < prism_probes.first.size(); ++i){
+        pr[i] =  std::abs(prism_probes.first[i]);
+    }
+    for (auto i = 0; i < prism_probes.second.size(); ++i){
+        pk[i] = std::abs(prism_probes.second[i]);
+    }
+    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+        mr[i] =  std::abs(multislice_probes.first[i]);
+    }
+    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+        mk[i] =  std::abs(multislice_probes.second[i]);
+    }
 //}
 
     for (auto i = 0; i < prism_probes.second.size(); ++i){
