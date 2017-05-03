@@ -627,9 +627,9 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                                                                      Qt::KeepAspectRatio)));
 
         probeImage = potentialImage;
-//        ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_probeInteractive->width(),
-//                                                                                            ui->lbl_image_probeInteractive->height(),
-//                                                                                            Qt::KeepAspectRatio)));
+        ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage( probeImage.scaled(ui->lbl_image_probeInteractive->width(),
+                                                                                            ui->lbl_image_probeInteractive->height(),
+                                                                                            Qt::KeepAspectRatio)));
     }
 }
 
@@ -941,9 +941,17 @@ void PRISMMainWindow::redrawImages(){
     ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mr->width(),
                                                                               ui->lbl_image_probe_mr->height(),
                                                                               Qt::KeepAspectRatio)));
+    ui->lbl_image_probeDifferenceK->setPixmap(QPixmap::fromImage(probeImage_diffk.scaled(ui->lbl_image_probeDifferenceK->width(),
+                                                                                         ui->lbl_image_probeDifferenceK->height(),
+                                                                                         Qt::KeepAspectRatio)));
+
+    ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(probeImage_diffr.scaled(ui->lbl_image_probeDifferenceR->width(),
+                                                                                         ui->lbl_image_probeDifferenceR->height(),
+                                                                                         Qt::KeepAspectRatio)));
     ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
                                                                           ui->lbl_image_output->height(),
                                                                           Qt::KeepAspectRatio)));
+
     std::cout << "ui->lbl_image_output->width() = " << ui->lbl_image_output->width() << std::endl;
     std::cout << "ui->lbl_image_output->height() = " << ui->lbl_image_output->height() << std::endl;
 

@@ -282,7 +282,7 @@ PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
-
+//if (parent->ui->checkBox_log->checked()){
     for (auto i = 0; i < prism_probes.first.size(); ++i){
         pr[i] =  std::log(std::abs(prism_probes.first[i]));
     }
@@ -295,9 +295,24 @@ PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
     for (auto i = 0; i < multislice_probes.second.size(); ++i){
         mk[i] =  std::log(std::abs(multislice_probes.second[i]));
     }
+//} else{
+//    for (auto i = 0; i < prism_probes.first.size(); ++i){
+//        pr[i] =  std::abs(prism_probes.first[i]);
+//    }
+//    for (auto i = 0; i < prism_probes.second.size(); ++i){
+//        pk[i] = std::abs(prism_probes.second[i]);
+//    }
+//    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+//        mr[i] =  std::abs(multislice_probes.first[i]);
+//    }
+//    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+//        mk[i] =  std::abs(multislice_probes.second[i]);
+//    }
+//}
+
     for (auto i = 0; i < prism_probes.second.size(); ++i){
-        diffr[i] =  std::log(std::abs(pr[i] - mr[i]));
-        diffk[i] =  std::log(std::abs(pk[i] - mk[i]));
+        diffr[i] =  (std::abs(pr[i] - mr[i]));
+        diffk[i] =  (std::abs(pk[i] - mk[i]));
     }
 
 //    for (auto i = 0; i < prism_probes.first.size(); ++i){
@@ -308,7 +323,7 @@ PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
 //    }
 //    for (auto i = 0; i < multislice_probes.first.size(); ++i){
 //        mr[i] =  std::abs(multislice_probes.first[i]);
-//    }
+//    }prism_probes
 //    for (auto i = 0; i < multislice_probes.second.size(); ++i){
 //        mk[i] =  std::abs(multislice_probes.second[i]);
 //    }
