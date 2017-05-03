@@ -130,6 +130,75 @@ namespace PRISM {
 	}
 
 
+	std::pair<Array2D< std::complex<PRISM_FLOAT_PRECISION> >, Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
+	getSinglePRISMProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp){
+
+		Array2D< std::complex<PRISM_FLOAT_PRECISION> > realspace_probe;
+		Array2D< std::complex<PRISM_FLOAT_PRECISION> > kspace_probe;
+
+		Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
+				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+		PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                              FFTW_FORWARD, FFTW_ESTIMATE);
+		gatekeeper.unlock();
+		const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
+		const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
+
+		// setup some coordinates
+		PRISM_FLOAT_PRECISION x0 = xp / pars.pixelSizeOutput[1];
+		PRISM_FLOAT_PRECISION y0 = yp / pars.pixelSizeOutput[0];
+		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
+
+		// the second call to fmod here is to make sure the result is positive
+		transform(x.begin(), x.end(), x.begin(), [&pars](PRISM_FLOAT_PRECISION &a) {
+			return fmod((PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1] +
+			            fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]),
+			            (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1]);
+
+		});
+		Array1D<PRISM_FLOAT_PRECISION> y = pars.yVec + round(y0);
+		transform(y.begin(), y.end(), y.begin(), [&pars](PRISM_FLOAT_PRECISION &a) {
+			return fmod((PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0] +
+			            fmod(a, (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]),
+			            (PRISM_FLOAT_PRECISION) pars.imageSizeOutput[0]);
+
+		});
+		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
+				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+
+		// TODO: clean up this loop and handle FP
+		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
+		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
+			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
+			PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
+
+			if (abs(pars.psiProbeInit.at(yB, xB)) > 0) {
+				PRISM_FLOAT_PRECISION q0_0 = pars.qxaReduce.at(yB, xB);
+				PRISM_FLOAT_PRECISION q0_1 = pars.qyaReduce.at(yB, xB);
+				std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(
+						-2 * pi * i * (q0_0 * (xp + pars.xTiltShift) +
+						               q0_1 * (yp + pars.yTiltShift)));
+				const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
+				auto psi_ptr = psi.begin();
+				for (auto j = 0; j < y.size(); ++j) {
+					for (auto i = 0; i < x.size(); ++i) {
+						*psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+					}
+				}
+			}
+		}
+		realspace_probe = psi;
+		PRISM_FFTW_EXECUTE(plan);
+		kspace_probe = psi;
+		gatekeeper.lock();
+		cout <<"destroying plan"<<endl;
+		PRISM_FFTW_DESTROY_PLAN(plan);
+		gatekeeper.unlock();
+		return std::make_pair(realspace_probe, kspace_probe);
+	}
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars){
 
 		// launch threads to compute results for batches of xp, yp

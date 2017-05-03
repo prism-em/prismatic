@@ -36,7 +36,8 @@ namespace PRISM{
 	                             const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
 	                             const size_t ay,
 	                             const size_t ax);
-
+	std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
+	getSingleMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp);
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
                                 const size_t ay,
                                 const size_t ax,

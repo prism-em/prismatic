@@ -32,7 +32,8 @@ namespace PRISM {
 	void setupFourierCoordinates(Parameters<PRISM_FLOAT_PRECISION> &pars);
 	void transformIndices(Parameters<PRISM_FLOAT_PRECISION> &pars);
 	void initializeProbes(Parameters<PRISM_FLOAT_PRECISION> &pars);
-
+	std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
+	getSinglePRISMProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp);
 	void buildSignal_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars,
 						 const size_t &ay,
 						 const size_t &ax,
@@ -40,6 +41,7 @@ namespace PRISM {
 						 Array2D<std::complex<PRISM_FLOAT_PRECISION> >& psi);
 
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
+
 	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
 }
 #endif //PRISM_PRISM03_H

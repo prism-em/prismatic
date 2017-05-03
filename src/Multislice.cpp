@@ -179,13 +179,55 @@ namespace PRISM{
 		auto idx = alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
-//				if(ax==7&ay==7)cout<<"*counts = " << *counts << endl;
 				pars.output.at(ay,ax,(*idx)-1) += *counts;
 			}
 			++idx;
 		};
-//		cout << "done"<<endl;
 	}
+
+	std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
+	getSingleMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp){
+
+		Array2D< std::complex<PRISM_FLOAT_PRECISION> > realspace_probe;
+		Array2D< std::complex<PRISM_FLOAT_PRECISION> > kspace_probe;
+		PRISM_FFTW_INIT_THREADS();
+		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                                      FFTW_FORWARD, FFTW_MEASURE);
+		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		                                                      FFTW_BACKWARD, FFTW_MEASURE);
+		gatekeeper.unlock();
+		{
+			auto qxa_ptr = pars.qxa.begin();
+			auto qya_ptr = pars.qya.begin();
+			for (auto& p:psi)p*=exp(-2 * pi * i * ( (*qxa_ptr++)*xp +
+			                                        (*qya_ptr++)*yp));
+		}
+
+		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+			PRISM_FFTW_EXECUTE(plan_inverse);
+			complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
+			for (auto& p:psi)p *= (*t_ptr++); // transmit
+			PRISM_FFTW_EXECUTE(plan_forward);
+			auto p_ptr = pars.prop.begin();
+			for (auto& p:psi)p *= (*p_ptr++); // propagate
+			for (auto& p:psi)p /= psi.size(); // scale FFT
+		}
+		kspace_probe = psi;
+		PRISM_FFTW_EXECUTE(plan_inverse);
+		realspace_probe = psi;
+		gatekeeper.lock();
+		PRISM_FFTW_DESTROY_PLAN(plan_forward);
+		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+		PRISM_FFTW_CLEANUP_THREADS();
+		return std::make_pair(realspace_probe, kspace_probe);
+	};
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                            const size_t ay,
 	                            const size_t ax,

@@ -550,6 +550,8 @@ void PRISMMainWindow::calculateProbe(){
     connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+    connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+    connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     worker->start();
 }
 
@@ -623,6 +625,11 @@ void PRISMMainWindow::updatePotentialDisplay(){
         ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
                                                                                      ui->lbl_image_potential->height(),
                                                                                      Qt::KeepAspectRatio)));
+
+        probeImage = potentialImage;
+//        ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_probeInteractive->width(),
+//                                                                                            ui->lbl_image_probeInteractive->height(),
+//                                                                                            Qt::KeepAspectRatio)));
     }
 }
 
@@ -638,6 +645,7 @@ void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
     ui->lbl_image_probe_pk->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probe_pk->width(),
                                                                           ui->lbl_image_probe_pk->height(),
                                                                           Qt::KeepAspectRatio)));
+    probeImage_pk_float = arr;
 }
 void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     QImage image_tmp = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
@@ -651,6 +659,7 @@ void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
     ui->lbl_image_probe_pr->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probe_pr->width(),
                                                                           ui->lbl_image_probe_pr->height(),
                                                                           Qt::KeepAspectRatio)));
+    probeImage_pr_float = arr;
 }
 void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     QImage image_tmp = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
@@ -664,6 +673,7 @@ void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
     ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probe_mk->width(),
                                                                           ui->lbl_image_probe_mk->height(),
                                                                           Qt::KeepAspectRatio)));
+    probeImage_mk_float = arr;
 }
 void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     QImage image_tmp = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
@@ -677,6 +687,36 @@ void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
     ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probe_mr->width(),
                                                                           ui->lbl_image_probe_mr->height(),
                                                                           Qt::KeepAspectRatio)));
+    probeImage_mr_float = arr;
+}
+
+void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
+    QImage image_tmp = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
+    auto contrast = std::minmax_element(arr.begin(), arr.end());
+    for (auto j = 0; j < arr.get_dimj(); ++j){
+        for (auto i = 0; i < arr.get_dimi(); ++i){
+            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+            image_tmp.setPixel(j, i, qRgba(val,val,val,255));
+        }
+    }
+    ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probeDifferenceR->width(),
+                                                                                  ui->lbl_image_probeDifferenceR->height(),
+                                                                                  Qt::KeepAspectRatio)));
+    probeImage_diffr_float = arr;
+}
+void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
+    QImage image_tmp = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
+    auto contrast = std::minmax_element(arr.begin(), arr.end());
+    for (auto j = 0; j < arr.get_dimj(); ++j){
+        for (auto i = 0; i < arr.get_dimi(); ++i){
+            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+            image_tmp.setPixel(j, i, qRgba(val,val,val,255));
+        }
+    }
+    ui->lbl_image_probeDifferenceK->setPixmap(QPixmap::fromImage(image_tmp.scaled(ui->lbl_image_probeDifferenceK->width(),
+                                                                                  ui->lbl_image_probeDifferenceK->height(),
+                                                                                  Qt::KeepAspectRatio)));
+    probeImage_diffk_float = arr;
 }
 
 void PRISMMainWindow::updateOutputImage(){

@@ -101,7 +101,8 @@ public slots:
     void updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-
+    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
@@ -153,10 +154,18 @@ private:
     QImage probeImage_pk;
     QImage probeImage_mr;
     QImage probeImage_mk;
+    QImage probeImage_diffr;
+    QImage probeImage_diffk;
     QImage outputImage;
 
     PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
     PRISM::Array2D<PRISM_FLOAT_PRECISION> outputImage_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_pr_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_pk_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_mr_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_mk_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_diffr_float;
+    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_diffk_float;
 
     PRISM_FLOAT_PRECISION contrast_potentialMin;
     PRISM_FLOAT_PRECISION contrast_potentialMax;
