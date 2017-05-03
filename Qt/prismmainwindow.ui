@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -274,6 +274,12 @@
           </item>
           <item>
            <widget class="Line" name="line_4">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -282,12 +288,21 @@
           <item>
            <widget class="QLabel" name="label_39">
             <property name="text">
-             <string>1-R^2 = </string>
+             <string>1-R^2 = 0</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="Line" name="line">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
+            <property name="midLineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -296,12 +311,18 @@
           <item>
            <widget class="QLabel" name="label_42">
             <property name="text">
-             <string>R = </string>
+             <string>R = 0</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="Line" name="line_2">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -310,7 +331,7 @@
           <item>
            <widget class="QLabel" name="label_40">
             <property name="text">
-             <string>Pearson Correlation = </string>
+             <string>Pearson Correlation = 1 </string>
             </property>
             <property name="wordWrap">
              <bool>false</bool>
@@ -319,6 +340,12 @@
           </item>
           <item>
            <widget class="Line" name="line_3">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -382,6 +409,19 @@
              <string>0.0</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -630,6 +670,13 @@
            <widget class="QCheckBox" name="checkBox_log">
             <property name="text">
              <string>Log Scale</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_zoomProbe">
+            <property name="text">
+             <string>Zoom Probe Display</string>
             </property>
            </widget>
           </item>

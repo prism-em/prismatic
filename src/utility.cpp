@@ -16,8 +16,8 @@ namespace PRISM {
 
 		buffer_probe = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{dimj, dimi}});
 
-		for (auto j = 0; j < buffer_probe.get_dimj(); ++j) {
-			for (auto i = 0; i < buffer_probe.get_dimi(); ++i) {
+		for (auto j = 0; j < probe.get_dimj(); ++j) {
+			for (auto i = 0; i < probe.get_dimi(); ++i) {
 				buffer_probe.at(j, i) = probe.at(j, i);
 			}
 		}

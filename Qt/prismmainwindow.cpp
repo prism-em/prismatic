@@ -27,7 +27,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     outputReady(false),
     saveProjectedPotential(false),
     probeSetupReady(false),
-    potentialImage(QImage())
+    potentialImage(QImage()),
+    currently_calculated_X(0.0),
+    currently_calculated_Y(0.0)
 {
     qRegisterMetaType<PRISM::Array2D< PRISM_FLOAT_PRECISION> >("PRISM::Array2D<PRISM_FLOAT_PRECISION>");
 	// build Qt generated interface
@@ -543,8 +545,12 @@ void PRISMMainWindow::calculateProbe(){
     progressbar->show();
     PRISM_FLOAT_PRECISION X = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeX->text().toDouble();
     PRISM_FLOAT_PRECISION Y = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeY->text().toDouble();
+    currently_calculated_X = X;
+    currently_calculated_Y = Y;
     ProbeThread *worker = new ProbeThread(this, X, Y, progressbar);
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
+
     connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
@@ -629,6 +635,40 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                                                                      Qt::KeepAspectRatio)));
 
         probeImage = potentialImage;
+        PRISM_FLOAT_PRECISION xc, yc;
+        std::cout <<"currently_calculated_X = " <<currently_calculated_X << std::endl;
+        xc = currently_calculated_X / pars.pixelSize[1];
+        yc = currently_calculated_Y / pars.pixelSize[0];
+
+        long xc_im, yc_im;
+        xc_im = (xc / pars.imageSize[1]) * probeImage.height();
+        yc_im = (yc / pars.imageSize[0]) * probeImage.width();
+
+
+        const long linehalfwidth = 1;
+        const long linelength = 10;
+        std::cout << "test" << std::endl;
+        for (auto ypix = -linehalfwidth; ypix <= linehalfwidth; ++ypix){
+            for (auto x = -linelength; x <= linelength; ++x){
+                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
+             probeImage.setPixel((probeImage.width()  + (ypix + yc_im) % probeImage.width()) % probeImage.width(),
+                                 (probeImage.height() + (x + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
+            }
+        }
+
+        for (auto xpix = -linehalfwidth; xpix <= linehalfwidth; ++xpix){
+            for (auto y = -linelength; y <= linelength; ++y){
+             probeImage.setPixel((probeImage.width()  + (y + yc_im) % probeImage.width()) % probeImage.width(),
+                                 (probeImage.height() + (xpix + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
+            }
+        }
+
+//        for (auto xpix = -linehalfwidth; xpix <= linehalfwidth; ++xpix){
+//            for (auto y = 0; y < linelength; ++y){
+//             probeImage.setPixel(xpix,y, qRgba(0, 255, 255, 100));
+//            }
+//        }
+
         ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage( probeImage.scaled(ui->lbl_image_probeInteractive->width(),
                                                                                             ui->lbl_image_probeInteractive->height(),
                                                                                             Qt::KeepAspectRatio)));
@@ -936,11 +976,11 @@ void PRISMMainWindow::redrawImages(){
                                                                               ui->lbl_image_probe_pr->height(),
                                                                               Qt::KeepAspectRatio)));
 
-    ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(probeImage_mr.scaled(ui->lbl_image_probe_mk->width(),
+    ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mk->width(),
                                                                               ui->lbl_image_probe_mk->height(),
                                                                               Qt::KeepAspectRatio)));
 
-    ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mr->width(),
+    ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mr.scaled(ui->lbl_image_probe_mr->width(),
                                                                               ui->lbl_image_probe_mr->height(),
                                                                               Qt::KeepAspectRatio)));
     ui->lbl_image_probeDifferenceK->setPixmap(QPixmap::fromImage(probeImage_diffk.scaled(ui->lbl_image_probeDifferenceK->width(),

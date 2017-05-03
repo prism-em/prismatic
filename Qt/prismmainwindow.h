@@ -173,6 +173,8 @@ private:
     PRISM_FLOAT_PRECISION contrast_potentialMax;
     PRISM_FLOAT_PRECISION contrast_outputMin;
     PRISM_FLOAT_PRECISION contrast_outputMax;
+    PRISM_FLOAT_PRECISION currently_calculated_X;
+    PRISM_FLOAT_PRECISION currently_calculated_Y;
 //    QImage potenetialImage;
 
 };

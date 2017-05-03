@@ -219,12 +219,43 @@ namespace PRISM{
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
 			for (auto& p:psi)p /= psi.size(); // scale FFT
 		}
-		kspace_probe = psi;
-		PRISM_FFTW_EXECUTE(plan_inverse);
-		realspace_probe = psi;
+
+
+		// output the region of the probe not masked by the anti-aliasing filter
+		Array2D<complex<PRISM_FLOAT_PRECISION> > psi_small = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{psi.get_dimj()/2, psi.get_dimi()/2}});
+
+
+		{
+			long offset_x = psi.get_dimi() / 4;
+			long offset_y = psi.get_dimj() / 4;
+			long ndimy = (long) psi.get_dimj();
+			long ndimx = (long)psi.get_dimi();
+			for (long y = 0; y < psi.get_dimj() / 2; ++y) {
+				for (long x = 0; x < psi.get_dimi() / 2; ++x) {
+					psi_small.at(y, x) = psi.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+					                            ((x - offset_x) % ndimx + ndimx) % ndimx);
+				}
+			}
+		}
+		psi_small = fftshift2(psi_small);
+		kspace_probe = psi_small;
+		gatekeeper.lock();
+		PRISM_FFTW_PLAN plan_inverse_small = PRISM_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
+		                                                            reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		                                                            reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		                                                            FFTW_BACKWARD, FFTW_ESTIMATE);
+		gatekeeper.unlock();
+		PRISM_FFTW_EXECUTE(plan_inverse_small);
+		realspace_probe = psi_small;
+//		kspace_probe = psi;
+//		PRISM_FFTW_EXECUTE(plan_inverse);
+//		realspace_probe = psi;
+
+
 		gatekeeper.lock();
 		PRISM_FFTW_DESTROY_PLAN(plan_forward);
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+		PRISM_FFTW_DESTROY_PLAN(plan_inverse_small);
 		PRISM_FFTW_CLEANUP_THREADS();
 		return std::make_pair(realspace_probe, kspace_probe);
 	};

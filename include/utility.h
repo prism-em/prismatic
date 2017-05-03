@@ -38,6 +38,18 @@ namespace PRISM {
 		return result;
 	};
 
+	template<class T>
+	Array2D <T> fftshift2(Array2D<T> arr) {
+		Array2D<T> result(arr);
+		const long sj = std::floor(arr.get_dimj() / 2);
+		const long si = std::floor(arr.get_dimi() / 2);
+		for (auto j = 0; j < arr.get_dimj(); ++j) {
+			for (auto i = 0; i < arr.get_dimi(); ++i) {
+				result.at((j + sj) % arr.get_dimj(),(i + si) % arr.get_dimi()) = arr.at(j,i);
+			}
+		}
+		return result;
+	};
 
 	template<class T>
 	std::string generateFilename(const Parameters <T> &pars, const size_t ay, const size_t ax) {
