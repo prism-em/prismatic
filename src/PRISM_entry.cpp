@@ -25,10 +25,10 @@ namespace PRISM{
 //		prism_pars.pot.toMRC_f("debug_potential.mrc");
 		PRISM02(prism_pars);
 
-//		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
-//		auto tmp_ptr = tmp.begin();
-//		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
-//		tmp.toMRC_f("debug_scompact.mrc");
+		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
+		auto tmp_ptr = tmp.begin();
+		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
+		tmp.toMRC_f("debug_scompact.mrc");
 
 		PRISM03(prism_pars);
 

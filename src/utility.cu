@@ -390,60 +390,6 @@ __global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
 
 
 
-//
-//template <size_t BlockSizeX>
-//__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
-//                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
-//                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
-//                             const long *z_ds,
-//                             const long* y_ds,
-//                             const size_t numberBeams,
-//                             const size_t dimk_S,
-//                             const size_t dimj_S,
-//                             const size_t dimj_psi,
-//                             const size_t dimi_psi) {
-//	// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
-//	// 2D array of reduced values in psi
-//	extern __shared__ cuFloatComplex scaled_values[];
-//	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-//
-//	if (idx < numberBeams) {
-//		int y = blockIdx.y;
-//		int z = blockIdx.z;
-//		scaled_values[idx] = cuCmulf(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx], phaseCoeffs_ds[idx]);
-//		__syncthreads();
-//		PRISM_CUDA_COMPLEX_FLOAT s{0,0};
-//		if (idx == 0){
-//			for (int i = 0; i < numberBeams; ++i){
-//				s = cuCaddf(s, scaled_values[i]);
-////				s.x += scaled_values[i].x;
-////				s.y += scaled_values[i].y;
-//			}
-//			psi_ds[z*dimi_psi + y] = s;
-////			psi_ds[z*dimi_psi + y] = scaled_values[0];
-//			//psi_ds[z*dimi_psi + y] = phaseCoeffs_ds[0];
-////			psi_ds[z*dimi_psi + y] = permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + idx];
-////			psi_ds[z*dimi_psi + y] = make_cuFloatComplex(z_ds[z]*numberBeams*dimj_S, y_ds[y]*numberBeams );
-//		}
-//	}
-//
-//}
-
-
-//// integrate computed intensities radially
-//__global__ void integrateDetector(const float* psi_intensity_ds,
-//                                  const float* alphaInd_d,
-//                                  const size_t N,
-//                                  const size_t num_integration_bins) {
-//	extern __shared__ float integratedOutput[];
-//	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-//	if (idx < N) {
-//		size_t alpha = (size_t)alphaInd_d[idx];
-//		if (alpha <= num_integration_bins)
-//			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-//			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-//	}
-//}
 
 // integrate computed intensities radially
 __global__ void integrateDetector(const float* psi_intensity_ds,
@@ -485,42 +431,100 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
                                 const size_t& dimj,
                                 const size_t& dimi,
                                 const cudaStream_t& stream,
-                                const long& scale){
+                                const long& scale) {
 
-    //save 4D output if applicable
-    if (pars.meta.save4DOutput) {
+	//save 4D output if applicable
+	if (pars.meta.save4DOutput) {
 		// This section could be improved. It currently makes a new 2D array, copies to it, and
 		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
 		// memory isn't pinned, so the memcpy is not asynchronous.
-        std::string section4DFilename = generateFilename(pars, ay, ax);
-        PRISM::Array2D<PRISM_FLOAT_PRECISION> currentImage = PRISM::zeros_ND<2,PRISM_FLOAT_PRECISION>(
+		std::string section4DFilename = generateFilename(pars, ay, ax);
+		PRISM::Array2D<PRISM_FLOAT_PRECISION> currentImage = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-        cudaErrchk(cudaMemcpyAsync(&currentImage[0],
-								   psi_intensity_ds,
-								   pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION),
-								   cudaMemcpyDeviceToHost,
-								   stream));
+		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
+		                           psi_intensity_ds,
+		                           pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION),
+		                           cudaMemcpyDeviceToHost,
+		                           stream));
 		currentImage.toMRC_f(section4DFilename.c_str());
-    }
+	}
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 
 
 	size_t num_integration_bins = pars.detectorAngles.size();
-	setAll<<< (num_integration_bins - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, 0, num_integration_bins);
-	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, alphaInd_d, integratedOutput_ds, dimj*dimi, num_integration_bins);
-	if (scale != 1)multiply_arr_scalar<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(integratedOutput_ds, scale, num_integration_bins);
-//	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISM_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
-
+	setAll << < (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	                                                                            (integratedOutput_ds, 0, num_integration_bins);
+//	if (ax == 0 & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
+//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "set 0 integratedOutput_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
+//
+//	if (ax == 0 & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
+//			cudaMemcpy(&ans, alphaInd_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "alphaInd_d[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
+//
+//	if (ax == 0 & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 98; i < pars.detectorAngles.size(); ++i) {
+//			cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "psi_intensity_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
+	integrateDetector << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	                                                                              (psi_intensity_ds, alphaInd_d, integratedOutput_ds,
+			                                                                              dimj * dimi, num_integration_bins);
+//	if (ax == 0 & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 97; i < pars.detectorAngles.size(); ++i) {
+//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "after integrate integratedOutput_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
+//	if (scale != 1) {
+//		if (ax==0 & ay==0)std::cout << "scale = " << scale << std::endl;
+		multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+                                 (integratedOutput_ds, scale, num_integration_bins);
+//	}
+////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISM_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
+//
+//	if (ax == 0 & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
+//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "scaled integratedOutput_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
 	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
-	cudaErrchk(cudaMemcpyAsync(output_ph,integratedOutput_ds,
+	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
 	                           num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
 	                           cudaMemcpyDeviceToHost, stream));
 
 //	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	cudaErrchk(cudaStreamSynchronize(stream));
 	//const size_t stack_start_offset = ay*pars.output.get_dimk()*pars.output.get_dimj()+ ax*pars.output.get_dimj();
-	const size_t stack_start_offset = ay*pars.output.get_dimj()*pars.output.get_dimi()+ ax*pars.output.get_dimi();
+	const size_t stack_start_offset =
+			ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
+
+//	if (ax == 0 & ay == 0) {
+//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
+//			std::cout << "output[" << i << "] = " << pars.output[i] << std::endl;
+//
+//
+//		std::cout <<" pars.detectorAngles.size() = " <<  pars.detectorAngles.size()<< std::endl;
+//	}
 }
 // TODO: double version of above
 
