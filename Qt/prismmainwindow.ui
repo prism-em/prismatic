@@ -988,6 +988,11 @@
                </item>
                <item>
                 <widget class="QLabel" name="label_cellDim">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Cell Dim.</string>
                  </property>
@@ -998,6 +1003,11 @@
                </item>
                <item>
                 <widget class="QLabel" name="label_6">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Tile Cells</string>
                  </property>
@@ -1020,6 +1030,11 @@
                    <width>16777215</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
                  </property>
                  <property name="text">
                   <string>X</string>
@@ -1085,6 +1100,11 @@
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Y</string>
                  </property>
@@ -1145,6 +1165,11 @@
                    <width>16777215</width>
                    <height>30</height>
                   </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
                  </property>
                  <property name="text">
                   <string>Z</string>
@@ -1208,6 +1233,11 @@
                </item>
                <item>
                 <widget class="QLabel" name="lbl_angstrom">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>A</string>
                  </property>
@@ -1218,6 +1248,11 @@
                </item>
                <item>
                 <widget class="QLabel" name="label_7">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>UCs</string>
                  </property>
@@ -1296,6 +1331,11 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Pixel Size (A)</string>
                    </property>
@@ -1311,7 +1351,7 @@
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>20</width>
+                     <width>40</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1341,6 +1381,11 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Energy (keV)</string>
                    </property>
@@ -1356,7 +1401,7 @@
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>20</width>
+                     <width>40</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1386,6 +1431,11 @@
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Potential Bound (A)</string>
                    </property>
@@ -1401,7 +1451,7 @@
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>20</width>
+                     <width>40</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1460,7 +1510,7 @@
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>20</width>
+                     <width>40</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1484,6 +1534,11 @@
                 <layout class="QHBoxLayout" name="horizontalLayout_35">
                  <item>
                   <widget class="QLabel" name="label_10">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Probe Defocus (units?)</string>
                    </property>
@@ -1531,6 +1586,11 @@
                   <layout class="QVBoxLayout" name="verticalLayout_29">
                    <item>
                     <widget class="QLabel" name="label_44">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>C1</string>
                      </property>
@@ -1538,6 +1598,11 @@
                    </item>
                    <item>
                     <widget class="QLabel" name="label_45">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>C3</string>
                      </property>
@@ -1545,6 +1610,11 @@
                    </item>
                    <item>
                     <widget class="QLabel" name="label_43">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>C5</string>
                      </property>
@@ -1575,7 +1645,10 @@
                       </size>
                      </property>
                      <property name="layoutDirection">
-                      <enum>Qt::RightToLeft</enum>
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                     </widget>
                    </item>
@@ -1600,7 +1673,10 @@
                       </size>
                      </property>
                      <property name="layoutDirection">
-                      <enum>Qt::RightToLeft</enum>
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                     </widget>
                    </item>
@@ -1625,7 +1701,10 @@
                       </size>
                      </property>
                      <property name="layoutDirection">
-                      <enum>Qt::RightToLeft</enum>
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                     </widget>
                    </item>
@@ -1645,6 +1724,11 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>l = 0.1 A</string>
                  </property>
@@ -1660,6 +1744,11 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
                  </property>
                  <property name="text">
                   <string>a_max = 24</string>
@@ -1678,6 +1767,11 @@
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string># of FP</string>
@@ -1736,6 +1830,11 @@
                      <height>30</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Slice
 Thickness (A)</string>
@@ -1758,7 +1857,7 @@ Thickness (A)</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>20</width>
+                     <width>40</width>
                      <height>20</height>
                     </size>
                    </property>
@@ -1782,6 +1881,11 @@ Thickness (A)</string>
                 <layout class="QHBoxLayout" name="horizontalLayout_38">
                  <item>
                   <widget class="QLabel" name="label_11">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Detector Angle Step (mrads)</string>
                    </property>
@@ -1845,6 +1949,11 @@ Thickness (A)</string>
                    <height>30</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>PRISM Interpolation factors</string>
                  </property>
@@ -1861,6 +1970,11 @@ Thickness (A)</string>
                    <height>40</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Probe
 Step (A)</string>
@@ -1875,6 +1989,11 @@ Step (A)</string>
                </item>
                <item>
                 <widget class="QLabel" name="label_5">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Probe Tilt</string>
                  </property>
@@ -1882,6 +2001,11 @@ Step (A)</string>
                </item>
                <item>
                 <widget class="QLabel" name="label_28">
+                 <property name="font">
+                  <font>
+                   <pointsize>11</pointsize>
+                  </font>
+                 </property>
                  <property name="text">
                   <string>Scan Window</string>
                  </property>
@@ -1908,6 +2032,11 @@ Step (A)</string>
                  </property>
                  <item>
                   <widget class="QLabel" name="label_13">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>X</string>
                    </property>
@@ -2010,6 +2139,11 @@ Step (A)</string>
                   <layout class="QHBoxLayout" name="horizontalLayout_39">
                    <item>
                     <widget class="QLabel" name="label_33">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Min</string>
                      </property>
@@ -2017,6 +2151,11 @@ Step (A)</string>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_35">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Max</string>
                      </property>
@@ -2036,6 +2175,11 @@ Step (A)</string>
                  </property>
                  <item>
                   <widget class="QLabel" name="label_14">
+                   <property name="font">
+                    <font>
+                     <pointsize>11</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Y</string>
                    </property>
@@ -2138,6 +2282,11 @@ Step (A)</string>
                   <layout class="QHBoxLayout" name="horizontalLayout_40">
                    <item>
                     <widget class="QLabel" name="label_36">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Min</string>
                      </property>
@@ -2145,6 +2294,11 @@ Step (A)</string>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_34">
+                     <property name="font">
+                      <font>
+                       <pointsize>11</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Max</string>
                      </property>
