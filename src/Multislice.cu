@@ -610,7 +610,7 @@ namespace PRISM{
 
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
-			cudaErrchk(cudaMalloc((void **) &trans_ds[s],            pars.transmission.size()               * sizeof(pars.transmission[0])));
+			cudaErrchk(cudaMalloc((void **) &trans_ds[s],            pars.transmission.get_dimj() * pars.transmission.get_dimi() * sizeof(pars.transmission[0])));
 			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
 			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
