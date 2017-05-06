@@ -134,7 +134,8 @@ namespace PRISM{
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];
 		    try {
-			    atoms = readAtoms(meta.filename_atoms);
+//			    atoms = readAtoms(meta.filename_atoms);
+				atoms = readAtoms_XYZ(meta.filename_atoms);
 		    }
 		    catch (const std::runtime_error &e) {
 			    std::cout << "PRISM: Error opening " << meta.filename_atoms << std::endl;
