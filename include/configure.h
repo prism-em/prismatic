@@ -25,7 +25,6 @@
 #endif
 
 namespace PRISM {
-
 	using entry_func     = Parameters<PRISM_FLOAT_PRECISION>  (*)(Metadata<PRISM_FLOAT_PRECISION>&);
 	using ms_output_func = void (*)(Parameters<PRISM_FLOAT_PRECISION>&);
 

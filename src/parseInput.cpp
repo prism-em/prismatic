@@ -26,6 +26,7 @@ namespace PRISM {
                 "* --pixel-size (-p) pixel_size : size of simulation pixel size\n"
 		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins"
                 "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)\n"
+		        "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively\n"
                 "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice\n"
                 "* --energy (-E) value : the energy of the electron beam (in keV)\n"
                 "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)\n"
@@ -278,49 +279,33 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_ucx(Metadata<PRISM_FLOAT_PRECISION>& meta,
-                 int& argc, const char*** argv){
-        if (argc < 2){
-            cout << "No tiling factor provided for -ucx (syntax is -ucx integer)\n";
+    bool parse_t(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                   int& argc, const char*** argv){
+        if (argc < 4){
+            cout << "Insufficient arguments provided for unit cell tiling (syntax is --tile-uc x y z)\n";
             return false;
         }
-        if ( (meta.tileX = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucx integer)\n";
-            return false;
-        }
-        argc-=2;
-        argv[0]+=2;
-        return true;
-    };
 
-    bool parse_ucy(Metadata<PRISM_FLOAT_PRECISION>& meta,
-                  int& argc, const char*** argv){
-        if (argc < 2){
-            cout << "No tiling factor provided for -ucy (syntax is -ucy integer)\n";
+        // the indexing in PRISM stores the cell dimensions as Z, Y, X so we must rearrange the
+        // order of the inputs which are X, Y, Z
+        if ( (meta.tileX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is --tile-uc x y z)\n";
             return false;
         }
-        if ( (meta.tileY = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucy integer)\n";
+        if ( (meta.tileY = (PRISM_FLOAT_PRECISION)atof((*argv)[2])) == 0){
+            cout << "Invalid value \"" << (*argv)[2] << "\" provided for unit cell tiling in Y (syntax is --tile-uc x y z)\n";
             return false;
         }
-        argc-=2;
-        argv[0]+=2;
-        return true;
-    };
+        if ( (meta.tileZ = (PRISM_FLOAT_PRECISION)atof((*argv)[3])) == 0){
+            cout << "Invalid value \"" << (*argv)[3] << "\" provided for unit cell tiling in Z (syntax is --tile-uc x y z)\n";
+            return false;
+        }
 
-    bool parse_ucz(Metadata<PRISM_FLOAT_PRECISION>& meta,
-                  int& argc, const char*** argv){
-        if (argc < 2){
-            cout << "No tiling factor provided for -ucz (syntax is -ucz integer)\n";
-            return false;
-        }
-        if ( (meta.tileZ = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucz integer)\n";
-            return false;
-        }
-        argc-=2;
-        argv[0]+=2;
+        argc-=4;
+        argv[0]+=4;
         return true;
+
+
     };
 
     bool parse_o(Metadata<PRISM_FLOAT_PRECISION>& meta,
@@ -581,9 +566,7 @@ namespace PRISM {
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
-            {"--tile-uc-x", parse_ucx}, {"-ucx", parse_ucx},
-            {"--tile-uc-y", parse_ucy}, {"-ucy", parse_ucy},
-            {"--tile-uc-z", parse_ucz}, {"-ucz", parse_ucz},
+            {"--tile-uc", parse_t}, {"-t", parse_t},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
