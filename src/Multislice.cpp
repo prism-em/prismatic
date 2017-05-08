@@ -26,14 +26,28 @@ namespace PRISM{
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
 		// setup coordinates and build propagators
+//		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+//		xR[0] = 0.1 * pars.meta.cellDim[2];
+//		xR[1] = 0.9 * pars.meta.cellDim[2];
+//		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+//		yR[0] = 0.1 * pars.meta.cellDim[1];
+//		yR[1] = 0.9 * pars.meta.cellDim[1];
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		xR[0] = 0.1 * pars.meta.cellDim[2];
-		xR[1] = 0.9 * pars.meta.cellDim[2];
+		xR[0] = pars.meta.scanWindowXMin * pars.meta.cellDim[2];
+		xR[1] = pars.meta.scanWindowXMax * pars.meta.cellDim[2];
 		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		yR[0] = 0.1 * pars.meta.cellDim[1];
-		yR[1] = 0.9 * pars.meta.cellDim[1];
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_step / 2, pars.meta.probe_step, xR[1] - pars.meta.probe_step / 2);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_step / 2, pars.meta.probe_step, yR[1] - pars.meta.probe_step / 2);
+		yR[0] = pars.meta.scanWindowYMin * pars.meta.cellDim[1];
+		yR[1] = pars.meta.scanWindowYMax * pars.meta.cellDim[1];
+
+
+//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_step / 2, pars.meta.probe_step, xR[1] - pars.meta.probe_step / 2);
+//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_step / 2, pars.meta.probe_step, yR[1] - pars.meta.probe_step / 2);
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_step, xR[1]);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_step, yR[1]);
+cout << "xR[0] = " << xR[0] << endl;
+		cout << "xR.size() = " << xR.size() << endl;
+		cout << "xR[xR.size()-1] = " << xR[xR.size()-1] << endl;
+		cout << "pars.meta.cellDim[1]= " << pars.meta.cellDim[1]<< endl;
 
 		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});

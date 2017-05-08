@@ -117,9 +117,11 @@ namespace PRISM{
 		    // tile the cell dimension.
 		    // TODO: I think it is very bad practice that Parameters modifies the metadata. Should change so that meta contains
 		    // the UC dimensions, and then cellDim exists in params and is modified here
+		    std::cout << "meta.cellDim[2] = " << meta.cellDim[2] << std::endl;
 		    meta.cellDim[2] *= meta.tileX;
 		    meta.cellDim[1] *= meta.tileY;
 		    meta.cellDim[0] *= meta.tileZ;
+		    std::cout << "meta.cellDim[2] = " << meta.cellDim[2] << std::endl;
 
 		    zTotal = meta.cellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
