@@ -27,6 +27,9 @@ namespace PRISM{
             fpNum                 = 1;
 			sliceThickness        = 2.0;
 			cellDim               = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
+			tileX                  = 1;
+			tileY                  = 1;
+			tileZ                  = 1;
 			E0                    = 80e3;
 			alphaBeamMax          = 24 / 1000.0;
 			NUM_GPUS              = 4;
@@ -64,6 +67,7 @@ namespace PRISM{
 		T sliceThickness; // thickness of slice in Z
 		T probe_step;
 		std::vector<size_t> cellDim; // this is z,y,x format
+		size_t tileX, tileY, tileZ; // how many unit cells to repeat in x,y,z
 		T gpu_cpu_ratio;
 		T E0; // electron energy
 		T alphaBeamMax; // max semi angle for probe

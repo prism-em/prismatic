@@ -16,7 +16,7 @@
 #include "params.h"
 
 #ifdef PRISM_ENABLE_GPU
-#define CUDA_API_PER_THREAD_DEFAULT_STREAM
+//#define CUDA_API_PER_THREAD_DEFAULT_STREAM
 #include <cuda_runtime.h>
 #endif //PRISM_ENABLE_GPU
 

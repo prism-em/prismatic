@@ -22,7 +22,25 @@ struct atom{
 	}
 };
 
-namespace PRISM{
+namespace PRISM {
+	inline std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms) {
+		std::cout << "tilex, tiley, tilez = " << tileX << " " << tileY << " " << tileZ << std::endl;
+		if (tileX == 1 & tileY == 1 & tileZ == 1)return atoms; // case where no tiling is necessary
+		std::vector<atom> tiled_atoms;
+		tiled_atoms.reserve(atoms.size() * tileX * tileY * tileZ);
+		std::cout << "tilex, tiley, tilez = " << tileX << " " << tileY << " " << tileZ << std::endl;
+		for (auto tz = 1; tz <= tileZ; ++tz) {
+			for (auto ty = 1; ty <= tileY; ++ty) {
+				for (auto tx = 1; tx <= tileX; ++tx) {
+					for (auto i = 0; i < atoms.size(); ++i){
+						tiled_atoms.emplace_back(atom{atoms[i].x * tx, atoms[i].y*ty, atoms[i].z*tz, atoms[i].species});
+					}
+				}
+			}
+		}
+		return tiled_atoms;
+	}
+
 	inline std::vector<atom> readAtoms(const std::string& filename){
 		std::vector<atom> atoms;
 		std::ifstream f(filename);
@@ -81,52 +99,57 @@ namespace PRISM{
 		}
         std::cout << "Unit cell a, b, c = " << a << ", " << b << ", " << c << std::endl;
 			while (std::getline(f, line)) {
-                line = line.substr(line.find_first_not_of(" "));
-
-                if (line=="-1"){
-                    break;
-                } else {
-                    std::cout << "line = " << line << std::endl;
-                }
-                {
-                    std::string test("-1\n");
-                    if (test == "-1")std::cout<<"yes\n";
-                    std::cout << test << std::endl;
-                    std::cout << line << std::endl;
-                    std::cout << test.size() << std::endl;
-                    std::cout << line.size() << std::endl;
-                }
+                line = line.substr(line.find_first_not_of(" \n\t"), line.find_last_not_of(" \n\t"));
+				std::cout << "line = " << line << std::endl;
+                //if (line=="-1")break;
+				if (line=="-1"){
+					std::cout << "Breaking\n" << std::endl;
+					break;
+				}
+//                } else {
+//                    std::cout << "line = " << line << std::endl;
+//                }
+//                {
+//                    std::string test("-1\n");
+//                    if (test == "-1")std::cout<<"yes\n";
+//                    std::cout << test << std::endl;
+//                    std::cout << line << std::endl;
+//                    std::cout << test.size() << std::endl;
+//                    std::cout << line.size() << std::endl;
+//                }
                 ++atom_count;
                 ++line_num;
                 std::cout << "atom_count = " << atom_count << " line = " << line <<  std::endl;
-            }
-//				double tx, ty, tz;
-//				size_t tspecies;
-//				std::stringstream ss(line);
-//				if (!(ss >> tx))
-//					throw std::domain_error(
-//							"Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
-//				if (ss.peek() == ',')ss.ignore();
-//				if (!(ss >> ty))
-//					throw std::domain_error(
-//							"Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
-//				if (ss.peek() == ',')ss.ignore();
-//				if (!(ss >> tz))
-//					throw std::domain_error(
-//							"Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
-//				if (ss.peek() == ',')ss.ignore();
-//				if (!(ss >> tspecies))
-//					throw std::domain_error(
-//							"Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
-//				if (ss.peek() == ',')ss.ignore();
-//				atoms.emplace_back(atom{tx, ty, tz, tspecies});
-//			}
-//			if (atom_count == 0) {
-//				std::domain_error("Bad input data. No atoms were found in this file.\n");
-//			} else {
-//				std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
-//						  << std::endl;
-//			}
+//            }
+				double tx, ty, tz;
+				size_t tspecies;
+				std::stringstream ss(line);
+				if (!(ss >> tspecies))
+					throw std::domain_error(
+							"Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (ss.peek() == ',')ss.ignore();
+				std::cout << ss.str() << std::endl;
+				if (!(ss >> tx))
+					throw std::domain_error(
+							"Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (ss.peek() == ',')ss.ignore();
+				if (!(ss >> ty))
+					throw std::domain_error(
+							"Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (ss.peek() == ',')ss.ignore();
+				if (!(ss >> tz))
+					throw std::domain_error(
+							"Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (ss.peek() == ',')ss.ignore();
+
+				atoms.emplace_back(atom{tx, ty, tz, tspecies});
+			}
+			if (atom_count == 0) {
+				std::domain_error("Bad input data. No atoms were found in this file.\n");
+			} else {
+				std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
+						  << std::endl;
+			}
 
 		return atoms;
 	};

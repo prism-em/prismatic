@@ -278,6 +278,51 @@ namespace PRISM {
         return true;
     };
 
+    bool parse_ucx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No tiling factor provided for -ucx (syntax is -ucx integer)\n";
+            return false;
+        }
+        if ( (meta.tileX = atoi((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucx integer)\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_ucy(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No tiling factor provided for -ucy (syntax is -ucy integer)\n";
+            return false;
+        }
+        if ( (meta.tileY = atoi((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucy integer)\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_ucz(Metadata<PRISM_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No tiling factor provided for -ucz (syntax is -ucz integer)\n";
+            return false;
+        }
+        if ( (meta.tileZ = atoi((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is -ucz integer)\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_o(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
@@ -536,6 +581,9 @@ namespace PRISM {
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
+            {"--tile-uc-x", parse_ucx}, {"-ucx", parse_ucx},
+            {"--tile-uc-y", parse_ucy}, {"-ucy", parse_ucy},
+            {"--tile-uc-z", parse_ucz}, {"-ucz", parse_ucz},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
