@@ -93,8 +93,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		ss << this->meta->potBound;
 		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
 		ss.str("");
-		ss << this->meta->alphaBeamMax;
-		this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+        ss << (this->meta->probeSemiangle * 1e3);
+        this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
 		ss.str("");
 		ss << this->meta->sliceThickness;
 		this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
@@ -111,10 +111,13 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		ss << (this->meta->E0 *1e-3);
 		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
 		ss.str("");
-        ss << (this->meta->probe_step);
-        this->ui->lineEdit_probeStep->setText(QString::fromStdString(ss.str()));
+        ss << (this->meta->probe_stepX);
+        this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->probeDefocus);
+        ss << (this->meta->probe_stepY);
+        this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->probeDefocus * 1e10);
         this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
         ss.str("");
         ss << (this->meta->probeXtilt);
@@ -123,7 +126,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->probeYtilt);
         this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->detector_angle_step);
+        ss << (this->meta->detector_angle_step * 1e3);
         this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
         ss.str("");
         ss << (this->meta->scanWindowXMin);
@@ -168,7 +171,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
-
+    ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
     this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
     // connect signals and slots
@@ -178,17 +181,22 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
-    connect(this->ui->lineEdit_alphaBeamMax, SIGNAL(editingFinished()), this, SLOT(setAlphaBeamMax_fromLineEdit()));
+    connect(this->ui->lineEdit_probeSemiangle, SIGNAL(editingFinished()), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineedit_pixelSize, SIGNAL(editingFinished()), this, SLOT(setPixelSize_fromLineEdit()));
     connect(this->ui->lineEdit_potbound, SIGNAL(editingFinished()), this, SLOT(setPotBound_fromLineEdit()));
     connect(this->ui->lineEdit_sliceThickness, SIGNAL(editingFinished()), this, SLOT(setSliceThickness_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
+    connect(this->ui->lineEdit_tileX, SIGNAL(editingFinished()), this, SLOT(setTileX_fromLineEdit()));
+    connect(this->ui->lineEdit_tileY, SIGNAL(editingFinished()), this, SLOT(setTileY_fromLineEdit()));
+    connect(this->ui->lineEdit_tileZ, SIGNAL(editingFinished()), this, SLOT(setTileZ_fromLineEdit()));
     connect(this->ui->lineEdit_probeDefocus, SIGNAL(editingFinished()), this, SLOT(setprobe_defocus_fromLineEdit()));
     connect(this->ui->lineEdit_detectorAngle, SIGNAL(editingFinished()), this, SLOT(setDetector_angle_step_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltX, SIGNAL(editingFinished()), this, SLOT(setprobe_Xtilt_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobe_Ytilt_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepX, SIGNAL(editingFinished()), this, SLOT(setprobe_stepX_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepY, SIGNAL(editingFinished()), this, SLOT(setprobe_stepY_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMin_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMax_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMin_fromLineEdit()));
@@ -296,7 +304,7 @@ void PRISMMainWindow::setFilenameOutput(const std::string& filename){
 
 
 void PRISMMainWindow::setNumGPUs(const int& num){
-    if (num > 0){
+    if (num >= 0){
         this->meta->NUM_GPUS = num;
         std::cout << "Setting number of GPUs to " << num << std::endl;
     }
@@ -322,7 +330,7 @@ void PRISMMainWindow::setPixelSize_fromLineEdit(){
     if (val > 0){
         this->meta->realspace_pixelSize = val;
         this->meta->realspace_pixelSize = val;
-        std::cout << "Setting X/Y pixel size to " << val << std::endl;
+        std::cout << "Setting X/Y pixel size to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
@@ -331,16 +339,16 @@ void PRISMMainWindow::setPotBound_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_potbound->text().toDouble();
     if (val > 0){
         this->meta->potBound = val;
-        std::cout << "Setting potential bound to " << val << std::endl;
+        std::cout << "Setting potential bound to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
 
-void PRISMMainWindow::setAlphaBeamMax_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble();
+void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeSemiangle->text().toDouble();
     if (val > 0){
-        this->meta->alphaBeamMax = val;
-        std::cout << "Setting alphaBeamMax to " << val << std::endl;
+        this->meta->probeSemiangle = val / 1000;
+        std::cout << "Setting probe semiangle to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -349,53 +357,90 @@ void PRISMMainWindow::setSliceThickness_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_sliceThickness->text().toDouble();
     if (val > 0){
         this->meta->sliceThickness = val;
-        std::cout << "Setting sliceThickness to " << val << std::endl;
+        std::cout << "Setting sliceThickness to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimX_fromLineEdit(){
-    int val = this->ui->lineEdit_cellDimX->text().toInt();
+    double val = this->ui->lineEdit_cellDimX->text().toDouble();
     if (val > 0){
-        this->meta->cellDim[2] = (size_t)val;
-        std::cout << "Setting X cell dimension to " << val << std::endl;
+        this->meta->cellDim[2] = (PRISM_FLOAT_PRECISION)val;
+        std::cout << "Setting X cell dimension to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimY_fromLineEdit(){
-    int val = this->ui->lineEdit_cellDimY->text().toInt();
+    double val = this->ui->lineEdit_cellDimY->text().toDouble();
     if (val > 0){
-        this->meta->cellDim[1] = (size_t)val;
-        std::cout << "Setting Y cell dimension to " << val << std::endl;
+        this->meta->cellDim[1] = (PRISM_FLOAT_PRECISION)val;
+        std::cout << "Setting Y cell dimension to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
 
 void PRISMMainWindow::setCellDimZ_fromLineEdit(){
-    int val = this->ui->lineEdit_cellDimZ->text().toInt();
+    double val = this->ui->lineEdit_cellDimZ->text().toDouble();
     if (val > 0){
-        this->meta->cellDim[0] = (size_t)val;
-        std::cout << "Setting Z cell dimension to " << val << std::endl;
+        this->meta->cellDim[0] = (PRISM_FLOAT_PRECISION)val;
+        std::cout << "Setting Z cell dimension to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
+
+void PRISMMainWindow::setTileX_fromLineEdit(){
+    int val = this->ui->lineEdit_tileX->text().toInt();
+    if (val > 0){
+        this->meta->tileX = (size_t)val;
+        std::cout << "Setting tileX to " << val << " UCs" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setTileY_fromLineEdit(){
+    int val = this->ui->lineEdit_tileY->text().toInt();
+    if (val > 0){
+        this->meta->tileY = (size_t)val;
+        std::cout << "Setting tileY to " << val << " UCs" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setTileZ_fromLineEdit(){
+    int val = this->ui->lineEdit_tileZ->text().toInt();
+    if (val > 0){
+        this->meta->tileZ = (size_t)val;
+        std::cout << "Setting tileZ to " << val << " UCs" << std::endl;
+    }
+    resetCalculation();
+}
+
 
 void PRISMMainWindow::setE0_fromLineEdit(){
     double val = this->ui->lineEdit_E0->text().toDouble();
     if (val > 0){
         meta->E0 = val * 1e3;
-        std::cout << "Setting E0 to " << val << std::endl;
+        std::cout << "Setting E0 to " << val << " keV" << std::endl;
         ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     }
     resetCalculation();
 }
 
-void PRISMMainWindow::setprobe_step_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStep->text().toDouble();
+void PRISMMainWindow::setprobe_stepX_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepX->text().toDouble();
     if (val > 0){
-        this->meta->probe_step = val;
-        std::cout << "Setting probe_step to " << val << std::endl;
+        this->meta->probe_stepX = val;
+        std::cout << "Setting probe_stepX to " << val << " Angstroms" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepY->text().toDouble();
+    if (val > 0){
+        this->meta->probe_stepY = val;
+        std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
@@ -403,8 +448,8 @@ void PRISMMainWindow::setprobe_step_fromLineEdit(){
 void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble();
     if (val > 0){
-        this->meta->probeDefocus = val;
-        std::cout << "Setting probe defocus to " << val << std::endl;
+        this->meta->probeDefocus = val * 1e-10;
+        std::cout << "Setting probe defocus to " << val << " Angstroms" <<  std::endl;
     }
     resetCalculation();
 }
@@ -412,8 +457,8 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
 void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_detectorAngle->text().toDouble();
     if (val > 0){
-        this->meta->detector_angle_step = val;
-        std::cout << "Setting detector angle step to " << val << std::endl;
+        this->meta->detector_angle_step = val / 1000;
+        std::cout << "Setting detector angle step to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -525,9 +570,10 @@ void PRISMMainWindow::calculateAll(){
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(potentialCalculated()), progressbar, SLOT(close()));
+//        connect(worker, SIGNAL(potentialCalculated()), progressbar, SLOT(close()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
         connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 //        connect(worker, SIGNAL(finished()), progressbar, SLOT(updateOutputFloatImage()));

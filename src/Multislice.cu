@@ -171,7 +171,9 @@ namespace PRISM{
 	}
 
     __host__ void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars){
-
+#ifdef PRISM_BUILDING_GUI
+	    pars.progressbar->signalDescriptionMessage("Computing final output");
+#endif
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
@@ -370,6 +372,9 @@ namespace PRISM{
 							                                  current_integratedOutput_ds, current_qya_d, current_qxa_d,
 							                                  current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
 							                                  current_alphaInd_d, current_cufft_plan, current_stream);
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 						++Nstart;
 					}
 				}
@@ -422,6 +427,9 @@ namespace PRISM{
 //								cout << "ay = " << ay << endl;
 //                            }
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+#ifdef PRISM_BUILDING_GUI
+								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;
@@ -521,7 +529,9 @@ namespace PRISM{
 
 
 	__host__ void buildMultisliceOutput_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars){
-
+#ifdef PRISM_BUILDING_GUI
+		pars.progressbar->signalDescriptionMessage("Computing final output");
+#endif
 
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
@@ -715,7 +725,9 @@ namespace PRISM{
 						                                 current_integratedOutput_ds, current_qya_d, current_qxa_d,
 						                                 current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
 						                                 current_alphaInd_d, current_cufft_plan, current_stream);
-
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 						++Nstart;
 					}
 				}
@@ -768,6 +780,9 @@ namespace PRISM{
 //								cout << "ay = " << ay << endl;
 //                            }
 								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+#ifdef PRISM_BUILDING_GUI
+								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;

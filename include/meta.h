@@ -26,7 +26,7 @@ namespace PRISM{
 			numFP                 = 1;
             fpNum                 = 1;
 			sliceThickness        = 2.0;
-			cellDim               = std::vector<size_t>{20, 20, 20}; // this is z,y,x format
+			cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
 			tileX                  = 1;
 			tileY                  = 1;
 			tileZ                  = 1;
@@ -36,8 +36,8 @@ namespace PRISM{
 			NUM_STREAMS_PER_GPU   = 3;
 			NUM_THREADS           = 4;
 			gpu_cpu_ratio         = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-            probe_step            = 0.25;
-
+            probe_stepX            = 0.25;
+			probe_stepY            = 0.25;
 			probeDefocus          = 0.0;
 			probeSemiangle        = 20.0 / 1000;
 			detector_angle_step   = 2.5 / 1000;
@@ -65,8 +65,9 @@ namespace PRISM{
 		size_t numFP; // number of frozen phonon configurations to compute
 		size_t fpNum; // current frozen phonon number
 		T sliceThickness; // thickness of slice in Z
-		T probe_step;
-		std::vector<size_t> cellDim; // this is z,y,x format
+		T probe_stepX;
+		T probe_stepY;
+		std::vector<T> cellDim; // this is z,y,x format
 		size_t tileX, tileY, tileZ; // how many unit cells to repeat in x,y,z
 		T gpu_cpu_ratio;
 		T E0; // electron energy
@@ -105,7 +106,8 @@ namespace PRISM{
 		std::cout << "E0 = " << E0 << std::endl;
 		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
 		std::cout << "NUM_THREADS = " << NUM_THREADS<< std::endl;
-		std::cout << "probe_step = " << probe_step << std::endl;
+		std::cout << "probe_stepX = " << probe_stepX << std::endl;
+		std::cout << "probe_stepY = " << probe_stepY << std::endl;
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
 		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;

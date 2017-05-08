@@ -33,7 +33,9 @@ namespace PRISM {
                 "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)\n"
                 "* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
                 "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
-                "* --probe-step (-r) step_size : step size of the probe (in Angstroms)\n"
+                "* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms)\n"
+                "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms)\n"
+                "* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms)\n"
 	            "* --probe-xtilt (-tx) value : probe X tilt\n"
                 "* --probe-ytilt (-ty) value : probe X tilt\n"
                 "* --probe-defocus (-df) value : probe defocus\n"
@@ -358,16 +360,52 @@ namespace PRISM {
             cout << "No probe step provided for -r (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probe_step = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probe_stepX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
+	    meta.probe_stepY = meta.probe_stepX;
         argc-=2;
         argv[0]+=2;
         return true;
     };
 
-    bool parse_tx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+
+	bool parse_rx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No probe step provided for -rx (syntax is -rx probe_step (in Angstroms))\n";
+			return false;
+		}
+		if ( (meta.probe_stepX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -rx probe_step (in Angstroms))\n";
+			return false;
+		}
+		meta.probe_stepY = meta.probe_stepX;
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+
+
+	bool parse_ry(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No probe step provided for -ry (syntax is -ry probe_step (in Angstroms))\n";
+			return false;
+		}
+		if ( (meta.probe_stepY = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -ry probe_step (in Angstroms))\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+
+	bool parse_tx(Metadata<PRISM_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
@@ -560,6 +598,8 @@ namespace PRISM {
             {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
             {"--streaming-mode", parse_streaming_mode},
             {"--probe-step", parse_r}, {"-r", parse_r},
+            {"--probe-step-x", parse_rx}, {"-rx", parse_rx},
+            {"--probe-step-y", parse_ry}, {"-ry", parse_ry},
             {"--probe-xtilt", parse_tx}, {"-tx", parse_tx},
             {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
             {"--probe-defocus", parse_df}, {"-df", parse_df},
