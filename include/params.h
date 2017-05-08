@@ -120,7 +120,7 @@ namespace PRISM{
 		    meta.cellDim[2] *= meta.tileX;
 		    meta.cellDim[1] *= meta.tileY;
 		    meta.cellDim[0] *= meta.tileZ;
-
+			std::cout << "meta.cellDim[0]= " << meta.cellDim[0]<< std::endl;
 		    zTotal = meta.cellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);

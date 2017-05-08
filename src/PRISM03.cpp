@@ -151,8 +151,8 @@ namespace PRISM {
 		// setup some coordinates
 		PRISM_FLOAT_PRECISION x0 = xp / pars.pixelSizeOutput[1];
 		PRISM_FLOAT_PRECISION y0 = yp / pars.pixelSizeOutput[0];
-		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
 
+		Array1D<PRISM_FLOAT_PRECISION> x = pars.xVec + round(x0);
 		// the second call to fmod here is to make sure the result is positive
 		transform(x.begin(), x.end(), x.begin(), [&pars](PRISM_FLOAT_PRECISION &a) {
 			return fmod((PRISM_FLOAT_PRECISION) pars.imageSizeOutput[1] +
@@ -170,7 +170,6 @@ namespace PRISM {
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
-		// TODO: clean up this loop and handle FP
 		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
 		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
@@ -288,7 +287,6 @@ namespace PRISM {
 		Array2D<PRISM_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
-        // TODO: clean up this loop and handle FP
 		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
 		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);

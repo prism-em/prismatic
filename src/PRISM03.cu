@@ -1319,11 +1319,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
 
 		// Determine the shape of the grid
-		const PRISM_FLOAT_PRECISION aspect_ratio = pars.imageSizeReduce[1] / pars.imageSizeReduce[0];
+		const PRISM_FLOAT_PRECISION aspect_ratio = (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[1] / (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[0];
 		const size_t BlockSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
-
-
 		dim3 grid(1, BlockSizeY, BlockSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
 
@@ -1534,7 +1532,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
 
 		// Determine the shape of the grid
-		const PRISM_FLOAT_PRECISION aspect_ratio = pars.imageSizeReduce[1] / pars.imageSizeReduce[0];
+		const PRISM_FLOAT_PRECISION aspect_ratio = (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[1] / (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[0];
 		const size_t BlockSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
 

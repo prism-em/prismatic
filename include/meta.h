@@ -34,7 +34,7 @@ namespace PRISM{
 			alphaBeamMax          = 24 / 1000.0;
 			NUM_GPUS              = 4;
 			NUM_STREAMS_PER_GPU   = 3;
-			NUM_THREADS           = 4;
+			NUM_THREADS           = 12;
 			gpu_cpu_ratio         = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
             probe_stepX            = 0.25;
 			probe_stepY            = 0.25;
