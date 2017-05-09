@@ -453,11 +453,11 @@ namespace PRISM {
     bool parse_sa(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
-            cout << "No probe semiangle provided for -sa (syntax is -sa probe_semiangle)\n";
+            cout << "No probe semiangle provided for -sa (syntax is -sa probe_semiangle in mrads)\n";
             return false;
         }
-        if ( (meta.probeSemiangle = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -sa (syntax is -sa probe_semiangle\n";
+        if ( (meta.probeSemiangle = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -sa (syntax is -sa probe_semiangle in mrads)\n";
             return false;
         }
         argc-=2;

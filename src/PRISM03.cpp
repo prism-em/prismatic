@@ -288,6 +288,10 @@ namespace PRISM {
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
 		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
+
+
+
+
 		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 			PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
@@ -298,7 +302,13 @@ namespace PRISM {
 				std::complex<PRISM_FLOAT_PRECISION> phaseShift = exp(
 						-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) +
 									   q0_1 * (pars.yp[ay] + pars.yTiltShift)));
+
+
 				const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
+				if (ax==0 & ay==15){
+					cout << "phaseCoeff  = " << tmp_const << endl;
+				}
+
 				auto psi_ptr = psi.begin();
 				for (auto j = 0; j < y.size(); ++j) {
 					for (auto i = 0; i < x.size(); ++i) {
