@@ -22,7 +22,7 @@ namespace PRISM{
 	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		PRISM01(prism_pars);
-//		prism_pars.pot.toMRC_f("debug_potential.mrc");
+		prism_pars.pot.toMRC_f("debug_potential.mrc");
 		PRISM02(prism_pars);
 
 //		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
