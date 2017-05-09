@@ -22,24 +22,24 @@ namespace PRISM{
 	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 		PRISM01(prism_pars);
-		prism_pars.pot.toMRC_f("debug_potential.mrc");
+//		prism_pars.pot.toMRC_f("debug_potential.mrc");
 		PRISM02(prism_pars);
 
-		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
-		Array3D<PRISM_FLOAT_PRECISION> tmp_r = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
-		Array3D<PRISM_FLOAT_PRECISION> tmp_i = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
-		auto tmp_ptr = tmp.begin();
-		auto tmp_r_ptr = tmp_r.begin();
-		auto tmp_i_ptr = tmp_i.begin();
-		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
-		for (auto&i : prism_pars.Scompact)*tmp_r_ptr++ = i.real();
-		for (auto&i : prism_pars.Scompact)*tmp_i_ptr++ = i.imag();
-		std::complex<PRISM_FLOAT_PRECISION> ssum{0,0};
-		for (auto& i:prism_pars.Scompact)ssum+=i;
-		cout <<"S compact sum = " << ssum << endl;
-		tmp.toMRC_f("debug_scompact.mrc");
-		tmp_r.toMRC_f("debug_scompact_r.mrc");
-		tmp_i.toMRC_f("debug_scompact_i.mrc");
+//		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
+//		Array3D<PRISM_FLOAT_PRECISION> tmp_r = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
+//		Array3D<PRISM_FLOAT_PRECISION> tmp_i = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
+//		auto tmp_ptr = tmp.begin();
+//		auto tmp_r_ptr = tmp_r.begin();
+//		auto tmp_i_ptr = tmp_i.begin();
+//		for (auto&i : prism_pars.Scompact)*tmp_ptr++ = abs(i);
+//		for (auto&i : prism_pars.Scompact)*tmp_r_ptr++ = i.real();
+//		for (auto&i : prism_pars.Scompact)*tmp_i_ptr++ = i.imag();
+//		std::complex<PRISM_FLOAT_PRECISION> ssum{0,0};
+//		for (auto& i:prism_pars.Scompact)ssum+=i;
+//		cout <<"S compact sum = " << ssum << endl;
+//		tmp.toMRC_f("debug_scompact.mrc");
+//		tmp_r.toMRC_f("debug_scompact_r.mrc");
+//		tmp_i.toMRC_f("debug_scompact_i.mrc");
 
 		PRISM03(prism_pars);
 
