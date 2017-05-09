@@ -1284,26 +1284,26 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
 
-		if (ax==5 & ay==0){
-			cout << "pars.xyBeams.get_dimj()= " << pars.xyBeams.get_dimj() << endl;
-			cout << "pars.xyBeams.get_dimi()= " << pars.xyBeams.get_dimi() << endl;
-			long ans;
-			for (auto i = 0; i < 68; ++i){
-				cudaMemcpy(&ans, x_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "x_ds[" << i << "] = " << ans << endl;
-			}
-		}
-		if (ax==5 & ay==0){
-			long ans;
-			for (auto i = 0; i < 68; ++i){
-				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "y_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		if (ax==5 & ay==0){
+//			cout << "pars.xyBeams.get_dimj()= " << pars.xyBeams.get_dimj() << endl;
+//			cout << "pars.xyBeams.get_dimi()= " << pars.xyBeams.get_dimi() << endl;
+//			long ans;
+//			for (auto i = 0; i < 68; ++i){
+//				cudaMemcpy(&ans, x_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "x_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
+//		if (ax==5 & ay==0){
+//			long ans;
+//			for (auto i = 0; i < 68; ++i){
+//				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "y_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
-		if (ax == 5 & ay == 0) {
-		cout << "pars.imageSizeReduce[0] = " << (long) pars.imageSizeReduce[0] << endl;
-		}
+//		if (ax == 5 & ay == 0) {
+//		cout << "pars.imageSizeReduce[0] = " << (long) pars.imageSizeReduce[0] << endl;
+//		}
 		shiftIndices <<<((long)pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				y_ds, (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSizeOutput[0], (long)pars.imageSizeReduce[0]);
 
@@ -1311,11 +1311,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				x_ds, (long)std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1]), (long)pars.imageSizeOutput[1], (long)pars.imageSizeReduce[1]);
 
 
-		if (ax==5 & ay==0){
-			cout << "shifted " << endl;
-			cout << "(long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]) = " << (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]) << endl;
-			cout << "(long)std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1]) = " << (long)std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1])<< endl;
-		}
+//		if (ax==5 & ay==0){
+//			cout << "shifted " << endl;
+//			cout << "(long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]) = " << (long)std::round(yp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[0]) << endl;
+//			cout << "(long)std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1]) = " << (long)std::round(xp / (PRISM_FLOAT_PRECISION)pars.pixelSizeOutput[1])<< endl;
+//		}
 //		shiftIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 //			x_ds, std::round(xp / pars.pixelSizeOutput[1]), pars.imageSizeOutput[1], pars.imageSizeReduce[1]);
 
@@ -1323,28 +1323,28 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                    phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 		           yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
-		if (ax==5 & ay==0){
-			std::complex<PRISM_FLOAT_PRECISION> ans;
-			for (auto i = 0; i < 10; ++i){
-				cudaMemcpy(&ans, phaseCoeffs_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
-			}
-		}
-		if (ax==5 & ay==0){
-			long ans;
-			for (auto i = 0; i < 68; ++i){
-				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "y_ds[" << i << "] = " << ans << endl;
-			}
-		}
-
-		if (ax==5 & ay==0){
-			long ans;
-			for (auto i = 0; i < 68; ++i){
-				cudaMemcpy(&ans, x_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "x_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		if (ax==5 & ay==0){
+//			std::complex<PRISM_FLOAT_PRECISION> ans;
+//			for (auto i = 0; i < 10; ++i){
+//				cudaMemcpy(&ans, phaseCoeffs_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
+//		if (ax==5 & ay==0){
+//			long ans;
+//			for (auto i = 0; i < 68; ++i){
+//				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "y_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
+//
+//		if (ax==5 & ay==0){
+//			long ans;
+//			for (auto i = 0; i < 68; ++i){
+//				cudaMemcpy(&ans, x_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "x_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
 //		if (ax==0 & ay==0){
 //			std::complex<PRISM_FLOAT_PRECISION> ans;
@@ -1391,11 +1391,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
 		dim3 grid(1, BlockSizeY, BlockSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
-		if (ax==5 & ay==0) {
-		cout << "BlockSizeX = " << BlockSizeX << endl;
-		cout << "BlockSizeY = " << BlockSizeY << endl;
-		cout << "BlockSizeZ = " << BlockSizeZ << endl;
-		}
+//		if (ax==5 & ay==0) {
+//		cout << "BlockSizeX = " << BlockSizeX << endl;
+//		cout << "BlockSizeY = " << BlockSizeY << endl;
+//		cout << "BlockSizeZ = " << BlockSizeZ << endl;
+//		}
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
 
@@ -1442,33 +1442,33 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 					pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
 		}
-
-		if (ax==5 & ay==0){
-//			std::complex<PRISM_FLOAT_PRECISION> ans;
-//			for (auto i = 0; i < psi_size; ++i){
-////			for (auto i = 0; i < 10; ++i){
-//				cudaMemcpy(&ans, psi_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//				cout << "psi_ds[" << i << "] = " << ans << endl;
+//
+//		if (ax==5 & ay==0){
+////			std::complex<PRISM_FLOAT_PRECISION> ans;
+////			for (auto i = 0; i < psi_size; ++i){
+//////			for (auto i = 0; i < 10; ++i){
+////				cudaMemcpy(&ans, psi_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+////				cout << "psi_ds[" << i << "] = " << ans << endl;
+////			}
+//			Array2D<std::complex< PRISM_FLOAT_PRECISION> > tmp_cx = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+//			Array2D<PRISM_FLOAT_PRECISION> tmp_r = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+//			Array2D<PRISM_FLOAT_PRECISION> tmp_i = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+//			cudaMemcpy(&tmp_cx[0], psi_ds, psi_size * sizeof(tmp_cx[0]), cudaMemcpyDeviceToHost);
+//			auto r_ptr = tmp_r.begin();
+//			auto i_ptr = tmp_i.begin();
+//			for (auto& i:tmp_cx){
+//				*r_ptr++ = i.real();
+//				*i_ptr++ = i.imag();
 //			}
-			Array2D<std::complex< PRISM_FLOAT_PRECISION> > tmp_cx = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-			Array2D<PRISM_FLOAT_PRECISION> tmp_r = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-			Array2D<PRISM_FLOAT_PRECISION> tmp_i = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
-			cudaMemcpy(&tmp_cx[0], psi_ds, psi_size * sizeof(tmp_cx[0]), cudaMemcpyDeviceToHost);
-			auto r_ptr = tmp_r.begin();
-			auto i_ptr = tmp_i.begin();
-			for (auto& i:tmp_cx){
-				*r_ptr++ = i.real();
-				*i_ptr++ = i.imag();
-			}
-			tmp_r.toMRC_f("debug_psi_r.mrc");
-			tmp_i.toMRC_f("debug_psi_i.mrc");
-		}
-
-		if (ax==5 & ay==0){
-			cout <<"TEST" << endl;
-			cout << "pars.xVec.size() = " << pars.xVec.size()  << endl;
-			cout << "pars.yVec.size() = " << pars.yVec.size()  << endl;
-		}
+//			tmp_r.toMRC_f("debug_psi_r.mrc");
+//			tmp_i.toMRC_f("debug_psi_i.mrc");
+//		}
+//
+//		if (ax==5 & ay==0){
+//			cout <<"TEST" << endl;
+//			cout << "pars.xVec.size() = " << pars.xVec.size()  << endl;
+//			cout << "pars.yVec.size() = " << pars.yVec.size()  << endl;
+//		}
 
 
 //		if (ax==5 & ay==0){
@@ -1510,13 +1510,13 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// convert to squared intensity
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psi_intensity_ds, psi_ds, psi_size);
 
-		if (ax==5 & ay==0){
-			PRISM_FLOAT_PRECISION ans;
-			for (auto i = 0; i < 10; ++i){
-				cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "psi_intensity_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		if (ax==5 & ay==0){
+//			PRISM_FLOAT_PRECISION ans;
+//			for (auto i = 0; i < 10; ++i){
+//				cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "psi_intensity_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
 
 		// output calculation result
@@ -1562,21 +1562,21 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				phaseCoeffs_ds, PsiProbeInit_d, qyaReduce_d, qxaReduce_d,
 				yBeams_d, xBeams_d, yp, xp, pars.yTiltShift, pars.xTiltShift, pars.imageSizeReduce[1], pars.numberBeams);
 
-		if (ax==0 & ay==0){
-			std::complex<PRISM_FLOAT_PRECISION> ans;
-			for (auto i = 0; i < 10; ++i){
-				cudaMemcpy(&ans, phaseCoeffs_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		if (ax==0 & ay==0){
+//			std::complex<PRISM_FLOAT_PRECISION> ans;
+//			for (auto i = 0; i < 10; ++i){
+//				cudaMemcpy(&ans, phaseCoeffs_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
-		if (ax==0 & ay==0){
-			long ans;
-			for (auto i = 0; i < 10; ++i){
-				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-				cout << "y_ds[" << i << "] = " << ans << endl;
-			}
-		}
+//		if (ax==0 & ay==0){
+//			long ans;
+//			for (auto i = 0; i < 10; ++i){
+//				cudaMemcpy(&ans, y_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "y_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 		// Copy the relevant portion of the Scompact matrix. This can be accomplished with ideally one but at most 4 strided 3-D memory copies
 		// depending on whether or not the coordinates wrap around.
 		long x1,y1;
