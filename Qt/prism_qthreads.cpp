@@ -289,6 +289,7 @@ parent(_parent), progressbar(_progressbar){
 
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
+    emit signalTitle("PRISM: Frozen Phonon #1");
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
@@ -333,13 +334,41 @@ void FullPRISMCalcThread::run(){
 //    emit ScompactCalculated();
 
     PRISM::PRISM03(params);
+
+
+
+    if (params.meta.numFP == 1) {
+        if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
+    } else {
+        // run the rest of the frozen phonons
+        ++params.meta.fpNum;
+        PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
+        for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
+            meta.random_seed = rand() % 1000;
+            PRISM::Parameters<PRISM_FLOAT_PRECISION> new_params(meta, progressbar);
+            emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+            params = new_params;
+            progressbar->resetOutputs();
+            PRISM::PRISM01(params);
+            PRISM::PRISM02(params);
+            PRISM::PRISM03(params);
+            net_output += params.output;
+        }
+        // divide to take average
+        for (auto&i:net_output) i/=params.meta.numFP;
+        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
+        params.output = net_output;
+    }
+
+
+
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
         this->parent->detectorAngles = params.detectorAngles;
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
-        params.output.toMRC_f(params.meta.filename_output.c_str());
+//        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
     std::cout << "PRISM calculation complete" << std::endl;

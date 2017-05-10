@@ -29,12 +29,13 @@ public:
     void signalDescriptionMessage(const QString str);
     void signalScompactUpdate(const long current, const long total);
     void signalOutputUpdate(const long current, const long total);
+    void resetOutputs();
 public slots:
     void setStepPotential();
     void update_calculatingPotential(long, long);
     void updateCalcStatusMessage(const QString str);
     void updateDescription(const QString str);
-
+    void setTitle(const QString str);
 
 //    void update_calculatingSMatrix(int, int);
 //    void update_calculatingPRISM(int, int, int, int);

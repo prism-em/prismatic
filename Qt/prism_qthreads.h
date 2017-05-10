@@ -77,6 +77,7 @@ signals:
     void potentialCalculated();
 	void ScompactCalculated();
 	void outputCalculated();
+    void signalTitle(const QString str);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -94,6 +95,7 @@ signals:
 	void potentialCalculated();
 	void ScompactCalculated();
 	void outputCalculated();
+    void signalTitle(const QString str);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

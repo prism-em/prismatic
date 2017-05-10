@@ -28,6 +28,11 @@ void prism_progressbar::setStepPotential(){
     ui->lbl_Description->setText(QString("Computing Projected Potential Slices"));
 }
 
+void prism_progressbar::setTitle(const QString str){
+    ui->lbl_Algorithm->setText(str);
+}
+
+
 //void prism_progressbar::setAlgorithmPRISM(){
 //    ui->lbl_calcStatus->setText("Computing Projected Potential Slices");
 //}
@@ -77,6 +82,20 @@ void prism_progressbar::signalScompactUpdate(const long current, const long tota
                           QString("/") +
                           QString::number(total));
     emit updateProgressBar(100*(SMatrixCurrentBeam+1)/total);
+}
+
+void prism_progressbar::resetOutputs(){
+    currentProbe = 0;
+    SMatrixCurrentBeam = 0;
+    potentialCurrentSlice = 0;
+//    std::cout << "SMatrixCurrentBeam + 1 = " << SMatrixCurrentBeam + 1 << std::endl;
+//	emit updateCalcStatus(QString("Probe Position ") +
+//	                      QString::number(currentProbe + 1) +
+//	                      QString("/") +
+//	                      QString::number(total));
+//	emit updateProgressBar(100*(currentProbe+1)/total);
+    emit updateProgressBar(0);
+
 }
 void prism_progressbar::signalOutputUpdate(const long current, const long total){
 //    std::lock_guard<std::mutex> gatekeeper(this->parent->outputLock);
