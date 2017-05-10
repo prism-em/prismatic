@@ -40,11 +40,11 @@ namespace PRISM{
 		yR[1] = pars.meta.scanWindowYMax * pars.meta.cellDim[1];
 
 
-//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
-//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
 
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
+//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
+//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
 
 		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});

@@ -54,11 +54,11 @@ namespace PRISM {
 		yR[0] = pars.meta.scanWindowYMin * pars.meta.cellDim[1];
 		yR[1] = pars.meta.scanWindowYMax * pars.meta.cellDim[1];
 
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
+//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
+//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
 
-//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
-//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
 
 		Array1D<PRISM_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISM_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
@@ -121,11 +121,11 @@ namespace PRISM {
 		// create Fourier space coordinates
 
 		pars.qxaReduce = array2D_subset(pars.qxaOutput,
-		                                0, pars.meta.interpolationFactorX, pars.qxaOutput.get_dimj(),
+		                                0, pars.meta.interpolationFactorY, pars.qxaOutput.get_dimj(),
 		                                0, pars.meta.interpolationFactorX, pars.qxaOutput.get_dimi());
 		pars.qyaReduce = array2D_subset(pars.qyaOutput,
 		                                0, pars.meta.interpolationFactorY, pars.qyaOutput.get_dimj(),
-		                                0, pars.meta.interpolationFactorY, pars.qyaOutput.get_dimi());
+		                                0, pars.meta.interpolationFactorX, pars.qyaOutput.get_dimi());
 		pars.q1 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		pars.q2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 	}
@@ -422,21 +422,27 @@ namespace PRISM {
 		// setup necessary coordinates
 		setupCoordinates_2(pars);
 
+		cout << "coords setup" << endl;
 		// setup angles of detector and image sizes
 		setupDetector(pars);
 
+		cout << "detector setup" << endl;
 		// setup coordinates and indices for the beams
 		setupBeams_2(pars);
 
+		cout << "beams setup" << endl;
 		// setup Fourier coordinates for the S-matrix
 		setupFourierCoordinates(pars);
 
+		cout << "fourier coords setup" << endl;
 		// initialize the output to the correct size for the output mode
 		createStack_integrate(pars);
 
+		cout << "stack setup" << endl;
 //		 perform some necessary setup transformations of the data
 		transformIndices(pars);
 
+		cout << "xform indices setup" << endl;
 		// initialize/compute the probes
 		initializeProbes(pars);
 
