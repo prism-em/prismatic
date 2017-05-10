@@ -2153,7 +2153,7 @@ Step (A)</string>
                  <item>
                   <widget class="QLineEdit" name="lineedit_interpFactor_y">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="maximumSize">
                     <size>

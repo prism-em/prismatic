@@ -43,7 +43,8 @@ public:
     ~PRISMMainWindow();
 
 public slots:
-	void setInterpolationFactor();
+	void setInterpolationFactorX();
+	void setInterpolationFactorY();
 	void setFilenameAtoms_fromDialog();
 	void setFilenameOutput_fromLineEdit();
 	void setFilenameOutput_fromDialog();

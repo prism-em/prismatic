@@ -87,9 +87,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	this->meta = new PRISM::Metadata<PRISM_FLOAT_PRECISION>;
 	{
 		std::stringstream ss;
-        ss << this->meta->interpolationFactor;
+        ss << this->meta->interpolationFactorX;
         this->ui->lineedit_interpFactor_x->setText(QString::fromStdString(ss.str()));
 		ss.str("");
+        ss << this->meta->interpolationFactorY;
+        this->ui->lineedit_interpFactor_y->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 		ss << this->meta->potBound;
 		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
 		ss.str("");
@@ -175,7 +178,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
     // connect signals and slots
-    connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactor()));
+    connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorX()));
+    connect(this->ui->lineedit_interpFactor_y,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorY()));
 	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
@@ -250,15 +254,27 @@ void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
     resetCalculation();
 }
 
-void PRISMMainWindow::setInterpolationFactor(){
+void PRISMMainWindow::setInterpolationFactorX(){
 	bool flag;
     const size_t& new_f = this->ui->lineedit_interpFactor_x->text().toUInt(&flag);
 	if (flag){
-		std::cout << "Setting interpolation factor to " << new_f<< std::endl;
-		this->meta->interpolationFactor = new_f;
+		std::cout << "Setting interpolation factor X to " << new_f << std::endl;
+		this->meta->interpolationFactorX = new_f;
 	} else{
-        std::cout << "Invalid interpolation factor input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
+        std::cout << "Invalid interpolation factor X input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
 	}
+    resetCalculation();
+}
+
+void PRISMMainWindow::setInterpolationFactorY(){
+    bool flag;
+    const size_t& new_f = this->ui->lineedit_interpFactor_x->text().toUInt(&flag);
+    if (flag){
+        std::cout << "Setting interpolation factor Y to " << new_f << std::endl;
+        this->meta->interpolationFactorY = new_f;
+    } else{
+        std::cout << "Invalid interpolation factor Y input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
+    }
     resetCalculation();
 }
 

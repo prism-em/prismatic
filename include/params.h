@@ -164,7 +164,7 @@ namespace PRISM{
 //			    return -2;
 		    }
 
-		    this->u = ones_ND<1,T>({{118}}) * 0.08;
+		    this->u = ones_ND<1,T>({{118}}) * 0.076;
 //		    u = u;
 		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
