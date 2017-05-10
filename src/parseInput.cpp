@@ -38,6 +38,7 @@ namespace PRISM {
                 "* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms)\n"
                 "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms)\n"
                 "* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms)\n"
+		        "* --random-seed (-rs) step_size : random number seed\n"
 	            "* --probe-xtilt (-tx) value : probe X tilt\n"
                 "* --probe-ytilt (-ty) value : probe X tilt\n"
                 "* --probe-defocus (-df) value : probe defocus\n"
@@ -439,6 +440,21 @@ namespace PRISM {
 	};
 
 
+	bool parse_rs(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No random seed provided for -rs (syntax is -rs integer)\n";
+			return false;
+		}
+		if ( (meta.random_seed = atoi((*argv)[1])) == 0 & std::string(((*argv)[1]))!="0"){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for random seed (syntax is -rs integer)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
 	bool parse_tx(Metadata<PRISM_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
@@ -679,6 +695,7 @@ namespace PRISM {
             {"--probe-step", parse_r}, {"-r", parse_r},
             {"--probe-step-x", parse_rx}, {"-rx", parse_rx},
             {"--probe-step-y", parse_ry}, {"-ry", parse_ry},
+            {"--random-seed", parse_rs}, {"-rs", parse_rs},
             {"--probe-xtilt", parse_tx}, {"-tx", parse_tx},
             {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
             {"--probe-defocus", parse_df}, {"-df", parse_df},

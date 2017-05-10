@@ -105,7 +105,8 @@ namespace PRISM {
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec,
 											 &zPlane, &yvec,&potentialLookup,&uLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
-				std::default_random_engine de(time(0));
+//				std::default_random_engine de(time(0));
+				std::default_random_engine de(pars.meta.random_seed);
 				normal_distribution<PRISM_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
 				Array1D<long> yp;

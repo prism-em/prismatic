@@ -94,6 +94,7 @@ public slots:
     void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
+    void setRandomSeed_fromLineEdit();
     void setprobe_C3_fromLineEdit();
     void setprobe_C5_fromLineEdit();
     void setDetector_angle_step_fromLineEdit();

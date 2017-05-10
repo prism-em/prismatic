@@ -50,7 +50,8 @@ namespace PRISM{
 			scanWindowXMax        = 0.9;
 			scanWindowYMin        = 0.1;
 			scanWindowYMax        = 0.9;
-
+			srand(time(0));
+			random_seed           = rand() % 1000;
 			algorithm             = Algorithm::PRISM;
 			include_thermal_effects = true;
 			also_do_CPU_work      = true;
@@ -88,6 +89,7 @@ namespace PRISM{
 		T scanWindowXMax;
 		T scanWindowYMin;
 		T scanWindowYMax;
+		T random_seed;
 		size_t NUM_THREADS; // number of CPU threads to use
 		size_t NUM_GPUS; // number of GPUs to use
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU
@@ -133,6 +135,8 @@ namespace PRISM{
 		std::cout << "scanWindowYMax = " << scanWindowYMax<< std::endl;
 		std::cout << "integration_angle_min = " << integration_angle_min<< std::endl;
 		std::cout << "integration_angle_max = " << integration_angle_max<< std::endl;
+		std::cout << "random_seed = " << random_seed << std::endl;
+
 		if (include_thermal_effects) {
 			std::cout << "include_thermal_effects = true" << std::endl;
 		} else {

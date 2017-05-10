@@ -153,6 +153,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->scanWindowYMax);
         this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
         ss.str("");
+        ss << (this->meta->random_seed);
+        this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
@@ -207,6 +211,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_tileX, SIGNAL(editingFinished()), this, SLOT(setTileX_fromLineEdit()));
     connect(this->ui->lineEdit_tileY, SIGNAL(editingFinished()), this, SLOT(setTileY_fromLineEdit()));
     connect(this->ui->lineEdit_tileZ, SIGNAL(editingFinished()), this, SLOT(setTileZ_fromLineEdit()));
+    connect(this->ui->lineEdit_randomSeed, SIGNAL(editingFinished()), this, SLOT(setRandomSeed_fromLineEdit()));
     connect(this->ui->lineEdit_probeDefocus, SIGNAL(editingFinished()), this, SLOT(setprobe_defocus_fromLineEdit()));
     connect(this->ui->lineEdit_C3, SIGNAL(editingFinished()), this, SLOT(setprobe_C3_fromLineEdit()));
     connect(this->ui->lineEdit_C5, SIGNAL(editingFinished()), this, SLOT(setprobe_C5_fromLineEdit()));
@@ -446,6 +451,15 @@ void PRISMMainWindow::setTileZ_fromLineEdit(){
     if (val > 0){
         this->meta->tileZ = (size_t)val;
         std::cout << "Setting tileZ to " << val << " UCs" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setRandomSeed_fromLineEdit(){
+    int val = this->ui->lineEdit_tileZ->text().toInt();
+    if (val >= 0){
+        this->meta->random_seed = (size_t)val;
+        std::cout << "Setting random seed to " << val << std::endl;
     }
     resetCalculation();
 }
