@@ -18,8 +18,8 @@ namespace PRISM{
 	public:
 		void toString();
 		Metadata(){
-			interpolationFactorY   = 4;
-			interpolationFactorX   = 4;
+			interpolationFactorY  = 4;
+			interpolationFactorX  = 4;
 			filename_atoms        = "/path/to/atoms.txt";
 			filename_output       = "output.mrc";
 			realspace_pixelSize   = 0.1;
@@ -28,18 +28,20 @@ namespace PRISM{
             fpNum                 = 1;
 			sliceThickness        = 2.0;
 			cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
-			tileX                  = 1;
-			tileY                  = 1;
-			tileZ                  = 1;
+			tileX                 = 1;
+			tileY                 = 1;
+			tileZ                 = 1;
 			E0                    = 80e3;
 			alphaBeamMax          = 24 / 1000.0;
 			NUM_GPUS              = 4;
 			NUM_STREAMS_PER_GPU   = 3;
 			NUM_THREADS           = 12;
 			gpu_cpu_ratio         = 20; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-            probe_stepX            = 0.25;
-			probe_stepY            = 0.25;
+            probe_stepX           = 0.25;
+			probe_stepY           = 0.25;
 			probeDefocus          = 0.0;
+			C3                    = 0.0;
+			C5                    = 0.0;
 			probeSemiangle        = 20.0 / 1000;
 			detector_angle_step   = 2.5 / 1000;
 			probeXtilt            = 0;
@@ -76,6 +78,8 @@ namespace PRISM{
 		T alphaBeamMax; // max semi angle for probe
 		T detector_angle_step;
 		T probeDefocus;
+		T C3;
+		T C5;
 		T probeSemiangle;
 		T probeXtilt;
 		T probeYtilt;
@@ -115,6 +119,8 @@ namespace PRISM{
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
 		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;
 		std::cout << "probeDefocus = " << probeDefocus<< std::endl;
+		std::cout << "C3 = " << C3<< std::endl;
+		std::cout << "C5 = " << C5<< std::endl;
 		std::cout << "probeSemiangle = " << probeSemiangle<< std::endl;
 		std::cout << "detector_angle_step = " << detector_angle_step<< std::endl;
 		std::cout << "probeXtilt = " << probeXtilt<< std::endl;

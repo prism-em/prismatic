@@ -483,7 +483,38 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_sa(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_C3(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	              int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No C3 value provided for -C3 (syntax is -C3 value)\n";
+			return false;
+		}
+		if ( (meta.C3 = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+	bool parse_C5(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	              int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No C5 value provided for -C5 (syntax is -C5 value)\n";
+			return false;
+		}
+		if ( (meta.C5 = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+
+	bool parse_sa(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe semiangle provided for -sa (syntax is -sa probe_semiangle in mrads)\n";
@@ -638,6 +669,8 @@ namespace PRISM {
             {"--probe-xtilt", parse_tx}, {"-tx", parse_tx},
             {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
             {"--probe-defocus", parse_df}, {"-df", parse_df},
+            {"-C3", parse_C3},
+            {"-C5", parse_C5},
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},

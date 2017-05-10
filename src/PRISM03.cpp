@@ -27,7 +27,8 @@ namespace PRISM {
 	using namespace std;
 	const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 	// this might seem a strange way to get pi, but it's slightly more future proof
-	const static PRISM_FLOAT_PRECISION pi = std::acos(-1);
+	const static PRISM_FLOAT_PRECISION pi    = std::acos(-1);
+//	const static std::complex<PRISM_FLOAT_PRECISION> pi_cx = {std::acos(-1), 0};
 
 	Array2D<PRISM_FLOAT_PRECISION> array2D_subset(const Array2D<PRISM_FLOAT_PRECISION> &arr,
 	                                              const size_t &starty, const size_t &stepy, const size_t &stopy,
@@ -396,7 +397,11 @@ namespace PRISM {
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
+//			           a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
+			          std::complex<PRISM_FLOAT_PRECISION> chi{pi   * pars.lambda * pars.meta.probeDefocus * q2_t +
+			                                                  pi/2 * pow(pars.lambda,3) * pars.meta.C3    * pow(q2_t,2)+
+			                                                  pi/3 * pow(pars.lambda,5) * pars.meta.C5    * pow(q2_t,3), 0};
+			          a = a * exp(-i * chi);
 			          return a;
 		          });
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
