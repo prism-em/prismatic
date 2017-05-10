@@ -111,6 +111,15 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		ss << this->meta->cellDim[0];
 		this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
 		ss.str("");
+        ss << this->meta->tileX;
+        this->ui->lineEdit_tileX->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << this->meta->tileY;
+        this->ui->lineEdit_tileY->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << this->meta->tileZ;
+        this->ui->lineEdit_tileZ->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 		ss << (this->meta->E0 *1e-3);
 		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
 		ss.str("");
@@ -152,6 +161,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 	}
 
+    ui->checkBox_thermalEffects->setChecked(meta->include_thermal_effects);
+    ui->checkBox_3D->setChecked(meta->save3DOutput);
+    ui->checkBox_4D->setChecked(meta->save4DOutput);
+
 	switch (this->meta->algorithm){
 		case PRISM::Algorithm::PRISM :      this->ui->radBtn_PRISM->setChecked(true);
 			                                this->ui->radBtn_Multislice->setChecked(false);
@@ -164,8 +177,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	this->ui->spinBox_numGPUs->setEnabled(false);
     this->ui->checkBox_streamdata->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
-    ui->radioButton_3Doutput->setChecked(true);
-    ui->radioButton_3Doutput->setEnabled(false);
+
 
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
@@ -196,6 +208,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_tileY, SIGNAL(editingFinished()), this, SLOT(setTileY_fromLineEdit()));
     connect(this->ui->lineEdit_tileZ, SIGNAL(editingFinished()), this, SLOT(setTileZ_fromLineEdit()));
     connect(this->ui->lineEdit_probeDefocus, SIGNAL(editingFinished()), this, SLOT(setprobe_defocus_fromLineEdit()));
+    connect(this->ui->lineEdit_C3, SIGNAL(editingFinished()), this, SLOT(setprobe_C3_fromLineEdit()));
+    connect(this->ui->lineEdit_C5, SIGNAL(editingFinished()), this, SLOT(setprobe_C5_fromLineEdit()));
     connect(this->ui->lineEdit_detectorAngle, SIGNAL(editingFinished()), this, SLOT(setDetector_angle_step_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltX, SIGNAL(editingFinished()), this, SLOT(setprobe_Xtilt_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobe_Ytilt_fromLineEdit()));
@@ -235,6 +249,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)), this, SLOT(toggleSaveProjectedPotential()));
     connect(this->ui->btn_reset, SIGNAL(clicked()), this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe, SIGNAL(clicked()), this, SLOT(calculateProbe()));
+    connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
+    connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
+    connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
+
     this->ui->checkBox_streamdata->setChecked(false);
 
 }
@@ -463,9 +481,27 @@ void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
 
 void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble();
-    if (val > 0){
+    if (val >= 0){
         this->meta->probeDefocus = val * 1e-10;
         std::cout << "Setting probe defocus to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setprobe_C3_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble();
+    if (val >= 0){
+        this->meta->C3 = val * 1e-10;
+        std::cout << "Setting C3 to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setprobe_C5_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C5->text().toDouble();
+    if (val >= 0){
+        this->meta->C5 = val * 1e-10;
+        std::cout << "Setting C5 to " << val << " Angstroms" <<  std::endl;
     }
     resetCalculation();
 }
@@ -712,10 +748,10 @@ void PRISMMainWindow::updatePotentialDisplay(){
 
         const long linehalfwidth = 1;
         const long linelength = 10;
-        std::cout << "test" << std::endl;
+//        std::cout << "test" << std::endl;
         for (auto ypix = -linehalfwidth; ypix <= linehalfwidth; ++ypix){
             for (auto x = -linelength; x <= linelength; ++x){
-                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
+//                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
              probeImage.setPixel((probeImage.width()  + (ypix + yc_im) % probeImage.width()) % probeImage.width(),
                                  (probeImage.height() + (x + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
             }
@@ -999,6 +1035,20 @@ void PRISMMainWindow::saveCurrentOutputImage(){
 void PRISMMainWindow::toggleStreamingMode(){
     meta->transfer_mode = ui->checkBox_streamdata->isChecked() ? PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
 }
+
+void PRISMMainWindow::toggle3DOutput(){
+    meta->save3DOutput = ui->checkBox_3D->isChecked();
+}
+
+void PRISMMainWindow::toggle4DOutput(){
+    meta->save4DOutput = ui->checkBox_4D->isChecked();
+}
+
+void PRISMMainWindow::toggleThermalEffects(){
+    meta->include_thermal_effects = ui->checkBox_thermalEffects->isChecked();
+}
+
+
 void PRISMMainWindow::toggleSaveProjectedPotential(){
     this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
 }

@@ -1615,7 +1615,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_3">
+                    <widget class="QLineEdit" name="lineEdit_C3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1643,7 +1643,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_2">
+                    <widget class="QLineEdit" name="lineEdit_C5">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1749,7 +1749,7 @@
                  <item>
                   <widget class="QSpinBox" name="spinBox_numFP">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -2377,83 +2377,22 @@ Step (A)</string>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_18">
              <item>
-              <widget class="QRadioButton" name="radioButton_3Doutput">
+              <widget class="QCheckBox" name="checkBox_3D">
                <property name="text">
-                <string>3D output, step size (mrad)</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-               <property name="autoExclusive">
-                <bool>false</bool>
+                <string>Save 3D Output</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_3Doutputang">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_17">
              <item>
-              <widget class="QRadioButton" name="radioButton_4Doutput">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
+              <widget class="QCheckBox" name="checkBox_4D">
                <property name="text">
-                <string>4D output, step size (mrad)</string>
+                <string>Save 4D Output</string>
                </property>
               </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_4Doutputang">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>30</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </item>
@@ -2503,23 +2442,60 @@ Step (A)</string>
                </item>
               </layout>
              </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_streamdata">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="autoFillBackground">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Streaming Mode</string>
-             </property>
-             <property name="tristate">
-              <bool>false</bool>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_44">
+             <item>
+              <widget class="QCheckBox" name="checkBox_streamdata">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="autoFillBackground">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>Streaming Mode</string>
+               </property>
+               <property name="tristate">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_thermalEffects">
+               <property name="text">
+                <string>Thermal Effects</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_22">

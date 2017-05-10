@@ -104,7 +104,7 @@ namespace PRISM {
 				}
                 ++atom_count;
                 ++line_num;
-                std::cout << "atom_count = " << atom_count << " line = " << line <<  std::endl;
+//                std::cout << "atom_count = " << atom_count << " line = " << line <<  std::endl;
 				double tx, ty, tz;
 				size_t tspecies;
 				std::stringstream ss(line);

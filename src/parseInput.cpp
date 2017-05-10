@@ -45,6 +45,7 @@ namespace PRISM {
                 "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1)\n"
                 "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1)\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
+		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects)\n"
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads)\n"
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n"
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
@@ -471,11 +472,11 @@ namespace PRISM {
     bool parse_df(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
-            cout << "No defocus value provided for -df (syntax is -df defocus_value)\n";
+            cout << "No defocus value provided for -df (syntax is -df defocus_value (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probeDefocus = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value\n";
+        if ( (meta.probeDefocus = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value (in Angstroms)\n";
             return false;
         }
         argc-=2;
@@ -486,11 +487,11 @@ namespace PRISM {
 	bool parse_C3(Metadata<PRISM_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
-			cout << "No C3 value provided for -C3 (syntax is -C3 value)\n";
+			cout << "No C3 value provided for -C3 (syntax is -C3 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C3 = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
-			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value\n";
+		if ( (meta.C3 = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value (in Angstroms)\n";
 			return false;
 		}
 		argc-=2;
@@ -501,11 +502,11 @@ namespace PRISM {
 	bool parse_C5(Metadata<PRISM_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
-			cout << "No C5 value provided for -C5 (syntax is -C5 value)\n";
+			cout << "No C5 value provided for -C5 (syntax is -C5 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C5 = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
-			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value\n";
+		if ( (meta.C5 = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value (in Angstroms)\n";
 			return false;
 		}
 		argc-=2;
@@ -585,6 +586,18 @@ namespace PRISM {
         argv[0]+=3;
         return true;
     };
+
+	bool parse_te(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	              int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No value provided for -te (syntax is -te bool)\n";
+			return false;
+		}
+		meta.include_thermal_effects = std::string((*argv)[1]) == "0" ? false : true;
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
 
     bool parse_2D(Metadata<PRISM_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
@@ -676,6 +689,7 @@ namespace PRISM {
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
             {"--tile-uc", parse_t}, {"-t", parse_t},
             {"--num-FP", parse_F}, {"-F", parse_F},
+            {"--thermal-effects", parse_te}, {"-te", parse_te},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D}

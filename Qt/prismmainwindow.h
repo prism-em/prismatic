@@ -94,9 +94,14 @@ public slots:
     void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
+    void setprobe_C3_fromLineEdit();
+    void setprobe_C5_fromLineEdit();
     void setDetector_angle_step_fromLineEdit();
     void setprobe_Xtilt_fromLineEdit();
     void setprobe_Ytilt_fromLineEdit();
+    void toggle3DOutput();
+    void toggle4DOutput();
+    void toggleThermalEffects();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();

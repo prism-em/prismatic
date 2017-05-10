@@ -52,10 +52,11 @@ namespace PRISM{
 			scanWindowYMax        = 0.9;
 
 			algorithm             = Algorithm::PRISM;
+			include_thermal_effects = true;
 			also_do_CPU_work      = true;
 			save2DOutput          = false;
 			save3DOutput          = true;
-			save4DOutput          = false;
+			save4DOutput          = false;\
 			integration_angle_min = 0;
 			integration_angle_max = detector_angle_step;
 			transfer_mode         = StreamingMode::Auto;
@@ -91,6 +92,7 @@ namespace PRISM{
 		size_t NUM_GPUS; // number of GPUs to use
 		size_t NUM_STREAMS_PER_GPU; // number of CUDA streams to use per GPU
 		Algorithm algorithm;
+		bool include_thermal_effects;
 		bool also_do_CPU_work; // what fraction of computation to do on the cpu vs gpu
 		bool save2DOutput;
 		T integration_angle_min;
@@ -131,6 +133,11 @@ namespace PRISM{
 		std::cout << "scanWindowYMax = " << scanWindowYMax<< std::endl;
 		std::cout << "integration_angle_min = " << integration_angle_min<< std::endl;
 		std::cout << "integration_angle_max = " << integration_angle_max<< std::endl;
+		if (include_thermal_effects) {
+			std::cout << "include_thermal_effects = true" << std::endl;
+		} else {
+			std::cout << "include_thermal_effects = false" << std::endl;
+		}
 		if (also_do_CPU_work) {
 			std::cout << "also_do_CPU_work = true" << std::endl;
 		} else {
