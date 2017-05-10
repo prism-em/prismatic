@@ -75,8 +75,8 @@ namespace PRISM {
 		                                                              pars.alphaMax - pars.meta.detector_angle_step / 2);
 		Array1D<PRISM_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
-		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactor / 2;
-		PRISM_FLOAT_PRECISION r_1 = pars.imageSizeOutput[1] / pars.meta.interpolationFactor / 2;
+		PRISM_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactorY / 2;
+		PRISM_FLOAT_PRECISION r_1 = pars.imageSizeOutput[1] / pars.meta.interpolationFactorX / 2;
 		vector<PRISM_FLOAT_PRECISION> yVec_d = vecFromRange(-r_0, (PRISM_FLOAT_PRECISION) 1.0, r_0 - 1);
 		vector<PRISM_FLOAT_PRECISION> xVec_d = vecFromRange(-r_1, (PRISM_FLOAT_PRECISION) 1.0, r_1 - 1);
 		Array1D<PRISM_FLOAT_PRECISION> yVec(yVec_d, {{yVec_d.size()}});
@@ -90,9 +90,9 @@ namespace PRISM {
 		// setup some coordinates for the beams
 
 		Array2D<PRISM_FLOAT_PRECISION> beamsReduce = array2D_subset(pars.beamsOutput,
-		                                                            0, pars.meta.interpolationFactor,
+		                                                            0, pars.meta.interpolationFactorY,
 		                                                            pars.beamsOutput.get_dimj(),
-		                                                            0, pars.meta.interpolationFactor,
+		                                                            0, pars.meta.interpolationFactorX,
 		                                                            pars.beamsOutput.get_dimi());
 
 		vector<size_t> imageSizeReduce{beamsReduce.get_dimj(), beamsReduce.get_dimi()};
@@ -121,11 +121,11 @@ namespace PRISM {
 		// create Fourier space coordinates
 
 		pars.qxaReduce = array2D_subset(pars.qxaOutput,
-		                                0, pars.meta.interpolationFactor, pars.qxaOutput.get_dimj(),
-		                                0, pars.meta.interpolationFactor, pars.qxaOutput.get_dimi());
+		                                0, pars.meta.interpolationFactorX, pars.qxaOutput.get_dimj(),
+		                                0, pars.meta.interpolationFactorX, pars.qxaOutput.get_dimi());
 		pars.qyaReduce = array2D_subset(pars.qyaOutput,
-		                                0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimj(),
-		                                0, pars.meta.interpolationFactor, pars.qyaOutput.get_dimi());
+		                                0, pars.meta.interpolationFactorY, pars.qyaOutput.get_dimj(),
+		                                0, pars.meta.interpolationFactorY, pars.qyaOutput.get_dimi());
 		pars.q1 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		pars.q2 = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 	}
@@ -344,7 +344,8 @@ namespace PRISM {
 		// setup some relevant coordinates
 
 		pars.dq = (pars.qxaReduce.at(0, 1) + pars.qyaReduce.at(1, 0)) / 2;
-		PRISM_FLOAT_PRECISION scale = pow(pars.meta.interpolationFactor, 4);
+		PRISM_FLOAT_PRECISION scale = pow(pars.meta.interpolationFactorX, 2) * pow(pars.meta.interpolationFactorY, 2);
+
 		pars.scale = scale;
 
 //		 The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory

@@ -129,12 +129,15 @@ namespace PRISM{
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
 		                       (2 * m * c * c + e * meta.E0));
 
-		    T f = 4 * meta.interpolationFactor;
+		    T f_x = 4 * meta.interpolationFactorX;
+		    T f_y = 4 * meta.interpolationFactorY;
 		    Array1D<size_t> _imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
-		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
-		                   [&f, this](size_t &a) {
-			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
-		                   });
+		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round(((T)_imageSize[0]) / meta.realspace_pixelSize / f_y)));
+		    _imageSize[1] = (size_t)std::max(4.0,  (f_y * round(((T)_imageSize[1]) / meta.realspace_pixelSize / f_x)));
+//		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
+//		                   [&f, this](size_t &a) {
+//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
+//		                   });
 		    this->imageSize = _imageSize;
 
 		    std::vector<T> _pixelSize{(T) meta.cellDim[1], (T) meta.cellDim[2]};

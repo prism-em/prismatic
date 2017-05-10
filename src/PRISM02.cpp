@@ -97,13 +97,14 @@ namespace PRISM {
 		PRISM::Array2D<unsigned int> mask;
 		mask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 		pars.numberBeams = 0;
-		long interp_f = (long) pars.meta.interpolationFactor;
+		long interp_fx = (long) pars.meta.interpolationFactorY;
+		long interp_fy = (long) pars.meta.interpolationFactorX;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y) {
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 				if (pars.q2.at(y, x) < pow(pars.meta.alphaBeamMax / pars.lambda, 2) &&
 				    pars.qMask.at(y, x) == 1 &&
-				    (long) round(mesh_a.first.at(y, x)) % interp_f == 0 &&
-				    (long) round(mesh_a.second.at(y, x)) % interp_f == 0) {
+				    (long) round(mesh_a.first.at(y, x)) % interp_fy == 0 &&
+				    (long) round(mesh_a.second.at(y, x)) % interp_fx == 0) {
 					mask.at(y, x) = 1;
 					++pars.numberBeams;
 				}

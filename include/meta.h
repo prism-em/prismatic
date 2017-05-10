@@ -18,7 +18,8 @@ namespace PRISM{
 	public:
 		void toString();
 		Metadata(){
-			interpolationFactor   = 5;
+			interpolationFactorY   = 4;
+			interpolationFactorX   = 4;
 			filename_atoms        = "/path/to/atoms.txt";
 			filename_output       = "output.mrc";
 			realspace_pixelSize   = 0.1;
@@ -57,7 +58,8 @@ namespace PRISM{
 			integration_angle_max = detector_angle_step;
 			transfer_mode         = StreamingMode::Auto;
 		}
-		size_t interpolationFactor; // PRISM f parameter
+		size_t interpolationFactorY; // PRISM f_y parameter
+		size_t interpolationFactorX; // PRISM f_x parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
 		std::string filename_output;// filename of output image
 		T realspace_pixelSize; // pixel size
@@ -96,7 +98,8 @@ namespace PRISM{
 
 	template <class T>
 	void Metadata<T>::toString(){
-		std::cout << "interpolationFactor = " << interpolationFactor << std::endl;
+		std::cout << "interpolationFactorX = " << interpolationFactorX << std::endl;
+		std::cout << "interpolationFactorY = " << interpolationFactorY << std::endl;
 		std::cout << "filename_atoms = " <<  filename_atoms     << std::endl;
 		std::cout << "filename_output = " << filename_output  << std::endl;
 		std::cout << "realspace_pixelSize = " << realspace_pixelSize<< std::endl;

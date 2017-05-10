@@ -44,13 +44,20 @@ namespace PRISM {
 		constexpr double memoryThreshholdFraction = 0.5; // if estimated size of largest array is greater than this fraction
 		// times the amount of available memory on a GPU, streaming mode will be triggered
 		size_t estimatedMaxMemoryUsage;
-		T f = 4 * meta.interpolationFactor;
-		Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
-		std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
-		               [&f, &meta](size_t &a) {
-//			               return (size_t) (f * round(((T) a) / meta.realspace_pixelSize / f));
-                           return (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
-		               });
+//		T f = 4 * meta.interpolationFactor;
+//		Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
+//		std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
+//		               [&f, &meta](size_t &a) {
+////			               return (size_t) (f * round(((T) a) / meta.realspace_pixelSize / f));
+//                           return (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
+//		               });
+
+	    T f_x = 4 * meta.interpolationFactorX;
+	    T f_y = 4 * meta.interpolationFactorY;
+	    Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
+	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize / f_y)));
+	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[1]) / meta.realspace_pixelSize / f_x)));
+
 		size_t estimatedPotentialSize = (meta.cellDim[0] / meta.sliceThickness) * imageSize[0] * imageSize[1] *
 		                                sizeof(std::complex<PRISM_FLOAT_PRECISION>);
 		estimatedMaxMemoryUsage = estimatedPotentialSize;
@@ -97,13 +104,14 @@ namespace PRISM {
 			PRISM::Array2D<unsigned int> mask;
 			mask = zeros_ND<2, unsigned int>({{imageSize[0], imageSize[1]}});
 			size_t numberBeams = 0;
-			long interp_f = (long) meta.interpolationFactor;
+			long interp_fx = (long) meta.interpolationFactorY;
+			long interp_fy = (long) meta.interpolationFactorX;
 			for (auto y = 0; y < qMask.get_dimj(); ++y) {
 				for (auto x = 0; x < qMask.get_dimi(); ++x) {
 					if (q2.at(y, x) < pow(meta.alphaBeamMax / lambda, 2) &&
 					    qMask.at(y, x) == 1 &&
-					    (long) round(mesh_a.first.at(y, x)) % interp_f == 0 &&
-					    (long) round(mesh_a.second.at(y, x)) % interp_f == 0) {
+					    (long) round(mesh_a.first.at(y, x)) % interp_fy == 0 &&
+					    (long) round(mesh_a.second.at(y, x)) % interp_fx == 0) {
 						mask.at(y, x) = 1;
 						++numberBeams;
 					}
@@ -111,7 +119,7 @@ namespace PRISM {
 			}
 
 			size_t estimatedSMatrixSize =
-					numberBeams * imageSize[0] * imageSize[1] / 4 * sizeof(std::complex<PRISM_FLOAT_PRECISION>);
+			numberBeams * imageSize[0] * imageSize[1] / 4 * sizeof(std::complex<PRISM_FLOAT_PRECISION>);
 			estimatedMaxMemoryUsage = std::max(estimatedSMatrixSize, estimatedPotentialSize);
 		}
 

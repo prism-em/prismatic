@@ -17,7 +17,9 @@ namespace PRISM {
                 "\n"
                 "* --input-file (-i) filename : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z \n"
                 "* --output-file(-o) filename : output filename\n"
-                "* --interp-factor (-f) number : PRISM interpolation factor\n"
+                "* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y\n"
+		        "* --interp-factor-x (-fx) number : PRISM interpolation factor in X\n"
+		        "* --interp-factor-y (-fy) number : PRISM interpolation factor in Y\n"
                 "* --num-threads (-j) value : number of CPU threads to use\n"
                 "* --num-streams (-S) value : number of CUDA streams to create per GPU\n"
                 "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms)\n"
@@ -172,14 +174,45 @@ namespace PRISM {
             cout << "No interpolation factor provided for -f (syntax is -f interpolation_factor)\n";
             return false;
         }
-        if ( (meta.interpolationFactor = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for PRISM interpolation factor (syntax is -f interpolation_factor)\n";
+        if ( (meta.interpolationFactorX = atoi((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for PRISM interpolation factors (syntax is -f interpolation_factor)\n";
             return false;
         }
+	    meta.interpolationFactorY = meta.interpolationFactorX;
         argc-=2;
         argv[0]+=2;
         return true;
     };
+
+	bool parse_fx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No interpolation factor provided for -fx (syntax is -fx interpolation_factor_x)\n";
+			return false;
+		}
+		if ( (meta.interpolationFactorX = atoi((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for PRISM interpolation factor (syntax is -fx interpolation_factor_x)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+	bool parse_fy(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No interpolation factor provided for -fy (syntax is -fy interpolation_factor_y)\n";
+			return false;
+		}
+		if ( (meta.interpolationFactorY = atoi((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for PRISM interpolation factor (syntax is -fy interpolation_factor_y)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
 
     bool parse_j(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -582,6 +615,8 @@ namespace PRISM {
     static std::map<std::string, parseFunction> parser{
             {"--input-file", parse_i}, {"-i", parse_i},
             {"--interp-factor", parse_f}, {"-f", parse_f},
+            {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
+            {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},
             {"--output-file", parse_o}, {"-o", parse_o},
             {"--num-threads", parse_j}, {"-j", parse_j},
             {"--num-streams", parse_S}, {"-S", parse_S},
