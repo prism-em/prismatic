@@ -428,31 +428,31 @@ namespace PRISM {
 		// setup necessary coordinates
 		setupCoordinates_2(pars);
 
-		cout << "coords setup" << endl;
+//		cout << "coords setup" << endl;
 		// setup angles of detector and image sizes
 		setupDetector(pars);
 
-		cout << "detector setup" << endl;
+//		cout << "detector setup" << endl;
 		// setup coordinates and indices for the beams
 		setupBeams_2(pars);
 
-		cout << "beams setup" << endl;
+//		cout << "beams setup" << endl;
 		// setup Fourier coordinates for the S-matrix
 		setupFourierCoordinates(pars);
 
-		cout << "fourier coords setup" << endl;
+//		cout << "fourier coords setup" << endl;
 		// initialize the output to the correct size for the output mode
 		createStack_integrate(pars);
 
-		cout << "stack setup" << endl;
+//		cout << "stack setup" << endl;
 //		 perform some necessary setup transformations of the data
 		transformIndices(pars);
 
-		cout << "xform indices setup" << endl;
+//		cout << "xform indices setup" << endl;
 		// initialize/compute the probes
 		initializeProbes(pars);
 
-		cout << "building output" << endl;
+//		cout << "building output" << endl;
 		// compute the final PRISM output
 		buildPRISMOutput(pars);
 	}

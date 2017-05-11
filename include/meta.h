@@ -51,7 +51,7 @@ namespace PRISM{
 			scanWindowYMin        = 0.1;
 			scanWindowYMax        = 0.9;
 			srand(time(0));
-			random_seed           = rand() % 1000;
+			random_seed           = rand() % 100000;
 			algorithm             = Algorithm::PRISM;
 			include_thermal_effects = true;
 			also_do_CPU_work      = true;

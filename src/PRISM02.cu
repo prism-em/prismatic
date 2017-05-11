@@ -189,6 +189,7 @@ namespace PRISM {
 		cout << "pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT))= " << pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)<< endl;
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
+			cout << "g = " << g << endl;
 			cudaErrchk(cudaSetDevice(g));
 			cudaErrchk(cudaMalloc((void **) &trans_d[g], pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &prop_d[g], pars.prop.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
