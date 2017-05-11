@@ -1095,7 +1095,7 @@ void PRISMMainWindow::updateAlphaMax(){
     using namespace PRISM;
     PRISM_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
     PRISM_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
-    Array1D<size_t> imageSize({{meta->cellDim[1] * meta->tileY, meta->cellDim[2] * meta->tileX}}, {{2}});
+    Array1D<size_t> imageSize({{(size_t)meta->cellDim[1] * meta->tileY, (size_t)meta->cellDim[2] * meta->tileX}}, {{2}});
     imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round(((PRISM_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize / f_y)));
     imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round(((PRISM_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize / f_x)));
 
@@ -1115,8 +1115,8 @@ void PRISMMainWindow::updateAlphaMax(){
         PRISM_FLOAT_PRECISION qx_max = 0;
         PRISM_FLOAT_PRECISION qy_max = 0;
         for (auto i = 0; i < qx.size(); ++i) {
-            qx_max = (abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
-            qy_max = (abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
+            qx_max = (std::abs(qx[i]) > qx_max) ? std::abs(qx[i]) : qx_max;
+            qy_max = (std::abs(qy[i]) > qy_max) ? std::abs(qy[i]) : qy_max;
         }
 
         long long ncx = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[1] / 2);

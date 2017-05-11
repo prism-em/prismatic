@@ -15,6 +15,8 @@
 #include "atom.h"
 #include "meta.h"
 //#include "configure.h"
+//
+
 #ifdef PRISM_BUILDING_GUI
 class prism_progressbar;
 #endif

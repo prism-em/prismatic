@@ -12,7 +12,7 @@ MAKEFILE      = Makefile
 
 CC            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
 CXX           = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
-DEFINES       = -DQT_DEPRECATED_WARNINGS -DPRISM_ENABLE_GPU=0 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -mmacosx-version-min=10.10 -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -stdlib=libc++ -std=c++11 -g -std=gnu++11 $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -mmacosx-version-min=10.10 -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I. -I../include -I/usr/local/include -I.. -I../include/boost -I/Users/ajpryor/Qt5/qtbase/include -I/Users/ajpryor/Qt5/qtbase/include/QtWidgets -I/Users/ajpryor/Qt5/qtbase/include/QtGui -I/Users/ajpryor/Qt5/qtbase/include/QtCore -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk/System/Library/Frameworks/AGL.framework/Headers -I. -I/Users/ajpryor/Qt5/qtbase/mkspecs/macx-clang
@@ -60,6 +60,8 @@ SOURCES       = main.cpp \
 		../src/PRISM02.cpp \
 		../src/PRISM03.cpp \
 		../src/projectedPotential.cpp \
+		../src/utility.cpp \
+		../src/atom.cpp \
 		prism_progressbar.cpp /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prism-gui_plugin_import.cpp \
 		qrc_prism_resources.cpp \
 		moc_prismmainwindow.cpp \
@@ -77,6 +79,8 @@ OBJECTS       = main.o \
 		PRISM02.o \
 		PRISM03.o \
 		projectedPotential.o \
+		utility.o \
+		atom.o \
 		prism_progressbar.o \
 		prism-gui_plugin_import.o \
 		qrc_prism_resources.o \
@@ -233,6 +237,8 @@ DIST          = /Users/ajpryor/Qt5/qtbase/mkspecs/features/spec_pre.prf \
 		../src/PRISM02.cpp \
 		../src/PRISM03.cpp \
 		../src/projectedPotential.cpp \
+		../src/utility.cpp \
+		../src/atom.cpp \
 		prism_progressbar.cpp
 QMAKE_TARGET  = PRISM-GUI
 DESTDIR       = 
@@ -574,7 +580,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents prism_resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /Users/ajpryor/Qt5/qtbase/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents prismmainwindow.h prism_progressbar.h prism_qthreads.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp prismmainwindow.cpp prism_qthreads.cpp ../src/configure.cpp ../src/WorkDispatcher.cpp ../src/Multislice_entry.cpp ../src/Multislice.cpp ../src/PRISM_entry.cpp ../src/PRISM01.cpp ../src/PRISM02.cpp ../src/PRISM03.cpp ../src/projectedPotential.cpp prism_progressbar.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp prismmainwindow.cpp prism_qthreads.cpp ../src/configure.cpp ../src/WorkDispatcher.cpp ../src/Multislice_entry.cpp ../src/Multislice.cpp ../src/PRISM_entry.cpp ../src/PRISM01.cpp ../src/PRISM02.cpp ../src/PRISM03.cpp ../src/projectedPotential.cpp ../src/utility.cpp ../src/atom.cpp prism_progressbar.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents prismmainwindow.ui prism_progressbar.ui $(DISTDIR)/
 
 
@@ -1824,11 +1830,12 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qcheckbox.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qabstractbutton.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qabstractbutton.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QFrame \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qframe.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qframe.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QGroupBox \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgroupbox.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qgroupbox.h \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qframe.h \
-		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qframe.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QHBoxLayout \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qboxlayout.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qboxlayout.h \
@@ -1892,6 +1899,9 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QRadioButton \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qradiobutton.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qradiobutton.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QScrollArea \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qscrollarea.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qscrollarea.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QSlider \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QSpacerItem \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QSpinBox \
@@ -1912,7 +1922,9 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		prism_qthreads.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QThread \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/qthread.h \
-		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qthread.h
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qthread.h \
+		../include/utility.h \
+		/usr/local/include/fftw3.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o prismmainwindow.o prismmainwindow.cpp
 
 prism_qthreads.o: prism_qthreads.cpp prism_qthreads.h \
@@ -10481,7 +10493,6 @@ PRISM03.o: ../src/PRISM03.cpp ../include/PRISM03.h \
 		../include/defines.h \
 		/usr/local/include/fftw3.h \
 		../include/utility.h \
-		../include/WorkDispatcher.h \
 		../include/configure.h \
 		prism_progressbar.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QDialog \
@@ -10701,7 +10712,8 @@ PRISM03.o: ../src/PRISM03.cpp ../include/PRISM03.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutex \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
-		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM03.o ../src/PRISM03.cpp
 
 projectedPotential.o: ../src/projectedPotential.cpp ../include/projectedPotential.h \
@@ -12269,6 +12281,238 @@ projectedPotential.o: ../src/projectedPotential.cpp ../include/projectedPotentia
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o projectedPotential.o ../src/projectedPotential.cpp
+
+utility.o: ../src/utility.cpp ../include/utility.h \
+		../include/defines.h \
+		/usr/local/include/fftw3.h \
+		../include/configure.h \
+		../include/meta.h \
+		../include/ArrayND.h \
+		../include/params.h \
+		../include/atom.h \
+		prism_progressbar.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QDialog \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qdialog.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/dialogs/qdialog.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qtwidgetsglobal.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qtwidgetsglobal.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtguiglobal.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qtguiglobal.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qglobal.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qglobal.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qconfig-bootstrapped.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qconfig-bootstrapped.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qconfig.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qconfig.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qtcore-config.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/qtcore-config.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsystemdetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qsystemdetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qprocessordetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qprocessordetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qcompilerdetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qcompilerdetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qtypeinfo.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qtypeinfo.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsysinfo.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qsysinfo.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qlogging.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qlogging.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qflags.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qflags.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbasicatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qbasicatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_bootstrap.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_bootstrap.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qgenericatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qgenericatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_cxx11.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_cxx11.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_msvc.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_msvc.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qglobalstatic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qglobalstatic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qmutex.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qmutex.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qnumeric.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qnumeric.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qversiontagging.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qversiontagging.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtgui-config.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/qtgui-config.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qtwidgets-config.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/qtwidgets-config.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qwidget.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qwidget.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qwindowdefs.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qwindowdefs.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qobjectdefs.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qobjectdefs.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qnamespace.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qnamespace.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qobjectdefs_impl.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qobjectdefs_impl.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qwindowdefs_win.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qwindowdefs_win.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qobject.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qobject.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstring.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstring.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qchar.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qchar.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbytearray.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qbytearray.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qrefcount.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qrefcount.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qarraydata.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qarraydata.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringbuilder.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringbuilder.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qlist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qlist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qalgorithms.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qalgorithms.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qiterator.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qiterator.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qhashfunctions.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qhashfunctions.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qpair.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qpair.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbytearraylist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qbytearraylist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringlist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringlist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qregexp.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qregexp.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringmatcher.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringmatcher.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qcoreevent.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qcoreevent.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qscopedpointer.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qscopedpointer.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qmetatype.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qmetatype.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qvarlengtharray.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qvarlengtharray.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qcontainerfwd.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qcontainerfwd.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qobject_impl.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qobject_impl.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qmargins.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qmargins.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpaintdevice.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qpaintdevice.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qrect.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qrect.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsize.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qsize.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qpoint.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qpoint.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpalette.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qpalette.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qcolor.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qcolor.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qrgb.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qrgb.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qrgba64.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qrgba64.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qbrush.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qbrush.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qvector.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qvector.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qmatrix.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qmatrix.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpolygon.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qpolygon.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qregion.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qregion.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qdatastream.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qdatastream.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qiodevice.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qiodevice.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qline.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qline.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtransform.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qtransform.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpainterpath.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qpainterpath.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qimage.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/image/qimage.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpixelformat.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qpixelformat.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpixmap.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/image/qpixmap.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsharedpointer.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qsharedpointer.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qshareddata.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qshareddata.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qhash.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qhash.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsharedpointer_impl.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qsharedpointer_impl.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qfont.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/text/qfont.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qfontmetrics.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/text/qfontmetrics.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qfontinfo.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/text/qfontinfo.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qsizepolicy.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qsizepolicy.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qcursor.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qcursor.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qkeysequence.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qkeysequence.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qevent.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qevent.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qvariant.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/kernel/qvariant.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qmap.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qmap.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qdebug.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qdebug.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qtextstream.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qtextstream.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qlocale.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qlocale.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qset.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qset.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qcontiguouscache.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qcontiguouscache.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qurl.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qurl.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qurlquery.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qurlquery.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qfile.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qfile.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qfiledevice.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/io/qfiledevice.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qvector2d.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/math3d/qvector2d.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtouchdevice.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qtouchdevice.h \
+		prismmainwindow.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QMainWindow \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qmainwindow.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qmainwindow.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qtabwidget.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qtabwidget.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qicon.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/image/qicon.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QGraphicsScene \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgraphicsscene.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/graphicsview/qgraphicsscene.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qpen.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qpen.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutex \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utility.o ../src/utility.cpp
+
+atom.o: ../src/atom.cpp ../include/atom.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o atom.o ../src/atom.cpp
 
 prism_progressbar.o: prism_progressbar.cpp prism_progressbar.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QDialog \

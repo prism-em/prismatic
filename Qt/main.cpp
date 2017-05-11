@@ -3,6 +3,7 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
+#define PRISM_BUILDING_GUI 1
 #include <QApplication>
 #include "prismmainwindow.h"
 int main(int argc, char *argv[])

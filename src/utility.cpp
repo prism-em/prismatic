@@ -15,7 +15,7 @@ namespace PRISM {
 		Array2D<std::complex<PRISM_FLOAT_PRECISION> > buffer_probe;
 		Array2D<std::complex<PRISM_FLOAT_PRECISION> > kspace_probe;
 
-		buffer_probe = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{dimj, dimi}});
+		buffer_probe = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{(size_t)dimj, (size_t)dimi}});
 //		std::cout << "dimj = " << dimj << std::endl;
 		long ncy = probe.get_dimj() / 2;
 		long ncx = probe.get_dimi() / 2;
@@ -57,8 +57,8 @@ namespace PRISM {
 		m1 /= left.size();
 		m2 /= right.size();
 
-		for (auto &i:left)sigma1  += pow(abs(abs(i)-m1),2);
-		for (auto &i:right)sigma2 += pow(abs(abs(i)-m2),2);
+		for (auto &i:left)sigma1  += pow(std::abs(std::abs(i)-m1),2);
+		for (auto &i:right)sigma2 += pow(std::abs(std::abs(i)-m2),2);
 
 		sigma1 /= left.size();
 		sigma2 /= right.size();
@@ -67,7 +67,7 @@ namespace PRISM {
 		sigma2 = sqrt(sigma2);
 
 		for (auto i = 0; i < std::min(left.size(), right.size()); ++i){
-			R += (abs(left[i]) - m1) * (abs(right[i]) - m2);
+			R += (std::abs(left[i]) - m1) * (std::abs(right[i]) - m2);
 		}
 		return R / (sigma1 * sigma2);
 	}
@@ -76,8 +76,8 @@ namespace PRISM {
 		PRISM_FLOAT_PRECISION accum, diffs;
 		accum = diffs = 0;
 		for (auto i = 0; i < std::min(left.size(), right.size()); ++i){
-			diffs += abs(left[i] - right[i]);
-			accum += abs(left[i]);
+			diffs += std::abs(left[i] - right[i]);
+			accum += std::abs(left[i]);
 		}
 		return diffs / accum;
 	}
