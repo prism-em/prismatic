@@ -54,13 +54,18 @@ namespace PRISM {
 
 	    T f_x = 4 * meta.interpolationFactorX;
 	    T f_y = 4 * meta.interpolationFactorY;
-	    Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
+	    Array1D<size_t> imageSize({{meta.cellDim[1] * meta.tileY, meta.cellDim[2] * meta.tileX}}, {{2}});
 	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize / f_y)));
-	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[1]) / meta.realspace_pixelSize / f_x)));
+	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize / f_x)));
 
-		size_t estimatedPotentialSize = (meta.cellDim[0] / meta.sliceThickness) * imageSize[0] * imageSize[1] *
+
+
+		size_t estimatedPotentialSize = (meta.cellDim[0] * meta.tileZ / meta.sliceThickness) * imageSize[0] * imageSize[1] *
 		                                sizeof(std::complex<PRISM_FLOAT_PRECISION>);
 		estimatedMaxMemoryUsage = estimatedPotentialSize;
+
+		cout << "Estimated potential array size = " << estimatedPotentialSize << '\n';
+
 		if (meta.algorithm == PRISM::Algorithm::PRISM) {
 			Array1D<PRISM_FLOAT_PRECISION> xv = makeFourierCoords(imageSize[1],
 			                                                      (PRISM_FLOAT_PRECISION) 1 / imageSize[1]);
@@ -104,8 +109,8 @@ namespace PRISM {
 			PRISM::Array2D<unsigned int> mask;
 			mask = zeros_ND<2, unsigned int>({{imageSize[0], imageSize[1]}});
 			size_t numberBeams = 0;
-			long interp_fx = (long) meta.interpolationFactorY;
-			long interp_fy = (long) meta.interpolationFactorX;
+			long interp_fx = (long) meta.interpolationFactorX;
+			long interp_fy = (long) meta.interpolationFactorY;
 			for (auto y = 0; y < qMask.get_dimj(); ++y) {
 				for (auto x = 0; x < qMask.get_dimi(); ++x) {
 					if (q2.at(y, x) < pow(meta.alphaBeamMax / lambda, 2) &&
@@ -126,8 +131,8 @@ namespace PRISM {
 #ifdef PRISM_ENABLE_GPU
 		size_t available_memory;
 		cudaErrchk(cudaMemGetInfo(NULL, &available_memory));
-		cout << "available_memory = " << available_memory << endl;
-		cout << "estimated memory usage for single transfer method = " << estimatedMaxMemoryUsage  << endl;
+		cout << "Available GPU memory = " << available_memory << '\n';
+		cout << "Estimated GPU memory usage for single transfer method = " << estimatedMaxMemoryUsage  << '\n';
 		return (estimatedMaxMemoryUsage > memoryThreshholdFraction * available_memory) ?
 		       PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
 #else
@@ -143,7 +148,7 @@ namespace PRISM {
 		formatOutput_GPU = formatOutput_GPU_integrate;
 #endif
 		if (meta.algorithm == Algorithm::PRISM) {
-			std::cout << "Execution plan: PRISM w/ single FP configuration" << std::endl;
+			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
 			execute_plan = PRISM_entry;
 #ifdef PRISM_ENABLE_GPU
             if (meta.transfer_mode == PRISM::StreamingMode::Auto){
@@ -163,10 +168,10 @@ namespace PRISM {
 			buildPRISMOutput = buildPRISMOutput_CPUOnly;
 #endif //PRISM_ENABLE_GPU
 		} else if (meta.algorithm == Algorithm::Multislice) {
-			std::cout << "Execution plan: Multislice w/ single FP configuration" << std::endl;
+			std::cout << "Execution plan: Multislice w/ single FP configuration\n";
 			execute_plan = Multislice_entry;
 #ifdef PRISM_ENABLE_GPU
-			std::cout << "Using GPU codes" << std::endl;
+			std::cout << "Using GPU codes" << '\n';
 			if (meta.transfer_mode == PRISM::StreamingMode::Auto){
 				meta.transfer_mode = transferMethodAutoChooser(meta);
 			}

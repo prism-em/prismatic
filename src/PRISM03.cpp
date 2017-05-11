@@ -234,7 +234,7 @@ namespace PRISM {
 					 do {
 						 while (Nstart != Nstop) {
 							 if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
-							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							 }
 							 ay = Nstart / pars.xp.size();
 							 ax = Nstart % pars.xp.size();
@@ -456,6 +456,10 @@ namespace PRISM {
 		initializeProbes(pars);
 
 //		cout << "building output" << endl;
+		cout << "SMATRIX SIZE = "  << pars.Scompact.size() << endl;
+		cout << "pars.Scompact.get_dimi() = "  << pars.Scompact.get_dimi() << endl;
+		cout << "pars.Scompact.get_dimj() = "  << pars.Scompact.get_dimj() << endl;
+		cout << "pars.Scompact.get_dimk() = "  << pars.Scompact.get_dimk() << endl;
 		// compute the final PRISM output
 		buildPRISMOutput(pars);
 	}
