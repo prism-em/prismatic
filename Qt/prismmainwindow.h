@@ -113,8 +113,8 @@ public slots:
     void updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
+    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);

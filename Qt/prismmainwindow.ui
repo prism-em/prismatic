@@ -31,7 +31,7 @@
     <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -372,7 +372,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_38">
+           <widget class="QLabel" name="label_Xprobe">
             <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
@@ -398,7 +398,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_37">
+           <widget class="QLabel" name="label_Yprobe">
             <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
@@ -688,6 +688,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="checkBox_zoomProbe">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Zoom Probe Display</string>
             </property>
@@ -936,7 +939,7 @@
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>-25</x>
+         <x>0</x>
          <y>0</y>
          <width>320</width>
          <height>1035</height>

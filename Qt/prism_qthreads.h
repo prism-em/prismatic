@@ -48,7 +48,7 @@ class ProbeThread : public QThread {
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *progressbar);
+    explicit ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *progressbar, bool use_log_scale = false);
     virtual ~ProbeThread();
 signals:
     void potentialCalculated();
@@ -57,13 +57,14 @@ signals:
     void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     PRISM_FLOAT_PRECISION X, Y;
     prism_progressbar *progressbar;
+    bool use_log_scale;
 };
 
 class FullPRISMCalcThread : public QThread {

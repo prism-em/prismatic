@@ -208,6 +208,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
     ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
+    ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
+    ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
+
     this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
     // connect signals and slots
@@ -684,7 +687,7 @@ void PRISMMainWindow::calculateProbe(){
     PRISM_FLOAT_PRECISION Y = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeY->text().toDouble();
     currently_calculated_X = X;
     currently_calculated_Y = Y;
-    ProbeThread *worker = new ProbeThread(this, X, Y, progressbar);
+    ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
 //    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
@@ -696,8 +699,8 @@ void PRISMMainWindow::calculateProbe(){
     connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+    connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+    connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     worker->start();
 }
 
@@ -820,6 +823,8 @@ void PRISMMainWindow::updatePotentialDisplay(){
 void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_pk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
+    std::cout << "pK *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "pK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -834,6 +839,8 @@ void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
 void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_pr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
+    std::cout << "pReal *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "pReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -848,6 +855,8 @@ void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
 void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_mk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
+    std::cout << "mK *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "mK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -862,6 +871,8 @@ void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
 void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_mr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
+    std::cout << "mReal *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "mReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -874,9 +885,11 @@ void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
     probeImage_mr_float = arr;
 }
 
-void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast){
     probeImage_diffr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
-    auto contrast = std::minmax_element(arr.begin(), arr.end());
+    auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
+    std::cout << "diffreal *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "diffreal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -888,9 +901,12 @@ void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> ar
                                                                                          Qt::KeepAspectRatio)));
     probeImage_diffr_float = arr;
 }
-void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast){
     probeImage_diffk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
-    auto contrast = std::minmax_element(arr.begin(), arr.end());
+    auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
+    std::cout << "diffk *contrast.first= " << *contrast.first<< std::endl;
+    std::cout << "diffk *contrast.second= " << *contrast.first<< std::endl;
+
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
