@@ -76,8 +76,8 @@ void SMatrixThread::run(){
 }
 
 
-ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar) :
-parent(_parent), X(_X), Y(_Y), progressbar(_progressbar){
+ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar, bool _use_log_scale) :
+parent(_parent), X(_X), Y(_Y), progressbar(_progressbar), use_log_scale(_use_log_scale){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
     this->meta = *(parent->getMetadata());
 }
@@ -98,6 +98,7 @@ void ProbeThread::run(){
         this->parent->pars = params;
 //        this->parent->pars_multi = params_multi;
         this->parent->potentialReady = true;
+        this->parent->potentialImageExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     std::cout <<"emitting signal" <<std::endl;
@@ -174,27 +175,38 @@ void ProbeThread::run(){
 
     multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
-    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
-        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
-    for (auto j = 0; j < multislice_probes.second.get_dimj(); ++j){
-        for (auto i = 0; i < multislice_probes.second.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(multislice_probes.second.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
 
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
     this->parent->pars = params;
     this->parent->probeSetupReady = true;
 
-    prism_probes = upsamplePRISMProbe(prism_probes.first, multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi());
+    prism_probes = upsamplePRISMProbe(prism_probes.first,
+                                      multislice_probes.first.get_dimj(),
+                                      multislice_probes.first.get_dimi(),
+                                      Y / params.pixelSize[0] / 2 ,
+                                      X / params.pixelSize[1] / 2);
 
+    PRISM_FLOAT_PRECISION pr_sum, pk_sum, mr_sum, mk_sum;
+    pr_sum = pk_sum  = mr_sum = mk_sum = 0;
+    for (auto& i : prism_probes.first)       pr_sum += abs(i);
+    for (auto& i : prism_probes.second)      pk_sum += abs(i);
+    for (auto& i : multislice_probes.first)  mr_sum += abs(i);
+    for (auto& i : multislice_probes.second) mk_sum += abs(i);
+
+    for (auto& i : prism_probes.first)       i /= pr_sum;
+    for (auto& i : prism_probes.second)      i /= pk_sum;
+    for (auto& i : multislice_probes.first)  i /= mr_sum;
+    for (auto& i : multislice_probes.second) i /= mk_sum;
+
+    std::cout << "emitting signal" << std::endl;
+    emit signal_pearsonReal(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.first, multislice_probes.first)));
+    emit signal_pearsonK(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.second, multislice_probes.second)));
+    emit signal_RReal(QString("R = ") + QString::number(computeRfactor(prism_probes.first, multislice_probes.first)));
+    emit signal_RK(QString("R = ") + QString::number(computeRfactor(prism_probes.second, multislice_probes.second)));
+//    pr_sum = std::accumulate(&prism_probes.first[0], &*(prism_probes.first.end()-1), (PRISM_FLOAT_PRECISION)0.0, [](std::complex<PRISM_FLOAT_PRECISION> a){return abs(a);});
+
+//    PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
 //    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
 //        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
 //        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
@@ -208,9 +220,22 @@ void ProbeThread::run(){
 //    }
 //    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
 
+//    for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
+//        for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(prism_probes.first.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db_p.mrc");
+//    for (auto j = 0; j < prism_probes.second.get_dimj(); ++j){
+//        for (auto i = 0; i < prism_probes.second.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(prism_probes.second.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk_p.mrc");
 
-    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
-    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
+
+//    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
+//    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
 
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pr    = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pk    = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
@@ -219,20 +244,26 @@ void ProbeThread::run(){
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
-//if (parent->ui->checkBox_log->checked()){
-//    for (auto i = 0; i < prism_probes.first.size(); ++i){
-//        pr[i] =  std::log(std::abs(prism_probes.first[i]));
-//    }
-//    for (auto i = 0; i < prism_probes.second.size(); ++i){
-//        pk[i] =  std::log(std::abs(prism_probes.second[i]));
-//    }
-//    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-//        mr[i] =  std::log(std::abs(multislice_probes.first[i]));
-//    }
-//    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-//        mk[i] =  std::log(std::abs(multislice_probes.second[i]));
-//    }
-//} else{
+
+
+if (use_log_scale){
+    for (auto i = 0; i < prism_probes.first.size(); ++i){
+        pr[i] =  std::log(1e-5 + std::abs(prism_probes.first[i]));
+    }
+    for (auto i = 0; i < prism_probes.second.size(); ++i){
+        pk[i] =  std::log(1e-5 + std::abs(prism_probes.second[i]));
+    }
+    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+        mr[i] =  std::log(1e-5 + std::abs(multislice_probes.first[i]));
+    }
+    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+        mk[i] =  std::log(1e-5 + std::abs(multislice_probes.second[i]));
+    }
+    for (auto i = 0; i < prism_probes.second.size(); ++i){
+        diffr[i] =  log(1e-5 + std::abs(pr[i] - mr[i]));
+        diffk[i] =  log(1e-5 + std::abs(pk[i] - mk[i]));
+    }
+} else{
     for (auto i = 0; i < prism_probes.first.size(); ++i){
         pr[i] =  std::abs(prism_probes.first[i]);
     }
@@ -245,41 +276,18 @@ void ProbeThread::run(){
     for (auto i = 0; i < multislice_probes.second.size(); ++i){
         mk[i] =  std::abs(multislice_probes.second[i]);
     }
-//}
-
     for (auto i = 0; i < prism_probes.second.size(); ++i){
         diffr[i] =  (std::abs(pr[i] - mr[i]));
         diffk[i] =  (std::abs(pk[i] - mk[i]));
     }
+}
 
-//    for (auto i = 0; i < prism_probes.first.size(); ++i){
-//        pr[i] =  std::abs(prism_probes.first[i]);
-//    }
-//    for (auto i = 0; i < prism_probes.second.size(); ++i){
-//        pk[i] =  std::abs(prism_probes.second[i]);
-//    }
-//    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-//        mr[i] =  std::abs(multislice_probes.first[i]);
-//    }prism_probes
-//    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-//        mk[i] =  std::abs(multislice_probes.second[i]);
-//    }
-//    for (auto i = 0; i < prism_probes.second.size(); ++i){
-//        diffr[i] =  std::abs(pr[i] - mr[i]);
-//        diffk[i] =  std::abs(pk[i] - mk[i]);
-//    }
-//    emit signalProbeR_PRISM(pr);
-//    emit signalProbeK_PRISM(pk);
-//    emit signalProbeR_Multislice(mr);
-//    emit signalProbeK_Multislice(mk);
-//    emit signalProbe_diffR(diffr);
-//    emit signalProbe_diffK(diffk);
     emit signalProbeR_PRISM((pr));
     emit signalProbeK_PRISM(fftshift2(pk));
     emit signalProbeR_Multislice((mr));
     emit signalProbeK_Multislice(fftshift2(mk));
-    emit signalProbe_diffR((diffr));
-    emit signalProbe_diffK(fftshift2(diffk));
+    emit signalProbe_diffR((diffr), mr);
+    emit signalProbe_diffK(fftshift2(diffk), mk);
 }
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
@@ -345,7 +353,7 @@ void FullPRISMCalcThread::run(){
         PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
             PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
-            params.meta.random_seed = rand() % 1000;
+            params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             PRISM::PRISM01(params);
@@ -411,6 +419,27 @@ void FullMultisliceCalcThread::run(){
     emit potentialCalculated();
 
     PRISM::Multislice(params);
+
+
+    if (params.meta.numFP > 1) {
+        // run the rest of the frozen phonons
+        PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
+        for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
+            PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+            params.meta.random_seed = rand() % 100000;
+            emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+            progressbar->resetOutputs();
+            PRISM::PRISM01(params);
+            PRISM::Multislice(params);
+            net_output += params.output;
+        }
+        // divide to take average
+        for (auto&i:net_output) i/=params.meta.numFP;
+        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
+        params.output = net_output;
+    }
+
+
     {
 //        QMutexLocker gatekeeper(&this->parent->outputLock);
         QMutexLocker gatekeeper(&this->parent->dataLock);

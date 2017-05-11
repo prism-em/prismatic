@@ -361,6 +361,9 @@ namespace PRISM{
                     do {
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart != Nstop) {
+							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+							}
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
 //                            if (ay==7){

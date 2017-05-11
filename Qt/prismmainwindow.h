@@ -87,6 +87,7 @@ public slots:
     void updateSlider_lineEdits_max(int);
 	void updateSlider_lineEdits_max_ang(int val);
 	void updateSlider_lineEdits_min_ang(int val);
+    void updateAlphaMax();
     void resizeEvent(QResizeEvent* event);
     void redrawImages();
     void saveCurrentOutputImage();
@@ -108,12 +109,17 @@ public slots:
     void setscan_WindowYMin_fromLineEdit();
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
+    void newRandomSeed();
     void updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
+    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
+    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
+    void update_pearsonReal(QString str);
+    void update_pearsonK(QString str);
+    void update_RReal(QString str);
+    void update_RK(QString str);
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);

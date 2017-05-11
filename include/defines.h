@@ -12,6 +12,8 @@ namespace PRISM {
 		PRISM, Multislice
 	};
 }
+#define PRISM_PRINT_FREQUENCY_PROBES 500 // how often to print status update messages for PRISM/Multislice probe position calculations
+#define PRISM_PRINT_FREQUENCY_BEAMS 50    // how often to print status update messages for PRISM plane wave calculations
 #ifdef PRISM_ENABLE_GPU
 #include "cuComplex.h"
 #include <cuda_runtime.h>

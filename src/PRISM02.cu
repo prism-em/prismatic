@@ -189,6 +189,7 @@ namespace PRISM {
 		cout << "pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT))= " << pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)<< endl;
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
+			cout << "g = " << g << endl;
 			cudaErrchk(cudaSetDevice(g));
 			cudaErrchk(cudaMalloc((void **) &trans_d[g], pars.transmission.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &prop_d[g], pars.prop.size() * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
@@ -258,7 +259,7 @@ namespace PRISM {
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaSetDevice(GPU_num);
 			cudaStream_t &current_stream = streams[stream_count];
-			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << endl;
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_trans_d = trans_d[GPU_num];
@@ -285,7 +286,7 @@ namespace PRISM {
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-//					cout << "max_mem = " << pars.max_mem << '\n';
+//					cout << "max_mem = " << pars.max_mem << endl;
 				}
 #endif // NDEBUG
 
@@ -294,6 +295,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
+						if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+						}
 						propagatePlaneWave_GPU_singlexfer(pars,
 						                                  current_trans_d,
 						                                  current_psi_ds,
@@ -362,6 +366,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 						do { // synchronously get work assignment
 							while (currentBeam != stop) {
+								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+								}
 								// re-zero psi each iteration
 								memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 								propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
@@ -577,20 +584,16 @@ namespace PRISM {
 //			                           cudaMemcpyHostToDevice, streams[stream_id]));
 
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(prop_d[g], &prop_ph[0],
 			                           pars.prop.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxInd_d[g], &qxInd_ph[0],
 			                           pars.qxInd.size() * sizeof(size_t), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qyInd_d[g], &qyInd_ph[0],
 			                           pars.qyInd.size() * sizeof(size_t), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(beamsIndex_d[g], &beamsIndex_ph[0],
 			                           pars.beamsIndex.size() * sizeof(size_t), cudaMemcpyHostToDevice,
 			                           streams[stream_id]));
@@ -613,7 +616,7 @@ namespace PRISM {
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaSetDevice(GPU_num);
 			cudaStream_t &current_stream = streams[stream_count];
-			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << endl;
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d = prop_d[GPU_num];
@@ -641,7 +644,7 @@ namespace PRISM {
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-					cout << "max_mem = " << pars.max_mem << '\n';
+					cout << "max_mem = " << pars.max_mem << endl;
 				}
 #endif // NDEBUG
 
@@ -650,6 +653,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
+						if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+						}
 						propagatePlaneWave_GPU_streaming(pars,
 						                                 current_trans_ds,
 						                                 trans_ph,
@@ -667,7 +673,7 @@ namespace PRISM {
 						++currentBeam;
 					}
 				}
-				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
+				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << " finished\n";
 			}));
 			++stream_count;
 		}
@@ -714,6 +720,9 @@ cout << "early_CPU_stop  = " << early_CPU_stop << endl;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					do { // synchronously get work assignment
 						while (currentBeam != stop) {
+							if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+								cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+							}
 							// re-zero psi each iteration
 							memset((void *) &psi[0], 0, psi.size() * sizeof(complex < PRISM_FLOAT_PRECISION > ));
 							propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
@@ -730,6 +739,7 @@ cout << "early_CPU_stop  = " << early_CPU_stop << endl;
 				}
 			}));
 		}
+		cout << "Waiting for worker threads...\n";
 		for (auto &t:workers_CPU)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
 	}
