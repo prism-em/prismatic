@@ -19,25 +19,26 @@ namespace PRISM{
 		PRISM01(prism_pars);
 		Multislice(prism_pars);
 
-		if (prism_pars.meta.numFP == 1) {
-			if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
-		} else {
+
+		if (prism_pars.meta.numFP > 1) {
 			// run the rest of the frozen phonons
-			++prism_pars.meta.fpNum;
 			Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
 			for (auto fp_num = 1; fp_num < prism_pars.meta.numFP; ++fp_num){
+				meta.random_seed = rand() % 100000;
+				Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 				cout << "Frozen Phonon #" << fp_num << endl;
+				prism_pars.meta.toString();
+				PRISM01(prism_pars);
 				Multislice(prism_pars);
 				net_output += prism_pars.output;
 			}
 			// divide to take average
 			for (auto&i:net_output) i/=prism_pars.meta.numFP;
-			if (prism_pars.meta.save3DOutput)net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
+			prism_pars.output = net_output;
 		}
+		if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 
 		if (prism_pars.meta.save2DOutput) {
-//			size_t lower = 0;
-//			size_t upper = 1;
 			size_t lower = std::max((size_t)0, (size_t)(prism_pars.meta.integration_angle_min / prism_pars.meta.detector_angle_step));
 			size_t upper = std::min(prism_pars.detectorAngles.size(), (size_t) (prism_pars.meta.integration_angle_max / prism_pars.meta.detector_angle_step));
 			Array2D<PRISM_FLOAT_PRECISION> prism_image;
@@ -50,7 +51,6 @@ namespace PRISM{
 					}
 				}
 			}
-//		prism_image.toMRC_f("prism_image.mrc");
 			std::string image_filename = std::string("multislice_image_") + prism_pars.meta.filename_output;
 			prism_image.toMRC_f(image_filename.c_str());
 		}

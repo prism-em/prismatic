@@ -16,6 +16,19 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout_33">
     <item>
+     <spacer name="horizontalSpacer_8">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <widget class="QTabWidget" name="tabs">
       <property name="currentIndex">
        <number>0</number>
@@ -924,9 +937,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-33</y>
-         <width>326</width>
-         <height>1046</height>
+         <y>0</y>
+         <width>320</width>
+         <height>1066</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">

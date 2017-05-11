@@ -345,7 +345,7 @@ void FullPRISMCalcThread::run(){
         PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
             PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
-            params.meta.random_seed = rand() % 1000;
+            params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             PRISM::PRISM01(params);
@@ -411,6 +411,27 @@ void FullMultisliceCalcThread::run(){
     emit potentialCalculated();
 
     PRISM::Multislice(params);
+
+
+    if (params.meta.numFP > 1) {
+        // run the rest of the frozen phonons
+        PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
+        for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
+            PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+            params.meta.random_seed = rand() % 100000;
+            emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+            progressbar->resetOutputs();
+            PRISM::PRISM01(params);
+            PRISM::Multislice(params);
+            net_output += params.output;
+        }
+        // divide to take average
+        for (auto&i:net_output) i/=params.meta.numFP;
+        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
+        params.output = net_output;
+    }
+
+
     {
 //        QMutexLocker gatekeeper(&this->parent->outputLock);
         QMutexLocker gatekeeper(&this->parent->dataLock);

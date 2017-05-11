@@ -470,7 +470,7 @@ void PRISMMainWindow::setTileZ_fromLineEdit(){
 }
 
 void PRISMMainWindow::setRandomSeed_fromLineEdit(){
-    int val = this->ui->lineEdit_tileZ->text().toInt();
+    int val = this->ui->lineEdit_randomSeed->text().toInt();
     if (val >= 0){
         this->meta->random_seed = (size_t)val;
         std::cout << "Setting random seed to " << val << std::endl;
