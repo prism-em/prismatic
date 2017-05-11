@@ -195,18 +195,18 @@ void ProbeThread::run(){
 
     prism_probes = upsamplePRISMProbe(prism_probes.first, multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi());
 
-//    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
-//        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
-//        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
-//        }
-//    }
-//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
-//    for (auto j = 0; j < multislice_probes.second.get_dimj(); ++j){
-//        for (auto i = 0; i < multislice_probes.second.get_dimi(); ++i){
-//        debug.at(j,i) = std::abs(multislice_probes.second.at(j,i));
-//        }
-//    }
-//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
+    for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
+        for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){
+        debug.at(j,i) = std::abs(prism_probes.first.at(j,i));
+        }
+    }
+    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db_p.mrc");
+    for (auto j = 0; j < prism_probes.second.get_dimj(); ++j){
+        for (auto i = 0; i < prism_probes.second.get_dimi(); ++i){
+        debug.at(j,i) = std::abs(prism_probes.second.at(j,i));
+        }
+    }
+    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk_p.mrc");
 
 
     std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;

@@ -242,7 +242,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
-    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(calculateSMatrix()));
+//    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(calculateSMatrix()));
     connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
     connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
