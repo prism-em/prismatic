@@ -690,8 +690,12 @@ void PRISMMainWindow::calculateProbe(){
     ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
-//    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
+//    connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
+//    connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
+    connect(worker, SIGNAL(signal_RReal(QString)), this, SLOT(update_RReal(QString)));
+    connect(worker, SIGNAL(signal_RK(QString)), this, SLOT(update_RK(QString)));
 
+//    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
@@ -823,8 +827,8 @@ void PRISMMainWindow::updatePotentialDisplay(){
 void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_pk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
-    std::cout << "pK *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "pK *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "pK *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "pK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -839,8 +843,8 @@ void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
 void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_pr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
-    std::cout << "pReal *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "pReal *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "pReal *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "pReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -855,8 +859,8 @@ void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> a
 void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_mk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
-    std::cout << "mK *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "mK *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "mK *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "mK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -871,8 +875,8 @@ void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
 void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){
     probeImage_mr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
-    std::cout << "mReal *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "mReal *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "mReal *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "mReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -888,8 +892,8 @@ void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISI
 void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast){
     probeImage_diffr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
-    std::cout << "diffreal *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "diffreal *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "diffreal *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "diffreal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
             uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
@@ -904,8 +908,8 @@ void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION> ar
 void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast){
     probeImage_diffk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
-    std::cout << "diffk *contrast.first= " << *contrast.first<< std::endl;
-    std::cout << "diffk *contrast.second= " << *contrast.first<< std::endl;
+//    std::cout << "diffk *contrast.first= " << *contrast.first<< std::endl;
+//    std::cout << "diffk *contrast.second= " << *contrast.first<< std::endl;
 
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
@@ -1148,6 +1152,12 @@ void PRISMMainWindow::toggleStreamingMode(){
     meta->transfer_mode = ui->checkBox_streamdata->isChecked() ? PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
 }
 
+void PRISMMainWindow::newRandomSeed(){
+    PRISM_FLOAT_PRECISION val = rand() % 100000;
+    ui->lineEdit_randomSeed->setText(QString::number(val));
+    meta->random_seed = val;
+}
+
 void PRISMMainWindow::toggle3DOutput(){
     meta->save3DOutput = ui->checkBox_3D->isChecked();
 }
@@ -1159,6 +1169,22 @@ void PRISMMainWindow::toggle4DOutput(){
 void PRISMMainWindow::toggleThermalEffects(){
     meta->include_thermal_effects = ui->checkBox_thermalEffects->isChecked();
     resetCalculation();
+}
+
+void PRISMMainWindow::update_pearsonReal(QString str){
+    ui->lbl_pears_real->setText(str);
+}
+
+void PRISMMainWindow::update_pearsonK(QString str){
+    ui->lbl_pears_k->setText(str);
+}
+
+void PRISMMainWindow::update_RReal(QString str){
+    ui->lbl_R_real->setText(str);
+}
+
+void PRISMMainWindow::update_RK(QString str){
+    ui->lbl_R_k->setText(str);
 }
 
 

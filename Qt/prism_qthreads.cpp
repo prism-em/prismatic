@@ -199,38 +199,43 @@ void ProbeThread::run(){
     for (auto& i : multislice_probes.first)  i /= mr_sum;
     for (auto& i : multislice_probes.second) i /= mk_sum;
 
+    std::cout << "emitting signal" << std::endl;
+    emit signal_pearsonReal(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.first, multislice_probes.first)));
+    emit signal_pearsonK(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.second, multislice_probes.second)));
+    emit signal_RReal(QString("R = ") + QString::number(computeRfactor(prism_probes.first, multislice_probes.first)));
+    emit signal_RK(QString("R = ") + QString::number(computeRfactor(prism_probes.second, multislice_probes.second)));
 //    pr_sum = std::accumulate(&prism_probes.first[0], &*(prism_probes.first.end()-1), (PRISM_FLOAT_PRECISION)0.0, [](std::complex<PRISM_FLOAT_PRECISION> a){return abs(a);});
 
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
-    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
-        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
-    for (auto j = 0; j < multislice_probes.second.get_dimj(); ++j){
-        for (auto i = 0; i < multislice_probes.second.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(multislice_probes.second.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
+//    PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
+//    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
+//        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
+//    for (auto j = 0; j < multislice_probes.second.get_dimj(); ++j){
+//        for (auto i = 0; i < multislice_probes.second.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(multislice_probes.second.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
 
-    for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
-        for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(prism_probes.first.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db_p.mrc");
-    for (auto j = 0; j < prism_probes.second.get_dimj(); ++j){
-        for (auto i = 0; i < prism_probes.second.get_dimi(); ++i){
-        debug.at(j,i) = std::abs(prism_probes.second.at(j,i));
-        }
-    }
-    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk_p.mrc");
+//    for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
+//        for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(prism_probes.first.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db_p.mrc");
+//    for (auto j = 0; j < prism_probes.second.get_dimj(); ++j){
+//        for (auto i = 0; i < prism_probes.second.get_dimi(); ++i){
+//        debug.at(j,i) = std::abs(prism_probes.second.at(j,i));
+//        }
+//    }
+//    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk_p.mrc");
 
 
-    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
-    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
+//    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
+//    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
 
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pr    = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> pk    = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
@@ -238,6 +243,8 @@ void ProbeThread::run(){
     PRISM::Array2D<PRISM_FLOAT_PRECISION> mk    = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffr = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     PRISM::Array2D<PRISM_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
+
+
 
 if (use_log_scale){
     for (auto i = 0; i < prism_probes.first.size(); ++i){
@@ -274,8 +281,6 @@ if (use_log_scale){
         diffk[i] =  (std::abs(pk[i] - mk[i]));
     }
 }
-
-
 
     emit signalProbeR_PRISM((pr));
     emit signalProbeK_PRISM(fftshift2(pk));

@@ -299,11 +299,22 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_39">
-            <property name="text">
-             <string>1-R^2 = 0</string>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_32">
+            <item>
+             <widget class="QLabel" name="label_38">
+              <property name="text">
+               <string>Real Space</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_37">
+              <property name="text">
+               <string>K Space</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="Line" name="line">
@@ -322,11 +333,22 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_42">
-            <property name="text">
-             <string>R = 0</string>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_33">
+            <item>
+             <widget class="QLabel" name="lbl_R_real">
+              <property name="text">
+               <string>R = 0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lbl_R_k">
+              <property name="text">
+               <string>R = 0</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="Line" name="line_2">
@@ -342,14 +364,25 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_40">
-            <property name="text">
-             <string>Pearson Correlation = 1 </string>
-            </property>
-            <property name="wordWrap">
-             <bool>false</bool>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_34">
+            <item>
+             <widget class="QLabel" name="lbl_pears_real">
+              <property name="text">
+               <string>Pearson Correlation = n/a</string>
+              </property>
+              <property name="wordWrap">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lbl_pears_k">
+              <property name="text">
+               <string>Pearson Correlation = n/a</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="Line" name="line_3">
