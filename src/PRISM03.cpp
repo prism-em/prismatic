@@ -398,9 +398,10 @@ namespace PRISM {
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
 //			           a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
-			          std::complex<PRISM_FLOAT_PRECISION> chi{pi   * pars.lambda * pars.meta.probeDefocus * q2_t +
-			                                                  pi/2 * pow(pars.lambda,3) * pars.meta.C3    * pow(q2_t,2)+
-			                                                  pi/3 * pow(pars.lambda,5) * pars.meta.C5    * pow(q2_t,3), 0};
+			          std::complex<PRISM_FLOAT_PRECISION> chi{
+                              (PRISM_FLOAT_PRECISION) (pi   * pars.lambda * pars.meta.probeDefocus * q2_t +
+                                                       pi/2 * pow(pars.lambda,3) * pars.meta.C3    * pow(q2_t,2)+
+                                                       pi/3 * pow(pars.lambda,5) * pars.meta.C5    * pow(q2_t,3)), (PRISM_FLOAT_PRECISION)0.0};
 			          a = a * exp(-i * chi);
 			          return a;
 		          });

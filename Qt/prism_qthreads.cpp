@@ -337,17 +337,13 @@ void FullPRISMCalcThread::run(){
 
 
 
-    if (params.meta.numFP == 1) {
-        if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
-    } else {
+    if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
-        ++params.meta.fpNum;
         PRISM::Array3D<PRISM_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
-            meta.random_seed = rand() % 1000;
-            PRISM::Parameters<PRISM_FLOAT_PRECISION> new_params(meta, progressbar);
+            PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+            params.meta.random_seed = rand() % 1000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
-            params = new_params;
             progressbar->resetOutputs();
             PRISM::PRISM01(params);
             PRISM::PRISM02(params);

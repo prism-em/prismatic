@@ -43,24 +43,25 @@ namespace PRISM{
 
 		PRISM03(prism_pars);
 
-        if (prism_pars.meta.numFP == 1) {
-	        if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
-        } else {
-	        meta.random_seed = rand() % 1000;
-	        PRISM01(prism_pars);
-	        PRISM02(prism_pars);
+        if (prism_pars.meta.numFP > 1) {
             // run the rest of the frozen phonons
-            ++prism_pars.meta.fpNum;
             Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
             for (auto fp_num = 1; fp_num < prism_pars.meta.numFP; ++fp_num){
+				Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
                 cout << "Frozen Phonon #" << fp_num << endl;
+//                ++prism_pars.meta.fpNum;
+	        	meta.random_seed = rand() % 1000;
+				prism_pars.meta = meta;
+	        	PRISM01(prism_pars);
+	        	PRISM02(prism_pars);
                 PRISM03(prism_pars);
                 net_output += prism_pars.output;
             }
             // divide to take average
             for (auto&i:net_output) i/=prism_pars.meta.numFP;
-	        if (prism_pars.meta.save3DOutput)net_output.toMRC_f(prism_pars.meta.filename_output.c_str());
+	    prism_pars.output = net_output;
         }
+	        if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 
 		if (prism_pars.meta.save2DOutput) {
 //			size_t lower = 0;

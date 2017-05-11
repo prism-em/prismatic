@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>1155</height>
+    <width>956</width>
+    <height>1089</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2659,7 +2659,7 @@ Step (A)</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>956</width>
      <height>22</height>
     </rect>
    </property>
