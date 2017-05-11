@@ -703,7 +703,8 @@ void PRISMMainWindow::updatePotentialImage(){
 }
 
 void PRISMMainWindow::updatePotentialFloatImage(){
-    if (potentialReady){
+//    if (potentialReady){
+    if (potentialImageExists){
 //        QMutexLocker gatekeeper(&potentialLock);
         QMutexLocker gatekeeper(&dataLock);
 
@@ -733,7 +734,8 @@ void PRISMMainWindow::updatePotentialFloatImage(){
 }
 
 void PRISMMainWindow::updatePotentialDisplay(){
-    if (potentialReady){
+//    if (potentialReady){
+    if (potentialImageExists){
 //            QMutexLocker gatekeeper(&potentialLock);
             QMutexLocker gatekeeper(&dataLock);
 
@@ -882,6 +884,7 @@ void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> ar
 }
 
 void PRISMMainWindow::updateOutputImage(){
+//    if (outputReady){
     if (outputReady){
 	    std::cout << "updateOutputImage " << std::endl;
             {
@@ -904,7 +907,8 @@ void PRISMMainWindow::updateOutputImage(){
 }
 
 void PRISMMainWindow::updateOutputFloatImage(){
-    if (outputReady){
+//    if (outputReady){
+      if (outputImageExists){
         std::cout << "updateOutputFloatImage " << std::endl;
 
 //        QMutexLocker gatekeeper(&outputLock);
@@ -940,7 +944,8 @@ void PRISMMainWindow::updateOutputFloatImage(){
 }
 
 void PRISMMainWindow::updateOutputDisplay(){
-    if (outputReady){
+//    if (outputReady){
+    if (outputImageExists){
 //            QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
             for (auto j = 0; j < pars.output.get_dimk(); ++j){
@@ -969,7 +974,8 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
                                                  this->ui->slider_slicemin->value()));
 }
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
-    if (outputReady){
+//    if (outputReady){
+    if (outputImageExists){
         PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
         (detectorAngles[1]-detectorAngles[0]);
         PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
@@ -1000,7 +1006,8 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
-    if (outputReady){
+//    if (outputReady){
+    if (outputImageExists){
         if (val >= this->ui->slider_angmin->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             std::cout << "val = " << val << std::endl;
@@ -1013,7 +1020,8 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
-    if (outputReady){
+//    if (outputReady){
+    if (outputImageExists){
         if (val <= this->ui->slider_angmax->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             this->ui->lineEdit_angmin->setText(QString::number(scaled_val));

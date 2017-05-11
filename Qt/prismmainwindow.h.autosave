@@ -160,6 +160,7 @@ private:
     bool outputReady;
     bool saveProjectedPotential;
     bool probeSetupReady;
+    
     bool potentialImageExists;
     bool outputImageExists;
 

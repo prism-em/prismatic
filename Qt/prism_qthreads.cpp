@@ -30,6 +30,7 @@ void PotentialThread::run(){
     this->parent->pars = params;
     // indicate that the potential is ready
     this->parent->potentialReady = true;
+    this->parent->potentialImageExists = true;
     if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     std::cout << "Projected potential calculation complete" << std::endl;
 }
@@ -51,6 +52,7 @@ void SMatrixThread::run(){
         PRISM::PRISM01(params);
         // indicate that the potential is ready
         this->parent->potentialReady = true;
+        this->parent->potentialImageExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
         emit potentialCalculated();
     } else {
@@ -304,6 +306,7 @@ void FullPRISMCalcThread::run(){
         this->parent->pars = params;
 //        this->parent->potential = params.pot;
         this->parent->potentialReady = true;
+        this->parent->potentialImageExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     emit potentialCalculated();
@@ -364,6 +367,8 @@ void FullPRISMCalcThread::run(){
         this->parent->detectorAngles = params.detectorAngles;
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
+        this->parent->outputImageExists = true;
+
 //        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
     emit outputCalculated();
@@ -392,6 +397,7 @@ void FullMultisliceCalcThread::run(){
             this->parent->pars = params;
     //        this->parent->potential = params.pot;
             this->parent->potentialReady = true;
+            this->parent->potentialImageExists = true;
             if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
         }
         } else {
@@ -412,6 +418,7 @@ void FullMultisliceCalcThread::run(){
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->outputReady = true;
+        this->parent->outputImageExists = true;
 //        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
 //        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //        auto ptr = reshaped_output.begin();
