@@ -1079,12 +1079,10 @@ void PRISMMainWindow::updateAlphaMax(){
     Array1D<size_t> imageSize({{meta->cellDim[1] * meta->tileY, meta->cellDim[2] * meta->tileX}}, {{2}});
     imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round(((PRISM_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize / f_y)));
     imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round(((PRISM_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize / f_x)));
-    std::cout << "entered2 " << std::endl;
 
     Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta->realspace_pixelSize);
     Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta->realspace_pixelSize);
     std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
-    std::cout << "entered3 " << std::endl;
 
     PRISM_FLOAT_PRECISION qMax;
     Array2D<PRISM_FLOAT_PRECISION> qxa;
@@ -1101,8 +1099,20 @@ void PRISMMainWindow::updateAlphaMax(){
             qx_max = (abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
             qy_max = (abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
         }
+
+        long long ncx = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[1] / 2);
+        PRISM_FLOAT_PRECISION dpx = 1 / (imageSize[1] * meta->realspace_pixelSize);
+        long long ncy = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[0] / 2);
+        PRISM_FLOAT_PRECISION dpy = 1 / (imageSize[0] * meta->realspace_pixelSize);
         qMax = std::min(qx_max, qy_max) / 2;
     }
+
+
+//    long long ncx = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[1] / 2);
+//    PRISM_FLOAT_PRECISION dpx = 1 / (imageSize[1] * meta->realspace_pixelSize);
+//    long long ncy = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[0] / 2);
+//    PRISM_FLOAT_PRECISION dpy = 1 / (imageSize[0] * meta->realspace_pixelSize);
+//    PRISM_FLOAT_PRECISION qMax = std::min(dpx*(ncx - 1), dpy*(ncy - 1)) / 2;
 
 
     PRISM_FLOAT_PRECISION alphaMax = qMax * calculateLambda(*meta);
