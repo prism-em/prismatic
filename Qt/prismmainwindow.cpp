@@ -48,6 +48,17 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
+//ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+//                                      border: 1px solid gray;\
+//                                      border-radius: 9px;\
+//                                      margin-top: 0.5em;\
+//                                  }  QGroupBox::title {\
+//                                     font-weight: bold;\
+//                                     subcontrol-origin: margin;\
+//                                     left: 145px;\
+//                                     padding: 0 300px 0 3px;\
+//                                     }");
+
 ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
                                       border-radius: 9px;\
@@ -56,8 +67,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                      font-weight: bold;\
                                      subcontrol-origin: margin;\
                                      left: 145px;\
-                                     padding: 0 300px 0 3px;\
+                                     padding: 0 3px 0 3px;\
                                      }");
+
 
     ui->box_simulationSettings->setStyleSheet("QGroupBox { \
                                         border: 1px solid gray;\
@@ -1053,6 +1065,7 @@ void PRISMMainWindow::toggle4DOutput(){
 
 void PRISMMainWindow::toggleThermalEffects(){
     meta->include_thermal_effects = ui->checkBox_thermalEffects->isChecked();
+    resetCalculation();
 }
 
 

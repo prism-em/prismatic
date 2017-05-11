@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
     PRISMMainWindow w;
    //
     w.show();
-    w.setGeometry(100,100,950,650);
-//    w.setGeometry(100,100,950,950);
+//    w.setGeometry(100,100,950,650);
+    w.setGeometry(100,100,950,750);
 
     return a.exec();
 }
