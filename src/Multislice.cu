@@ -363,6 +363,9 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
 //						cout << "outside ax = " << ax << endl;
@@ -420,6 +423,9 @@ namespace PRISM{
 						do {
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 //                            if (ay==7){
@@ -717,6 +723,9 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
 
@@ -773,6 +782,9 @@ namespace PRISM{
 						do {
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 //                            if (ay==7){

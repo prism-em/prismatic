@@ -295,6 +295,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
+						if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << '\n';
+						}
 						propagatePlaneWave_GPU_singlexfer(pars,
 						                                  current_trans_d,
 						                                  current_psi_ds,
@@ -363,6 +366,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 						do { // synchronously get work assignment
 							while (currentBeam != stop) {
+								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << '\n';
+								}
 								// re-zero psi each iteration
 								memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 								propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
@@ -578,20 +584,16 @@ namespace PRISM {
 //			                           cudaMemcpyHostToDevice, streams[stream_id]));
 
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(prop_d[g], &prop_ph[0],
 			                           pars.prop.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>),
 			                           cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxInd_d[g], &qxInd_ph[0],
 			                           pars.qxInd.size() * sizeof(size_t), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qyInd_d[g], &qyInd_ph[0],
 			                           pars.qyInd.size() * sizeof(size_t), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(beamsIndex_d[g], &beamsIndex_ph[0],
 			                           pars.beamsIndex.size() * sizeof(size_t), cudaMemcpyHostToDevice,
 			                           streams[stream_id]));
@@ -651,6 +653,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) {
 				while (dispatcher.getWork(currentBeam, stop)) {
 					while (currentBeam != stop) {
+						if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << '\n';
+						}
 						propagatePlaneWave_GPU_streaming(pars,
 						                                 current_trans_ds,
 						                                 trans_ph,
@@ -668,7 +673,7 @@ namespace PRISM {
 						++currentBeam;
 					}
 				}
-				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
+				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << " finished\n";
 			}));
 			++stream_count;
 		}
@@ -715,6 +720,9 @@ cout << "early_CPU_stop  = " << early_CPU_stop << endl;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 					do { // synchronously get work assignment
 						while (currentBeam != stop) {
+							if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0){
+								cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << '\n';
+							}
 							// re-zero psi each iteration
 							memset((void *) &psi[0], 0, psi.size() * sizeof(complex < PRISM_FLOAT_PRECISION > ));
 							propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse,
@@ -731,6 +739,7 @@ cout << "early_CPU_stop  = " << early_CPU_stop << endl;
 				}
 			}));
 		}
+		cout << "Waiting for worker threads...\n";
 		for (auto &t:workers_CPU)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
 	}

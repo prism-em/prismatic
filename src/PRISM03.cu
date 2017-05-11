@@ -725,6 +725,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
 						buildSignal_GPU_singlexfer(pars, ay, ax, current_permuted_Scompact_d,
@@ -776,6 +779,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						gatekeeper.unlock();
 						do {
 							while (Nstart != Nstop) {
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 								buildSignal_CPU(pars, ay, ax, plan, psi);
@@ -1123,6 +1129,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
 						buildSignal_GPU_streaming(pars, ay, ax, current_permuted_Scompact_ds, permuted_Scompact_ph,
@@ -1172,6 +1181,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						gatekeeper.unlock();
 						do {
 							while (Nstart != Nstop) {
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
 								buildSignal_CPU(pars, ay, ax, plan, psi);
