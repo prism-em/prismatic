@@ -87,6 +87,7 @@ public slots:
     void updateSlider_lineEdits_max(int);
 	void updateSlider_lineEdits_max_ang(int val);
 	void updateSlider_lineEdits_min_ang(int val);
+    void updateAlphaMax();
     void resizeEvent(QResizeEvent* event);
     void redrawImages();
     void saveCurrentOutputImage();

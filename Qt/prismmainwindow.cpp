@@ -8,10 +8,12 @@
 #include "ui_prismmainwindow.h"
 #include <fstream>
 #include <iostream>
+#include <utility>
 //#include "PRISM_entry.h"
 #include "configure.h"
 #include "prism_qthreads.h"
 #include "prism_progressbar.h"
+#include "utility.h"
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -200,6 +202,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe\nStep (\u212B)"));
+//    updateAlphaMax();
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
@@ -273,7 +276,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
 
     this->ui->checkBox_streamdata->setChecked(false);
-
+     updateAlphaMax();
 }
 
 
@@ -384,6 +387,8 @@ void PRISMMainWindow::setPixelSize_fromLineEdit(){
         this->meta->realspace_pixelSize = val;
         this->meta->realspace_pixelSize = val;
         std::cout << "Setting X/Y pixel size to " << val << " Angstroms" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -420,6 +425,8 @@ void PRISMMainWindow::setCellDimX_fromLineEdit(){
     if (val > 0){
         this->meta->cellDim[2] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting X cell dimension to " << val << " Angstroms" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -429,6 +436,8 @@ void PRISMMainWindow::setCellDimY_fromLineEdit(){
     if (val > 0){
         this->meta->cellDim[1] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting Y cell dimension to " << val << " Angstroms" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -438,6 +447,8 @@ void PRISMMainWindow::setCellDimZ_fromLineEdit(){
     if (val > 0){
         this->meta->cellDim[0] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting Z cell dimension to " << val << " Angstroms" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -447,6 +458,7 @@ void PRISMMainWindow::setTileX_fromLineEdit(){
     if (val > 0){
         this->meta->tileX = (size_t)val;
         std::cout << "Setting tileX to " << val << " UCs" << std::endl;
+        updateAlphaMax();
     }
     resetCalculation();
 }
@@ -456,6 +468,8 @@ void PRISMMainWindow::setTileY_fromLineEdit(){
     if (val > 0){
         this->meta->tileY = (size_t)val;
         std::cout << "Setting tileY to " << val << " UCs" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -465,6 +479,8 @@ void PRISMMainWindow::setTileZ_fromLineEdit(){
     if (val > 0){
         this->meta->tileZ = (size_t)val;
         std::cout << "Setting tileZ to " << val << " UCs" << std::endl;
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -485,6 +501,8 @@ void PRISMMainWindow::setE0_fromLineEdit(){
         meta->E0 = val * 1e3;
         std::cout << "Setting E0 to " << val << " keV" << std::endl;
         ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
+        updateAlphaMax();
+
     }
     resetCalculation();
 }
@@ -1051,6 +1069,45 @@ void PRISMMainWindow::updateContrastAngMin(){
 void PRISMMainWindow::updateContrastAngMax(){
     contrast_outputMax = (PRISM_FLOAT_PRECISION)ui->contrast_outputMax->text().toDouble();
     updateOutputDisplay();
+}
+
+void PRISMMainWindow::updateAlphaMax(){
+    std::cout << "entered " << std::endl;
+    using namespace PRISM;
+    PRISM_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
+    PRISM_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
+    Array1D<size_t> imageSize({{meta->cellDim[1] * meta->tileY, meta->cellDim[2] * meta->tileX}}, {{2}});
+    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round(((PRISM_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize / f_y)));
+    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round(((PRISM_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize / f_x)));
+    std::cout << "entered2 " << std::endl;
+
+    Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta->realspace_pixelSize);
+    Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta->realspace_pixelSize);
+    std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
+    std::cout << "entered3 " << std::endl;
+
+    PRISM_FLOAT_PRECISION qMax;
+    Array2D<PRISM_FLOAT_PRECISION> qxa;
+    Array2D<PRISM_FLOAT_PRECISION> qya;
+
+    qya = mesh.first;
+    qxa = mesh.second;
+    // get qMax
+    qMax = 0;
+    {
+        PRISM_FLOAT_PRECISION qx_max = 0;
+        PRISM_FLOAT_PRECISION qy_max = 0;
+        for (auto i = 0; i < qx.size(); ++i) {
+            qx_max = (abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
+            qy_max = (abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
+        }
+        qMax = std::min(qx_max, qy_max) / 2;
+    }
+
+
+    PRISM_FLOAT_PRECISION alphaMax = qMax * calculateLambda(*meta);
+//    ui->lbl_alphaMax->setText("test");
+    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ") + QString::number(alphaMax));
 }
 
 void PRISMMainWindow::saveCurrentOutputImage(){
