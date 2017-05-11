@@ -27,6 +27,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     outputReady(false),
     saveProjectedPotential(false),
     probeSetupReady(false),
+    potentialImageExists(false),
+    outputImageExists(false),
     potentialImage(QImage()),
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0)
@@ -1052,7 +1054,8 @@ void PRISMMainWindow::updateContrastAngMax(){
 }
 
 void PRISMMainWindow::saveCurrentOutputImage(){
-    if (outputReady){
+    if (outputImageExists){
+        std::cout << "saving\n";
 //            QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
         outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
