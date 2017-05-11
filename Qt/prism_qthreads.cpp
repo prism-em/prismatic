@@ -98,6 +98,7 @@ void ProbeThread::run(){
         this->parent->pars = params;
 //        this->parent->pars_multi = params_multi;
         this->parent->potentialReady = true;
+        this->parent->potentialImageExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     std::cout <<"emitting signal" <<std::endl;
@@ -174,6 +175,20 @@ void ProbeThread::run(){
 
     multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
+
+    QMutexLocker gatekeeper(&this->parent->dataLock);
+    // perform copy
+    this->parent->pars = params;
+    this->parent->probeSetupReady = true;
+
+    prism_probes = upsamplePRISMProbe(prism_probes.first,
+                                      multislice_probes.first.get_dimj(),
+                                      multislice_probes.first.get_dimi(),
+                                      Y / params.pixelSize[0] / 2 ,
+                                      X / params.pixelSize[1] / 2);
+
+
+
     PRISM::Array2D<PRISM_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
         for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
@@ -187,13 +202,6 @@ void ProbeThread::run(){
         }
     }
     debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
-
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    // perform copy
-    this->parent->pars = params;
-    this->parent->probeSetupReady = true;
-
-    prism_probes = upsamplePRISMProbe(prism_probes.first, multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi());
 
     for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
         for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){

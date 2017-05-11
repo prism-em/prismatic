@@ -1072,7 +1072,6 @@ void PRISMMainWindow::updateContrastAngMax(){
 }
 
 void PRISMMainWindow::updateAlphaMax(){
-    std::cout << "entered " << std::endl;
     using namespace PRISM;
     PRISM_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
     PRISM_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
