@@ -30,7 +30,7 @@
      <item>
       <widget class="QLabel" name="lbl_Description">
        <property name="text">
-        <string>Computing Projected Potential</string>
+        <string>Computing Probe</string>
        </property>
       </widget>
      </item>

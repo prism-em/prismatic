@@ -324,7 +324,7 @@ void PRISMMainWindow::setInterpolationFactorY(){
 
 void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
-	filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename);
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Atomic Model(*.csv *.CSV *.xyz *.XYZ);;All files(*)"));
     if (validateFilename(filename.toStdString())){
         this->setFilenameAtoms(filename.toStdString());
         ui->btn_go->setEnabled(true);
