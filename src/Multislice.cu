@@ -390,7 +390,7 @@ namespace PRISM{
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
-				cout << "Launching CPU worker #" << t << '\n';
+				cout << "Launching CPU worker #" << t << endl;
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
@@ -419,7 +419,7 @@ namespace PRISM{
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();
@@ -671,7 +671,7 @@ namespace PRISM{
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];
-			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << endl;
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d = PsiProbeInit_d[GPU_num];
@@ -705,7 +705,7 @@ namespace PRISM{
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-//					cout << "max_mem = " << pars.max_mem << '\n';
+//					cout << "max_mem = " << pars.max_mem << endl;
 				}
 #endif // NDEBUG
 
@@ -715,7 +715,7 @@ namespace PRISM{
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
@@ -745,7 +745,7 @@ namespace PRISM{
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
-				cout << "Launching CPU worker #" << t << '\n';
+				cout << "Launching CPU worker #" << t << endl;
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
@@ -774,7 +774,7 @@ namespace PRISM{
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 								}
 								ay = Nstart / pars.xp.size();
 								ax = Nstart % pars.xp.size();

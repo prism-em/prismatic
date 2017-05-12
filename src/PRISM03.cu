@@ -680,7 +680,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 
 			cudaStream_t &current_stream = streams[stream_count];
-			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << endl;
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_permuted_Scompact_d = permuted_Scompact_d[GPU_num];
@@ -717,7 +717,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					size_t free_mem, total_mem;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
-//					cout << "max_mem = " << pars.max_mem << '\n';
+//					cout << "max_mem = " << pars.max_mem << endl;
 				}
 #endif // NDEBUG
 
@@ -727,7 +727,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();

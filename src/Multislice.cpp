@@ -341,7 +341,7 @@ namespace PRISM{
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
-			cout << "Launching CPU worker #" << t << '\n';
+			cout << "Launching CPU worker #" << t << endl;
 
 			workers.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
@@ -363,7 +363,7 @@ namespace PRISM{
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart != Nstop) {
 							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
 							ay = Nstart / pars.xp.size();
 							ax = Nstart % pars.xp.size();
