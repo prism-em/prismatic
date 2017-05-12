@@ -47,9 +47,10 @@ void SMatrixThread::run(){
     // create parameters
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
     // calculate potential if it hasn't been already
-    if (!this->parent->potentialReady){
+    if (!this->parent->potentialIsReady()){
         // calculate potential
         PRISM::PRISM01(params);
+	    QMutexLocker gatekeeper(&this->parent->dataLock);
         // indicate that the potential is ready
         this->parent->potentialReady = true;
         this->parent->potentialImageExists = true;
@@ -91,7 +92,7 @@ void ProbeThread::run(){
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     PRISM::configure(meta);
-    if (!this->parent->potentialReady){
+    if (!this->parent->potentialIsReady()){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
@@ -112,12 +113,11 @@ void ProbeThread::run(){
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
-    if (!this->parent->ScompactReady){
+    if (!this->parent->SMatrixIsReady()){
         PRISM::PRISM02(params);
     {
         std::cout << "S-Matrix finished calculating." << std::endl;
         QMutexLocker gatekeeper(&this->parent->dataLock);
-
         // perform copy
         this->parent->pars = params;
 
@@ -308,7 +308,7 @@ void FullPRISMCalcThread::run(){
 
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
-    if (!this->parent->potentialReady){
+    if (!this->parent->potentialIsReady()){
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
@@ -329,7 +329,7 @@ void FullPRISMCalcThread::run(){
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
-    if (!this->parent->ScompactReady){
+    if (!this->parent->SMatrixIsReady()){
     PRISM::PRISM02(params);
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -366,7 +366,7 @@ void FullPRISMCalcThread::run(){
         }
         // divide to take average
         for (auto&i:net_output) i/=params.meta.numFP;
-        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
+
         params.output = net_output;
     }
 
@@ -382,6 +382,7 @@ void FullPRISMCalcThread::run(){
 
 //        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
+	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
     emit outputCalculated();
     std::cout << "PRISM calculation complete" << std::endl;
 }
@@ -399,18 +400,17 @@ void FullMultisliceCalcThread::run(){
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::configure(meta);
-    if (!this->parent->potentialReady){
-        PRISM::PRISM01(params);
-        std::cout <<"Potential Calculated" << std::endl;
-        {
-    //        QMutexLocker gatekeeper(&this->parent->potentialLock);
-            QMutexLocker gatekeeper(&this->parent->dataLock);
-            this->parent->pars = params;
-    //        this->parent->potential = params.pot;
-            this->parent->potentialReady = true;
-            this->parent->potentialImageExists = true;
-            if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-        }
+        if (!this->parent->potentialIsReady()) {
+            PRISM::PRISM01(params);
+            std::cout << "Potential Calculated" << std::endl;
+            {
+                QMutexLocker gatekeeper(&this->parent->dataLock);
+                this->parent->pars = params;
+                //        this->parent->potential = params.pot;
+                this->parent->potentialReady = true;
+                this->parent->potentialImageExists = true;
+                if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+            }
         } else {
             std::cout << "COPYING" << std::endl;
             QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -438,7 +438,7 @@ void FullMultisliceCalcThread::run(){
         }
         // divide to take average
         for (auto&i:net_output) i/=params.meta.numFP;
-        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
+//        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
         params.output = net_output;
     }
 
@@ -456,8 +456,9 @@ void FullMultisliceCalcThread::run(){
 //        auto ptr = reshaped_output.begin();
 //        for (auto &i:params.output)*ptr++=i;
 //        reshaped_output.toMRC_f(params.meta.filename_output.c_str());
-        params.output.toMRC_f(params.meta.filename_output.c_str());
+//        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
+	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;
 }

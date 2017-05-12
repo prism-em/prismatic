@@ -709,10 +709,8 @@ void PRISMMainWindow::calculateProbe(){
 }
 
 void PRISMMainWindow::updatePotentialImage(){
-    if (potentialReady){
+    if (potentialIsReady()){
             {
-            QMutexLocker gatekeeper(&dataLock);
-
             // create new empty image with appropriate dimensions
             potentialImage = QImage(pars.pot.get_dimj(), pars.pot.get_dimi(), QImage::Format_ARGB32);
             }
@@ -1047,6 +1045,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 //    if (outputReady){
+    QMutexLocker gatekeeper(&dataLock);
     if (outputImageExists){
         if (val >= this->ui->slider_angmin->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
@@ -1061,6 +1060,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
 //    if (outputReady){
+    QMutexLocker gatekeeper(&dataLock);
     if (outputImageExists){
         if (val <= this->ui->slider_angmax->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
@@ -1192,6 +1192,19 @@ void PRISMMainWindow::toggleSaveProjectedPotential(){
     this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
 }
 
+bool PRISMMainWindow::potentialIsReady(){
+    QMutexLocker gatekeeper(&dataLock);
+    return potentialReady;
+}
+bool PRISMMainWindow::SMatrixIsReady(){
+    QMutexLocker gatekeeper(&dataLock);
+    return ScompactReady;
+}
+bool PRISMMainWindow::OutputIsReady(){
+    QMutexLocker gatekeeper(&dataLock);
+    return outputReady;
+}
+
 void PRISMMainWindow::enableOutputWidgets(){
     ui->slider_angmax->setEnabled(true);
     ui->slider_angmin->setEnabled(true);
@@ -1201,6 +1214,7 @@ void PRISMMainWindow::enableOutputWidgets(){
     ui->lineEdit_angmax->setEnabled(true);
 }
 void PRISMMainWindow::resetCalculation(){
+//	QMutexLocker gatekeeper(&calculationLock);
     QMutexLocker gatekeeper(&dataLock);
     std::cout << "Resetting Calculation" << std::endl;
     potentialReady  = false;

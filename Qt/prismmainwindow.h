@@ -40,6 +40,9 @@ class PRISMMainWindow : public QMainWindow
 
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
+	bool potentialIsReady();
+	bool SMatrixIsReady();
+	bool OutputIsReady();
     ~PRISMMainWindow();
 
 public slots:
