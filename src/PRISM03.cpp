@@ -211,13 +211,15 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing final output");
 #endif
-
+		PRISM_FFTW_INIT_THREADS();
+		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
         WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-			workers.push_back(thread([&pars, &dispatcher]() {
+			workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
                  if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
@@ -233,7 +235,7 @@ namespace PRISM {
 					 gatekeeper.unlock();
 					 do {
 						 while (Nstart != Nstop) {
-							 if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							 if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							 }
 							 ay = Nstart / pars.xp.size();
@@ -256,6 +258,7 @@ namespace PRISM {
 		// synchronize
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
+		PRISM_FFTW_CLEANUP_THREADS();
 	}
 
 

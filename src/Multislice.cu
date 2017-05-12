@@ -284,23 +284,18 @@ namespace PRISM{
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
 			                      pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(trans_d[g], &trans_ph[0],
 			                      pars.transmission.size() * sizeof(pars.transmission[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(prop_d[g], &prop_ph[0],
 			                      pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxa_d[g], &qxa_ph[0],
 			                      pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qya_d[g], &qya_ph[0],
 			                      pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
 			                      pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 		}
@@ -314,6 +309,7 @@ namespace PRISM{
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+	    const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 //		setWorkStartStop(0, 1);
 		cout << " pars.xp.size()  = " << pars.xp.size()  << endl;
@@ -322,7 +318,7 @@ namespace PRISM{
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];
-			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << '\n';
+			cout << "Launching GPU worker on stream #" << stream_count << " on GPU #" << GPU_num << '\n';
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d = PsiProbeInit_d[GPU_num];
@@ -342,7 +338,7 @@ namespace PRISM{
 			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, &current_cufft_plan,
-					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
+					                                current_prop_d, &current_stream, &psi_size, stream_count, &PRISM_PRINT_FREQUENCY_PROBES]() {
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
@@ -363,13 +359,13 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
 //						cout << "outside ax = " << ax << endl;
-//						cout << "outside ay = " << ay << endl;
+//						cout << "outside ay = " << ay <<vi  endl;
 							getMultisliceProbe_GPU_singlexfer(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, current_output_ph,
 							                                  current_psi_intensity_ds,
 							                                  current_integratedOutput_ds, current_qya_d, current_qxa_d,
@@ -389,7 +385,6 @@ namespace PRISM{
 
 
 		// now launch CPU work
-
 		if (pars.meta.also_do_CPU_work){
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);vector<thread> workers_CPU;
@@ -397,7 +392,7 @@ namespace PRISM{
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
@@ -423,7 +418,7 @@ namespace PRISM{
 						do {
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 								}
 								ay = Nstart / pars.xp.size();
@@ -445,12 +440,12 @@ namespace PRISM{
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 						gatekeeper.unlock();
 					}
-					cout << "CPU worker #" << t << " finished\n";
+//					cout << "CPU worker #" << t << " finished\n";
 			
 					}));
 				
 			}
-			cout << "Waiting on GPU threads..." << endl;
+			cout << "Waiting on CPU threads..." << endl;
 			for (auto& t:workers_CPU)t.join();
 			PRISM_FFTW_CLEANUP_THREADS();
 		}
@@ -646,23 +641,18 @@ namespace PRISM{
 			cudaErrchk(cudaMemcpyAsync(PsiProbeInit_d[g], &PsiProbeInit_ph[0],
 			                           pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 //			cudaErrchk(cudaMemcpyAsync(trans_d[g], &trans_ph[0],
 //			                           trans.size() * sizeof(trans[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(prop_d[g], &prop_ph[0],
 			                           pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qxa_d[g], &qxa_ph[0],
 			                           pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(qya_d[g], &qya_ph[0],
 			                           pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cout << "stream_id = " << stream_id << endl;
 			cudaErrchk(cudaMemcpyAsync(alphaInd_d[g], &alphaInd_ph[0],
 			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, streams[stream_id]));
 		}
@@ -676,6 +666,7 @@ namespace PRISM{
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
@@ -701,7 +692,7 @@ namespace PRISM{
 			workers_GPU.push_back(thread([&pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                                current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
 					                                GPU_num, current_qya_d, current_qxa_d, current_output_ph, current_cufft_plan,
-					                                current_prop_d, &current_stream, &psi_size, stream_count]() {
+					                                current_prop_d, &current_stream, &psi_size, stream_count, &PRISM_PRINT_FREQUENCY_PROBES]()  {
 
 				// set the GPU context
 				cudaErrchk(cudaSetDevice(GPU_num)); // set current GPU
@@ -723,7 +714,7 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
 					while (Nstart != Nstop){
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 						}
 						ay = Nstart / pars.xp.size();
@@ -756,7 +747,7 @@ namespace PRISM{
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << '\n';
 				// push_back is better whenever constructing a new object
-				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
@@ -782,7 +773,7 @@ namespace PRISM{
 						do {
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart != Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 								}
 								ay = Nstart / pars.xp.size();

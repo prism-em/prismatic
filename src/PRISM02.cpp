@@ -240,12 +240,15 @@ namespace PRISM {
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 //		setWorkStartStop(0, pars.numberBeams, 1);
-        WorkDispatcher dispatcher(0, pars.numberBeams, 1);
+		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
+		WorkDispatcher dispatcher(0, pars.numberBeams, 1);
 //		 setWorkStartStop(0, 1);
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+			PRISM_FFTW_INIT_THREADS();
+			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 			cout << "Launching thread #" << t << " to compute beams\n";
-            workers.push_back(thread([&pars, &dispatcher]() {
+            workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_BEAMS]() {
 				// allocate array for psi just once per thread
 				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 						{{pars.imageSize[0], pars.imageSize[1]}});
@@ -265,6 +268,9 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
                 while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
                     while (currentBeam != stop) {
+	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0 | currentBeam == 100){
+		                    cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+	                    }
 						// re-zero psi each iteration
 						memset((void *) &psi[0], 0, psi.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
 						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
@@ -283,6 +289,7 @@ namespace PRISM {
 		}
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
+		PRISM_FFTW_CLEANUP_THREADS();
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->setProgress(100);
         pars.progressbar->signalCalcStatusMessage(QString("Plane Wave ") +
