@@ -1201,6 +1201,7 @@ void PRISMMainWindow::enableOutputWidgets(){
     ui->lineEdit_angmax->setEnabled(true);
 }
 void PRISMMainWindow::resetCalculation(){
+    QMutexLocker gatekeeper(&dataLock);
     std::cout << "Resetting Calculation" << std::endl;
     potentialReady  = false;
     ScompactReady   = false;

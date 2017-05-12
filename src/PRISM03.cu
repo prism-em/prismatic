@@ -287,8 +287,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
 		//	2D array of reduced values in psi
 		int idx = threadIdx.x + blockDim.x * blockIdx.x;
-		int y = blockIdx.y;
-		int z = blockIdx.z;
+		int y   = threadIdx.y + blockDim.y * blockIdx.y;
+		int z   = threadIdx.z + blockDim.z * blockIdx.z;
+//		int y   = blockIdx.y;
+//		int z   = blockIdx.z;
 
 		// determine grid size for stepping through the array
 		int gridSizeY = gridDim.y * blockDim.y;
@@ -1402,14 +1404,15 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		// Determine the shape of the grid
 		const PRISM_FLOAT_PRECISION aspect_ratio = (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[1] / (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[0];
-		const size_t BlockSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
-		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
-		dim3 grid(1, BlockSizeY, BlockSizeZ);
+		const size_t GridSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
+		const size_t GridSizeY = aspect_ratio * GridSizeZ;
+		dim3 grid(1, GridSizeY, GridSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
+//		dim3 block(BlockSizeX, 2, 2);
 		if (ax==5 & ay==0) {
 		cout << "BlockSizeX = " << BlockSizeX << endl;
-		cout << "BlockSizeY = " << BlockSizeY << endl;
-		cout << "BlockSizeZ = " << BlockSizeZ << endl;
+		cout << "GridSizeY = "  << GridSizeY << endl;
+		cout << "GridSizeZ = "  << GridSizeZ << endl;
 		}
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
