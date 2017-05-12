@@ -482,7 +482,8 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 //	}
 	integrateDetector << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                              (psi_intensity_ds, alphaInd_d, integratedOutput_ds,
-			                                                                              dimj * dimi, num_integration_bins);
+			                                                                              dimj *
+			                                                                              dimi, num_integration_bins);
 //	if (ax == 0 & ay == 0) {
 //		PRISM_FLOAT_PRECISION ans;
 //		for (auto i = 97; i < pars.detectorAngles.size(); ++i) {
@@ -493,19 +494,11 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 //	}
 //	if (scale != 1) {
 //		if (ax==0 & ay==0)std::cout << "scale = " << scale << std::endl;
-		multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-                                 (integratedOutput_ds, scale, num_integration_bins);
+	multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	                                                                                (integratedOutput_ds, scale, num_integration_bins);
 //	}
 ////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISM_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
-//
-//	if (ax == 0 & ay == 0) {
-//		PRISM_FLOAT_PRECISION ans;
-//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "scaled integratedOutput_ds[" << i << "] = " << ans << std::endl;
-//
-//		}
-//	}
+
 	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
 	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
 	                           num_integration_bins * sizeof(PRISM_FLOAT_PRECISION),
@@ -517,28 +510,8 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	const size_t stack_start_offset =
 			ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
-
-//	if (ax == 0 & ay == 0) {
-//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
-//			std::cout << "output[" << i << "] = " << pars.output[i] << std::endl;
-//
-//
-//		std::cout <<" pars.detectorAngles.size() = " <<  pars.detectorAngles.size()<< std::endl;
-//	}
 }
-// TODO: double version of above
 
-
-//size_t getNextPower2(const double& val){
-//	size_t p = 0;
-//	while (pow(2,p) <= val)++p;
-//	return p;
-//}
-//size_t getNextPower2(const float& val){
-//	size_t p = 0;
-//	while (pow(2,p) <= val)++p;
-//	return p;
-//}
 size_t getNextPower2(const size_t& val){
 	size_t p = 0;
 	while (pow(2,p) <= val)++p;

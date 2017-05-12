@@ -671,6 +671,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 
 //		setWorkStartStop(0, 1, 1);
@@ -705,7 +706,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permuted_Scompact_d, &dispatcher,													 current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
-					                                current_output_ph, &current_cufft_plan, &current_stream]() {
+					                                current_output_ph, &current_cufft_plan, &current_stream, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
 
@@ -725,7 +726,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 						}
 						ay = Nstart / pars.xp.size();
@@ -756,7 +757,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 //			for (auto t = 0; t < 1; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
                     		Nstart=Nstop=0;
                                 if (pars.meta.NUM_GPUS > 0){
@@ -765,6 +766,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                                 } else {
                                         early_CPU_stop = pars.xp.size() * pars.yp.size();
                                 }
+					cout << "early_CPU_stop= " << early_CPU_stop<< endl;
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					if(dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
@@ -779,7 +781,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						gatekeeper.unlock();
 						do {
 							while (Nstart != Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 								}
 								ay = Nstart / pars.xp.size();
@@ -1075,6 +1077,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 
 //		setWorkStartStop(0, 1);
@@ -1110,7 +1113,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 					                                current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                                current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
 					                                current_psi_intensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
-					                                current_output_ph, &current_cufft_plan, &current_stream]() {
+					                                current_output_ph, &current_cufft_plan, &current_stream, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
 #ifndef NDEBUG
@@ -1129,7 +1132,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart != Nstop) {
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 						}
 						ay = Nstart / pars.xp.size();
@@ -1158,7 +1161,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-				workers_CPU.push_back(thread([&pars, &dispatcher, t]() {
+				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
                     		Nstart=Nstop=0;
                                 if (pars.meta.NUM_GPUS > 0){
@@ -1181,7 +1184,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 						gatekeeper.unlock();
 						do {
 							while (Nstart != Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 								}
 								ay = Nstart / pars.xp.size();
@@ -1403,11 +1406,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		const size_t BlockSizeY = aspect_ratio * BlockSizeZ;
 		dim3 grid(1, BlockSizeY, BlockSizeZ);
 		dim3 block(BlockSizeX, 1, 1);
-//		if (ax==5 & ay==0) {
-//		cout << "BlockSizeX = " << BlockSizeX << endl;
-//		cout << "BlockSizeY = " << BlockSizeY << endl;
-//		cout << "BlockSizeZ = " << BlockSizeZ << endl;
-//		}
+		if (ax==5 & ay==0) {
+		cout << "BlockSizeX = " << BlockSizeX << endl;
+		cout << "BlockSizeY = " << BlockSizeY << endl;
+		cout << "BlockSizeZ = " << BlockSizeZ << endl;
+		}
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
 

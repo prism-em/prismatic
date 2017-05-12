@@ -338,11 +338,12 @@ namespace PRISM{
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << '\n';
 
-			workers.push_back(thread([&pars, &dispatcher, t]() {
+			workers.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
@@ -361,7 +362,7 @@ namespace PRISM{
                     do {
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart != Nstop) {
-							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0){
+							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 							}
 							ay = Nstart / pars.xp.size();
@@ -405,6 +406,7 @@ namespace PRISM{
 		// initialize output stack
 		createStack(pars);
 
+		cout << "BUILD MULTISLICE OUTPUT " << endl;
 		// create the output
 		buildMultisliceOutput(pars);
 	}
