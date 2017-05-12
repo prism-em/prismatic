@@ -84,6 +84,8 @@ parent(_parent), X(_X), Y(_Y), progressbar(_progressbar), use_log_scale(_use_log
 
 void ProbeThread::run(){
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+//    PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta);
+
 //    PRISM::Parameters<PRISM_FLOAT_PRECISION> params_multi(params);
 
     QMutexLocker calculationLocker(&this->parent->calculationLock);
@@ -96,36 +98,35 @@ void ProbeThread::run(){
         QMutexLocker gatekeeper(&this->parent->dataLock);
 //        params_multi = params;
         this->parent->pars = params;
-//        this->parent->pars_multi = params_multi;
         this->parent->potentialReady = true;
         this->parent->potentialImageExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+        std::cout <<"emitting signal" <<std::endl;
+        emit potentialCalculated();
     }
-    std::cout <<"emitting signal" <<std::endl;
-    emit potentialCalculated();
+
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
-//        params_multi = this->parent->pars;
         params.progressbar = progressbar;
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
     if (!this->parent->ScompactReady){
-    PRISM::PRISM02(params);
+        PRISM::PRISM02(params);
     {
+        std::cout << "S-Matrix finished calculating." << std::endl;
         QMutexLocker gatekeeper(&this->parent->dataLock);
 
         // perform copy
         this->parent->pars = params;
-//        this->parent->pars_multi = params_multi;
-        // indicate that the potential is ready
+
+        // indicate that the S-Matrix is ready
         this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
-//        params_multi = this->parent->pars_multi;
         params.progressbar = progressbar;
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
@@ -154,6 +155,7 @@ void ProbeThread::run(){
     // initialize/compute the probes
     PRISM::initializeProbes(params);
 
+    std::cout << "Getting PRISM Probe" << std::endl;
     prism_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
 
 
@@ -172,6 +174,7 @@ void ProbeThread::run(){
 
     // initialize output stack
     PRISM::createStack(params_multi);
+    std::cout << "Getting Multislice Probe" << std::endl;
 
     multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
