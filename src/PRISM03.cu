@@ -1655,53 +1655,43 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				case 1024 :
 					scaleReduceS<1024, 1> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 512 :
 					scaleReduceS<512, 1> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 256 :
 					scaleReduceS<256, 2> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 128 :
 					scaleReduceS<128, 4> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 64 :
 					scaleReduceS<64, 8> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 32 :
 					scaleReduceS<32, 16> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 16 :
 					scaleReduceS<16, 32> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 8 :
 					scaleReduceS<8, 64> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				case 4 :
 					scaleReduceS<4, 128> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				default :
 					scaleReduceS<2, 256> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
-							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);
-					break;
+							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 			}
 		}
 
@@ -1864,64 +1854,128 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		}
 
 		// Estimate max number of blocks per streaming multiprocessor (threads are the limit)
-		const size_t BlockSize_alongArray = pars.deviceProperties.maxThreadsPerBlock / BlockSize_numBeams;
+		const size_t max_blocks_per_sm = max_threads_per_sm / BlockSize_numBeams;
+
+
 
 		// We find providing around 3 times as many blocks as the estimated maximum provides good performance
-//		const size_t target_blocks_per_sm = max_blocks_per_sm * 3;
-//		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
+		const size_t target_blocks_per_sm = max_blocks_per_sm * 3;
+		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
 
-		// Determine the shape of the grid
-//		const PRISM_FLOAT_PRECISION aspect_ratio = (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[1] / (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[0];
-//		const size_t BlockSize_alongArray = aspect_ratio * 1;
-		dim3 grid(1, BlockSize_alongArray, 1);
-		dim3 block(BlockSize_numBeams, 1, 1);
+
 
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
 
+		if (BlockSize_numBeams >= 64) {
+
+			const PRISM_FLOAT_PRECISION aspect_ratio = (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[1] / (PRISM_FLOAT_PRECISION)pars.imageSizeReduce[0];
+			const size_t GridSizeZ = std::floor(sqrt(total_blocks / aspect_ratio));
+			const size_t GridSizeY = aspect_ratio * GridSizeZ;
+			dim3 grid(1, GridSizeY, GridSizeZ);
+			dim3 block(BlockSize_numBeams, 1, 1);
 //		// Launch kernel. Block size must be visible at compile time so we use a switch statement
-//		switch (BlockSize_numBeams) {
-//			case 1024 :
-//				scaleReduceS<1024> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 512 :
-//				scaleReduceS<512> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 256 :
-//				scaleReduceS<256> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 128 :
-//				scaleReduceS<128> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 64 :
-//				scaleReduceS<64> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 32 :
-//				scaleReduceS<32> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 16 :
-//				scaleReduceS<16> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 8 :
-//				scaleReduceS<8> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			case 4 :
-//				scaleReduceS<4> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//			default :
-//				scaleReduceS<2> <<< grid, block, smem, stream >>> (
-//						permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
-//						pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]); break;
-//		}
+			switch (BlockSize_numBeams) {
+				case 1024 :
+					scaleReduceS<1024> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 512 :
+					scaleReduceS<512> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 256 :
+					scaleReduceS<256> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 128 :
+					scaleReduceS<128> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 64 :
+					scaleReduceS<64> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 32 :
+					scaleReduceS<32> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 16 :
+					scaleReduceS<16> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 8 :
+					scaleReduceS<8> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 4 :
+					scaleReduceS<4> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				default :
+					scaleReduceS<2> << < grid, block, smem, stream >> > (
+							permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+							pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+			}
+		} else {
+			const size_t BlockSize_alongArray = 512 / BlockSize_numBeams;
+			const size_t GridSize_alongArray = total_blocks;
+			dim3 grid(1, GridSize_alongArray, 1);
+			dim3 block(BlockSize_numBeams, BlockSize_alongArray, 1);
+			if (ax == 0 & ay == 0) {
+				cout << "total_blocks = " << total_blocks << endl;
+				cout << "psi_size = " << psi_size << endl;
+				cout << "BlockSize_numBeams = " << BlockSize_numBeams << endl;
+				cout << "BlockSize_alongArray = " << BlockSize_alongArray << endl;
+				cout << "GridSize_alongArray = " << GridSize_alongArray << endl;
+			}
+			// Determine amount of shared memory needed
+			const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
+
+			// Launch kernel. Block size must be visible at compile time so we use a switch statement
+			switch (BlockSize_numBeams) {
+				case 1024 :
+					scaleReduceS<1024, 1> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 512 :
+					scaleReduceS<512, 1> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 256 :
+					scaleReduceS<256, 2> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 128 :
+					scaleReduceS<128, 4> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 64 :
+					scaleReduceS<64, 8> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 32 :
+					scaleReduceS<32, 16> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 16 :
+					scaleReduceS<16, 32> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 8 :
+					scaleReduceS<8, 64> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				case 4 :
+					scaleReduceS<4, 128> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+				default :
+					scaleReduceS<2, 256> << < grid, block, smem, stream >> > (
+                            permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
+                            pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
+			}
+		}
 
 		// final fft
 		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
