@@ -267,7 +267,7 @@ namespace PRISM {
                 currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
                 while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
-                    while (currentBeam != stop) {
+                    while (currentBeam < stop) {
 	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0 | currentBeam == 100){
 		                    cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 	                    }

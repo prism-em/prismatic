@@ -195,6 +195,38 @@ namespace PRISM{
 			++idx;
 		};
 	}
+	void formatOutput_CPU_integrate_batch(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                                      Array1D< complex<PRISM_FLOAT_PRECISION> >& psi_stack,
+	                                      const Array2D<PRISM_FLOAT_PRECISION> &alphaInd,
+	                                      size_t Nstart,
+	                                      const size_t Nstop){
+		int probe_idx = 0;
+		while (Nstart < Nstop) {
+			const size_t ay = Nstart / pars.xp.size();
+			const size_t ax = Nstart % pars.xp.size();
+			Array2D<PRISM_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISM_FLOAT_PRECISION>(
+					{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
+			auto psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
+			for (auto &j:intOutput) j = pow(abs(*psi_ptr++), 2);
+
+			//save 4D output if applicable
+			if (pars.meta.save4DOutput) {
+				std::string section4DFilename = generateFilename(pars, ay, ax);
+				intOutput.toMRC_f(section4DFilename.c_str());
+			}
+
+			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+			auto idx = alphaInd.begin();
+			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
+				if (*idx <= pars.Ndet) {
+					pars.output.at(ay, ax, (*idx) - 1) += *counts;
+				}
+				++idx;
+			};
+			++Nstart;
+			++probe_idx;
+		}
+	}
 
 	std::pair<PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
 	getSingleMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp){
@@ -270,6 +302,69 @@ namespace PRISM{
 		PRISM_FFTW_CLEANUP_THREADS();
 		return std::make_pair(realspace_probe, kspace_probe);
 	};
+
+	void getMultisliceProbe_CPU_batch(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                                  const size_t Nstart,
+	                                  const size_t Nstop,
+	                                  PRISM_FFTW_PLAN& plan_forward,
+	                                  PRISM_FFTW_PLAN& plan_inverse,
+	                                  Array1D<complex<PRISM_FLOAT_PRECISION> >& psi_stack){
+		{
+			auto psi_ptr = psi_stack.begin();
+			for (auto batch_num = 0; batch_num < pars.meta.batch_size; ++batch_num) {
+				for (auto i:pars.psiProbeInit)*psi_ptr++ = i;
+			}
+		}
+		auto psi_ptr   = psi_stack.begin();
+		for (auto probe_num = Nstart; probe_num < Nstop; ++probe_num) {
+//			for (auto i:pars.psiProbeInit)*psi_ptr++=i;
+			// Initialize the probes
+			// Determine x/y position from the linear index
+			const size_t ay = probe_num / pars.xp.size();
+			const size_t ax = probe_num % pars.xp.size();
+			// populates the output stack for Multislice simulation using the CPU. The number of
+			// threads used is determined by pars.meta.NUM_THREADS
+			{
+				auto qxa_ptr = pars.qxa.begin();
+				auto qya_ptr = pars.qya.begin();
+				for (auto jj = 0; jj < pars.qxa.size(); ++jj) {
+					*psi_ptr++ *= exp(-2 * pi * i * ((*qxa_ptr++) * pars.xp[ax] +
+					                               (*qya_ptr++) * pars.yp[ay]));
+				}
+			}
+		}
+
+		auto scaled_prop = pars.prop;
+		for (auto& jj : scaled_prop) jj/=pars.psiProbeInit.size(); // apply FFT scaling factor here once in advance rather than at every plane
+		complex<PRISM_FLOAT_PRECISION>* slice_ptr = &pars.transmission[0];
+		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+			PRISM_FFTW_EXECUTE(plan_inverse); // batch FFT
+
+			// transmit each of the probes in the batch
+			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size; ++batch_idx){
+				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
+				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
+				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
+					*psi_ptr++ *= (*t_ptr++);// transmit
+				}
+			}
+//			slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
+			PRISM_FFTW_EXECUTE(plan_forward); // batch FFT
+
+			// propagate each of the probes in the batch
+			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size; ++batch_idx){
+				auto p_ptr = scaled_prop.begin();
+				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
+				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
+					*psi_ptr++ *= (*p_ptr++);// propagate
+//					*psi_ptr++ /= pars.psiProbeInit.size();// propagate
+				}
+			}
+
+		}
+		formatOutput_CPU_integrate_batch(pars, psi_stack, pars.alphaInd, Nstart, Nstop);
+	}
+
 	void getMultisliceProbe_CPU(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                            const size_t ay,
 	                            const size_t ax,
@@ -303,8 +398,8 @@ namespace PRISM{
 			                                        (*qya_ptr++)*pars.yp[ay]));
 		}
 
-		auto tmp_prop = pars.prop;
-		for (auto& i : tmp_prop) i/=psi.size(); // apply FFT scaling factor here once in advance rather than at every plane
+		auto scaled_prop = pars.prop;
+		for (auto& i : scaled_prop) i/=psi.size(); // apply FFT scaling factor here once in advance rather than at every plane
 		complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 //			cout <<"a2 = " << a2 << endl;
@@ -318,7 +413,7 @@ namespace PRISM{
 //			cout <<"transmit" << endl;
 			PRISM_FFTW_EXECUTE(plan_forward);
 			//auto p_ptr = pars.prop.begin();
-			auto p_ptr = tmp_prop.begin();
+			auto p_ptr = scaled_prop.begin();
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
 //			for (auto& p:psi)p /= psi.size(); // scale FFT
 
@@ -342,7 +437,7 @@ namespace PRISM{
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), pars.meta.batch_size);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 
@@ -351,31 +446,69 @@ namespace PRISM{
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 				if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-					Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+//					Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+
+					// Allocate memory for the propagated probes. These are 2D arrays, but as they will be operated on
+					// as a batch FFT they are all stacked together into one linearized array
+					Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size}});
+
+
+					// setup batch FFTW parameters
+					constexpr int rank = 2;
+					int n[] = {pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()};
+					const int howmany = pars.meta.batch_size;
+					int idist = n[0]*n[1];
+					int odist = n[0]*n[1];
+					int istride = 1;
+					int ostride = 1;
+					int *inembed = n;
+					int *onembed = n;
 					unique_lock<mutex> gatekeeper(fftw_plan_lock);
-					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																		  FFTW_FORWARD, FFTW_MEASURE);
-					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																		  FFTW_BACKWARD, FFTW_MEASURE);
-                    gatekeeper.unlock();
+
+//					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  FFTW_FORWARD, FFTW_MEASURE);
+//					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  FFTW_BACKWARD, FFTW_MEASURE);
+
+
+					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					                                                         istride, idist,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         ostride, odist,
+					                                                         FFTW_FORWARD, FFTW_MEASURE);
+					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					                                                         istride, idist,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         ostride, odist,
+					                                                         FFTW_BACKWARD, FFTW_MEASURE);
+
+					gatekeeper.unlock();
+					// Initialize the probes
+//					auto psi_ptr = psi_stack.begin();
+//					for (auto batch_num = 0; batch_num < pars.meta.batch_size; ++batch_num){
+//						for (auto i:pars.psiProbeInit)*psi_ptr++=i;
+//					}
                     do {
 						//	cout << "Nstop = " << Nstop << endl;
-						while (Nstart != Nstop) {
+						while (Nstart < Nstop) {
 							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
-							ay = Nstart / pars.xp.size();
-							ax = Nstart % pars.xp.size();
+//							ay = Nstart / pars.xp.size();
+//							ax = Nstart % pars.xp.size();
 //                            if (ay==7){
 //                                cout << "ax = " << ax << endl;
 //								cout << "ay = " << ay << endl;
 //                            }
-							getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
-							++Nstart;
+//							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
+							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
+							Nstart=Nstop;
 						}
 					} while(dispatcher.getWork(Nstart, Nstop));
 					gatekeeper.lock();

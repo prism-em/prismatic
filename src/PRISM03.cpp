@@ -234,7 +234,7 @@ namespace PRISM {
 																   FFTW_FORWARD, FFTW_MEASURE);
 					 gatekeeper.unlock();
 					 do {
-						 while (Nstart != Nstop) {
+						 while (Nstart < Nstop) {
 							 if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							 }

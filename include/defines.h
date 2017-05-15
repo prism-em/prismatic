@@ -67,6 +67,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 	typedef double PRISM_FLOAT_PRECISION;
 #define PRISM_FFTW_PLAN fftw_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
+#define PRISM_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
 #define PRISM_FFTW_EXECUTE fftw_execute
 #define PRISM_FFTW_DESTROY_PLAN fftw_destroy_plan
 #define PRISM_FFTW_COMPLEX fftw_complex
@@ -79,6 +80,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define MESSAGE "FLOAT PRECISION"
 #define PRISM_FFTW_PLAN fftwf_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
+#define PRISM_FFTW_PLAN_DFT_BATCH fftwf_plan_many_dft
 #define PRISM_FFTW_EXECUTE fftwf_execute
 #define PRISM_FFTW_DESTROY_PLAN fftwf_destroy_plan
 #define PRISM_FFTW_COMPLEX fftwf_complex
