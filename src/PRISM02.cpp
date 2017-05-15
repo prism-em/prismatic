@@ -356,7 +356,7 @@ namespace PRISM {
 
 
 	            // setup batch FFTW parameters
-	            constexpr int rank = 2;
+	            const int rank = 2;
 	            int n[] = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
 	            const int howmany = pars.meta.batch_size_CPU;
 	            int idist = n[0]*n[1];

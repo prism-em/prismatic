@@ -454,7 +454,7 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll << < (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                            (integratedOutput_ds, 0, num_integration_bins);
-//	if (ax == 0 & ay == 0) {
+//	if ((ax == 0 | ax == 1) & ay == 0) {
 //		PRISM_FLOAT_PRECISION ans;
 //		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
 //			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
@@ -463,7 +463,7 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 //		}
 //	}
 //
-//	if (ax == 0 & ay == 0) {
+//	if ((ax == 0 | ax == 1) & ay == 0) {
 //		PRISM_FLOAT_PRECISION ans;
 //		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
 //			cudaMemcpy(&ans, alphaInd_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
@@ -472,11 +472,11 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 //		}
 //	}
 //
-//	if (ax == 0 & ay == 0) {
+//	if ((ax == 0 | ax == 1) & ay == 0) {
 //		PRISM_FLOAT_PRECISION ans;
-//		for (auto i = 98; i < pars.detectorAngles.size(); ++i) {
+//		for (auto i = 0; i < 43; ++i) {
 //			cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "psi_intensity_ds[" << i << "] = " << ans << std::endl;
+//			std::cout << " psi_intensity_ds[" << i << "] = " << ans << std::endl;
 //
 //		}
 //	}
@@ -484,6 +484,15 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                                                              (psi_intensity_ds, alphaInd_d, integratedOutput_ds,
 			                                                                              dimj *
 			                                                                              dimi, num_integration_bins);
+//
+//	if ((ax == 0 | ax == 1) & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 0; i < 43; ++i) {
+//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << " integratedOutput_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
 //	if (ax == 0 & ay == 0) {
 //		PRISM_FLOAT_PRECISION ans;
 //		for (auto i = 97; i < pars.detectorAngles.size(); ++i) {
@@ -496,6 +505,16 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 //		if (ax==0 & ay==0)std::cout << "scale = " << scale << std::endl;
 	multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                                (integratedOutput_ds, scale, num_integration_bins);
+
+//	if ((ax == 0 | ax == 1) & ay == 0) {
+//		PRISM_FLOAT_PRECISION ans;
+//		for (auto i = 0; i < 43; ++i) {
+//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << " integratedOutput_ds[" << i << "] = " << ans << std::endl;
+//
+//		}
+//	}
+
 //	}
 ////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISM_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
 
@@ -510,6 +529,12 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	const size_t stack_start_offset =
 			ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
+	if ((ax == 0 | ax == 1) & ay == 0) {
+		std::cout << "stack_start_offset = " << stack_start_offset<< std::endl;
+		for (auto i = 0; i < 43; ++i){
+			std::cout << "pars.output[stack_start_offset + " << i << "] = " << pars.output[stack_start_offset+ i] << std::endl;
+		}
+	}
 }
 
 size_t getNextPower2(const size_t& val){

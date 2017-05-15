@@ -92,6 +92,9 @@ namespace PRISM{
 		const size_t N = dimj*dimi;
 		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
+
+
+
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			/*
 			if (ax == 0 && ay == 0) {
@@ -132,6 +135,210 @@ namespace PRISM{
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 }
 
+	__host__ void getMultisliceProbe_GPU_singlexfer_batch(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                                                      PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+	                                                      PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                                                      PRISM_CUDA_COMPLEX_FLOAT* psi_ds,
+	                                                      PRISM_FLOAT_PRECISION* output_ph,
+	                                                      PRISM_FLOAT_PRECISION* psi_intensity_ds,
+	                                                      PRISM_FLOAT_PRECISION* integratedOutput_ds,
+	                                                      const PRISM_FLOAT_PRECISION* qya_d,
+	                                                      const PRISM_FLOAT_PRECISION* qxa_d,
+	                                                      const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                                      const size_t& Nstart,
+	                                                      const size_t& Nstop,
+	                                                      const size_t dimj,
+	                                                      const size_t dimi,
+	                                                      const PRISM_FLOAT_PRECISION* alphaInd_d,
+	                                                      const cufftHandle& plan,
+	                                                      cudaStream_t& stream){
+		const size_t N = dimj*dimi;
+		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+
+			// initialize psi
+			PRISM_FLOAT_PRECISION yp = pars.yp[ay];
+			PRISM_FLOAT_PRECISION xp = pars.xp[ax];
+
+			initializePsi << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+                (psi_ds + (batch_idx * N), PsiProbeInit_d, qya_d, qxa_d, N, yp, xp);
+		}
+
+
+		if (Nstart==0 ) {
+			cout << "dimj = " << dimj << endl;
+			cout << "dimi = " << dimi << endl;
+			{
+				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+//				PRISM_FLOAT_PRECISION ans;
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					cout << "BATCH ID = " << batch_idx << endl;
+					for (auto i = 0; i < 10; ++i) {
+						cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+						cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+					}
+				}
+			}
+		}
+
+
+		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+
+
+			if (Nstart==0 ) {
+				cout <<"AFTER IFFT" << endl;
+				{
+					std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+//				PRISM_FLOAT_PRECISION ans;
+					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+						cout << "BATCH ID = " << batch_idx << endl;
+						for (auto i = 0; i < 10; ++i) {
+							cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+							cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+						}
+					}
+				}
+			}
+
+			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+				multiply_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+						(psi_ds + (batch_idx * N), &trans_d[planeNum * N], N);
+			}
+
+			if (Nstart==0 ) {
+				cout <<"AFTER TRANSMISSION" << endl;
+				{
+					std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+//				PRISM_FLOAT_PRECISION ans;
+					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+						cout << "BATCH ID = " << batch_idx << endl;
+						for (auto i = 0; i < 10; ++i) {
+							cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+							cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+						}
+					}
+				}
+			}
+
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+
+//			if (Nstart==0 ) {
+//				cout <<"AFTER FFT" << endl;
+//				{
+//					std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+////				PRISM_FLOAT_PRECISION ans;
+//					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+//						cout << "BATCH ID = " << batch_idx << endl;
+//						for (auto i = 0; i < 10; ++i) {
+//							cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+//							cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+//						}
+//					}
+//				}
+//			}
+			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+				multiply_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+						(psi_ds + (batch_idx * N), prop_d, N);
+				divide_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+						(psi_ds + (batch_idx * N), PRISM_MAKE_CU_COMPLEX(N, 0), N);
+			}
+//			if (Nstart==0 ) {
+//				cout <<"AFTER SCALING" << endl;
+//				{
+//					std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+////				PRISM_FLOAT_PRECISION ans;
+//					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+//						cout << "BATCH ID = " << batch_idx << endl;
+//						for (auto i = 0; i < 10; ++i) {
+//							cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+//							cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+//						}
+//					}
+//				}
+//			}
+
+		}
+
+
+
+		if (Nstart==0 ) {
+			cout << "after propagation" << endl;
+			{
+				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+//				PRISM_FLOAT_PRECISION ans;
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					cout << "BATCH ID = " << batch_idx << endl;
+					for (auto i = 0; i < 10; ++i) {
+						cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i + ((batch_idx * N)), sizeof(ans_cx), cudaMemcpyDeviceToHost));
+						cout << "psi_ds[" << i  + (batch_idx * N) << "] = " << ans_cx << endl;
+					}
+				}
+//				Array2D<std::complex<PRISM_FLOAT_PRECISION>> debug = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
+//				cudaErrchk(cudaMemcpy(&debug[0], psi_ds, pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>), cudaMemcpyDeviceToHost));
+//				debug.toMRC_f("p1_cx.mrc");
+//				cudaErrchk(cudaMemcpy(&debug[0], psi_ds + pars.psiProbeInit.size(), pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>), cudaMemcpyDeviceToHost));
+//				debug.toMRC_f("p2_cx.mrc");
+			}
+		}
+
+		abs_squared << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
+
+		if (Nstart==0 ) {
+			cout << "after propagation" << endl;
+			{
+//				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+				PRISM_FLOAT_PRECISION ans;
+				PRISM_FLOAT_PRECISION psi_intensity_sum = 0;
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					psi_intensity_sum = 0;
+					cout << "BATCH ID = " << batch_idx << endl;
+					for (auto i = 0; i < 10; ++i) {
+						cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i + ((batch_idx * N)), sizeof(ans), cudaMemcpyDeviceToHost));
+						cout << "psi_intensity_ds[" << i  + (batch_idx * N) << "] = " << ans << endl;
+					}
+					for (auto i = 0; i < pars.psiProbeInit.size(); ++i) {
+						cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost));
+						psi_intensity_sum += ans;
+					}
+					Array2D<PRISM_FLOAT_PRECISION> debug = zeros_ND<2, PRISM_FLOAT_PRECISION >({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
+					cudaErrchk(cudaMemcpy(&debug[0], psi_intensity_ds, pars.psiProbeInit.size() * sizeof(debug[0]), cudaMemcpyDeviceToHost));
+					debug.toMRC_f("p1.mrc");
+					cudaErrchk(cudaMemcpy(&debug[0], psi_intensity_ds + pars.psiProbeInit.size(), pars.psiProbeInit.size() * sizeof(debug[0]), cudaMemcpyDeviceToHost));
+					debug.toMRC_f("p2.mrc");
+					cout << "PSI_INTENSITY SUM = " << psi_intensity_sum << endl;
+				}
+			}
+		}
+
+//		if (Nstart==0 ) {
+//			cout <<"AFTER abs_squared" << endl;
+//			{
+//				PRISM_FLOAT_PRECISION ans;
+//				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+//					cout << "BATCH ID = " << batch_idx << endl;
+//					for (auto i = 0; i < 10; ++i) {
+//						cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i + ((batch_idx * N)), sizeof(ans), cudaMemcpyDeviceToHost));
+//						cout << "psi_intensity_ds[" << i  + (batch_idx * N) << "] = " << ans << endl;
+//					}
+//				}
+//			}
+//		}
+
+
+		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+//delete this
+			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+//			cout << "ax, ay = " << ax << ", " << ay << endl;
+			formatOutput_GPU_integrate(pars, psi_intensity_ds + (batch_idx * N),
+			                           alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi, stream);
+		}
+	}
+
+
+
 
 	__host__ void getMultisliceProbe_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>& pars,
 	                                               PRISM_CUDA_COMPLEX_FLOAT* trans_d,
@@ -158,15 +365,79 @@ namespace PRISM{
 		const size_t N = dimj*dimi;
 		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
+//		if ((ax==0 | ax == 1) & ay==0 ) {
+//			cout << "ax = " << ax << endl;
+//			cout << "ay = " << ay << endl;
+//			{
+//				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+////				PRISM_FLOAT_PRECISION ans;
+//					for (auto i = 0; i < 10; ++i) {
+//						cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i, sizeof(ans_cx), cudaMemcpyDeviceToHost));
+//						cout << "psi_ds[" << i  << "] = " << ans_cx << endl;
+//					}
+//			}
+//		}
+//
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*N], N * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+//
+//			if ((ax==0 | ax == 1) & ay==0 ) {
+//				cout <<"AFTER IFFT" << endl;
+//				{
+//					std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+////				PRISM_FLOAT_PRECISION ans;
+//						for (auto i = 0; i < 10; ++i) {
+//							cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i, sizeof(ans_cx), cudaMemcpyDeviceToHost));
+//							cout << "psi_ds[" << i  << "] = " << ans_cx << endl;
+//						}
+//				}
+//			}
+
+
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, trans_d, N);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
 			divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
 		}
+//	if ((ax==0 | ax == 1) & ay==0 ) {
+//	cout <<"after propagation" << endl;
+//	cout << "ax = " << ax << endl;
+//	cout << "ay = " << ay << endl;
+//{
+//	std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+////				PRISM_FLOAT_PRECISION ans;
+//	for (auto i = 0; i < 10; ++i) {
+//	cudaErrchk(cudaMemcpy(&ans_cx, psi_ds + i, sizeof(ans_cx), cudaMemcpyDeviceToHost));
+//	cout << "psi_ds[" << i  << "] = " << ans_cx << endl;
+//}
+//}
+//}
+
+
 		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
+
+
+		if ((ax==0 | ax == 1) & ay==0 ) {
+			cout <<"after propagation" << endl;
+			cout << "ax = " << ax << endl;
+			cout << "ay = " << ay << endl;
+			{
+//				std::complex<PRISM_FLOAT_PRECISION> ans_cx;
+				PRISM_FLOAT_PRECISION ans;
+				PRISM_FLOAT_PRECISION psi_intensity_sum = 0;
+				for (auto i = 0; i < 10; ++i) {
+					cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost));
+					cout << "psi_intensity_ds[" << i  << "] = " << ans << endl;
+				}
+				for (auto i = 0; i < pars.psiProbeInit.size(); ++i) {
+					cudaErrchk(cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost));
+					psi_intensity_sum += ans;
+				}
+				cout << "PSI_INTENSITY SUM = " << psi_intensity_sum << endl;
+
+			}
+		}
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 	}
 
@@ -174,7 +445,9 @@ namespace PRISM{
 #ifdef PRISM_BUILDING_GUI
 	    pars.progressbar->signalDescriptionMessage("Computing final output");
 #endif
-		cout << "pars.numPlanes = " << pars.numPlanes << endl;
+		// determine the batch size to use
+	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
+	    cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
 		using namespace std;
@@ -187,11 +460,28 @@ namespace PRISM{
 //		cufftHandle cufft_plan[total_num_streams];
 
 
-		cout <<"total_num_streams = " << total_num_streams<< endl;
+//	    cufftPlanMany(cufftHandle *plan, int rank, int *n, int *inembed,
+//			    int istride, int idist, int *onembed, int ostride,
+//			    int odist, cufftType type, int batch);
+	    const int rank = 2;
+	    int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
+	    const int howmany = pars.meta.batch_size_GPU;
+	    cout <<"pars.meta.batch_size_GPU= " << pars.meta.batch_size_GPU<< endl;
+	    int idist = n[0]*n[1];
+	    int odist = n[0]*n[1];
+	    int istride = 1;
+	    int ostride = 1;
+	    int *inembed = n;
+	    int *onembed = n;
+
+
+
+	    cout <<"total_num_streams = " << total_num_streams<< endl;
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(), PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlanMany(&cufft_plan[j], rank, n, inembed, istride, idist, onembed, ostride, odist, PRISM_CUFFT_PLAN_TYPE, howmany));
+//			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(), PRISM_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 		}
 
@@ -255,22 +545,22 @@ namespace PRISM{
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],     pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMalloc((void **) &trans_d[g],            pars.transmission.size()               * sizeof(pars.transmission[0])));
-			cudaErrchk(cudaMalloc((void **) &prop_d[g],             pars.prop.size()           * sizeof(pars.prop[0])));
-			cudaErrchk(cudaMalloc((void **) &qxa_d[g],              pars.qxa.size()            * sizeof(pars.qxa[0])));
-			cudaErrchk(cudaMalloc((void **) &qya_d[g],              pars.qya.size()            * sizeof(pars.qya[0])));
-			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],         pars.alphaInd.size()            * sizeof(pars.alphaInd[0])));
+			cudaErrchk(cudaMalloc((void **) &PsiProbeInit_d[g],     pars.psiProbeInit.size()   * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &trans_d[g],            pars.transmission.size()   * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &prop_d[g],             pars.prop.size()           * sizeof(PRISM_CUDA_COMPLEX_FLOAT)));
+			cudaErrchk(cudaMalloc((void **) &qxa_d[g],              pars.qxa.size()            * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &qya_d[g],              pars.qya.size()            * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],         pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
-			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(psi_ds[s], 0, pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMemset(psi_intensity_ds[s], 0, pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(psi_ds[s], 0,                      pars.meta.batch_size_GPU*pars.psiProbeInit.size()  * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMemset(psi_intensity_ds[s], 0,            pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(integratedOutput_ds[s], 0,         pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
 
@@ -354,7 +644,7 @@ namespace PRISM{
 				}
 #endif // NDEBUG
 
-				size_t Nstart, Nstop, ay, ax;
+				size_t Nstart, Nstop;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
@@ -362,19 +652,24 @@ namespace PRISM{
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 						}
-						ay = Nstart / pars.xp.size();
-						ax = Nstart % pars.xp.size();
+//						ay = Nstart / pars.xp.size();
+//						ax = Nstart % pars.xp.size();
 //						cout << "outside ax = " << ax << endl;
 //						cout << "outside ay = " << ay <<vi  endl;
-							getMultisliceProbe_GPU_singlexfer(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, current_output_ph,
-							                                  current_psi_intensity_ds,
-							                                  current_integratedOutput_ds, current_qya_d, current_qxa_d,
-							                                  current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
-							                                  current_alphaInd_d, current_cufft_plan, current_stream);
+//							getMultisliceProbe_GPU_singlexfer(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, current_output_ph,
+//							                                  current_psi_intensity_ds,
+//							                                  current_integratedOutput_ds, current_qya_d, current_qxa_d,
+//							                                  current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
+//							                                  current_alphaInd_d, current_cufft_plan, current_stream);
+						getMultisliceProbe_GPU_singlexfer_batch(pars, current_trans_d, current_PsiProbeInit_d, current_psi_ds, current_output_ph,
+						                                        current_psi_intensity_ds,
+						                                        current_integratedOutput_ds, current_qya_d, current_qxa_d,
+						                                        current_prop_d, Nstart, Nstop, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
+						                                        current_alphaInd_d, current_cufft_plan, current_stream);
 #ifdef PRISM_BUILDING_GUI
 						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
-						++Nstart;
+						Nstart=Nstop;
 					}
 				}
 				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
@@ -762,7 +1057,7 @@ namespace PRISM{
 					Array1D<std::complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size_CPU}});
 
 					// setup batch FFTW parameters
-					constexpr int rank = 2;
+					const int rank = 2;
 					int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
 					const int howmany = pars.meta.batch_size_CPU;
 					int idist = n[0]*n[1];

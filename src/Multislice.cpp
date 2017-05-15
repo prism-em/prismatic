@@ -459,7 +459,7 @@ namespace PRISM{
 
 
 					// setup batch FFTW parameters
-					constexpr int rank = 2;
+					const int rank = 2;
 					int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
 					const int howmany = pars.meta.batch_size_CPU;
 					int idist = n[0]*n[1];
@@ -530,7 +530,6 @@ namespace PRISM{
 
 
 	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		using namespace std;
 
 		// setup coordinates and build propagators
 		setupCoordinates_multislice(pars);
