@@ -216,13 +216,13 @@ namespace PRISM {
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-        WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+        WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
-                 if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+                 if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)) { // synchronously get work assignment
                      Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -246,7 +246,7 @@ namespace PRISM {
 #endif
 							 ++Nstart;
 						 }
-					 } while(dispatcher.getWork(Nstart, Nstop));
+					 } while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));
 					 gatekeeper.lock();
                      cout <<"destroying plan"<<endl;
 					 PRISM_FFTW_DESTROY_PLAN(plan);

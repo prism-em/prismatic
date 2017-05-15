@@ -310,7 +310,7 @@ namespace PRISM{
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 	    const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 //		setWorkStartStop(0, 1);
 		cout << " pars.xp.size()  = " << pars.xp.size()  << endl;
 		cout << " pars.yp.size()  = " << pars.yp.size()  << endl;
@@ -357,7 +357,7 @@ namespace PRISM{
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
@@ -403,7 +403,7 @@ namespace PRISM{
                                 } else {
                                         early_CPU_stop = pars.xp.size() * pars.yp.size();
                                 }
-					if (dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
+					if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
@@ -434,7 +434,7 @@ namespace PRISM{
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
@@ -667,7 +667,7 @@ namespace PRISM{
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];
@@ -712,7 +712,7 @@ namespace PRISM{
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop)){ // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
@@ -758,7 +758,7 @@ namespace PRISM{
                                 } else {
                                         early_CPU_stop = pars.xp.size() * pars.yp.size();
                                 }
-					if (dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
+					if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
@@ -789,7 +789,7 @@ namespace PRISM{
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan_forward);
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);

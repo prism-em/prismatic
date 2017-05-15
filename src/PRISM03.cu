@@ -847,7 +847,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 //		setWorkStartStop(0, 1, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -899,7 +899,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)) { // synchronously get work assignment
 					while (Nstart < Nstop) {
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
@@ -943,7 +943,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                                 }
 					cout << "early_CPU_stop= " << early_CPU_stop<< endl;
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -968,7 +968,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								++Nstart;
 							}
 						if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop,  early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();
@@ -1253,7 +1253,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), 1);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 //		setWorkStartStop(0, 1);
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -1305,7 +1305,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)) { // synchronously get work assignment
 					while (Nstart < Nstop) {
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
@@ -1346,7 +1346,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                                         early_CPU_stop = pars.xp.size() * pars.yp.size();
                                 }
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop, early_CPU_stop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -1371,7 +1371,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();

@@ -437,7 +437,7 @@ namespace PRISM{
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), pars.meta.batch_size_CPU);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 
@@ -445,7 +445,7 @@ namespace PRISM{
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				if (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
+				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)) { // synchronously get work assignment
 //					Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 
 					// Allocate memory for the propagated probes. These are 2D arrays, but as they will be operated on
@@ -510,7 +510,7 @@ namespace PRISM{
 							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 							Nstart=Nstop;
 						}
-					} while(dispatcher.getWork(Nstart, Nstop));
+					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));
 					gatekeeper.lock();
 					PRISM_FFTW_DESTROY_PLAN(plan_forward);
 					PRISM_FFTW_DESTROY_PLAN(plan_inverse);

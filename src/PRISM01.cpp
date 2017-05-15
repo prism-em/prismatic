@@ -99,7 +99,7 @@ namespace PRISM {
 		workers.reserve(pars.meta.NUM_THREADS);
 
 //		setWorkStartStop(0, pars.numPlanes, 1);
-		WorkDispatcher dispatcher(0, pars.numPlanes, 1);
+		WorkDispatcher dispatcher(0, pars.numPlanes);
 		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec,

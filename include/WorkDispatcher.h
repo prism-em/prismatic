@@ -12,13 +12,12 @@ namespace PRISM {
     class WorkDispatcher {
     public:
         WorkDispatcher(size_t _current,
-                       size_t _stop,
-                       size_t _num_per_call);
+                       size_t _stop);
 
-        bool getWork(size_t& job_start, size_t& job_stop, size_t cpu_early_stop=SIZE_MAX);
+        bool getWork(size_t& job_start, size_t& job_stop, size_t num_requested=1, size_t cpu_early_stop=SIZE_MAX);
     private:
         std::mutex lock;
-        size_t current, stop, num_per_call;
+        size_t current, stop;
     };
 }
 #endif //PRISM_WORKDISPATCHER_H

@@ -241,7 +241,8 @@ namespace PRISM {
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 //		setWorkStartStop(0, pars.numberBeams, 1);
 		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.numberBeams, 1);
+//		WorkDispatcher dispatcher(0, pars.numberBeams, 1);
+		WorkDispatcher dispatcher(0, pars.numberBeams);
 //		 setWorkStartStop(0, 1);
 
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
@@ -266,7 +267,7 @@ namespace PRISM {
 				size_t currentBeam, stop;
                 currentBeam=stop=0;
 //				while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
-                while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
+                while (dispatcher.getWork(currentBeam, stop, pars.meta.batch_size_CPU)) { // synchronously get work assignment
                     while (currentBeam < stop) {
 	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0 | currentBeam == 100){
 		                    cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
