@@ -748,56 +748,73 @@ namespace PRISM{
 				cout << "Launching CPU worker #" << t << endl;
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
-				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
+				size_t Nstart, Nstop, early_CPU_stop;
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
-                                if (pars.meta.NUM_GPUS > 0){
-                                      // if there are no GPUs, make sure to do all work on CPU
-                                        early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
-                                } else {
-                                        early_CPU_stop = pars.xp.size() * pars.yp.size();
-                                }
-					if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
-						Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
-						unique_lock<mutex> gatekeeper(fftw_plan_lock);
-						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																			  FFTW_FORWARD, FFTW_MEASURE);
-						PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																			  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																			  FFTW_BACKWARD, FFTW_MEASURE);
-						gatekeeper.unlock();
-						do {
-							//	cout << "Nstop = " << Nstop << endl;
-							while (Nstart < Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
-								}
-								ay = Nstart / pars.xp.size();
-								ax = Nstart % pars.xp.size();
+                if (pars.meta.NUM_GPUS > 0){
+                        // if there are no GPUs, make sure to do all work on CPU
+                            early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+                } else {
+                            early_CPU_stop = pars.xp.size() * pars.yp.size();
+                }
+				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
+					Array1D<std::complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size_CPU}});
+
+					// setup batch FFTW parameters
+					constexpr int rank = 2;
+					int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
+					const int howmany = pars.meta.batch_size_CPU;
+					int idist = n[0]*n[1];
+					int odist = n[0]*n[1];
+					int istride = 1;
+					int ostride = 1;
+					int *inembed = n;
+					int *onembed = n;
+					unique_lock<mutex> gatekeeper(fftw_plan_lock);
+					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					                                                         istride, idist,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         ostride, odist,
+					                                                         FFTW_FORWARD, FFTW_MEASURE);
+					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					                                                         istride, idist,
+					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         ostride, odist,
+					                                                         FFTW_BACKWARD, FFTW_MEASURE);
+
+					gatekeeper.unlock();
+					do {
+						//	cout << "Nstop = " << Nstop << endl;
+						while (Nstart < Nstop) {
+							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+							}
+//							ay = Nstart / pars.xp.size();
+//							ax = Nstart % pars.xp.size();
 //                            if (ay==7){
 //                                cout << "ax = " << ax << endl;
 //								cout << "ay = " << ay << endl;
 //                            }
-								getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+//							getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
+							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 #ifdef PRISM_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+							pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
-								++Nstart;
-							}
-							if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
-						gatekeeper.lock();
-						PRISM_FFTW_DESTROY_PLAN(plan_forward);
-						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
-						gatekeeper.unlock();
-					}
-					cout << "CPU worker #" << t << " finished\n";
+							++Nstart;
+						}
+						if (Nstop >= early_CPU_stop) break;
+					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
+					gatekeeper.lock();
+					PRISM_FFTW_DESTROY_PLAN(plan_forward);
+					PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+					gatekeeper.unlock();
+				}
+				cout << "CPU worker #" << t << " finished\n";
 
-				}));
+			}));
 
 			}
 			cout << "Waiting on GPU threads..." << endl;
