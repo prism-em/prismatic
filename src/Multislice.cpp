@@ -311,7 +311,7 @@ namespace PRISM{
 	                                  Array1D<complex<PRISM_FLOAT_PRECISION> >& psi_stack){
 		{
 			auto psi_ptr = psi_stack.begin();
-			for (auto batch_num = 0; batch_num < pars.meta.batch_size; ++batch_num) {
+			for (auto batch_num = 0; batch_num < pars.meta.batch_size_CPU; ++batch_num) {
 				for (auto i:pars.psiProbeInit)*psi_ptr++ = i;
 			}
 		}
@@ -341,7 +341,7 @@ namespace PRISM{
 			PRISM_FFTW_EXECUTE(plan_inverse); // batch FFT
 
 			// transmit each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size; ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size_CPU; ++batch_idx){
 				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
@@ -352,7 +352,7 @@ namespace PRISM{
 			PRISM_FFTW_EXECUTE(plan_forward); // batch FFT
 
 			// propagate each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size; ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size_CPU; ++batch_idx){
 				auto p_ptr = scaled_prop.begin();
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
@@ -437,7 +437,7 @@ namespace PRISM{
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), pars.meta.batch_size);
+		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size(), pars.meta.batch_size_CPU);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 
@@ -450,13 +450,13 @@ namespace PRISM{
 
 					// Allocate memory for the propagated probes. These are 2D arrays, but as they will be operated on
 					// as a batch FFT they are all stacked together into one linearized array
-					Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size}});
+					Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size_CPU}});
 
 
 					// setup batch FFTW parameters
 					constexpr int rank = 2;
 					int n[] = {pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()};
-					const int howmany = pars.meta.batch_size;
+					const int howmany = pars.meta.batch_size_CPU;
 					int idist = n[0]*n[1];
 					int odist = n[0]*n[1];
 					int istride = 1;
@@ -491,13 +491,13 @@ namespace PRISM{
 					gatekeeper.unlock();
 					// Initialize the probes
 //					auto psi_ptr = psi_stack.begin();
-//					for (auto batch_num = 0; batch_num < pars.meta.batch_size; ++batch_num){
+//					for (auto batch_num = 0; batch_num < pars.meta.batch_size_CPU; ++batch_num){
 //						for (auto i:pars.psiProbeInit)*psi_ptr++=i;
 //					}
                     do {
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart < Nstop) {
-							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_CPU | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
 //							ay = Nstart / pars.xp.size();

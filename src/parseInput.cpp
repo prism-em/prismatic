@@ -22,8 +22,11 @@ namespace PRISM {
 		        "* --interp-factor-y (-fy) number : PRISM interpolation factor in Y\n"
                 "* --num-threads (-j) value : number of CPU threads to use\n"
                 "* --num-streams (-S) value : number of CUDA streams to create per GPU\n"
+		        "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.\n"
                 "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms)\n"
-                "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.\n"
+		        "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers.\n"
+		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers.\n"
+		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers.\n"
                 "* --help(-h) : print information about the available options\n"
                 "* --pixel-size (-p) pixel_size : size of simulation pixel size\n"
 		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins"
@@ -86,6 +89,53 @@ namespace PRISM {
         argv[0]+=2;
         return true;
     };
+
+
+	bool parse_b(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No batch size provided for -b (syntax is -b batch_size)\n";
+			return false;
+		}
+		if ( (meta.batch_size_CPU = atoi((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for batch size (syntax is -b batch_size)\n";
+			return false;
+		}
+		meta.batch_size_GPU = meta.batch_size_CPU;
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+	bool parse_bc(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No batch size provided for -bc (syntax is -bc batch_size)\n";
+			return false;
+		}
+		if ( (meta.batch_size_CPU = atoi((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for CPU batch size (syntax is -bc batch_size)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+	bool parse_bg(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No batch size provided for -bg (syntax is -bg batch_size)\n";
+			return false;
+		}
+		if ( (meta.batch_size_GPU = atoi((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for GPU batch size (syntax is -bg batch_size)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
 
     bool parse_c(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -682,6 +732,9 @@ namespace PRISM {
             {"--num-streams", parse_S}, {"-S", parse_S},
             {"--slice-thickness", parse_s}, {"-s", parse_s},
             {"--num-gpus", parse_g}, {"-g", parse_g},
+            {"--batch-size", parse_b}, {"-b", parse_b},
+            {"--batch-size-cpu", parse_bc}, {"-bc", parse_bc},
+            {"--batch-size-gpu", parse_bg}, {"-bg", parse_bg},
             {"--help", parse_h}, {"-h", parse_h},
             {"--pixel-size", parse_p}, {"-p", parse_p},
             {"--detector-angle-step", parse_d}, {"-d", parse_d},

@@ -36,7 +36,8 @@ namespace PRISM{
 			NUM_GPUS              = 4;
 			NUM_STREAMS_PER_GPU   = 3;
 			NUM_THREADS           = 12;
-			batch_size            = 208;
+			batch_size_GPU        = 10;
+			batch_size_CPU        = 10;
 			gpu_cpu_ratio         = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
             probe_stepX           = 0.25;
 			probe_stepY           = 0.25;
@@ -76,7 +77,8 @@ namespace PRISM{
 		T probe_stepY;
 		std::vector<T> cellDim; // this is z,y,x format
 		size_t tileX, tileY, tileZ; // how many unit cells to repeat in x,y,z
-		size_t batch_size; // number of probes/beams to propagate simultaneously
+		size_t batch_size_CPU; // number of probes/beams to propagate simultaneously for CPU
+		size_t batch_size_GPU; // number of probes/beams to propagate simultaneously for GPU
 		T gpu_cpu_ratio;
 		T E0; // electron energy
 		T alphaBeamMax; // max semi angle for probe
@@ -119,6 +121,8 @@ namespace PRISM{
 		std::cout << "E0 = " << E0 << std::endl;
 		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
 		std::cout << "NUM_THREADS = " << NUM_THREADS<< std::endl;
+		std::cout << "batch_size_CPU = " << batch_size_CPU<< std::endl;
+		std::cout << "batch_size_GPU = " << batch_size_GPU<< std::endl;
 		std::cout << "probe_stepX = " << probe_stepX << std::endl;
 		std::cout << "probe_stepY = " << probe_stepY << std::endl;
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;

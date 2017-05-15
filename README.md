@@ -124,22 +124,42 @@ PRISM contains a command line tool, `prism`, that can be used to run simulations
 ### Options
 The following options are available with `prism`, each documented as **_long form_** **_(short form)_** *parameters* : description
 
-* --**_input-file (-i)_** *filename* : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z 
-* --**_output-file(-o)_** *filename* : output filename
-* --**_interp-factor (-f)_** *number* : PRISM interpolation factor
-* --**_num-threads (-j)_** *number* : number of CPU threads to use
-* --**_num-streams (-S)_** *number* : number of CUDA streams to create per GPU
-* --**_slice-thickness (-s)_** *thickness* : thickness of each slice of projected potential (in Angstroms)
-* --**_num-gpus (-g)_** *number* : number of GPUs to use. A runtime check is performed to check how many are actually available, and minimum of these two numbers is used.
-* --**_help(-h)_** : print information about the available options
-* --**_pixel-size (-p)_** *pixel_size* : size of simulation pixel size
-* --**_cell-dimension (-c)_** *x y z* : size of sample in x, y, z directions (in Angstroms)
-* --**_algorithm (-a)_** *p/m* : the simulation algorithm to use, either (p)rism or (m)ultislice
-* --**_energy (-E)_** *value* : the energy of the electron beam (in keV)
-* --**_alpha-max (-A)_** *angle* : the maximum probe angle to consider (in mrad)
-* --**_potential-bound (-P)_** *value* : the maximum radius from the center of each atom to compute the potental (in Angstroms)
-* --**_also-do-cpu-work (-C)_** *0/1* : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones
-* --**_force-streaming-mode_** *0/1* : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.
-* --**_probe-step (-r)_** *step_size* : step size of the probe (in Angstroms)
-* --**_num-FP (-F)_** *number* : number of frozen phonon configurations to calculate
+* --input-file (-i) filename : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z 
+* --output-file(-o) filename : output filename
+* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y
+* --interp-factor-x (-fx) number : PRISM interpolation factor in X
+* --interp-factor-y (-fy) number : PRISM interpolation factor in Y
+* --num-threads (-j) value : number of CPU threads to use
+* --num-streams (-S) value : number of CUDA streams to create per GPU
+* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.
+* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers.
+* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers.
+* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers.
+* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms)
+* --help(-h) : print information about the available options
+* --pixel-size (-p) pixel_size : size of simulation pixel size
+* --detector-angle-step (-d) step_size : angular step size for detector integration bins
+* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)
+* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively
+* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice
+* --energy (-E) value : the energy of the electron beam (in keV)
+* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)
+* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)
+* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones
+* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.
+* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms)
+* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms)
+* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms)
+* --random-seed (-rs) step_size : random number seed
+* --probe-xtilt (-tx) value : probe X tilt
+* --probe-ytilt (-ty) value : probe X tilt
+* --probe-defocus (-df) value : probe defocus
+* --probe-semiangle (-sa) value : maximum probe semiangle
+* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1)
+* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1)
+* --num-FP (-F) value : number of frozen phonon configurations to calculate
+* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects)
+* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads)
+* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)
+* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)
 
