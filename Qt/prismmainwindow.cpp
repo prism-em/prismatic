@@ -172,6 +172,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->random_seed);
         this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
         ss.str("");
+        ss << (this->meta->batch_size_CPU);
+        this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
+        ss.str("");
+        ss << (this->meta->batch_size_GPU);
+        this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
@@ -223,6 +229,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(editingFinished()), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineedit_pixelSize, SIGNAL(editingFinished()), this, SLOT(setPixelSize_fromLineEdit()));
+    connect(this->ui->lineEdit_batchCPU, SIGNAL(editingFinished()), this, SLOT(setBatchCPU_fromLineEdit()));
+    connect(this->ui->lineEdit_batchGPU, SIGNAL(editingFinished()), this, SLOT(setBatchGPU_fromLineEdit()));
     connect(this->ui->lineEdit_potbound, SIGNAL(editingFinished()), this, SLOT(setPotBound_fromLineEdit()));
     connect(this->ui->lineEdit_sliceThickness, SIGNAL(editingFinished()), this, SLOT(setSliceThickness_fromLineEdit()));
     connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
@@ -582,6 +590,24 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     }
     resetCalculation();
 }
+
+void PRISMMainWindow::setBatchGPU_fromLineEdit(){
+    int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
+    if (val > 0){
+        this->meta->batch_size_GPU = val;
+        std::cout << "Setting batch size (GPU) to " << val << std::endl;
+    }
+}
+
+void PRISMMainWindow::setBatchCPU_fromLineEdit(){
+    int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
+    if (val > 0){
+        this->meta->batch_size_CPU = val;
+        std::cout << "Setting batch size (CPU) to " << val << std::endl;
+    }
+}
+
+
 
 void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMin->text().toDouble();

@@ -65,6 +65,8 @@ public slots:
     void setTileX_fromLineEdit();
     void setTileY_fromLineEdit();
     void setTileZ_fromLineEdit();
+    void setBatchGPU_fromLineEdit();
+    void setBatchCPU_fromLineEdit();
     void setE0_fromLineEdit();
     void setprobe_stepX_fromLineEdit();
     void setprobe_stepY_fromLineEdit();
