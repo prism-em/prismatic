@@ -303,7 +303,9 @@ namespace PRISM{
 			                                        (*qya_ptr++)*pars.yp[ay]));
 		}
 
-
+		auto tmp_prop = pars.prop;
+		for (auto& i : tmp_prop) i/=psi.size(); // apply FFT scaling factor here once in advance rather than at every plane
+		complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
 //			cout <<"a2 = " << a2 << endl;
 //			cout << "pars.prop.size = " << pars.prop.size() << endl;
@@ -311,13 +313,14 @@ namespace PRISM{
 //			cout << "psi.get_dimj() = " << psi.get_dimj() << endl;
 			PRISM_FFTW_EXECUTE(plan_inverse);
 //			cout <<"fft" << endl;
-			complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
+//			complex<PRISM_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
 			for (auto& p:psi)p *= (*t_ptr++); // transmit
 //			cout <<"transmit" << endl;
 			PRISM_FFTW_EXECUTE(plan_forward);
-			auto p_ptr = pars.prop.begin();
+			//auto p_ptr = pars.prop.begin();
+			auto p_ptr = tmp_prop.begin();
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
-			for (auto& p:psi)p /= psi.size(); // scale FFT
+//			for (auto& p:psi)p /= psi.size(); // scale FFT
 
 		}
 //		gatekeeper.lock();

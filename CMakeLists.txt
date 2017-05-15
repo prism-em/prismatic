@@ -62,6 +62,7 @@ find_package (Threads REQUIRED)
 find_package (Boost REQUIRED)
 find_package(FFTW3 REQUIRED)
 
+message("Boost dir " ${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
                     ${Boost_INCLUDE_DIRS}
                     ${FFTW_INCLUDE_DIR})
