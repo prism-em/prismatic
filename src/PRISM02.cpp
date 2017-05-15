@@ -328,7 +328,6 @@ namespace PRISM {
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-//		setWorkStartStop(0, pars.numberBeams, 1);
 		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.numberBeams);
 		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.numberBeams / pars.meta.NUM_THREADS);
@@ -358,7 +357,7 @@ namespace PRISM {
 
 	            // setup batch FFTW parameters
 	            constexpr int rank = 2;
-	            int n[] = {pars.imageSize[0], pars.imageSize[1]};
+	            int n[] = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
 	            const int howmany = pars.meta.batch_size_CPU;
 	            int idist = n[0]*n[1];
 	            int odist = n[0]*n[1];
@@ -386,7 +385,7 @@ namespace PRISM {
 //				while (getWorkID(pars, currentBeam, stopBeam)) { // synchronously get work assignment
                 while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU)) { // synchronously get work assignment
                     while (currentBeam < stopBeam) {
-	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU| currentBeam == 100){
+	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
 		                    cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 	                    }
 

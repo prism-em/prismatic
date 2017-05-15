@@ -460,7 +460,7 @@ namespace PRISM{
 
 					// setup batch FFTW parameters
 					constexpr int rank = 2;
-					int n[] = {pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()};
+					int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
 					const int howmany = pars.meta.batch_size_CPU;
 					int idist = n[0]*n[1];
 					int odist = n[0]*n[1];
