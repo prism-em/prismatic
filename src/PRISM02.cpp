@@ -286,13 +286,14 @@ namespace PRISM {
 		while (currentBeam < stopBeam) {
 
 			// can later remove this and batch this section as well
-			Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
-					{{pars.imageSize[0], pars.imageSize[1]}});
-			auto psi_ptr = &psi_stack[batch_idx * slice_size];
-			for (auto&i:psi)i=*psi_ptr++;
+//			Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
+//					{{pars.imageSize[0], pars.imageSize[1]}});
+//			auto psi_ptr = &psi_stack[batch_idx * slice_size];
+//			for (auto&i:psi)i=*psi_ptr++;
 			for (auto y = 0; y < pars.qyInd.size(); ++y) {
 				for (auto x = 0; x < pars.qxInd.size(); ++x) {
-					psi_small.at(y, x) = psi.at(pars.qyInd[y], pars.qxInd[x]);
+//					psi_small.at(y, x) = psi.at(pars.qyInd[y], pars.qxInd[x]);
+					psi_small.at(y, x) = psi_stack[batch_idx*slice_size + pars.qyInd[y]*pars.imageSize[1] +  pars.qxInd[x]];
 				}
 			}
 			PRISM_FFTW_EXECUTE(plan_final);

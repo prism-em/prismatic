@@ -248,9 +248,7 @@ namespace PRISM {
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));
 					 gatekeeper.lock();
-                     cout <<"destroying plan"<<endl;
 					 PRISM_FFTW_DESTROY_PLAN(plan);
-//					 cout <<"plan destroyed"<<endl;
 					 gatekeeper.unlock();
 				}
 			}));
