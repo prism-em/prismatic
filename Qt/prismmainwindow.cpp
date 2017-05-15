@@ -172,10 +172,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->random_seed);
         this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->batch_size_CPU);
+        ss << (this->meta->batch_size_target_CPU);
         this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->batch_size_GPU);
+        ss << (this->meta->batch_size_target_GPU);
         this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
 
@@ -594,7 +594,7 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
 void PRISMMainWindow::setBatchGPU_fromLineEdit(){
     int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
     if (val > 0){
-        this->meta->batch_size_GPU = val;
+        this->meta->batch_size_target_GPU = val;
         std::cout << "Setting batch size (GPU) to " << val << std::endl;
     }
 }
@@ -602,7 +602,7 @@ void PRISMMainWindow::setBatchGPU_fromLineEdit(){
 void PRISMMainWindow::setBatchCPU_fromLineEdit(){
     int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
     if (val > 0){
-        this->meta->batch_size_CPU = val;
+        this->meta->batch_size_target_CPU = val;
         std::cout << "Setting batch size (CPU) to " << val << std::endl;
     }
 }

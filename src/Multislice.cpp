@@ -311,7 +311,7 @@ namespace PRISM{
 	                                  Array1D<complex<PRISM_FLOAT_PRECISION> >& psi_stack){
 		{
 			auto psi_ptr = psi_stack.begin();
-			for (auto batch_num = 0; batch_num < pars.meta.batch_size_CPU; ++batch_num) {
+			for (auto batch_num = 0; batch_num < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_num) {
 				for (auto i:pars.psiProbeInit)*psi_ptr++ = i;
 			}
 		}
@@ -341,18 +341,18 @@ namespace PRISM{
 			PRISM_FFTW_EXECUTE(plan_inverse); // batch FFT
 
 			// transmit each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size_CPU; ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
 				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
 					*psi_ptr++ *= (*t_ptr++);// transmit
 				}
 			}
-//			slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
+			slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
 			PRISM_FFTW_EXECUTE(plan_forward); // batch FFT
 
 			// propagate each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < pars.meta.batch_size_CPU; ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
 				auto p_ptr = scaled_prop.begin();
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
@@ -438,6 +438,11 @@ namespace PRISM{
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
 		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
+
+		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
+		// of batch FFT
+		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
+		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 
@@ -445,7 +450,7 @@ namespace PRISM{
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)) { // synchronously get work assignment
+				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)){ // synchronously get work assignment
 //					Array2D<complex<PRISM_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 
 					// Allocate memory for the propagated probes. These are 2D arrays, but as they will be operated on

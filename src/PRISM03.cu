@@ -943,7 +943,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                                 }
 					cout << "early_CPU_stop= " << early_CPU_stop<< endl;
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -968,7 +968,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								++Nstart;
 							}
 						if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();
@@ -1346,7 +1346,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                                         early_CPU_stop = pars.xp.size() * pars.yp.size();
                                 }
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-					if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop)) { // synchronously get work assignment
+					if(dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop)) { // synchronously get work assignment
 						Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 								{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -1371,7 +1371,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 								++Nstart;
 							}
 							if (Nstop >= early_CPU_stop) break;
-						} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));
+						} while(dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop));
 						gatekeeper.lock();
 						PRISM_FFTW_DESTROY_PLAN(plan);
 						gatekeeper.unlock();

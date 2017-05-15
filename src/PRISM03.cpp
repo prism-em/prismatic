@@ -222,7 +222,7 @@ namespace PRISM {
 			workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
-                 if(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)) { // synchronously get work assignment
+                 if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
                      Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
@@ -246,7 +246,7 @@ namespace PRISM {
 #endif
 							 ++Nstart;
 						 }
-					 } while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));
+					 } while(dispatcher.getWork(Nstart, Nstop));
 					 gatekeeper.lock();
                      cout <<"destroying plan"<<endl;
 					 PRISM_FFTW_DESTROY_PLAN(plan);

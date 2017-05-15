@@ -97,11 +97,11 @@ namespace PRISM {
 			cout << "No batch size provided for -b (syntax is -b batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_CPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batch_size_target_CPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for batch size (syntax is -b batch_size)\n";
 			return false;
 		}
-		meta.batch_size_GPU = meta.batch_size_CPU;
+		meta.batch_size_target_GPU = meta.batch_size_target_CPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -113,7 +113,7 @@ namespace PRISM {
 			cout << "No batch size provided for -bc (syntax is -bc batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_CPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batch_size_target_CPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for CPU batch size (syntax is -bc batch_size)\n";
 			return false;
 		}
@@ -128,7 +128,7 @@ namespace PRISM {
 			cout << "No batch size provided for -bg (syntax is -bg batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_GPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batch_size_target_GPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for GPU batch size (syntax is -bg batch_size)\n";
 			return false;
 		}
