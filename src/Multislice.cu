@@ -803,7 +803,8 @@ namespace PRISM{
 #ifdef PRISM_BUILDING_GUI
 							pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
-							++Nstart;
+							//++Nstart;
+							Nstart=Nstop;
 						}
 						if (Nstop >= early_CPU_stop) break;
 					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU, early_CPU_stop));

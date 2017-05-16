@@ -381,7 +381,8 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
 								pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
 #endif
-								++currentBeam;
+                                currentBeam = stopBeam;
+//								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
 						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop));
@@ -391,11 +392,11 @@ namespace PRISM {
 						PRISM_FFTW_DESTROY_PLAN(plan_inverse);
 						gatekeeper.unlock();
 					}
-			}));
+				}));
+			}
+			for (auto &t:workers_CPU)t.join();
+			PRISM_FFTW_CLEANUP_THREADS();
 		}
-		for (auto &t:workers_CPU)t.join();
-		PRISM_FFTW_CLEANUP_THREADS();
-	}
 
 		for (auto &t:workers_GPU)t.join();
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
@@ -751,7 +752,8 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
 								pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
 #endif
-								++currentBeam;
+								currentBeam = stopBeam;
+//								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
 						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop));
