@@ -120,7 +120,6 @@ namespace PRISM {
 			memcpy(&pars.Scompact[(beamNumber + batch_idx) * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()],
 			       &Scompact_slice_ph[0], psi_small_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT));
 		}
-
 	}
 
 	void propagatePlaneWave_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
@@ -181,28 +180,45 @@ namespace PRISM {
 	                                            cudaStream_t& stream){
 		// In this version, each slice of the transmission matrix is streamed to the device
 
-//		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
-//		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
-//		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
-//		initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
-//
-//		for (auto planeNum = 0; planeNum < pars.numPlanes ; ++planeNum) {
-//			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
-//			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
-//			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, trans_d, psi_size);
-//			divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-//			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
-//			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
-//		}
-//		array_subset<<<(pars.qyInd.size()*pars.qxInd.size()-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>> (
-//				psi_d, psi_small_d, qyInd_d, qxInd_d, pars.imageSize[1], pars.qyInd.size(), pars.qxInd.size());
-//
-//		PRISM_CUFFT_EXECUTE(plan_small,&psi_small_d[0], &psi_small_d[0], CUFFT_INVERSE);
-//		divide_inplace<<<(psi_small_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_small_d, PRISM_MAKE_CU_COMPLEX(psi_small_size, 0),psi_small_size);
-//
-//		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[0],psi_small_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
-//		cudaStreamSynchronize(stream);
-//		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT));
+		const size_t psi_size        = pars.imageSize[0] * pars.imageSize[1];
+		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
+		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
+		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+			// initialize psi
+			initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
+		}
+
+		for (auto planeNum = 0; planeNum < pars.numPlanes ; ++planeNum) {
+			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
+			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+						(psi_d + batch_idx*psi_size, trans_d, psi_size);
+				divide_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+						(psi_d + batch_idx*psi_size, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+			}
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
+			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> > (psi_d + batch_idx*psi_size, prop_d, psi_size);
+			}
+		}
+
+		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+			array_subset << < (pars.qyInd.size() * pars.qxInd.size() - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0,
+					stream >> > (psi_d + batch_idx*psi_size, psi_small_d + batch_idx*psi_small_size, qyInd_d, qxInd_d, pars.imageSize[1], pars.qyInd.size(), pars.qxInd.size());
+		}
+
+		PRISM_CUFFT_EXECUTE(plan_small,&psi_small_d[0], &psi_small_d[0], CUFFT_INVERSE);
+		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+		divide_inplace<<<(psi_small_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>
+				(psi_small_d + batch_idx*psi_small_size, PRISM_MAKE_CU_COMPLEX(psi_small_size, 0),psi_small_size);
+			}
+
+		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
+		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[batch_idx*psi_small_size],psi_small_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
+		cudaStreamSynchronize(stream);
+		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT));
+			}
 	}
 
 	void fill_Scompact_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars) {
@@ -632,14 +648,30 @@ namespace PRISM {
 		cudaStream_t* streams 		  = new cudaStream_t[total_num_streams];
 		cufftHandle* cufft_plan		  = new cufftHandle[total_num_streams];
 		cufftHandle* cufft_plan_small = new cufftHandle[total_num_streams];
-//		cudaStream_t streams[total_num_streams];
-//		cufftHandle cufft_plan[total_num_streams];
-//		cufftHandle cufft_plan_small[total_num_streams];
+
+		// batch parameters for cuFFT
+		const int rank = 2;
+		int n[] = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
+		const int howmany = pars.meta.batch_size_GPU;
+		cout <<"pars.meta.batch_size_GPU= " << pars.meta.batch_size_GPU<< endl;
+		int idist = n[0]*n[1];
+		int odist = n[0]*n[1];
+		int istride = 1;
+		int ostride = 1;
+		int *inembed = n;
+		int *onembed = n;
+
+		int n_small[] = {(int)pars.qyInd.size(), (int)pars.qxInd.size()};
+		int idist_small = n_small[0]*n_small[1];
+		int odist_small = n_small[0]*n_small[1];
+		int *inembed_small  = n_small;
+		int *onembed_small  = n_small;
+
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
-			cufftErrchk(cufftPlan2d(&cufft_plan[j], pars.imageSize[0], pars.imageSize[1], PRISM_CUFFT_PLAN_TYPE));
-			cufftErrchk(cufftPlan2d(&cufft_plan_small[j], pars.qyInd.size(), pars.qxInd.size(), PRISM_CUFFT_PLAN_TYPE));
+			cufftErrchk(cufftPlanMany(&cufft_plan[j], rank, n, inembed, istride, idist, onembed, ostride, odist, PRISM_CUFFT_PLAN_TYPE, howmany));
+			cufftErrchk(cufftPlanMany(&cufft_plan_small[j], rank, n_small, inembed_small, istride, idist_small, onembed_small, ostride, odist_small, PRISM_CUFFT_PLAN_TYPE, howmany));
 			cufftErrchk(cufftSetStream(cufft_plan[j], streams[j]));
 			cufftErrchk(cufftSetStream(cufft_plan_small[j], streams[j]));
 		}
