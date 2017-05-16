@@ -34,8 +34,8 @@ namespace PRISM{
 									                const PRISM_FLOAT_PRECISION* qya_d,
 									                const PRISM_FLOAT_PRECISION* qxa_d,
 									                const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
-									                const size_t& ay,
-									                const size_t& ax,
+									                const size_t ay,
+									                const size_t ax,
 									                const size_t dimj,
 									                const size_t dimi,
 									                const PRISM_FLOAT_PRECISION* alphaInd_d,
@@ -145,8 +145,8 @@ namespace PRISM{
 	                                                      const PRISM_FLOAT_PRECISION* qya_d,
 	                                                      const PRISM_FLOAT_PRECISION* qxa_d,
 	                                                      const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
-	                                                      const size_t& Nstart,
-	                                                      const size_t& Nstop,
+	                                                      const size_t Nstart,
+	                                                      const size_t Nstop,
 	                                                      const size_t dimj,
 	                                                      const size_t dimi,
 	                                                      const PRISM_FLOAT_PRECISION* alphaInd_d,
@@ -283,7 +283,7 @@ namespace PRISM{
 			}
 		}
 
-		abs_squared << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
+		abs_squared << < (N*(Nstop-Nstart)) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
 
 		if (Nstart==0 ) {
 			cout << "after propagation" << endl;

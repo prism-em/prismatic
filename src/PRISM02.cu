@@ -371,7 +371,7 @@ namespace PRISM {
 						gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
-								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0 | currentBeam == 100){
+								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
 									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 								}
 								// re-zero psi each iteration
@@ -742,7 +742,7 @@ namespace PRISM {
 						gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
-								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS == 0 | currentBeam == 100){
+								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
 									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 								}
 								// re-zero psi each iteration
