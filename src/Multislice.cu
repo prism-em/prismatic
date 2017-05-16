@@ -649,7 +649,7 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_GPU | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
 						}
 //						ay = Nstart / pars.xp.size();
@@ -713,7 +713,7 @@ namespace PRISM{
 						do {
 							//	cout << "Nstop = " << Nstop << endl;
 							while (Nstart < Nstop) {
-								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_CPU | Nstart == 100){
 									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 								}
 								ay = Nstart / pars.xp.size();
@@ -1009,7 +1009,7 @@ namespace PRISM{
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
-						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_GPU | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 						}
 						ay = Nstart / pars.xp.size();
@@ -1084,7 +1084,7 @@ namespace PRISM{
 					do {
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart < Nstop) {
-							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES  < pars.meta.batch_size_CPU | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
 //							ay = Nstart / pars.xp.size();
