@@ -102,6 +102,8 @@ namespace PRISM {
 			return false;
 		}
 		meta.batch_size_target_GPU = meta.batch_size_target_CPU;
+		meta.batch_size_GPU = meta.batch_size_target_GPU;
+		meta.batch_size_CPU = meta.batch_size_target_CPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -117,6 +119,7 @@ namespace PRISM {
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for CPU batch size (syntax is -bc batch_size)\n";
 			return false;
 		}
+		meta.batch_size_CPU = meta.batch_size_target_CPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -132,6 +135,7 @@ namespace PRISM {
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for GPU batch size (syntax is -bg batch_size)\n";
 			return false;
 		}
+		meta.batch_size_GPU = meta.batch_size_target_GPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
