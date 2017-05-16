@@ -178,12 +178,15 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->batch_size_target_GPU);
         this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
+//        ss << (this->meta->numFP);
+//        this->ui->->setText(QString::fromStdString(ss.str()));
+//        ss.str("");
 
 
 		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
 		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
-		this->ui->spinBox_numFP->setValue(this->meta->numFP);
+        this->ui->spinBox_numFP->setValue(this->meta->numFP);
 
 	}
 
@@ -201,7 +204,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	}
 #ifndef PRISM_ENABLE_GPU
 	this->ui->spinBox_numGPUs->setEnabled(false);
-    this->ui->checkBox_streamdata->setEnabled(false);
+    this->ui->lineEdit_batchGPU->setEnabled(false);
+    this->ui->comboBox_streamMode->setEnabled(false);
 #endif //PRISM_ENABLE_GPU
 
 
@@ -278,7 +282,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
     connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
-    connect(this->ui->checkBox_streamdata, SIGNAL(toggled(bool)), this, SLOT(toggleStreamingMode()));
+    connect(this->ui->comboBox_streamMode, SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
     connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)), this, SLOT(toggleSaveProjectedPotential()));
     connect(this->ui->btn_reset, SIGNAL(clicked()), this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe, SIGNAL(clicked()), this, SLOT(calculateProbe()));
@@ -286,7 +290,6 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
 
-    this->ui->checkBox_streamdata->setChecked(false);
      updateAlphaMax();
 }
 
@@ -374,6 +377,8 @@ void PRISMMainWindow::setNumGPUs(const int& num){
     if (num >= 0){
         this->meta->NUM_GPUS = num;
         std::cout << "Setting number of GPUs to " << num << std::endl;
+        QMutexLocker gatekeeper(&dataLock);
+        this->pars.meta.NUM_GPUS = num;
     }
 }
 
@@ -381,6 +386,8 @@ void PRISMMainWindow::setNumThreads(const int& num){
     if (num > 0){
         this->meta->NUM_THREADS = num;
         std::cout << "Setting number of CPU Threads to " << num << std::endl;
+        QMutexLocker gatekeeper(&dataLock);
+        this->pars.meta.NUM_THREADS = num;
     }
 }
 
@@ -972,8 +979,7 @@ void PRISMMainWindow::updateOutputImage(){
 
 void PRISMMainWindow::updateOutputFloatImage(){
 //    if (outputReady){
-      if (outputImageExists){
-        std::cout << "updateOutputFloatImage " << std::endl;
+      if (checkOutputImageExists()){
 
 //        QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
@@ -1009,7 +1015,7 @@ void PRISMMainWindow::updateOutputFloatImage(){
 
 void PRISMMainWindow::updateOutputDisplay(){
 //    if (outputReady){
-    if (outputImageExists){
+    if (checkOutputImageExists()){
 //            QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
             for (auto j = 0; j < pars.output.get_dimk(); ++j){
@@ -1039,7 +1045,7 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
 }
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
 //    if (outputReady){
-    if (outputImageExists){
+    if (checkOutputImageExists()){
         PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
         (detectorAngles[1]-detectorAngles[0]);
         PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
@@ -1072,7 +1078,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 //    if (outputReady){
     QMutexLocker gatekeeper(&dataLock);
-    if (outputImageExists){
+    if (checkOutputImageExists()){
         if (val >= this->ui->slider_angmin->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             std::cout << "val = " << val << std::endl;
@@ -1087,7 +1093,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
 //    if (outputReady){
     QMutexLocker gatekeeper(&dataLock);
-    if (outputImageExists){
+    if (checkOutputImageExists()){
         if (val <= this->ui->slider_angmax->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
@@ -1166,7 +1172,7 @@ void PRISMMainWindow::updateAlphaMax(){
 }
 
 void PRISMMainWindow::saveCurrentOutputImage(){
-    if (outputImageExists){
+    if (checkOutputImageExists()){
         std::cout << "saving\n";
 //            QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
@@ -1174,8 +1180,22 @@ void PRISMMainWindow::saveCurrentOutputImage(){
     }
 }
 
-void PRISMMainWindow::toggleStreamingMode(){
-    meta->transfer_mode = ui->checkBox_streamdata->isChecked() ? PRISM::StreamingMode::Stream : PRISM::StreamingMode::SingleXfer;
+void PRISMMainWindow::setStreamingMode(int val){
+    enum{Auto=0, SingleXfer=1, Stream=2} setting;
+    switch (val){
+        case Auto:
+            meta->transfer_mode = PRISM::StreamingMode::Auto;
+            std::cout << "Setting streaming mode: Auto" << std::endl;
+            break;
+        case SingleXfer:
+            meta->transfer_mode = PRISM::StreamingMode::SingleXfer;
+            std::cout << "Setting streaming mode: Single Transfer" << std::endl;
+            break;
+        case Stream:
+            meta->transfer_mode = PRISM::StreamingMode::Stream;
+            std::cout << "Setting streaming mode: Streaming" << std::endl;
+            break;
+    }
 }
 
 void PRISMMainWindow::newRandomSeed(){
@@ -1229,6 +1249,16 @@ bool PRISMMainWindow::SMatrixIsReady(){
 bool PRISMMainWindow::OutputIsReady(){
     QMutexLocker gatekeeper(&dataLock);
     return outputReady;
+}
+
+bool PRISMMainWindow::checkOutputImageExists(){
+//    QMutexLocker gatekeeper(&dataLock);
+    return outputImageExists;
+}
+
+bool PRISMMainWindow::checkPotentialImageExists(){
+//    QMutexLocker gatekeeper(&dataLock);
+    return potentialImageExists;
 }
 
 void PRISMMainWindow::enableOutputWidgets(){

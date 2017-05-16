@@ -15,6 +15,7 @@
 PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
 
@@ -38,6 +39,7 @@ void PotentialThread::run(){
 SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
         parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
 
@@ -57,7 +59,6 @@ void SMatrixThread::run(){
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
         emit potentialCalculated();
     } else {
-        std::cout << "COPYING" << std::endl;
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
         params.progressbar = progressbar;
@@ -67,7 +68,6 @@ void SMatrixThread::run(){
 
 //    // calculate S-Matrix
     PRISM::PRISM02(params);
-////    QMutexLocker gatekeeper(&this->parent->sMatrixLock);
     QMutexLocker gatekeeper(&this->parent->dataLock);
 
 //    // perform copy
@@ -80,6 +80,7 @@ void SMatrixThread::run(){
 ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar, bool _use_log_scale) :
 parent(_parent), X(_X), Y(_Y), progressbar(_progressbar), use_log_scale(_use_log_scale){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
 
@@ -296,6 +297,7 @@ if (use_log_scale){
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
 
@@ -303,7 +305,9 @@ parent(_parent), progressbar(_progressbar){
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
     emit signalTitle("PRISM: Frozen Phonon #1");
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+    gatekeeper.unlock();
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     PRISM::configure(meta);
@@ -322,7 +326,6 @@ void FullPRISMCalcThread::run(){
     }
     emit potentialCalculated();
     } else {
-        std::cout << "COPYING" << std::endl;
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
         params.progressbar = progressbar;
@@ -391,6 +394,7 @@ void FullPRISMCalcThread::run(){
 FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
         parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+    QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
 
@@ -412,7 +416,6 @@ void FullMultisliceCalcThread::run(){
                 if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
             }
         } else {
-            std::cout << "COPYING" << std::endl;
             QMutexLocker gatekeeper(&this->parent->dataLock);
             params = this->parent->pars;
             params.progressbar = progressbar;
@@ -438,13 +441,11 @@ void FullMultisliceCalcThread::run(){
         }
         // divide to take average
         for (auto&i:net_output) i/=params.meta.numFP;
-//        if (params.meta.save3DOutput)net_output.toMRC_f(params.meta.filename_output.c_str());
         params.output = net_output;
     }
 
 
     {
-//        QMutexLocker gatekeeper(&this->parent->outputLock);
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
 	    this->parent->detectorAngles = params.detectorAngles;

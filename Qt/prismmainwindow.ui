@@ -974,7 +974,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>320</width>
+         <width>326</width>
          <height>1093</height>
         </rect>
        </property>
@@ -1876,6 +1876,12 @@
                        <property name="alignment">
                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                        </property>
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>999999</number>
+                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -2635,28 +2641,44 @@ Step (A)</string>
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="checkBox_thermalEffects">
+                 <property name="text">
+                  <string>Thermal Effects</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_44">
                  <item>
-                  <widget class="QCheckBox" name="checkBox_streamdata">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="autoFillBackground">
-                    <bool>false</bool>
-                   </property>
+                  <widget class="QLabel" name="label_46">
                    <property name="text">
                     <string>Streaming Mode</string>
-                   </property>
-                   <property name="tristate">
-                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QCheckBox" name="checkBox_thermalEffects">
-                   <property name="text">
-                    <string>Thermal Effects</string>
+                  <widget class="QComboBox" name="comboBox_streamMode">
+                   <property name="maximumSize">
+                    <size>
+                     <width>135</width>
+                     <height>16777215</height>
+                    </size>
                    </property>
+                   <item>
+                    <property name="text">
+                     <string>Auto</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Single Transfer</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Streaming</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item>
@@ -2891,8 +2913,6 @@ Step (A)</string>
   <tabstop>checkBox_4D</tabstop>
   <tabstop>spinBox_numThreads</tabstop>
   <tabstop>spinBox_numGPUs</tabstop>
-  <tabstop>checkBox_streamdata</tabstop>
-  <tabstop>checkBox_thermalEffects</tabstop>
   <tabstop>radBtn_PRISM</tabstop>
   <tabstop>radBtn_Multislice</tabstop>
   <tabstop>btn_reset</tabstop>

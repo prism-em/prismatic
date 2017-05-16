@@ -43,6 +43,8 @@ public:
 	bool potentialIsReady();
 	bool SMatrixIsReady();
 	bool OutputIsReady();
+    bool checkOutputImageExists();
+    bool checkPotentialImageExists();
     ~PRISMMainWindow();
 
 public slots:
@@ -96,7 +98,7 @@ public slots:
     void resizeEvent(QResizeEvent* event);
     void redrawImages();
     void saveCurrentOutputImage();
-    void toggleStreamingMode();
+    void setStreamingMode(int);
     void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
