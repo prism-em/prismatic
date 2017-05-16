@@ -432,7 +432,7 @@ namespace PRISM{
 				cout << "Launching CPU worker #" << t << endl;
 				// push_back is better whenever constructing a new object
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
-				size_t Nstart, Nstop, early_CPU_stop, ay, ax;
+				size_t Nstart, Nstop, early_CPU_stop;
 				Nstart=Nstop=0;
 				// stop the CPU workers earlier than the GPU ones to prevent slower workers taking the last jobs and having to
 				// wait longer for everything to complete
