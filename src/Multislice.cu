@@ -46,15 +46,16 @@ namespace PRISM{
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t N = dimj*dimi;
-		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
+		const size_t num_blocks = std::min(pars.target_num_blocks, (N - 1) / BLOCK_SIZE1D + 1);
+		initializePsi<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, N, yp, xp);
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*N], N);
+			multiply_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*N], N);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
-			divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
+			multiply_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
+			divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
 		}
-		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
+		abs_squared<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 }
 
@@ -76,6 +77,7 @@ namespace PRISM{
 	                                                      const cufftHandle& plan,
 	                                                      cudaStream_t& stream){
 		const size_t N = dimj*dimi;
+		const size_t num_blocks = std::min(pars.target_num_blocks, (N - 1) / BLOCK_SIZE1D + 1);
 		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
 			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
@@ -84,24 +86,25 @@ namespace PRISM{
 			PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 			PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 
-			initializePsi << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+//			initializePsi << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+			initializePsi << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
                 (psi_ds + (batch_idx * N), PsiProbeInit_d, qya_d, qxa_d, N, yp, xp);
 		}
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
 			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+				multiply_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
 						(psi_ds + (batch_idx * N), &trans_d[planeNum * N], N);
 			}
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+				multiply_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
 						(psi_ds + (batch_idx * N), prop_d, N);
-				divide_inplace << < (N - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+				divide_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
 						(psi_ds + (batch_idx * N), PRISM_MAKE_CU_COMPLEX(N, 0), N);
 			}
 		}
-		abs_squared << < (N*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
+		abs_squared << < num_blocks, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
 //		if (Nstart==0 ) {
 //			cout << "after propagation" << endl;
 //			{
@@ -163,17 +166,18 @@ namespace PRISM{
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t N = dimj*dimi;
-		initializePsi<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
+		const size_t num_blocks = std::min(pars.target_num_blocks, (N - 1) / BLOCK_SIZE1D + 1);
+		initializePsi<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*N], N * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, trans_d, N);
+			multiply_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, trans_d, N);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			multiply_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
-			divide_inplace<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
+			multiply_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, N);
+			divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISM_MAKE_CU_COMPLEX(N, 0), N);
 		}
-		abs_squared<<<(N-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
+		abs_squared<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
 	}
 

@@ -163,6 +163,7 @@ namespace PRISM {
 				fill_Scompact = fill_Scompact_GPU_singlexfer;
 				buildPRISMOutput = buildPRISMOutput_GPU_singlexfer;
 			}
+
 #else
 			fill_Scompact = fill_Scompact_CPUOnly;
 			buildPRISMOutput = buildPRISMOutput_CPUOnly;

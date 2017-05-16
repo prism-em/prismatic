@@ -201,8 +201,10 @@ namespace PRISM{
 				    }
 			    }
 		    }
+		    target_num_blocks = deviceProperties.multiProcessorCount * deviceProperties.maxThreadsPerBlock / BLOCK_SIZE1D *4; // the 4 is a fudge factor
 		    std::cout << "deviceProperties.major = " << deviceProperties.major << std::endl;
 		    std::cout << "deviceProperties.maxThreadsPerBlock = " << deviceProperties.maxThreadsPerBlock << std::endl;
+		    std::cout << "target_num_blocks = " << target_num_blocks << std::endl;
 
 #endif //PRISM_ENABLE_GPU
 	    };

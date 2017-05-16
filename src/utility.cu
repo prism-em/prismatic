@@ -58,15 +58,19 @@ __device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a){
 // creates initial probe using existing GPU memory rather than streaming each probe
 __global__ void initializePsi_oneNonzero(cuFloatComplex *psi_d, const size_t N, const size_t beamLoc){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		psi_d[idx] = (idx == beamLoc) ? make_cuFloatComplex(1,0):make_cuFloatComplex(0,0);
+		idx+=inc;
 	}
 }
 
 __global__ void initializePsi_oneNonzero(cuDoubleComplex *psi_d, const size_t N, const size_t beamLoc){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		psi_d[idx] = (idx == beamLoc) ? make_cuDoubleComplex(1,0):make_cuDoubleComplex(0,0);
+		idx+=inc;
 	}
 }
 
@@ -75,11 +79,13 @@ __global__ void multiply_inplace(cuDoubleComplex* arr,
                                  const cuDoubleComplex* other,
                                  const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		cuDoubleComplex a = arr[idx];
 		cuDoubleComplex o = other[idx];
 		arr[idx].x = a.x * o.x - a.y * o.y;
 		arr[idx].y = a.x * o.y + a.y * o.x;
+		idx+=inc;
 	}
 }
 
@@ -88,11 +94,13 @@ __global__ void multiply_inplace(cuFloatComplex* arr,
                                  const cuFloatComplex* other,
                                  const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		cuFloatComplex a = arr[idx];
 		cuFloatComplex o = other[idx];
 		arr[idx].x = a.x * o.x - a.y * o.y;
 		arr[idx].y = a.x * o.y + a.y * o.x;
+		idx+=inc;
 	}
 }
 
@@ -101,10 +109,12 @@ __global__ void multiply_cx(cuDoubleComplex* arr,
                              const cuDoubleComplex* other,
                              const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 //		cuDoubleComplex a = arr[idx];
 //		cuDoubleComplex o = other[idx];
 		arr[idx] = cuCmul(arr[idx], other[idx]);
+		idx+=inc;
 	}
 }
 
@@ -113,10 +123,12 @@ __global__ void multiply_cx(cuFloatComplex* arr,
                             const cuFloatComplex* other,
                             const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 //		cuFloatComplex a = arr[idx];
 //		cuFloatComplex o = other[idx];
 		arr[idx] = cuCmulf(arr[idx], other[idx]);
+		idx+=inc;
 	}
 }
 
@@ -125,8 +137,10 @@ __global__ void multiply_cxarr_scalar(cuDoubleComplex* arr,
                                       const cuDoubleComplex val,
                                       const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = cuCmul(arr[idx], val);
+		idx+=inc;
 	}
 }
 
@@ -135,8 +149,10 @@ __global__ void multiply_cxarr_scalar(cuFloatComplex* arr,
                                       const cuFloatComplex val,
                                       const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = cuCmulf(arr[idx], val);
+		idx+=inc;
 	}
 }
 
@@ -145,8 +161,10 @@ __global__ void multiply_arr_scalar(double* arr,
                                     const double val,
                                     const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = arr[idx]*val;
+		idx+=inc;
 	}
 }
 
@@ -155,8 +173,10 @@ __global__ void multiply_arr_scalar(float* arr,
                                     const float val,
                                     const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = arr[idx]*val;
+		idx+=inc;
 	}
 }
 
@@ -176,8 +196,10 @@ __global__ void divide_inplace(cuDoubleComplex* arr,
                                const cuDoubleComplex val,
                                const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = cuCdiv(arr[idx], val);
+		idx+=inc;
 	}
 }
 
@@ -185,24 +207,30 @@ __global__ void divide_inplace(cuFloatComplex* arr,
                                const cuFloatComplex val,
                                const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		arr[idx] = cuCdivf(arr[idx], val);
+		idx+=inc;
 	}
 }
 
 // set all array values to val
 __global__ void setAll(double *data, double val, size_t N) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx<N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		data[idx] = val;
+		idx+=inc;
 	}
 }
 
 // set all array values to val
 __global__ void setAll(float *data, float val, size_t N) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx<N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		data[idx] = val;
+		idx+=inc;
 	}
 }
 
@@ -215,10 +243,12 @@ __global__ void initializePsi(cuDoubleComplex *psi_d,
                               const double yp,
                               const double xp){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		cuDoubleComplex arg;
 		arg = make_cuDoubleComplex(qxa_d[idx]*xp + qya_d[idx]*yp, 0);
 		psi_d[idx] = cuCmul(PsiProbeInit_d[idx], exp_cx(cuCmul(minus_2pii,arg)));
+		idx+=inc;
 	}
 }
 
@@ -231,10 +261,12 @@ __global__ void initializePsi(cuFloatComplex *psi_d,
                               const float yp,
                               const float xp){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		cuFloatComplex arg;
 		arg = make_cuFloatComplex(qxa_d[idx]*xp + qya_d[idx]*yp, 0);
 		psi_d[idx] = cuCmulf(PsiProbeInit_d[idx], exp_cx(cuCmulf(minus_2pii_f,arg)));
+		idx+=inc;
 	}
 }
 
@@ -244,10 +276,12 @@ __global__ void abs_squared(double* arr,
                             const cuDoubleComplex* other,
                             const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		double re = other[idx].x;
 		double im = other[idx].y;
 		arr[idx] = re*re + im*im;
+		idx+=inc;
 	}
 }
 
@@ -256,10 +290,12 @@ __global__ void abs_squared(float* arr,
                             const cuFloatComplex* other,
                             const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		float re = other[idx].x;
 		float im = other[idx].y;
 		arr[idx] = re*re + im*im;
+		idx+=inc;
 	}
 }
 
@@ -271,12 +307,13 @@ __global__ void array_subset(const cuDoubleComplex* psi_d,
                              const size_t dimj_small,
                              const size_t dimi_small){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < dimj_small*dimi_small) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < dimj_small*dimi_small) {
 		int y = idx / (int)dimi_small;
 		int x = idx % (int)dimi_small;
 		int idxBig = qyInd_d[y] * dimi + qxInd_d[x];
 		psi_small_d[idx] = psi_d[idxBig];
-//		psi_small_d[idx] = make_cuFloatComplex(idx,idxBig);
+		idx+=inc;
 	}
 }
 __global__ void array_subset(const cuFloatComplex* psi_d,
@@ -287,12 +324,13 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
                              const size_t dimj_small,
                              const size_t dimi_small) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx < dimj_small * dimi_small) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < dimj_small * dimi_small) {
 		int y = idx / (int) dimi_small;
 		int x = idx % (int) dimi_small;
 		int idxBig = qyInd_d[y] * dimi + qxInd_d[x];
 		psi_small_d[idx] = psi_d[idxBig];
-//		psi_small_d[idx] = make_cuFloatComplex(idx,idxBig);
+		idx+=inc;
 	}
 }
 
@@ -301,28 +339,33 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
 
 __global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N){
 
-		//int idx = threadIdx.x + blockDim.x * blockIdx.x;
 		long idx = threadIdx.x + blockDim.x * blockIdx.x;
-		if (idx < N){
+		int inc = gridDim.x*blockDim.x;
+		while (idx < N) {
 			vec_out[idx] = (imageSize + ((idx - N/2 + by) % imageSize)) % imageSize;
 //			vec_out[idx] =  (idx - N/2 + by) % imageSize;
 //			vec_out[idx] = 0;
+			idx+=inc;
 		}
 	}
 
 __global__ void zeroIndices(long* vec_out, const long N){
 
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx < N){
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		vec_out[idx] = vec_out[idx] - vec_out[0];
+		idx+=inc;
 	}
 }
 
 __global__ void resetIndices(long* vec_out, const long N){
 
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx < N){
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		vec_out[idx] = idx;
+		idx+=inc;
 	}
 }
 
@@ -340,7 +383,8 @@ __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
                                    const size_t dimi,
                                    const size_t numBeams){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < numBeams) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < numBeams) {
 		size_t yB = yBeams_d[idx];
 		size_t xB = xBeams_d[idx];
 		cuFloatComplex xp_cx = make_cuFloatComplex(xp, 0);
@@ -354,6 +398,7 @@ __global__ void computePhaseCoeffs(cuFloatComplex* phaseCoeffs,
 		cuFloatComplex arg = cuCaddf(arg1, arg2);
 		cuFloatComplex phase_shift = exp_cx(cuCmulf(minus_2pii_f, arg));
 		phaseCoeffs[idx] = cuCmulf(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
+		idx+=inc;
 	}
 }
 
@@ -370,7 +415,8 @@ __global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
                                    const size_t dimi,
                                    const size_t numBeams){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
-	if (idx < numBeams) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < numBeams) {
 		size_t yB = yBeams_d[idx];
 		size_t xB = xBeams_d[idx];
 		cuDoubleComplex xp_cx = make_cuDoubleComplex(xp, 0);
@@ -384,6 +430,7 @@ __global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
 		cuDoubleComplex arg = cuCadd(arg1, arg2);
 		cuDoubleComplex phase_shift = exp_cx(cuCmul(minus_2pii, arg));
 		phaseCoeffs[idx] = cuCmul(phase_shift, PsiProbeInit_d[yB * dimi + xB]);
+		idx+=inc;
 	}
 }
 
@@ -398,11 +445,14 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
                                   const size_t N,
                                   const size_t num_integration_bins) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
-		if (alpha <= num_integration_bins)
+		if (alpha <= num_integration_bins) {
 			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			atomicAdd(&integratedOutput[alpha - 1], psi_intensity_ds[idx]);
+		}
+		idx+=inc;
 	}
 }
 
@@ -412,11 +462,14 @@ __global__ void integrateDetector(const double* psi_intensity_ds,
                                   const size_t N,
                                   const size_t num_integration_bins) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
-	if (idx < N) {
+	int inc = gridDim.x*blockDim.x;
+	while (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
-		if (alpha <= num_integration_bins)
+		if (alpha <= num_integration_bins) {
 			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-			atomicAdd_double(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			atomicAdd_double(&integratedOutput[alpha - 1], psi_intensity_ds[idx]);
+		}
+		idx+=inc;
 	}
 }
 
