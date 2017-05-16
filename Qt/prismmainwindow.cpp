@@ -104,10 +104,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	{
 		std::stringstream ss;
         ss << this->meta->interpolationFactorX;
-        this->ui->lineedit_interpFactor_x->setText(QString::fromStdString(ss.str()));
+        this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
 		ss.str("");
         ss << this->meta->interpolationFactorY;
-        this->ui->lineedit_interpFactor_y->setText(QString::fromStdString(ss.str()));
+        this->ui->lineEdit_interpFactor_y->setText(QString::fromStdString(ss.str()));
         ss.str("");
 		ss << this->meta->potBound;
 		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
@@ -183,7 +183,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 //        ss.str("");
 
 
-		this->ui->lineedit_outputfile->setText(QString::fromStdString(ss.str()));
+        this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
 		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
         this->ui->spinBox_numFP->setValue(this->meta->numFP);
@@ -221,12 +221,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
     ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
 
-    this->ui->lineedit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
+    this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
     // connect signals and slots
-    connect(this->ui->lineedit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorX()));
-    connect(this->ui->lineedit_interpFactor_y,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorY()));
-	connect(this->ui->lineedit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
+    connect(this->ui->lineEdit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorX()));
+    connect(this->ui->lineEdit_interpFactor_y,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorY()));
+    connect(this->ui->lineEdit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
@@ -310,24 +310,24 @@ void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
 
 void PRISMMainWindow::setInterpolationFactorX(){
 	bool flag;
-    const size_t& new_f = this->ui->lineedit_interpFactor_x->text().toUInt(&flag);
+    const size_t& new_f = this->ui->lineEdit_interpFactor_x->text().toUInt(&flag);
 	if (flag){
 		std::cout << "Setting interpolation factor X to " << new_f << std::endl;
 		this->meta->interpolationFactorX = new_f;
 	} else{
-        std::cout << "Invalid interpolation factor X input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
+        std::cout << "Invalid interpolation factor X input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
 	}
     resetCalculation();
 }
 
 void PRISMMainWindow::setInterpolationFactorY(){
     bool flag;
-    const size_t& new_f = this->ui->lineedit_interpFactor_x->text().toUInt(&flag);
+    const size_t& new_f = this->ui->lineEdit_interpFactor_x->text().toUInt(&flag);
     if (flag){
         std::cout << "Setting interpolation factor Y to " << new_f << std::endl;
         this->meta->interpolationFactorY = new_f;
     } else{
-        std::cout << "Invalid interpolation factor Y input: " <<  this->ui->lineedit_interpFactor_x->text().toStdString() << std::endl;
+        std::cout << "Invalid interpolation factor Y input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
     }
     resetCalculation();
 }
@@ -348,14 +348,14 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 void PRISMMainWindow::setFilenameOutput_fromDialog(){
 	QString filename;
 	filename = QFileDialog::getOpenFileName(this, tr("AnyFile"), filename);
-	this->ui->lineedit_outputfile->setText(filename);
+    this->ui->lineEdit_outputfile->setText(filename);
 	this->setFilenameOutput(filename.toStdString());
     resetCalculation();
 }
 
 
 void PRISMMainWindow::setFilenameOutput_fromLineEdit(){
-	const std::string& filename = this->ui->lineedit_outputfile->text().toStdString();
+    const std::string& filename = this->ui->lineEdit_outputfile->text().toStdString();
 	this->setFilenameOutput(filename);
     resetCalculation();
 }
@@ -599,17 +599,25 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
 }
 
 void PRISMMainWindow::setBatchGPU_fromLineEdit(){
-    int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
+    int val = this->ui->lineEdit_batchGPU->text().toInt();
     if (val > 0){
         this->meta->batch_size_target_GPU = val;
+        this->meta->batch_size_GPU = val;
+        QMutexLocker gatekeeper(&dataLock);
+        this->pars.meta.batch_size_target_GPU = val;
+        this->pars.meta.batch_size_GPU = val;
         std::cout << "Setting batch size (GPU) to " << val << std::endl;
     }
 }
 
 void PRISMMainWindow::setBatchCPU_fromLineEdit(){
-    int val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toInt();
+    int val = this->ui->lineEdit_batchCPU->text().toInt();
     if (val > 0){
         this->meta->batch_size_target_CPU = val;
+        this->meta->batch_size_CPU = val;
+        QMutexLocker gatekeeper(&dataLock);
+        this->pars.meta.batch_size_target_CPU = val;
+        this->pars.meta.batch_size_CPU = val;
         std::cout << "Setting batch size (CPU) to " << val << std::endl;
     }
 }

@@ -36,8 +36,8 @@ namespace PRISM{
 			NUM_GPUS              = 4;
 			NUM_STREAMS_PER_GPU   = 3;
 			NUM_THREADS           = 12;
-			batch_size_target_CPU = 10;
-			batch_size_target_GPU = 10;
+			batch_size_target_CPU = 1;
+			batch_size_target_GPU = 1;
 			batch_size_CPU = batch_size_target_CPU;
 			batch_size_GPU = batch_size_target_GPU;
 			gpu_cpu_ratio         = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work

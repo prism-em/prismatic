@@ -426,6 +426,11 @@ namespace PRISM{
 	}
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
+
+#ifdef PRISM_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing final output");
+#endif
+
 		cout << "pars.xp.size() * pars.yp.size() = " << pars.xp.size() * pars.yp.size() << endl;
 		cout << "pars.imageSize[0] = " << pars.imageSize[0] << endl;
 		cout << "pars.imageSize[1] = " << pars.imageSize[1] << endl;
@@ -513,6 +518,9 @@ namespace PRISM{
 //                            }
 //							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
 							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
+#ifdef PRISM_BUILDING_GUI
+                            pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+#endif
 							Nstart=Nstop;
 						}
 					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));

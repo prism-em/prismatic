@@ -2118,7 +2118,7 @@ Step (A)</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineedit_interpFactor_x">
+                      <widget class="QLineEdit" name="lineEdit_interpFactor_x">
                        <property name="maximumSize">
                         <size>
                          <width>40</width>
@@ -2261,7 +2261,7 @@ Step (A)</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineedit_interpFactor_y">
+                      <widget class="QLineEdit" name="lineEdit_interpFactor_y">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2446,7 +2446,7 @@ Step (A)</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lineedit_outputfile"/>
+                  <widget class="QLineEdit" name="lineEdit_outputfile"/>
                  </item>
                 </layout>
                </item>
@@ -2897,17 +2897,17 @@ Step (A)</string>
   <tabstop>spinBox_numFP</tabstop>
   <tabstop>lineEdit_sliceThickness</tabstop>
   <tabstop>lineEdit_detectorAngle</tabstop>
-  <tabstop>lineedit_interpFactor_x</tabstop>
+  <tabstop>lineEdit_interpFactor_x</tabstop>
   <tabstop>lineEdit_probeStepX</tabstop>
   <tabstop>lineEdit_probeTiltX</tabstop>
   <tabstop>lineEdit_scanWindowXMin</tabstop>
   <tabstop>lineEdit_scanWindowXMax</tabstop>
-  <tabstop>lineedit_interpFactor_y</tabstop>
+  <tabstop>lineEdit_interpFactor_y</tabstop>
   <tabstop>lineEdit_probeStepY</tabstop>
   <tabstop>lineEdit_probeTiltY</tabstop>
   <tabstop>lineEdit_scanWindowYMin</tabstop>
   <tabstop>lineEdit_scanWindowYMax</tabstop>
-  <tabstop>lineedit_outputfile</tabstop>
+  <tabstop>lineEdit_outputfile</tabstop>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
   <tabstop>checkBox_4D</tabstop>
