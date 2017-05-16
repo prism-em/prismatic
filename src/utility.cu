@@ -529,12 +529,12 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 	const size_t stack_start_offset =
 			ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISM_FLOAT_PRECISION));
-	if ((ax == 0 | ax == 1) & ay == 0) {
-		std::cout << "stack_start_offset = " << stack_start_offset<< std::endl;
-		for (auto i = 0; i < 43; ++i){
-			std::cout << "pars.output[stack_start_offset + " << i << "] = " << pars.output[stack_start_offset+ i] << std::endl;
-		}
-	}
+//	if ((ax == 0 | ax == 1) & ay == 0) {
+//		std::cout << "stack_start_offset = " << stack_start_offset<< std::endl;
+//		for (auto i = 0; i < 43; ++i){
+//			std::cout << "pars.output[stack_start_offset + " << i << "] = " << pars.output[stack_start_offset+ i] << std::endl;
+//		}
+//	}
 }
 
 size_t getNextPower2(const size_t& val){

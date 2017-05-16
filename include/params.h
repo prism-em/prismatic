@@ -98,6 +98,7 @@ namespace PRISM{
 //#ifndef NDEBUG
 		// for monitoring memory consumption on GPU
 	    size_t max_mem;
+	    size_t target_num_blocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
 //#endif //NDEBUG
 #endif // PRISM_ENABLE_GPU
 #ifdef PRISM_BUILDING_GUI
