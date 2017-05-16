@@ -161,13 +161,13 @@ namespace PRISM{
 	                                               const PRISM_FLOAT_PRECISION* alphaInd_d,
 	                                               const cufftHandle& plan,
 	                                               cudaStream_t& stream){
-
 		// initialize psi
 		PRISM_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISM_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t N = dimj*dimi;
 		const size_t num_blocks = std::min(pars.target_num_blocks, (N - 1) / BLOCK_SIZE1D + 1);
 		initializePsi<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
+
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*N], N * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
@@ -179,6 +179,63 @@ namespace PRISM{
 		}
 		abs_squared<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_intensity_ds, psi_ds, N);
 		formatOutput_GPU_integrate(pars, psi_intensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
+	}
+
+
+	__host__ void getMultisliceProbe_GPU_streaming_batch(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                                                     PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+	                                                     const complex<PRISM_FLOAT_PRECISION>* trans_ph,
+	                                                     PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                                                     PRISM_CUDA_COMPLEX_FLOAT* psi_ds,
+	                                                     PRISM_FLOAT_PRECISION* output_ph,
+	                                                     PRISM_FLOAT_PRECISION* psi_intensity_ds,
+	                                                     PRISM_FLOAT_PRECISION* integratedOutput_ds,
+	                                                     const PRISM_FLOAT_PRECISION* qya_d,
+	                                                     const PRISM_FLOAT_PRECISION* qxa_d,
+	                                                     const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                                     const size_t Nstart,
+	                                                     const size_t Nstop,
+	                                                     const size_t dimj,
+	                                                     const size_t dimi,
+	                                                     const PRISM_FLOAT_PRECISION* alphaInd_d,
+	                                                     const cufftHandle& plan,
+	                                                     cudaStream_t& stream){
+
+		// initialize psi
+		const size_t N = dimj*dimi;
+		const size_t num_blocks = std::min(pars.target_num_blocks, (N - 1) / BLOCK_SIZE1D + 1);
+		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			PRISM_FLOAT_PRECISION yp = pars.yp[ay];
+			PRISM_FLOAT_PRECISION xp = pars.xp[ax];
+			initializePsi << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+			                                                (psi_ds + (batch_idx * N), PsiProbeInit_d, qya_d, qxa_d, N, yp, xp);
+		}
+
+		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+
+			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*N], N * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+				multiply_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				                                                   (psi_ds + (batch_idx * N), trans_d, N);
+			}
+			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+				multiply_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				                                                   (psi_ds + (batch_idx * N), prop_d, N);
+				divide_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				                                                 (psi_ds + (batch_idx * N), PRISM_MAKE_CU_COMPLEX(N, 0), N);
+			}
+		}
+		abs_squared << < num_blocks, BLOCK_SIZE1D, 0, stream >> > (psi_intensity_ds, psi_ds, N*(Nstop-Nstart));
+		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			formatOutput_GPU_integrate(pars, psi_intensity_ds + (batch_idx * N),
+			                           alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi, stream);
+		}
 	}
 
     __host__ void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars){
@@ -200,9 +257,7 @@ namespace PRISM{
 //		cufftHandle cufft_plan[total_num_streams];
 
 
-//	    cufftPlanMany(cufftHandle *plan, int rank, int *n, int *inembed,
-//			    int istride, int idist, int *onembed, int ostride,
-//			    int odist, cufftType type, int batch);
+	    // batch parameters for cuFFT
 	    const int rank = 2;
 	    int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
 	    const int howmany = pars.meta.batch_size_GPU;
@@ -214,9 +269,6 @@ namespace PRISM{
 	    int *inembed = n;
 	    int *onembed = n;
 
-
-
-	    cout <<"total_num_streams = " << total_num_streams<< endl;
 		for (auto j = 0; j < total_num_streams; ++j){
 			cudaSetDevice(j % pars.meta.NUM_GPUS);
 			cudaErrchk(cudaStreamCreate(&streams[j]));
@@ -596,6 +648,9 @@ namespace PRISM{
 
 		using namespace std;
 
+		// determine batch size
+		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
+		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
         cudaStream_t *streams   = new cudaStream_t[total_num_streams];
@@ -679,11 +734,11 @@ namespace PRISM{
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &trans_ds[s],            pars.transmission.get_dimj() * pars.transmission.get_dimi() * sizeof(pars.transmission[0])));
-			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
+			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(psi_ds[s], 0, pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMemset(psi_intensity_ds[s], 0, pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(psi_ds[s], 0, pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
+			cudaErrchk(cudaMemset(psi_intensity_ds[s], 0, pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
@@ -727,8 +782,7 @@ namespace PRISM{
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
-		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
+
 		for (auto t = 0; t < total_num_streams; ++t){
 			int GPU_num = stream_count % pars.meta.NUM_GPUS; // determine which GPU handles this job
 			cudaStream_t& current_stream = streams[stream_count];
@@ -770,7 +824,7 @@ namespace PRISM{
 				}
 #endif // NDEBUG
 
-				size_t Nstart, Nstop, ay, ax;
+				size_t Nstart, Nstop;
 				Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)){ // synchronously get work assignment
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)){ // synchronously get work assignment
@@ -778,18 +832,24 @@ namespace PRISM{
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_GPU | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 						}
-						ay = Nstart / pars.xp.size();
-						ax = Nstart % pars.xp.size();
-
-						getMultisliceProbe_GPU_streaming(pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_psi_ds,
-						                                 current_output_ph, current_psi_intensity_ds,
-						                                 current_integratedOutput_ds, current_qya_d, current_qxa_d,
-						                                 current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
-						                                 current_alphaInd_d, current_cufft_plan, current_stream);
+//						ay = Nstart / pars.xp.size();
+//						ax = Nstart % pars.xp.size();
+//
+//						getMultisliceProbe_GPU_streaming(pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_psi_ds,
+//						                                 current_output_ph, current_psi_intensity_ds,
+//						                                 current_integratedOutput_ds, current_qya_d, current_qxa_d,
+//						                                 current_prop_d, ay, ax, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
+//						                                 current_alphaInd_d, current_cufft_plan, current_stream);
+						getMultisliceProbe_GPU_streaming_batch(pars, current_trans_ds, trans_ph, current_PsiProbeInit_d, current_psi_ds,
+						                                       current_output_ph, current_psi_intensity_ds,
+						                                       current_integratedOutput_ds, current_qya_d, current_qxa_d,
+						                                       current_prop_d, Nstart, Nstop, pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi(),
+						                                       current_alphaInd_d, current_cufft_plan, current_stream);
 #ifdef PRISM_BUILDING_GUI
 						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
-						++Nstart;
+//						++Nstart;
+						Nstart = Nstop;
 					}
 				}
 				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << "finished\n";
