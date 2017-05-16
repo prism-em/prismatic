@@ -500,7 +500,7 @@ namespace PRISM {
 			cout << "No random seed provided for -rs (syntax is -rs integer)\n";
 			return false;
 		}
-		if ( (meta.random_seed = atoi((*argv)[1])) == 0 & std::string(((*argv)[1]))!="0"){
+		if ( ((meta.random_seed = atoi((*argv)[1])) == 0) & std::string(((*argv)[1]))!="0"){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for random seed (syntax is -rs integer)\n";
 			return false;
 		}
@@ -610,11 +610,11 @@ namespace PRISM {
 		minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
         maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
 
-		if ( minval == 0 & std::string((*argv)[1]) != "0"){
+		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window X (syntax is -wx min max (in fractional coordinates))\n";
 			return false;
 		}
-		if ( maxval == 0 & std::string((*argv)[2]) != "0"){
+		if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
 			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window X (syntax is -wx min max (in fractional coordinates))\n";
 			return false;
 		}
@@ -638,11 +638,11 @@ namespace PRISM {
         PRISM_FLOAT_PRECISION minval, maxval;
         minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
         maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
-        if ( minval == 0 & std::string((*argv)[1]) != "0"){
+        if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window y (syntax is -wx min max (in fractional coordinates))\n";
             return false;
         }
-        if ( maxval == 0 & std::string((*argv)[2]) != "0"){
+        if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
             cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window y (syntax is -wy min max (in fractional coordinates))\n";
             return false;
         }
@@ -676,7 +676,7 @@ namespace PRISM {
             return false;
         }
         meta.save2DOutput = true;
-        if ( string((*argv)[1]) != "0" & (meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( (string((*argv)[1]) != "0") & ((meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0)){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max (in mrad)\n";
             return false;
         }
