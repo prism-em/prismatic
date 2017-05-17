@@ -243,12 +243,10 @@ namespace PRISM{
 	    pars.progressbar->signalDescriptionMessage("Computing final output");
 #endif
 		// determine the batch size to use
-	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
-	    cout << "pars.numPlanes = " << pars.numPlanes << endl;
+	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
 		using namespace std;
-
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
         cudaStream_t *streams   = new cudaStream_t[total_num_streams];
@@ -345,7 +343,14 @@ namespace PRISM{
 			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],         pars.alphaInd.size()       * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 
-		for (auto s = 0; s < total_num_streams; ++s) {
+	    cout << "pars.psiProbeInit.get_dimj()  = " << pars.psiProbeInit.get_dimj()<< endl;
+	    cout << "pars.psiProbeInit.get_dimj() = " << pars.psiProbeInit.get_dimi()<< endl;
+	    cout << "pars.psiProbeInit.size()  = " << pars.psiProbeInit.size()<< endl;
+	    cout << "pars.meta.batch_size_GPU  = " << pars.meta.batch_size_GPU<< endl;
+	    cout << "pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]) = " << pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0]) << endl;
+	    cout << "pars.meta.batch_size_GPU*pars.psiProbeInit.size() *  sizeof(PRISM_FLOAT_PRECISION) = " << pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)<< endl;
+
+	    for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
 			cudaErrchk(cudaMalloc((void **) &psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
@@ -649,7 +654,7 @@ namespace PRISM{
 		using namespace std;
 
 		// determine batch size
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
 		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -731,6 +736,10 @@ namespace PRISM{
 			cudaErrchk(cudaMalloc((void **) &alphaInd_d[g],         pars.alphaInd.size()            * sizeof(pars.alphaInd[0])));
 		}
 
+		cout << "pars.psiProbeInit.size()  = " << pars.psiProbeInit.size()<< endl;
+		cout << "pars.meta.batch_size_GPU  = " << pars.meta.batch_size_GPU<< endl;
+		cout << "pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]) = " << pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0]) << endl;
+		cout << "pars.meta.batch_size_GPU*pars.psiProbeInit.size() *  sizeof(PRISM_FLOAT_PRECISION) = " << pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)<< endl;
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &trans_ds[s],            pars.transmission.get_dimj() * pars.transmission.get_dimi() * sizeof(pars.transmission[0])));

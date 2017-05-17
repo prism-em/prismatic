@@ -62,9 +62,31 @@ namespace PRISM {
 
 		size_t estimatedPotentialSize = (meta.cellDim[0] * meta.tileZ / meta.sliceThickness) * imageSize[0] * imageSize[1] *
 		                                sizeof(std::complex<PRISM_FLOAT_PRECISION>);
-		estimatedMaxMemoryUsage = estimatedPotentialSize;
+
+
+		// Estimate the amount of memory needed for the various buffers. This is affected by the batch size, which is inputted
+		// by the user but will be adjusted if it is inappropriate (i.e. not enough work per thread).
+		// Figure out the scan configuration to determine how many probes there are to compute
+		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		xR[0] = meta.scanWindowXMin * meta.cellDim[2] * meta.tileX;
+		xR[1] = meta.scanWindowXMax * meta.cellDim[2] * meta.tileX;
+		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		yR[0] = meta.scanWindowYMin * meta.cellDim[1] * meta.tileY;
+		yR[1] = meta.scanWindowYMax * meta.cellDim[1] * meta.tileY;
+		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probe_stepX, xR[1]);
+		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probe_stepY, yR[1]);
+
+		// determine the batch size
+		size_t batch_size = std::min(meta.batch_size_target_GPU, xp_d.size()*yp_d.size()/ (meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)); // make sure the batch is small enough to spread work to all threads
+
+		// estimate the amount of buffer memory needed. The factor of 3 is because there are two arrays that must be allocated space that scales
+		// with the batch size, and the cuFFT plans also allocate internal buffers.
+		size_t estimatedBatchBufferSize =  meta.NUM_STREAMS_PER_GPU*3*batch_size*imageSize[0]*imageSize[1]*sizeof(std::complex<PRISM_FLOAT_PRECISION>);
+		estimatedMaxMemoryUsage = 3*estimatedPotentialSize + estimatedBatchBufferSize; // factor of 3 is because there is a complex array of the same size created
 
 		cout << "Estimated potential array size = " << estimatedPotentialSize << '\n';
+		cout << "Estimated buffer memory needed = " << estimatedBatchBufferSize << '\n';
+		cout << "meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1]= " << meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1] << '\n';
 
 		if (meta.algorithm == PRISM::Algorithm::PRISM) {
 			Array1D<PRISM_FLOAT_PRECISION> xv = makeFourierCoords(imageSize[1],
@@ -125,12 +147,14 @@ namespace PRISM {
 
 			size_t estimatedSMatrixSize =
 			numberBeams * imageSize[0] * imageSize[1] / 4 * sizeof(std::complex<PRISM_FLOAT_PRECISION>);
-			estimatedMaxMemoryUsage = std::max(estimatedSMatrixSize, estimatedPotentialSize);
+
+			estimatedMaxMemoryUsage = std::max(estimatedSMatrixSize, estimatedMaxMemoryUsage);
 		}
 
 #ifdef PRISM_ENABLE_GPU
+
 		size_t available_memory;
-		cudaErrchk(cudaMemGetInfo(NULL, &available_memory));
+		cudaErrchk(cudaMemGetInfo(&available_memory, NULL));
 		cout << "Available GPU memory = " << available_memory << '\n';
 		cout << "Estimated GPU memory usage for single transfer method = " << estimatedMaxMemoryUsage  << '\n';
 		return (estimatedMaxMemoryUsage > memoryThreshholdFraction * available_memory) ?

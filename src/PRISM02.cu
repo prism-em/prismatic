@@ -230,7 +230,7 @@ namespace PRISM {
 #endif
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / pars.meta.NUM_THREADS);
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
 
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -630,8 +630,7 @@ namespace PRISM {
 		//initialize data
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / pars.meta.NUM_THREADS);
-
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
