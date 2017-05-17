@@ -328,9 +328,9 @@ namespace PRISM {
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_BEAMS = max((size_t)1,pars.numberBeams / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.numberBeams);
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.numberBeams / pars.meta.NUM_THREADS);
+		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1,pars.numberBeams / pars.meta.NUM_THREADS));
 		cout << "PRISM02 pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 
 		PRISM_FFTW_INIT_THREADS();
@@ -436,7 +436,7 @@ namespace PRISM {
 
 		// populate compact-S matrix
 		fill_Scompact(pars);
-
+		cout << "downsampleFourierComponents" << endl;
 		downsampleFourierComponents(pars);
 	}
 }

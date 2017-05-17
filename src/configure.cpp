@@ -77,7 +77,7 @@ namespace PRISM {
 		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probe_stepY, yR[1]);
 
 		// determine the batch size
-		size_t batch_size = std::min(meta.batch_size_target_GPU, xp_d.size()*yp_d.size()/ (meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)); // make sure the batch is small enough to spread work to all threads
+		size_t batch_size = std::min(meta.batch_size_target_GPU, max((size_t)1, xp_d.size()*yp_d.size()/ (meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS))); // make sure the batch is small enough to spread work to all threads
 
 		// estimate the amount of buffer memory needed. The factor of 3 is because there are two arrays that must be allocated space that scales
 		// with the batch size, and the cuFFT plans also allocate internal buffers.

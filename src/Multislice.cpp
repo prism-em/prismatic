@@ -441,12 +441,12 @@ namespace PRISM{
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
 		cout << "pars.numPlanes = " << pars.numPlanes << endl;
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
+		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS));
 		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;

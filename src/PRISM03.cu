@@ -846,7 +846,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size(), 1);
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 //		setWorkStartStop(0, 1, 1);
@@ -1252,7 +1252,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 //		setWorkStartStop(0, 1);

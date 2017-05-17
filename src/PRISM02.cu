@@ -230,7 +230,7 @@ namespace PRISM {
 #endif
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
 
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -384,7 +384,7 @@ namespace PRISM {
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_BEAMS = max((size_t)1,pars.numberBeams / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.numberBeams);
 		for (auto t = 0; t < total_num_streams; ++t) {
 
@@ -475,7 +475,7 @@ namespace PRISM {
 			vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
-			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.numberBeams / pars.meta.NUM_THREADS);
+			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
 			cout << "PRISM02 pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
@@ -630,7 +630,7 @@ namespace PRISM {
 		//initialize data
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -789,7 +789,7 @@ namespace PRISM {
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		const size_t PRISM_PRINT_FREQUENCY_BEAMS = pars.numberBeams / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_BEAMS = max((size_t)1,pars.numberBeams / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.numberBeams);
 
 		for (auto t = 0; t < total_num_streams; ++t) {
@@ -881,7 +881,7 @@ namespace PRISM {
 			vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
-			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.numberBeams / pars.meta.NUM_THREADS);
+			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
 			cout << "PRISM02 pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
 			PRISM_FFTW_INIT_THREADS();
 			PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);

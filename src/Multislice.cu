@@ -243,7 +243,7 @@ namespace PRISM{
 	    pars.progressbar->signalDescriptionMessage("Computing final output");
 #endif
 		// determine the batch size to use
-	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
+	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
 		using namespace std;
@@ -396,7 +396,7 @@ namespace PRISM{
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
-	    const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
+	    const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 //		setWorkStartStop(0, 1);
 		cout << " pars.xp.size()  = " << pars.xp.size()  << endl;
@@ -483,8 +483,8 @@ namespace PRISM{
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 			// of batch FFT
-			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
-			cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
+			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS));
+			cout << "multislice pars.meta.batch_size_GPU = " << pars.meta.batch_size_GPU << endl;
 			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 				cout << "Launching CPU worker #" << t << endl;
 				// push_back is better whenever constructing a new object
@@ -654,8 +654,8 @@ namespace PRISM{
 		using namespace std;
 
 		// determine batch size
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS));
-		cout << "multislice pars.meta.batch_size_CPU = " << pars.meta.batch_size_CPU << endl;
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
+		cout << "multislice pars.meta.batch_size_GPU = " << pars.meta.batch_size_GPU << endl;
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
         cudaStream_t *streams   = new cudaStream_t[total_num_streams];
@@ -787,7 +787,7 @@ namespace PRISM{
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
 //		setWorkStartStop(0, pars.xp.size() * pars.yp.size());
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = pars.xp.size() * pars.yp.size() / 10; // for printing status
+		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
