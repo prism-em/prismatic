@@ -209,7 +209,7 @@ namespace PRISM {
 		// If that is not the case
 		// this may need to be adapted
 #ifdef PRISM_BUILDING_GUI
-        pars.progressbar->signalDescriptionMessage("Computing final output");
+        pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");
 #endif
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);

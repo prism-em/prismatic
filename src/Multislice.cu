@@ -183,7 +183,7 @@ namespace PRISM{
 
     __host__ void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISM_FLOAT_PRECISION> &pars){
 #ifdef PRISM_BUILDING_GUI
-	    pars.progressbar->signalDescriptionMessage("Computing final output");
+	    pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
 #endif
 		// determine the batch size to use
 	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS);
@@ -588,7 +588,7 @@ namespace PRISM{
 
 	__host__ void buildMultisliceOutput_GPU_streaming(Parameters <PRISM_FLOAT_PRECISION> &pars){
 #ifdef PRISM_BUILDING_GUI
-		pars.progressbar->signalDescriptionMessage("Computing final output");
+		pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
 #endif
 
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
