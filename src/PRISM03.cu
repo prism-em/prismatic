@@ -899,7 +899,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart < Nstop) {
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
@@ -1305,7 +1305,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				size_t Nstart, Nstop, ay, ax;
                 Nstart=Nstop=0;
 //				while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
-				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_GPU)) { // synchronously get work assignment
+				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart < Nstop) {
 						if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;

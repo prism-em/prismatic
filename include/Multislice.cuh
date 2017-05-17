@@ -72,5 +72,24 @@ namespace PRISM {
 	                                      const PRISM_FLOAT_PRECISION* alphaInd_d,
 	                                      const cufftHandle& plan,
 	                                      cudaStream_t& stream);
+
+	void getMultisliceProbe_GPU_streaming_batch(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                                            PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+	                                            const std::complex<PRISM_FLOAT_PRECISION>* trans_ph,
+	                                            PRISM_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                                            PRISM_CUDA_COMPLEX_FLOAT* psi_ds,
+	                                            PRISM_FLOAT_PRECISION* output_ph,
+	                                            PRISM_FLOAT_PRECISION* psi_intensity_ds,
+	                                            PRISM_FLOAT_PRECISION* integratedOutput_ds,
+	                                            const PRISM_FLOAT_PRECISION* qya_d,
+	                                            const PRISM_FLOAT_PRECISION* qxa_d,
+	                                            const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                            const size_t Nstart,
+	                                            const size_t Nstop,
+	                                            const size_t dimj,
+	                                            const size_t dimi,
+	                                            const PRISM_FLOAT_PRECISION* alphaInd_d,
+	                                            const cufftHandle& plan,
+	                                            cudaStream_t& stream);
 }
 #endif //PRISM_MULTISLICE_CUH
