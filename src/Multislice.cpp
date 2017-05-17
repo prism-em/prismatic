@@ -428,7 +428,7 @@ namespace PRISM{
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
 #ifdef PRISM_BUILDING_GUI
-        pars.progressbar->signalDescriptionMessage("Computing final output");
+        pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
 #endif
 
 		cout << "pars.xp.size() * pars.yp.size() = " << pars.xp.size() * pars.yp.size() << endl;
