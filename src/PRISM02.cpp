@@ -316,6 +316,7 @@ namespace PRISM {
         pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
 		pars.progressbar->signalScompactUpdate(-1, pars.numberBeams);
 #endif
+		cout <<"test" <<endl;
         extern mutex fftw_plan_lock;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.numberBeams, pars.imageSize[0] / 2, pars.imageSize[1] / 2}});

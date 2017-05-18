@@ -41,16 +41,15 @@ namespace PRISM {
 //		cout << "beamNumber = " << beamNumber << endl;
 		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
 		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
-		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
-		initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
+		initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
 
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
-			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
-			divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+			multiply_cx<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, &trans_d[planeNum*psi_size], psi_size);
+			divide_inplace<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
-			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
+			multiply_cx<<<(psi_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
 		}
 
 		array_subset<<<(pars.qyInd.size()*pars.qxInd.size()-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>> (
@@ -84,22 +83,21 @@ namespace PRISM {
 
 		const size_t psi_size        = pars.imageSize[0] * pars.imageSize[1];
 		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
-		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
 			// initialize psi
-			initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
+			initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
 		}
 		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
 			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				multiply_cx << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 						(psi_d + batch_idx*psi_size, &trans_d[planeNum * psi_size], psi_size);
-				divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>
+				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>
 						(psi_d + batch_idx*psi_size, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 			}
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
 			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> > (psi_d + batch_idx*psi_size, prop_d, psi_size);
+				multiply_cx << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_d + batch_idx*psi_size, prop_d, psi_size);
 			}
 		}
 
@@ -140,16 +138,15 @@ namespace PRISM {
 
 		const size_t psi_size = pars.imageSize[0] * pars.imageSize[1];
 		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
-		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
-		initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
+		initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d, psi_size, pars.beamsIndex[beamNumber]);
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes ; ++planeNum) {
 			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
-			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, trans_d, psi_size);
-			divide_inplace<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+			multiply_cx<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, trans_d, psi_size);
+			divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
-			multiply_cx<<<num_blocks,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
+			multiply_cx<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_d, prop_d, psi_size);
 		}
 		array_subset<<<(pars.qyInd.size()*pars.qxInd.size()-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>> (
 				psi_d, psi_small_d, qyInd_d, qxInd_d, pars.imageSize[1], pars.qyInd.size(), pars.qxInd.size());
@@ -182,24 +179,23 @@ namespace PRISM {
 
 		const size_t psi_size        = pars.imageSize[0] * pars.imageSize[1];
 		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
-		const size_t num_blocks = std::min(pars.target_num_blocks, (psi_size - 1) / BLOCK_SIZE1D + 1);
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
 			// initialize psi
-			initializePsi_oneNonzero<<< num_blocks, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
+			initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
 		}
 
 		for (auto planeNum = 0; planeNum < pars.numPlanes ; ++planeNum) {
 			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISM_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_INVERSE));
 			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				multiply_cx << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 						(psi_d + batch_idx*psi_size, trans_d, psi_size);
-				divide_inplace << < num_blocks, BLOCK_SIZE1D, 0, stream >> >
+				divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 						(psi_d + batch_idx*psi_size, PRISM_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 			}
 			cufftErrchk(PRISM_CUFFT_EXECUTE(plan, &psi_d[0], &psi_d[0], CUFFT_FORWARD));
 			for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-				multiply_cx << < num_blocks, BLOCK_SIZE1D, 0, stream >> > (psi_d + batch_idx*psi_size, prop_d, psi_size);
+				multiply_cx << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psi_d + batch_idx*psi_size, prop_d, psi_size);
 			}
 		}
 
@@ -230,7 +226,7 @@ namespace PRISM {
 #endif
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1, (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
 
 		//initialize data
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -487,7 +483,8 @@ namespace PRISM {
 				currentBeam=stopBeam=0;
 					if (pars.meta.NUM_GPUS > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+//						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio * pars.meta.batch_size_CPU);
 					} else {
 						early_CPU_stop = pars.numberBeams;
 					}
@@ -495,10 +492,11 @@ namespace PRISM {
 						// allocate array for psi just once per thread
 //						Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 //								{{pars.imageSize[0], pars.imageSize[1]}});
+
 						Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >(
 								{{pars.imageSize[0]*pars.imageSize[1]*pars.meta.batch_size_CPU}});
 
-						// setup batch FFTW parameters
+//						 setup batch FFTW parameters
 						const int rank = 2;
 						int n[] = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
 						const int howmany = pars.meta.batch_size_CPU;
@@ -509,7 +507,17 @@ namespace PRISM {
 						int *inembed = n;
 						int *onembed = n;
 
+
+
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
+//						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//						                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//						                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//						                                                      FFTW_FORWARD, FFTW_MEASURE);
+//						PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//						                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//						                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//						                                                      FFTW_BACKWARD, FFTW_MEASURE);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
 						                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
 						                                                         istride, idist,
@@ -536,8 +544,8 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
 								pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
 #endif
-                                currentBeam = stopBeam;
-//								++currentBeam;
+//                                currentBeam = stopBeam;
+								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
 						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop));
@@ -630,7 +638,7 @@ namespace PRISM {
 		//initialize data
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -893,7 +901,8 @@ namespace PRISM {
 					currentBeam=stopBeam=0;
 					if (pars.meta.NUM_GPUS > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+						//early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio);
+						early_CPU_stop = (size_t)std::max((PRISM_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio*pars.meta.batch_size_CPU);
 					} else {
 						early_CPU_stop = pars.numberBeams;
 					}

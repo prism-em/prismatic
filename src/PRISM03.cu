@@ -1584,11 +1584,11 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			dim3 grid(1, GridSizeY, GridSizeZ);
 			dim3 block(BlockSize_numBeams, 1, 1);
 //		dim3 block(GridSize_alongArray, 2, 2);
-			if (ax==5 & ay==0) {
-				cout << "BlockSize_numBeams = " << BlockSize_numBeams << endl;
-				cout << "GridSizeY = "  << GridSizeY << endl;
-				cout << "GridSizeZ = "  << GridSizeZ << endl;
-			}
+//			if (ax==5 & ay==0) {
+//				cout << "BlockSize_numBeams = " << BlockSize_numBeams << endl;
+//				cout << "GridSizeY = "  << GridSizeY << endl;
+//				cout << "GridSizeZ = "  << GridSizeZ << endl;
+//			}
 			// Determine amount of shared memory needed
 			const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
 
@@ -1641,13 +1641,13 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			const size_t GridSize_alongArray = std::min(pars.deviceProperties.multiProcessorCount * 3, );
 			dim3 grid(1, GridSize_alongArray, 1);
 			dim3 block(BlockSize_numBeams, BlockSize_alongArray, 1);
-			if (ax == 0 & ay == 0) {
-				cout << "total_blocks = " << total_blocks << endl;
-				cout << "psi_size = " << psi_size << endl;
-				cout << "BlockSize_numBeams = " << BlockSize_numBeams << endl;
-				cout << "BlockSize_alongArray = " << BlockSize_alongArray << endl;
-				cout << "GridSize_alongArray = " << GridSize_alongArray << endl;
-			}
+//			if (ax == 0 & ay == 0) {
+//				cout << "total_blocks = " << total_blocks << endl;
+//				cout << "psi_size = " << psi_size << endl;
+//				cout << "BlockSize_numBeams = " << BlockSize_numBeams << endl;
+//				cout << "BlockSize_alongArray = " << BlockSize_alongArray << endl;
+//				cout << "GridSize_alongArray = " << GridSize_alongArray << endl;
+//			}
 			// Determine amount of shared memory needed
 			const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
 
