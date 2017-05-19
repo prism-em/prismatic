@@ -440,7 +440,7 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
 		// memory isn't pinned, so the memcpy is not asynchronous.
 		std::string section4DFilename = generateFilename(pars, ay, ax);
 		PRISM::Array2D<PRISM_FLOAT_PRECISION> currentImage = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>(
-				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+				{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
 		                           psi_intensity_ds,
 		                           pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION),
