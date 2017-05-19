@@ -25,14 +25,15 @@ void PotentialThread::run(){
     QMutexLocker calculationLocker(&this->parent->calculationLock);
     // calculate potential
     PRISM::PRISM01(params);
-    emit potentialCalculated(params.pot);
+    this->parent->potentialReceived(params.pot);
+    emit potentialCalculated();
     // acquire the mutex so we can safely copy to the GUI copy of the potential
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
     this->parent->pars = params;
     // indicate that the potential is ready
-    this->parent->potentialReady = true;
-    this->parent->potentialArrayExists = true;
+
+//    this->parent->potentialArrayExists = true;
     if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     std::cout << "Projected potential calculation complete" << std::endl;
 }
@@ -55,10 +56,11 @@ void SMatrixThread::run(){
         PRISM::PRISM01(params);
 	    QMutexLocker gatekeeper(&this->parent->dataLock);
         // indicate that the potential is ready
-        this->parent->potentialReady = true;
-        this->parent->potentialArrayExists = true;
+
+//        this->parent->potentialArrayExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-        emit potentialCalculated(params.pot);
+        this->parent->potentialReceived(params.pot);
+        emit potentialCalculated();
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -101,11 +103,12 @@ void ProbeThread::run(){
         QMutexLocker gatekeeper(&this->parent->dataLock);
 //        params_multi = params;
         this->parent->pars = params;
-        this->parent->potentialReady = true;
-        this->parent->potentialArrayExists = true;
+
+//        this->parent->potentialArrayExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
         std::cout <<"emitting signal" <<std::endl;
-        emit potentialCalculated(params.pot);
+        this->parent->potentialReceived(params.pot);
+        emit potentialCalculated();
     }
 
     } else {
@@ -321,11 +324,12 @@ void FullPRISMCalcThread::run(){
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
 //        this->parent->potential = params.pot;
-        this->parent->potentialReady = true;
-        this->parent->potentialArrayExists = true;
+
+//        this->parent->potentialArrayExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
-    emit potentialCalculated(params.pot);
+    this->parent->potentialReceived(params.pot);
+    emit potentialCalculated();
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -381,13 +385,16 @@ void FullPRISMCalcThread::run(){
         this->parent->pars = params;
         this->parent->detectorAngles = params.detectorAngles;
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
-        this->parent->outputReady = true;
-        this->parent->outputArrayExists = true;
+
+//        this->parent->outputArrayExists = true;
 
 //        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
 	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
-    emit outputCalculated(params.output);
+//    this->parent->outputReceived(params.output);
+    this->parent->outputReceived(params.output);
+    emit outputCalculated();
+
     std::cout << "PRISM calculation complete" << std::endl;
 }
 
@@ -412,8 +419,8 @@ void FullMultisliceCalcThread::run(){
                 QMutexLocker gatekeeper(&this->parent->dataLock);
                 this->parent->pars = params;
                 //        this->parent->potential = params.pot;
-                this->parent->potentialReady = true;
-                this->parent->potentialArrayExists = true;
+
+//                this->parent->potentialArrayExists = true;
                 if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
             }
         } else {
@@ -423,7 +430,8 @@ void FullMultisliceCalcThread::run(){
             std::cout << "Potential already calculated. Using existing result." << std::endl;
         }
 
-    emit potentialCalculated(params.pot);
+    this->parent->potentialReceived(params.pot);
+    emit potentialCalculated();
 
     PRISM::Multislice(params);
 
@@ -451,8 +459,8 @@ void FullMultisliceCalcThread::run(){
         this->parent->pars = params;
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
-        this->parent->outputReady = true;
-        this->parent->outputArrayExists = true;
+
+//        this->parent->outputArrayExists = true;
 //        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(
 //        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //        auto ptr = reshaped_output.begin();
@@ -461,7 +469,8 @@ void FullMultisliceCalcThread::run(){
 //        params.output.toMRC_f(params.meta.filename_output.c_str());
     }
 	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
-    emit outputCalculated(params.output);
+    this->parent->outputReceived(params.output);
+    emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;
 }
 
