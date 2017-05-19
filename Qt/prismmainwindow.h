@@ -43,8 +43,8 @@ public:
 	bool potentialIsReady();
 	bool SMatrixIsReady();
 	bool OutputIsReady();
-    bool checkOutputImageExists();
-    bool checkPotentialImageExists();
+    bool checkoutputArrayExists();
+    bool checkpotentialArrayExists();
     ~PRISMMainWindow();
 
 public slots:
@@ -127,6 +127,8 @@ public slots:
     void update_pearsonK(QString str);
     void update_RReal(QString str);
     void update_RK(QString str);
+    void potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+    void outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
@@ -157,14 +159,14 @@ private:
 
 //    QGraphicsScene *potentialScene;
     PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
-//    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
+    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
 //    PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-//    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
+    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
     PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
 
-//    QMutex potentialLock;
+    QMutex potentialLock;
 //    QMutex sMatrixLock;
-//    QMutex outputLock;
+    QMutex outputLock;
     QMutex dataLock;
     QMutex calculationLock;
 
@@ -173,8 +175,8 @@ private:
     bool outputReady;
     bool saveProjectedPotential;
     bool probeSetupReady;
-    bool potentialImageExists;
-    bool outputImageExists;
+    bool potentialArrayExists;
+    bool outputArrayExists;
 
     QImage potentialImage;
     QImage probeImage;

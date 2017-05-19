@@ -25,6 +25,8 @@ private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
+signals:
+    void potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
 };
 
 class SMatrixThread : public QThread {
@@ -34,13 +36,13 @@ class SMatrixThread : public QThread {
 public:
     explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~SMatrixThread();
-signals:
-    void potentialCalculated();
-    void ScompactCalculated();
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
+signals:
+    void potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+
 };
 
 class ProbeThread : public QThread {
@@ -51,8 +53,7 @@ public:
     explicit ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *progressbar, bool use_log_scale = false);
     virtual ~ProbeThread();
 signals:
-    void potentialCalculated();
-    void ScompactCalculated();
+    void potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
     void signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
@@ -79,9 +80,8 @@ public:
     explicit FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullPRISMCalcThread();
 signals:
-    void potentialCalculated();
-	void ScompactCalculated();
-	void outputCalculated();
+    void potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+    void outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void signalTitle(const QString str);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
@@ -97,9 +97,8 @@ public:
     explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullMultisliceCalcThread();
 signals:
-	void potentialCalculated();
-	void ScompactCalculated();
-	void outputCalculated();
+    void potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+    void outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void signalTitle(const QString str);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;

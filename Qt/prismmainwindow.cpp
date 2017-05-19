@@ -29,13 +29,15 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     outputReady(false),
     saveProjectedPotential(false),
     probeSetupReady(false),
-    potentialImageExists(false),
-    outputImageExists(false),
+    potentialArrayExists(false),
+    outputArrayExists(false),
     potentialImage(QImage()),
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0)
 {
     qRegisterMetaType<PRISM::Array2D< PRISM_FLOAT_PRECISION> >("PRISM::Array2D<PRISM_FLOAT_PRECISION>");
+    qRegisterMetaType<PRISM::Array3D< PRISM_FLOAT_PRECISION> >("PRISM::Array3D<PRISM_FLOAT_PRECISION>");
+
 	// build Qt generated interface
     ui->setupUi(this);
 
@@ -674,6 +676,7 @@ void PRISMMainWindow::calculatePotential(){
     progressbar->show();
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
+    connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -697,9 +700,11 @@ void PRISMMainWindow::calculateAll(){
 
     if (meta->algorithm == PRISM::Algorithm::PRISM) {
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-	    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+        connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(outputReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateOutputImage()));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
@@ -711,9 +716,11 @@ void PRISMMainWindow::calculateAll(){
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+        connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(outputReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateOutputImage()));
+        connect(worker, SIGNAL(outputCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
         connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -729,6 +736,7 @@ void PRISMMainWindow::calculateProbe(){
     currently_calculated_X = X;
     currently_calculated_Y = Y;
     ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
+    connect(worker, SIGNAL(potentialCalculated(PRISM::Array3D<PRISM_FLOAT_PRECISION>)), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
 //    connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
@@ -750,38 +758,42 @@ void PRISMMainWindow::calculateProbe(){
 }
 
 void PRISMMainWindow::updatePotentialImage(){
+    std::cout<<"updatePotentialImage"<<std::endl;
     if (potentialIsReady()){
             {
+            QMutexLocker gatekeeper(&potentialLock);
             // create new empty image with appropriate dimensions
-            potentialImage = QImage(pars.pot.get_dimj(), pars.pot.get_dimi(), QImage::Format_ARGB32);
+            potentialImage = QImage(potential.get_dimj(), potential.get_dimi(), QImage::Format_ARGB32);
             }
+
+            std::cout<<"update sliders"<<std::endl;
 
             // update sliders to match dimensions of potential, which also triggers a redraw of the image
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
-            this->ui->slider_slicemin->setMaximum(pars.pot.get_dimk());
-            this->ui->slider_slicemax->setMaximum(pars.pot.get_dimk());
+            this->ui->slider_slicemin->setMaximum(potential.get_dimk());
+            this->ui->slider_slicemax->setMaximum(potential.get_dimk());
 
             // I set the value to 0 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
             this->ui->slider_slicemax->setValue(0);
-            this->ui->slider_slicemax->setValue(pars.pot.get_dimk());
+            this->ui->slider_slicemax->setValue(potential.get_dimk());
         }
 }
 
 void PRISMMainWindow::updatePotentialFloatImage(){
 //    if (potentialReady){
-    if (potentialImageExists){
+    if (potentialArrayExists){
 //        QMutexLocker gatekeeper(&potentialLock);
-        QMutexLocker gatekeeper(&dataLock);
+        QMutexLocker gatekeeper(&potentialLock);
 
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_slicemin->value();
         size_t max_layer = this->ui->slider_slicemax->value();
-        potentialImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
+        potentialImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{potential.get_dimj(), potential.get_dimi()}});
         for (auto k = min_layer; k <= max_layer; ++k){
-            for (auto j = 0; j < pars.pot.get_dimj(); ++j){
-                for (auto i = 0; i < pars.pot.get_dimi(); ++i){
-                    potentialImage_float.at(j,i) += pars.pot.at(k - 1,j ,i);
+            for (auto j = 0; j < potential.get_dimj(); ++j){
+                for (auto i = 0; i < potential.get_dimi(); ++i){
+                    potentialImage_float.at(j,i) += potential.at(k - 1,j ,i);
                 }
             }
         }
@@ -801,12 +813,12 @@ void PRISMMainWindow::updatePotentialFloatImage(){
 
 void PRISMMainWindow::updatePotentialDisplay(){
 //    if (potentialReady){
-    if (potentialImageExists){
+    if (potentialArrayExists){
 //            QMutexLocker gatekeeper(&potentialLock);
             QMutexLocker gatekeeper(&dataLock);
 
-            for (auto j = 0; j < pars.pot.get_dimj(); ++j){
-                for (auto i = 0; i < pars.pot.get_dimi(); ++i){
+            for (auto j = 0; j < potential.get_dimj(); ++j){
+                for (auto i = 0; i < potential.get_dimi(); ++i){
                     uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
                                                   contrast_potentialMin,
                                                   contrast_potentialMax);
@@ -971,7 +983,7 @@ void PRISMMainWindow::updateOutputImage(){
             QMutexLocker gatekeeper(&dataLock);
 
             // create new empty image with appropriate dimensions
-            outputImage = QImage(pars.output.get_dimk(), pars.output.get_dimj(), QImage::Format_ARGB32);
+            outputImage = QImage(output.get_dimk(), output.get_dimj(), QImage::Format_ARGB32);
             }
             // update sliders to match dimensions of output, which also triggers a redraw of the image
             this->ui->slider_angmin->setMinimum(0);
@@ -987,23 +999,21 @@ void PRISMMainWindow::updateOutputImage(){
 
 void PRISMMainWindow::updateOutputFloatImage(){
 //    if (outputReady){
-      if (checkOutputImageExists()){
-
-//        QMutexLocker gatekeeper(&outputLock);
-        QMutexLocker gatekeeper(&dataLock);
+      if (checkoutputArrayExists()){
+        QMutexLocker gatekeeper(&outputLock);
 
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_angmin->value();
         size_t max_layer = this->ui->slider_angmax->value();
         std::cout << "min_layer = " << min_layer << std::endl;
         std::cout << "max_layer = " << max_layer << std::endl;
-        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.output.get_dimk(), pars.output.get_dimj()}});
+        outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
 //        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
 //         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
-        for (auto j = 0; j < pars.output.get_dimk(); ++j){
-            for (auto i = 0; i < pars.output.get_dimj(); ++i){
+        for (auto j = 0; j < output.get_dimk(); ++j){
+            for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
-                    outputImage_float.at(j,i) += pars.output.at(j, i, k);
+                    outputImage_float.at(j,i) += output.at(j, i, k);
                 }
             }
         }
@@ -1023,11 +1033,10 @@ void PRISMMainWindow::updateOutputFloatImage(){
 
 void PRISMMainWindow::updateOutputDisplay(){
 //    if (outputReady){
-    if (checkOutputImageExists()){
-//            QMutexLocker gatekeeper(&outputLock);
-        QMutexLocker gatekeeper(&dataLock);
-            for (auto j = 0; j < pars.output.get_dimk(); ++j){
-                for (auto i = 0; i < pars.output.get_dimj(); ++i){
+    if (checkoutputArrayExists()){
+        QMutexLocker gatekeeper(&outputLock);
+            for (auto j = 0; j < output.get_dimk(); ++j){
+                for (auto i = 0; i < output.get_dimj(); ++i){
                     uchar val = getUcharFromFloat(outputImage_float.at(j,i),
                                                   contrast_outputMin,
                                                   contrast_outputMax);
@@ -1053,7 +1062,7 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
 }
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
 //    if (outputReady){
-    if (checkOutputImageExists()){
+    if (checkoutputArrayExists()){
         PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
         (detectorAngles[1]-detectorAngles[0]);
         PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
@@ -1086,7 +1095,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 //    if (outputReady){
     QMutexLocker gatekeeper(&dataLock);
-    if (checkOutputImageExists()){
+    if (checkoutputArrayExists()){
         if (val >= this->ui->slider_angmin->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             std::cout << "val = " << val << std::endl;
@@ -1101,7 +1110,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
 //    if (outputReady){
     QMutexLocker gatekeeper(&dataLock);
-    if (checkOutputImageExists()){
+    if (checkoutputArrayExists()){
         if (val <= this->ui->slider_angmax->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
             this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
@@ -1180,7 +1189,7 @@ void PRISMMainWindow::updateAlphaMax(){
 }
 
 void PRISMMainWindow::saveCurrentOutputImage(){
-    if (checkOutputImageExists()){
+    if (checkoutputArrayExists()){
         std::cout << "saving\n";
 //            QMutexLocker gatekeeper(&outputLock);
         QMutexLocker gatekeeper(&dataLock);
@@ -1247,7 +1256,7 @@ void PRISMMainWindow::toggleSaveProjectedPotential(){
 }
 
 bool PRISMMainWindow::potentialIsReady(){
-    QMutexLocker gatekeeper(&dataLock);
+    QMutexLocker gatekeeper(&potentialLock);
     return potentialReady;
 }
 bool PRISMMainWindow::SMatrixIsReady(){
@@ -1255,18 +1264,29 @@ bool PRISMMainWindow::SMatrixIsReady(){
     return ScompactReady;
 }
 bool PRISMMainWindow::OutputIsReady(){
-    QMutexLocker gatekeeper(&dataLock);
+    QMutexLocker gatekeeper(&outputLock);
     return outputReady;
 }
 
-bool PRISMMainWindow::checkOutputImageExists(){
+bool PRISMMainWindow::checkoutputArrayExists(){
 //    QMutexLocker gatekeeper(&dataLock);
-    return outputImageExists;
+    return outputArrayExists;
 }
 
-bool PRISMMainWindow::checkPotentialImageExists(){
+bool PRISMMainWindow::checkpotentialArrayExists(){
 //    QMutexLocker gatekeeper(&dataLock);
-    return potentialImageExists;
+    return potentialArrayExists;
+}
+
+void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _potential){
+    std::cout << "receiving potential" << std::endl;
+    QMutexLocker gatekeeper(&potentialLock);
+    potential = _potential;
+}
+void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _output){
+    QMutexLocker gatekeeper(&outputLock);
+    output = _output;
+
 }
 
 void PRISMMainWindow::enableOutputWidgets(){
