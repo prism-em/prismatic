@@ -239,7 +239,7 @@ namespace PRISM{
 	    pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
 #endif
 		// determine the batch size to use
-	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
+	    pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / max((size_t)1, (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
 		using namespace std;
@@ -650,7 +650,7 @@ namespace PRISM{
 		using namespace std;
 
 		// determine batch size
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS)));
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.xp.size() * pars.yp.size() / max((size_t)1, (pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
 		cout << "multislice pars.meta.batch_size_GPU = " << pars.meta.batch_size_GPU << endl;
 		// create CUDA streams
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
