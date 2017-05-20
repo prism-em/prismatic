@@ -22,7 +22,8 @@ namespace PRISM{
 			interpolationFactorX  = 4;
 			filename_atoms        = "/path/to/atoms.txt";
 			filename_output       = "output.mrc";
-			realspace_pixelSize   = 0.1;
+			realspace_pixelSize[0]= 0.1;
+			realspace_pixelSize[1]= 0.1;
 			potBound              = 1.0;
 			numFP                 = 1;
             fpNum                 = 1;
@@ -70,7 +71,7 @@ namespace PRISM{
 		size_t interpolationFactorX; // PRISM f_x parameter
 		std::string filename_atoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
 		std::string filename_output;// filename of output image
-		T realspace_pixelSize; // pixel size
+		T realspace_pixelSize[2]; // pixel size
 		T potBound; // bounding integration radius for potential calculation
 		size_t numFP; // number of frozen phonon configurations to compute
 		size_t fpNum; // current frozen phonon number
@@ -118,7 +119,8 @@ namespace PRISM{
 		std::cout << "interpolationFactorY = " << interpolationFactorY << std::endl;
 		std::cout << "filename_atoms = " <<  filename_atoms     << std::endl;
 		std::cout << "filename_output = " << filename_output  << std::endl;
-		std::cout << "realspace_pixelSize = " << realspace_pixelSize<< std::endl;
+		std::cout << "realspace_pixelSize[0] = " << realspace_pixelSize[0]<< std::endl;
+		std::cout << "realspace_pixelSize[1] = " << realspace_pixelSize[1]<< std::endl;
 		std::cout << "potBound = " << potBound << std::endl;
 		std::cout << "numFP = " << numFP << std::endl;
 		std::cout << "sliceThickness = " << sliceThickness<< std::endl;

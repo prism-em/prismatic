@@ -974,8 +974,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>326</width>
-         <height>1093</height>
+         <width>320</width>
+         <height>1129</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -1425,7 +1425,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineedit_pixelSize">
+                      <widget class="QLineEdit" name="lineedit_pixelSizeX">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                          <horstretch>0</horstretch>
@@ -1449,6 +1449,13 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="lineedit_pixelSizeY">
+                       <property name="text">
+                        <string>0.1</string>
                        </property>
                       </widget>
                      </item>
@@ -2886,7 +2893,7 @@ Step (A)</string>
   <tabstop>lineEdit_tileX</tabstop>
   <tabstop>lineEdit_tileY</tabstop>
   <tabstop>lineEdit_tileZ</tabstop>
-  <tabstop>lineedit_pixelSize</tabstop>
+  <tabstop>lineedit_pixelSizeX</tabstop>
   <tabstop>lineEdit_E0</tabstop>
   <tabstop>lineEdit_potbound</tabstop>
   <tabstop>lineEdit_probeSemiangle</tabstop>

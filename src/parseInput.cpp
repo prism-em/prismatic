@@ -28,7 +28,9 @@ namespace PRISM {
 		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers.\n"
 		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers.\n"
                 "* --help(-h) : print information about the available options\n"
-                "* --pixel-size (-p) pixel_size : size of simulation pixel size\n"
+                "* --pixel-size (-p) pixel_size : size of simulation X/Y pixel size\n"
+		        "* --pixel-size-x (-px) pixel_size : size of simulation X pixel size\n"
+		        "* --pixel-size-y (-py) pixel_size : size of simulation Y pixel size\n"
 		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins"
                 "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)\n"
 		        "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively\n"
@@ -419,14 +421,45 @@ namespace PRISM {
             cout << "No pixel size provided for -p (syntax is -p pixel_size)\n";
             return false;
         }
-        if ( (meta.realspace_pixelSize = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.realspace_pixelSize[0] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for pixel size  (syntax is -p pixel_size)\n";
             return false;
         }
+	    meta.realspace_pixelSize[1] = meta.realspace_pixelSize[0];
         argc-=2;
         argv[0]+=2;
         return true;
     };
+
+	bool parse_px(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No pixel size provided for -px (syntax is -px pixel_size)\n";
+			return false;
+		}
+		if ( (meta.realspace_pixelSize[1] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for X pixel size  (syntax is -px pixel_size)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
+
+	bool parse_py(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 2){
+			cout << "No pixel size provided for -py (syntax is -py pixel_size)\n";
+			return false;
+		}
+		if ( (meta.realspace_pixelSize[0] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+			cout << "Invalid value \"" << (*argv)[1] << "\" provided for Y pixel size  (syntax is -py pixel_size)\n";
+			return false;
+		}
+		argc-=2;
+		argv[0]+=2;
+		return true;
+	};
 
     bool parse_P(Metadata<PRISM_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -741,6 +774,8 @@ namespace PRISM {
             {"--batch-size-gpu", parse_bg}, {"-bg", parse_bg},
             {"--help", parse_h}, {"-h", parse_h},
             {"--pixel-size", parse_p}, {"-p", parse_p},
+            {"--pixel-size-x", parse_px}, {"-px", parse_px},
+            {"--pixel-size-y", parse_py}, {"-py", parse_py},
             {"--detector-angle-step", parse_d}, {"-d", parse_d},
             {"--cell-dimension", parse_c}, {"-c", parse_c},
             {"--algorithm", parse_a}, {"-a", parse_a},

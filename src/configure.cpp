@@ -44,19 +44,12 @@ namespace PRISM {
 		constexpr double memoryThreshholdFraction = 0.5; // if estimated size of largest array is greater than this fraction
 		// times the amount of available memory on a GPU, streaming mode will be triggered
 		size_t estimatedMaxMemoryUsage;
-//		T f = 4 * meta.interpolationFactor;
-//		Array1D<size_t> imageSize({{meta.cellDim[1], meta.cellDim[2]}}, {{2}});
-//		std::transform(imageSize.begin(), imageSize.end(), imageSize.begin(),
-//		               [&f, &meta](size_t &a) {
-////			               return (size_t) (f * round(((T) a) / meta.realspace_pixelSize / f));
-//                           return (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
-//		               });
 
 	    T f_x = 4 * meta.interpolationFactorX;
 	    T f_y = 4 * meta.interpolationFactorY;
 	    Array1D<size_t> imageSize({{meta.cellDim[1] * meta.tileY, meta.cellDim[2] * meta.tileX}}, {{2}});
-	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize / f_y)));
-	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize / f_x)));
+	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize[0] / f_y)));
+	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize[1] / f_x)));
 
 
 
@@ -95,8 +88,8 @@ namespace PRISM {
 			                                                      (PRISM_FLOAT_PRECISION) 1 / imageSize[0]);
 			pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh_a = meshgrid(yv, xv);
 
-			Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspace_pixelSize);
-			Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspace_pixelSize);
+			Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspace_pixelSize[1]);
+			Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspace_pixelSize[0]);
 
 			pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
 			Array2D<PRISM_FLOAT_PRECISION> q2(mesh.first);

@@ -125,9 +125,9 @@ namespace PRISM {
 								PRISM_FLOAT_PRECISION X, Y;
 								if (pars.meta.include_thermal_effects) {
 									X = round(
-											(x[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[0]);
+											(x[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[1]);
 									Y = round(
-											(y[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[1]);
+											(y[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[0]);
 								} else {
 									X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
 									Y = round((y[a2]) / pars.pixelSize[0]); // this line uses no thermal factor
