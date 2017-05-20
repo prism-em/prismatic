@@ -23,6 +23,7 @@ void PotentialThread::run(){
     // create parameters
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
     QMutexLocker calculationLocker(&this->parent->calculationLock);
+    PRISM::configure(meta);
     // calculate potential
     PRISM::PRISM01(params);
     this->parent->potentialReceived(params.pot);
@@ -103,13 +104,12 @@ void ProbeThread::run(){
         QMutexLocker gatekeeper(&this->parent->dataLock);
 //        params_multi = params;
         this->parent->pars = params;
-
-//        this->parent->potentialArrayExists = true;
-        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-        std::cout <<"emitting signal" <<std::endl;
-        this->parent->potentialReceived(params.pot);
-        emit potentialCalculated();
     }
+//        this->parent->potentialArrayExists = true;
+    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+    this->parent->potentialReceived(params.pot);
+    emit potentialCalculated();
+
 
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -383,6 +383,9 @@ void FullPRISMCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
+    }
+    {
+        QMutexLocker gatekeeper(&this->parent->outputLock);
         this->parent->detectorAngles = params.detectorAngles;
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
 
@@ -457,6 +460,9 @@ void FullMultisliceCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
+    }
+    {
+        QMutexLocker gatekeeper(&this->parent->outputLock);
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
 
