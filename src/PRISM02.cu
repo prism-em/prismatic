@@ -876,6 +876,9 @@ namespace PRISM {
 						                                       current_stream);
 //						++currentBeam;
 						currentBeam=stopBeam;
+#ifdef PRISM_BUILDING_GUI
+						pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
+#endif
 					}
 				}
 				cout << "GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << " finished\n";

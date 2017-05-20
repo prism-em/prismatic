@@ -57,7 +57,8 @@ public slots:
     void setNumGPUs(const int& numGPUs);
     void setNumThreads(const int& numThreads);
     void setNumFP(const int& numFP);
-    void setPixelSize_fromLineEdit();
+    void setPixelSizeX_fromLineEdit();
+    void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
     void setSliceThickness_fromLineEdit();

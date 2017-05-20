@@ -234,7 +234,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(editingFinished()), this, SLOT(setprobeSemiangle_fromLineEdit()));
-    connect(this->ui->lineedit_pixelSize, SIGNAL(editingFinished()), this, SLOT(setPixelSize_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeX, SIGNAL(editingFinished()), this, SLOT(setPixelSizeX_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setPixelSizeY_fromLineEdit()));
+
     connect(this->ui->lineEdit_batchCPU, SIGNAL(editingFinished()), this, SLOT(setBatchCPU_fromLineEdit()));
     connect(this->ui->lineEdit_batchGPU, SIGNAL(editingFinished()), this, SLOT(setBatchGPU_fromLineEdit()));
     connect(this->ui->lineEdit_potbound, SIGNAL(editingFinished()), this, SLOT(setPotBound_fromLineEdit()));
@@ -401,17 +403,28 @@ void PRISMMainWindow::setNumFP(const int& num){
     resetCalculation();
 }
 
-void PRISMMainWindow::setPixelSize_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineedit_pixelSize->text().toDouble();
+void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble();
     if (val > 0){
-        this->meta->realspace_pixelSize = val;
-        this->meta->realspace_pixelSize = val;
-        std::cout << "Setting X/Y pixel size to " << val << " Angstroms" << std::endl;
+        this->meta->realspace_pixelSize[1] = val;
+        std::cout << "Setting X pixel size to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
 
     }
     resetCalculation();
 }
+
+void PRISMMainWindow::setPixelSizeY_fromLineEdit(){
+    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeY->text().toDouble();
+    if (val > 0){
+        this->meta->realspace_pixelSize[0] = val;
+        std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
+        updateAlphaMax();
+
+    }
+    resetCalculation();
+}
+
 
 void PRISMMainWindow::setPotBound_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_potbound->text().toDouble();
@@ -702,7 +715,7 @@ void PRISMMainWindow::calculateAll(){
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
 //        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-//        connect(worker, SIGNAL(outputCalculated()), this, SLOT(outputReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+//        connect(worker, SIGNAL(outputCalculated()), this, SLOT((PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
@@ -718,7 +731,7 @@ void PRISMMainWindow::calculateAll(){
         worker->meta.toString();
 //        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-//        connect(worker, SIGNAL(outputCalculated()), this, SLOT(outputReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+//        connect(worker, SIGNAL(outputCalculated()), this, SLOT((PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
@@ -1145,11 +1158,11 @@ void PRISMMainWindow::updateAlphaMax(){
     PRISM_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
     PRISM_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
     Array1D<size_t> imageSize({{(size_t)meta->cellDim[1] * meta->tileY, (size_t)meta->cellDim[2] * meta->tileX}}, {{2}});
-    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round(((PRISM_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize / f_y)));
-    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round(((PRISM_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize / f_x)));
+    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round(((PRISM_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize[0] / f_y)));
+    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round(((PRISM_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize[1] / f_x)));
 
-    Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta->realspace_pixelSize);
-    Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta->realspace_pixelSize);
+    Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta->realspace_pixelSize[1]);
+    Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta->realspace_pixelSize[0]);
     std::pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
 
     PRISM_FLOAT_PRECISION qMax;
@@ -1169,9 +1182,9 @@ void PRISMMainWindow::updateAlphaMax(){
         }
 
         long long ncx = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[1] / 2);
-        PRISM_FLOAT_PRECISION dpx = 1 / (imageSize[1] * meta->realspace_pixelSize);
+        PRISM_FLOAT_PRECISION dpx = 1 / (imageSize[1] * meta->realspace_pixelSize[1]);
         long long ncy = (size_t) floor((PRISM_FLOAT_PRECISION) imageSize[0] / 2);
-        PRISM_FLOAT_PRECISION dpy = 1 / (imageSize[0] * meta->realspace_pixelSize);
+        PRISM_FLOAT_PRECISION dpy = 1 / (imageSize[0] * meta->realspace_pixelSize[0]);
         qMax = std::min(qx_max, qy_max) / 2;
     }
 
@@ -1288,6 +1301,7 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
     QMutexLocker gatekeeper(&outputLock);
     output = _output;
     outputArrayExists = true;
+    std::cout <<"output.size() = " << output.size() << std::endl;
 }
 
 void PRISMMainWindow::enableOutputWidgets(){
