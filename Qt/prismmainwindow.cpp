@@ -189,6 +189,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
 		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
         this->ui->spinBox_numFP->setValue(this->meta->numFP);
+        this->ui->spinBox_numStreams->setValue(this->meta->NUM_GPUS);
+
 
 	}
 
@@ -233,6 +235,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
+    connect(this->ui->spinBox_numStreams, SIGNAL(valueChanged(int)), this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(editingFinished()), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX, SIGNAL(editingFinished()), this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setPixelSizeY_fromLineEdit()));
@@ -395,6 +398,15 @@ void PRISMMainWindow::setNumThreads(const int& num){
     }
 }
 
+void PRISMMainWindow::setNumStreams(const int& num){
+    if (num >= 0){
+        this->meta->NUM_STREAMS_PER_GPU = num;
+        std::cout << "Setting number of CUDA streams per GPU to " << num << std::endl;
+        QMutexLocker gatekeeper(&dataLock);
+        this->pars.meta.NUM_STREAMS_PER_GPU = num;
+    }
+}
+
 void PRISMMainWindow::setNumFP(const int& num){
     if (num > 0){
         this->meta->numFP = num;
@@ -402,6 +414,7 @@ void PRISMMainWindow::setNumFP(const int& num){
     }
     resetCalculation();
 }
+
 
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble();

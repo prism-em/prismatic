@@ -98,19 +98,18 @@ void ProbeThread::run(){
 
     PRISM::configure(meta);
     if (!this->parent->potentialIsReady()){
-    PRISM::PRISM01(params);
-    std::cout <<"Potential Calculated" << std::endl;
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-//        params_multi = params;
-        this->parent->pars = params;
-    }
-//        this->parent->potentialArrayExists = true;
-    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-    this->parent->potentialReceived(params.pot);
-    emit potentialCalculated();
-
-
+        this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
+        PRISM::PRISM01(params);
+        std::cout <<"Potential Calculated" << std::endl;
+        {
+            QMutexLocker gatekeeper(&this->parent->dataLock);
+    //        params_multi = params;
+            this->parent->pars = params;
+        }
+    //        this->parent->potentialArrayExists = true;
+        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+        this->parent->potentialReceived(params.pot);
+        emit potentialCalculated();
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -317,6 +316,7 @@ void FullPRISMCalcThread::run(){
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
     if (!this->parent->potentialIsReady()){
+        this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
     PRISM::PRISM01(params);
     std::cout <<"Potential Calculated" << std::endl;
     {
@@ -416,6 +416,7 @@ void FullMultisliceCalcThread::run(){
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     PRISM::configure(meta);
         if (!this->parent->potentialIsReady()) {
+            this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
             PRISM::PRISM01(params);
             std::cout << "Potential Calculated" << std::endl;
             {

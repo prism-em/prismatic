@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
    //
     w.show();
 //    w.setGeometry(100,100,950,650);
-    w.setGeometry(100,100,950,750);
+    w.setGeometry(100,100,1050,750);
 
     return a.exec();
 }

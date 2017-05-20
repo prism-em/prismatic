@@ -30,6 +30,12 @@
     </item>
     <item>
      <widget class="QTabWidget" name="tabs">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -956,6 +962,9 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::MinimumExpanding</enum>
+      </property>
       <property name="sizeHint" stdset="0">
        <size>
         <width>40</width>
@@ -966,6 +975,12 @@
     </item>
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
@@ -975,7 +990,7 @@
          <x>0</x>
          <y>0</y>
          <width>320</width>
-         <height>1149</height>
+         <height>1152</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -1880,7 +1895,7 @@
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>60</width>
                          <height>16777215</height>
                         </size>
                        </property>
@@ -2555,11 +2570,26 @@ Step (A)</string>
                 </layout>
                </item>
                <item>
+                <widget class="QCheckBox" name="checkBox_thermalEffects">
+                 <property name="text">
+                  <string>Thermal Effects</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_16">
                  <item>
                   <widget class="QLabel" name="lbl_numthreads">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>Num Threads</string>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -2580,8 +2610,16 @@ Step (A)</string>
                   <layout class="QHBoxLayout" name="horizontalLayout_15">
                    <item>
                     <widget class="QLabel" name="lbl_numgpus">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>Num GPUs</string>
+                     </property>
+                     <property name="wordWrap">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -2598,7 +2636,58 @@ Step (A)</string>
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QLabel" name="label_50">
+                     <property name="font">
+                      <font>
+                       <pointsize>10</pointsize>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Num Streams</string>
+                     </property>
+                     <property name="wordWrap">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="spinBox_numStreams">
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>999</number>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_11">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_10">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_2">
@@ -2703,13 +2792,6 @@ Step (A)</string>
                   </spacer>
                  </item>
                 </layout>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBox_thermalEffects">
-                 <property name="text">
-                  <string>Thermal Effects</string>
-                 </property>
-                </widget>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_44">
