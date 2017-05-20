@@ -32,7 +32,7 @@ class PRISMMainWindow : public QMainWindow
     // declare the thread classes as friends so that they can
     // access the protected mutex locks and arrays
     friend class PotentialThread;
-    friend class SMatrixThread;
+//    friend class SMatrixThread;
     friend class ProbeThread;
     friend class FullPRISMCalcThread;
     friend class FullMultisliceCalcThread;
@@ -76,7 +76,7 @@ public slots:
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
-    void calculateSMatrix();
+//    void calculateSMatrix();
     void calculateAll();
     void calculateProbe();
     void updatePotentialImage();

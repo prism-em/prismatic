@@ -39,46 +39,46 @@ void PotentialThread::run(){
     std::cout << "Projected potential calculation complete" << std::endl;
 }
 
-SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
-        parent(_parent), progressbar(_progressbar){
-    // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    this->meta = *(parent->getMetadata());
-}
+//SMatrixThread::SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
+//        parent(_parent), progressbar(_progressbar){
+//    // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
+//    QMutexLocker gatekeeper(&this->parent->dataLock);
+//    this->meta = *(parent->getMetadata());
+//}
 
-void SMatrixThread::run(){
-    QMutexLocker calculationLocker(&this->parent->calculationLock);
-    PRISM::configure(meta);
-    // create parameters
-    PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
-    // calculate potential if it hasn't been already
-    if (!this->parent->potentialIsReady()){
-        // calculate potential
-        PRISM::PRISM01(params);
-	    QMutexLocker gatekeeper(&this->parent->dataLock);
-        // indicate that the potential is ready
+//void SMatrixThread::run(){
+//    QMutexLocker calculationLocker(&this->parent->calculationLock);
+//    PRISM::configure(meta);
+//    // create parameters
+//    PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+//    // calculate potential if it hasn't been already
+//    if (!this->parent->potentialIsReady()){
+//        // calculate potential
+//        PRISM::PRISM01(params);
+//	    QMutexLocker gatekeeper(&this->parent->dataLock);
+//        // indicate that the potential is ready
 
-//        this->parent->potentialArrayExists = true;
-        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
-        this->parent->potentialReceived(params.pot);
-        emit potentialCalculated();
-    } else {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-        std::cout << "Potential already calculated. Using existing result." << std::endl;
-    }
+////        this->parent->potentialArrayExists = true;
+//        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+//        this->parent->potentialReceived(params.pot);
+//        emit potentialCalculated();
+//    } else {
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        params = this->parent->pars;
+//        params.progressbar = progressbar;
+//        std::cout << "Potential already calculated. Using existing result." << std::endl;
+//    }
 
 
-//    // calculate S-Matrix
-    PRISM::PRISM02(params);
-    QMutexLocker gatekeeper(&this->parent->dataLock);
+////    // calculate S-Matrix
+//    PRISM::PRISM02(params);
+//    QMutexLocker gatekeeper(&this->parent->dataLock);
 
-//    // perform copy
-    this->parent->pars = params;
-    this->parent->ScompactReady = true;
-    std::cout << "S-matrix calculation complete" << std::endl;
-}
+////    // perform copy
+//    this->parent->pars = params;
+//    this->parent->ScompactReady = true;
+//    std::cout << "S-matrix calculation complete" << std::endl;
+//}
 
 
 ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar, bool _use_log_scale) :
@@ -127,7 +127,7 @@ void ProbeThread::run(){
         this->parent->pars = params;
 
         // indicate that the S-Matrix is ready
-        this->parent->ScompactReady = true;
+//        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -345,7 +345,7 @@ void FullPRISMCalcThread::run(){
         // perform copy
         this->parent->pars = params;
         // indicate that the potential is ready
-        this->parent->ScompactReady = true;
+//        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -481,7 +481,7 @@ void FullMultisliceCalcThread::run(){
 }
 
 PotentialThread::~PotentialThread(){}
-SMatrixThread::~SMatrixThread(){}
+//SMatrixThread::~SMatrixThread(){}
 ProbeThread::~ProbeThread(){}
 FullPRISMCalcThread::~FullPRISMCalcThread(){}
 FullMultisliceCalcThread::~FullMultisliceCalcThread(){}

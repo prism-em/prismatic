@@ -696,16 +696,16 @@ void PRISMMainWindow::calculatePotential(){
     worker->start();
 }
 
-void PRISMMainWindow::calculateSMatrix(){
-    prism_progressbar *progressbar = new prism_progressbar(this);
-    progressbar->show();
-    SMatrixThread *worker = new SMatrixThread(this, progressbar);
-    worker->meta.toString();
-//    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-    worker->start();
-}
+//void PRISMMainWindow::calculateSMatrix(){
+//    prism_progressbar *progressbar = new prism_progressbar(this);
+//    progressbar->show();
+//    SMatrixThread *worker = new SMatrixThread(this, progressbar);
+//    worker->meta.toString();
+////    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+//    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+//    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+//    worker->start();
+//}
 
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
@@ -1205,8 +1205,8 @@ void PRISMMainWindow::updateAlphaMax(){
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
         std::cout << "saving\n";
-//            QMutexLocker gatekeeper(&outputLock);
-        QMutexLocker gatekeeper(&dataLock);
+            QMutexLocker gatekeeper(&outputLock);
+//        QMutexLocker gatekeeper(&dataLock);
         outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
@@ -1275,7 +1275,7 @@ bool PRISMMainWindow::potentialIsReady(){
 }
 bool PRISMMainWindow::SMatrixIsReady(){
     QMutexLocker gatekeeper(&dataLock);
-    return ScompactReady;
+    return ScompactReady & potentialReady;
 }
 bool PRISMMainWindow::OutputIsReady(){
     QMutexLocker gatekeeper(&dataLock);
@@ -1300,8 +1300,8 @@ void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _p
         potentialArrayExists = true;
     }
     {
-        QMutexLocker gatekeeper(&dataLock);
-        potentialReady = true;
+//        QMutexLocker gatekeeper(&dataLock);
+//        potentialReady = true;
     }
 }
 void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _output){
@@ -1312,8 +1312,8 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
         std::cout <<"output.size() = " << output.size() << std::endl;
     }
     {
-        QMutexLocker gatekeeper(&dataLock);
-        outputReady = true;
+//        QMutexLocker gatekeeper(&dataLock);
+//        outputReady = true;
     }
 }
 
