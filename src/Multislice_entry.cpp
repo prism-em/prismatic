@@ -36,6 +36,10 @@ namespace PRISM{
 			for (auto&i:net_output) i/=prism_pars.meta.numFP;
 			prism_pars.output = net_output;
 		}
+
+		cout <<"pars.imageSize[0]" << prism_pars.imageSize[0] << endl;
+		cout <<"pars.imageSize[1]" << prism_pars.imageSize[1] << endl;
+
 		if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 
 		if (prism_pars.meta.save2DOutput) {
