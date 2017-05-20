@@ -139,13 +139,10 @@ namespace PRISM{
 		    std::cout << "meta.cellDim[1] = " << meta.cellDim[1] << std::endl;
 		    std::cout << "meta.cellDim[2] = " << meta.cellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)meta.cellDim[1], (size_t)meta.cellDim[2]}}, {{2}});
+		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
+		    _imageSize[1] = (size_t)std::max(4.0,  (f_x * round((meta.cellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
 
-			// note that there is a little coordinate "shift" of sorts here. Throughout the code the indexing convention
-		    // is (Z, Y, X) for a 3D coordinate so that the last coordinate changes most rapidly, but for user input it
-		    // seems more natural to input X,Y,Z. This line of code is where that switch occurs
-		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize / f_y)));
-		    _imageSize[1] = (size_t)std::max(4.0,  (f_x * round((meta.cellDim[2]) / meta.realspace_pixelSize / f_x)));
-
+		    std::cout << "(f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
 		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
 		    std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
 //		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
