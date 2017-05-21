@@ -180,6 +180,12 @@ private:
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
+    bool interpYSet;
+    bool pixelSizeYSet;
+    bool probeStepYSet;
+    bool probeTiltYSet;
+    bool minWindowYSet;
+    bool maxWindowYSet;
 
     QImage potentialImage;
     QImage probeImage;

@@ -33,6 +33,12 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     probeSetupReady(false),
     potentialArrayExists(false),
     outputArrayExists(false),
+    interpYSet(false),
+    pixelSizeYSet(false),
+    probeStepYSet(false),
+    probeTiltYSet(false),
+    minWindowYSet(false),
+    maxWindowYSet(false),
     potentialImage(QImage()),
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0)
@@ -323,6 +329,10 @@ void PRISMMainWindow::setInterpolationFactorX(){
 	if (flag){
 		std::cout << "Setting interpolation factor X to " << new_f << std::endl;
 		this->meta->interpolationFactorX = new_f;
+        if (!interpYSet){
+            ui->lineEdit_interpFactor_y->setText(ui->lineEdit_interpFactor_x->text());
+            setInterpolationFactorY();
+        }
 	} else{
         std::cout << "Invalid interpolation factor X input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
 	}
@@ -335,6 +345,9 @@ void PRISMMainWindow::setInterpolationFactorY(){
     if (flag){
         std::cout << "Setting interpolation factor Y to " << new_f << std::endl;
         this->meta->interpolationFactorY = new_f;
+        if (!interpYSet){
+            interpYSet = true;
+        }
     } else{
         std::cout << "Invalid interpolation factor Y input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
     }
@@ -441,6 +454,10 @@ void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     if (val > 0){
         this->meta->realspace_pixelSize[1] = val;
         std::cout << "Setting X pixel size to " << val << " Angstroms" << std::endl;
+        if (!pixelSizeYSet){
+            ui->lineEdit_pixelSizeY->setText(ui->lineEdit_pixelSizeX->text());
+            setPixelSizeY_fromLineEdit();
+        }
         updateAlphaMax();
 
     }
@@ -453,7 +470,9 @@ void PRISMMainWindow::setPixelSizeY_fromLineEdit(){
         this->meta->realspace_pixelSize[0] = val;
         std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
-
+        if (!pixelSizeYSet){
+            pixelSizeYSet = true;
+        }
     }
     resetCalculation();
 }
@@ -578,6 +597,13 @@ void PRISMMainWindow::setprobe_stepX_fromLineEdit(){
     if (val > 0){
         this->meta->probe_stepX = val;
         std::cout << "Setting probe_stepX to " << val << " Angstroms" << std::endl;
+        if (!probeStepYSet){
+            this->ui->lineEdit_probeStepY->setText(this->ui->lineEdit_probeStepX->text());
+            this->meta->probe_stepY = val;
+            std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
+//            setprobe_stepY_fromLineEdit();
+//            this->meta->probe_stepY = val;
+        }
     }
     resetCalculation();
 }
@@ -587,6 +613,9 @@ void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
     if (val > 0){
         this->meta->probe_stepY = val;
         std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
+        if (!probeStepYSet){
+            probeStepYSet = true;
+        }
     }
     resetCalculation();
 }
@@ -633,6 +662,12 @@ void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
     if (val > 0){
         this->meta->probeXtilt = val;
         std::cout << "Setting probe X tilt to " << val << std::endl;
+        if (!probeTiltYSet){
+            ui->lineEdit_probeTiltY->setText(ui->lineEdit_probeTiltX->text());
+            this->meta->probeYtilt = val;
+            std::cout << "Setting probe Y tilt to " << val << std::endl;
+//            setprobe_Ytilt_fromLineEdit();
+        }
     }
     resetCalculation();
 }
@@ -642,6 +677,9 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     if (val > 0){
         this->meta->probeYtilt = val;
         std::cout << "Setting probe Y tilt to " << val << std::endl;
+        if (!probeTiltYSet){
+            probeTiltYSet = true;
+        }
     }
     resetCalculation();
 }
@@ -674,10 +712,18 @@ void PRISMMainWindow::setBatchCPU_fromLineEdit(){
 
 void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMin->text().toDouble();
-    val = std::min(this->meta->scanWindowXMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+//    val = std::min(this->meta->scanWindowXMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    val = std::min(this->meta->scanWindowXMax, val);
+
     if (val > 0){
         this->meta->scanWindowXMin = val;
         std::cout << "Setting scan window X min to " << val << std::endl;
+        if (!minWindowYSet){
+            this->ui->lineEdit_scanWindowYMin->setText(QString::number(val));
+            this->meta->scanWindowYMin = val;
+            std::cout << "Setting scan window Y min to " << val << std::endl;
+//            setscan_WindowYMin_fromLineEdit();
+        }
     }
     ui->lineEdit_scanWindowXMin->setText(QString::number(val));
     resetCalculation();
@@ -685,10 +731,17 @@ void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
 
 void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMax->text().toDouble();
-    val = std::max(this->meta->scanWindowXMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+//    val = std::max(this->meta->scanWindowXMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    val = std::max(this->meta->scanWindowXMin, val);
     if (val > 0){
         this->meta->scanWindowXMax = val;
         std::cout << "Setting scan window X max to " << val << std::endl;
+        if (!maxWindowYSet){
+            this->ui->lineEdit_scanWindowYMax->setText(QString::number(val));
+            this->meta->scanWindowYMax = val;
+            std::cout << "Setting scan window Y max to " << val << std::endl;
+//            setscan_WindowYMax_fromLineEdit();
+        }
     }
     ui->lineEdit_scanWindowXMax->setText(QString::number(val));
     resetCalculation();
@@ -696,10 +749,14 @@ void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
 
 void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMin->text().toDouble();
-    val = std::min(this->meta->scanWindowYMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+//    val = std::min(this->meta->scanWindowYMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    val = std::min(this->meta->scanWindowYMax, val);
     if (val > 0){
         this->meta->scanWindowYMin = val;
         std::cout << "Setting scan window Y min to " << val << std::endl;
+        if (!minWindowYSet){
+            minWindowYSet = true;
+        }
     }
     ui->lineEdit_scanWindowYMin->setText(QString::number(val));
     resetCalculation();
@@ -707,10 +764,14 @@ void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
 
 void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMax->text().toDouble();
-    val = std::max(this->meta->scanWindowYMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+//    val = std::max(this->meta->scanWindowYMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    val = std::max(this->meta->scanWindowYMin, val);
     if (val > 0){
         this->meta->scanWindowYMax = val;
         std::cout << "Setting scan window Y max to " << val << std::endl;
+        if (!maxWindowYSet){
+            maxWindowYSet = true;
+        }
     }
     ui->lineEdit_scanWindowYMax->setText(QString::number(val));
     resetCalculation();
@@ -1022,9 +1083,7 @@ void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION> ar
 }
 
 void PRISMMainWindow::updateOutputImage(){
-//    if (outputReady){
     if (checkoutputArrayExists()){
-	    std::cout << "updateOutputImage " << std::endl;
             {
             QMutexLocker gatekeeper(&outputLock);
 
@@ -1044,19 +1103,13 @@ void PRISMMainWindow::updateOutputImage(){
 }
 
 void PRISMMainWindow::updateOutputFloatImage(){
-//    if (outputReady){
       if (checkoutputArrayExists()){
         QMutexLocker gatekeeper(&outputLock);
 
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_angmin->value();
         size_t max_layer = this->ui->slider_angmax->value();
-        std::cout << "min_layer = " << min_layer << std::endl;
-        std::cout << "max_layer = " << max_layer << std::endl;
-        std::cout <<"output.get_dimk() = " << output.get_dimk() << std::endl;
         outputImage_float = PRISM::zeros_ND<2, PRISM_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
-//        std::cout << "outputImage_float.get_dimj() = " << outputImage_float.get_dimj() << std::endl;
-//         std::cout << "outputImage_float.get_dimi() = " << outputImage_float.get_dimi() << std::endl;
         for (auto j = 0; j < output.get_dimk(); ++j){
             for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
@@ -1140,13 +1193,10 @@ void PRISMMainWindow::updateSlider_lineEdits_max(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
-//    if (outputReady){
-//    QMutexLocker gatekeeper(&dataLock);
+
     if (checkoutputArrayExists()){
         if (val >= this->ui->slider_angmin->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
-            std::cout << "val = " << val << std::endl;
-            std::cout << "scaled_val = " << scaled_val << std::endl;
             this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
         } else {
             this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
@@ -1155,8 +1205,6 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
-//    if (outputReady){
-//    QMutexLocker gatekeeper(&dataLock);
     if (checkoutputArrayExists()){
         if (val <= this->ui->slider_angmax->value()){
             double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
@@ -1237,9 +1285,7 @@ void PRISMMainWindow::updateAlphaMax(){
 
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
-        std::cout << "saving\n";
             QMutexLocker gatekeeper(&outputLock);
-//        QMutexLocker gatekeeper(&dataLock);
         outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
@@ -1326,15 +1372,13 @@ bool PRISMMainWindow::checkpotentialArrayExists(){
 }
 
 void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _potential){
-    std::cout << "receiving potential" << std::endl;
     {
         QMutexLocker gatekeeper(&potentialLock);
         potential = _potential;
         potentialArrayExists = true;
     }
     {
-//        QMutexLocker gatekeeper(&dataLock);
-//        potentialReady = true;
+
     }
 }
 void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _output){
@@ -1342,11 +1386,9 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
         QMutexLocker gatekeeper(&outputLock);
         output = _output;
         outputArrayExists = true;
-        std::cout <<"output.size() = " << output.size() << std::endl;
     }
     {
-//        QMutexLocker gatekeeper(&dataLock);
-//        outputReady = true;
+
     }
 }
 
@@ -1408,8 +1450,6 @@ void PRISMMainWindow::redrawImages(){
                                                                           ui->lbl_image_output->height(),
                                                                           Qt::KeepAspectRatio)));
 
-//    std::cout << "ui->lbl_image_output->width() = " << ui->lbl_image_output->width() << std::endl;
-//    std::cout << "ui->lbl_image_output->height() = " << ui->lbl_image_output->height() << std::endl;
 
 }
 
