@@ -45,6 +45,7 @@ public:
 	bool OutputIsReady();
     bool checkoutputArrayExists();
     bool checkpotentialArrayExists();
+    void updateUCdims(const std::string& filename);
     ~PRISMMainWindow();
 
 public slots:

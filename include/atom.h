@@ -7,10 +7,7 @@
 #define PRISM_ATOM_H
 #include <string>
 #include <vector>
-//#include <stdlib.h>
-//#include <sstream>
-//#include <fstream>
-//#include <stdexcept>
+#include <array>
 #include <iostream>
 struct atom{
 	double x,y,z;
@@ -27,10 +24,13 @@ namespace PRISM {
 	std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms);
 
 	std::vector<atom> readAtoms(const std::string& filename);
+	std::array<double, 3> peekDims(const std::string& filename);
+
+	std::array<double, 3> peekDims_xyz(const std::string& filename);
 
 	std::vector<atom> readAtoms_csv(const std::string& filename);
 
-	std::vector<atom> readAtoms_XYZ(const std::string& filename);
+	std::vector<atom> readAtoms_xyz(const std::string& filename);
 
 }
 #endif //PRISM_ATOM_H

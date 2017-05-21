@@ -9,11 +9,13 @@
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <array>
 //#include "PRISM_entry.h"
 #include "configure.h"
 #include "prism_qthreads.h"
 #include "prism_progressbar.h"
 #include "utility.h"
+#include "atom.h"
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -348,8 +350,26 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
         ui->btn_go->setEnabled(true);
         ui->btn_calcPotential->setEnabled(true);
         this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename.toStdString() + std::string(")"))));
+        updateUCdims(filename.toStdString());
     }
     resetCalculation();
+}
+
+void PRISMMainWindow::updateUCdims(const std::string& filename){
+    // get the unit cell dimensions from the input file (if possible)
+    std::array<double, 3> uc_dims = PRISM::peekDims(filename);
+
+    if (uc_dims[0]>0){
+        // update gui
+        ui->lineEdit_cellDimX->setText(QString::number(uc_dims[0]));
+        ui->lineEdit_cellDimY->setText(QString::number(uc_dims[1]));
+        ui->lineEdit_cellDimZ->setText(QString::number(uc_dims[2]));
+
+        // move cursor of the cell dimension line edits back to 0 so they are easy to read
+        ui->lineEdit_cellDimX->setCursorPosition(0);
+        ui->lineEdit_cellDimY->setCursorPosition(0);
+        ui->lineEdit_cellDimZ->setCursorPosition(0);
+    }
 }
 
 void PRISMMainWindow::setFilenameOutput_fromDialog(){

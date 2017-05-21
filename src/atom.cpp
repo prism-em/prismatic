@@ -4,6 +4,7 @@
 // If you use PRISM, we ask that you cite the following papers:
 
 #include "atom.h"
+#include <array>
 #include <algorithm>
 #include <string>
 #include <stdlib.h>
@@ -137,6 +138,44 @@ namespace PRISM {
 
 		return atoms;
 	};
+
+	std::array<double, 3> peekDims_xyz(const std::string& filename){
+		std::ifstream f(filename);
+		if (!f)throw std::runtime_error("Unable to open file.\n");
+		std::string line;
+		std::string token;
+		size_t line_num = 0;
+		size_t atom_count = 0;
+		if (!std::getline(f,line)) throw std::runtime_error("Error reading comment line.\n");
+		if (!std::getline(f,line)) throw std::runtime_error("Error reading unit cell params.\n");
+		double a,b,c; // unit cell params
+		{
+			std::stringstream ss(line);
+			if (!(ss >> a))
+				throw std::domain_error("Bad input data for unit cell dimension a.\n");
+			if (!(ss >> b))
+				throw std::domain_error("Bad input data for unit cell dimension b.\n");
+			if (!(ss >> c))
+				throw std::domain_error("Bad input data for unit cell dimension c.\n");
+		}
+		return {a,b,c};
+	}
+
+	std::array<double, 3> peekDims(const std::string& filename){
+		// retrieve the cell dimensions from the input file, if possible
+
+		std::string::size_type idx;
+		idx = filename.rfind('.');
+		if(idx != std::string::npos) {
+			std::string ext = filename.substr(idx + 1);
+			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+			if (ext == "xyz") {
+				return peekDims_xyz(filename);
+			}
+		}
+		return {};
+	}
 
 	std::vector<atom> readAtoms(const std::string& filename){
 //		constexpr std::string supported_filetypes[] = {".csv",".xyz"};
