@@ -37,7 +37,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -3007,34 +3007,40 @@ Step (A)</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>lineEdit_contrastPotMax</tabstop>
+  <tabstop>lineEdit_slicemin</tabstop>
+  <tabstop>slider_slicemin</tabstop>
+  <tabstop>lineEdit_contrastPotMin</tabstop>
+  <tabstop>lineEdit_slicemax</tabstop>
+  <tabstop>slider_slicemax</tabstop>
   <tabstop>btn_calculateProbe</tabstop>
   <tabstop>lineEdit_probeX</tabstop>
   <tabstop>lineEdit_probeY</tabstop>
+  <tabstop>checkBox_sqrtIntensity2</tabstop>
+  <tabstop>checkBox_log</tabstop>
+  <tabstop>checkBox_zoomProbe</tabstop>
   <tabstop>lineEdit_angmin</tabstop>
-  <tabstop>lineEdit_angmax</tabstop>
+  <tabstop>slider_angmin</tabstop>
   <tabstop>lineEdit_contrast_outputMin</tabstop>
+  <tabstop>lineEdit_angmax</tabstop>
+  <tabstop>slider_angmax</tabstop>
   <tabstop>lineEdit_contrast_outputMax</tabstop>
   <tabstop>lineEdit_saveOutputImage</tabstop>
-  <tabstop>slider_slicemax</tabstop>
-  <tabstop>checkBox_log</tabstop>
-  <tabstop>slider_angmin</tabstop>
-  <tabstop>checkBox_zoomProbe</tabstop>
-  <tabstop>tabs</tabstop>
-  <tabstop>slider_slicemin</tabstop>
-  <tabstop>checkBox_sqrtIntensity2</tabstop>
-  <tabstop>slider_angmax</tabstop>
-  <tabstop>checkBox_sqrtIntensity1</tabstop>
-  <tabstop>scrollArea</tabstop>
   <tabstop>btn_saveOutputImage</tabstop>
-  <tabstop>btn_atomsfile_browse</tabstop>
   <tabstop>btn_saveCoordinates</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>btn_atomsfile_browse</tabstop>
+  <tabstop>btn_go</tabstop>
+  <tabstop>checkBox_sqrtIntensity1</tabstop>
+  <tabstop>lineEdit_contrastPotMax</tabstop>
+  <tabstop>tabs</tabstop>
   <tabstop>lineEdit_cellDimX</tabstop>
   <tabstop>lineEdit_cellDimY</tabstop>
   <tabstop>lineEdit_cellDimZ</tabstop>
   <tabstop>lineEdit_tileX</tabstop>
   <tabstop>lineEdit_tileY</tabstop>
   <tabstop>lineEdit_tileZ</tabstop>
+  <tabstop>lineEdit_pixelSizeX</tabstop>
+  <tabstop>lineEdit_pixelSizeY</tabstop>
   <tabstop>lineEdit_E0</tabstop>
   <tabstop>lineEdit_potbound</tabstop>
   <tabstop>lineEdit_probeSemiangle</tabstop>
@@ -3046,29 +3052,30 @@ Step (A)</string>
   <tabstop>lineEdit_sliceThickness</tabstop>
   <tabstop>lineEdit_detectorAngle</tabstop>
   <tabstop>lineEdit_interpFactor_x</tabstop>
+  <tabstop>lineEdit_interpFactor_y</tabstop>
   <tabstop>lineEdit_probeStepX</tabstop>
+  <tabstop>lineEdit_probeStepY</tabstop>
   <tabstop>lineEdit_probeTiltX</tabstop>
+  <tabstop>lineEdit_probeTiltY</tabstop>
   <tabstop>lineEdit_scanWindowXMin</tabstop>
   <tabstop>lineEdit_scanWindowXMax</tabstop>
-  <tabstop>lineEdit_interpFactor_y</tabstop>
-  <tabstop>lineEdit_probeStepY</tabstop>
-  <tabstop>lineEdit_probeTiltY</tabstop>
   <tabstop>lineEdit_scanWindowYMin</tabstop>
   <tabstop>lineEdit_scanWindowYMax</tabstop>
   <tabstop>lineEdit_outputfile</tabstop>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
   <tabstop>checkBox_4D</tabstop>
+  <tabstop>checkBox_thermalEffects</tabstop>
   <tabstop>spinBox_numThreads</tabstop>
   <tabstop>spinBox_numGPUs</tabstop>
+  <tabstop>spinBox_numStreams</tabstop>
+  <tabstop>lineEdit_batchCPU</tabstop>
+  <tabstop>lineEdit_batchGPU</tabstop>
+  <tabstop>comboBox_streamMode</tabstop>
   <tabstop>radBtn_PRISM</tabstop>
   <tabstop>radBtn_Multislice</tabstop>
   <tabstop>btn_reset</tabstop>
   <tabstop>btn_calcPotential</tabstop>
-  <tabstop>btn_go</tabstop>
-  <tabstop>lineEdit_slicemin</tabstop>
-  <tabstop>lineEdit_contrastPotMin</tabstop>
-  <tabstop>lineEdit_slicemax</tabstop>
  </tabstops>
  <resources>
   <include location="prism_resources.qrc"/>

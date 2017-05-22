@@ -98,8 +98,8 @@ void ProbeThread::run(){
 
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
+    PRISM::configure(meta);
     if (!this->parent->potentialIsReady()){
-        PRISM::configure(meta);
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         PRISM::PRISM01(params);
         std::cout <<"Potential Calculated" << std::endl;

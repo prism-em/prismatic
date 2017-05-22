@@ -1365,8 +1365,9 @@ bool PRISMMainWindow::potentialIsReady(){
     return potentialReady;
 }
 bool PRISMMainWindow::SMatrixIsReady(){
-    QMutexLocker gatekeeper(&dataLock);
-    return ScompactReady & potentialReady;
+    return false;
+//    QMutexLocker gatekeeper(&dataLock);
+//    return ScompactReady & potentialReady;
 }
 bool PRISMMainWindow::OutputIsReady(){
     QMutexLocker gatekeeper(&dataLock);
@@ -1414,7 +1415,7 @@ void PRISMMainWindow::enableOutputWidgets(){
     ui->lineEdit_angmax->setEnabled(true);
 }
 void PRISMMainWindow::resetCalculation(){
-//	QMutexLocker gatekeeper(&calculationLock);
+//    QMutexLocker gatekeeper2(&calculationLock);
     QMutexLocker gatekeeper(&dataLock);
     std::cout << "Resetting Calculation" << std::endl;
     outputReady     = false;
