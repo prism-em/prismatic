@@ -431,6 +431,7 @@ namespace PRISM{
 //					 check memory usage on the GPU
 					std::lock_guard<mutex> lock(PRISM::mem_lock);
 					size_t free_mem, total_mem;
+					free_mem=total_mem=0;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
 //					cout << "max_mem = " << pars.max_mem << '\n';
@@ -837,6 +838,7 @@ namespace PRISM{
 //					 check memory usage on the GPU
 					std::lock_guard<mutex> lock(PRISM::mem_lock);
 					size_t free_mem, total_mem;
+					free_mem=total_mem=0;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
 //					cout << "max_mem = " << pars.max_mem << endl;

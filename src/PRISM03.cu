@@ -424,6 +424,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// guarantee the shared memory is initialized to 0 so we can accumulate without bounds checking
 //		if (threadIdx.x < numberBeams) {
 		scaled_values[t_id] = make_cuFloatComplex(0, 0);
+//		scaled_values[t_id] = make_cuFloatComplex(1, 2);
 		__syncthreads();
 //		}
 
@@ -539,10 +540,13 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			}
 		// write out the result
 		if (beam_idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[array_offset];
+//		if (beam_idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(1, 2);
 		// increment
 		array_idx+=gridSize_alongArray;
 			__syncthreads();
 	}
+		if (beam_idx == 0)psi_ds[0] = scaled_values[array_offset];
+
 }
 
 
@@ -1046,6 +1050,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //					 check memory usage on the GPU
 					std::lock_guard<mutex> lock(PRISM::mem_lock);
 					size_t free_mem, total_mem;
+					free_mem=total_mem=0;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
 //					cout << "max_mem = " << pars.max_mem << endl;
@@ -1452,6 +1457,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //					 check memory usage on the GPU
 					std::lock_guard<mutex> lock(PRISM::mem_lock);
 					size_t free_mem, total_mem;
+					free_mem=total_mem=0;
 					cudaErrchk(cudaMemGetInfo(&free_mem, &total_mem));
 					pars.max_mem = std::max(total_mem - free_mem, pars.max_mem);
 					cout << "max_mem = " << pars.max_mem << endl;
@@ -1909,7 +1915,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //				cout << "phaseCoeffs_ds[" << i << "] = " << ans << endl;
 //			}
 //		}
-
+//
 //		if (ax==0 & ay==0){
 //			long ans;
 //			for (auto i = 0; i < 10; ++i){
@@ -1940,6 +1946,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		           (long) pars.imageSizeOutput[0];
 		ystart2 = ((long) pars.imageSizeOutput[0] + (y1 + ysplit % (long) pars.imageSizeOutput[0])) %
 		           (long) pars.imageSizeOutput[0];
+
+
 
 		cudaErrchk(cudaMemcpy2DAsync(permuted_Scompact_ds,
 		                             pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT),
@@ -1994,6 +2002,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 
 		resetIndices <<<(pars.imageSizeReduce[1] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				x_ds, pars.imageSizeReduce[1]);
+
+
+
+
 		// Choose a good launch configuration
 		// Heuristically use 2^p / 2 as the block size where p is the first power of 2 greater than the number of elements to work on.
 		// This balances having enough work per thread and enough blocks without having so many blocks that the shared memory doesn't last long
@@ -2129,11 +2141,19 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
                             permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
                             pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				default :
-					scaleReduceS<2, 256> << < grid, block, smem, stream >> > (
+					scaleReduceS<1, 512> << < grid, block, smem, stream >> > (
                             permuted_Scompact_ds, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.imageSizeReduce[0],
                             pars.imageSizeReduce[1], pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 			}
 		}
+
+//		if (ax==0 & ay==0){
+//			std::complex<PRISM_FLOAT_PRECISION> ans;
+//			for (auto i = 0; i < 10; ++i){
+//				cudaMemcpy(&ans, psi_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//				cout << "psi_ds[" << i << "] = " << ans << endl;
+//			}
+//		}
 
 		// final fft
 		cufftErrchk(PRISM_CUFFT_EXECUTE(cufft_plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));

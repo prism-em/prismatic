@@ -184,6 +184,10 @@ namespace PRISM{
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
 
 #ifdef PRISM_ENABLE_GPU
+#ifndef NDEBUG
+		// for monitoring memory consumption on GPU
+	    max_mem = 0;
+#endif //NDEBUG
 			// query GPU properties
 		    int nDevices;
 		    cudaGetDeviceCount(&nDevices);
