@@ -41,7 +41,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     maxWindowYSet(false),
     potentialImage(QImage()),
     currently_calculated_X(0.0),
-    currently_calculated_Y(0.0)
+    currently_calculated_Y(0.0),
+    pixelSize({1,1})
 {
     qRegisterMetaType<PRISM::Array2D< PRISM_FLOAT_PRECISION> >("PRISM::Array2D<PRISM_FLOAT_PRECISION>");
     qRegisterMetaType<PRISM::Array3D< PRISM_FLOAT_PRECISION> >("PRISM::Array3D<PRISM_FLOAT_PRECISION>");
@@ -950,8 +951,8 @@ void PRISMMainWindow::updatePotentialDisplay(){
         probeImage = potentialImage;
         PRISM_FLOAT_PRECISION xc, yc;
         std::cout <<"currently_calculated_X = " <<currently_calculated_X << std::endl;
-        xc = currently_calculated_X / pars.pixelSize[1];
-        yc = currently_calculated_Y / pars.pixelSize[0];
+        xc = currently_calculated_X / pixelSize[1];
+        yc = currently_calculated_Y / pixelSize[0];
 
         long xc_im, yc_im;
         xc_im = (xc / pars.imageSize[1]) * probeImage.height();

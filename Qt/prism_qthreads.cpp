@@ -121,13 +121,13 @@ void ProbeThread::run(){
     if (!this->parent->SMatrixIsReady()){
         PRISM::PRISM02(params);
     {
-        std::cout << "S-Matrix finished calculating." << std::endl;
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        // perform copy
-        this->parent->pars = params;
+//        std::cout << "S-Matrix finished calculating." << std::endl;
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        // perform copy
+//        this->parent->pars = params;
 
-        // indicate that the S-Matrix is ready
-        this->parent->ScompactReady = true;
+//        // indicate that the S-Matrix is ready
+//        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -391,6 +391,7 @@ void FullPRISMCalcThread::run(){
         QMutexLocker gatekeeper(&this->parent->outputLock);
         this->parent->detectorAngles = params.detectorAngles;
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
+        this->parent->pixelSize = params.pixelSize;
 
 //        this->parent->outputArrayExists = true;
 
@@ -469,6 +470,7 @@ void FullMultisliceCalcThread::run(){
         QMutexLocker gatekeeper(&this->parent->outputLock);
 	    this->parent->detectorAngles = params.detectorAngles;
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
+        this->parent->pixelSize = params.pixelSize;
 
 //        this->parent->outputArrayExists = true;
 //        PRISM::Array3D<PRISM_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISM_FLOAT_PRECISION>(

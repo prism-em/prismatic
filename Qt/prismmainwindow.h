@@ -166,6 +166,7 @@ private:
 //    PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
     PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
     PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
+    std::vector<PRISM_FLOAT_PRECISION> pixelSize;
 
     QMutex potentialLock;
 //    QMutex sMatrixLock;
