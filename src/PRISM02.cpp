@@ -338,14 +338,18 @@ namespace PRISM {
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 
-			cout << "Launching thread #" << t << " to compute beams\n";
+            cout << "Launching thread #" << t << " to compute beams\n";
             workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_BEAMS]() {
 
 
-	            // allocate array for psi just once per thread
+                // allocate array for psi just once per thread
 //				Array2D<complex<PRISM_FLOAT_PRECISION> > psi = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >(
 //						{{pars.imageSize[0], pars.imageSize[1]}});
-	            Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.imageSize[0]*pars.imageSize[1] * pars.meta.batch_size_CPU}});
+                size_t currentBeam, stopBeam;
+                currentBeam = stopBeam = 0;
+                if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU)) {
+                    Array1D<complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >(
+                            {{pars.imageSize[0] * pars.imageSize[1] * pars.meta.batch_size_CPU}});
 //				PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 //				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 //				                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
@@ -356,57 +360,64 @@ namespace PRISM {
 //				                                                      FFTW_BACKWARD, FFTW_MEASURE);
 
 
-	            // setup batch FFTW parameters
-	            const int rank = 2;
-	            int n[] = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
-	            const int howmany = pars.meta.batch_size_CPU;
-	            int idist = n[0]*n[1];
-	            int odist = n[0]*n[1];
-	            int istride = 1;
-	            int ostride = 1;
-	            int *inembed = n;
-	            int *onembed = n;
+                    // setup batch FFTW parameters
+                    const int rank = 2;
+                    int n[] = {(int) pars.imageSize[0], (int) pars.imageSize[1]};
+                    const int howmany = pars.meta.batch_size_CPU;
+                    int idist = n[0] * n[1];
+                    int odist = n[0] * n[1];
+                    int istride = 1;
+                    int ostride = 1;
+                    int *inembed = n;
+                    int *onembed = n;
 
-	            unique_lock<mutex> gatekeeper(fftw_plan_lock);
-	            PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
-	                                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
-	                                                                     istride, idist,
-	                                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
-	                                                                     ostride, odist,
-	                                                                     FFTW_FORWARD, FFTW_MEASURE);
-	            PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
-	                                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
-	                                                                     istride, idist,
-	                                                                     reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
-	                                                                     ostride, odist,
-	                                                                     FFTW_BACKWARD, FFTW_MEASURE);
-				gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
-				size_t currentBeam, stopBeam;
-                currentBeam=stopBeam=0;
+                    unique_lock<mutex> gatekeeper(fftw_plan_lock);
+                    PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+                                                                             reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+                                                                             inembed,
+                                                                             istride, idist,
+                                                                             reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+                                                                             onembed,
+                                                                             ostride, odist,
+                                                                             FFTW_FORWARD, FFTW_MEASURE);
+                    PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+                                                                             reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+                                                                             inembed,
+                                                                             istride, idist,
+                                                                             reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+                                                                             onembed,
+                                                                             ostride, odist,
+                                                                             FFTW_BACKWARD, FFTW_MEASURE);
+                    gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
 //				while (getWorkID(pars, currentBeam, stopBeam)) { // synchronously get work assignment
-                while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU)) { // synchronously get work assignment
-                    while (currentBeam < stopBeam) {
-	                    if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
-		                    cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
-	                    }
+                    do { // synchronously get work assignment
+                        while (currentBeam < stopBeam) {
+                            if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU |
+                                currentBeam == 100) {
+                                cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
+                            }
 
-						// re-zero psi each iteration
-						memset((void *) &psi_stack[0], 0, psi_stack.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
-//						propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
-	                    propagatePlaneWave_CPU_batch(pars, currentBeam, stopBeam, psi_stack, plan_forward, plan_inverse, fftw_plan_lock);
+                            // re-zero psi each iteration
+                            memset((void *) &psi_stack[0], 0,
+                                   psi_stack.size() * sizeof(complex<PRISM_FLOAT_PRECISION>));
+//							propagatePlaneWave_CPU(pars, currentBeam, psi, plan_forward, plan_inverse, fftw_plan_lock);
+                            propagatePlaneWave_CPU_batch(pars, currentBeam, stopBeam, psi_stack, plan_forward,
+                                                         plan_inverse, fftw_plan_lock);
 #ifdef PRISM_BUILDING_GUI
-                        pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
+                            pars.progressbar->signalScompactUpdate(currentBeam, pars.numberBeams);
 #endif
-                        currentBeam=stopBeam;
-					}
-				}
-				// clean up
-				gatekeeper.lock();
-				PRISM_FFTW_DESTROY_PLAN(plan_forward);
-				PRISM_FFTW_DESTROY_PLAN(plan_inverse);
-				gatekeeper.unlock();
-			}));
-		}
+                            currentBeam = stopBeam;
+                        }
+                    } while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU));
+                    // clean up
+                    gatekeeper.lock();
+                    PRISM_FFTW_DESTROY_PLAN(plan_forward);
+                    PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+                    gatekeeper.unlock();
+                }
+            }));
+        }
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
 		PRISM_FFTW_CLEANUP_THREADS();
