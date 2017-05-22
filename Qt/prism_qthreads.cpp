@@ -22,12 +22,14 @@ parent(_parent), progressbar(_progressbar){
 void PotentialThread::run(){
     // create parameters
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
-    QMutexLocker calculationLocker(&this->parent->calculationLock);
-    PRISM::configure(meta);
-    // calculate potential
-    PRISM::PRISM01(params);
-    this->parent->potentialReceived(params.pot);
-    emit potentialCalculated();
+    {
+        QMutexLocker calculationLocker(&this->parent->calculationLock);
+        PRISM::configure(meta);
+        // calculate potential
+        PRISM::PRISM01(params);
+        this->parent->potentialReceived(params.pot);
+        emit potentialCalculated();
+    }
     // acquire the mutex so we can safely copy to the GUI copy of the potential
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
@@ -103,10 +105,9 @@ void ProbeThread::run(){
         std::cout <<"Potential Calculated" << std::endl;
         {
             QMutexLocker gatekeeper(&this->parent->dataLock);
-    //        params_multi = params;
             this->parent->pars = params;
         }
-    //        this->parent->potentialArrayExists = true;
+//            this->parent->potentialArrayExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
         this->parent->potentialReceived(params.pot);
         emit potentialCalculated();
@@ -126,7 +127,7 @@ void ProbeThread::run(){
         this->parent->pars = params;
 
         // indicate that the S-Matrix is ready
-//        this->parent->ScompactReady = true;
+        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -345,7 +346,7 @@ void FullPRISMCalcThread::run(){
         // perform copy
         this->parent->pars = params;
         // indicate that the potential is ready
-//        this->parent->ScompactReady = true;
+        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);

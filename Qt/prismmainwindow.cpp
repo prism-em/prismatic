@@ -236,42 +236,42 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
 
     // connect signals and slots
-    connect(this->ui->lineEdit_interpFactor_x,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorX()));
-    connect(this->ui->lineEdit_interpFactor_y,SIGNAL(editingFinished()),this,SLOT(setInterpolationFactorY()));
-    connect(this->ui->lineEdit_outputfile,SIGNAL(editingFinished()),this,SLOT(setFilenameOutput_fromLineEdit()));
+    connect(this->ui->lineEdit_interpFactor_x,SIGNAL(textEdited(QString)),this,SLOT(setInterpolationFactorX()));
+    connect(this->ui->lineEdit_interpFactor_y,SIGNAL(textEdited(QString)),this,SLOT(setInterpolationFactorY()));
+    connect(this->ui->lineEdit_outputfile,SIGNAL(textEdited(QString)),this,SLOT(setFilenameOutput_fromLineEdit()));
 	connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
     connect(this->ui->spinBox_numStreams, SIGNAL(valueChanged(int)), this, SLOT(setNumStreams(const int&)));
-    connect(this->ui->lineEdit_probeSemiangle, SIGNAL(editingFinished()), this, SLOT(setprobeSemiangle_fromLineEdit()));
-    connect(this->ui->lineEdit_pixelSizeX, SIGNAL(editingFinished()), this, SLOT(setPixelSizeX_fromLineEdit()));
-    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setPixelSizeY_fromLineEdit()));
+    connect(this->ui->lineEdit_probeSemiangle, SIGNAL(textEdited(QString)), this, SLOT(setprobeSemiangle_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeX, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeX_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeY_fromLineEdit()));
 
-    connect(this->ui->lineEdit_batchCPU, SIGNAL(editingFinished()), this, SLOT(setBatchCPU_fromLineEdit()));
-    connect(this->ui->lineEdit_batchGPU, SIGNAL(editingFinished()), this, SLOT(setBatchGPU_fromLineEdit()));
-    connect(this->ui->lineEdit_potbound, SIGNAL(editingFinished()), this, SLOT(setPotBound_fromLineEdit()));
-    connect(this->ui->lineEdit_sliceThickness, SIGNAL(editingFinished()), this, SLOT(setSliceThickness_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(setCellDimX_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(setCellDimY_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(setCellDimZ_fromLineEdit()));
-    connect(this->ui->lineEdit_tileX, SIGNAL(editingFinished()), this, SLOT(setTileX_fromLineEdit()));
-    connect(this->ui->lineEdit_tileY, SIGNAL(editingFinished()), this, SLOT(setTileY_fromLineEdit()));
-    connect(this->ui->lineEdit_tileZ, SIGNAL(editingFinished()), this, SLOT(setTileZ_fromLineEdit()));
-    connect(this->ui->lineEdit_randomSeed, SIGNAL(editingFinished()), this, SLOT(setRandomSeed_fromLineEdit()));
-    connect(this->ui->lineEdit_probeDefocus, SIGNAL(editingFinished()), this, SLOT(setprobe_defocus_fromLineEdit()));
-    connect(this->ui->lineEdit_C3, SIGNAL(editingFinished()), this, SLOT(setprobe_C3_fromLineEdit()));
-    connect(this->ui->lineEdit_C5, SIGNAL(editingFinished()), this, SLOT(setprobe_C5_fromLineEdit()));
-    connect(this->ui->lineEdit_detectorAngle, SIGNAL(editingFinished()), this, SLOT(setDetector_angle_step_fromLineEdit()));
-    connect(this->ui->lineEdit_probeTiltX, SIGNAL(editingFinished()), this, SLOT(setprobe_Xtilt_fromLineEdit()));
-    connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobe_Ytilt_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepX, SIGNAL(editingFinished()), this, SLOT(setprobe_stepX_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepY, SIGNAL(editingFinished()), this, SLOT(setprobe_stepY_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMin_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowXMax_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMin_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMax_fromLineEdit()));
-    connect(this->ui->lineEdit_E0, SIGNAL(editingFinished()), this, SLOT(setE0_fromLineEdit()));
+    connect(this->ui->lineEdit_batchCPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchCPU_fromLineEdit()));
+    connect(this->ui->lineEdit_batchGPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchGPU_fromLineEdit()));
+    connect(this->ui->lineEdit_potbound, SIGNAL(textEdited(QString)), this, SLOT(setPotBound_fromLineEdit()));
+    connect(this->ui->lineEdit_sliceThickness, SIGNAL(textEdited(QString)), this, SLOT(setSliceThickness_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(textEdited(QString)), this, SLOT(setCellDimX_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(textEdited(QString)), this, SLOT(setCellDimY_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(textEdited(QString)), this, SLOT(setCellDimZ_fromLineEdit()));
+    connect(this->ui->lineEdit_tileX, SIGNAL(textEdited(QString)), this, SLOT(setTileX_fromLineEdit()));
+    connect(this->ui->lineEdit_tileY, SIGNAL(textEdited(QString)), this, SLOT(setTileY_fromLineEdit()));
+    connect(this->ui->lineEdit_tileZ, SIGNAL(textEdited(QString)), this, SLOT(setTileZ_fromLineEdit()));
+    connect(this->ui->lineEdit_randomSeed, SIGNAL(textEdited(QString)), this, SLOT(setRandomSeed_fromLineEdit()));
+    connect(this->ui->lineEdit_probeDefocus, SIGNAL(textEdited(QString)), this, SLOT(setprobe_defocus_fromLineEdit()));
+    connect(this->ui->lineEdit_C3, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C3_fromLineEdit()));
+    connect(this->ui->lineEdit_C5, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C5_fromLineEdit()));
+    connect(this->ui->lineEdit_detectorAngle, SIGNAL(textEdited(QString)), this, SLOT(setDetector_angle_step_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltX, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Xtilt_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltY, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Ytilt_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepX, SIGNAL(textEdited(QString)), this, SLOT(setprobe_stepX_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepY, SIGNAL(textEdited(QString)), this, SLOT(setprobe_stepY_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMax_fromLineEdit()));
+    connect(this->ui->lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
@@ -287,8 +287,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max_ang(int)));
 	connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
 	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
-	connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
-	connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
+    connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
+    connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
 //    connect(this->ui->lineEdit_angmin, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
 //    connect(this->ui->lineEdit_angmax, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
@@ -787,7 +787,7 @@ void PRISMMainWindow::calculatePotential(){
     progressbar->show();
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
-    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePo()));
+    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -937,6 +937,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
                     potentialImage.setPixel(j, i, qRgba(val,val,val,255));
                 }
             }
+
 
         QImage potentialImage_tmp = potentialImage.scaled(ui->lbl_image_potential->width(),
                                ui->lbl_image_potential->height(),
@@ -1389,7 +1390,8 @@ void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _p
         potentialArrayExists = true;
     }
     {
-
+        QMutexLocker gatekeeper(&dataLock);
+        potentialReady = true;
     }
 }
 void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _output){
@@ -1414,7 +1416,7 @@ void PRISMMainWindow::enableOutputWidgets(){
 void PRISMMainWindow::resetCalculation(){
 //	QMutexLocker gatekeeper(&calculationLock);
     QMutexLocker gatekeeper(&dataLock);
-    std::cout << "Resetting Calculation" << std::endl;\
+    std::cout << "Resetting Calculation" << std::endl;
     outputReady     = false;
     ScompactReady   = false;
     potentialReady  = false;
