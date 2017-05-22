@@ -1100,8 +1100,8 @@ void PRISMMainWindow::updateOutputImage(){
             this->ui->slider_angmin->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_angmax->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_angmax->setValue(detectorAngles.size() - 1);
-	        this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0]));
-	        this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1]));
+            this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0] - (detectorAngles[1] - detectorAngles[0])/2));
+            this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1] - (detectorAngles[1] - detectorAngles[0])/2));
         }
     updateOutputFloatImage();
 }
@@ -1167,13 +1167,20 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
 //    if (outputReady){
     if (checkoutputArrayExists()){
-        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
+//        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
+//        (detectorAngles[1]-detectorAngles[0]);
+//        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
+//        (detectorAngles[1]-detectorAngles[0]);
+        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble()) /
         (detectorAngles[1]-detectorAngles[0]);
-        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
+        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble()) /
         (detectorAngles[1]-detectorAngles[0]);
+        std::cout << "minval = " << (int)std::round(minval) << std::endl;
+        std::cout << "maxval = " << (int)std::round(maxval) << std::endl;
+
         this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
                                                      this->ui->slider_angmax->value()));
-        this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval),
+        this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval) - 1,
                                                      this->ui->slider_angmin->value()));
         updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
         updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
@@ -1200,7 +1207,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 
     if (checkoutputArrayExists()){
         if (val >= this->ui->slider_angmin->value()){
-            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]) + (detectorAngles[1] - detectorAngles[0])/2;
             this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
         } else {
             this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
@@ -1211,7 +1218,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
 void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
     if (checkoutputArrayExists()){
         if (val <= this->ui->slider_angmax->value()){
-            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]);
+            double scaled_val = detectorAngles[0] + val * (detectorAngles[1] - detectorAngles[0]) - (detectorAngles[1] - detectorAngles[0])/2;
             this->ui->lineEdit_angmin->setText(QString::number(scaled_val));
         } else {
             this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
