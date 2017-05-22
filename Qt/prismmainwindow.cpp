@@ -1101,7 +1101,7 @@ void PRISMMainWindow::updateOutputImage(){
             this->ui->slider_angmax->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_angmax->setValue(detectorAngles.size() - 1);
             this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0] - (detectorAngles[1] - detectorAngles[0])/2));
-            this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1] - (detectorAngles[1] - detectorAngles[0])/2));
+            this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1] + (detectorAngles[1] - detectorAngles[0])/2));
         }
     updateOutputFloatImage();
 }
