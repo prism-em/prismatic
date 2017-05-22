@@ -565,6 +565,182 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	}
 }
 
+
+	template <size_t BlockSize_numBeams, size_t BlockSize_alongArray>
+	__global__ void scaleReduceS(const cuDoubleComplex *permuted_Scompact_d,
+	                             const cuDoubleComplex *phaseCoeffs_ds,
+	                             cuDoubleComplex *psi_ds,
+	                             const long *z_ds,
+	                             const long* y_ds,
+	                             const size_t numberBeams,
+	                             const size_t dimk_S,
+	                             const size_t dimj_S,
+	                             const size_t dimj_psi,
+	                             const size_t dimi_psi) {
+		// This code is heavily modeled after Mark Harris's presentation on optimized parallel reduction
+		// http://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_website/projects/reduction/doc/reduction.pdf
+
+		// shared memory
+		__shared__ cuDoubleComplex scaled_values[BlockSize_numBeams * BlockSize_alongArray]; // for holding the values to reduce
+		extern __shared__ cuDoubleComplex coeff_cache_double[]; // cache the coefficients to prevent repeated global reads
+
+		// for the permuted Scompact matrix, the x direction runs along the number of beams, leaving y and z to represent the
+		//	2D array of reduced values in psi
+
+		int beam_idx    = threadIdx.x; // index along the beam direction, there is only ever one block along this dimension
+		int array_idx   = threadIdx.y + blockDim.y * blockIdx.y; // index along the (flattened) array direction
+		int t_id        = threadIdx.x + BlockSize_numBeams*threadIdx.y; // linear index of the thread within the block
+		size_t array_offset = threadIdx.y * BlockSize_numBeams; // offset of where each block of shared memory begins for each reduction job
+//		size_t t_id = array_offset + beam_idx;
+		// determine grid size for stepping through the array
+
+		int gridSize_alongArray = gridDim.y * blockDim.y;
+
+		// guarantee the shared memory is initialized to 0 so we can accumulate without bounds checking
+		scaled_values[t_id] = make_cuDoubleComplex(0,0);
+		__syncthreads();
+
+		// read the coefficients into shared memory once
+		size_t offset_phase_idx = 0;
+		const size_t inc = BlockSize_numBeams * BlockSize_alongArray;
+		while (offset_phase_idx < numberBeams){
+			if (t_id < numberBeams){
+				coeff_cache_double[t_id] = phaseCoeffs_ds[t_id + offset_phase_idx];
+			}
+			offset_phase_idx += inc;
+		}
+		__syncthreads();
+
+
+//		int y   = array_idx % dimi_psi;
+//		int z   = array_idx / dimi_psi;
+//
+//		int y   = 0;
+//		int z   = 0;
+//		// each block processes several reductions strided by the grid size
+		while (array_idx < dimj_psi * dimi_psi){
+//			int y   = array_idx / dimi_psi;
+			int y   = array_idx % dimi_psi;
+			int z   = array_idx / dimi_psi;
+//
+//			volatile int y   = 0;
+//			volatile int z   = 0;
+
+			//	 read in first values
+			if (beam_idx < numberBeams) {
+				scaled_values[t_id] = cuCmul(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + beam_idx],
+				                              coeff_cache_double[beam_idx]);
+				__syncthreads();
+			}
+
+//		 step through global memory accumulating until values have been reduced to BlockSize_numBeams elements in shared memory
+			size_t offset = BlockSize_numBeams;
+			while (offset < numberBeams){
+				if (beam_idx + offset < numberBeams){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id],
+					                              cuCmul(permuted_Scompact_d[z_ds[z]*numberBeams*dimj_S + y_ds[y]*numberBeams + beam_idx + offset],
+					                                      coeff_cache_double[beam_idx + offset]));
+				}
+				offset += BlockSize_numBeams;
+				__syncthreads();
+			}
+
+			// At this point we have exactly BlockSize_numBeams elements to reduce from shared memory which we will add by recursively
+			// dividing the array in half
+
+			// Take advantage of templates. Because BlockSize_numBeams is passed at compile time, all of these comparisons are also
+			// evaluated at compile time
+			if (BlockSize_numBeams >= 1024){
+				if (beam_idx < 512){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 512]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 512){
+				if (beam_idx < 256){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 256]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 256){
+				if (beam_idx < 128){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 128]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 128){
+				if (beam_idx < 64){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 64]);
+				}
+				__syncthreads();
+			}
+			if (BlockSize_numBeams >= 64){
+				if (beam_idx < 32){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 32]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 32){
+				if (beam_idx < 16){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 16]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 16){
+				if (beam_idx < 8){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 8]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 8){
+				if (beam_idx < 4){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 4]);
+				}
+				__syncthreads();
+			}
+
+			if (BlockSize_numBeams >= 4){
+				if (beam_idx < 2){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 2]);
+				}
+				__syncthreads();
+			}
+			if (BlockSize_numBeams >= 2){
+				if (beam_idx < 1){
+					scaled_values[t_id] = cuCadd(scaled_values[t_id], scaled_values[t_id + 1]);
+				}
+				__syncthreads();
+			}
+			// use a special optimization for the last reductions
+//		if (beam_idx < 32 & BlockSize_numBeams <= numberBeams){
+//			warpReduce_cx<BlockSize_numBeams>(scaled_values, t_id);
+//
+//		} else {
+//			warpReduce_cx<1>(scaled_values, t_id);
+//		}
+//		__syncthreads();
+			// write out the result
+			if (beam_idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[array_offset];
+//		if (beam_idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(1,1);
+			// increment
+
+			array_idx+=gridSize_alongArray;
+//			y+=gridSize_alongArray;
+//			if (y >= dimi_psi){
+//				y-=dimi_psi;
+//				++z;
+//			}
+			__syncthreads();
+		}
+	}
+
+
 	template <size_t BlockSize_numBeams>
 	// double precision version, see float version above for comments
 	__global__ void scaleReduceS(const cuDoubleComplex *permuted_Scompact_d,
