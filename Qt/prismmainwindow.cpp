@@ -291,8 +291,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
 //    connect(this->ui->lineEdit_angmin, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
 //    connect(this->ui->lineEdit_angmax, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
-    connect(this->ui->contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
-    connect(this->ui->contrast_outputMax, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMax()));
+    connect(this->ui->lineEdit_contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
+    connect(this->ui->lineEdit_contrast_outputMax, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMax()));
     connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
     connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
     connect(this->ui->tabs, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
@@ -1129,8 +1129,8 @@ void PRISMMainWindow::updateOutputFloatImage(){
                                        outputImage_float.end());
         contrast_outputMin = *minval;
         contrast_outputMax = *maxval;
-        ui->contrast_outputMin->setText(QString::number(contrast_outputMin));
-        ui->contrast_outputMax->setText(QString::number(contrast_outputMax));
+        ui->lineEdit_contrast_outputMin->setText(QString::number(contrast_outputMin));
+        ui->lineEdit_contrast_outputMax->setText(QString::number(contrast_outputMax));
     }
     updateOutputDisplay();
 }
@@ -1238,11 +1238,11 @@ void PRISMMainWindow::updateContrastPotMax(){
 }
 
 void PRISMMainWindow::updateContrastAngMin(){
-    contrast_outputMin = (PRISM_FLOAT_PRECISION)ui->contrast_outputMin->text().toDouble();
+    contrast_outputMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMin->text().toDouble();
     updateOutputDisplay();
 }
 void PRISMMainWindow::updateContrastAngMax(){
-    contrast_outputMax = (PRISM_FLOAT_PRECISION)ui->contrast_outputMax->text().toDouble();
+    contrast_outputMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMax->text().toDouble();
     updateOutputDisplay();
 }
 
@@ -1406,8 +1406,8 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
 void PRISMMainWindow::enableOutputWidgets(){
     ui->slider_angmax->setEnabled(true);
     ui->slider_angmin->setEnabled(true);
-    ui->contrast_outputMax->setEnabled(true);
-    ui->contrast_outputMin->setEnabled(true);
+    ui->lineEdit_contrast_outputMax->setEnabled(true);
+    ui->lineEdit_contrast_outputMin->setEnabled(true);
     ui->lineEdit_angmin->setEnabled(true);
     ui->lineEdit_angmax->setEnabled(true);
 }

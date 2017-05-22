@@ -873,7 +873,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="contrast_outputMin">
+               <widget class="QLineEdit" name="lineEdit_contrast_outputMin">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -889,7 +889,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="contrast_outputMax">
+               <widget class="QLineEdit" name="lineEdit_contrast_outputMax">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -989,8 +989,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>320</width>
-         <height>1152</height>
+         <width>326</width>
+         <height>1119</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -3013,8 +3013,8 @@ Step (A)</string>
   <tabstop>lineEdit_probeY</tabstop>
   <tabstop>lineEdit_angmin</tabstop>
   <tabstop>lineEdit_angmax</tabstop>
-  <tabstop>contrast_outputMin</tabstop>
-  <tabstop>contrast_outputMax</tabstop>
+  <tabstop>lineEdit_contrast_outputMin</tabstop>
+  <tabstop>lineEdit_contrast_outputMax</tabstop>
   <tabstop>lineEdit_saveOutputImage</tabstop>
   <tabstop>slider_slicemax</tabstop>
   <tabstop>checkBox_log</tabstop>
