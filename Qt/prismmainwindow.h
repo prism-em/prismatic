@@ -132,6 +132,7 @@ public slots:
     void update_RK(QString str);
     void potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+    void displayErrorReadingAtomsDialog();
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);

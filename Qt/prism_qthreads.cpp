@@ -309,17 +309,29 @@ parent(_parent), progressbar(_progressbar){
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
     emit signalTitle("PRISM: Frozen Phonon #1");
+    bool error_reading = false;
     QMutexLocker gatekeeper(&this->parent->dataLock);
-    PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
+    PRISM::Parameters<PRISM_FLOAT_PRECISION> params;(meta, progressbar);
+    try {
+        params = PRISM::Parameters<PRISM_FLOAT_PRECISION>(meta,progressbar);
+    }catch (...){
+        std::cout <<"An error occurred while attempting to read from file " << meta.filename_atoms << std::endl;
+        error_reading = true;
+    }
     gatekeeper.unlock();
+
+
+    if (error_reading){
+        emit signalErrorReadingAtomsDialog();
+    } else {
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     PRISM::configure(meta);
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
     if (!this->parent->potentialIsReady()){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-    PRISM::PRISM01(params);
-    std::cout <<"Potential Calculated" << std::endl;
+        PRISM::PRISM01(params);
+        std::cout <<"Potential Calculated" << std::endl;
     {
 //        QMutexLocker gatekeeper(&this->parent->potentialLock);
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -401,9 +413,10 @@ void FullPRISMCalcThread::run(){
 //    this->parent->outputReceived(params.output);
     this->parent->outputReceived(params.output);
     emit outputCalculated();
-
     std::cout << "PRISM calculation complete" << std::endl;
+    }
 }
+
 
 
 FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :

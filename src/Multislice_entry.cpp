@@ -15,7 +15,13 @@
 
 namespace PRISM{
 	Parameters<PRISM_FLOAT_PRECISION> Multislice_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
-		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
+		Parameters<PRISM_FLOAT_PRECISION> prism_pars;
+		try {
+			prism_pars = Parameters<PRISM_FLOAT_PRECISION>(meta);
+		} catch(const std::runtime_error &e){
+			std::cout << "Terminating" << std::endl;
+			exit(1);
+		}
 		PRISM01(prism_pars);
 		Multislice(prism_pars);
 

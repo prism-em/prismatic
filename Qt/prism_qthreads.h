@@ -27,6 +27,8 @@ private:
     prism_progressbar *progressbar;
 signals:
     void potentialCalculated();
+    void signalErrorReadingAtomsDialog();
+
 };
 
 //class SMatrixThread : public QThread {
@@ -64,6 +66,8 @@ signals:
     void signal_pearsonK(QString str);
     void signal_RReal(QString str);
     void signal_RK(QString str);
+    void signalErrorReadingAtomsDialog();
+
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
@@ -82,6 +86,7 @@ public:
 signals:
     void potentialCalculated();
     void outputCalculated();
+    void signalErrorReadingAtomsDialog();
     void signalTitle(const QString str);
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
@@ -100,6 +105,8 @@ signals:
     void potentialCalculated();
     void outputCalculated();
     void signalTitle(const QString str);
+    void signalErrorReadingAtomsDialog();
+
 private:
     PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

@@ -4,6 +4,7 @@
 // If you use PRISM, we ask that you cite the following papers:
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include "prismmainwindow.h"
 #include "ui_prismmainwindow.h"
 #include <fstream>
@@ -788,6 +789,7 @@ void PRISMMainWindow::calculatePotential(){
     progressbar->show();
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
+    connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
@@ -812,9 +814,8 @@ void PRISMMainWindow::calculateAll(){
 
     if (meta->algorithm == PRISM::Algorithm::PRISM) {
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-//        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-//        connect(worker, SIGNAL(outputCalculated()), this, SLOT((PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
@@ -828,9 +829,8 @@ void PRISMMainWindow::calculateAll(){
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
-//        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-//        connect(worker, SIGNAL(outputCalculated()), this, SLOT((PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
@@ -848,15 +848,11 @@ void PRISMMainWindow::calculateProbe(){
     currently_calculated_X = X;
     currently_calculated_Y = Y;
     ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
-//    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(potentialReceived(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
-//    connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
-//    connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
+    connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
     connect(worker, SIGNAL(signal_RReal(QString)), this, SLOT(update_RReal(QString)));
     connect(worker, SIGNAL(signal_RK(QString)), this, SLOT(update_RK(QString)));
-
-//    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialDisplay()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
@@ -987,6 +983,15 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                                                                             ui->lbl_image_probeInteractive->height(),
                                                                                             Qt::KeepAspectRatio)));
     }
+}
+
+void PRISMMainWindow::displayErrorReadingAtomsDialog(){
+    QMessageBox* popup = new QMessageBox;
+    popup->setWindowTitle("PRISM: Error!");
+    popup->setText(QString::fromStdString(std::string("An error occurred while attempting to read atomic coordinates from file:\n\n") +
+                                          meta->filename_atoms +
+                                          std::string("\n\nEnsure that the file is accessible and is formatted correctly based on its extension. See the documentation for full details.")));
+    popup->show();
 }
 
 void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION> arr){

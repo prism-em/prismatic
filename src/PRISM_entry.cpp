@@ -20,7 +20,13 @@
 namespace PRISM{
 	using namespace std;
 	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
-		Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
+		Parameters<PRISM_FLOAT_PRECISION> prism_pars;
+		try {
+			prism_pars = Parameters<PRISM_FLOAT_PRECISION>(meta);
+		} catch(const std::runtime_error &e){
+			std::cout << "Terminating" << std::endl;
+			exit(1);
+		}
 		PRISM01(prism_pars);
 //		prism_pars.pot.toMRC_f("debug_potential.mrc");
 		PRISM02(prism_pars);

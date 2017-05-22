@@ -163,15 +163,17 @@ namespace PRISM{
 		    catch (const std::runtime_error &e) {
 			    std::cout << "PRISM: Error opening " << meta.filename_atoms << std::endl;
 			    std::cout << e.what();
-			    std::cout << "Terminating" << std::endl;
-			    exit(1);
+			    throw;
+//			    std::cout << "Terminating" << std::endl;
+//			    exit(1);
 //			    return -1;
 		    }
 		    catch (const std::domain_error &e) {
 			    std::cout << "PRISM: Error extracting atomic data from " << meta.filename_atoms << "!" << std::endl;
 			    std::cout << e.what();
-			    std::cout << "Terminating" << std::endl;
-			    exit(1);
+			    throw;
+//			    std::cout << "Terminating" << std::endl;
+//			    exit(1);
 //			    return -2;
 		    }
 
