@@ -79,7 +79,7 @@ namespace PRISM {
 					                         complex<PRISM_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
 					                         complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 					pars.propBack.at(y, x) = exp(i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
-					                             complex<PRISM_FLOAT_PRECISION>(pars.meta.cellDim[0], 0) *
+					                             complex<PRISM_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
 					                             complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 				}
 			}

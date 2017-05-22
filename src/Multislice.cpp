@@ -27,17 +27,17 @@ namespace PRISM{
 
 		// setup coordinates and build propagators
 //		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-//		xR[0] = 0.1 * pars.meta.cellDim[2];
-//		xR[1] = 0.9 * pars.meta.cellDim[2];
+//		xR[0] = 0.1 * pars.tiledCellDim[2];
+//		xR[1] = 0.9 * pars.tiledCellDim[2];
 //		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-//		yR[0] = 0.1 * pars.meta.cellDim[1];
-//		yR[1] = 0.9 * pars.meta.cellDim[1];
+//		yR[0] = 0.1 * pars.tiledCellDim[1];
+//		yR[1] = 0.9 * pars.tiledCellDim[1];
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		xR[0] = pars.meta.scanWindowXMin * pars.meta.cellDim[2];
-		xR[1] = pars.meta.scanWindowXMax * pars.meta.cellDim[2];
+		xR[0] = pars.meta.scanWindowXMin * pars.tiledCellDim[2];
+		xR[1] = pars.meta.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-		yR[0] = pars.meta.scanWindowYMin * pars.meta.cellDim[1];
-		yR[1] = pars.meta.scanWindowYMax * pars.meta.cellDim[1];
+		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
+		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
 
 
 //		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
@@ -105,7 +105,7 @@ namespace PRISM{
 					                            complex<PRISM_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
 					                            complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 					pars.propBack.at(y,x) = exp(i * pi * complex<PRISM_FLOAT_PRECISION>(pars.lambda, 0) *
-					                            complex<PRISM_FLOAT_PRECISION>(pars.meta.cellDim[0], 0) *
+					                            complex<PRISM_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
 					                            complex<PRISM_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 				}
 			}

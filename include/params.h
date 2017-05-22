@@ -82,7 +82,7 @@ namespace PRISM{
 	    Array1D<size_t> imageSizeOutput;
 	    Array1D<size_t> qxInd;
 	    Array1D<size_t> qyInd;
-
+	    std::vector<T> tiledCellDim;
 	    T scale;
         T lambda;
         T dr;
@@ -120,11 +120,12 @@ namespace PRISM{
 		    // tile the cell dimension.
 		    // TODO: I think it is very bad practice that Parameters modifies the metadata. Should change so that meta contains
 		    // the UC dimensions, and then cellDim exists in params and is modified here
-		    meta.cellDim[2] *= meta.tileX;
-		    meta.cellDim[1] *= meta.tileY;
-		    meta.cellDim[0] *= meta.tileZ;
-			std::cout << "meta.cellDim[0]= " << meta.cellDim[0]<< std::endl;
-		    zTotal = meta.cellDim[0];
+		    tiledCellDim     = meta.cellDim;
+		    tiledCellDim[2] *= meta.tileX;
+		    tiledCellDim[1] *= meta.tileY;
+		    tiledCellDim[0] *= meta.tileZ;
+			std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
+		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
 			calculateLambda();
@@ -136,13 +137,13 @@ namespace PRISM{
 		    T f_y = 4 * meta.interpolationFactorY;
 		    std::cout << "f_x = " << f_x << std::endl;
 		    std::cout << "f_y = " << f_y << std::endl;
-		    std::cout << "meta.cellDim[1] = " << meta.cellDim[1] << std::endl;
-		    std::cout << "meta.cellDim[2] = " << meta.cellDim[2] << std::endl;
-		    Array1D<size_t> _imageSize({{(size_t)meta.cellDim[1], (size_t)meta.cellDim[2]}}, {{2}});
-		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
-		    _imageSize[1] = (size_t)std::max(4.0,  (f_x * round((meta.cellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
+		    std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
+		    std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
+		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
+		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
+		    _imageSize[1] = (size_t)std::max(4.0,  (f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
 
-		    std::cout << "(f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((meta.cellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
+		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
 		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
 		    std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
 //		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
@@ -151,7 +152,7 @@ namespace PRISM{
 //		                   });
 		    this->imageSize = _imageSize;
 
-		    std::vector<T> _pixelSize{(T) meta.cellDim[1], (T) meta.cellDim[2]};
+		    std::vector<T> _pixelSize{(T) tiledCellDim[1], (T) tiledCellDim[2]};
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];

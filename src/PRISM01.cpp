@@ -67,9 +67,9 @@ namespace PRISM {
 
 		// populate arrays from the atoms structure
 		for (auto i = 0; i < pars.atoms.size(); ++i){
-			x[i]  = pars.atoms[i].x * pars.meta.cellDim[2];
-			y[i]  = pars.atoms[i].y * pars.meta.cellDim[1];
-			z[i]  = pars.atoms[i].z * pars.meta.cellDim[0];
+			x[i]  = pars.atoms[i].x * pars.tiledCellDim[2];
+			y[i]  = pars.atoms[i].y * pars.tiledCellDim[1];
+			z[i]  = pars.atoms[i].z * pars.tiledCellDim[0];
 			ID[i] = pars.atoms[i].species;
 		}
 
