@@ -341,11 +341,12 @@ void FullPRISMCalcThread::run(){
     if (!this->parent->SMatrixIsReady()){
     PRISM::PRISM02(params);
     {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
 
-        // perform copy
-        this->parent->pars = params;
-        // indicate that the potential is ready
+//        // perform copy
+//        this->parent->pars = params;
+
+//        // indicate that the potential is ready
 //        this->parent->ScompactReady = true;
     }
     } else {

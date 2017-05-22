@@ -431,9 +431,9 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// read the coefficients into shared memory once
 		size_t offset_phase_idx = 0;
 //		const size_t inc = BlockSize_numBeams * BlockSize_alongArray;
-		const size_t inc = BlockSize_numBeams;
+		const size_t inc = BlockSize_numBeams*BlockSize_alongArray;
 		while (offset_phase_idx < numberBeams){
-			if (t_id + offset_phase_idx < numberBeams){
+			if (t_id  < numberBeams){
 				coeff_cache[t_id] = phaseCoeffs_ds[t_id + offset_phase_idx];
 			}
 			offset_phase_idx += inc;
@@ -1806,8 +1806,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			}
 			// Determine amount of shared memory needed
 			const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
-			cout << "BlockSize_numBeams = " << BlockSize_numBeams<< endl;
-			cout << "BlockSize_alongArray = " << BlockSize_alongArray<< endl;
+//			cout << "BlockSize_numBeams = " << BlockSize_numBeams<< endl;
+//			cout << "BlockSize_alongArray = " << BlockSize_alongArray<< endl;
 			// Launch kernel. Block size must be visible at compile time so we use a switch statement
 			switch (BlockSize_numBeams) {
 				case 1024 :
