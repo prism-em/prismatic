@@ -422,14 +422,18 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		int gridSize_alongArray = gridDim.y * blockDim.y;
 
 		// guarantee the shared memory is initialized to 0 so we can accumulate without bounds checking
-		scaled_values[t_id] = make_cuFloatComplex(0,0);
+//		if (threadIdx.x < numberBeams) {
+		scaled_values[t_id] = make_cuFloatComplex(0, 0);
 		__syncthreads();
+//		}
+
 
 		// read the coefficients into shared memory once
 		size_t offset_phase_idx = 0;
-		const size_t inc = BlockSize_numBeams * BlockSize_alongArray;
+//		const size_t inc = BlockSize_numBeams * BlockSize_alongArray;
+		const size_t inc = BlockSize_numBeams;
 		while (offset_phase_idx < numberBeams){
-			if (t_id < numberBeams){
+			if (t_id + offset_phase_idx < numberBeams){
 				coeff_cache[t_id] = phaseCoeffs_ds[t_id + offset_phase_idx];
 			}
 			offset_phase_idx += inc;
@@ -437,19 +441,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		__syncthreads();
 
 
-//		int y   = array_idx % dimi_psi;
-//		int z   = array_idx / dimi_psi;
-//
-//		int y   = 0;
-//		int z   = 0;
 //		// each block processes several reductions strided by the grid size
 		while (array_idx < dimj_psi * dimi_psi){
-//			int y   = array_idx / dimi_psi;
 			int y   = array_idx % dimi_psi;
 			int z   = array_idx / dimi_psi;
-//
-//			volatile int y   = 0;
-//			volatile int z   = 0;
 
 	//	 read in first values
 		if (beam_idx < numberBeams) {
@@ -542,25 +537,10 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 				}
 				__syncthreads();
 			}
-		// use a special optimization for the last reductions
-//		if (beam_idx < 32 & BlockSize_numBeams <= numberBeams){
-//			warpReduce_cx<BlockSize_numBeams>(scaled_values, t_id);
-//
-//		} else {
-//			warpReduce_cx<1>(scaled_values, t_id);
-//		}
-//		__syncthreads();
 		// write out the result
 		if (beam_idx == 0)psi_ds[z*dimi_psi + y] = scaled_values[array_offset];
-//		if (beam_idx == 0)psi_ds[z*dimi_psi + y] = make_cuFloatComplex(1,1);
 		// increment
-
 		array_idx+=gridSize_alongArray;
-//			y+=gridSize_alongArray;
-//			if (y >= dimi_psi){
-//				y-=dimi_psi;
-//				++z;
-//			}
 			__syncthreads();
 	}
 }
@@ -1826,7 +1806,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 //			}
 			// Determine amount of shared memory needed
 			const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
-
+			cout << "BlockSize_numBeams = " << BlockSize_numBeams<< endl;
+			cout << "BlockSize_alongArray = " << BlockSize_alongArray<< endl;
 			// Launch kernel. Block size must be visible at compile time so we use a switch statement
 			switch (BlockSize_numBeams) {
 				case 1024 :
@@ -1866,7 +1847,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 				default :
-					scaleReduceS<2, 256> << < grid, block, smem, stream >> > (
+					scaleReduceS<1, 512> << < grid, block, smem, stream >> > (
 							permuted_Scompact_d, phaseCoeffs_ds, psi_ds, y_ds, x_ds, pars.numberBeams, pars.Scompact.get_dimj(),
 							pars.Scompact.get_dimi(), pars.imageSizeReduce[0], pars.imageSizeReduce[1]);break;
 			}

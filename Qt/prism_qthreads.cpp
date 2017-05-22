@@ -381,10 +381,11 @@ void FullPRISMCalcThread::run(){
 
 
 
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        this->parent->pars = params;
-    }
+//    {
+//        QMutexLocker gatekeeper(&this->parent->dataLock);
+//        this->parent->pars = params;
+//    }
+
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
         this->parent->detectorAngles = params.detectorAngles;
