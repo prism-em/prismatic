@@ -382,6 +382,10 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
         ui->lineEdit_cellDimX->setCursorPosition(0);
         ui->lineEdit_cellDimY->setCursorPosition(0);
         ui->lineEdit_cellDimZ->setCursorPosition(0);
+
+        meta->cellDim[0] = uc_dims[2];
+        meta->cellDim[1] = uc_dims[1];
+        meta->cellDim[2] = uc_dims[0];
     }
 }
 
