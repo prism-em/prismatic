@@ -7,6 +7,7 @@
 #define PRISM_PRISM03_CUH
 #include "configure.h"
 #include "cufft.h"
+#include "params.cuh"
 namespace PRISM {
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
@@ -25,12 +26,13 @@ namespace PRISM {
 	                                PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
 	                                PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
 	                                PRISM_FLOAT_PRECISION *psi_intensity_ds,
-	                                long *y_ds,
-	                                long *x_ds,
+	                                long  *y_ds,
+	                                long  *x_ds,
 	                                PRISM_FLOAT_PRECISION *output_ph,
 	                                PRISM_FLOAT_PRECISION *integratedOutput_ds,
 	                                const cufftHandle &cufft_plan,
-	                                const cudaStream_t& stream);
+	                                const cudaStream_t& stream,
+	                                CudaParameters<PRISM_FLOAT_PRECISION>& cuda_pars);
 
 	void buildSignal_GPU_streaming(Parameters<PRISM_FLOAT_PRECISION>&  pars,
 	                               const size_t& ay,
@@ -51,6 +53,7 @@ namespace PRISM {
 	                               PRISM_FLOAT_PRECISION *output_ph,
 	                               PRISM_FLOAT_PRECISION *integratedOutput_ds,
 	                               const cufftHandle &cufft_plan,
-	                               const cudaStream_t& stream);
+	                               const cudaStream_t& stream,
+	                               CudaParameters<PRISM_FLOAT_PRECISION>& cuda_pars);
 }
 #endif //PRISM_PRISM03_CUH
