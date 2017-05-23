@@ -14,13 +14,25 @@ namespace PRISM {
 		size_t **xBeams_d;
 		PRISM_FLOAT_PRECISION **alphaInd_d;
 		PRISM_CUDA_COMPLEX_FLOAT **psi_ds;
+		PRISM_CUDA_COMPLEX_FLOAT **psi_small_ds;
 		PRISM_CUDA_COMPLEX_FLOAT **phaseCoeffs_ds;
 		PRISM_FLOAT_PRECISION **psi_intensity_ds;
 		long **y_ds;
 		long **x_ds;
 		PRISM_FLOAT_PRECISION **integratedOutput_ds;
-		cufftHandle *cufft_plans;
+		cufftHandle *cufft_plans, *cufft_plans_small;
 		cudaStream_t *streams;
+		std::complex<PRISM_FLOAT_PRECISION>** Scompact_slice_ph;
+		std::complex<PRISM_FLOAT_PRECISION> *trans_ph;
+		std::complex<PRISM_FLOAT_PRECISION> *prop_ph;
+		size_t *qxInd_ph;
+		size_t *qyInd_ph;
+		size_t *beamsIndex_ph;
+        PRISM_CUDA_COMPLEX_FLOAT **trans_d;
+        PRISM_CUDA_COMPLEX_FLOAT **prop_d;
+        size_t **qxInd_d;
+        size_t **qyInd_d;
+        size_t **beamsIndex_d;
 
 		// pinned memory buffers on host
 		PRISM_FLOAT_PRECISION               **output_ph;
