@@ -1729,7 +1729,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			max_threads_per_sm = pars.deviceProperties.minor == 0 ? 768 : 1024;
 		}
 
-		// Estimate max number of blocks per streaming multiprocessor (threads are the limit)
+		// Estimate max number of blocks per streaming multiprocessor
 		const size_t max_blocks_per_sm = std::min((size_t)32, max_threads_per_sm / BlockSize_numBeams);
 
 		// We find providing around 3 times as many blocks as the estimated maximum provides good performance
