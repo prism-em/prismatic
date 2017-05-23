@@ -179,7 +179,7 @@ namespace PRISM {
 	}
 
 
-	inline void allocateGPUMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocateDeviceMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// pointers to read-only GPU memory (one copy per GPU)
@@ -251,7 +251,7 @@ namespace PRISM {
 	}
 
 
-	inline void allocateGPUMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocateDeviceMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                        CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// pointers to read-only GPU memory (one copy per GPU)
@@ -1557,7 +1557,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		copyToPinnedMemory_singlexfer(pars, cuda_pars);
 
 		// allocate memory on the GPUs
-		allocateGPUMemory_singlexfer(pars, cuda_pars);
+		allocateDeviceMemory_singlexfer(pars, cuda_pars);
 
 		// copy memory to GPUs
 		copyToGPUMemory_singlexfer(pars, cuda_pars);
@@ -1586,7 +1586,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		copyToPinnedMemory_streaming(pars, cuda_pars);
 
 		// allocate memory on the GPUs
-		allocateGPUMemory_streaming(pars, cuda_pars);
+		allocateDeviceMemory_streaming(pars, cuda_pars);
 
 		// copy memory to GPUs
 		copyToGPUMemory_streaming(pars, cuda_pars);
