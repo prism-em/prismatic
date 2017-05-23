@@ -36,8 +36,8 @@ namespace PRISM {
 	cuDoubleComplex minus_2pii = {0, -2 * PI};
 
 
-	void createStreamsAndPlans(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                      CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void createStreamsAndPlans(Parameters<PRISM_FLOAT_PRECISION> &pars,
+                                      CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cuda_pars.streams = new cudaStream_t[total_num_streams];;
 		cuda_pars.cufft_plans = new cufftHandle[total_num_streams];
@@ -51,8 +51,8 @@ namespace PRISM {
 		}
 	}
 
-	void allocateHostMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                   CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void allocateHostMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                          CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		// Allocate pinned memory buffers 
 
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -75,8 +75,8 @@ namespace PRISM {
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.yBeams_ph, pars.xyBeams.get_dimj() * sizeof(size_t)));
 	}
 
-	void allocateHostMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                  CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void allocateHostMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cuda_pars.output_ph = new PRISM_FLOAT_PRECISION *[total_num_streams]; // one output array per stream
 		// allocate pinned memory
@@ -93,8 +93,8 @@ namespace PRISM {
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.yBeams_ph, pars.xyBeams.get_dimj()  * sizeof(size_t)));
 	}
 
-	void copyToPinnedMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                   CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void copyToPinnedMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                          CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		// Copy data to pinned memory buffers
 
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -137,8 +137,8 @@ namespace PRISM {
 		}
 	}
 
-	void copyToPinnedMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                  CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void copyToPinnedMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		// Copy data to pinned memory buffers
 
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -179,8 +179,8 @@ namespace PRISM {
 	}
 
 
-	void allocateGPUMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                  CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void allocateGPUMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// pointers to read-only GPU memory (one copy per GPU)
 		cuda_pars.permuted_Scompact_d = new PRISM_CUDA_COMPLEX_FLOAT *[pars.meta.NUM_GPUS];
@@ -251,8 +251,8 @@ namespace PRISM {
 	}
 
 
-	void allocateGPUMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                 CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void allocateGPUMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                        CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// pointers to read-only GPU memory (one copy per GPU)
 		cuda_pars.PsiProbeInit_d = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
@@ -315,8 +315,8 @@ namespace PRISM {
 
 	}
 
-	void copyToGPUMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                                CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void copyToGPUMemory_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                       CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 
 		// Copy memory to each GPU asynchronously from the pinned host memory spaces.
 		// The streams are laid out so that consecutive streams represent different GPUs. If we
@@ -360,8 +360,8 @@ namespace PRISM {
 		}
 	}
 
-	void copyToGPUMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                               CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void copyToGPUMemory_streaming(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                      CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		// Copy memory to each GPU asynchronously from the pinned host memory spaces.
 		// The streams are laid out so that consecutive streams represent different GPUs. If we
 		// have more than one stream per GPU, then we try to interleave as much as possible
@@ -403,8 +403,8 @@ namespace PRISM {
 
 	}
 
-	void launchWorkers_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
-	                              CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
+	inline void launchWorkers_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	                                     CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		using namespace std;
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// launch threads that will consume work provided by getWorkID
@@ -719,8 +719,8 @@ namespace PRISM {
 		}
 	}
 
-	void cleanupMemory(Parameters<PRISM_FLOAT_PRECISION>& pars,
-	                              CudaParameters<PRISM_FLOAT_PRECISION>& cuda_pars){
+	inline void cleanupMemory(Parameters<PRISM_FLOAT_PRECISION>& pars,
+	                          CudaParameters<PRISM_FLOAT_PRECISION>& cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// free pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
