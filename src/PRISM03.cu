@@ -545,7 +545,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		array_idx+=gridSize_alongArray;
 			__syncthreads();
 	}
-		if (beam_idx == 0)psi_ds[0] = scaled_values[array_offset];
 
 }
 
@@ -2023,16 +2022,14 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 			max_threads_per_sm = pars.deviceProperties.minor == 0 ? 768 : 1024;
 		}
 
-		// Estimate max number of blocks per streaming multiprocessor (threads are the limit)
-		const size_t max_blocks_per_sm = max_threads_per_sm / BlockSize_numBeams;
+		// Estimate max number of simultaneous blocks per streaming multiprocessor
+		const size_t max_blocks_per_sm = std::min((size_t)32, max_threads_per_sm / BlockSize_numBeams);
 
 
 
 		// We find providing around 3 times as many blocks as the estimated maximum provides good performance
 		const size_t target_blocks_per_sm = max_blocks_per_sm * 3;
 		const size_t total_blocks         = target_blocks_per_sm * pars.deviceProperties.multiProcessorCount;
-
-
 
 		// Determine amount of shared memory needed
 		const unsigned long smem = pars.numberBeams * sizeof(PRISM_CUDA_COMPLEX_FLOAT);
@@ -2090,6 +2087,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		} else {
 			const size_t BlockSize_alongArray = 512 / BlockSize_numBeams;
 			const size_t GridSize_alongArray = total_blocks;
+//			const size_t GridSize_alongArray = 300;
 			dim3 grid(1, GridSize_alongArray, 1);
 			dim3 block(BlockSize_numBeams, BlockSize_alongArray, 1);
 			if (ax == 0 & ay == 0) {
