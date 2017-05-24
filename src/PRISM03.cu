@@ -1458,7 +1458,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		}
 	}
 
-
 	template <size_t BlockSize_numBeams>
 	// double precision version, see float version above for comments
 	__global__ void scaleReduceS(const cuDoubleComplex *permuted_Scompact_d,
@@ -1541,7 +1540,6 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		}
 	}
 
-
 	using namespace std;
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars){
 #ifdef PRISM_BUILDING_GUI
@@ -1554,7 +1552,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans3(pars, cuda_pars);
 
-		// allocate pinned memory
+		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_singlexfer3(pars, cuda_pars);
 
 		// copy data to pinned buffers
@@ -1569,7 +1567,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// launch GPU and CPU workers
 		launchWorkers_singlexfer3(pars, cuda_pars);
 
-		// free memory
+		// free memory on the host/device
 		cleanupMemory3(pars, cuda_pars);
 	}
 
@@ -1598,7 +1596,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		// launch GPU and CPU workers
 		launchWorkers_streaming3(pars, cuda_pars);
 
-		// free memory
+		// free memory on the host/device
 		cleanupMemory3(pars, cuda_pars);
 	}
 

@@ -400,7 +400,8 @@ namespace PRISM {
                             currentBeam = stopBeam;
                         }
                     } while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU));
-                    // clean up
+
+                    // clean up plans
                     gatekeeper.lock();
                     PRISM_FFTW_DESTROY_PLAN(plan_forward);
                     PRISM_FFTW_DESTROY_PLAN(plan_inverse);

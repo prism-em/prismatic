@@ -797,6 +797,7 @@ namespace PRISM{
 
 		createPlansAndStreamsM(pars, cuda_pars);
 
+	    // create page-locked (pinned) host memory buffers
 	    allocatePinnedHostMemory_M(pars, cuda_pars);
 
 	    copyToPinnedMemory_M(pars, cuda_pars);
