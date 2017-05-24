@@ -67,17 +67,17 @@ namespace PRISM{
 	                                          CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		// copy host memory to pinned
 		memcpy(cuda_pars.PsiProbeInit_ph, &pars.psiProbeInit[0], pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
-		memcpy(cuda_pars.trans_ph,        &pars.transmission[0],        pars.transmission.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
-		memcpy(cuda_pars.prop_ph,         &pars.prop[0],    pars.prop.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
-		memcpy(cuda_pars.qxa_ph,          &pars.qxa[0],     pars.qxa.size() * sizeof(PRISM_FLOAT_PRECISION));
-		memcpy(cuda_pars.qya_ph,          &pars.qya[0],     pars.qya.size() * sizeof(PRISM_FLOAT_PRECISION));
-		memcpy(cuda_pars.alphaInd_ph,     &pars.alphaInd[0],     pars.alphaInd.size() * sizeof(PRISM_FLOAT_PRECISION));
-
+		memcpy(cuda_pars.trans_ph,        &pars.transmission[0], pars.transmission.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
+		memcpy(cuda_pars.prop_ph,         &pars.prop[0],         pars.prop.size()         * sizeof(std::complex<PRISM_FLOAT_PRECISION>));
+		memcpy(cuda_pars.qxa_ph,          &pars.qxa[0],          pars.qxa.size()          * sizeof(PRISM_FLOAT_PRECISION));
+		memcpy(cuda_pars.qya_ph,          &pars.qya[0],          pars.qya.size()          * sizeof(PRISM_FLOAT_PRECISION));
+		memcpy(cuda_pars.alphaInd_ph,     &pars.alphaInd[0],     pars.alphaInd.size()     * sizeof(PRISM_FLOAT_PRECISION));
 	}
 
 	inline void allocateDeviceMemory_singlexferM(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                             CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
+
 		// pointers to read-only GPU memory (one copy per GPU)
 		cuda_pars.PsiProbeInit_d  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
 		cuda_pars.trans_d		  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
@@ -87,7 +87,7 @@ namespace PRISM{
 		cuda_pars.alphaInd_d      = new PRISM_FLOAT_PRECISION*[pars.meta.NUM_GPUS];
 
 		// pointers to read/write GPU memory (one per stream)
-		cuda_pars.psi_ds 			   = new PRISM_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		cuda_pars.psi_ds 			  = new PRISM_CUDA_COMPLEX_FLOAT*[total_num_streams];
 		cuda_pars.psi_intensity_ds    = new PRISM_FLOAT_PRECISION*[total_num_streams];
 		cuda_pars.integratedOutput_ds = new PRISM_FLOAT_PRECISION*[total_num_streams];
 
@@ -104,18 +104,19 @@ namespace PRISM{
 
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,                      pars.meta.batch_size_GPU*pars.psiProbeInit.size()  * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
-			cudaErrchk(cudaMemset(cuda_pars.psi_intensity_ds[s], 0,            pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0,         pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size()                        * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,                      pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(std::complex<PRISM_FLOAT_PRECISION>)));
+			cudaErrchk(cudaMemset(cuda_pars.psi_intensity_ds[s], 0,            pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0,         pars.detectorAngles.size()                        * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 	}
 
 	inline void allocateDeviceMemory_streamingM(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                            CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
+
 		// pointers to read-only GPU memory (one copy per GPU)
 		cuda_pars.PsiProbeInit_d  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
 		cuda_pars.prop_d 	   	  = new PRISM_CUDA_COMPLEX_FLOAT*[pars.meta.NUM_GPUS];
@@ -132,22 +133,23 @@ namespace PRISM{
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.PsiProbeInit_d[g],     pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.prop_d[g],             pars.prop.size()           * sizeof(pars.prop[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.qxa_d[g],              pars.qxa.size()            * sizeof(pars.qxa[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.qya_d[g],              pars.qya.size()            * sizeof(pars.qya[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.alphaInd_d[g],         pars.alphaInd.size()            * sizeof(pars.alphaInd[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.PsiProbeInit_d[g],     pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.prop_d[g],             pars.prop.size()         * sizeof(pars.prop[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.qxa_d[g],              pars.qxa.size()          * sizeof(pars.qxa[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.qya_d[g],              pars.qya.size()          * sizeof(pars.qya[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.alphaInd_d[g],         pars.alphaInd.size()     * sizeof(pars.alphaInd[0])));
 		}
 
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.trans_d[s],            pars.transmission.get_dimj() * pars.transmission.get_dimi() * sizeof(pars.transmission[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0, pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(pars.psiProbeInit[0])));
-			cudaErrchk(cudaMemset(cuda_pars.psi_intensity_ds[s], 0, pars.meta.batch_size_GPU*pars.psiProbeInit.size()        * sizeof(PRISM_FLOAT_PRECISION)));
-			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.trans_d[s],             pars.transmission.get_dimj() * pars.transmission.get_dimi() * sizeof(pars.transmission[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.meta.batch_size_GPU*pars.psiProbeInit.size()           * sizeof(pars.psiProbeInit[0])));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_intensity_ds[s],    pars.meta.batch_size_GPU*pars.psiProbeInit.size()           * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size()                                  * sizeof(PRISM_FLOAT_PRECISION)));
+
+			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s],              0, pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0])));
+			cudaErrchk(cudaMemset(cuda_pars.psi_intensity_ds[s],    0, pars.meta.batch_size_GPU*pars.psiProbeInit.size() * sizeof(PRISM_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0, pars.detectorAngles.size()                        * sizeof(PRISM_FLOAT_PRECISION)));
 		}
 	}
 
@@ -155,6 +157,7 @@ namespace PRISM{
 	                                        CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
+
 		// Copy memory to each GPU asynchronously from the pinned host memory spaces.
 		// The streams are laid out so that consecutive streams represent different GPUs. If we
 		// have more than one stream per GPU, then we want to interleave as much as possible
@@ -162,23 +165,22 @@ namespace PRISM{
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			stream_id = g;
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.PsiProbeInit_d[g], &cuda_pars.PsiProbeInit_ph[0],
-			                           pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.PsiProbeInit_d[g], &cuda_pars.PsiProbeInit_ph[0], pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.trans_d[g], &cuda_pars.trans_ph[0],
-			                           pars.transmission.size() * sizeof(pars.transmission[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.trans_d[g], &cuda_pars.trans_ph[0], pars.transmission.size() * sizeof(pars.transmission[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.prop_d[g], &cuda_pars.prop_ph[0],
-			                           pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.prop_d[g], &cuda_pars.prop_ph[0], pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.qxa_d[g], &cuda_pars.qxa_ph[0],
-			                           pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.qxa_d[g], &cuda_pars.qxa_ph[0], pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.qya_d[g], &cuda_pars.qya_ph[0],
-			                           pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.qya_d[g], &cuda_pars.qya_ph[0], pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.alphaInd_d[g], &cuda_pars.alphaInd_ph[0],
-			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.alphaInd_d[g], &cuda_pars.alphaInd_ph[0], pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
 		}
 
 		// make sure transfers are complete
@@ -191,6 +193,7 @@ namespace PRISM{
 	inline void copyToGPUMemory_streamingM(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                       CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
+
 		// Copy memory to each GPU asynchronously from the pinned host memory spaces.
 		// The streams are laid out so that consecutive streams represent different GPUs. If we
 		// have more than one stream per GPU, then we want to interleave as much as possible
@@ -198,21 +201,19 @@ namespace PRISM{
 		for (auto g = 0; g < pars.meta.NUM_GPUS; ++g) {
 			stream_id = g;
 			cudaErrchk(cudaSetDevice(g));
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.PsiProbeInit_d[g], &cuda_pars.PsiProbeInit_ph[0],
-			                           pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.PsiProbeInit_d[g], &cuda_pars.PsiProbeInit_ph[0], pars.psiProbeInit.size() * sizeof(pars.psiProbeInit[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.prop_d[g], &cuda_pars.prop_ph[0], pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.prop_d[g], &cuda_pars.prop_ph[0],
-			                           pars.prop.size() * sizeof(pars.prop[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.qxa_d[g], &cuda_pars.qxa_ph[0], pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.qxa_d[g], &cuda_pars.qxa_ph[0],
-			                           pars.qxa.size() * sizeof(pars.qxa[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.qya_d[g], &cuda_pars.qya_ph[0], pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+
 			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.qya_d[g], &cuda_pars.qya_ph[0],
-			                           pars.qya.size() * sizeof(pars.qya[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
-			stream_id = (stream_id + pars.meta.NUM_GPUS) % total_num_streams;
-			cudaErrchk(cudaMemcpyAsync(cuda_pars.alphaInd_d[g], &cuda_pars.alphaInd_ph[0],
-			                           pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
+			cudaErrchk(cudaMemcpyAsync(cuda_pars.alphaInd_d[g], &cuda_pars.alphaInd_ph[0], pars.alphaInd.size() * sizeof(pars.alphaInd[0]), cudaMemcpyHostToDevice, cuda_pars.streams[stream_id]));
 		}
 
 		// make sure transfers are complete
@@ -225,6 +226,7 @@ namespace PRISM{
 	inline void launchWorkers_singlexferM(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                      CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
+
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		size_t psi_size = pars.psiProbeInit.size();
@@ -239,18 +241,19 @@ namespace PRISM{
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
 			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d = cuda_pars.PsiProbeInit_d[GPU_num];
-			PRISM_CUDA_COMPLEX_FLOAT *current_trans_d = cuda_pars.trans_d[GPU_num];
-			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d  = cuda_pars.prop_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qxa_d      = cuda_pars.qxa_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qya_d      = cuda_pars.qya_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_alphaInd_d = cuda_pars.alphaInd_d[GPU_num];
+			PRISM_CUDA_COMPLEX_FLOAT *current_trans_d        = cuda_pars.trans_d[GPU_num];
+			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d         = cuda_pars.prop_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_qxa_d             = cuda_pars.qxa_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_qya_d             = cuda_pars.qya_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_alphaInd_d        = cuda_pars.alphaInd_d[GPU_num];
 
 			// get pointers to per-stream arrays
 			PRISM_CUDA_COMPLEX_FLOAT *current_psi_ds           = cuda_pars.psi_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_psi_intensity_ds    = cuda_pars.psi_intensity_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_integratedOutput_ds = cuda_pars.integratedOutput_ds[stream_count];
 			PRISM_FLOAT_PRECISION *current_output_ph           = cuda_pars.output_ph[stream_count];
-			cufftHandle & current_cufft_plan = cuda_pars.cufft_plans[stream_count];
+			cufftHandle & current_cufft_plan                   = cuda_pars.cufft_plans[stream_count];
+
 			// launch a new thread
 			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                             current_psi_ds, current_psi_intensity_ds, current_integratedOutput_ds,
@@ -324,15 +327,15 @@ namespace PRISM{
 						Array1D<std::complex<PRISM_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISM_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size_CPU}});
 
 						// setup batch FFTW parameters
-						const int rank = 2;
-						int n[] = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
+						const int rank    = 2;
+						int n[]           = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
 						const int howmany = pars.meta.batch_size_CPU;
-						int idist = n[0]*n[1];
-						int odist = n[0]*n[1];
-						int istride = 1;
-						int ostride = 1;
-						int *inembed = n;
-						int *onembed = n;
+						int idist         = n[0]*n[1];
+						int odist         = n[0]*n[1];
+						int istride       = 1;
+						int ostride       = 1;
+						int *inembed      = n;
+						int *onembed      = n;
 						unique_lock<mutex> gatekeeper(fftw_plan_lock);
 						PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
 						                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
@@ -402,11 +405,11 @@ namespace PRISM{
 			cout << "Launching GPU worker on stream #" << stream_count << " of GPU #" << GPU_num << endl;
 
 			// get pointers to the pre-copied arrays, making sure to get those on the current GPU
-			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d = cuda_pars.PsiProbeInit_d[GPU_num];
-			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d   = cuda_pars.prop_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qxa_d       = cuda_pars.qxa_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_qya_d       = cuda_pars.qya_d[GPU_num];
-			PRISM_FLOAT_PRECISION *current_alphaInd_d  = cuda_pars.alphaInd_d[GPU_num];
+			PRISM_CUDA_COMPLEX_FLOAT *current_PsiProbeInit_d   = cuda_pars.PsiProbeInit_d[GPU_num];
+			PRISM_CUDA_COMPLEX_FLOAT *current_prop_d           = cuda_pars.prop_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_qxa_d               = cuda_pars.qxa_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_qya_d               = cuda_pars.qya_d[GPU_num];
+			PRISM_FLOAT_PRECISION *current_alphaInd_d          = cuda_pars.alphaInd_d[GPU_num];
 
 			// get pointers to per-stream arrays
 			PRISM_CUDA_COMPLEX_FLOAT *current_trans_ds         = cuda_pars.trans_d[stream_count];
@@ -505,7 +508,6 @@ namespace PRISM{
 						                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
 						                                                         ostride, odist,
 						                                                         FFTW_BACKWARD, FFTW_MEASURE);
-
 						gatekeeper.unlock();
 
 						// main work loop
@@ -529,9 +531,7 @@ namespace PRISM{
 						gatekeeper.unlock();
 					}
 					cout << "CPU worker #" << t << " finished\n";
-
 				}));
-
 			}
 			cout << "Waiting on GPU threads..." << endl;
 			for (auto& t:workers_CPU)t.join();
