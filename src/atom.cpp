@@ -12,17 +12,6 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
-//
-//struct atom{
-//	double x,y,z;
-//	size_t species;
-//	void to_string(){
-//		std::cout << "x = " << x << std::endl;
-//		std::cout << "y = " << y << std::endl;
-//		std::cout << "z = " << z << std::endl;
-//		std::cout << "Z = " << species << std::endl;
-//	}
-//};
 
 namespace PRISM {
 	std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms) {
@@ -52,18 +41,20 @@ namespace PRISM {
 		while (std::getline(f,line)){
 			++atom_count;
 			++line_num;
-			double tx, ty, tz;
+			double tx, ty, tz, sigma;
 			size_t tspecies;
 			std::stringstream ss(line);
-			if(!(ss >> tx))throw std::domain_error("Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+			if(!(ss >> tx))throw std::domain_error("Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
 			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> ty))throw std::domain_error("Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+			if(!(ss >> ty))throw std::domain_error("Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
 			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> tz))throw std::domain_error("Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+			if(!(ss >> tz))throw std::domain_error("Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
 			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> tspecies))throw std::domain_error("Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+			if(!(ss >> tspecies))throw std::domain_error("Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
 			if(ss.peek()==',')ss.ignore();
-			atoms.emplace_back(atom{tx,ty,tz,tspecies});
+			if(!(ss >> sigma))throw std::domain_error("Bad input data for thermal_sigma. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+			if(ss.peek()==',')ss.ignore();
+			atoms.emplace_back(atom{tx,ty,tz,tspecies,sigma});
 		}
 		if (atom_count == 0){
 			std::domain_error("Bad input data. No atoms were found in this file.\n");
@@ -105,29 +96,24 @@ namespace PRISM {
 				}
                 ++atom_count;
                 ++line_num;
-//                std::cout << "atom_count = " << atom_count << " line = " << line <<  std::endl;
-				double tx, ty, tz;
+				double tx, ty, tz, unused, sigma;
 				size_t tspecies;
 				std::stringstream ss(line);
-				if (!(ss >> tspecies))
-					throw std::domain_error(
-							"Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (!(ss >> tspecies))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
 				std::cout << ss.str() << std::endl;
-				if (!(ss >> tx))
-					throw std::domain_error(
-							"Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (!(ss >> tx))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> ty))
-					throw std::domain_error(
-							"Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (!(ss >> ty))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> tz))
-					throw std::domain_error(
-							"Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species).\n");
+				if (!(ss >> tz))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-
-				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies});
+				if (!(ss >> unused))throw std::domain_error("Error reading from XYZ file.\n");
+				if (ss.peek() == ',')ss.ignore();
+				if (!(ss >> sigma))throw std::domain_error("Error reading from XYZ file.\n");
+				if (ss.peek() == ',')ss.ignore();
+				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies, sigma});
+//				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies});
 			}
 			if (atom_count == 0) {
 				std::domain_error("Bad input data. No atoms were found in this file.\n");
@@ -135,7 +121,6 @@ namespace PRISM {
 				std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
 						  << std::endl;
 			}
-
 		return atoms;
 	};
 
@@ -144,8 +129,6 @@ namespace PRISM {
 		if (!f)throw std::runtime_error("Unable to open file.\n");
 		std::string line;
 		std::string token;
-		size_t line_num = 0;
-		size_t atom_count = 0;
 		if (!std::getline(f,line)) throw std::runtime_error("Error reading comment line.\n");
 		if (!std::getline(f,line)) throw std::runtime_error("Error reading unit cell params.\n");
 		double a,b,c; // unit cell params
@@ -195,7 +178,5 @@ namespace PRISM {
 		} else {
 			throw std::domain_error("Unable to determine file extension. Make sure an extension exists.\n");
 		}
-
 	}
-
 }

@@ -55,22 +55,23 @@ namespace PRISM {
 	                                 const Array3D<PRISM_FLOAT_PRECISION>& potentialLookup,
 	                                 const vector<size_t>& unique_species,
 	                                 const Array1D<long>& xvec,
-	                                 const Array1D<long>& yvec,
-	                                 const Array1D<PRISM_FLOAT_PRECISION>& uLookup ){
+	                                 const Array1D<long>& yvec){
 		// splits the atomic coordinates into slices and computes the projected potential for each.
 
 		// create arrays for the coordinates
-		Array1D<PRISM_FLOAT_PRECISION> x  = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
-		Array1D<PRISM_FLOAT_PRECISION> y  = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
-		Array1D<PRISM_FLOAT_PRECISION> z  = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
-		Array1D<PRISM_FLOAT_PRECISION> ID = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> x     = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> y     = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> z     = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> ID    = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISM_FLOAT_PRECISION> sigma = zeros_ND<1, PRISM_FLOAT_PRECISION>({{pars.atoms.size()}});
 
 		// populate arrays from the atoms structure
 		for (auto i = 0; i < pars.atoms.size(); ++i){
-			x[i]  = pars.atoms[i].x * pars.tiledCellDim[2];
-			y[i]  = pars.atoms[i].y * pars.tiledCellDim[1];
-			z[i]  = pars.atoms[i].z * pars.tiledCellDim[0];
-			ID[i] = pars.atoms[i].species;
+			x[i]     = pars.atoms[i].x * pars.tiledCellDim[2];
+			y[i]     = pars.atoms[i].y * pars.tiledCellDim[1];
+			z[i]     = pars.atoms[i].z * pars.tiledCellDim[0];
+			ID[i]    = pars.atoms[i].species;
+			sigma[i] = pars.atoms[i].sigma;
 		}
 
 
@@ -102,8 +103,8 @@ namespace PRISM {
 		WorkDispatcher dispatcher(0, pars.numPlanes);
 		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
-			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec,
-											 &zPlane, &yvec,&potentialLookup,&uLookup, &dispatcher](){
+			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma,
+											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
 //				std::default_random_engine de(time(0));
 				std::default_random_engine de(pars.meta.random_seed);
@@ -125,9 +126,9 @@ namespace PRISM {
 								PRISM_FLOAT_PRECISION X, Y;
 								if (pars.meta.include_thermal_effects) {
 									X = round(
-											(x[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[1]);
+											(x[a2] + randn(de) * sigma[a2]) / pars.pixelSize[1]);
 									Y = round(
-											(y[a2] + randn(de) * uLookup[cur_Z]) / pars.pixelSize[0]);
+											(y[a2] + randn(de) * sigma[a2]) / pars.pixelSize[0]);
 								} else {
 									X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
 									Y = round((y[a2]) / pars.pixelSize[0]); // this line uses no thermal factor
@@ -184,21 +185,19 @@ namespace PRISM {
 		for (auto j=0; j < yr.size(); ++j)yr[j] = (PRISM_FLOAT_PRECISION)yvec[j] * pars.pixelSize[0];
 
 		vector<size_t> unique_species = get_unique_atomic_species(pars);
-		Array1D<PRISM_FLOAT_PRECISION> uLookup   = zeros_ND<1, PRISM_FLOAT_PRECISION>({{unique_species.size()}});
-		for (auto i = 0; i < unique_species.size(); ++i){
-			uLookup[i] = pars.u[unique_species[i]] > 0 ? pars.u[unique_species[i]] : 0.05;
-		}
+//		Array1D<PRISM_FLOAT_PRECISION> uLookup   = zeros_ND<1, PRISM_FLOAT_PRECISION>({{unique_species.size()}});
+//		for (auto i = 0; i < unique_species.size(); ++i){
+//			uLookup[i] = pars.u[unique_species[i]] > 0 ? pars.u[unique_species[i]] : 0.05;
+//		}
 		
-		cout <<"lookups\n";
 		// initialize the lookup table
 		Array3D<PRISM_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISM_FLOAT_PRECISION>({{unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1}});
 		
-		cout <<"fetch\n";
 		// precompute the unique potentials
 		fetch_potentials(potentialLookup, unique_species, xr, yr);
 		cout <<"project\n";
 
 		// populate the slices with the projected potentials
-		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec, uLookup);
+		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
 	}
 }
