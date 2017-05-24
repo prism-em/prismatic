@@ -28,8 +28,6 @@ namespace PRISM {
 	const static std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 	// this might seem a strange way to get pi, but it's slightly more future proof
 	const static PRISM_FLOAT_PRECISION pi    = std::acos(-1);
-//	const static std::complex<PRISM_FLOAT_PRECISION> pi_cx = {std::acos(-1), 0};
-
 	Array2D<PRISM_FLOAT_PRECISION> array2D_subset(const Array2D<PRISM_FLOAT_PRECISION> &arr,
 	                                              const size_t &starty, const size_t &stepy, const size_t &stopy,
 	                                              const size_t &startx, const size_t &stepx, const size_t &stopx) {
@@ -57,7 +55,6 @@ namespace PRISM {
 
 		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
 		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
-
 //		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
 //		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
 
@@ -135,6 +132,8 @@ namespace PRISM {
 	std::pair<Array2D< std::complex<PRISM_FLOAT_PRECISION> >, Array2D< std::complex<PRISM_FLOAT_PRECISION> > >
 	getSinglePRISMProbe_CPU(Parameters<PRISM_FLOAT_PRECISION> &pars, const PRISM_FLOAT_PRECISION xp, const PRISM_FLOAT_PRECISION yp){
 
+		// compute a single probe (for comparison with multislice in the GUI)
+
 		Array2D< std::complex<PRISM_FLOAT_PRECISION> > realspace_probe;
 		Array2D< std::complex<PRISM_FLOAT_PRECISION> > kspace_probe;
 
@@ -211,6 +210,8 @@ namespace PRISM {
 #ifdef PRISM_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");
 #endif
+
+		// initialize FFTW threads
 		PRISM_FFTW_INIT_THREADS();
 		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		vector<thread> workers;
@@ -226,8 +227,6 @@ namespace PRISM {
                      Array2D<std::complex<PRISM_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> > (
 							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
-
-
 					 PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
@@ -296,9 +295,6 @@ namespace PRISM {
 
 		memset(&psi[0], 0, sizeof(std::complex<PRISM_FLOAT_PRECISION>)*psi.size());
 
-
-
-
 		for (auto a4 = 0; a4 < pars.beamsIndex.size(); ++a4) {
 			PRISM_FLOAT_PRECISION yB = pars.xyBeams.at(a4, 0);
 			PRISM_FLOAT_PRECISION xB = pars.xyBeams.at(a4, 1);
@@ -312,10 +308,6 @@ namespace PRISM {
 
 
 				const std::complex<PRISM_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
-//				if (ax==0 & ay==15){
-//					cout << "phaseCoeff  = " << tmp_const << endl;
-//				}
-
 				auto psi_ptr = psi.begin();
 				for (auto j = 0; j < y.size(); ++j) {
 					for (auto i = 0; i < x.size(); ++i) {
@@ -337,6 +329,7 @@ namespace PRISM {
 			std::string section4DFilename = generateFilename(pars, ay, ax);
 			intOutput.toMRC_f(section4DFilename.c_str());
 		}
+
 //         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
@@ -403,14 +396,14 @@ namespace PRISM {
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISM_FLOAT_PRECISION> &a, PRISM_FLOAT_PRECISION &q2_t) {
-//			           a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
 			          std::complex<PRISM_FLOAT_PRECISION> chi{
-                              (PRISM_FLOAT_PRECISION) (pi   * pars.lambda * pars.meta.probeDefocus * q2_t +
-                                                       pi/2 * pow(pars.lambda,3) * pars.meta.C3    * pow(q2_t,2)+
-                                                       pi/3 * pow(pars.lambda,5) * pars.meta.C5    * pow(q2_t,3)), (PRISM_FLOAT_PRECISION)0.0};
+                              (PRISM_FLOAT_PRECISION) (pi   * pars.lambda        * pars.meta.probeDefocus * q2_t +
+                                                       pi/2 * pow(pars.lambda,3) * pars.meta.C3           * pow(q2_t,2)+
+                                                       pi/3 * pow(pars.lambda,5) * pars.meta.C5           * pow(q2_t,3)), (PRISM_FLOAT_PRECISION)0.0};
 			          a = a * exp(-i * chi);
 			          return a;
 		          });
+
 		PRISM_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		                                                      (PRISM_FLOAT_PRECISION) 0.0,
 		                                                      [](PRISM_FLOAT_PRECISION accum,
@@ -434,37 +427,25 @@ namespace PRISM {
 		// setup necessary coordinates
 		setupCoordinates_2(pars);
 
-//		cout << "coords setup" << endl;
 		// setup angles of detector and image sizes
 		setupDetector(pars);
 
-//		cout << "detector setup" << endl;
 		// setup coordinates and indices for the beams
 		setupBeams_2(pars);
 
-//		cout << "beams setup" << endl;
 		// setup Fourier coordinates for the S-matrix
 		setupFourierCoordinates(pars);
 
-//		cout << "fourier coords setup" << endl;
 		// initialize the output to the correct size for the output mode
 		createStack_integrate(pars);
 
-//		cout << "stack setup" << endl;
 //		 perform some necessary setup transformations of the data
 		transformIndices(pars);
 
-//		cout << "xform indices setup" << endl;
 		// initialize/compute the probes
 		initializeProbes(pars);
 
-//		cout << "building output" << endl;
-		cout << "SMATRIX SIZE = "  << pars.Scompact.size() << endl;
-		cout << "pars.Scompact.get_dimi() = "  << pars.Scompact.get_dimi() << endl;
-		cout << "pars.Scompact.get_dimj() = "  << pars.Scompact.get_dimj() << endl;
-		cout << "pars.Scompact.get_dimk() = "  << pars.Scompact.get_dimk() << endl;
 		// compute the final PRISM output
 		buildPRISMOutput(pars);
 	}
 }
-
