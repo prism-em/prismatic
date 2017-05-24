@@ -25,9 +25,9 @@ namespace PRISM {
 		std::complex<PRISM_FLOAT_PRECISION>** Scompact_slice_ph;
 		std::complex<PRISM_FLOAT_PRECISION> *trans_ph;
 		std::complex<PRISM_FLOAT_PRECISION> *prop_ph;
-		size_t *qxInd_ph;
-		size_t *qyInd_ph;
-		size_t *beamsIndex_ph;
+		size_t **qxInd_ph;
+		size_t **qyInd_ph;
+		size_t **beamsIndex_ph;
         PRISM_CUDA_COMPLEX_FLOAT **trans_d;
         PRISM_CUDA_COMPLEX_FLOAT **prop_d;
         size_t **qxInd_d;
@@ -39,7 +39,11 @@ namespace PRISM {
 		std::complex<PRISM_FLOAT_PRECISION> *permuted_Scompact_ph;
 		std::complex<PRISM_FLOAT_PRECISION> *PsiProbeInit_ph;
 		PRISM_FLOAT_PRECISION               *qxaReduce_ph;
+		PRISM_FLOAT_PRECISION               **qxa_ph;
+		PRISM_FLOAT_PRECISION               **qxa_d;
 		PRISM_FLOAT_PRECISION               *qyaReduce_ph;
+		PRISM_FLOAT_PRECISION               **qya_ph;
+		PRISM_FLOAT_PRECISION               **qya_d;
 		PRISM_FLOAT_PRECISION               *alphaInd_ph;
 		size_t                              *xBeams_ph;
 		size_t                              *yBeams_ph;

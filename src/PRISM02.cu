@@ -872,9 +872,7 @@ namespace PRISM {
 			}
 	}
 
-	inline void setupBatchSize(Parameters<PRISM_FLOAT_PRECISION>& pars){
-		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
+	inline void setupArrays2(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		const PRISM_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISM_FLOAT_PRECISION> i(0, 1);
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
@@ -897,7 +895,10 @@ namespace PRISM {
 		CudaParameters<PRISM_FLOAT_PRECISION> cuda_pars;
 
 		// determine the batch size to use
-		setupBatchSize(pars);
+        pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
+
+        // determine the batch size to use
+		setupArrays2(pars);
 
 		createStreamsAndPlans2(pars, cuda_pars);
 		// create CUDA streams
@@ -925,8 +926,11 @@ namespace PRISM {
 		//initialize data
 		CudaParameters<PRISM_FLOAT_PRECISION> cuda_pars;
 
+		// determine the batch size to use
+		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
+
 //		// determine the batch size to use
-		setupBatchSize(pars);
+		setupArrays2(pars);
 
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans2(pars, cuda_pars);
