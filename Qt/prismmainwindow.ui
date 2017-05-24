@@ -37,7 +37,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_potential">
        <attribute name="title">
@@ -989,8 +989,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>326</width>
-         <height>1119</height>
+         <width>320</width>
+         <height>1152</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">

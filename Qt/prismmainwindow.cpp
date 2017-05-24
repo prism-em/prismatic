@@ -11,7 +11,6 @@
 #include <iostream>
 #include <utility>
 #include <array>
-//#include "PRISM_entry.h"
 #include "configure.h"
 #include "prism_qthreads.h"
 #include "prism_progressbar.h"
@@ -63,17 +62,6 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          left: 150px;\
                                          padding: 0 3px 0 3px;\
                                          }");
-
-//ui->box_calculationSettings->setStyleSheet("QGroupBox { \
-//                                      border: 1px solid gray;\
-//                                      border-radius: 9px;\
-//                                      margin-top: 0.5em;\
-//                                  }  QGroupBox::title {\
-//                                     font-weight: bold;\
-//                                     subcontrol-origin: margin;\
-//                                     left: 145px;\
-//                                     padding: 0 300px 0 3px;\
-//                                     }");
 
 ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
@@ -226,7 +214,6 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe\nStep (\u212B)"));
-//    updateAlphaMax();
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
@@ -249,7 +236,6 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(textEdited(QString)), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeY_fromLineEdit()));
-
     connect(this->ui->lineEdit_batchCPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchCPU_fromLineEdit()));
     connect(this->ui->lineEdit_batchGPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchGPU_fromLineEdit()));
     connect(this->ui->lineEdit_potbound, SIGNAL(textEdited(QString)), this, SLOT(setPotBound_fromLineEdit()));
@@ -277,7 +263,6 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
-//    connect(this->ui->btn_calcSmatrix, SIGNAL(clicked(bool)), this, SLOT(calculateSMatrix()));
     connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
     connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
@@ -291,8 +276,6 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
     connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
-//    connect(this->ui->lineEdit_angmin, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
-//    connect(this->ui->lineEdit_angmax, SIGNAL(textChanged(QString)), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
     connect(this->ui->lineEdit_contrast_outputMax, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMax()));
     connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
@@ -306,20 +289,19 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
-
      updateAlphaMax();
 }
-
-
 
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
 	setAlgo(PRISM::Algorithm::PRISM);
 }
+
 void PRISMMainWindow::setAlgo_Multislice(){
 	std::cout << "Setting algorithm to Multislice" << std::endl;
 	setAlgo(PRISM::Algorithm::Multislice);
 }
+
 void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
 	this->meta->algorithm = algo;
     resetCalculation();
@@ -857,6 +839,8 @@ void PRISMMainWindow::calculateProbe(){
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+    connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
+    connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
     connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
     connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));

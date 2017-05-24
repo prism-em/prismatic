@@ -51,24 +51,24 @@ namespace PRISM {
 		PRISM_FLOAT_PRECISION m1, m2, sigma1, sigma2, R;
 		m1=m2=sigma1=sigma2=R=0;
 
-		for (auto &i:left) m1+=abs(i);
-		for (auto &i:right)m2+=abs(i);
+		for (auto &i:left) m1 += std::abs(i);
+		for (auto &i:right)m2 += std::abs(i);
 
-		m1 /= left.size();
-		m2 /= right.size();
+		m1 /= (left.size());
+		m2 /= (right.size());
 
-		for (auto &i:left)sigma1  += pow(std::abs(std::abs(i)-m1),2);
-		for (auto &i:right)sigma2 += pow(std::abs(std::abs(i)-m2),2);
+		for (auto &i:left)sigma1  += pow(std::abs(i)-m1, 2);
+		for (auto &i:right)sigma2 += pow(std::abs(i)-m2, 2);
 
-		sigma1 /= left.size();
-		sigma2 /= right.size();
+		sigma1 /= (left.size());
+		sigma2 /= (right.size());
 
 		sigma1 = sqrt(sigma1);
 		sigma2 = sqrt(sigma2);
-
 		for (auto i = 0; i < std::min(left.size(), right.size()); ++i){
-			R += (std::abs(left[i]) - m1) * (std::abs(right[i]) - m2);
+			R = R + (std::abs(left[i]) - m1) * (std::abs(right[i]) - m2);
 		}
+		R/=sqrt(left.size()*right.size());
 		return R / (sigma1 * sigma2);
 	}
 	PRISM_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > left,
