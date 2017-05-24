@@ -27,8 +27,13 @@ namespace PRISM{
 			std::cout << "Terminating" << std::endl;
 			exit(1);
 		}
+
+		// compute projected potentials
 		PRISM01(prism_pars);
+
 //		prism_pars.pot.toMRC_f("debug_potential.mrc");
+
+		// compute compact S-matrix
 		PRISM02(prism_pars);
 
 //		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
@@ -47,8 +52,10 @@ namespace PRISM{
 //		tmp_r.toMRC_f("debug_scompact_r.mrc");
 //		tmp_i.toMRC_f("debug_scompact_i.mrc");
 
+		// compute final output
 		PRISM03(prism_pars);
 
+		// calculate remaining frozen phonon configurations
         if (prism_pars.meta.numFP > 1) {
             // run the rest of the frozen phonons
             Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);

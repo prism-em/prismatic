@@ -26,22 +26,12 @@ namespace PRISM{
 	void setupCoordinates_multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
 		// setup coordinates and build propagators
-//		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-//		xR[0] = 0.1 * pars.tiledCellDim[2];
-//		xR[1] = 0.9 * pars.tiledCellDim[2];
-//		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
-//		yR[0] = 0.1 * pars.tiledCellDim[1];
-//		yR[1] = 0.9 * pars.tiledCellDim[1];
 		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		xR[0] = pars.meta.scanWindowXMin * pars.tiledCellDim[2];
 		xR[1] = pars.meta.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
 		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
-
-
-//		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
-//		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
 
 		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
 		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
@@ -155,7 +145,6 @@ namespace PRISM{
 		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISM_FLOAT_PRECISION> &a) {
 					return a / norm_constant;
 				});
-		cout << "pars.psiProbeInit.at(0,0) = " << pars.psiProbeInit.at(0,0) << endl;
 	}
 
 	void createTransmission(Parameters<PRISM_FLOAT_PRECISION>& pars){
@@ -267,7 +256,6 @@ namespace PRISM{
 		// output the region of the probe not masked by the anti-aliasing filter
 		Array2D<complex<PRISM_FLOAT_PRECISION> > psi_small = zeros_ND<2, complex<PRISM_FLOAT_PRECISION> >({{psi.get_dimj()/2, psi.get_dimi()/2}});
 
-
 		{
 			long offset_x = psi.get_dimi() / 4;
 			long offset_y = psi.get_dimj() / 4;
@@ -290,11 +278,8 @@ namespace PRISM{
 		gatekeeper.unlock();
 		PRISM_FFTW_EXECUTE(plan_inverse_small);
 		realspace_probe = psi_small;
-//		kspace_probe = psi;
-//		PRISM_FFTW_EXECUTE(plan_inverse);
-//		realspace_probe = psi;
 
-
+		// cleanup plans
 		gatekeeper.lock();
 		PRISM_FFTW_DESTROY_PLAN(plan_forward);
 		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
@@ -504,6 +489,8 @@ namespace PRISM{
 //					for (auto batch_num = 0; batch_num < pars.meta.batch_size_CPU; ++batch_num){
 //						for (auto i:pars.psiProbeInit)*psi_ptr++=i;
 //					}
+
+					// main work loop
                     do {
 						//	cout << "Nstop = " << Nstop << endl;
 						while (Nstart < Nstop) {

@@ -417,6 +417,8 @@ namespace PRISM {
 						                                                         FFTW_BACKWARD, FFTW_MEASURE);
 
 						gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
+						// main work loop
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
 								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
@@ -596,6 +598,8 @@ namespace PRISM {
 						                                                         FFTW_BACKWARD, FFTW_MEASURE);
 
 						gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+
+						// main work loop
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
 								if (currentBeam % PRISM_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){

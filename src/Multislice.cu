@@ -347,6 +347,8 @@ namespace PRISM{
 						                                                         ostride, odist,
 						                                                         FFTW_BACKWARD, FFTW_MEASURE);
 						gatekeeper.unlock();
+
+						// main work loop
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES  < pars.meta.batch_size_CPU | Nstart == 100){
@@ -505,6 +507,8 @@ namespace PRISM{
 						                                                         FFTW_BACKWARD, FFTW_MEASURE);
 
 						gatekeeper.unlock();
+
+						// main work loop
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES  < pars.meta.batch_size_CPU | Nstart == 100){

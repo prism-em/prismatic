@@ -36,15 +36,22 @@ namespace PRISM {
 	using namespace std;
 
 	Array2D<PRISM_FLOAT_PRECISION> projPot(const size_t &Z,
-	                                              const Array1D<PRISM_FLOAT_PRECISION> &xr,
-	                                              const Array1D<PRISM_FLOAT_PRECISION> &yr) {
+                                           const Array1D<PRISM_FLOAT_PRECISION> &xr,
+                                           const Array1D<PRISM_FLOAT_PRECISION> &yr) {
+		// compute the projected potential for a given atomic number following Kirkland
+
+		// setup some constants
 		static const PRISM_FLOAT_PRECISION pi = std::acos(-1);
 		PRISM_FLOAT_PRECISION ss    = 8;
 		PRISM_FLOAT_PRECISION a0    = 0.5292;
 		PRISM_FLOAT_PRECISION e     = 14.4;
 		PRISM_FLOAT_PRECISION term1 = 4*pi*pi*a0*e;
 		PRISM_FLOAT_PRECISION term2 = 2*pi*pi*a0*e;
+
+		// initialize array
 		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > result = zeros_ND<2, PRISM_FLOAT_PRECISION>({{yr.size(), xr.size()}});
+
+		// setup some coordinates
 		const PRISM_FLOAT_PRECISION dx = xr[1] - xr[0];
 		const PRISM_FLOAT_PRECISION dy = yr[1] - yr[0];
 
@@ -94,17 +101,18 @@ namespace PRISM {
 			}
 		}
 
-
 		for (auto i = 0; i < r.size(); ++i)r[i] = sqrt(r2[i]);
-//		cout <<"construct\n";
 		// construct potential
 		ArrayND<2, std::vector<PRISM_FLOAT_PRECISION> > potSS  = ones_ND<2, PRISM_FLOAT_PRECISION>({{r2.get_dimj(), r2.get_dimi()}});
+
+		// get the relevant table values
 		std::vector<PRISM_FLOAT_PRECISION> ap;
 		ap.resize(n_parameters);
 		for (auto i = 0; i < n_parameters; ++i){
 			ap[i] = fparams[(Z-1)*n_parameters + i];
 		}
 
+		// compute the potential
 		using namespace boost::math;
 		std::transform(r.begin(), r.end(),
 		               r2.begin(), potSS.begin(), [&ap, &term1, &term2](const PRISM_FLOAT_PRECISION& r_t, const PRISM_FLOAT_PRECISION& r2_t){

@@ -31,7 +31,6 @@ namespace PRISM {
 	                      const Array1D<PRISM_FLOAT_PRECISION>& yr){
 		Array2D<PRISM_FLOAT_PRECISION> cur_pot;
 		for (auto k =0; k < potentials.get_dimk(); ++k){
-			cout <<"atomic_species[" <<k<<"] = " << atomic_species[k] << endl;
 			Array2D<PRISM_FLOAT_PRECISION> cur_pot = projPot(atomic_species[k], xr, yr);
 			for (auto j = 0; j < potentials.get_dimj(); ++j){
 				for (auto i = 0; i < potentials.get_dimi(); ++i){
@@ -74,7 +73,6 @@ namespace PRISM {
 			sigma[i] = pars.atoms[i].sigma;
 		}
 
-
 		// compute the z-slice index for each atom
 		auto max_z = std::max_element(z.begin(), z.end());
 		Array1D<PRISM_FLOAT_PRECISION> zPlane(z);
@@ -99,14 +97,12 @@ namespace PRISM {
 		std::vector<std::thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS);
 
-//		setWorkStartStop(0, pars.numPlanes, 1);
 		WorkDispatcher dispatcher(0, pars.numPlanes);
 		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma,
 											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
-//				std::default_random_engine de(time(0));
 				std::default_random_engine de(pars.meta.random_seed);
 				normal_distribution<PRISM_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
@@ -114,7 +110,6 @@ namespace PRISM {
 
 				size_t currentBeam, stop;
                 currentBeam=stop=0;
-				//while (getWorkID(pars, currentBeam, stop)) { // synchronously get work assignment
 				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
 					Array2D<PRISM_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISM_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 					while (currentBeam != stop) {
@@ -124,11 +119,9 @@ namespace PRISM {
 								const long dim1 = (long) pars.imageSize[1];
 								const size_t cur_Z = Z_lookup[ID[a2]];
 								PRISM_FLOAT_PRECISION X, Y;
-								if (pars.meta.include_thermal_effects) {
-									X = round(
-											(x[a2] + randn(de) * sigma[a2]) / pars.pixelSize[1]);
-									Y = round(
-											(y[a2] + randn(de) * sigma[a2]) / pars.pixelSize[0]);
+								if (pars.meta.include_thermal_effects) { // apply random perturbations
+									X = round((x[a2] + randn(de) * sigma[a2]) / pars.pixelSize[1]);
+									Y = round((y[a2] + randn(de) * sigma[a2]) / pars.pixelSize[0]);
 								} else {
 									X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
 									Y = round((y[a2]) / pars.pixelSize[0]); // this line uses no thermal factor
@@ -140,11 +133,13 @@ namespace PRISM {
 								for (auto &i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
 								for (auto ii = 0; ii < xp.size(); ++ii) {
 									for (auto jj = 0; jj < yp.size(); ++jj) {
+										// fill in value with lookup table
 										projectedPotential.at(yp[jj], xp[ii]) += potentialLookup.at(cur_Z, jj, ii);
 									}
 								}
 							}
 						}
+						// copy the result to the full array
 						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
 #ifdef PRISM_BUILDING_GUI
                         pars.progressbar->signalPotentialUpdate(currentBeam, pars.numPlanes);
@@ -152,9 +147,7 @@ namespace PRISM {
 						++currentBeam;
 					}
 				}
-
 			}));
-
 		}
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
@@ -164,8 +157,7 @@ namespace PRISM {
 	};
 
 	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
-
-		//builds atomic potentials
+		//builds projected, sliced potential
 
 		// setup some coordinates
 		cout << "Entering PRISM01" << endl;
@@ -185,17 +177,12 @@ namespace PRISM {
 		for (auto j=0; j < yr.size(); ++j)yr[j] = (PRISM_FLOAT_PRECISION)yvec[j] * pars.pixelSize[0];
 
 		vector<size_t> unique_species = get_unique_atomic_species(pars);
-//		Array1D<PRISM_FLOAT_PRECISION> uLookup   = zeros_ND<1, PRISM_FLOAT_PRECISION>({{unique_species.size()}});
-//		for (auto i = 0; i < unique_species.size(); ++i){
-//			uLookup[i] = pars.u[unique_species[i]] > 0 ? pars.u[unique_species[i]] : 0.05;
-//		}
-		
+
 		// initialize the lookup table
 		Array3D<PRISM_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISM_FLOAT_PRECISION>({{unique_species.size(), 2*(size_t)yleng + 1, 2*(size_t)xleng + 1}});
 		
 		// precompute the unique potentials
 		fetch_potentials(potentialLookup, unique_species, xr, yr);
-		cout <<"project\n";
 
 		// populate the slices with the projected potentials
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);

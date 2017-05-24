@@ -22,10 +22,14 @@ namespace PRISM{
 			std::cout << "Terminating" << std::endl;
 			exit(1);
 		}
+
+		// compute projected potentials
 		PRISM01(prism_pars);
+
+		// compute final output
 		Multislice(prism_pars);
 
-
+		// calculate remaining frozen phonon configurations
 		if (prism_pars.meta.numFP > 1) {
 			// run the rest of the frozen phonons
 			Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
@@ -42,9 +46,6 @@ namespace PRISM{
 			for (auto&i:net_output) i/=prism_pars.meta.numFP;
 			prism_pars.output = net_output;
 		}
-
-		cout <<"pars.imageSize[0]" << prism_pars.imageSize[0] << endl;
-		cout <<"pars.imageSize[1]" << prism_pars.imageSize[1] << endl;
 
 		if (prism_pars.meta.save3DOutput)prism_pars.output.toMRC_f(prism_pars.meta.filename_output.c_str());
 

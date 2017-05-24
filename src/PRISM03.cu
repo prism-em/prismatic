@@ -529,6 +529,8 @@ namespace PRISM {
 						                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 						                                              FFTW_FORWARD, FFTW_MEASURE);
 						gatekeeper.unlock();
+
+						// main work loop
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100) {
@@ -681,6 +683,8 @@ namespace PRISM {
 						                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
 						                                              FFTW_FORWARD, FFTW_MEASURE);
 						gatekeeper.unlock();
+
+						// main work loop
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
