@@ -51,7 +51,7 @@ namespace PRISM {
 		}
 	}
 
-	inline void allocateHostMemory_singlexfer3(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocatePinnedHostMemory_singlexfer3(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                          CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		// Allocate pinned memory buffers 
 
@@ -75,7 +75,7 @@ namespace PRISM {
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.yBeams_ph, pars.xyBeams.get_dimj() * sizeof(size_t)));
 	}
 
-	inline void allocateHostMemory_streaming3(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocatePinnedHostMemory_streaming3(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cuda_pars.output_ph = new PRISM_FLOAT_PRECISION *[total_num_streams]; // one output array per stream
@@ -1551,7 +1551,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		createStreamsAndPlans3(pars, cuda_pars);
 
 		// allocate pinned memory
-		allocateHostMemory_singlexfer3(pars, cuda_pars);
+		allocatePinnedHostMemory_singlexfer3(pars, cuda_pars);
 
 		// copy data to pinned buffers
 		copyToPinnedMemory_singlexfer3(pars, cuda_pars);
@@ -1580,7 +1580,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 		createStreamsAndPlans3(pars, cuda_pars);
 
 		// allocate pinned memory
-		allocateHostMemory_streaming3(pars, cuda_pars);
+		allocatePinnedHostMemory_streaming3(pars, cuda_pars);
 
 		// copy data to pinned buffers
 		copyToPinnedMemory_streaming3(pars, cuda_pars);

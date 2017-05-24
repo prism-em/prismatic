@@ -51,7 +51,7 @@ namespace PRISM {
 		}
 	}
 
-	inline void allocateHostMemory_singlexfer2(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocatePinnedHostMemory_singlexfer2(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                          CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		// allocate pinned memory
@@ -69,7 +69,7 @@ namespace PRISM {
 
 	}
 
-	inline void allocateHostMemory_streaming2(Parameters<PRISM_FLOAT_PRECISION> &pars,
+	inline void allocatePinnedHostMemory_streaming2(Parameters<PRISM_FLOAT_PRECISION> &pars,
 	                                         CudaParameters<PRISM_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
 		cuda_pars.Scompact_slice_ph = new std::complex<PRISM_FLOAT_PRECISION>*[total_num_streams];
@@ -903,7 +903,7 @@ namespace PRISM {
 		createStreamsAndPlans2(pars, cuda_pars);
 		// create CUDA streams
 
-		allocateHostMemory_singlexfer2(pars, cuda_pars);
+		allocatePinnedHostMemory_singlexfer2(pars, cuda_pars);
 
 		copyToPinnedMemory_singlexfer2(pars, cuda_pars);
 
@@ -935,7 +935,7 @@ namespace PRISM {
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans2(pars, cuda_pars);
 
-		allocateHostMemory_streaming2(pars, cuda_pars);
+		allocatePinnedHostMemory_streaming2(pars, cuda_pars);
 
 		copyToPinnedMemory_streaming2(pars, cuda_pars);
 
