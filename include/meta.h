@@ -39,8 +39,8 @@ namespace PRISM{
 			NUM_THREADS           = 12;
 			batch_size_target_CPU = 1;
 			batch_size_target_GPU = 1;
-			batch_size_CPU = batch_size_target_CPU;
-			batch_size_GPU = batch_size_target_GPU;
+			batch_size_CPU 		  = batch_size_target_CPU;
+			batch_size_GPU        = batch_size_target_GPU;
 			gpu_cpu_ratio         = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
             probe_stepX           = 0.25;
 			probe_stepY           = 0.25;
@@ -51,10 +51,10 @@ namespace PRISM{
 			detector_angle_step   = 2.5 / 1000;
 			probeXtilt            = 0;
 			probeYtilt            = 0;
-			scanWindowXMin        = 0.1;
-			scanWindowXMax        = 0.9;
-			scanWindowYMin        = 0.1;
-			scanWindowYMax        = 0.9;
+			scanWindowXMin        = 0.0;
+			scanWindowXMax        = 1.0;
+			scanWindowYMin        = 0.0;
+			scanWindowYMax        = 1.0;
 			srand(time(0));
 			random_seed           = rand() % 100000;
 			algorithm             = Algorithm::PRISM;

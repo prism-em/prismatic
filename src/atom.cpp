@@ -88,7 +88,7 @@ namespace PRISM {
 				throw std::domain_error(
 						"Bad input data for unit cell dimension c.\n");
 		}
-        std::cout << "Unit cell a, b, c = " << a << ", " << b << ", " << c << std::endl;
+//        std::cout << "Unit cell a, b, c = " << a << ", " << b << ", " << c << std::endl;
 			while (std::getline(f, line)) {
                 line = line.substr(line.find_first_not_of(" \n\t"), line.find_last_not_of(" \n\t"));
 				if (line.size() <=3){
@@ -101,7 +101,7 @@ namespace PRISM {
 				std::stringstream ss(line);
 				if (!(ss >> tspecies))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-				std::cout << ss.str() << std::endl;
+//				std::cout << ss.str() << std::endl;
 				if (!(ss >> tx))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
 				if (!(ss >> ty))throw std::domain_error("Error reading from XYZ file.\n");
