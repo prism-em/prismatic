@@ -933,15 +933,24 @@ void PRISMMainWindow::updatePotentialDisplay(){
         std::cout <<"currently_calculated_X = " <<currently_calculated_X << std::endl;
         xc = currently_calculated_X / pixelSize[1];
         yc = currently_calculated_Y / pixelSize[0];
-
+        std::cout <<"used the pixel sizes = " << std::endl;
+        std::cout << "probeImage.height() = " << probeImage.height() <<  std::endl;
+        std::cout << "probeImage.width() = " << probeImage.width() << std::endl;
+        std::cout << "potential.get_dimi() = " << potential.get_dimi()<<  std::endl;
+        std::cout << "potential.get_dimj() = " << potential.get_dimj() << std::endl;
+//        std::cout << "pars.imageSize[0] = " << pars.imageSize[0] <<  std::endl;
+//        std::cout << "pars.imageSize[1] = " << pars.imageSize[1] << std::endl;
         long xc_im, yc_im;
-        xc_im = (xc / pars.imageSize[1]) * probeImage.height();
-        yc_im = (yc / pars.imageSize[0]) * probeImage.width();
+        xc_im = (xc / potential.get_dimi()) * probeImage.height();
+        yc_im = (yc / potential.get_dimj()) * probeImage.width();
+//        xc_im = (xc / pars.imageSize[1]) * probeImage.height();
+//        yc_im = (yc / pars.imageSize[0]) * probeImage.width();
+        std::cout << "xc_im = " << xc_im << std::endl;
+        std::cout << "yc_im = " << yc_im << std::endl;
 
 
         const long linehalfwidth = 1;
         const long linelength = 10;
-//        std::cout << "test" << std::endl;
         for (auto ypix = -linehalfwidth; ypix <= linehalfwidth; ++ypix){
             for (auto x = -linelength; x <= linelength; ++x){
 //                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
