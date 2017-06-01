@@ -133,6 +133,14 @@ public slots:
     void potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
     void displayErrorReadingAtomsDialog();
+    void setscan_WindowYMin_edited();
+    void setscan_WindowYMax_edited();
+    void setinterpYSet_edited();
+    void setpixelSizeYSet_edited();
+    void setprobeStepYSet_edited();
+    void setprobeTiltYSet_edited();
+    void resetLinks();
+
 //signals:
 //    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
 //    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);

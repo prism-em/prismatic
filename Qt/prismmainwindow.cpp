@@ -259,6 +259,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMax_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMin_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMin_edited()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMax_edited()));
+    connect(this->ui->lineEdit_interpFactor_y, SIGNAL(editingFinished()), this, SLOT(setinterpYSet_edited()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setpixelSizeYSet_edited()));
+    connect(this->ui->lineEdit_probeStepY, SIGNAL(editingFinished()), this, SLOT(setprobeStepYSet_edited()));
+    connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobeTiltYSet_edited()));
     connect(this->ui->lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -286,6 +292,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)), this, SLOT(toggleSaveProjectedPotential()));
     connect(this->ui->btn_reset, SIGNAL(clicked()), this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe, SIGNAL(clicked()), this, SLOT(calculateProbe()));
+    connect(this->ui->btn_reset, SIGNAL(clicked()), this, SLOT(resetLinks()));
     connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
@@ -713,7 +720,7 @@ void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
 //            setscan_WindowYMin_fromLineEdit();
         }
     }
-    ui->lineEdit_scanWindowXMin->setText(QString::number(val));
+//    ui->lineEdit_scanWindowXMin->setText(QString::number(val));
     resetCalculation();
 }
 
@@ -731,7 +738,7 @@ void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
 //            setscan_WindowYMax_fromLineEdit();
         }
     }
-    ui->lineEdit_scanWindowXMax->setText(QString::number(val));
+//    ui->lineEdit_scanWindowXMax->setText(QString::number(val));
     resetCalculation();
 }
 
@@ -742,11 +749,11 @@ void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
     if (val > 0){
         this->meta->scanWindowYMin = val;
         std::cout << "Setting scan window Y min to " << val << std::endl;
-        if (!minWindowYSet){
-            minWindowYSet = true;
-        }
+//        if (!minWindowYSet){
+//            minWindowYSet = true;
+//        }
     }
-    ui->lineEdit_scanWindowYMin->setText(QString::number(val));
+//    ui->lineEdit_scanWindowYMin->setText(QString::number(val));
     resetCalculation();
 }
 
@@ -757,11 +764,11 @@ void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
     if (val > 0){
         this->meta->scanWindowYMax = val;
         std::cout << "Setting scan window Y max to " << val << std::endl;
-        if (!maxWindowYSet){
-            maxWindowYSet = true;
-        }
+//        if (!maxWindowYSet){
+//            maxWindowYSet = true;
+//        }
     }
-    ui->lineEdit_scanWindowYMax->setText(QString::number(val));
+//    ui->lineEdit_scanWindowYMax->setText(QString::number(val));
     resetCalculation();
 }
 
@@ -933,21 +940,9 @@ void PRISMMainWindow::updatePotentialDisplay(){
         std::cout <<"currently_calculated_X = " <<currently_calculated_X << std::endl;
         xc = currently_calculated_X / pixelSize[1];
         yc = currently_calculated_Y / pixelSize[0];
-        std::cout <<"used the pixel sizes = " << std::endl;
-        std::cout << "probeImage.height() = " << probeImage.height() <<  std::endl;
-        std::cout << "probeImage.width() = " << probeImage.width() << std::endl;
-        std::cout << "potential.get_dimi() = " << potential.get_dimi()<<  std::endl;
-        std::cout << "potential.get_dimj() = " << potential.get_dimj() << std::endl;
-//        std::cout << "pars.imageSize[0] = " << pars.imageSize[0] <<  std::endl;
-//        std::cout << "pars.imageSize[1] = " << pars.imageSize[1] << std::endl;
         long xc_im, yc_im;
         xc_im = (xc / potential.get_dimi()) * probeImage.height();
         yc_im = (yc / potential.get_dimj()) * probeImage.width();
-//        xc_im = (xc / pars.imageSize[1]) * probeImage.height();
-//        yc_im = (yc / pars.imageSize[0]) * probeImage.width();
-        std::cout << "xc_im = " << xc_im << std::endl;
-        std::cout << "yc_im = " << yc_im << std::endl;
-
 
         const long linehalfwidth = 1;
         const long linelength = 10;
@@ -1423,6 +1418,16 @@ void PRISMMainWindow::resetCalculation(){
     probeSetupReady = false;
 }
 
+void PRISMMainWindow::resetLinks(){
+    // reset linked parameters
+    minWindowYSet   = false;
+    maxWindowYSet   = false;
+//    bool interpYSet;
+//    bool pixelSizeYSet;
+//    bool probeStepYSet;
+//    bool probeTiltYSet;
+}
+
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
 //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
@@ -1466,6 +1471,29 @@ void PRISMMainWindow::redrawImages(){
 
 }
 
+void PRISMMainWindow::setscan_WindowYMin_edited(){
+    minWindowYSet = true;
+}
+
+void PRISMMainWindow::setscan_WindowYMax_edited(){
+    maxWindowYSet = true;
+}
+
+void PRISMMainWindow::setinterpYSet_edited(){
+    interpYSet = true;
+}
+
+void PRISMMainWindow::setpixelSizeYSet_edited(){
+    pixelSizeYSet = true;
+}
+
+void PRISMMainWindow::setprobeStepYSet_edited(){
+    probeStepYSet = true;
+}
+
+void PRISMMainWindow::setprobeTiltYSet_edited(){
+    probeTiltYSet = true;
+}
 
 void PRISMMainWindow::resizeEvent(QResizeEvent* event)
 {

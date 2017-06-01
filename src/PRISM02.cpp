@@ -310,6 +310,9 @@ namespace PRISM {
         extern mutex fftw_plan_lock; // lock for protecting FFTW plans
 
 		// initialize arrays
+		cout << "pars.imageSize[0] = " << pars.imageSize[0] << endl;
+		cout << "pars.imageSize[1] = " << pars.imageSize[1] << endl;
+		cout << "pars.numberBeams = " << pars.numberBeams << endl;
 		pars.Scompact = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
 				{{pars.numberBeams, pars.imageSize[0] / 2, pars.imageSize[1] / 2}});
 		pars.transmission = zeros_ND<3, complex<PRISM_FLOAT_PRECISION> >(
