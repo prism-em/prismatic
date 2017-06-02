@@ -139,8 +139,8 @@ namespace PRISM{
 		    std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
 		    std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
-		    _imageSize[0] = (size_t)std::max(4.0,  (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
-		    _imageSize[1] = (size_t)std::max(4.0,  (f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
+		    _imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
+		    _imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
 
 		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
 		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;

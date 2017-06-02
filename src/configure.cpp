@@ -47,7 +47,7 @@ namespace PRISM {
 
 	    T f_x = 4 * meta.interpolationFactorX;
 	    T f_y = 4 * meta.interpolationFactorY;
-	    Array1D<size_t> imageSize({{meta.cellDim[1] * meta.tileY, meta.cellDim[2] * meta.tileX}}, {{2}});
+	    Array1D<size_t> imageSize({{(size_t)(meta.cellDim[1] * meta.tileY), (size_t)(meta.cellDim[2] * meta.tileX)}}, {{2}});
 	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize[0] / f_y)));
 	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize[1] / f_x)));
 

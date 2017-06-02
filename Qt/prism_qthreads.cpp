@@ -311,7 +311,7 @@ void FullPRISMCalcThread::run(){
     emit signalTitle("PRISM: Frozen Phonon #1");
     bool error_reading = false;
     QMutexLocker gatekeeper(&this->parent->dataLock);
-    PRISM::Parameters<PRISM_FLOAT_PRECISION> params;(meta, progressbar);
+    PRISM::Parameters<PRISM_FLOAT_PRECISION> params;
     try {
         params = PRISM::Parameters<PRISM_FLOAT_PRECISION>(meta,progressbar);
     }catch (...){
