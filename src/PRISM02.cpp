@@ -44,16 +44,11 @@ namespace PRISM {
 		pars.q2 = q2;
 
 		// get qMax
-		pars.qMax = 0;
-		{
-			PRISM_FLOAT_PRECISION qx_max = 0;
-			PRISM_FLOAT_PRECISION qy_max = 0;
-			for (auto i = 0; i < qx.size(); ++i) {
-				qx_max = (abs(qx[i]) > qx_max) ? abs(qx[i]) : qx_max;
-				qy_max = (abs(qy[i]) > qy_max) ? abs(qy[i]) : qy_max;
-			}
-			pars.qMax = min(qx_max, qy_max) / 2;
-		}
+        long long ncx = (long long) floor((PRISM_FLOAT_PRECISION) pars.imageSize[1] / 2);
+        PRISM_FLOAT_PRECISION dpx = 1.0 / ((PRISM_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspace_pixelSize[1]);
+        long long ncy = (long long) floor((PRISM_FLOAT_PRECISION) pars.imageSize[0] / 2);
+        PRISM_FLOAT_PRECISION dpy = 1.0 / ((PRISM_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspace_pixelSize[0]);
+        pars.qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
 
 		// construct anti-aliasing mask
 		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
