@@ -10,12 +10,10 @@
 #include <algorithm>
 #include <mutex>
 #include <complex>
-//#include "configure.h"
 #include "ArrayND.h"
 #include "atom.h"
 #include "meta.h"
-//#include "configure.h"
-//
+
 
 #ifdef PRISM_BUILDING_GUI
 class prism_progressbar;
@@ -30,10 +28,8 @@ namespace PRISM{
 	template <class T>
 	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
 
-//#ifndef NDEBUG
 	// for monitoring memory consumption on GPU
 	static std::mutex mem_lock;
-//#endif //NDEBUG
 
     template <class T>
     class Parameters {
@@ -50,7 +46,6 @@ namespace PRISM{
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
 	    Array2D< std::complex<T> > psiProbeInit;
-//	    size_t interpolationFactor;
 	    Array2D<unsigned int> qMask;
 	    T zTotal;
 	    T xTiltShift;
@@ -116,9 +111,28 @@ namespace PRISM{
 		    //constexpr double h = 6.62607e-34;
 		    const double pi = std::acos(-1);
 
+			try {
+				atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms(meta.filename_atoms));
+                std::cout <<"getLowercaseExtension(meta.filename_atoms) = " << getLowercaseExtension(meta.filename_atoms) << std::endl;
+				if (!meta.user_specified_celldims & (getLowercaseExtension(meta.filename_atoms) == "xyz")){
+					std::array<double, 3> dims = peekDims_xyz(meta.filename_atoms);
+					meta.cellDim[0] = dims[0];
+					meta.cellDim[1] = dims[1];
+					meta.cellDim[2] = dims[2];
+				}
+			}
+			catch (const std::runtime_error &e) {
+				std::cout << "PRISM: Error opening " << meta.filename_atoms << std::endl;
+				std::cout << e.what();
+				throw;
+			}
+			catch (const std::domain_error &e) {
+				std::cout << "PRISM: Error extracting atomic data from " << meta.filename_atoms << "!" << std::endl;
+				std::cout << e.what();
+				throw;
+			}
+
 		    // tile the cell dimension.
-		    // TODO: I think it is very bad practice that Parameters modifies the metadata. Should change so that meta contains
-		    // the UC dimensions, and then cellDim exists in params and is modified here
 		    tiledCellDim     = meta.cellDim;
 		    tiledCellDim[2] *= meta.tileX;
 		    tiledCellDim[1] *= meta.tileY;
@@ -155,27 +169,7 @@ namespace PRISM{
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];
-		    try {
-			    atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms(meta.filename_atoms));
-//			    atoms = readAtoms(meta.filename_atoms);
-//				atoms = readAtoms_XYZ(meta.filename_atoms);
-		    }
-		    catch (const std::runtime_error &e) {
-			    std::cout << "PRISM: Error opening " << meta.filename_atoms << std::endl;
-			    std::cout << e.what();
-			    throw;
-//			    std::cout << "Terminating" << std::endl;
-//			    exit(1);
-//			    return -1;
-		    }
-		    catch (const std::domain_error &e) {
-			    std::cout << "PRISM: Error extracting atomic data from " << meta.filename_atoms << "!" << std::endl;
-			    std::cout << e.what();
-			    throw;
-//			    std::cout << "Terminating" << std::endl;
-//			    exit(1);
-//			    return -2;
-		    }
+
 
 		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;

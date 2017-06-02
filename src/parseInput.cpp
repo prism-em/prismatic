@@ -164,6 +164,7 @@ namespace PRISM {
             cout << "Invalid value \"" << (*argv)[3] << "\" provided for Z cell dimension (syntax is -c x, y, z)\n";
             return false;
         }
+        meta.user_specified_celldims = true;
         argc-=4;
         argv[0]+=4;
         return true;

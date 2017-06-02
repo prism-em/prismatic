@@ -179,4 +179,15 @@ namespace PRISM {
 			throw std::domain_error("Unable to determine file extension. Make sure an extension exists.\n");
 		}
 	}
+    std::string getLowercaseExtension(const std::string filename){
+        std::string::size_type idx;
+        idx = filename.rfind('.');
+        if(idx != std::string::npos) {
+            std::string ext = filename.substr(idx + 1);
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+            return ext;
+        } else {
+            return "";
+        }
+    }
 }

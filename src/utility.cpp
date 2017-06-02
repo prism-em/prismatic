@@ -8,6 +8,9 @@
 #include "defines.h"
 #include "configure.h"
 namespace PRISM {
+
+
+
 	std::pair<PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > >
 	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > probe,
 	                   const long dimj, const long dimi, long ys, long xs) {
@@ -81,5 +84,7 @@ namespace PRISM {
 		}
 		return diffs / accum;
 	}
+
+
 
 }

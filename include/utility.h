@@ -16,6 +16,7 @@
 namespace PRISM {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
+
 	template<class T>
 	std::vector<T> vecFromRange(const T &start, const T &step, const T &stop) {
 		std::vector<T> result;

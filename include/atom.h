@@ -36,5 +36,8 @@ namespace PRISM {
 	std::vector<atom> readAtoms_csv(const std::string& filename);
 
 	std::vector<atom> readAtoms_xyz(const std::string& filename);
+
+    std::string getLowercaseExtension(const std::string filename);
+
 }
 #endif //PRISM_ATOM_H

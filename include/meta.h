@@ -62,7 +62,8 @@ namespace PRISM{
 			also_do_CPU_work      = true;
 			save2DOutput          = false;
 			save3DOutput          = true;
-			save4DOutput          = false;\
+			save4DOutput          = false;
+			user_specified_celldims = false;
 			integration_angle_min = 0;
 			integration_angle_max = detector_angle_step;
 			transfer_mode         = StreamingMode::Auto;
@@ -110,6 +111,7 @@ namespace PRISM{
 		T integration_angle_max;
 		bool save3DOutput;
 		bool save4DOutput;
+		bool user_specified_celldims;
 		StreamingMode transfer_mode;
 	};
 
