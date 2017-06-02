@@ -453,8 +453,9 @@ void PRISMMainWindow::setNumFP(const int& num){
 
 
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble(&flag);
+    if (flag){
         this->meta->realspace_pixelSize[1] = val;
         std::cout << "Setting X pixel size to " << val << " Angstroms" << std::endl;
         if (!pixelSizeYSet){
@@ -468,8 +469,9 @@ void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
 }
 
 void PRISMMainWindow::setPixelSizeY_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeY->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val =(PRISM_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeY->text().toDouble(&flag);
+    if (flag){
         this->meta->realspace_pixelSize[0] = val;
         std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
@@ -482,8 +484,9 @@ void PRISMMainWindow::setPixelSizeY_fromLineEdit(){
 
 
 void PRISMMainWindow::setPotBound_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_potbound->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_potbound->text().toDouble(&flag);
+    if (flag){
         this->meta->potBound = val;
         std::cout << "Setting potential bound to " << val << " Angstroms" << std::endl;
     }
@@ -491,8 +494,9 @@ void PRISMMainWindow::setPotBound_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeSemiangle->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeSemiangle->text().toDouble(&flag);
+    if (flag){
         this->meta->probeSemiangle = val / 1000;
         std::cout << "Setting probe semiangle to " << val << " mrad" << std::endl;
     }
@@ -500,8 +504,9 @@ void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
 }
 
 void PRISMMainWindow::setSliceThickness_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_sliceThickness->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_sliceThickness->text().toDouble(&flag);
+    if (flag){
         this->meta->sliceThickness = val;
         std::cout << "Setting sliceThickness to " << val << " Angstroms" << std::endl;
     }
@@ -509,8 +514,9 @@ void PRISMMainWindow::setSliceThickness_fromLineEdit(){
 }
 
 void PRISMMainWindow::setCellDimX_fromLineEdit(){
-    double val = this->ui->lineEdit_cellDimX->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    double val = this->ui->lineEdit_cellDimX->text().toDouble(&flag);
+    if (flag){
         this->meta->cellDim[2] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting X cell dimension to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
@@ -520,8 +526,9 @@ void PRISMMainWindow::setCellDimX_fromLineEdit(){
 }
 
 void PRISMMainWindow::setCellDimY_fromLineEdit(){
-    double val = this->ui->lineEdit_cellDimY->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    double val = this->ui->lineEdit_cellDimY->text().toDouble(&flag);
+    if (flag){
         this->meta->cellDim[1] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting Y cell dimension to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
@@ -531,8 +538,9 @@ void PRISMMainWindow::setCellDimY_fromLineEdit(){
 }
 
 void PRISMMainWindow::setCellDimZ_fromLineEdit(){
-    double val = this->ui->lineEdit_cellDimZ->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    double val = this->ui->lineEdit_cellDimZ->text().toDouble(&flag);
+    if (flag){
         this->meta->cellDim[0] = (PRISM_FLOAT_PRECISION)val;
         std::cout << "Setting Z cell dimension to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
@@ -542,8 +550,9 @@ void PRISMMainWindow::setCellDimZ_fromLineEdit(){
 }
 
 void PRISMMainWindow::setTileX_fromLineEdit(){
-    int val = this->ui->lineEdit_tileX->text().toInt();
-    if (val > 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_tileX->text().toInt(&flag);
+    if (flag){
         this->meta->tileX = (size_t)val;
         std::cout << "Setting tileX to " << val << " UCs" << std::endl;
         updateAlphaMax();
@@ -552,8 +561,9 @@ void PRISMMainWindow::setTileX_fromLineEdit(){
 }
 
 void PRISMMainWindow::setTileY_fromLineEdit(){
-    int val = this->ui->lineEdit_tileY->text().toInt();
-    if (val > 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_tileY->text().toInt(&flag);
+    if (flag){
         this->meta->tileY = (size_t)val;
         std::cout << "Setting tileY to " << val << " UCs" << std::endl;
         updateAlphaMax();
@@ -563,8 +573,9 @@ void PRISMMainWindow::setTileY_fromLineEdit(){
 }
 
 void PRISMMainWindow::setTileZ_fromLineEdit(){
-    int val = this->ui->lineEdit_tileZ->text().toInt();
-    if (val > 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_tileZ->text().toInt(&flag);
+    if (flag){
         this->meta->tileZ = (size_t)val;
         std::cout << "Setting tileZ to " << val << " UCs" << std::endl;
         updateAlphaMax();
@@ -574,8 +585,9 @@ void PRISMMainWindow::setTileZ_fromLineEdit(){
 }
 
 void PRISMMainWindow::setRandomSeed_fromLineEdit(){
-    int val = this->ui->lineEdit_randomSeed->text().toInt();
-    if (val >= 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_randomSeed->text().toInt(&flag);
+    if (flag){
         this->meta->random_seed = (size_t)val;
         std::cout << "Setting random seed to " << val << std::endl;
     }
@@ -584,8 +596,9 @@ void PRISMMainWindow::setRandomSeed_fromLineEdit(){
 
 
 void PRISMMainWindow::setE0_fromLineEdit(){
-    double val = this->ui->lineEdit_E0->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    double val = this->ui->lineEdit_E0->text().toDouble(&flag);
+    if (flag){
         meta->E0 = val * 1e3;
         std::cout << "Setting E0 to " << val << " keV" << std::endl;
         ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
@@ -596,8 +609,9 @@ void PRISMMainWindow::setE0_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_stepX_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepX->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepX->text().toDouble(&flag);
+    if (flag & (val > 0)){
         this->meta->probe_stepX = val;
         std::cout << "Setting probe_stepX to " << val << " Angstroms" << std::endl;
         if (!probeStepYSet){
@@ -612,8 +626,9 @@ void PRISMMainWindow::setprobe_stepX_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepY->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeStepY->text().toDouble(&flag);
+    if (flag & (val > 0)){
         this->meta->probe_stepY = val;
         std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
         if (!probeStepYSet){
@@ -624,8 +639,9 @@ void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble();
-    if (val >= 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble(&flag);
+    if (flag){
         this->meta->probeDefocus = val * 1e-10;
         std::cout << "Setting probe defocus to " << val << " Angstroms" <<  std::endl;
     }
@@ -633,8 +649,9 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_C3_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble();
-    if (val >= 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble(&flag);
+    if (flag){
         this->meta->C3 = val * 1e-10;
         std::cout << "Setting C3 to " << val << " Angstroms" <<  std::endl;
     }
@@ -642,8 +659,9 @@ void PRISMMainWindow::setprobe_C3_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_C5_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C5->text().toDouble();
-    if (val >= 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_C5->text().toDouble(&flag);
+    if (flag){
         this->meta->C5 = val * 1e-10;
         std::cout << "Setting C5 to " << val << " Angstroms" <<  std::endl;
     }
@@ -651,8 +669,9 @@ void PRISMMainWindow::setprobe_C5_fromLineEdit(){
 }
 
 void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_detectorAngle->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_detectorAngle->text().toDouble(&flag);
+    if (flag){
         this->meta->detector_angle_step = val / 1000;
         std::cout << "Setting detector angle step to " << val << " mrad" << std::endl;
     }
@@ -661,8 +680,9 @@ void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
 
 
 void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltX->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltX->text().toDouble(&flag);
+    if (flag){
         this->meta->probeXtilt = val;
         std::cout << "Setting probe X tilt to " << val << std::endl;
         if (!probeTiltYSet){
@@ -676,8 +696,9 @@ void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
 }
 
 void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toDouble();
-    if (val > 0){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toDouble(&flag);
+    if (flag){
         this->meta->probeYtilt = val;
         std::cout << "Setting probe Y tilt to " << val << std::endl;
         if (!probeTiltYSet){
@@ -688,8 +709,9 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
 }
 
 void PRISMMainWindow::setBatchGPU_fromLineEdit(){
-    int val = this->ui->lineEdit_batchGPU->text().toInt();
-    if (val > 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_batchGPU->text().toInt(&flag);
+    if (flag){
         this->meta->batch_size_target_GPU = val;
         this->meta->batch_size_GPU = val;
         QMutexLocker gatekeeper(&dataLock);
@@ -700,8 +722,9 @@ void PRISMMainWindow::setBatchGPU_fromLineEdit(){
 }
 
 void PRISMMainWindow::setBatchCPU_fromLineEdit(){
-    int val = this->ui->lineEdit_batchCPU->text().toInt();
-    if (val > 0){
+    bool flag = false;
+    int val = this->ui->lineEdit_batchCPU->text().toInt(&flag);
+    if (flag){
         this->meta->batch_size_target_CPU = val;
         this->meta->batch_size_CPU = val;
         QMutexLocker gatekeeper(&dataLock);
@@ -711,72 +734,58 @@ void PRISMMainWindow::setBatchCPU_fromLineEdit(){
     }
 }
 
-
-
 void PRISMMainWindow::setscan_WindowXMin_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMin->text().toDouble();
-//    val = std::min(this->meta->scanWindowXMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMin->text().toDouble(&flag);
     val = std::min(this->meta->scanWindowXMax, val);
 
-    if (val > 0){
+    if (flag){
         this->meta->scanWindowXMin = val;
         std::cout << "Setting scan window X min to " << val << std::endl;
         if (!minWindowYSet){
             this->ui->lineEdit_scanWindowYMin->setText(QString::number(val));
             this->meta->scanWindowYMin = val;
             std::cout << "Setting scan window Y min to " << val << std::endl;
-//            setscan_WindowYMin_fromLineEdit();
         }
     }
-//    ui->lineEdit_scanWindowXMin->setText(QString::number(val));
     resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowXMax_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMax->text().toDouble();
-//    val = std::max(this->meta->scanWindowXMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowXMax->text().toDouble(&flag);
     val = std::max(this->meta->scanWindowXMin, val);
-    if (val > 0){
+    if (flag){
         this->meta->scanWindowXMax = val;
         std::cout << "Setting scan window X max to " << val << std::endl;
         if (!maxWindowYSet){
             this->ui->lineEdit_scanWindowYMax->setText(QString::number(val));
             this->meta->scanWindowYMax = val;
             std::cout << "Setting scan window Y max to " << val << std::endl;
-//            setscan_WindowYMax_fromLineEdit();
         }
     }
-//    ui->lineEdit_scanWindowXMax->setText(QString::number(val));
     resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowYMin_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMin->text().toDouble();
-//    val = std::min(this->meta->scanWindowYMax, std::max(val, (PRISM_FLOAT_PRECISION)0.0));
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMin->text().toDouble(&flag);
     val = std::min(this->meta->scanWindowYMax, val);
-    if (val > 0){
+    if (flag){
         this->meta->scanWindowYMin = val;
         std::cout << "Setting scan window Y min to " << val << std::endl;
-//        if (!minWindowYSet){
-//            minWindowYSet = true;
-//        }
     }
-//    ui->lineEdit_scanWindowYMin->setText(QString::number(val));
     resetCalculation();
 }
 
 void PRISMMainWindow::setscan_WindowYMax_fromLineEdit(){
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMax->text().toDouble();
-//    val = std::max(this->meta->scanWindowYMin, std::min(val, (PRISM_FLOAT_PRECISION)1.0));
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)this->ui->lineEdit_scanWindowYMax->text().toDouble(&flag);
     val = std::max(this->meta->scanWindowYMin, val);
-    if (val > 0){
+    if (flag){
         this->meta->scanWindowYMax = val;
         std::cout << "Setting scan window Y max to " << val << std::endl;
-//        if (!maxWindowYSet){
-//            maxWindowYSet = true;
-//        }
     }
-//    ui->lineEdit_scanWindowYMax->setText(QString::number(val));
     resetCalculation();
 }
 
@@ -840,28 +849,32 @@ void PRISMMainWindow::calculateAll(){
 void PRISMMainWindow::calculateProbe(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
-    PRISM_FLOAT_PRECISION X = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeX->text().toDouble();
-    PRISM_FLOAT_PRECISION Y = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeY->text().toDouble();
-    currently_calculated_X = X;
-    currently_calculated_Y = Y;
-    ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
-    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
-    connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-    connect(worker, SIGNAL(signal_RReal(QString)), this, SLOT(update_RReal(QString)));
-    connect(worker, SIGNAL(signal_RK(QString)), this, SLOT(update_RK(QString)));
-    connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
-    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-    connect(worker, SIGNAL(signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
-    connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
-    connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
-    worker->start();
+    bool flagX = false;
+    bool flagY = false;
+    PRISM_FLOAT_PRECISION X = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeX->text().toDouble(&flagX);
+    PRISM_FLOAT_PRECISION Y = (PRISM_FLOAT_PRECISION)ui->lineEdit_probeY->text().toDouble(&flagY);
+    if (flagX & flagY){
+        currently_calculated_X = X;
+        currently_calculated_Y = Y;
+        ProbeThread *worker = new ProbeThread(this, X, Y, progressbar, ui->checkBox_log->isChecked());
+        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+        connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+        connect(worker, SIGNAL(signal_RReal(QString)), this, SLOT(update_RReal(QString)));
+        connect(worker, SIGNAL(signal_RK(QString)), this, SLOT(update_RK(QString)));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
+        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        connect(worker, SIGNAL(signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
+        connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
+        connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION>)));
+        worker->start();
+    }
 }
 
 void PRISMMainWindow::updatePotentialImage(){
@@ -1182,23 +1195,23 @@ void PRISMMainWindow::updateSliders_fromLineEdits(){
 void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
 //    if (outputReady){
     if (checkoutputArrayExists()){
-//        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble() - detectorAngles[0]) /
-//        (detectorAngles[1]-detectorAngles[0]);
-//        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble() - detectorAngles[0]) /
-//        (detectorAngles[1]-detectorAngles[0]);
-        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble()) /
+        bool flagMin = false;
+        bool flagMax = false;
+        PRISM_FLOAT_PRECISION minval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmin->text().toDouble(&flagMin)) /
         (detectorAngles[1]-detectorAngles[0]);
-        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble()) /
+        PRISM_FLOAT_PRECISION maxval = ( (PRISM_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble(&flagMax)) /
         (detectorAngles[1]-detectorAngles[0]);
-        std::cout << "minval = " << (int)std::round(minval) << std::endl;
-        std::cout << "maxval = " << (int)std::round(maxval) << std::endl;
+        if (flagMin & flagMax){
+            std::cout << "minval = " << (int)std::round(minval) << std::endl;
+            std::cout << "maxval = " << (int)std::round(maxval) << std::endl;
 
-        this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
-                                                     this->ui->slider_angmax->value()));
-        this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval) - 1,
-                                                     this->ui->slider_angmin->value()));
-        updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
-        updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
+            this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
+                                                         this->ui->slider_angmax->value()));
+            this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval) - 1,
+                                                         this->ui->slider_angmin->value()));
+            updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
+            updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
+        }
     }
 }
 
@@ -1243,22 +1256,25 @@ void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
 
 
 void PRISMMainWindow::updateContrastPotMin(){
-    contrast_potentialMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMin->text().toDouble();
-    updatePotentialDisplay();
+    bool flag = false;
+    contrast_potentialMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMin->text().toDouble(&flag);
+    if (flag)updatePotentialDisplay();
 }
 void PRISMMainWindow::updateContrastPotMax(){
-    contrast_potentialMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMax->text().toDouble();
-    updatePotentialDisplay();
-
+    bool flag = false;
+    contrast_potentialMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrastPotMax->text().toDouble(&flag);
+    if (flag)updatePotentialDisplay();
 }
 
 void PRISMMainWindow::updateContrastAngMin(){
-    contrast_outputMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMin->text().toDouble();
-    updateOutputDisplay();
+    bool flag = false;
+    contrast_outputMin = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMin->text().toDouble(&flag);
+    if (flag)updateOutputDisplay();
 }
 void PRISMMainWindow::updateContrastAngMax(){
-    contrast_outputMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMax->text().toDouble();
-    updateOutputDisplay();
+    bool flag = false;
+    contrast_outputMax = (PRISM_FLOAT_PRECISION)ui->lineEdit_contrast_outputMax->text().toDouble(&flag);
+    if (flag)updateOutputDisplay();
 }
 
 void PRISMMainWindow::updateAlphaMax(){
