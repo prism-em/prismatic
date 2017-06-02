@@ -273,6 +273,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setpixelSizeYSet_edited()));
     connect(this->ui->lineEdit_probeStepY, SIGNAL(editingFinished()), this, SLOT(setprobeStepYSet_edited()));
     connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobeTiltYSet_edited()));
+
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowXMin()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowXMax()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMin()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMax()));
+
     connect(this->ui->lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -288,6 +294,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max_ang(int)));
 	connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
 	connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
+
+
+
     connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
     connect(this->ui->lineEdit_contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
@@ -1279,6 +1288,70 @@ void PRISMMainWindow::updateAlphaMax(){
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ") + QString::number(alphaMax));
 }
 
+void PRISMMainWindow::checkInput_lineEdit_scanWindowXMin(){
+    bool flagMin = false;
+    bool flagMax = false;
+    PRISM_FLOAT_PRECISION minVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowXMin->text().toDouble(&flagMin);
+    PRISM_FLOAT_PRECISION maxVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowXMax->text().toDouble(&flagMax);
+    if (flagMin & flagMax){
+        if (minVal > maxVal){
+            meta->scanWindowXMin = meta->scanWindowXMax;
+            ui->lineEdit_scanWindowXMin->setText(QString::number(meta->scanWindowXMin));
+        }
+    } else {
+        meta->scanWindowXMin = 0.0;
+        ui->lineEdit_scanWindowXMin->setText(QString::number(meta->scanWindowXMin));
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_scanWindowXMax(){
+    bool flagMin = false;
+    bool flagMax = false;
+    PRISM_FLOAT_PRECISION minVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowXMin->text().toDouble(&flagMin);
+    PRISM_FLOAT_PRECISION maxVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowXMax->text().toDouble(&flagMax);
+    if (flagMin & flagMax){
+        if (maxVal < minVal){
+            meta->scanWindowXMax = meta->scanWindowXMin;
+            ui->lineEdit_scanWindowXMax->setText(QString::number(meta->scanWindowXMax));
+        }
+    } else {
+        meta->scanWindowXMax = 0.0;
+        ui->lineEdit_scanWindowXMax->setText(QString::number(meta->scanWindowXMax));
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_scanWindowYMin(){
+    bool flagMin = false;
+    bool flagMax = false;
+    PRISM_FLOAT_PRECISION minVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowYMin->text().toDouble(&flagMin);
+    PRISM_FLOAT_PRECISION maxVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowYMax->text().toDouble(&flagMax);
+    if (flagMin & flagMax){
+        if (minVal > maxVal){
+            meta->scanWindowYMin = meta->scanWindowYMax;
+            ui->lineEdit_scanWindowYMin->setText(QString::number(meta->scanWindowYMin));
+        }
+    } else {
+        meta->scanWindowYMin = 0.0;
+        ui->lineEdit_scanWindowYMin->setText(QString::number(meta->scanWindowYMin));
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_scanWindowYMax(){
+    bool flagMin = false;
+    bool flagMax = false;
+    PRISM_FLOAT_PRECISION minVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowYMin->text().toDouble(&flagMin);
+    PRISM_FLOAT_PRECISION maxVal = (PRISM_FLOAT_PRECISION)ui->lineEdit_scanWindowYMax->text().toDouble(&flagMax);
+    if (flagMin & flagMax){
+        if (maxVal < minVal){
+            meta->scanWindowYMax = meta->scanWindowYMin;
+            ui->lineEdit_scanWindowYMax->setText(QString::number(meta->scanWindowYMax));
+        }
+    } else {
+        meta->scanWindowYMax = 0.0;
+        ui->lineEdit_scanWindowYMax->setText(QString::number(meta->scanWindowYMax));
+    }
+}
+
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
             QMutexLocker gatekeeper(&outputLock);
@@ -1384,9 +1457,6 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
         QMutexLocker gatekeeper(&outputLock);
         output = _output;
         outputArrayExists = true;
-    }
-    {
-
     }
 }
 

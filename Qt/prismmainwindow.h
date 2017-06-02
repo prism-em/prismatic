@@ -139,6 +139,10 @@ public slots:
     void setpixelSizeYSet_edited();
     void setprobeStepYSet_edited();
     void setprobeTiltYSet_edited();
+    void checkInput_lineEdit_scanWindowXMin();
+    void checkInput_lineEdit_scanWindowXMax();
+    void checkInput_lineEdit_scanWindowYMin();
+    void checkInput_lineEdit_scanWindowYMax();
     void resetLinks();
 
 protected:
