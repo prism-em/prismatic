@@ -153,6 +153,7 @@ public slots:
     void checkInput_lineEdit_pixelSizeY();
     void checkInput_lineEdit_interpFactor_x();
     void checkInput_lineEdit_interpFactor_y();
+    void userHasSetCellDims();
     void resetLinks();
 
 protected:

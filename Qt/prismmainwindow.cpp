@@ -286,6 +286,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_tileY,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileY()));
     connect(this->ui->lineEdit_tileZ,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileZ()));
 
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+
     connect(this->ui->lineEdit_pixelSizeX,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeX()));
     connect(this->ui->lineEdit_pixelSizeY,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeY()));
 
@@ -382,6 +386,7 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
         ui->btn_calcPotential->setEnabled(true);
         this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename.toStdString() + std::string(")"))));
         updateUCdims(filename.toStdString());
+        meta->user_specified_celldims = false;
     }
     resetCalculation();
 }
@@ -1670,6 +1675,10 @@ void PRISMMainWindow::setprobeStepYSet_edited(){
 
 void PRISMMainWindow::setprobeTiltYSet_edited(){
     probeTiltYSet = true;
+}
+
+void PRISMMainWindow::userHasSetCellDims(){
+    meta->user_specified_celldims = true;
 }
 
 void PRISMMainWindow::resizeEvent(QResizeEvent* event)
