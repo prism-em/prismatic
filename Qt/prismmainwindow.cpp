@@ -279,6 +279,19 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMin()));
     connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMax()));
 
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimX()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimY()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimZ()));
+    connect(this->ui->lineEdit_tileX,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileX()));
+    connect(this->ui->lineEdit_tileY,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileY()));
+    connect(this->ui->lineEdit_tileZ,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileZ()));
+
+    connect(this->ui->lineEdit_pixelSizeX,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeX()));
+    connect(this->ui->lineEdit_pixelSizeY,    SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeY()));
+
+    connect(this->ui->lineEdit_interpFactor_x, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_interpFactor_x()));
+    connect(this->ui->lineEdit_interpFactor_y, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_interpFactor_y()));
+
     connect(this->ui->lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(setE0_fromLineEdit()));
 	connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
 	connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
@@ -1302,6 +1315,10 @@ void PRISMMainWindow::checkInput_lineEdit_scanWindowXMin(){
         meta->scanWindowXMin = 0.0;
         ui->lineEdit_scanWindowXMin->setText(QString::number(meta->scanWindowXMin));
     }
+    if (!minWindowYSet){
+        this->ui->lineEdit_scanWindowYMin->setText(QString::number(meta->scanWindowXMin));
+        this->meta->scanWindowYMin = meta->scanWindowXMin;
+    }
 }
 
 void PRISMMainWindow::checkInput_lineEdit_scanWindowXMax(){
@@ -1317,6 +1334,10 @@ void PRISMMainWindow::checkInput_lineEdit_scanWindowXMax(){
     } else {
         meta->scanWindowXMax = 0.0;
         ui->lineEdit_scanWindowXMax->setText(QString::number(meta->scanWindowXMax));
+    }
+    if (!maxWindowYSet){
+        this->ui->lineEdit_scanWindowYMax->setText(QString::number(meta->scanWindowXMax));
+        this->meta->scanWindowYMin = meta->scanWindowXMax;
     }
 }
 
@@ -1351,7 +1372,103 @@ void PRISMMainWindow::checkInput_lineEdit_scanWindowYMax(){
         ui->lineEdit_scanWindowYMax->setText(QString::number(meta->scanWindowYMax));
     }
 }
+void PRISMMainWindow::checkInput_lineEdit_cellDimX(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_cellDimX->text().toDouble(&flag);
+    if (!flag | (val < 0)){
+        meta->cellDim[2] = 1;
+        ui->lineEdit_cellDimX->setText(QString::number(meta->cellDim[2]));
+    }
+}
 
+void PRISMMainWindow::checkInput_lineEdit_cellDimY(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_cellDimY->text().toDouble(&flag);
+    if (!flag | (val < 0)){
+        meta->cellDim[1] = 1;
+        ui->lineEdit_cellDimY->setText(QString::number(meta->cellDim[1]));
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_cellDimZ(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_cellDimZ->text().toDouble(&flag);
+    if (!flag | (val < 0)){
+        meta->cellDim[0] = 1;
+        ui->lineEdit_cellDimZ->setText(QString::number(meta->cellDim[0]));
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_tileX(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_tileX->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->tileX = 1;
+    }
+    ui->lineEdit_tileX->setText(QString::number(meta->tileX));
+}
+
+void PRISMMainWindow::checkInput_lineEdit_tileY(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_tileY->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->tileY = 1;
+    }
+    ui->lineEdit_tileY->setText(QString::number(meta->tileY));
+}
+
+void PRISMMainWindow::checkInput_lineEdit_tileZ(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_tileZ->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->tileZ = 1;
+    }
+    ui->lineEdit_tileZ->setText(QString::number(meta->tileZ));
+}
+
+void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toDouble(&flag);
+    if (!flag | (val < 0)){
+        meta->realspace_pixelSize[1] = 0.1;
+    }
+    ui->lineEdit_pixelSizeX->setText(QString::number(meta->realspace_pixelSize[1]));
+    if (!pixelSizeYSet){
+        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspace_pixelSize[1]));
+        this->meta->realspace_pixelSize[0] = meta->realspace_pixelSize[1];
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_interpFactor_x(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->interpolationFactorX = 1;
+    }
+    ui->lineEdit_interpFactor_x->setText(QString::number(meta->interpolationFactorX));
+    if (!interpYSet){
+        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->interpolationFactorX));
+        this->meta->interpolationFactorY = meta->interpolationFactorX;
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_interpFactor_y(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->interpolationFactorY = 1;
+    }
+    ui->lineEdit_interpFactor_y->setText(QString::number(meta->interpolationFactorY));
+}
+
+void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeY->text().toDouble(&flag);
+    if (!flag | (val < 0)){
+        meta->realspace_pixelSize[0] = 0.1;
+    }
+    ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspace_pixelSize[0]));
+}
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
             QMutexLocker gatekeeper(&outputLock);

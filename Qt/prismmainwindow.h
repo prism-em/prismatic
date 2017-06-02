@@ -143,6 +143,16 @@ public slots:
     void checkInput_lineEdit_scanWindowXMax();
     void checkInput_lineEdit_scanWindowYMin();
     void checkInput_lineEdit_scanWindowYMax();
+    void checkInput_lineEdit_cellDimX();
+    void checkInput_lineEdit_cellDimY();
+    void checkInput_lineEdit_cellDimZ();
+    void checkInput_lineEdit_tileX();
+    void checkInput_lineEdit_tileY();
+    void checkInput_lineEdit_tileZ();
+    void checkInput_lineEdit_pixelSizeX();
+    void checkInput_lineEdit_pixelSizeY();
+    void checkInput_lineEdit_interpFactor_x();
+    void checkInput_lineEdit_interpFactor_y();
     void resetLinks();
 
 protected:
