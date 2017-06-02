@@ -141,15 +141,7 @@ public slots:
     void setprobeTiltYSet_edited();
     void resetLinks();
 
-//signals:
-//    void signalProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-//    void signalProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-//    void signalProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-//    void signalProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-//    void testImage();
-
 protected:
-
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);
     void setRealspacePixelSize(const PRISM_FLOAT_PRECISION& pixel_size);

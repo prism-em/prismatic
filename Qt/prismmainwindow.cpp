@@ -5,6 +5,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPainter>
 #include "prismmainwindow.h"
 #include "ui_prismmainwindow.h"
 #include <fstream>
@@ -931,9 +932,26 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                ui->lbl_image_potential->height(),
                                Qt::KeepAspectRatio);
 
-        ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
-                                                                                     ui->lbl_image_potential->height(),
-                                                                                     Qt::KeepAspectRatio)));
+//        ui->lbl_image_potential->setPixmap(QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
+//                                                                                     ui->lbl_image_potential->height(),
+//                                                                                     Qt::KeepAspectRatio)));
+        QPixmap qpix = QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
+                                                                 ui->lbl_image_potential->height(),
+                                                                 Qt::KeepAspectRatio));
+        QPainter p;
+        p.begin(&qpix);
+        p.setPen(QPen(Qt::yellow, 2, Qt::DotLine));
+        p.drawRect(QRect(QPoint(qpix.width()  * std::max((PRISM_FLOAT_PRECISION)0.0, meta->scanWindowYMin),
+                                qpix.height() * std::max((PRISM_FLOAT_PRECISION)0.0, meta->scanWindowXMin)),
+                         QPoint(qpix.width()  * std::min((PRISM_FLOAT_PRECISION)1.0, meta->scanWindowYMax),
+                                qpix.height() * std::min((PRISM_FLOAT_PRECISION)1.0, meta->scanWindowXMax))));
+//        p.drawRect(QRect(QPoint(qpix.width() * 0.1,
+//                                qpix.height() * 0.1),
+//                         QPoint(qpix.width() * 0.9,
+//                                qpix.height() * 0.9)));
+        p.end();
+        ui->lbl_image_potential->setPixmap(qpix);
+
 
         probeImage = potentialImage;
         PRISM_FLOAT_PRECISION xc, yc;
@@ -944,6 +962,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
         xc_im = (xc / potential.get_dimi()) * probeImage.height();
         yc_im = (yc / potential.get_dimj()) * probeImage.width();
 
+        // draw the reticle
         const long linehalfwidth = 1;
         const long linelength = 10;
         for (auto ypix = -linehalfwidth; ypix <= linehalfwidth; ++ypix){
