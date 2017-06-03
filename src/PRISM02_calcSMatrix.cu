@@ -5,8 +5,8 @@
 
 // For variable naming, the suffixes are "_d" for "device" (1 copy per GPU), "_ds" for "device stream (1 copy per stream), "_ph" for "pinned host"
 
-#include "PRISM02.cuh"
-#include "PRISM02.h"
+#include "PRISM02_calcSMatrix.cuh"
+#include "PRISM02_calcSMatrix.h"
 #include <thread>
 #include "WorkDispatcher.h"
 #include "cufft.h"

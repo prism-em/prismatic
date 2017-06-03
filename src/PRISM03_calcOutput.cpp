@@ -3,7 +3,7 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#include "PRISM03.h"
+#include "PRISM03_calcOutput.h"
 #include "params.h"
 #include <iostream>
 #include <algorithm>
@@ -419,10 +419,10 @@ namespace PRISM {
 
 	}
 
-	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void PRISM03_calcOutput(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// compute final image
 
-		cout << "Entering PRISM03" << endl;
+		cout << "Entering PRISM03_calcOutput" << endl;
 
 		// setup necessary coordinates
 		setupCoordinates_2(pars);

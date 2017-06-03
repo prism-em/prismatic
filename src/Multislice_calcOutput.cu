@@ -11,8 +11,8 @@
 
 // For variable naming, the suffixes are "_d" for "device" (1 copy per GPU), "_ds" for "device stream (1 copy per stream), "_ph" for "pinned host"
 
-#include "Multislice.cuh"
-#include "Multislice.h"
+#include "Multislice_calcOutput.cuh"
+#include "Multislice_calcOutput.h"
 #include "cuComplex.h"
 #include "cufft.h"
 #include "utility.cuh"

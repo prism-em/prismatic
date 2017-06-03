@@ -9,9 +9,9 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "configure.h"
-#include "Multislice.h"
-#include "PRISM01.h"
-#include "PRISM02.h"
+#include "Multislice_calcOutput.h"
+#include "PRISM01_calcPotential.h"
+#include "PRISM02_calcSMatrix.h"
 #include <algorithm>
 
 

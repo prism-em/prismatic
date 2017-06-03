@@ -40,9 +40,9 @@
 
 
 //#ifdef PRISM_BUILDING_GUI
-//	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
+//	void PRISM01_calcPotential(Parameters<PRISM_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
 //#else
-	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	void PRISM01_calcPotential(Parameters<PRISM_FLOAT_PRECISION>& pars);
 //#endif //PRISM_ENABLE_GPU
 }
 #endif //PRISM_PRISM01_H

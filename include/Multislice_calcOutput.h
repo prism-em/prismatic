@@ -60,6 +60,6 @@ namespace PRISM{
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 
-	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	void Multislice_calcOutput(Parameters<PRISM_FLOAT_PRECISION>& pars);
 }
 #endif //PRISM_MULTISLICE_H

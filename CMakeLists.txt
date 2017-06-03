@@ -26,10 +26,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 set(SOURCE_FILES
         src/configure.cpp
         src/WorkDispatcher.cpp
-        src/Multislice.cpp
-        src/PRISM01.cpp
-        src/PRISM02.cpp
-        src/PRISM03.cpp
+        src/Multislice_calcOutput.cpp
+        src/PRISM01_calcPotential.cpp
+        src/PRISM02_calcSMatrix.cpp
+        src/PRISM03_calcOutput.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
 	    src/projectedPotential.cpp
@@ -49,9 +49,9 @@ endif (PRISM_ENABLE_GUI)
 
 if (PRISM_ENABLE_GPU)
     set(CUDA_SOURCE_FILES
-            src/Multislice.cu
-            src/PRISM02.cu
-            src/PRISM03.cu
+            src/Multislice_calcOutput.cu
+            src/PRISM02_calcSMatrix.cu
+            src/PRISM03_calcOutput.cu
             src/utility.cu)
 endif (PRISM_ENABLE_GPU)
 

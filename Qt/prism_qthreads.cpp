@@ -5,10 +5,10 @@
 
 #include "prism_qthreads.h"
 #include "prism_progressbar.h"
-#include "PRISM01.h"
-#include "PRISM02.h"
-#include "PRISM03.h"
-#include "Multislice.h"
+#include "PRISM01_calcPotential.h"
+#include "PRISM02_calcSMatrix.h"
+#include "PRISM03_calcOutput.h"
+#include "Multislice_calcOutput.h"
 #include "utility.h"
 #include <iostream>
 
@@ -26,7 +26,7 @@ void PotentialThread::run(){
         QMutexLocker calculationLocker(&this->parent->calculationLock);
         PRISM::configure(meta);
         // calculate potential
-        PRISM::PRISM01(params);
+        PRISM::PRISM01_calcPotential(params);
         this->parent->potentialReceived(params.pot);
         emit potentialCalculated();
     }
@@ -56,7 +56,7 @@ void PotentialThread::run(){
 //    // calculate potential if it hasn't been already
 //    if (!this->parent->potentialIsReady()){
 //        // calculate potential
-//        PRISM::PRISM01(params);
+//        PRISM::PRISM01_calcPotential(params);
 //	    QMutexLocker gatekeeper(&this->parent->dataLock);
 //        // indicate that the potential is ready
 
@@ -73,7 +73,7 @@ void PotentialThread::run(){
 
 
 ////    // calculate S-Matrix
-//    PRISM::PRISM02(params);
+//    PRISM::PRISM02_calcSMatrix(params);
 //    QMutexLocker gatekeeper(&this->parent->dataLock);
 
 ////    // perform copy
@@ -101,7 +101,7 @@ void ProbeThread::run(){
     if (!this->parent->potentialIsReady()){
         PRISM::configure(meta);
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        PRISM::PRISM01(params);
+        PRISM::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
         {
             QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -119,7 +119,7 @@ void ProbeThread::run(){
     }
 
     if (!this->parent->SMatrixIsReady()){
-        PRISM::PRISM02(params);
+        PRISM::PRISM02_calcSMatrix(params);
     {
 //        std::cout << "S-Matrix finished calculating." << std::endl;
 //        QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -330,7 +330,7 @@ void FullPRISMCalcThread::run(){
 //  //  PRISM::Parameters<PRISM_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
     if (!this->parent->potentialIsReady()){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        PRISM::PRISM01(params);
+        PRISM::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
     {
 //        QMutexLocker gatekeeper(&this->parent->potentialLock);
@@ -351,7 +351,7 @@ void FullPRISMCalcThread::run(){
     }
 
     if (!this->parent->SMatrixIsReady()){
-    PRISM::PRISM02(params);
+    PRISM::PRISM02_calcSMatrix(params);
     {
 //        QMutexLocker gatekeeper(&this->parent->dataLock);
 
@@ -369,7 +369,7 @@ void FullPRISMCalcThread::run(){
     }
 //    emit ScompactCalculated();
 
-    PRISM::PRISM03(params);
+    PRISM::PRISM03_calcOutput(params);
 
 
 
@@ -381,9 +381,9 @@ void FullPRISMCalcThread::run(){
             params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
-            PRISM::PRISM01(params);
-            PRISM::PRISM02(params);
-            PRISM::PRISM03(params);
+            PRISM::PRISM01_calcPotential(params);
+            PRISM::PRISM02_calcSMatrix(params);
+            PRISM::PRISM03_calcOutput(params);
             net_output += params.output;
         }
         // divide to take average
@@ -434,7 +434,7 @@ void FullMultisliceCalcThread::run(){
     PRISM::configure(meta);
         if (!this->parent->potentialIsReady()) {
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-            PRISM::PRISM01(params);
+            PRISM::PRISM01_calcPotential(params);
             std::cout << "Potential Calculated" << std::endl;
             {
                 QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -454,7 +454,7 @@ void FullMultisliceCalcThread::run(){
     this->parent->potentialReceived(params.pot);
     emit potentialCalculated();
 
-    PRISM::Multislice(params);
+    PRISM::Multislice_calcOutput(params);
 
 
     if (params.meta.numFP > 1) {
@@ -465,8 +465,8 @@ void FullMultisliceCalcThread::run(){
             params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
-            PRISM::PRISM01(params);
-            PRISM::Multislice(params);
+            PRISM::PRISM01_calcPotential(params);
+            PRISM::Multislice_calcOutput(params);
             net_output += params.output;
         }
         // divide to take average

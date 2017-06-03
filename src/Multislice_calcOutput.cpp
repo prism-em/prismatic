@@ -16,7 +16,7 @@
 #include "utility.h"
 #include "fftw3.h"
 #include "WorkDispatcher.h"
-#include "Multislice.h"
+#include "Multislice_calcOutput.h"
 namespace PRISM{
 	using namespace std;
 	static const PRISM_FLOAT_PRECISION pi = acos(-1);
@@ -481,7 +481,7 @@ namespace PRISM{
 	};
 
 
-	void Multislice(Parameters<PRISM_FLOAT_PRECISION>& pars){
+	void Multislice_calcOutput(Parameters<PRISM_FLOAT_PRECISION>& pars){
 
 		// setup coordinates and build propagators
 		setupCoordinates_multislice(pars);

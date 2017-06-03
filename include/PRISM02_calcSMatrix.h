@@ -35,7 +35,7 @@ namespace PRISM {
 
 	void fill_Scompact_CPUOnly(Parameters<PRISM_FLOAT_PRECISION> &pars);
 
-	void PRISM02(Parameters<PRISM_FLOAT_PRECISION>& pars);
+	void PRISM02_calcSMatrix(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
 }
 #endif //PRISM_PRISM02_H

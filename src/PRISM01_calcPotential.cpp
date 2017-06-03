@@ -3,7 +3,7 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#include "PRISM01.h"
+#include "PRISM01_calcPotential.h"
 #include "params.h"
 #include <iostream>
 #include <algorithm>
@@ -156,11 +156,11 @@ namespace PRISM {
 #endif //PRISM_BUILDING_GUI
 	};
 
-	void PRISM01(Parameters<PRISM_FLOAT_PRECISION>& pars){
+	void PRISM01_calcPotential(Parameters<PRISM_FLOAT_PRECISION>& pars){
 		//builds projected, sliced potential
 
 		// setup some coordinates
-		cout << "Entering PRISM01" << endl;
+		cout << "Entering PRISM01_calcPotential" << endl;
 		PRISM_FLOAT_PRECISION yleng = std::ceil(pars.meta.potBound / pars.pixelSize[0]);
 		PRISM_FLOAT_PRECISION xleng = std::ceil(pars.meta.potBound / pars.pixelSize[1]);
 		ArrayND<1, vector<long> > xvec(vector<long>(2*(size_t)xleng + 1, 0),{{2*(size_t)xleng + 1}});

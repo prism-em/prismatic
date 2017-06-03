@@ -7,11 +7,11 @@
 #include "configure.h"
 #include "PRISM_entry.h"
 #include "Multislice_entry.h"
-#include "Multislice.h"
+#include "Multislice_calcOutput.h"
 #include <iostream>
-#include "PRISM01.h"
-#include "PRISM02.h"
-#include "PRISM03.h"
+#include "PRISM01_calcPotential.h"
+#include "PRISM02_calcSMatrix.h"
+#include "PRISM03_calcOutput.h"
 //#define PRISM_ENABLE_GPU
 
 

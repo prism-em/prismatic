@@ -7,9 +7,9 @@
 #include "params.h"
 #include "ArrayND.h"
 #include "configure.h"
-#include "Multislice.h"
-#include "PRISM01.h"
-#include "PRISM02.h"
+#include "Multislice_calcOutput.h"
+#include "PRISM01_calcPotential.h"
+#include "PRISM02_calcSMatrix.h"
 #include <algorithm>
 
 
@@ -24,10 +24,10 @@ namespace PRISM{
 		}
 
 		// compute projected potentials
-		PRISM01(prism_pars);
+		PRISM01_calcPotential(prism_pars);
 
 		// compute final output
-		Multislice(prism_pars);
+		Multislice_calcOutput(prism_pars);
 
 		// calculate remaining frozen phonon configurations
 		if (prism_pars.meta.numFP > 1) {
@@ -38,8 +38,8 @@ namespace PRISM{
 				Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
 				cout << "Frozen Phonon #" << fp_num << endl;
 				prism_pars.meta.toString();
-				PRISM01(prism_pars);
-				Multislice(prism_pars);
+				PRISM01_calcPotential(prism_pars);
+				Multislice_calcOutput(prism_pars);
 				net_output += prism_pars.output;
 			}
 			// divide to take average

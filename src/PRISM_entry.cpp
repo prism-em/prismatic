@@ -11,9 +11,9 @@
 #include <algorithm>
 #include "configure.h"
 #include "ArrayND.h"
-#include "PRISM01.h"
-#include "PRISM02.h"
-#include "PRISM03.h"
+#include "PRISM01_calcPotential.h"
+#include "PRISM02_calcSMatrix.h"
+#include "PRISM03_calcOutput.h"
 #include "params.h"
 #include <vector>
 
@@ -29,12 +29,12 @@ namespace PRISM{
 		}
 
 		// compute projected potentials
-		PRISM01(prism_pars);
+		PRISM01_calcPotential(prism_pars);
 
 //		prism_pars.pot.toMRC_f("debug_potential.mrc");
 
 		// compute compact S-matrix
-		PRISM02(prism_pars);
+		PRISM02_calcSMatrix(prism_pars);
 
 //		Array3D<PRISM_FLOAT_PRECISION> tmp = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
 //		Array3D<PRISM_FLOAT_PRECISION> tmp_r = zeros_ND<3, PRISM_FLOAT_PRECISION>({{prism_pars.Scompact.get_dimk(),prism_pars.Scompact.get_dimj(),prism_pars.Scompact.get_dimi()}});
@@ -53,7 +53,7 @@ namespace PRISM{
 //		tmp_i.toMRC_f("debug_scompact_i.mrc");
 
 		// compute final output
-		PRISM03(prism_pars);
+		PRISM03_calcOutput(prism_pars);
 
 		// calculate remaining frozen phonon configurations
         if (prism_pars.meta.numFP > 1) {
@@ -64,9 +64,9 @@ namespace PRISM{
 				Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
                 cout << "Frozen Phonon #" << fp_num << endl;
 	            prism_pars.meta.toString();
-	        	PRISM01(prism_pars);
-	        	PRISM02(prism_pars);
-                PRISM03(prism_pars);
+	        	PRISM01_calcPotential(prism_pars);
+	        	PRISM02_calcSMatrix(prism_pars);
+                PRISM03_calcOutput(prism_pars);
                 net_output += prism_pars.output;
             }
             // divide to take average

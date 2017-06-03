@@ -42,6 +42,6 @@ namespace PRISM {
 
 	void buildPRISMOutput_CPUOnly(Parameters<PRISM_FLOAT_PRECISION>& pars);
 
-	void PRISM03(Parameters<PRISM_FLOAT_PRECISION> &pars);
+	void PRISM03_calcOutput(Parameters<PRISM_FLOAT_PRECISION> &pars);
 }
 #endif //PRISM_PRISM03_H

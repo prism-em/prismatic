@@ -3,7 +3,7 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#include "PRISM02.h"
+#include "PRISM02_calcSMatrix.h"
 #include "params.h"
 #include <iostream>
 #include <vector>
@@ -419,10 +419,10 @@ namespace PRISM {
 #endif //PRISM_BUILDING_GUI
 	}
 
-	void PRISM02(Parameters<PRISM_FLOAT_PRECISION> &pars) {
+	void PRISM02_calcSMatrix(Parameters<PRISM_FLOAT_PRECISION> &pars) {
 		// propagate plane waves to construct compact S-matrix
 
-		cout << "Entering PRISM02" << endl;
+		cout << "Entering PRISM02_calcSMatrix" << endl;
 
 		// setup some coordinates
 		setupCoordinates(pars);

@@ -10,8 +10,8 @@
 #include <thread>
 #include <vector>
 #include "WorkDispatcher.h"
-#include "PRISM03.cuh"
-#include "PRISM03.h"
+#include "PRISM03_calcOutput.cuh"
+#include "PRISM03_calcOutput.h"
 #include "utility.cuh"
 
 namespace PRISM {
