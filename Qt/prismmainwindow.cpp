@@ -376,22 +376,31 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 
 void PRISMMainWindow::updateUCdims(const std::string& filename){
     // get the unit cell dimensions from the input file (if possible)
-    std::array<double, 3> uc_dims = PRISM::peekDims_xyz(filename);
+    bool error_reading = false;
+    std::array<double, 3> uc_dims;
+    try {
+        uc_dims = PRISM::peekDims_xyz(filename);
+    } catch (...){
+        error_reading = true;
+    }
+    if (error_reading){
+        displayErrorReadingAtomsDialog();
+    }else{
+        if (uc_dims[0]>0){
+            // update gui
+            ui->lineEdit_cellDimX->setText(QString::number(uc_dims[0]));
+            ui->lineEdit_cellDimY->setText(QString::number(uc_dims[1]));
+            ui->lineEdit_cellDimZ->setText(QString::number(uc_dims[2]));
 
-    if (uc_dims[0]>0){
-        // update gui
-        ui->lineEdit_cellDimX->setText(QString::number(uc_dims[0]));
-        ui->lineEdit_cellDimY->setText(QString::number(uc_dims[1]));
-        ui->lineEdit_cellDimZ->setText(QString::number(uc_dims[2]));
+            // move cursor of the cell dimension line edits back to 0 so they are easy to read
+            ui->lineEdit_cellDimX->setCursorPosition(0);
+            ui->lineEdit_cellDimY->setCursorPosition(0);
+            ui->lineEdit_cellDimZ->setCursorPosition(0);
 
-        // move cursor of the cell dimension line edits back to 0 so they are easy to read
-        ui->lineEdit_cellDimX->setCursorPosition(0);
-        ui->lineEdit_cellDimY->setCursorPosition(0);
-        ui->lineEdit_cellDimZ->setCursorPosition(0);
-
-        meta->cellDim[0] = uc_dims[2];
-        meta->cellDim[1] = uc_dims[1];
-        meta->cellDim[2] = uc_dims[0];
+            meta->cellDim[0] = uc_dims[2];
+            meta->cellDim[1] = uc_dims[1];
+            meta->cellDim[2] = uc_dims[0];
+        }
     }
 }
 
@@ -1004,7 +1013,7 @@ void PRISMMainWindow::displayErrorReadingAtomsDialog(){
     popup->setWindowTitle("PRISM: Error!");
     popup->setText(QString::fromStdString(std::string("An error occurred while attempting to read atomic coordinates from file:\n\n") +
                                           meta->filename_atoms +
-                                          std::string("\n\nEnsure that the file is accessible and is formatted correctly based on its extension. See the documentation for full details.")));
+                                          std::string("\n\nEnsure that the file is accessible and is formatted correctly. Here is an example:\n\nComment line goes here\n\t5.43    5.43    5.43\n14  0.0000  0.0000  0.0000  1.0  0.076\n14  2.7150  2.7150  0.0000  1.0  0.076\n14  1.3575  4.0725  1.3575  1.0  0.076\n14  4.0725  1.3575  1.3575  1.0  0.076\n14  2.7150  0.0000  2.7150  1.0  0.076\n14  0.0000  2.7150  2.7150  1.0  0.076\n14  1.3575  1.3575  4.0725  1.0  0.076\n14  4.0725  4.0725  4.0725  1.0  0.076\n-1\n")));
     popup->show();
 }
 
