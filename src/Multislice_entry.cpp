@@ -62,7 +62,7 @@ namespace PRISM{
 					}
 				}
 			}
-			std::string image_filename = std::string("multislice_image_") + prism_pars.meta.filename_output;
+			std::string image_filename = std::string("multislice_2Doutput_") + prism_pars.meta.filename_output;
 			prism_image.toMRC_f(image_filename.c_str());
 		}
 #ifdef PRISM_ENABLE_GPU

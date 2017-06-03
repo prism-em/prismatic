@@ -88,7 +88,7 @@ namespace PRISM{
 					}
 				}
 			}
-			std::string image_filename = std::string("prism_image_") + prism_pars.meta.filename_output;
+			std::string image_filename = std::string("prism_2Doutput_") + prism_pars.meta.filename_output;
 			prism_image.toMRC_f(image_filename.c_str());
 		}
 

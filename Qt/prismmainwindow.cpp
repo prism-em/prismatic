@@ -52,7 +52,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 	// set window title
-    setWindowTitle("PRISM");
+    setWindowTitle("PRISM (no atomic coordinate file selected)");
 
     ui->box_sampleSettings->setStyleSheet("QGroupBox { \
                                           border: 1px solid gray;\
@@ -364,10 +364,6 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
     filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Atomic Model(*.xyz *.XYZ);;All files(*)"));
     if (validateFilename(filename.toStdString())){
-        this->setFilenameAtoms(filename.toStdString());
-        ui->btn_go->setEnabled(true);
-        ui->btn_calcPotential->setEnabled(true);
-        this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename.toStdString() + std::string(")"))));
         updateUCdims(filename.toStdString());
         meta->user_specified_celldims = false;
     }
@@ -386,6 +382,10 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
     if (error_reading){
         displayErrorReadingAtomsDialog();
     }else{
+        this->setFilenameAtoms(filename);
+        ui->btn_go->setEnabled(true);
+        ui->btn_calcPotential->setEnabled(true);
+        this->setWindowTitle(QString::fromStdString(std::string("PRISM (") + std::string(filename + std::string(")"))));
         if (uc_dims[0]>0){
             // update gui
             ui->lineEdit_cellDimX->setText(QString::number(uc_dims[0]));

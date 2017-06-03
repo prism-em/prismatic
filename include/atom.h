@@ -39,5 +39,7 @@ namespace PRISM {
 
     std::string getLowercaseExtension(const std::string filename);
 
+	std::vector<atom> defaultAtoms();
+
 }
 #endif //PRISM_ATOM_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1429</width>
-    <height>1089</height>
+    <height>1202</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -989,8 +989,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>320</width>
-         <height>1152</height>
+         <width>326</width>
+         <height>1120</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -2903,6 +2903,9 @@ Step (A)</string>
                 <layout class="QVBoxLayout" name="verticalLayout_15">
                  <item>
                   <widget class="QPushButton" name="btn_reset">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
@@ -2931,7 +2934,7 @@ Step (A)</string>
                  <item>
                   <widget class="QPushButton" name="btn_calcPotential">
                    <property name="enabled">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="minimumSize">
                     <size>
@@ -2952,7 +2955,7 @@ Step (A)</string>
                  <item>
                   <widget class="QPushButton" name="btn_go">
                    <property name="enabled">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="minimumSize">
                     <size>

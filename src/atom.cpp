@@ -190,4 +190,33 @@ namespace PRISM {
             return "";
         }
     }
+
+	std::vector<atom> defaultAtoms(){
+		// returns the unit cell of 100 Silicon from the file SI100.XYZ. This is sometimes used as a default input in case
+		// the user hasn't provided one, for example in the GUI
+
+//		one unit cell of 100 silicon
+//		5.43    5.43    5.43
+//		14  0.0000  0.0000  0.0000  1.0  0.076
+//		14  2.7150  2.7150  0.0000  1.0  0.076
+//		14  1.3575  4.0725  1.3575  1.0  0.076
+//		14  4.0725  1.3575  1.3575  1.0  0.076
+//		14  2.7150  0.0000  2.7150  1.0  0.076
+//		14  0.0000  2.7150  2.7150  1.0  0.076
+//		14  1.3575  1.3575  4.0725  1.0  0.076
+//		14  4.0725  4.0725  4.0725  1.0  0.076
+//		-1
+
+		std::vector<atom> result;
+		result.resize(8);
+		result.emplace_back(atom{0.0000 / 5.43, 0.0000 / 5.43 , 0.0000 / 5.43, 14, 0.076});
+		result.emplace_back(atom{2.7150 / 5.43, 2.7150 / 5.43 , 0.0000 / 5.43, 14, 0.076});
+		result.emplace_back(atom{1.3575 / 5.43, 4.0725 / 5.43 , 1.3575 / 5.43, 14, 0.076});
+		result.emplace_back(atom{4.0725 / 5.43, 1.3575 / 5.43 , 1.3575 / 5.43, 14, 0.076});
+		result.emplace_back(atom{2.7150 / 5.43, 0.0000 / 5.43 , 2.7150 / 5.43, 14, 0.076});
+		result.emplace_back(atom{0.0000 / 5.43, 2.7150 / 5.43 , 2.7150 / 5.43, 14, 0.076});
+		result.emplace_back(atom{1.3575 / 5.43, 1.3575 / 5.43 , 4.0725 / 5.43, 14, 0.076});
+		result.emplace_back(atom{4.0725 / 5.43, 4.0725 / 5.43 , 4.0725 / 5.43, 14, 0.076});
+		return result;
+	}
 }
