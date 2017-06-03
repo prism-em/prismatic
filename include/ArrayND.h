@@ -25,9 +25,6 @@ namespace PRISM {
             ArrayND(T _data,
                     std::array<size_t, N> _dims);
             ArrayND(){};
-//            size_t get_nrows()   const {return dims[0];}
-//        size_t get_ncols()   const {return dims[1];}
-//        size_t get_nlayers()   const {return dims[2];}
 			size_t get_dimi() const {return this->dims[N-1];}
 			size_t get_dimj() const {return this->dims[N-2];}
 			size_t get_dimk() const {return this->dims[N-3];}
@@ -49,26 +46,26 @@ namespace PRISM {
 
 	        typename T::value_type& operator[](const size_t& i);
             typename T::value_type operator[](const size_t& i)const;
-            ArrayND<N, T> operator-(const ArrayND<N, T>& other);
-            ArrayND<N, T> operator+(const ArrayND<N, T>& other);
-            ArrayND<N, T> operator*(const ArrayND<N, T>& other);
-            ArrayND<N, T> operator/(const ArrayND<N, T>& other);
-            ArrayND<N, T> operator-(const typename T::value_type& val);
-            ArrayND<N, T> operator+(const typename T::value_type& val);
-            ArrayND<N, T> operator*(const typename T::value_type& val);
-            ArrayND<N, T> operator/(const typename T::value_type& val);
-	        ArrayND<N, T> operator-(const ArrayND<N, T>& other)const;
-	        ArrayND<N, T> operator+(const ArrayND<N, T>& other)const;
-	        ArrayND<N, T> operator*(const ArrayND<N, T>& other)const;
-	        ArrayND<N, T> operator/(const ArrayND<N, T>& other)const;
+            ArrayND<N, T>  operator-( const ArrayND<N, T>& other);
+            ArrayND<N, T>  operator+( const ArrayND<N, T>& other);
+            ArrayND<N, T>  operator*( const ArrayND<N, T>& other);
+            ArrayND<N, T>  operator/( const ArrayND<N, T>& other);
+            ArrayND<N, T>  operator-( const typename T::value_type& val);
+            ArrayND<N, T>  operator+( const typename T::value_type& val);
+            ArrayND<N, T>  operator*( const typename T::value_type& val);
+            ArrayND<N, T>  operator/( const typename T::value_type& val);
+	        ArrayND<N, T>  operator-( const ArrayND<N, T>& other)const;
+	        ArrayND<N, T>  operator+( const ArrayND<N, T>& other)const;
+	        ArrayND<N, T>  operator*( const ArrayND<N, T>& other)const;
+	        ArrayND<N, T>  operator/( const ArrayND<N, T>& other)const;
 			ArrayND<N, T>& operator-=(const ArrayND<N, T>& other);
 			ArrayND<N, T>& operator+=(const ArrayND<N, T>& other);
 			ArrayND<N, T>& operator*=(const ArrayND<N, T>& other);
 			ArrayND<N, T>& operator/=(const ArrayND<N, T>& other);
-	        ArrayND<N, T> operator-(const typename T::value_type& val)const;
-	        ArrayND<N, T> operator+(const typename T::value_type& val)const;
-	        ArrayND<N, T> operator*(const typename T::value_type& val)const;
-	        ArrayND<N, T> operator/(const typename T::value_type& val)const;
+	        ArrayND<N, T>  operator-( const typename T::value_type& val)const;
+	        ArrayND<N, T>  operator+( const typename T::value_type& val)const;
+	        ArrayND<N, T>  operator*( const typename T::value_type& val)const;
+	        ArrayND<N, T>  operator/( const typename T::value_type& val)const;
             ArrayND<N, T>& operator-=(const typename T::value_type& val);
             ArrayND<N, T>& operator+=(const typename T::value_type& val);
             ArrayND<N, T>& operator*=(const typename T::value_type& val);

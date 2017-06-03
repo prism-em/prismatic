@@ -29,11 +29,11 @@ namespace PRISM {
 
 	std::vector<atom> readAtoms(const std::string& filename);
 
-	std::array<double, 3> peekDims(const std::string& filename);
+//	std::array<double, 3> peekDims(const std::string& filename);
 
 	std::array<double, 3> peekDims_xyz(const std::string& filename);
 
-	std::vector<atom> readAtoms_csv(const std::string& filename);
+//	std::vector<atom> readAtoms_csv(const std::string& filename);
 
 	std::vector<atom> readAtoms_xyz(const std::string& filename);
 

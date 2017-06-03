@@ -112,9 +112,8 @@ namespace PRISM{
 		    const double pi = std::acos(-1);
 
 			try {
-				atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms(meta.filename_atoms));
-                std::cout <<"getLowercaseExtension(meta.filename_atoms) = " << getLowercaseExtension(meta.filename_atoms) << std::endl;
-				if (!meta.user_specified_celldims & (getLowercaseExtension(meta.filename_atoms) == "xyz")){
+				atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms_xyz(meta.filename_atoms));
+				if (!meta.user_specified_celldims){
 					std::array<double, 3> dims = peekDims_xyz(meta.filename_atoms);
 					meta.cellDim[0] = dims[0];
 					meta.cellDim[1] = dims[1];
