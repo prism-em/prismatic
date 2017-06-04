@@ -12,12 +12,15 @@
 #include "utility.h"
 #include <iostream>
 
-PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
+PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
     // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
     QMutexLocker gatekeeper(&this->parent->dataLock);
     this->meta = *(parent->getMetadata());
 }
+
+PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
+    PRISMThread(_parent, _progressbar){};
 
 void PotentialThread::run(){
     // create parameters
@@ -84,11 +87,7 @@ void PotentialThread::run(){
 
 
 ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISM_FLOAT_PRECISION _X, PRISM_FLOAT_PRECISION _Y, prism_progressbar *_progressbar, bool _use_log_scale) :
-parent(_parent), X(_X), Y(_Y), progressbar(_progressbar), use_log_scale(_use_log_scale){
-    // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    this->meta = *(parent->getMetadata());
-}
+PRISMThread(_parent, _progressbar), X(_X), Y(_Y), use_log_scale(_use_log_scale){};
 
 void ProbeThread::run(){
     PRISM::Parameters<PRISM_FLOAT_PRECISION> params(meta, progressbar);
@@ -299,11 +298,7 @@ if (use_log_scale){
 }
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
-parent(_parent), progressbar(_progressbar){
-    // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    this->meta = *(parent->getMetadata());
-}
+    PRISMThread(_parent, _progressbar){};
 
 
 void FullPRISMCalcThread::run(){
@@ -420,11 +415,7 @@ void FullPRISMCalcThread::run(){
 
 
 FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
-        parent(_parent), progressbar(_progressbar){
-    // construct the thread with a copy of the metadata so that any upstream changes don't mess with this calculation
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    this->meta = *(parent->getMetadata());
-}
+    PRISMThread(_parent, _progressbar){};
 
 
 void FullMultisliceCalcThread::run(){
@@ -499,6 +490,7 @@ void FullMultisliceCalcThread::run(){
     std::cout << "Multislice calculation complete" << std::endl;
 }
 
+PRISMThread::~PRISMThread(){}
 PotentialThread::~PotentialThread(){}
 //SMatrixThread::~SMatrixThread(){}
 ProbeThread::~ProbeThread(){}

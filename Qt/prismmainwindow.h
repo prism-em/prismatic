@@ -31,6 +31,7 @@ class PRISMMainWindow : public QMainWindow
 
     // declare the thread classes as friends so that they can
     // access the protected mutex locks and arrays
+    friend class PRISMThread;
     friend class PotentialThread;
 //    friend class SMatrixThread;
     friend class ProbeThread;
