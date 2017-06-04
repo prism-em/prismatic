@@ -1440,6 +1440,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permuted_Scompact_d,
 	}
 
 	using namespace std;
+
 	void buildPRISMOutput_GPU_singlexfer(Parameters<PRISM_FLOAT_PRECISION> &pars){
 #ifdef PRISM_BUILDING_GUI
 		pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");

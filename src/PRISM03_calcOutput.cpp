@@ -439,7 +439,7 @@ namespace PRISM {
 		// initialize the output to the correct size for the output mode
 		createStack_integrate(pars);
 
-//		 perform some necessary setup transformations of the data
+	    // perform some necessary setup transformations of the data
 		transformIndices(pars);
 
 		// initialize/compute the probes

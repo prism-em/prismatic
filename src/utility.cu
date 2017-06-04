@@ -55,7 +55,6 @@ __device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a){
 	return make_cuFloatComplex(e*c, e*s);
 }
 
-// creates initial probe using existing GPU memory rather than streaming each probe
 __global__ void initializePsi_oneNonzero(cuFloatComplex *psi_d, const size_t N, const size_t beamLoc){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
 	if (idx < N) {
@@ -114,8 +113,6 @@ __global__ void multiply_cx(cuFloatComplex* arr,
                             const size_t N){
 	int idx = threadIdx.x + blockDim.x*blockIdx.x;
 	if (idx < N) {
-//		cuFloatComplex a = arr[idx];
-//		cuFloatComplex o = other[idx];
 		arr[idx] = cuCmulf(arr[idx], other[idx]);
 	}
 }

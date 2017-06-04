@@ -3,25 +3,24 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_PRISM_ENTRY_H
-#define PRISM_PRISM_ENTRY_H
-#include "PRISM_entry.h"
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
+#include <vector>
+#include "PRISM_entry.h"
 #include "configure.h"
 #include "ArrayND.h"
 #include "PRISM01_calcPotential.h"
 #include "PRISM02_calcSMatrix.h"
 #include "PRISM03_calcOutput.h"
 #include "params.h"
-#include <vector>
+
 
 namespace PRISM{
 	using namespace std;
 	Parameters<PRISM_FLOAT_PRECISION> PRISM_entry(Metadata<PRISM_FLOAT_PRECISION>& meta){
 		Parameters<PRISM_FLOAT_PRECISION> prism_pars;
-		try {
+		try { // read atomic coordinates
 			prism_pars = Parameters<PRISM_FLOAT_PRECISION>(meta);
 		} catch(const std::runtime_error &e){
 			std::cout << "Terminating" << std::endl;
@@ -99,4 +98,3 @@ namespace PRISM{
 		return prism_pars;
 	}
 }
-#endif //PRISM_PRISM_ENTRY_H
