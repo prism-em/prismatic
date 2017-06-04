@@ -338,23 +338,21 @@ void PRISMMainWindow::setInterpolationFactorX(){
 		std::cout << "Setting interpolation factor X to " << new_f << std::endl;
 		this->meta->interpolationFactorX = new_f;
         if (!interpYSet){
-            ui->lineEdit_interpFactor_y->setText(ui->lineEdit_interpFactor_x->text());
-            setInterpolationFactorY();
+            ui->lineEdit_interpFactor_y->setText(QString::number(new_f));
+            std::cout << "Setting interpolation factor Y to " << new_f << std::endl;
+            this->meta->interpolationFactorY = new_f;
+//            setInterpolationFactorY();
         }
-	} else{
-        std::cout << "Invalid interpolation factor X input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
-	}
+    }
     resetCalculation();
 }
 
 void PRISMMainWindow::setInterpolationFactorY(){
     bool flag;
-    const size_t& new_f = this->ui->lineEdit_interpFactor_x->text().toUInt(&flag);
+    const size_t& new_f = this->ui->lineEdit_interpFactor_y->text().toUInt(&flag);
     if (flag){
         std::cout << "Setting interpolation factor Y to " << new_f << std::endl;
         this->meta->interpolationFactorY = new_f;
-    } else{
-        std::cout << "Invalid interpolation factor Y input: " <<  this->ui->lineEdit_interpFactor_x->text().toStdString() << std::endl;
     }
     resetCalculation();
 }
@@ -475,11 +473,12 @@ void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
         this->meta->realspace_pixelSize[1] = val;
         std::cout << "Setting X pixel size to " << val << " Angstroms" << std::endl;
         if (!pixelSizeYSet){
-            ui->lineEdit_pixelSizeY->setText(ui->lineEdit_pixelSizeX->text());
-            setPixelSizeY_fromLineEdit();
+            ui->lineEdit_pixelSizeY->setText(QString::number(val));
+            this->meta->realspace_pixelSize[0] = val;
+            std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
+//            setPixelSizeY_fromLineEdit();
         }
         updateAlphaMax();
-
     }
     resetCalculation();
 }
@@ -1422,6 +1421,28 @@ void PRISMMainWindow::checkInput_lineEdit_tileZ(){
     ui->lineEdit_tileZ->setText(QString::number(meta->tileZ));
 }
 
+
+void PRISMMainWindow::checkInput_lineEdit_interpFactor_x(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_interpFactor_x->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->interpolationFactorX = 1;
+    }
+    ui->lineEdit_interpFactor_x->setText(QString::number(meta->interpolationFactorX));
+    if (!interpYSet){
+        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->interpolationFactorX));
+        this->meta->interpolationFactorY = meta->interpolationFactorX;
+    }
+}
+
+void PRISMMainWindow::checkInput_lineEdit_interpFactor_y(){
+    bool flag = false;
+    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_interpFactor_y->text().toInt(&flag);
+    if (!flag | (val < 1)){
+        meta->interpolationFactorY = 1;
+    }
+    ui->lineEdit_interpFactor_y->setText(QString::number(meta->interpolationFactorY));
+}
 void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
     bool flag = false;
     PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toDouble(&flag);
@@ -1435,27 +1456,7 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
     }
 }
 
-void PRISMMainWindow::checkInput_lineEdit_interpFactor_x(){
-    bool flag = false;
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toInt(&flag);
-    if (!flag | (val < 1)){
-        meta->interpolationFactorX = 1;
-    }
-    ui->lineEdit_interpFactor_x->setText(QString::number(meta->interpolationFactorX));
-    if (!interpYSet){
-        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->interpolationFactorX));
-        this->meta->interpolationFactorY = meta->interpolationFactorX;
-    }
-}
 
-void PRISMMainWindow::checkInput_lineEdit_interpFactor_y(){
-    bool flag = false;
-    PRISM_FLOAT_PRECISION val = (PRISM_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toInt(&flag);
-    if (!flag | (val < 1)){
-        meta->interpolationFactorY = 1;
-    }
-    ui->lineEdit_interpFactor_y->setText(QString::number(meta->interpolationFactorY));
-}
 
 void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
     bool flag = false;
