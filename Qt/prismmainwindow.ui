@@ -146,9 +146,16 @@
                </layout>
               </item>
               <item>
-               <widget class="QCheckBox" name="checkBox_sqrtIntensity1">
+               <widget class="QSlider" name="slider_bothSlices">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_sqrtIntensityPot">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="text">
                  <string>Square Root Intensity</string>
@@ -3033,7 +3040,7 @@ Step (A)</string>
   <tabstop>scrollArea</tabstop>
   <tabstop>btn_atomsfile_browse</tabstop>
   <tabstop>btn_go</tabstop>
-  <tabstop>checkBox_sqrtIntensity1</tabstop>
+  <tabstop>checkBox_sqrtIntensityPot</tabstop>
   <tabstop>lineEdit_contrastPotMax</tabstop>
   <tabstop>tabs</tabstop>
   <tabstop>lineEdit_cellDimX</tabstop>

@@ -312,7 +312,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
-//    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
+    connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
+    //    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
     updateAlphaMax();
 }
 
@@ -921,11 +922,16 @@ void PRISMMainWindow::updatePotentialFloatImage(){
 
         // get max/min values for contrast setting
         auto minval = std::min_element(potentialImage_float.begin(),
-                                                 potentialImage_float.end());
+                                       potentialImage_float.end());
         auto maxval = std::max_element(potentialImage_float.begin(),
-                                                 potentialImage_float.end());
-        contrast_potentialMin = *minval;
-        contrast_potentialMax = *maxval;
+                                       potentialImage_float.end());
+        if (ui->checkBox_sqrtIntensityPot->isChecked()){
+            contrast_potentialMin = std::sqrt(*minval);
+            contrast_potentialMax = std::sqrt(*maxval);
+        } else {
+            contrast_potentialMin = *minval;
+            contrast_potentialMax = *maxval;
+        }
         ui->lineEdit_contrastPotMin->setText(QString::number(contrast_potentialMin));
         ui->lineEdit_contrastPotMax->setText(QString::number(contrast_potentialMax));
     }
@@ -939,12 +945,23 @@ void PRISMMainWindow::updatePotentialDisplay(){
 //            QMutexLocker gatekeeper(&dataLock);
 
             std::cout << "filling in potential image " << std::endl;
-            for (auto j = 0; j < potential.get_dimj(); ++j){
-                for (auto i = 0; i < potential.get_dimi(); ++i){
-                    uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
-                                                  contrast_potentialMin,
-                                                  contrast_potentialMax);
-                    potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+            if (ui->checkBox_sqrtIntensityPot->isChecked()){
+                for (auto j = 0; j < potential.get_dimj(); ++j){
+                    for (auto i = 0; i < potential.get_dimi(); ++i){
+                        uchar val = getUcharFromFloat(std::sqrt(potentialImage_float.at(j,i)),
+                                                      contrast_potentialMin,
+                                                      contrast_potentialMax);
+                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+                    }
+                }
+            } else {
+                for (auto j = 0; j < potential.get_dimj(); ++j){
+                    for (auto i = 0; i < potential.get_dimi(); ++i){
+                        uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
+                                                      contrast_potentialMin,
+                                                      contrast_potentialMax);
+                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+                    }
                 }
             }
 
@@ -1591,6 +1608,7 @@ void PRISMMainWindow::resetCalculation(){
     potentialReady  = false;
     probeSetupReady = false;
 }
+
 
 void PRISMMainWindow::resetLinks(){
     // reset linked parameters
