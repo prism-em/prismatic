@@ -59,18 +59,6 @@ namespace PRISM{
 		for (auto& q : pars.q1)q=sqrt(q);
 
 		// get qMax
-//		pars.qMax = 0;
-//		{
-//			PRISM_FLOAT_PRECISION qx_max;
-//			PRISM_FLOAT_PRECISION qy_max;
-//			for (auto ii = 0; ii < qx.size(); ++ii) {
-//				qx_max = ( abs(qx[ii]) > qx_max) ? abs(qx[ii]) : qx_max;
-//				qy_max = ( abs(qy[ii]) > qy_max) ? abs(qy[ii]) : qy_max;
-//			}
-//			pars.qMax = min(qx_max, qy_max) / 2;
-//		}
-
-		// get qMax
 		long long ncx = (long long) floor((PRISM_FLOAT_PRECISION) pars.imageSize[1] / 2);
 		PRISM_FLOAT_PRECISION dpx = 1.0 / ((PRISM_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspace_pixelSize[1]);
 		long long ncy = (long long) floor((PRISM_FLOAT_PRECISION) pars.imageSize[0] / 2);

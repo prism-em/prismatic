@@ -1430,7 +1430,7 @@ void PRISMMainWindow::checkInput_lineEdit_interpFactor_x(){
     }
     ui->lineEdit_interpFactor_x->setText(QString::number(meta->interpolationFactorX));
     if (!interpYSet){
-        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->interpolationFactorX));
+        this->ui->lineEdit_interpFactor_y->setText(QString::number(meta->interpolationFactorX));
         this->meta->interpolationFactorY = meta->interpolationFactorX;
     }
 }

@@ -28,11 +28,11 @@ SOURCES += main.cpp\
     ../src/configure.cpp \
     ../src/WorkDispatcher.cpp \
     ../src/Multislice_entry.cpp \
-    ../src/Multislice.cpp \
+    ../src/Multislice_calcOutput.cpp \
     ../src/PRISM_entry.cpp \
-    ../src/PRISM01.cpp \
-    ../src/PRISM02.cpp \
-    ../src/PRISM03.cpp \
+    ../src/PRISM01_calcPotential.cpp \
+    ../src/PRISM02_calcSMatrix.cpp \
+    ../src/PRISM03_calcOutput.cpp \
     ../src/projectedPotential.cpp \
     ../src/utility.cpp \
     ../src/atom.cpp \

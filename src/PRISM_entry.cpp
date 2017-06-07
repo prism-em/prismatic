@@ -60,6 +60,7 @@ namespace PRISM{
             Array3D<PRISM_FLOAT_PRECISION> net_output(prism_pars.output);
             for (auto fp_num = 1; fp_num < prism_pars.meta.numFP; ++fp_num){
 	            meta.random_seed = rand() % 100000;
+				++meta.fpNum;
 				Parameters<PRISM_FLOAT_PRECISION> prism_pars(meta);
                 cout << "Frozen Phonon #" << fp_num << endl;
 	            prism_pars.meta.toString();
