@@ -156,7 +156,8 @@ public slots:
     void checkInput_lineEdit_interpFactor_y();
     void userHasSetCellDims();
     void resetLinks();
-
+    void moveBothPotentialSliders(int);
+    void updateSlider_PotentialCombo(int);
 protected:
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);

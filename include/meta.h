@@ -48,7 +48,7 @@ namespace PRISM{
 			C3                    = 0.0;
 			C5                    = 0.0;
 			probeSemiangle        = 20.0 / 1000;
-			detector_angle_step   = 2.5 / 1000;
+			detector_angle_step   = 1.0 / 1000;
 			probeXtilt            = 0;
 			probeYtilt            = 0;
 			scanWindowXMin        = 0.0;

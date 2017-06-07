@@ -288,6 +288,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->btn_go,                          SIGNAL(clicked(bool)),            this, SLOT(calculateAll()));
     connect(this->ui->lineEdit_slicemin,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
+    connect(this->ui->slider_bothSlices,               SIGNAL(valueChanged(int)),        this, SLOT(moveBothPotentialSliders(int)));
+    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_min(int)));
     connect(this->ui->slider_slicemax,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_max(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updatePotentialFloatImage()));
@@ -1590,6 +1592,17 @@ void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION> _outp
         outputArrayExists = true;
     }
 }
+
+void PRISMMainWindow::moveBothPotentialSliders(int val){
+    int difference = ui->slider_slicemax->value() - ui->slider_slicemin->value();
+    ui->slider_slicemin->setValue(val);
+    ui->slider_slicemax->setValue(std::min(val + difference, ui->slider_slicemax->maximum()));
+}
+
+void PRISMMainWindow::updateSlider_PotentialCombo(int val){
+    ui->slider_bothSlices->setValue(val);
+}
+
 
 void PRISMMainWindow::enableOutputWidgets(){
     ui->slider_angmax->setEnabled(true);
