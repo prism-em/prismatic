@@ -17,9 +17,9 @@
 
 
 #ifdef PRISM_ENABLE_GPU
-#include "Multislice.cuh"
-#include "PRISM02.cuh"
-#include "PRISM03.cuh"
+#include "Multislice_calcOutput.cuh"
+#include "PRISM02_calcSMatrix.cuh"
+#include "PRISM03_calcOutput.cuh"
 #include "utility.cuh"
 #include "Multislice_entry.h"
 #endif //PRISM_ENABLE_GPU
