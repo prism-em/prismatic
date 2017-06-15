@@ -11,14 +11,14 @@ namespace PRISM {
 
 
 
-	std::pair<PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > >
-	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > probe,
+	std::pair<PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
 	                   const long dimj, const long dimi, long ys, long xs) {
-		Array2D<std::complex<PRISM_FLOAT_PRECISION> > realspace_probe;
-		Array2D<std::complex<PRISM_FLOAT_PRECISION> > buffer_probe;
-		Array2D<std::complex<PRISM_FLOAT_PRECISION> > kspace_probe;
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > realspace_probe;
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > buffer_probe;
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > kspace_probe;
 
-		buffer_probe = zeros_ND<2, std::complex<PRISM_FLOAT_PRECISION> >({{(size_t)dimj, (size_t)dimi}});
+		buffer_probe = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION> >({{(size_t)dimj, (size_t)dimi}});
 //		std::cout << "dimj = " << dimj << std::endl;
 		long ncy = probe.get_dimj() / 2;
 		long ncx = probe.get_dimi() / 2;
@@ -49,9 +49,9 @@ namespace PRISM {
 		return std::make_pair(realspace_probe, kspace_probe);
 	}
 
-	PRISM_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > left,
-	                                                PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > right){
-		PRISM_FLOAT_PRECISION m1, m2, sigma1, sigma2, R;
+	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                                PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
+		PRISMATIC_FLOAT_PRECISION m1, m2, sigma1, sigma2, R;
 		m1=m2=sigma1=sigma2=R=0;
 
 		for (auto &i:left) m1 += std::abs(i);
@@ -74,9 +74,9 @@ namespace PRISM {
 		R/=sqrt(left.size()*right.size());
 		return R / (sigma1 * sigma2);
 	}
-	PRISM_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > left,
-	                                     PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > right){
-		PRISM_FLOAT_PRECISION accum, diffs;
+	PRISMATIC_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                     PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
+		PRISMATIC_FLOAT_PRECISION accum, diffs;
 		accum = diffs = 0;
 		for (auto i = 0; i < std::min(left.size(), right.size()); ++i){
 			diffs += std::abs(left[i] - right[i]);

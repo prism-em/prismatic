@@ -9,9 +9,9 @@
 #include "meta.h"
 
 namespace PRISM{
-    bool parseInputs(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
-    bool parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
     void printHelp();
 }

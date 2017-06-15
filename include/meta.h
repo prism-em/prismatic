@@ -182,7 +182,7 @@ namespace PRISM{
 			std::cout << "Algorithm: Multislice" << std::endl;
 		}
 
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
         std::cout << "NUM_GPUS = " << NUM_GPUS<< std::endl;
         std::cout << "NUM_STREAMS_PER_GPU = " << NUM_STREAMS_PER_GPU<< std::endl;
         std::cout << "also_do_CPU_work = " << also_do_CPU_work << std::endl;

@@ -121,18 +121,18 @@ public slots:
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
     void newRandomSeed();
-    void updateProbeK_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbeR_PRISM(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbeK_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbeR_Multislice(PRISM::Array2D<PRISM_FLOAT_PRECISION>);
-    void updateProbe_diffR(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
-    void updateProbe_diffK(PRISM::Array2D<PRISM_FLOAT_PRECISION>, PRISM::Array2D<PRISM_FLOAT_PRECISION> arr_contrast);
+    void updateProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void updateProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void updateProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void updateProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void updateProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
+    void updateProbe_diffK(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
     void update_pearsonReal(QString str);
     void update_pearsonK(QString str);
     void update_RReal(QString str);
     void update_RK(QString str);
-    void potentialReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
-    void outputReceived(PRISM::Array3D<PRISM_FLOAT_PRECISION>);
+    void potentialReceived(PRISM::Array3D<PRISMATIC_FLOAT_PRECISION>);
+    void outputReceived(PRISM::Array3D<PRISMATIC_FLOAT_PRECISION>);
     void displayErrorReadingAtomsDialog();
     void setscan_WindowYMin_edited();
     void setscan_WindowYMax_edited();
@@ -161,12 +161,12 @@ public slots:
 protected:
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);
-    void setRealspacePixelSize(const PRISM_FLOAT_PRECISION& pixel_size);
-    void setPotBound(const PRISM_FLOAT_PRECISION& potBound);
+    void setRealspacePixelSize(const PRISMATIC_FLOAT_PRECISION& pixel_size);
+    void setPotBound(const PRISMATIC_FLOAT_PRECISION& potBound);
     void setNumFP(const size_t& numFP);
-    void setE0(const PRISM_FLOAT_PRECISION& E0);
-    void setAlphaBeamMax(const PRISM_FLOAT_PRECISION& alphaBeamMax);
-    void setSliceThickness(const PRISM_FLOAT_PRECISION& thickness);
+    void setE0(const PRISMATIC_FLOAT_PRECISION& E0);
+    void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION& alphaBeamMax);
+    void setSliceThickness(const PRISMATIC_FLOAT_PRECISION& thickness);
     void setCellDimX(const int& dimX);
     void setCellDimY(const int& dimY);
     void setCellDimZ(const int& dimZ);
@@ -174,17 +174,17 @@ protected:
 
 private:
     Ui::PRISMMainWindow *ui;
-    PRISM::Metadata<PRISM_FLOAT_PRECISION> *meta;
-    PRISM::Parameters<PRISM_FLOAT_PRECISION> pars;
-    PRISM::Parameters<PRISM_FLOAT_PRECISION> pars_multi;
+    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> *meta;
+    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
+    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
 
 //    QGraphicsScene *potentialScene;
-    PRISM::Metadata<PRISM_FLOAT_PRECISION>* getMetadata(){return this->meta;}
-    PRISM::Array3D<PRISM_FLOAT_PRECISION> potential;
-//    PRISM::Array3D<std::complex< PRISM_FLOAT_PRECISION> > Scompact;
-    PRISM::Array3D<PRISM_FLOAT_PRECISION> output;
-    PRISM::Array1D<PRISM_FLOAT_PRECISION> detectorAngles;
-    std::vector<PRISM_FLOAT_PRECISION> pixelSize;
+    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION>* getMetadata(){return this->meta;}
+    PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
+//    PRISM::Array3D<std::complex< PRISMATIC_FLOAT_PRECISION> > Scompact;
+    PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> output;
+    PRISM::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
+    std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
 
     QMutex potentialLock;
 //    QMutex sMatrixLock;
@@ -216,27 +216,27 @@ private:
     QImage probeImage_diffk;
     QImage outputImage;
 
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> potentialImage_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> outputImage_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_pr_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_pk_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_mr_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_mk_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_diffr_float;
-    PRISM::Array2D<PRISM_FLOAT_PRECISION> probeImage_diffk_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> potentialImage_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pr_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pk_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_mr_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_mk_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_diffr_float;
+    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_diffk_float;
 
-    PRISM_FLOAT_PRECISION contrast_potentialMin;
-    PRISM_FLOAT_PRECISION contrast_potentialMax;
-    PRISM_FLOAT_PRECISION contrast_outputMin;
-    PRISM_FLOAT_PRECISION contrast_outputMax;
-    PRISM_FLOAT_PRECISION currently_calculated_X;
-    PRISM_FLOAT_PRECISION currently_calculated_Y;
+    PRISMATIC_FLOAT_PRECISION contrast_potentialMin;
+    PRISMATIC_FLOAT_PRECISION contrast_potentialMax;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMin;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMax;
+    PRISMATIC_FLOAT_PRECISION currently_calculated_X;
+    PRISMATIC_FLOAT_PRECISION currently_calculated_Y;
 //    QImage potenetialImage;
 
 };
 
-unsigned char getUcharFromFloat(PRISM_FLOAT_PRECISION val,
-                                PRISM_FLOAT_PRECISION contrast_low,
-                                PRISM_FLOAT_PRECISION contrast_high);
+unsigned char getUcharFromFloat(PRISMATIC_FLOAT_PRECISION val,
+                                PRISMATIC_FLOAT_PRECISION contrast_low,
+                                PRISMATIC_FLOAT_PRECISION contrast_high);
 
 #endif // PRISMMAINWINDOW_H

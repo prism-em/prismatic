@@ -9,7 +9,7 @@
 
 using namespace std;
 int main(int argc, const char** argv) {
-	PRISM::Metadata<PRISM_FLOAT_PRECISION> meta;
+	PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
 
 	// parse command line options
 	if (!PRISM::parseInputs(meta, argc, &argv))return 1;

@@ -57,7 +57,7 @@ namespace PRISM {
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
     }
 
-    bool parse_a(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No algorithm provided for -a (syntax is -a algorithm). Choices are (m)ultislice or (p)rism\n";
@@ -77,13 +77,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_A(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_A(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No maximum probe angle provided for -A (syntax is -A angle (in mrad))\n";
             return false;
         }
-        if ( (meta.alphaBeamMax =  ( (PRISM_FLOAT_PRECISION)atof((*argv)[1])) / 1000 ) == 0){
+        if ( (meta.alphaBeamMax =  ( (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) / 1000 ) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for maximum probe angle (syntax is -A angle (in mrad))\n";
             return false;
         }
@@ -93,7 +93,7 @@ namespace PRISM {
     };
 
 
-	bool parse_b(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_b(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No batch size provided for -b (syntax is -b batch_size)\n";
@@ -111,7 +111,7 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_bc(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_bc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No batch size provided for -bc (syntax is -bc batch_size)\n";
@@ -127,7 +127,7 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_bg(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_bg(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No batch size provided for -bg (syntax is -bg batch_size)\n";
@@ -143,7 +143,7 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_c(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_c(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 4){
             cout << "Insufficient cell dimensions provided (syntax is -c x y z)\n";
@@ -152,15 +152,15 @@ namespace PRISM {
 
         // the indexing in PRISM stores the cell dimensions as Z, Y, X so we must rearrange the
         // order of the inputs which are X, Y, Z
-        if ( (meta.cellDim[2] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.cellDim[2] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for X cell dimension (syntax is -c x, y, z)\n";
             return false;
         }
-        if ( (meta.cellDim[1] = (PRISM_FLOAT_PRECISION)atof((*argv)[2])) == 0){
+        if ( (meta.cellDim[1] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2])) == 0){
             cout << "Invalid value \"" << (*argv)[2] << "\" provided for Y cell dimension (syntax is -c x, y, z)\n";
             return false;
         }
-        if ( (meta.cellDim[0] = (PRISM_FLOAT_PRECISION)atof((*argv)[3])) == 0){
+        if ( (meta.cellDim[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[3])) == 0){
             cout << "Invalid value \"" << (*argv)[3] << "\" provided for Z cell dimension (syntax is -c x, y, z)\n";
             return false;
         }
@@ -170,7 +170,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_C(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_C(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No state provided for -C (syntax is -f 0/1)\n";
@@ -182,13 +182,13 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_d(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_d(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No detector angle step provided for -d (syntax is -d detector_step (in mrad))\n";
 			return false;
 		}
-		if ( (meta.detector_angle_step = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+		if ( (meta.detector_angle_step = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for potential bound (syntax is -d detector_step (in mrad)\n";
 			return false;
 		}
@@ -197,7 +197,7 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_streaming_mode(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_streaming_mode(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No state provided for -C (syntax is -f 0/1)\n";
@@ -209,13 +209,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_h(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_h(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         printHelp();
         return false;
     };
 
-    bool parse_i(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_i(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No filename provided for -i (syntax is -i filename)\n";
@@ -227,7 +227,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_f(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_f(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No interpolation factor provided for -f (syntax is -f interpolation_factor)\n";
@@ -243,7 +243,7 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_fx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_fx(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No interpolation factor provided for -fx (syntax is -fx interpolation_factor_x)\n";
@@ -258,7 +258,7 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_fy(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_fy(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No interpolation factor provided for -fy (syntax is -fy interpolation_factor_y)\n";
@@ -273,7 +273,7 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_j(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_j(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
         if (argc < 2){
@@ -289,13 +289,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_E(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_E(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No energy provided for -E (syntax is -E energy (in keV))\n";
             return false;
         }
-        if ( (meta.E0 = 1000 * (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.E0 = 1000 * (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for energy  (syntax is -E energy (in keV))\n";
             return false;
         }
@@ -304,7 +304,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_F(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_F(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No number of frozen phonon configurations provided for -F (syntax is -F #)\n";
@@ -319,7 +319,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_g(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_g(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
         if (argc < 2){
@@ -341,7 +341,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_s(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_s(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
         if (argc < 2){
@@ -357,7 +357,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_S(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_S(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
         if (argc < 2){
@@ -373,7 +373,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_t(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_t(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                    int& argc, const char*** argv){
         if (argc < 4){
             cout << "Insufficient arguments provided for unit cell tiling (syntax is --tile-uc x y z)\n";
@@ -382,15 +382,15 @@ namespace PRISM {
 
         // the indexing in PRISM stores the cell dimensions as Z, Y, X so we must rearrange the
         // order of the inputs which are X, Y, Z
-        if ( (meta.tileX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.tileX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for unit cell tiling in X (syntax is --tile-uc x y z)\n";
             return false;
         }
-        if ( (meta.tileY = (PRISM_FLOAT_PRECISION)atof((*argv)[2])) == 0){
+        if ( (meta.tileY = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2])) == 0){
             cout << "Invalid value \"" << (*argv)[2] << "\" provided for unit cell tiling in Y (syntax is --tile-uc x y z)\n";
             return false;
         }
-        if ( (meta.tileZ = (PRISM_FLOAT_PRECISION)atof((*argv)[3])) == 0){
+        if ( (meta.tileZ = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[3])) == 0){
             cout << "Invalid value \"" << (*argv)[3] << "\" provided for unit cell tiling in Z (syntax is --tile-uc x y z)\n";
             return false;
         }
@@ -402,7 +402,7 @@ namespace PRISM {
 
     };
 
-    bool parse_o(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_o(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
         if (argc < 2){
@@ -416,13 +416,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_p(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_p(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                               int& argc, const char*** argv){
         if (argc < 2){
             cout << "No pixel size provided for -p (syntax is -p pixel_size)\n";
             return false;
         }
-        if ( (meta.realspace_pixelSize[0] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.realspace_pixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for pixel size  (syntax is -p pixel_size)\n";
             return false;
         }
@@ -432,13 +432,13 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_px(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_px(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No pixel size provided for -px (syntax is -px pixel_size)\n";
 			return false;
 		}
-		if ( (meta.realspace_pixelSize[1] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.realspace_pixelSize[1] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for X pixel size  (syntax is -px pixel_size)\n";
 			return false;
 		}
@@ -447,13 +447,13 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_py(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_py(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No pixel size provided for -py (syntax is -py pixel_size)\n";
 			return false;
 		}
-		if ( (meta.realspace_pixelSize[0] = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.realspace_pixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for Y pixel size  (syntax is -py pixel_size)\n";
 			return false;
 		}
@@ -462,13 +462,13 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_P(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_P(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
         if (argc < 2){
             cout << "No bounding potential radius provided for -P (syntax is -P potential_bound (in Angstroms))\n";
             return false;
         }
-        if ( (meta.potBound = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.potBound = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for potential bound (syntax is -P potential_bound (in Angstroms))\n";
             return false;
         }
@@ -477,13 +477,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_r(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_r(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                        int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe step provided for -r (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probe_stepX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probe_stepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
@@ -494,13 +494,13 @@ namespace PRISM {
     };
 
 
-	bool parse_rx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_rx(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No probe step provided for -rx (syntax is -rx probe_step (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.probe_stepX = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.probe_stepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -rx probe_step (in Angstroms))\n";
 			return false;
 		}
@@ -512,13 +512,13 @@ namespace PRISM {
 
 
 
-	bool parse_ry(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_ry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No probe step provided for -ry (syntax is -ry probe_step (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.probe_stepY = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.probe_stepY = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -ry probe_step (in Angstroms))\n";
 			return false;
 		}
@@ -528,7 +528,7 @@ namespace PRISM {
 	};
 
 
-	bool parse_rs(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_rs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No random seed provided for -rs (syntax is -rs integer)\n";
@@ -543,13 +543,13 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_tx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_tx(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeXtilt = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
             return false;
         }
@@ -558,13 +558,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_ty(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_ty(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe tilt provided for -ty (syntax is -ty probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeYtilt = (PRISM_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -ty (syntax is -ty probe_tilt\n";
             return false;
         }
@@ -573,13 +573,13 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_df(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_df(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
             cout << "No defocus value provided for -df (syntax is -df defocus_value (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probeDefocus = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+        if ( (meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value (in Angstroms)\n";
             return false;
         }
@@ -588,13 +588,13 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_C3(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_C3(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No C3 value provided for -C3 (syntax is -C3 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C3 = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+		if ( (meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value (in Angstroms)\n";
 			return false;
 		}
@@ -603,13 +603,13 @@ namespace PRISM {
 		return true;
 	};
 
-	bool parse_C5(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_C5(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No C5 value provided for -C5 (syntax is -C5 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C5 = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+		if ( (meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value (in Angstroms)\n";
 			return false;
 		}
@@ -619,13 +619,13 @@ namespace PRISM {
 	};
 
 
-	bool parse_sa(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_sa(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
             cout << "No probe semiangle provided for -sa (syntax is -sa probe_semiangle in mrads)\n";
             return false;
         }
-        if ( (meta.probeSemiangle = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( (meta.probeSemiangle = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -sa (syntax is -sa probe_semiangle in mrads)\n";
             return false;
         }
@@ -634,15 +634,15 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_wx(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_wx(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	             int& argc, const char*** argv){
 		if (argc < 3){
 			cout << "Invalid window provided for -wx (syntax is -wx min max (in fractional coordinates))\n";
 			return false;
 		}
-		PRISM_FLOAT_PRECISION minval, maxval;
-		minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
-        maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
+		PRISMATIC_FLOAT_PRECISION minval, maxval;
+		minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
 
 		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window X (syntax is -wx min max (in fractional coordinates))\n";
@@ -663,15 +663,15 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_wy(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_wy(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 3){
             cout << "Invalid window provided for -wy (syntax is -wy min max (in fractional coordinates))\n";
             return false;
         }
-        PRISM_FLOAT_PRECISION minval, maxval;
-        minval = (PRISM_FLOAT_PRECISION)atof((*argv)[1]);
-        maxval = (PRISM_FLOAT_PRECISION)atof((*argv)[2]);
+        PRISMATIC_FLOAT_PRECISION minval, maxval;
+        minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
         if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window y (syntax is -wx min max (in fractional coordinates))\n";
             return false;
@@ -691,7 +691,7 @@ namespace PRISM {
         return true;
     };
 
-	bool parse_te(Metadata<PRISM_FLOAT_PRECISION>& meta,
+	bool parse_te(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
 			cout << "No value provided for -te (syntax is -te bool)\n";
@@ -703,18 +703,18 @@ namespace PRISM {
 		return true;
 	};
 
-    bool parse_2D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_2D(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 3){
             cout << "Not enough arguments for -2D (syntax is -2D ang_min ang_max)\n";
             return false;
         }
         meta.save2DOutput = true;
-        if ( (string((*argv)[1]) != "0") & ((meta.integration_angle_min = (PRISM_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0)){
+        if ( (string((*argv)[1]) != "0") & ((meta.integration_angle_min = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0)){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max (in mrad)\n";
             return false;
         }
-        if ( (meta.integration_angle_max = (PRISM_FLOAT_PRECISION)atof((*argv)[2]) / 1000) == 0){
+        if ( (meta.integration_angle_max = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) == 0){
             cout << "Invalid value \"" << (*argv)[2] << "\" provided for maximum integration angle (syntax is -2D ang_min ang_max (in mrad))\n";
             return false;
         }
@@ -723,7 +723,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_3D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_3D(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 2){
             cout << "No value provided for -3D (syntax is -3D bool)\n";
@@ -735,7 +735,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parse_4D(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parse_4D(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
             cout << "No value provided for -4D (syntax is -4D bool)\n";
@@ -747,7 +747,7 @@ namespace PRISM {
         return true;
     };
 
-    bool parseInputs(Metadata<PRISM_FLOAT_PRECISION> &meta,
+    bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                      int &argc, const char ***argv) {
         if (argc==1)return true; // case of no inputs to parse
         --argc;++(argv[0]);
@@ -758,7 +758,7 @@ namespace PRISM {
     }
 
     // use a lookup table to map the option switches to the corresponding function that validates/handles the arguments
-    using parseFunction = bool (*)(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    using parseFunction = bool (*)(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                                           int& argc, const char*** argv);
     static std::map<std::string, parseFunction> parser{
             {"--input-file", parse_i}, {"-i", parse_i},
@@ -804,7 +804,7 @@ namespace PRISM {
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D}
     };
-    bool parseInput(Metadata<PRISM_FLOAT_PRECISION>& meta,
+    bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){
         parseFunction f = parser[std::string((*argv)[0])];
         if (f != NULL){

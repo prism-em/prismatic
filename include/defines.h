@@ -12,7 +12,7 @@ namespace PRISM {
 		PRISM, Multislice
 	};
 }
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 #include "cuComplex.h"
 #include <cuda_runtime.h>
 #include <cstdio>
@@ -43,7 +43,7 @@ inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=tru
 	}
 }
 
-#ifdef PRISM_ENABLE_DOUBLE_PRECISION
+#ifdef PRISMATIC_ENABLE_DOUBLE_PRECISION
 typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define PRISM_CUFFT_EXECUTE cufftExecZ2Z
 #define PRISM_CUFFT_PLAN_TYPE CUFFT_Z2Z
@@ -62,9 +62,9 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 
 
 //#define PRISM_ENABLE_DOUBLE_PRECISION
-#ifdef PRISM_ENABLE_DOUBLE_PRECISION
+#ifdef PRISMATIC_ENABLE_DOUBLE_PRECISION
 #define MESSAGE "DOUBLE PRECISION"
-	typedef double PRISM_FLOAT_PRECISION;
+	typedef double PRISMATIC_FLOAT_PRECISION;
 #define PRISM_FFTW_PLAN fftw_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
 #define PRISM_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
@@ -76,7 +76,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define PRISM_FFTW_CLEANUP_THREADS fftw_cleanup_threads
 
 #else
-	typedef float PRISM_FLOAT_PRECISION;
+	typedef float PRISMATIC_FLOAT_PRECISION;
 #define MESSAGE "FLOAT PRECISION"
 #define PRISM_FFTW_PLAN fftwf_plan
 #define PRISM_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
@@ -89,7 +89,7 @@ typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
 #define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
 #endif //PRISM_ENABLE_DOUBLE_PRECISION
 
-//#ifdef PRISM_BUILDING_GUI
+//#ifdef PRISMATIC_BUILDING_GUI
 //class prism_progressbar;
 //#endif
 #endif //PRISM_DEFINES_H

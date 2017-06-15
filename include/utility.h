@@ -63,14 +63,14 @@ namespace PRISM {
 
 	}
 
-	std::pair<PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > >
-	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > probe,
+	std::pair<PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
 	                   const long dimj, const long dimi, long ys=0, long xs=0);
 
-	PRISM_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > left,
-	                                                PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > right);
-	PRISM_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > left,
-	                                     PRISM::Array2D<std::complex<PRISM_FLOAT_PRECISION> > right);
+	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                                PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
+	PRISMATIC_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                     PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
 }
 
 #endif //PRISM_UTILITY_H

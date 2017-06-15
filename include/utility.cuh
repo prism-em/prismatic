@@ -57,7 +57,7 @@ __global__ void multiply_cx(cuFloatComplex* arr,
 
 //// divide two complex arrays
 //__global__ void divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
-//                               const PRISM_FLOAT_PRECISION val,
+//                               const PRISMATIC_FLOAT_PRECISION val,
 //                               const size_t N){
 //	int idx = threadIdx.x + blockDim.x*blockIdx.x;
 //	if (idx < N) {
@@ -138,14 +138,14 @@ __global__ void zeroIndices(long* vec_out, const long N);
 __global__ void resetIndices(long* vec_out, const long N);
 __global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
                                    const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
-                                   const PRISM_FLOAT_PRECISION * qyaReduce_d,
-                                   const PRISM_FLOAT_PRECISION * qxaReduce_d,
+                                   const PRISMATIC_FLOAT_PRECISION * qyaReduce_d,
+                                   const PRISMATIC_FLOAT_PRECISION * qxaReduce_d,
                                    const size_t *yBeams_d,
                                    const size_t *xBeams_d,
-                                   const PRISM_FLOAT_PRECISION yp,
-                                   const PRISM_FLOAT_PRECISION xp,
-                                   const PRISM_FLOAT_PRECISION yTiltShift,
-                                   const PRISM_FLOAT_PRECISION xTiltShift,
+                                   const PRISMATIC_FLOAT_PRECISION yp,
+                                   const PRISMATIC_FLOAT_PRECISION xp,
+                                   const PRISMATIC_FLOAT_PRECISION yTiltShift,
+                                   const PRISMATIC_FLOAT_PRECISION xTiltShift,
                                    const size_t dimi,
                                    const size_t numBeams);
 
@@ -167,11 +167,11 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
                        const size_t N,
                        const size_t num_integration_bins);
 
-void formatOutput_GPU_integrate(PRISM::Parameters<PRISM_FLOAT_PRECISION> &pars,
-                                PRISM_FLOAT_PRECISION *psi_intensity_ds,
-                                const PRISM_FLOAT_PRECISION *alphaInd_d,
-                                PRISM_FLOAT_PRECISION *stack_ph,
-                                PRISM_FLOAT_PRECISION *integratedOutput_ds,
+void formatOutput_GPU_integrate(PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+                                PRISMATIC_FLOAT_PRECISION *psi_intensity_ds,
+                                const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
+                                PRISMATIC_FLOAT_PRECISION *stack_ph,
+                                PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
                                 const size_t ay,
                                 const size_t ax,
                                 const size_t& dimj,

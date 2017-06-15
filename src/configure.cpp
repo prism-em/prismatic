@@ -16,7 +16,7 @@
 
 
 
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 #include "Multislice_calcOutput.cuh"
 #include "PRISM02_calcSMatrix.cuh"
 #include "PRISM03_calcOutput.cuh"
@@ -30,7 +30,7 @@ namespace PRISM {
 	format_output_func formatOutput_CPU;
 	fill_Scompact_func fill_Scompact;
 
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
     template <class T>
     StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta) {
 		// query all devices and choose based on the minimum compute capability
@@ -48,33 +48,33 @@ namespace PRISM {
 	    T f_x = 4 * meta.interpolationFactorX;
 	    T f_y = 4 * meta.interpolationFactorY;
 	    Array1D<size_t> imageSize({{(size_t)(meta.cellDim[1] * meta.tileY), (size_t)(meta.cellDim[2] * meta.tileX)}}, {{2}});
-	    imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize[0] / f_y)));
-	    imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize[1] / f_x)));
+	    imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize[0] / f_y)));
+	    imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize[1] / f_x)));
 
 
 
 		size_t estimatedPotentialSize = (meta.cellDim[0] * meta.tileZ / meta.sliceThickness) * imageSize[0] * imageSize[1] *
-		                                sizeof(std::complex<PRISM_FLOAT_PRECISION>);
+		                                sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>);
 
 
 		// Estimate the amount of memory needed for the various buffers. This is affected by the batch size, which is inputted
 		// by the user but will be adjusted if it is inappropriate (i.e. not enough work per thread).
 		// Figure out the scan configuration to determine how many probes there are to compute
-		Array1D<PRISM_FLOAT_PRECISION> xR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		xR[0] = meta.scanWindowXMin * meta.cellDim[2] * meta.tileX;
 		xR[1] = meta.scanWindowXMax * meta.cellDim[2] * meta.tileX;
-		Array1D<PRISM_FLOAT_PRECISION> yR = zeros_ND<1, PRISM_FLOAT_PRECISION>({{2}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		yR[0] = meta.scanWindowYMin * meta.cellDim[1] * meta.tileY;
 		yR[1] = meta.scanWindowYMax * meta.cellDim[1] * meta.tileY;
-		vector<PRISM_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probe_stepX, xR[1]);
-		vector<PRISM_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probe_stepY, yR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probe_stepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probe_stepY, yR[1]);
 
 		// determine the batch size
 		size_t batch_size = std::min(meta.batch_size_target_GPU, max((size_t)1, xp_d.size()*yp_d.size()/ max((size_t)1,(meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)))); // make sure the batch is small enough to spread work to all threads
 
 		// estimate the amount of buffer memory needed. The factor of 3 is because there are two arrays that must be allocated space that scales
 		// with the batch size, and the cuFFT plans also allocate internal buffers.
-		size_t estimatedBatchBufferSize =  meta.NUM_STREAMS_PER_GPU*3*batch_size*imageSize[0]*imageSize[1]*sizeof(std::complex<PRISM_FLOAT_PRECISION>);
+		size_t estimatedBatchBufferSize =  meta.NUM_STREAMS_PER_GPU*3*batch_size*imageSize[0]*imageSize[1]*sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>);
 		estimatedMaxMemoryUsage = 3*estimatedPotentialSize + estimatedBatchBufferSize; // factor of 3 is because there is a complex array of the same size created
 
 		cout << "Estimated potential array size = " << estimatedPotentialSize << '\n';
@@ -82,20 +82,20 @@ namespace PRISM {
 		cout << "meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1]= " << meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1] << '\n';
 
 		if (meta.algorithm == PRISM::Algorithm::PRISM) {
-			Array1D<PRISM_FLOAT_PRECISION> xv = makeFourierCoords(imageSize[1],
-			                                                      (PRISM_FLOAT_PRECISION) 1 / imageSize[1]);
-			Array1D<PRISM_FLOAT_PRECISION> yv = makeFourierCoords(imageSize[0],
-			                                                      (PRISM_FLOAT_PRECISION) 1 / imageSize[0]);
-			pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh_a = meshgrid(yv, xv);
+			Array1D<PRISMATIC_FLOAT_PRECISION> xv = makeFourierCoords(imageSize[1],
+			                                                      (PRISMATIC_FLOAT_PRECISION) 1 / imageSize[1]);
+			Array1D<PRISMATIC_FLOAT_PRECISION> yv = makeFourierCoords(imageSize[0],
+			                                                      (PRISMATIC_FLOAT_PRECISION) 1 / imageSize[0]);
+			pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh_a = meshgrid(yv, xv);
 
-			Array1D<PRISM_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspace_pixelSize[1]);
-			Array1D<PRISM_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspace_pixelSize[0]);
+			Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspace_pixelSize[1]);
+			Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspace_pixelSize[0]);
 
-			pair<Array2D<PRISM_FLOAT_PRECISION>, Array2D<PRISM_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
-			Array2D<PRISM_FLOAT_PRECISION> q2(mesh.first);
+			pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
+			Array2D<PRISMATIC_FLOAT_PRECISION> q2(mesh.first);
 			transform(mesh.second.begin(), mesh.second.end(),
 			          mesh.first.begin(), q2.begin(),
-			          [](const PRISM_FLOAT_PRECISION &a, const PRISM_FLOAT_PRECISION &b) {
+			          [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) {
 				          return a * a + b * b;
 			          });
 
@@ -139,12 +139,12 @@ namespace PRISM {
 			}
 
 			size_t estimatedSMatrixSize =
-			numberBeams * imageSize[0] * imageSize[1] / 4 * sizeof(std::complex<PRISM_FLOAT_PRECISION>);
+			numberBeams * imageSize[0] * imageSize[1] / 4 * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>);
 
 			estimatedMaxMemoryUsage = std::max(estimatedSMatrixSize, estimatedMaxMemoryUsage);
 		}
 
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 
 		size_t available_memory;
 		cudaErrchk(cudaMemGetInfo(&available_memory, NULL));
@@ -159,15 +159,15 @@ namespace PRISM {
 	format_output_func_GPU formatOutput_GPU;
 
 #endif
-	void configure(Metadata<PRISM_FLOAT_PRECISION>& meta) {
+	void configure(Metadata<PRISMATIC_FLOAT_PRECISION>& meta) {
 		formatOutput_CPU = formatOutput_CPU_integrate;
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 		formatOutput_GPU = formatOutput_GPU_integrate;
 #endif
 		if (meta.algorithm == Algorithm::PRISM) {
 			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
 			execute_plan = PRISM_entry;
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
             if (meta.transfer_mode == PRISM::StreamingMode::Auto){
             	meta.transfer_mode = transferMethodAutoChooser(meta);
             }
@@ -188,7 +188,7 @@ namespace PRISM {
 		} else if (meta.algorithm == Algorithm::Multislice) {
 			std::cout << "Execution plan: Multislice w/ single FP configuration\n";
 			execute_plan = Multislice_entry;
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 			std::cout << "Using GPU codes" << '\n';
 			if (meta.transfer_mode == PRISM::StreamingMode::Auto){
 				meta.transfer_mode = transferMethodAutoChooser(meta);

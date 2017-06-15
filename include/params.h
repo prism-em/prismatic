@@ -14,7 +14,7 @@
 #include "atom.h"
 #include "meta.h"
 
-#ifdef PRISM_BUILDING_GUI
+#ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
 #endif
 namespace PRISM{
@@ -40,7 +40,7 @@ namespace PRISM{
 	    Array3D< std::complex<T>  > Scompact;
 	    Array3D<T> output;
 		Array3D<T> pot;
-	    Array3D<std::complex<PRISM_FLOAT_PRECISION> > transmission;
+	    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION> > transmission;
 
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
@@ -86,7 +86,7 @@ namespace PRISM{
         size_t Ndet;
         size_t numPlanes;
 	    size_t numberBeams;
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG
 		// for monitoring memory consumption on GPU
@@ -94,11 +94,11 @@ namespace PRISM{
 	    size_t target_num_blocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
 //#endif //NDEBUG
 #endif // PRISM_ENABLE_GPU
-#ifdef PRISM_BUILDING_GUI
+#ifdef PRISMATIC_BUILDING_GUI
 	    prism_progressbar *progressbar;
 #endif
 		Parameters(){};
-#ifdef PRISM_BUILDING_GUI
+#ifdef PRISMATIC_BUILDING_GUI
 	    Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
 #else
 	    Parameters(Metadata<T> _meta) : meta(_meta){
@@ -151,8 +151,8 @@ namespace PRISM{
 		    std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
 		    std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
-		    _imageSize[0] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
-		    _imageSize[1] = (size_t)std::max((PRISM_FLOAT_PRECISION)4.0,  (PRISM_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
+		    _imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
+		    _imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
 
 		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
 		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
@@ -172,7 +172,7 @@ namespace PRISM{
 		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
 
-#ifdef PRISM_ENABLE_GPU
+#ifdef PRISMATIC_ENABLE_GPU
 #ifndef NDEBUG
 		// for monitoring memory consumption on GPU
 	    max_mem = 0;
