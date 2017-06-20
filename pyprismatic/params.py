@@ -5,12 +5,14 @@ class Metadata(object):
 	"interpolationFactorY",
 	"filename_atoms",
 	"filename_output",
-	"realspace_pixelSize",
+	"realspace_pixelSizeX",
+	"realspace_pixelSizeY",
 	"potBound",
 	"numFP",
-    "fpNum",
 	"sliceThickness",
-	"cellDim",
+	"cellDimX",
+	"cellDimY",
+	"cellDimZ",
 	"tileX",
 	"tileY",
 	"tileZ",
@@ -21,8 +23,6 @@ class Metadata(object):
 	"NUM_THREADS",
 	"batch_size_target_CPU",
 	"batch_size_target_GPU",
-	"batch_size_CPU",
-	"batch_size_GPU",
 	"gpu_cpu_ratio",
     "probe_stepX",
 	"probe_stepY",
@@ -44,7 +44,6 @@ class Metadata(object):
 	"save2DOutput",
 	"save3DOutput",
 	"save4DOutput",
-	"user_specified_celldims",
 	"integration_angle_min",
 	"integration_angle_max",
 	"transfer_mode"]
@@ -54,12 +53,14 @@ class Metadata(object):
 		self.interpolationFactorY 	  = 4
 		self.filename_atoms		      = ""
 		self.filename_output	      = "output.mrc"
-		self.realspace_pixelSize      = (0.1, 0.1)
+		self.realspace_pixelSizeX     = 0.1
+		self.realspace_pixelSizeY     = 0.1
 		self.potBound				  = 0.1
 		self.numFP 				      = 1
-		self._fpNum					  = 1
 		self.sliceThickness		      = 2.0
-		self.cellDim                  = (20.0, 20.0, 20.0)
+		self.cellDimX                 = 20.0
+		self.cellDimY                 = 20.0
+		self.cellDimZ                 = 20.0
 		self.tileX					  = 3
 		self.tileY					  = 3
 		self.tileZ					  = 1
@@ -93,7 +94,6 @@ class Metadata(object):
 		self.save2DOutput			  = False
 		self.save3DOutput		      = True
 		self.save4DOutput			  = False
-		self._user_specified_celldims = False
 		self.integration_angle_min    = 0
 		self.integration_angle_max    = self.detector_angle_step
 		self.transfer_mode		      = "auto"
@@ -106,12 +106,16 @@ class Metadata(object):
 		print("interpolationFactorX = {}".format(self.interpolationFactorX))
 		print("interpolationFactorY = {}".format(self.interpolationFactorY))
 	def go(self):
-		self.toString()
-		pyprismatic.core.go()
+		# self.toString()
+		pyprismatic.core.go(*[4,4,
+		 "/home/aj/hdd1/clion/PRISM/SI100.XYZ", "/home/aj/hdd1/clion/PRISM/tt.mrc",
+		 0.25, 0.30])
+
+		# pyprismatic.core.go(*[getattr(self, field) for field in Metadata.fields])
 		import numpy as np
 		from pyprismatic.fileio import readMRC
 		import matplotlib.pyplot as plt
-		result = readMRC("/mnt/spareA/clion/PRISM/output_python.mrc")
+		result = readMRC("/mnt/spareA/clion/PRISM/tt.mrc")
 		plt.figure()
 		plt.imshow(np.squeeze(np.sum(result,axis=2)))
 		plt.show()
