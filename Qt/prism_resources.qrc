@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
+        <file>PRISM-logo.png</file>
         <file>potential.png</file>
         <file>probe.png</file>
         <file>output.png</file>
