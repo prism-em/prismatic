@@ -14,7 +14,7 @@
 #include <fstream>
 #include <cstring>
 #include <complex>
-namespace PRISM {
+namespace Prismatic {
     template <size_t N, class T>
     class ArrayND {
             // ND array class for data indexed as C-style, i.e. arr.at(k,j,i) where i is the fastest varying index
@@ -331,23 +331,23 @@ namespace PRISM {
 	}
 
     template <size_t N, class T>
-    PRISM::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N> dims){
+    Prismatic::ArrayND<N, std::vector<T> > ones_ND(const std::array<size_t, N> dims){
         size_t size = 1;
         for (auto& i:dims)size*=i;
-        return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,1), dims);
+        return Prismatic::ArrayND<N, std::vector<T> >(std::vector<T>(size,1), dims);
     }
 
     template <size_t N, class T>
-    PRISM::ArrayND<N, std::vector<T> > zeros_ND(const std::array<size_t, N> dims){
+    Prismatic::ArrayND<N, std::vector<T> > zeros_ND(const std::array<size_t, N> dims){
         size_t size = 1;
         for (auto& i:dims)size*=i;
-        return PRISM::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
+        return Prismatic::ArrayND<N, std::vector<T> >(std::vector<T>(size,0), dims);
     }
 
 	template <class T>
-	using Array2D_T = PRISM::ArrayND<2, std::vector<T> >;
+	using Array2D_T = Prismatic::ArrayND<2, std::vector<T> >;
 	template <class T>
-	using Array1D_T = PRISM::ArrayND<1, std::vector<T> >;
+	using Array1D_T = Prismatic::ArrayND<1, std::vector<T> >;
 	template <class T>
 	std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T>& Y, const Array1D_T<T>& X){
 		Array2D_T<T> yy = zeros_ND<2, T>({{Y.size(), X.size()}});

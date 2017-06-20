@@ -23,7 +23,7 @@
 #endif
 
 
-namespace PRISM {
+namespace Prismatic {
 	using namespace std;
 	void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION>& potentials,
 	                      const vector<size_t>& atomic_species,
@@ -143,7 +143,7 @@ namespace PRISM {
 						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
 #ifdef PRISMATIC_BUILDING_GUI
                         pars.progressbar->signalPotentialUpdate(currentBeam, pars.numPlanes);
-#endif //PRISM_BUILDING_GUI
+#endif //PRISMATIC_BUILDING_GUI
 						++currentBeam;
 					}
 				}
@@ -153,7 +153,7 @@ namespace PRISM {
 		for (auto &t:workers)t.join();
 #ifdef PRISMATIC_BUILDING_GUI
 		pars.progressbar->setProgress(100);
-#endif //PRISM_BUILDING_GUI
+#endif //PRISMATIC_BUILDING_GUI
 	};
 
 	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){

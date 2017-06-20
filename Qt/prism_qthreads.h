@@ -20,7 +20,7 @@ public:
     explicit PRISMThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PRISMThread();
 protected:
-    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 signals:
@@ -46,12 +46,12 @@ public:
     explicit ProbeThread(PRISMMainWindow *_parent, PRISMATIC_FLOAT_PRECISION _X, PRISMATIC_FLOAT_PRECISION _Y, prism_progressbar *progressbar, bool use_log_scale = false);
     virtual ~ProbeThread();
 signals:
-    void signalProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbe_diffK(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void signal_pearsonReal(QString str);
     void signal_pearsonK(QString str);
     void signal_RReal(QString str);

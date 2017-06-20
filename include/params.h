@@ -17,15 +17,15 @@
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
 #endif
-namespace PRISM{
+namespace Prismatic{
 	template <class T>
-	using Array1D = PRISM::ArrayND<1, std::vector<T> >;
+	using Array1D = Prismatic::ArrayND<1, std::vector<T> >;
 	template <class T>
-	using Array2D = PRISM::ArrayND<2, std::vector<T> >;
+	using Array2D = Prismatic::ArrayND<2, std::vector<T> >;
 	template <class T>
-	using Array3D = PRISM::ArrayND<3, std::vector<T> >;
+	using Array3D = Prismatic::ArrayND<3, std::vector<T> >;
 	template <class T>
-	using Array4D = PRISM::ArrayND<4, std::vector<T> >;
+	using Array4D = Prismatic::ArrayND<4, std::vector<T> >;
 
 	// for monitoring memory consumption on GPU
 	static std::mutex mem_lock;
@@ -61,7 +61,7 @@ namespace PRISM{
         Array1D<T> xp;
         Array1D<T> yp;
         std::vector<size_t> beamsIndex;
-	    PRISM::ArrayND<2, std::vector<long> > xyBeams;
+	    Prismatic::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D<T> beams;
 	    Array2D<T> beamsOutput;
         Array1D<T> xVec;
@@ -93,7 +93,7 @@ namespace PRISM{
 	    size_t max_mem;
 	    size_t target_num_blocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
 //#endif //NDEBUG
-#endif // PRISM_ENABLE_GPU
+#endif // PRISMATIC_ENABLE_GPU
 #ifdef PRISMATIC_BUILDING_GUI
 	    prism_progressbar *progressbar;
 #endif
@@ -203,7 +203,7 @@ namespace PRISM{
 		    std::cout << "deviceProperties.maxThreadsPerBlock = " << deviceProperties.maxThreadsPerBlock << std::endl;
 		    std::cout << "target_num_blocks = " << target_num_blocks << std::endl;
 
-#endif //PRISM_ENABLE_GPU
+#endif //PRISMATIC_ENABLE_GPU
 	    };
 
     };

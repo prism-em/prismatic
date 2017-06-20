@@ -22,7 +22,7 @@
 #endif
 
 
-namespace PRISM {
+namespace Prismatic {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 	using namespace std;
 	const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
@@ -137,12 +137,12 @@ namespace PRISM {
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > realspace_probe;
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > kspace_probe;
 
-		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION> > (
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi = Prismatic::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION> > (
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 		                                              FFTW_FORWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
 		const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
@@ -167,7 +167,7 @@ namespace PRISM {
 			            (PRISMATIC_FLOAT_PRECISION) pars.imageSizeOutput[0]);
 
 		});
-		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
 		memset(&psi[0], 0, sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)*psi.size());
@@ -191,11 +191,11 @@ namespace PRISM {
 			}
 		}
 		realspace_probe = psi;
-		PRISM_FFTW_EXECUTE(plan);
+		PRISMATIC_FFTW_EXECUTE(plan);
 		kspace_probe = psi;
 		gatekeeper.lock();
 		cout <<"destroying plan"<<endl;
-		PRISM_FFTW_DESTROY_PLAN(plan);
+		PRISMATIC_FFTW_DESTROY_PLAN(plan);
 		gatekeeper.unlock();
 		return std::make_pair(realspace_probe, kspace_probe);
 	}
@@ -212,31 +212,31 @@ namespace PRISM {
 #endif
 
 		// initialize FFTW threads
-		PRISM_FFTW_INIT_THREADS();
-		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		PRISMATIC_FFTW_INIT_THREADS();
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
         WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
-			workers.push_back(thread([&pars, &dispatcher, &PRISM_PRINT_FREQUENCY_PROBES]() {
+			workers.push_back(thread([&pars, &dispatcher, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
 				Nstart=Nstop=0;
                  if(dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
-                     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi = PRISM::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION> > (
+                     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi = Prismatic::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION> > (
 							 {{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 					 unique_lock<mutex> gatekeeper(fftw_plan_lock);
-					 PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-																   reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+					 PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+																   reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+																   reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 																   FFTW_FORWARD, FFTW_MEASURE);
 					 gatekeeper.unlock();
 
 	                 // main work loop
 					 do {
 						 while (Nstart < Nstop) {
-							 if (Nstart % PRISM_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
+							 if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
 							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							 }
 							 ay = Nstart / pars.xp.size();
@@ -249,7 +249,7 @@ namespace PRISM {
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));
 					 gatekeeper.lock();
-					 PRISM_FFTW_DESTROY_PLAN(plan);
+					 PRISMATIC_FFTW_DESTROY_PLAN(plan);
 					 gatekeeper.unlock();
 				}
 			}));
@@ -257,14 +257,14 @@ namespace PRISM {
 		// synchronize
 		cout << "Waiting for threads...\n";
 		for (auto &t:workers)t.join();
-		PRISM_FFTW_CLEANUP_THREADS();
+		PRISMATIC_FFTW_CLEANUP_THREADS();
 	}
 
 
 	void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	                     const size_t &ay,
 	                     const size_t &ax,
-						 PRISM_FFTW_PLAN& plan,
+						 PRISMATIC_FFTW_PLAN& plan,
 						 Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >& psi){
 		// build the output for a single probe position using CPU resources
 
@@ -290,7 +290,7 @@ namespace PRISM {
                     (PRISMATIC_FLOAT_PRECISION) pars.imageSizeOutput[0]);
 
 		});
-		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
 		memset(&psi[0], 0, sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)*psi.size());
@@ -317,7 +317,7 @@ namespace PRISM {
 			}
 		}
 
-            PRISM_FFTW_EXECUTE(plan);
+            PRISMATIC_FFTW_EXECUTE(plan);
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj) {
 				for (auto ii = 0; ii < intOutput.get_dimi(); ++ii) {
 					intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2);
@@ -370,7 +370,7 @@ namespace PRISM {
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),
 		          [](const PRISMATIC_FLOAT_PRECISION &a) { return a < 1 ? 1 : a; });
-		PRISM::ArrayND<2, std::vector<unsigned short> > alphaMask(
+		Prismatic::ArrayND<2, std::vector<unsigned short> > alphaMask(
 				std::vector<unsigned short>(pars.alphaInd.size(), 0),
 				{{pars.alphaInd.get_dimj(), pars.alphaInd.get_dimi()}});
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),

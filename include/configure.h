@@ -18,13 +18,13 @@
 #ifdef PRISMATIC_ENABLE_GPU
 //#define CUDA_API_PER_THREAD_DEFAULT_STREAM
 #include <cuda_runtime.h>
-#endif //PRISM_ENABLE_GPU
+#endif //PRISMATIC_ENABLE_GPU
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
 
-namespace PRISM {
+namespace Prismatic {
 	using entry_func     = Parameters<PRISMATIC_FLOAT_PRECISION>  (*)(Metadata<PRISMATIC_FLOAT_PRECISION>&);
 	using ms_output_func = void (*)(Parameters<PRISMATIC_FLOAT_PRECISION>&);
 
@@ -57,8 +57,8 @@ namespace PRISM {
 	extern format_output_func_GPU formatOutput_GPU;
 
 	template <class T>
-	StreamingMode transferMethodAutoChooser(PRISM::Metadata<T>& meta);
-#endif //PRISM_ENABLE_GPU
+	StreamingMode transferMethodAutoChooser(Prismatic::Metadata<T>& meta);
+#endif //PRISMATIC_ENABLE_GPU
 	void configure(Metadata<PRISMATIC_FLOAT_PRECISION>&);
 }
 

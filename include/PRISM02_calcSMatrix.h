@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_PRISM02_H
-#define PRISM_PRISM02_H
+#ifndef PRISMATIC_PRISM02_H
+#define PRISMATIC_PRISM02_H
 #include <mutex>
 #include <complex>
 #include "params.h"
@@ -12,7 +12,7 @@
 #include "configure.h"
 #include "defines.h"
 
-namespace PRISM {
+namespace Prismatic {
 	inline void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupSMatrixCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
@@ -21,16 +21,16 @@ namespace PRISM {
 	void propagatePlaneWave_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	                            size_t currentBeam,
 	                            Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > &psi,
-	                            const PRISM_FFTW_PLAN &plan_forward,
-	                            const PRISM_FFTW_PLAN &plan_inverse,
+	                            const PRISMATIC_FFTW_PLAN &plan_forward,
+	                            const PRISMATIC_FFTW_PLAN &plan_inverse,
 	                            std::mutex& fftw_plan_lock);
 
 	void propagatePlaneWave_CPU_batch(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	                                  size_t currentBeam,
 	                                  size_t stopBeam,
 	                                  Array1D<std::complex<PRISMATIC_FLOAT_PRECISION> > &psi_stack,
-	                                  const PRISM_FFTW_PLAN &plan_forward,
-	                                  const PRISM_FFTW_PLAN &plan_inverse,
+	                                  const PRISMATIC_FFTW_PLAN &plan_forward,
+	                                  const PRISMATIC_FFTW_PLAN &plan_inverse,
 	                                  std::mutex &fftw_plan_lock);
 
 	void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
@@ -38,4 +38,4 @@ namespace PRISM {
 	void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
 }
-#endif //PRISM_PRISM02_H
+#endif //PRISMATIC_PRISM02_H

@@ -7,12 +7,12 @@
 #include <complex>
 #include "defines.h"
 #include "configure.h"
-namespace PRISM {
+namespace Prismatic {
 
 
 
-	std::pair<PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
-	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
+	std::pair<Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	upsamplePRISMProbe(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
 	                   const long dimj, const long dimi, long ys, long xs) {
 		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > realspace_probe;
 		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > buffer_probe;
@@ -35,22 +35,22 @@ namespace PRISM {
 			}
 		}
 		std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);
-		PRISM_FFTW_PLAN plan = PRISM_FFTW_PLAN_DFT_2D(buffer_probe.get_dimj(), buffer_probe.get_dimi(),
-		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&buffer_probe[0]),
-		                                              reinterpret_cast<PRISM_FFTW_COMPLEX *>(&buffer_probe[0]),
+		PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(buffer_probe.get_dimj(), buffer_probe.get_dimi(),
+		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&buffer_probe[0]),
+		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&buffer_probe[0]),
 		                                              FFTW_FORWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
 		realspace_probe = buffer_probe;
-		PRISM_FFTW_EXECUTE(plan);
+		PRISMATIC_FFTW_EXECUTE(plan);
 		kspace_probe = buffer_probe;
 		gatekeeper.lock();
-		PRISM_FFTW_DESTROY_PLAN(plan);
+		PRISMATIC_FFTW_DESTROY_PLAN(plan);
 		gatekeeper.unlock();
 		return std::make_pair(realspace_probe, kspace_probe);
 	}
 
-	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
-	                                                PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
+	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                                Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
 		PRISMATIC_FLOAT_PRECISION m1, m2, sigma1, sigma2, R;
 		m1=m2=sigma1=sigma2=R=0;
 
@@ -74,8 +74,8 @@ namespace PRISM {
 		R/=sqrt(left.size()*right.size());
 		return R / (sigma1 * sigma2);
 	}
-	PRISMATIC_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
-	                                     PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
+	PRISMATIC_FLOAT_PRECISION computeRfactor(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                     Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right){
 		PRISMATIC_FLOAT_PRECISION accum, diffs;
 		accum = diffs = 0;
 		for (auto i = 0; i < std::min(left.size(), right.size()); ++i){

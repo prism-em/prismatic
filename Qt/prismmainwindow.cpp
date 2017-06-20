@@ -22,7 +22,7 @@ bool validateFilename(const std::string str){
     std::ifstream f(str);
     return f.good();
 }
-PRISMATIC_FLOAT_PRECISION calculateLambda(PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta);
+PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,8 +45,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     currently_calculated_Y(0.0),
     pixelSize({1,1})
 {
-    qRegisterMetaType<PRISM::Array2D< PRISMATIC_FLOAT_PRECISION> >("PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>");
-    qRegisterMetaType<PRISM::Array3D< PRISMATIC_FLOAT_PRECISION> >("PRISM::Array3D<PRISMATIC_FLOAT_PRECISION>");
+    qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
+    qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");
 
 	// build Qt generated interface
     ui->setupUi(this);
@@ -101,7 +101,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                                                                 ui->lbl_image_potential->height(),
                                                                                 Qt::KeepAspectRatio)));
 	// set initially displayed values based on the default parameters
-	this->meta = new PRISM::Metadata<PRISMATIC_FLOAT_PRECISION>;
+	this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
 	{
 		std::stringstream ss;
         ss << this->meta->interpolationFactorX;
@@ -192,10 +192,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->checkBox_4D->setChecked(meta->save4DOutput);
 
 	switch (this->meta->algorithm){
-		case PRISM::Algorithm::PRISM :      this->ui->radBtn_PRISM->setChecked(true);
+		case Prismatic::Algorithm::PRISM :      this->ui->radBtn_PRISM->setChecked(true);
 			                                this->ui->radBtn_Multislice->setChecked(false);
 			break;
-		case PRISM::Algorithm::Multislice : this->ui->radBtn_PRISM->setChecked(false);
+		case Prismatic::Algorithm::Multislice : this->ui->radBtn_PRISM->setChecked(false);
 										    this->ui->radBtn_Multislice->setChecked(true);
 			break;
 	}
@@ -321,15 +321,15 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
-	setAlgo(PRISM::Algorithm::PRISM);
+	setAlgo(Prismatic::Algorithm::PRISM);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
 	std::cout << "Setting algorithm to Multislice" << std::endl;
-	setAlgo(PRISM::Algorithm::Multislice);
+	setAlgo(Prismatic::Algorithm::Multislice);
 }
 
-void PRISMMainWindow::setAlgo(const PRISM::Algorithm algo){
+void PRISMMainWindow::setAlgo(const Prismatic::Algorithm algo){
 	this->meta->algorithm = algo;
     resetCalculation();
 }
@@ -376,7 +376,7 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
     bool error_reading = false;
     std::array<double, 3> uc_dims;
     try {
-        uc_dims = PRISM::peekDims_xyz(filename);
+        uc_dims = Prismatic::peekDims_xyz(filename);
     } catch (...){
         error_reading = true;
     }
@@ -822,7 +822,7 @@ void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
 
-    if (meta->algorithm == PRISM::Algorithm::PRISM) {
+    if (meta->algorithm == Prismatic::Algorithm::PRISM) {
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
@@ -869,14 +869,14 @@ void PRISMMainWindow::calculateProbe(){
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(signalProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
         connect(worker, SIGNAL(signal_pearsonReal(QString)), this, SLOT(update_pearsonReal(QString)));
         connect(worker, SIGNAL(signal_pearsonK(QString)), this, SLOT(update_pearsonK(QString)));
-        connect(worker, SIGNAL(signalProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
-        connect(worker, SIGNAL(signalProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
-        connect(worker, SIGNAL(signalProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
-        connect(worker, SIGNAL(signalProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
-        connect(worker, SIGNAL(signalProbe_diffK(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
         worker->start();
     }
 }
@@ -913,7 +913,7 @@ void PRISMMainWindow::updatePotentialFloatImage(){
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_slicemin->value();
         size_t max_layer = this->ui->slider_slicemax->value();
-        potentialImage_float = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{potential.get_dimj(), potential.get_dimi()}});
+        potentialImage_float = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{potential.get_dimj(), potential.get_dimi()}});
         for (auto k = min_layer; k <= max_layer; ++k){
             for (auto j = 0; j < potential.get_dimj(); ++j){
                 for (auto i = 0; i < potential.get_dimi(); ++i){
@@ -1035,7 +1035,7 @@ void PRISMMainWindow::displayErrorReadingAtomsDialog(){
     popup->show();
 }
 
-void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
     probeImage_pk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
 //    std::cout << "pK *contrast.first= " << *contrast.first<< std::endl;
@@ -1051,7 +1051,7 @@ void PRISMMainWindow::updateProbeK_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISIO
                                                                               Qt::KeepAspectRatio)));
     probeImage_pk_float = arr;
 }
-void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
     probeImage_pr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
 //    std::cout << "pReal *contrast.first= " << *contrast.first<< std::endl;
@@ -1067,7 +1067,7 @@ void PRISMMainWindow::updateProbeR_PRISM(PRISM::Array2D<PRISMATIC_FLOAT_PRECISIO
                                                                               Qt::KeepAspectRatio)));
     probeImage_pr_float = arr;
 }
-void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
     probeImage_mk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
 //    std::cout << "mK *contrast.first= " << *contrast.first<< std::endl;
@@ -1083,7 +1083,7 @@ void PRISMMainWindow::updateProbeK_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRE
                                                                               Qt::KeepAspectRatio)));
     probeImage_mk_float = arr;
 }
-void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+void PRISMMainWindow::updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
     probeImage_mr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr.begin(), arr.end());
 //    std::cout << "mReal *contrast.first= " << *contrast.first<< std::endl;
@@ -1100,7 +1100,7 @@ void PRISMMainWindow::updateProbeR_Multislice(PRISM::Array2D<PRISMATIC_FLOAT_PRE
     probeImage_mr_float = arr;
 }
 
-void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
+void PRISMMainWindow::updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
     probeImage_diffr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
 //    std::cout << "diffreal *contrast.first= " << *contrast.first<< std::endl;
@@ -1116,7 +1116,7 @@ void PRISMMainWindow::updateProbe_diffR(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION
                                                                                          Qt::KeepAspectRatio)));
     probeImage_diffr_float = arr;
 }
-void PRISMMainWindow::updateProbe_diffK(PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr, PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
+void PRISMMainWindow::updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
     probeImage_diffk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
     auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
 //    std::cout << "diffk *contrast.first= " << *contrast.first<< std::endl;
@@ -1161,7 +1161,7 @@ void PRISMMainWindow::updateOutputFloatImage(){
         // integrate image into the float array, then convert to uchar
         size_t min_layer = this->ui->slider_angmin->value();
         size_t max_layer = this->ui->slider_angmax->value();
-        outputImage_float = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
+        outputImage_float = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{output.get_dimk(), output.get_dimj()}});
         for (auto j = 0; j < output.get_dimk(); ++j){
             for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
@@ -1298,7 +1298,7 @@ void PRISMMainWindow::updateContrastAngMax(){
 }
 
 void PRISMMainWindow::updateAlphaMax(){
-    using namespace PRISM;
+    using namespace Prismatic;
     PRISMATIC_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
     PRISMATIC_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
     Array1D<size_t> imageSize({{(size_t)(meta->cellDim[1] * meta->tileY), (size_t)(meta->cellDim[2] * meta->tileX)}}, {{2}});
@@ -1496,15 +1496,15 @@ void PRISMMainWindow::setStreamingMode(int val){
     enum{Auto=0, SingleXfer=1, Stream=2} setting;
     switch (val){
         case Auto:
-            meta->transfer_mode = PRISM::StreamingMode::Auto;
+            meta->transfer_mode = Prismatic::StreamingMode::Auto;
             std::cout << "Setting streaming mode: Auto" << std::endl;
             break;
         case SingleXfer:
-            meta->transfer_mode = PRISM::StreamingMode::SingleXfer;
+            meta->transfer_mode = Prismatic::StreamingMode::SingleXfer;
             std::cout << "Setting streaming mode: Single Transfer" << std::endl;
             break;
         case Stream:
-            meta->transfer_mode = PRISM::StreamingMode::Stream;
+            meta->transfer_mode = Prismatic::StreamingMode::Stream;
             std::cout << "Setting streaming mode: Streaming" << std::endl;
             break;
     }
@@ -1574,7 +1574,7 @@ bool PRISMMainWindow::checkpotentialArrayExists(){
     return potentialArrayExists;
 }
 
-void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> _potential){
+void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> _potential){
     {
         QMutexLocker gatekeeper(&potentialLock);
         potential = _potential;
@@ -1585,7 +1585,7 @@ void PRISMMainWindow::potentialReceived(PRISM::Array3D<PRISMATIC_FLOAT_PRECISION
         potentialReady = true;
     }
 }
-void PRISMMainWindow::outputReceived(PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> _output){
+void PRISMMainWindow::outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> _output){
     {
         QMutexLocker gatekeeper(&outputLock);
         output = _output;
@@ -1728,7 +1728,7 @@ unsigned char getUcharFromFloat(PRISMATIC_FLOAT_PRECISION val,
 
 }
 
-PRISMATIC_FLOAT_PRECISION calculateLambda(PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta){
+PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta){
 	constexpr double m = 9.109383e-31;
 	constexpr double e = 1.602177e-19;
 	constexpr double c = 299792458;

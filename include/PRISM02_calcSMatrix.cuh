@@ -3,22 +3,22 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_PRISM02_CUH
-#define PRISM_PRISM02_CUH
+#ifndef PRISMATIC_PRISM02_CUH
+#define PRISMATIC_PRISM02_CUH
 #include "params.h"
 #include "configure.h"
 #include <complex>
-namespace PRISM{
+namespace Prismatic{
 	void fill_Scompact_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 	void fill_Scompact_GPU_streaming(Parameters <PRISMATIC_FLOAT_PRECISION> &pars);
 	void propagatePlaneWave_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-	                                       PRISM_CUDA_COMPLEX_FLOAT* trans_d,
-	                                       PRISM_CUDA_COMPLEX_FLOAT* psi_d,
-	                                       PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
+	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
+	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
+	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
 	                                       std::complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
 	                                       const size_t* qyInd_d,
 	                                       const size_t* qxInd_d,
-	                                       const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                       const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
 	                                       const size_t* beamsIndex,
 	                                       const size_t beamNumber,
 	                                       const cufftHandle& plan,
@@ -26,13 +26,13 @@ namespace PRISM{
 	                                       cudaStream_t& stream);
 
 	void propagatePlaneWave_GPU_singlexfer_batch(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-	                                             PRISM_CUDA_COMPLEX_FLOAT* trans_d,
-	                                             PRISM_CUDA_COMPLEX_FLOAT* psi_d,
-	                                             PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
 	                                             std::complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
 	                                             const size_t* qyInd_d,
 	                                             const size_t* qxInd_d,
-	                                             const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                             const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
 	                                             const size_t* beamsIndex,
 	                                             const size_t beamNumber,
 	                                             const size_t stopBeam,
@@ -41,14 +41,14 @@ namespace PRISM{
 	                                             cudaStream_t& stream);
 
 	void propagatePlaneWave_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-	                                      PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                      const std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph,
-	                                      PRISM_CUDA_COMPLEX_FLOAT* psi_d,
-	                                      PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
+	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
+	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
 	                                      std::complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
 	                                      const size_t* qyInd_d,
 	                                      const size_t* qxInd_d,
-	                                      const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                      const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
 	                                      const size_t* beamsIndex,
 	                                      const size_t beamNumber,
 	                                      const cufftHandle& plan,
@@ -56,14 +56,14 @@ namespace PRISM{
 	                                      cudaStream_t& stream);
 
 	void propagatePlaneWave_GPU_streaming_batch(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-	                                            PRISM_CUDA_COMPLEX_FLOAT* trans_d,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                            const std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph,
-	                                            PRISM_CUDA_COMPLEX_FLOAT* psi_d,
-	                                            PRISM_CUDA_COMPLEX_FLOAT* psi_small_d,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
 	                                            std::complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
 	                                            const size_t* qyInd_d,
 	                                            const size_t* qxInd_d,
-	                                            const PRISM_CUDA_COMPLEX_FLOAT* prop_d,
+	                                            const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
 	                                            const size_t* beamsIndex,
 	                                            const size_t beamNumber,
 	                                            const size_t stopBeam,
@@ -72,4 +72,4 @@ namespace PRISM{
 	                                            cudaStream_t& stream);
 
 }
-#endif //PRISM_PRISM02_CUH
+#endif //PRISMATIC_PRISM02_CUH

@@ -3,10 +3,10 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_DEFINES_H
-#define PRISM_DEFINES_H
+#ifndef PRISMATIC_DEFINES_H
+#define PRISMATIC_DEFINES_H
 
-namespace PRISM {
+namespace Prismatic {
 
 	enum class Algorithm {
 		PRISM, Multislice
@@ -44,52 +44,52 @@ inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=tru
 }
 
 #ifdef PRISMATIC_ENABLE_DOUBLE_PRECISION
-typedef cuDoubleComplex PRISM_CUDA_COMPLEX_FLOAT;
-#define PRISM_CUFFT_EXECUTE cufftExecZ2Z
-#define PRISM_CUFFT_PLAN_TYPE CUFFT_Z2Z
+typedef cuDoubleComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
+#define PRISMATIC_CUFFT_EXECUTE cufftExecZ2Z
+#define PRISMATIC_CUFFT_PLAN_TYPE CUFFT_Z2Z
 #define DEBUGMESSAGE "using double for cuda"
-#define PRISM_MAKE_CU_COMPLEX make_cuDoubleComplex
+#define PRISMATIC_MAKE_CU_COMPLEX make_cuDoubleComplex
 #else
 #define DEBUGMESSAGE "using float for cuda"
-typedef cuFloatComplex PRISM_CUDA_COMPLEX_FLOAT;
-#define PRISM_CUFFT_EXECUTE cufftExecC2C
-#define PRISM_CUFFT_PLAN_TYPE CUFFT_C2C
-#define PRISM_MAKE_CU_COMPLEX make_cuFloatComplex
-#endif //PRISM_ENABLE_DOUBLE_PRECISION
+typedef cuFloatComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
+#define PRISMATIC_CUFFT_EXECUTE cufftExecC2C
+#define PRISMATIC_CUFFT_PLAN_TYPE CUFFT_C2C
+#define PRISMATIC_MAKE_CU_COMPLEX make_cuFloatComplex
+#endif //PRISMATIC_ENABLE_DOUBLE_PRECISION
 
-#endif //PRISM_ENABLE_GPU
+#endif //PRISMATIC_ENABLE_GPU
 
 
 
-//#define PRISM_ENABLE_DOUBLE_PRECISION
+//#define PRISMATIC_ENABLE_DOUBLE_PRECISION
 #ifdef PRISMATIC_ENABLE_DOUBLE_PRECISION
 #define MESSAGE "DOUBLE PRECISION"
 	typedef double PRISMATIC_FLOAT_PRECISION;
-#define PRISM_FFTW_PLAN fftw_plan
-#define PRISM_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
-#define PRISM_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
-#define PRISM_FFTW_EXECUTE fftw_execute
-#define PRISM_FFTW_DESTROY_PLAN fftw_destroy_plan
-#define PRISM_FFTW_COMPLEX fftw_complex
-#define PRISM_FFTW_INIT_THREADS fftw_init_threads
-#define	PRISM_FFTW_PLAN_WITH_NTHREADS fftw_plan_with_nthreads
-#define PRISM_FFTW_CLEANUP_THREADS fftw_cleanup_threads
+#define PRISMATIC_FFTW_PLAN fftw_plan
+#define PRISMATIC_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
+#define PRISMATIC_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
+#define PRISMATIC_FFTW_EXECUTE fftw_execute
+#define PRISMATIC_FFTW_DESTROY_PLAN fftw_destroy_plan
+#define PRISMATIC_FFTW_COMPLEX fftw_complex
+#define PRISMATIC_FFTW_INIT_THREADS fftw_init_threads
+#define	PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftw_plan_with_nthreads
+#define PRISMATIC_FFTW_CLEANUP_THREADS fftw_cleanup_threads
 
 #else
 	typedef float PRISMATIC_FLOAT_PRECISION;
 #define MESSAGE "FLOAT PRECISION"
-#define PRISM_FFTW_PLAN fftwf_plan
-#define PRISM_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
-#define PRISM_FFTW_PLAN_DFT_BATCH fftwf_plan_many_dft
-#define PRISM_FFTW_EXECUTE fftwf_execute
-#define PRISM_FFTW_DESTROY_PLAN fftwf_destroy_plan
-#define PRISM_FFTW_COMPLEX fftwf_complex
-#define PRISM_FFTW_INIT_THREADS fftwf_init_threads
-#define	PRISM_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
-#define PRISM_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
-#endif //PRISM_ENABLE_DOUBLE_PRECISION
+#define PRISMATIC_FFTW_PLAN fftwf_plan
+#define PRISMATIC_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
+#define PRISMATIC_FFTW_PLAN_DFT_BATCH fftwf_plan_many_dft
+#define PRISMATIC_FFTW_EXECUTE fftwf_execute
+#define PRISMATIC_FFTW_DESTROY_PLAN fftwf_destroy_plan
+#define PRISMATIC_FFTW_COMPLEX fftwf_complex
+#define PRISMATIC_FFTW_INIT_THREADS fftwf_init_threads
+#define	PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
+#define PRISMATIC_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
+#endif //PRISMATIC_ENABLE_DOUBLE_PRECISION
 
 //#ifdef PRISMATIC_BUILDING_GUI
 //class prism_progressbar;
 //#endif
-#endif //PRISM_DEFINES_H
+#endif //PRISMATIC_DEFINES_H

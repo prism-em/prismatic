@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_PRISM_ENTRY_H
-#define PRISM_PRISM_ENTRY_H
+#ifndef PRISM_ENTRY_H
+#define PRISM_ENTRY_H
 //#include <iostream>
 //#include <stdlib.h>
 //#include <algorithm>
@@ -16,7 +16,7 @@
 #include "params.h"
 //#include <vector>
 
-namespace PRISM{
+namespace Prismatic{
 	Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta);
 }
 #endif //PRISM_PRISM_ENTRY_H

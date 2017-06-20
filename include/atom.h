@@ -24,7 +24,7 @@ struct atom{
 	}
 };
 
-namespace PRISM {
+namespace Prismatic {
 	std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms);
 
 	std::vector<atom> readAtoms(const std::string& filename);

@@ -8,7 +8,7 @@
 #include "defines.h"
 #include "meta.h"
 
-namespace PRISM{
+namespace Prismatic{
     bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                             int& argc, const char*** argv);
     bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,

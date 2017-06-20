@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_UTILITY_CUH
-#define PRISM_UTILITY_CUH
+#ifndef PRISMATIC_UTILITY_CUH
+#define PRISMATIC_UTILITY_CUH
 #define PI 3.14159265359
 #include "cuComplex.h"
 //#include <cuda_runtime.h>
@@ -56,7 +56,7 @@ __global__ void multiply_cx(cuFloatComplex* arr,
 
 
 //// divide two complex arrays
-//__global__ void divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
+//__global__ void divide_inplace(PRISMATIC_CUDA_COMPLEX_FLOAT* arr,
 //                               const PRISMATIC_FLOAT_PRECISION val,
 //                               const size_t N){
 //	int idx = threadIdx.x + blockDim.x*blockIdx.x;
@@ -136,8 +136,8 @@ __global__ void array_subset(const cuFloatComplex* psi_d,
 __global__ void shiftIndices(long* vec_out, const long by, const long imageSize, const long N);
 __global__ void zeroIndices(long* vec_out, const long N);
 __global__ void resetIndices(long* vec_out, const long N);
-__global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
-                                   const PRISM_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
+__global__ void computePhaseCoeffs(PRISMATIC_CUDA_COMPLEX_FLOAT* phaseCoeffs,
+                                   const PRISMATIC_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
                                    const PRISMATIC_FLOAT_PRECISION * qyaReduce_d,
                                    const PRISMATIC_FLOAT_PRECISION * qxaReduce_d,
                                    const size_t *yBeams_d,
@@ -150,9 +150,9 @@ __global__ void computePhaseCoeffs(PRISM_CUDA_COMPLEX_FLOAT* phaseCoeffs,
                                    const size_t numBeams);
 
 //template <size_t BlockSizeX>
-//__global__ void scaleReduceS(const PRISM_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
-//                             const PRISM_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
-//                             PRISM_CUDA_COMPLEX_FLOAT *psi_ds,
+//__global__ void scaleReduceS(const PRISMATIC_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+//                             const PRISMATIC_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+//                             PRISMATIC_CUDA_COMPLEX_FLOAT *psi_ds,
 //                             const long *y_ds,
 //                             const long* x_ds,
 //                             const size_t numberBeams,
@@ -167,7 +167,7 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
                        const size_t N,
                        const size_t num_integration_bins);
 
-void formatOutput_GPU_integrate(PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
                                 PRISMATIC_FLOAT_PRECISION *psi_intensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *stack_ph,
@@ -203,4 +203,4 @@ size_t getNextPower2(const size_t& val);
 __device__  double atomicAdd_double(double* address, const double val);
 #endif
 //__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
-#endif // PRISM_UTILITY_CUH
+#endif // PRISMATIC_UTILITY_CUH

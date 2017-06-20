@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_PRISM01_H
-#define PRISM_PRISM01_H
+#ifndef PRISMATIC_PRISM01_H
+#define PRISMATIC_PRISM01_H
 #include "defines.h"
 #include "params.h"
 #include <iostream>
@@ -23,7 +23,7 @@
 //#include "prism_progressbar.h"
 //#endif
 
- namespace PRISM {
+ namespace Prismatic {
 	 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION>& potentials,
 	                      const std::vector<size_t>& atomic_species,
 	                      const Array1D<PRISMATIC_FLOAT_PRECISION>& xr,
@@ -43,6 +43,6 @@
 //	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
 //#else
 	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
-//#endif //PRISM_ENABLE_GPU
+//#endif //PRISMATIC_ENABLE_GPU
 }
-#endif //PRISM_PRISM01_H
+#endif //PRISMATIC_PRISM01_H

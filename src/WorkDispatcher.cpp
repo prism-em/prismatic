@@ -7,7 +7,7 @@
 #include <mutex>
 // helper function for dispatching work
 
-namespace PRISM {
+namespace Prismatic {
         WorkDispatcher::WorkDispatcher(size_t _current,
 					   size_t _stop) :
 					   current(_current),

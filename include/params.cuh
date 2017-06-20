@@ -1,21 +1,21 @@
-#ifndef PRISM_PARAMS_CUH
-#define PRISM_PARAMS_CUH
+#ifndef PRISMATIC_PARAMS_CUH
+#define PRISMATIC_PARAMS_CUH
 #include "defines.h"
 #include "configure.h"
-namespace PRISM {
+namespace Prismatic {
 	template<class T>
 	class CudaParameters {
 	public:
-		PRISM_CUDA_COMPLEX_FLOAT **permuted_Scompact_d;
-		PRISM_CUDA_COMPLEX_FLOAT **PsiProbeInit_d;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **permuted_Scompact_d;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **PsiProbeInit_d;
 		PRISMATIC_FLOAT_PRECISION **qxaReduce_d;
 		PRISMATIC_FLOAT_PRECISION **qyaReduce_d;
 		size_t **yBeams_d;
 		size_t **xBeams_d;
 		PRISMATIC_FLOAT_PRECISION **alphaInd_d;
-		PRISM_CUDA_COMPLEX_FLOAT **psi_ds;
-		PRISM_CUDA_COMPLEX_FLOAT **psi_small_ds;
-		PRISM_CUDA_COMPLEX_FLOAT **phaseCoeffs_ds;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_ds;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_small_ds;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **phaseCoeffs_ds;
 		PRISMATIC_FLOAT_PRECISION **psi_intensity_ds;
 		long **y_ds;
 		long **x_ds;
@@ -28,8 +28,8 @@ namespace PRISM {
 		size_t **qxInd_ph;
 		size_t **qyInd_ph;
 		size_t **beamsIndex_ph;
-        PRISM_CUDA_COMPLEX_FLOAT **trans_d;
-        PRISM_CUDA_COMPLEX_FLOAT **prop_d;
+        PRISMATIC_CUDA_COMPLEX_FLOAT **trans_d;
+        PRISMATIC_CUDA_COMPLEX_FLOAT **prop_d;
         size_t **qxInd_d;
         size_t **qyInd_d;
         size_t **beamsIndex_d;
@@ -50,4 +50,4 @@ namespace PRISM {
 
 	};
 }
-#endif //PRISM_PARAMS_CUH
+#endif //PRISMATIC_PARAMS_CUH

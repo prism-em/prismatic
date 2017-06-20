@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <iostream>
 
-namespace PRISM {
+namespace Prismatic {
 	std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms) {
 		if (tileX == 1 & tileY == 1 & tileZ == 1)return atoms; // case where no tiling is necessary
 		std::vector<atom> tiled_atoms;

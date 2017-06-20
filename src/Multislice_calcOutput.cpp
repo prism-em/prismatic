@@ -17,7 +17,7 @@
 #include "fftw3.h"
 #include "WorkDispatcher.h"
 #include "Multislice_calcOutput.h"
-namespace PRISM{
+namespace Prismatic{
 	using namespace std;
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
@@ -212,22 +212,22 @@ namespace PRISM{
 		}
 	}
 
-	std::pair<PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	std::pair<Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > >
 	getSingleMultisliceProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const PRISMATIC_FLOAT_PRECISION xp, const PRISMATIC_FLOAT_PRECISION yp){
 
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > realspace_probe;
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > kspace_probe;
-		PRISM_FFTW_INIT_THREADS();
-		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		PRISMATIC_FFTW_INIT_THREADS();
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
 		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
-		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+		PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
 		{
@@ -238,10 +238,10 @@ namespace PRISM{
 		}
 
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-			PRISM_FFTW_EXECUTE(plan_inverse);
+			PRISMATIC_FFTW_EXECUTE(plan_inverse);
 			complex<PRISMATIC_FLOAT_PRECISION>* t_ptr = &pars.transmission[a2 * pars.transmission.get_dimj() * pars.transmission.get_dimi()];
 			for (auto& p:psi)p *= (*t_ptr++); // transmit
-			PRISM_FFTW_EXECUTE(plan_forward);
+			PRISMATIC_FFTW_EXECUTE(plan_forward);
 			auto p_ptr = pars.prop.begin();
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
 			for (auto& p:psi)p /= psi.size(); // scale FFT
@@ -266,28 +266,28 @@ namespace PRISM{
 		psi_small = fftshift2(psi_small);
 		kspace_probe = psi_small;
 		gatekeeper.lock();
-		PRISM_FFTW_PLAN plan_inverse_small = PRISM_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
-		                                                            reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
-		                                                            reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_small[0]),
+		PRISMATIC_FFTW_PLAN plan_inverse_small = PRISMATIC_FFTW_PLAN_DFT_2D(psi_small.get_dimj(), psi_small.get_dimi(),
+		                                                            reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_small[0]),
+		                                                            reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_small[0]),
 		                                                            FFTW_BACKWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
-		PRISM_FFTW_EXECUTE(plan_inverse_small);
+		PRISMATIC_FFTW_EXECUTE(plan_inverse_small);
 		realspace_probe = psi_small;
 
 		// cleanup plans
 		gatekeeper.lock();
-		PRISM_FFTW_DESTROY_PLAN(plan_forward);
-		PRISM_FFTW_DESTROY_PLAN(plan_inverse);
-		PRISM_FFTW_DESTROY_PLAN(plan_inverse_small);
-		PRISM_FFTW_CLEANUP_THREADS();
+		PRISMATIC_FFTW_DESTROY_PLAN(plan_forward);
+		PRISMATIC_FFTW_DESTROY_PLAN(plan_inverse);
+		PRISMATIC_FFTW_DESTROY_PLAN(plan_inverse_small);
+		PRISMATIC_FFTW_CLEANUP_THREADS();
 		return std::make_pair(realspace_probe, kspace_probe);
 	};
 
 	void getMultisliceProbe_CPU_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                  const size_t Nstart,
 	                                  const size_t Nstop,
-	                                  PRISM_FFTW_PLAN& plan_forward,
-	                                  PRISM_FFTW_PLAN& plan_inverse,
+	                                  PRISMATIC_FFTW_PLAN& plan_forward,
+	                                  PRISMATIC_FFTW_PLAN& plan_inverse,
 	                                  Array1D<complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack){
 		{
 			auto psi_ptr = psi_stack.begin();
@@ -318,7 +318,7 @@ namespace PRISM{
 		for (auto& jj : scaled_prop) jj/=pars.psiProbeInit.size(); // apply FFT scaling factor here once in advance rather than at every plane
 		complex<PRISMATIC_FLOAT_PRECISION>* slice_ptr = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-			PRISM_FFTW_EXECUTE(plan_inverse); // batch FFT
+			PRISMATIC_FFTW_EXECUTE(plan_inverse); // batch FFT
 
 			// transmit each of the probes in the batch
 			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
@@ -329,7 +329,7 @@ namespace PRISM{
 				}
 			}
 			slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
-			PRISM_FFTW_EXECUTE(plan_forward); // batch FFT
+			PRISMATIC_FFTW_EXECUTE(plan_forward); // batch FFT
 
 			// propagate each of the probes in the batch
 			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
@@ -347,8 +347,8 @@ namespace PRISM{
 	void getMultisliceProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                            const size_t ay,
 	                            const size_t ax,
-								PRISM_FFTW_PLAN& plan_forward,
-								PRISM_FFTW_PLAN& plan_inverse,
+								PRISMATIC_FFTW_PLAN& plan_forward,
+								PRISMATIC_FFTW_PLAN& plan_inverse,
 								Array2D<complex<PRISMATIC_FLOAT_PRECISION> >& psi){
 
 		// populates the output stack for Multislice simulation using the CPU. The number of
@@ -358,13 +358,13 @@ namespace PRISM{
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 		// to the plan creation methods
 //		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-//		PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 //		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
-//		PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi[0]),
+//		PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 //		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
 //		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 		{
@@ -378,9 +378,9 @@ namespace PRISM{
 		for (auto& i : scaled_prop) i/=psi.size(); // apply FFT scaling factor here once in advance rather than at every plane
 		complex<PRISMATIC_FLOAT_PRECISION>* t_ptr = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-			PRISM_FFTW_EXECUTE(plan_inverse);
+			PRISMATIC_FFTW_EXECUTE(plan_inverse);
 			for (auto& p:psi)p *= (*t_ptr++); // transmit
-			PRISM_FFTW_EXECUTE(plan_forward);
+			PRISMATIC_FFTW_EXECUTE(plan_forward);
 			auto p_ptr = scaled_prop.begin();
 			for (auto& p:psi)p *= (*p_ptr++); // propagate
 		}
@@ -395,9 +395,9 @@ namespace PRISM{
 
 		vector<thread> workers;
 		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-		PRISM_FFTW_INIT_THREADS();
-		PRISM_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
-		const size_t PRISM_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
+		PRISMATIC_FFTW_INIT_THREADS();
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
@@ -405,7 +405,7 @@ namespace PRISM{
 		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS));
 		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
 			cout << "Launching CPU worker #" << t << endl;
-			workers.push_back(thread([&pars, &dispatcher, t, &PRISM_PRINT_FREQUENCY_PROBES]() {
+			workers.push_back(thread([&pars, &dispatcher, t, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop;
                 Nstart=Nstop=0;
 				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)){ // synchronously get work assignment
@@ -426,26 +426,26 @@ namespace PRISM{
 					int *onembed      = n;
 					unique_lock<mutex> gatekeeper(fftw_plan_lock);
 
-//					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
-//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//					PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
 //																		  FFTW_FORWARD, FFTW_MEASURE);
-//					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
-//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]),
+//					PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
 //																		  FFTW_BACKWARD, FFTW_MEASURE);
 
 
-					PRISM_FFTW_PLAN plan_forward = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
-					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
 					                                                         istride, idist,
-					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
 					                                                         ostride, odist,
 					                                                         FFTW_FORWARD, FFTW_MEASURE);
-					PRISM_FFTW_PLAN plan_inverse = PRISM_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
-					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
+					PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
+					                                                         reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]), inembed,
 					                                                         istride, idist,
-					                                                         reinterpret_cast<PRISM_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
+					                                                         reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]), onembed,
 					                                                         ostride, odist,
 					                                                         FFTW_BACKWARD, FFTW_MEASURE);
 
@@ -453,7 +453,7 @@ namespace PRISM{
 					// main work loop
                     do {
 						while (Nstart < Nstop) {
-							if (Nstart % PRISM_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_CPU | Nstart == 100){
+							if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_CPU | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
 //							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
@@ -465,15 +465,15 @@ namespace PRISM{
 						}
 					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));
 					gatekeeper.lock();
-					PRISM_FFTW_DESTROY_PLAN(plan_forward);
-					PRISM_FFTW_DESTROY_PLAN(plan_inverse);
+					PRISMATIC_FFTW_DESTROY_PLAN(plan_forward);
+					PRISMATIC_FFTW_DESTROY_PLAN(plan_inverse);
 					gatekeeper.unlock();
 				}
 				cout << "CPU worker #" << t << " finished\n";
 			}));
 		}
 		for (auto& t:workers)t.join();
-		PRISM_FFTW_CLEANUP_THREADS();
+		PRISMATIC_FFTW_CLEANUP_THREADS();
 	};
 
 

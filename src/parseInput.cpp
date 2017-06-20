@@ -9,7 +9,7 @@
 #include <string>
 #include <stdlib.h>
 
-namespace PRISM {
+namespace Prismatic {
     using namespace std;
 
     void printHelp() {
@@ -65,9 +65,9 @@ namespace PRISM {
         }
         std::string algo = std::string((*argv)[1]);
         if (algo == "m" | algo == "multislice"){
-            meta.algorithm = PRISM::Algorithm::Multislice;
+            meta.algorithm = Prismatic::Algorithm::Multislice;
         } else if (algo == "p" | algo == "prism"){
-            meta.algorithm = PRISM::Algorithm::PRISM;
+            meta.algorithm = Prismatic::Algorithm::PRISM;
         } else {
             cout << "Unrecognized algorithm \"" << (*argv)[1] << "\"\n";
             return false;
@@ -203,7 +203,7 @@ namespace PRISM {
             cout << "No state provided for -C (syntax is -f 0/1)\n";
             return false;
         }
-        meta.transfer_mode = std::string((*argv)[1]) == "0" ? PRISM::StreamingMode::SingleXfer :  PRISM::StreamingMode::Stream;
+        meta.transfer_mode = std::string((*argv)[1]) == "0" ? Prismatic::StreamingMode::SingleXfer :  Prismatic::StreamingMode::Stream;
         argc-=2;
         argv[0]+=2;
         return true;

@@ -49,7 +49,7 @@ private:
     Ui::prism_progressbar *ui;
     PRISMMainWindow *parent;
     //prism_progressbar *progressbar;
-    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     std::mutex dataLock;
     long potentialCurrentSlice;
     long potentialTotalSlices;

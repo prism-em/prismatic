@@ -24,7 +24,7 @@ public:
 //signals:
 //    void potentialCalculated();
 private:
-    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
@@ -40,7 +40,7 @@ public:
 //signals:
 //    void ScompactCalculated();
 private:
-    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
@@ -57,7 +57,7 @@ signals:
     void ScompactCalculated();
     void stackCalculated();
 private:
-    PRISM::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };

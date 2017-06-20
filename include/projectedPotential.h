@@ -14,7 +14,7 @@
 #include <numeric>
 #include "fparams.h"
 #include "configure.h"
-namespace PRISM {
+namespace Prismatic {
 
 	PRISMATIC_FLOAT_PRECISION get_potMin(const Array2D<PRISMATIC_FLOAT_PRECISION>& pot,
                                      const Array1D<PRISMATIC_FLOAT_PRECISION>& xr,

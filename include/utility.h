@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_UTILITY_H
-#define PRISM_UTILITY_H
+#ifndef PRISMATIC_UTILITY_H
+#define PRISMATIC_UTILITY_H
 #include <vector>
 #include <string>
 #include <sstream>
@@ -13,7 +13,7 @@
 #include "defines.h"
 #include "fftw3.h"
 #include "configure.h"
-namespace PRISM {
+namespace Prismatic {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
 
@@ -63,14 +63,14 @@ namespace PRISM {
 
 	}
 
-	std::pair<PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
-	upsamplePRISMProbe(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
+	std::pair<Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> >, Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	upsamplePRISMProbe(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > probe,
 	                   const long dimj, const long dimi, long ys=0, long xs=0);
 
-	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
-	                                                PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
-	PRISMATIC_FLOAT_PRECISION computeRfactor(PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
-	                                     PRISM::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
+	PRISMATIC_FLOAT_PRECISION computePearsonCorrelation(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                                Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
+	PRISMATIC_FLOAT_PRECISION computeRfactor(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
+	                                     Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
 }
 
-#endif //PRISM_UTILITY_H
+#endif //PRISMATIC_UTILITY_H

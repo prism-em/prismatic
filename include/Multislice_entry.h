@@ -15,7 +15,7 @@
 #include <algorithm>
 
 
-namespace PRISM{
+namespace Prismatic{
 	Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta);
 }
 #endif //PRISM_MULTISLICE_ENTRY_H

@@ -3,14 +3,14 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_META_H
-#define PRISM_META_H
+#ifndef PRISMATIC_META_H
+#define PRISMATIC_META_H
 #include <vector>
 #include <string>
 #include <cstddef>
 #include <iostream>
 #include "defines.h"
-namespace PRISM{
+namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
 	template <class T>
@@ -176,7 +176,7 @@ namespace PRISM{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
-        if (algorithm == PRISM::Algorithm::PRISM){
+        if (algorithm == Prismatic::Algorithm::PRISM){
             std::cout << "Algorithm: PRISM" << std::endl;
         } else {
 			std::cout << "Algorithm: Multislice" << std::endl;
@@ -187,15 +187,15 @@ namespace PRISM{
         std::cout << "NUM_STREAMS_PER_GPU = " << NUM_STREAMS_PER_GPU<< std::endl;
         std::cout << "also_do_CPU_work = " << also_do_CPU_work << std::endl;
         std::cout << "gpu_cpu_ratio = " << gpu_cpu_ratio  << std::endl;
-		if (transfer_mode == PRISM::StreamingMode::Auto){
+		if (transfer_mode == Prismatic::StreamingMode::Auto){
 			std::cout << "Data Transfer Mode : Auto" << std::endl;
-		} else if (transfer_mode == PRISM::StreamingMode::SingleXfer){
+		} else if (transfer_mode == Prismatic::StreamingMode::SingleXfer){
 			std::cout << "Data Transfer : Single Transfer" << std::endl;
 		} else {
 			std::cout << "Data Transfer : Streaming" << std::endl;
 		}
-#endif // PRISM_ENABLE_GPU
+#endif // PRISMATIC_ENABLE_GPU
 	}
 
 }
-#endif //PRISM_META_H
+#endif //PRISMATIC_META_H

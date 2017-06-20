@@ -8,7 +8,7 @@
 #include "params.h"
 #include "configure.h"
 #include <mutex>
-namespace PRISM {
+namespace Prismatic {
     class WorkDispatcher {
     public:
         WorkDispatcher(size_t _current,

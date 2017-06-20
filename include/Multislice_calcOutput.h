@@ -3,8 +3,8 @@
 // PRISM is distributed under the GNU General Public License (GPL)
 // If you use PRISM, we ask that you cite the following papers:
 
-#ifndef PRISM_MULTISLICE_H
-#define PRISM_MULTISLICE_H
+#ifndef PRISMATIC_MULTISLICE_H
+#define PRISMATIC_MULTISLICE_H
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -19,7 +19,7 @@
 #include "fftw3.h"
 #include "WorkDispatcher.h"
 
-namespace PRISM{
+namespace Prismatic{
 	using namespace std;
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
@@ -32,10 +32,10 @@ namespace PRISM{
 	void createStack(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
-	                             Array2D< complex<PRISMATIC_FLOAT_PRECISION> >& psi,
-	                             const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
-	                             const size_t ay,
-	                             const size_t ax);
+	                                Array2D< complex<PRISMATIC_FLOAT_PRECISION> >& psi,
+	                                const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
+	                                const size_t ay,
+	                                const size_t ax);
 
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
@@ -43,23 +43,23 @@ namespace PRISM{
 	                                      const size_t ay,
 	                                      const size_t ax);
 
-	std::pair<PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > >
+	std::pair<Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > >
 	getSingleMultisliceProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const PRISMATIC_FLOAT_PRECISION xp, const PRISMATIC_FLOAT_PRECISION yp);
 	void getMultisliceProbe_CPU_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                  const size_t Nstart,
 	                                  const size_t Nstop,
-	                                  PRISM_FFTW_PLAN& plan_forward,
-	                                  PRISM_FFTW_PLAN& plan_inverse,
+	                                  PRISMATIC_FFTW_PLAN& plan_forward,
+	                                  PRISMATIC_FFTW_PLAN& plan_inverse,
 	                                  Array1D<complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack);
 	void getMultisliceProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                            const size_t ay,
 	                            const size_t ax,
-	                            PRISM_FFTW_PLAN& plan_forward,
-	                            PRISM_FFTW_PLAN& plan_inverse,
+	                            PRISMATIC_FFTW_PLAN& plan_forward,
+	                            PRISMATIC_FFTW_PLAN& plan_inverse,
 	                            Array2D<complex<PRISMATIC_FLOAT_PRECISION> >& psi);
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
 
 	void Multislice_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 }
-#endif //PRISM_MULTISLICE_H
+#endif //PRISMATIC_MULTISLICE_H

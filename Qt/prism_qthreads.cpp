@@ -24,12 +24,12 @@ PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_p
 
 void PotentialThread::run(){
     // create parameters
-    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
     {
         QMutexLocker calculationLocker(&this->parent->calculationLock);
-        PRISM::configure(meta);
+        Prismatic::configure(meta);
         // calculate potential
-        PRISM::PRISM01_calcPotential(params);
+        Prismatic::PRISM01_calcPotential(params);
         this->parent->potentialReceived(params.pot);
         emit potentialCalculated();
     }
@@ -53,13 +53,13 @@ void PotentialThread::run(){
 
 //void SMatrixThread::run(){
 //    QMutexLocker calculationLocker(&this->parent->calculationLock);
-//    PRISM::configure(meta);
+//    Prismatic::configure(meta);
 //    // create parameters
-//    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+//    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
 //    // calculate potential if it hasn't been already
 //    if (!this->parent->potentialIsReady()){
 //        // calculate potential
-//        PRISM::PRISM01_calcPotential(params);
+//        Prismatic::PRISM01_calcPotential(params);
 //	    QMutexLocker gatekeeper(&this->parent->dataLock);
 //        // indicate that the potential is ready
 
@@ -76,7 +76,7 @@ void PotentialThread::run(){
 
 
 ////    // calculate S-Matrix
-//    PRISM::PRISM02_calcSMatrix(params);
+//    Prismatic::PRISM02_calcSMatrix(params);
 //    QMutexLocker gatekeeper(&this->parent->dataLock);
 
 ////    // perform copy
@@ -90,17 +90,17 @@ ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISMATIC_FLOAT_PRECISION _X,
 PRISMThread(_parent, _progressbar), X(_X), Y(_Y), use_log_scale(_use_log_scale){};
 
 void ProbeThread::run(){
-    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
-//    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+//    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta);
 
-//    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
+//    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
 
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     if (!this->parent->potentialIsReady()){
-        PRISM::configure(meta);
+        Prismatic::configure(meta);
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        PRISM::PRISM01_calcPotential(params);
+        Prismatic::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
         {
             QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -118,7 +118,7 @@ void ProbeThread::run(){
     }
 
     if (!this->parent->SMatrixIsReady()){
-        PRISM::PRISM02_calcSMatrix(params);
+        Prismatic::PRISM02_calcSMatrix(params);
     {
 //        std::cout << "S-Matrix finished calculating." << std::endl;
 //        QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -135,52 +135,52 @@ void ProbeThread::run(){
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
 
-    std::pair<PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, PRISM::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > > prism_probes, multislice_probes;
-    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
+    std::pair<Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >, Prismatic::Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > > prism_probes, multislice_probes;
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
 
     // setup and calculate PRISM probe
-    PRISM::setupCoordinates_2(params);
+    Prismatic::setupCoordinates_2(params);
 
     // setup angles of detector and image sizes
-    PRISM::setupDetector(params);
+    Prismatic::setupDetector(params);
 
     // setup coordinates and indices for the beams
-    PRISM::setupBeams_2(params);
+    Prismatic::setupBeams_2(params);
 
     // setup Fourier coordinates for the S-matrix
-    PRISM::setupFourierCoordinates(params);
+    Prismatic::setupFourierCoordinates(params);
 
     // initialize the output to the correct size for the output mode
-    PRISM::createStack_integrate(params);
+    Prismatic::createStack_integrate(params);
 
 //  perform some necessary setup transformations of the data
-    PRISM::transformIndices(params);
+    Prismatic::transformIndices(params);
 
     // initialize/compute the probes
-    PRISM::initializeProbes(params);
+    Prismatic::initializeProbes(params);
 
     std::cout << "Getting PRISM Probe" << std::endl;
-    prism_probes = PRISM::getSinglePRISMProbe_CPU(params, X, Y);
+    prism_probes = Prismatic::getSinglePRISMProbe_CPU(params, X, Y);
 
 
     // setup and calculate Multislice probe
     // setup coordinates and build propagators
-    PRISM::setupCoordinates_multislice(params_multi);
+    Prismatic::setupCoordinates_multislice(params_multi);
 
     // setup detector coordinates and angles
-    PRISM::setupDetector_multislice(params_multi);
+    Prismatic::setupDetector_multislice(params_multi);
 
     // create initial probes
-    PRISM::setupProbes_multislice(params_multi);
+    Prismatic::setupProbes_multislice(params_multi);
 
     // create transmission array
-    PRISM::createTransmission(params_multi);
+    Prismatic::createTransmission(params_multi);
 
     // initialize output stack
-    PRISM::createStack(params_multi);
+    Prismatic::createStack(params_multi);
     std::cout << "Getting Multislice Probe" << std::endl;
 
-    multislice_probes = PRISM::getSingleMultisliceProbe_CPU(params_multi, X, Y);
+    multislice_probes = Prismatic::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
 
     QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -213,7 +213,7 @@ void ProbeThread::run(){
     emit signal_RK(QString("R = ") + QString::number(computeRfactor(prism_probes.second, multislice_probes.second)));
 //    pr_sum = std::accumulate(&prism_probes.first[0], &*(prism_probes.first.end()-1), (PRISMATIC_FLOAT_PRECISION)0.0, [](std::complex<PRISMATIC_FLOAT_PRECISION> a){return abs(a);});
 
-//    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> debug = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
+//    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> debug = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
 //    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
 //        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
 //        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
@@ -244,12 +244,12 @@ void ProbeThread::run(){
 //    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
 //    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
 
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> pr    = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> pk    = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> mr    = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> mk    = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> diffr = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
-    PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> diffk = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> pr    = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> pk    = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> mr    = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> mk    = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> diffr = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> diffk = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
 
 
@@ -306,9 +306,9 @@ void FullPRISMCalcThread::run(){
     emit signalTitle("PRISM: Frozen Phonon #1");
     bool error_reading = false;
     QMutexLocker gatekeeper(&this->parent->dataLock);
-    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params;
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params;
     try {
-        params = PRISM::Parameters<PRISMATIC_FLOAT_PRECISION>(meta,progressbar);
+        params = Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>(meta,progressbar);
     }catch (...){
         std::cout <<"An error occurred while attempting to read from file " << meta.filename_atoms << std::endl;
         error_reading = true;
@@ -321,11 +321,11 @@ void FullPRISMCalcThread::run(){
     } else {
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
-    PRISM::configure(meta);
-//  //  PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params = PRISM::execute_plan(meta);
+    Prismatic::configure(meta);
+//  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
     if (!this->parent->potentialIsReady()){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        PRISM::PRISM01_calcPotential(params);
+        Prismatic::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
     {
 //        QMutexLocker gatekeeper(&this->parent->potentialLock);
@@ -346,7 +346,7 @@ void FullPRISMCalcThread::run(){
     }
 
     if (!this->parent->SMatrixIsReady()){
-    PRISM::PRISM02_calcSMatrix(params);
+    Prismatic::PRISM02_calcSMatrix(params);
     {
 //        QMutexLocker gatekeeper(&this->parent->dataLock);
 
@@ -364,21 +364,21 @@ void FullPRISMCalcThread::run(){
     }
 //    emit ScompactCalculated();
 
-    PRISM::PRISM03_calcOutput(params);
+    Prismatic::PRISM03_calcOutput(params);
 
 
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
-        PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
-            PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
-            PRISM::PRISM01_calcPotential(params);
-            PRISM::PRISM02_calcSMatrix(params);
-            PRISM::PRISM03_calcOutput(params);
+            Prismatic::PRISM01_calcPotential(params);
+            Prismatic::PRISM02_calcSMatrix(params);
+            Prismatic::PRISM03_calcOutput(params);
             net_output += params.output;
         }
         // divide to take average
@@ -420,12 +420,12 @@ FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, pri
 
 void FullMultisliceCalcThread::run(){
     std::cout << "Full Multislice Calculation thread running" << std::endl;
-    PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
-    PRISM::configure(meta);
+    Prismatic::configure(meta);
         if (!this->parent->potentialIsReady()) {
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-            PRISM::PRISM01_calcPotential(params);
+            Prismatic::PRISM01_calcPotential(params);
             std::cout << "Potential Calculated" << std::endl;
             {
                 QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -445,19 +445,19 @@ void FullMultisliceCalcThread::run(){
     this->parent->potentialReceived(params.pot);
     emit potentialCalculated();
 
-    PRISM::Multislice_calcOutput(params);
+    Prismatic::Multislice_calcOutput(params);
 
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
-        PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
-            PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.random_seed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
-            PRISM::PRISM01_calcPotential(params);
-            PRISM::Multislice_calcOutput(params);
+            Prismatic::PRISM01_calcPotential(params);
+            Prismatic::Multislice_calcOutput(params);
             net_output += params.output;
         }
         // divide to take average
@@ -477,7 +477,7 @@ void FullMultisliceCalcThread::run(){
         this->parent->pixelSize = params.pixelSize;
 
 //        this->parent->outputArrayExists = true;
-//        PRISM::Array3D<PRISMATIC_FLOAT_PRECISION> reshaped_output = PRISM::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
+//        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> reshaped_output = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
 //        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //        auto ptr = reshaped_output.begin();
 //        for (auto &i:params.output)*ptr++=i;

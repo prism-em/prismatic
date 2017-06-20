@@ -159,7 +159,7 @@ __global__ void multiply_arr_scalar(float* arr,
 
 
 //// divide two complex arrays
-//__global__ void divide_inplace(PRISM_CUDA_COMPLEX_FLOAT* arr,
+//__global__ void divide_inplace(PRISMATIC_CUDA_COMPLEX_FLOAT* arr,
 //                               const PRISMATIC_FLOAT_PRECISION val,
 //                               const size_t N){
 //	int idx = threadIdx.x + blockDim.x*blockIdx.x;
@@ -418,7 +418,7 @@ __global__ void integrateDetector(const double* psi_intensity_ds,
 }
 
 
-void formatOutput_GPU_integrate(PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
                                 PRISMATIC_FLOAT_PRECISION *psi_intensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *output_ph,
@@ -436,7 +436,7 @@ void formatOutput_GPU_integrate(PRISM::Parameters<PRISMATIC_FLOAT_PRECISION> &pa
 		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
 		// memory isn't pinned, so the memcpy is not asynchronous.
 		std::string section4DFilename = generateFilename(pars, ay, ax);
-		PRISM::Array2D<PRISMATIC_FLOAT_PRECISION> currentImage = PRISM::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+		Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> currentImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
 		                           psi_intensity_ds,
