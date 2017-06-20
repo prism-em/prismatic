@@ -1,8 +1,8 @@
 from distutils.core import setup, Extension
 
-pyprimsatic = Extension('pyprismatic',
+pyprimsatic_core = Extension('pyprismatic.core',
 	sources=[
-	'pyprismatic.cpp',
+	'pyprismatic/core.cpp',
 	'src/atom.cpp',
 	'src/configure.cpp',
 	'src/Multislice_calcOutput.cpp',
@@ -26,4 +26,5 @@ setup(name = 'PyPrismatic',
 	  description="Python wrapper for Prismatic\
 	 			   package for fast image simulation using the PRISM and multislice\
 	 			   algorithms in Scanning Transmission Electron Microscopy (STEM)",
-	  ext_modules=[pyprimsatic])
+	  ext_modules=[pyprimsatic_core],
+	  packages=['pyprismatic'])
