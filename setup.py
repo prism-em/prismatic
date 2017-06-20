@@ -6,14 +6,14 @@ pyprimsatic = Extension('pyprismatic',
 	'src/atom.cpp',
 	'src/configure.cpp',
 	'src/Multislice_calcOutput.cpp',
-	# 'src/Multislice_entry.cpp',
-	# 'src/parseInput.cpp',
-	# 'src/PRISM01_calcPotential.cpp',
-	# 'src/PRISM02_calcSMatrix.cpp',
-	# 'src/PRISM03_calcOutput.cpp',
-	# 'src/PRISM_entry.cpp',
-	# 'src/projectedPotential.cpp',
-	# 'src/utility.cpp',
+	'src/Multislice_entry.cpp',#
+	'src/parseInput.cpp',#
+	'src/PRISM01_calcPotential.cpp',
+	'src/PRISM02_calcSMatrix.cpp',#
+	'src/PRISM03_calcOutput.cpp',#
+	'src/PRISM_entry.cpp',
+	'src/projectedPotential.cpp',#
+	'src/utility.cpp',#
 	'src/WorkDispatcher.cpp'],
 	include_dirs=["./include", "/usr/local/boost_1_60_0/"],
 	extra_compile_args=['-std=c++11'],

@@ -161,50 +161,50 @@ namespace Prismatic {
 #endif
 	void configure(Metadata<PRISMATIC_FLOAT_PRECISION>& meta) {
 		std::cout << "Formatting" << std::endl;
-//		formatOutput_CPU = formatOutput_CPU_integrate;
-//#ifdef PRISMATIC_ENABLE_GPU
-//		formatOutput_GPU = formatOutput_GPU_integrate;
-//#endif
-//		if (meta.algorithm == Algorithm::PRISM) {
-//			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
-//			execute_plan = PRISM_entry;
-//#ifdef PRISMATIC_ENABLE_GPU
-//            if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
-//            	meta.transfer_mode = transferMethodAutoChooser(meta);
-//            }
-//			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
-//				cout << "Using streaming method\n";
-//				fill_Scompact = fill_Scompact_GPU_streaming;
-//				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
-//			} else {
-//				cout << "Using single transfer method\n";
-//				fill_Scompact = fill_Scompact_GPU_singlexfer;
-//				buildPRISMOutput = buildPRISMOutput_GPU_singlexfer;
-//			}
-//
-//#else
-//			fill_Scompact = fill_Scompact_CPUOnly;
-//			buildPRISMOutput = buildPRISMOutput_CPUOnly;
-//#endif //PRISMATIC_ENABLE_GPU
-//		} else if (meta.algorithm == Algorithm::Multislice) {
-//			std::cout << "Execution plan: Multislice w/ single FP configuration\n";
-//			execute_plan = Multislice_entry;
-//#ifdef PRISMATIC_ENABLE_GPU
-//			std::cout << "Using GPU codes" << '\n';
-//			if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
-//				meta.transfer_mode = transferMethodAutoChooser(meta);
-//			}
-//			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
-//				cout << "Using streaming method\n";
-//				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
-//			} else {
-//				cout << "Using single transfer method\n";
-//				buildMultisliceOutput = buildMultisliceOutput_GPU_singlexfer;
-//			}
-//
-//#else
-//			buildMultisliceOutput = buildMultisliceOutput_CPUOnly;
-//#endif //PRISMATIC_ENABLE_GPU
-//		}
+		formatOutput_CPU = formatOutput_CPU_integrate;
+#ifdef PRISMATIC_ENABLE_GPU
+		formatOutput_GPU = formatOutput_GPU_integrate;
+#endif
+		if (meta.algorithm == Algorithm::PRISM) {
+			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
+			execute_plan = PRISM_entry;
+#ifdef PRISMATIC_ENABLE_GPU
+            if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
+            	meta.transfer_mode = transferMethodAutoChooser(meta);
+            }
+			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
+				cout << "Using streaming method\n";
+				fill_Scompact = fill_Scompact_GPU_streaming;
+				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
+			} else {
+				cout << "Using single transfer method\n";
+				fill_Scompact = fill_Scompact_GPU_singlexfer;
+				buildPRISMOutput = buildPRISMOutput_GPU_singlexfer;
+			}
+
+#else
+			fill_Scompact = fill_Scompact_CPUOnly;
+			buildPRISMOutput = buildPRISMOutput_CPUOnly;
+#endif //PRISMATIC_ENABLE_GPU
+		} else if (meta.algorithm == Algorithm::Multislice) {
+			std::cout << "Execution plan: Multislice w/ single FP configuration\n";
+			execute_plan = Multislice_entry;
+#ifdef PRISMATIC_ENABLE_GPU
+			std::cout << "Using GPU codes" << '\n';
+			if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
+				meta.transfer_mode = transferMethodAutoChooser(meta);
+			}
+			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
+				cout << "Using streaming method\n";
+				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
+			} else {
+				cout << "Using single transfer method\n";
+				buildMultisliceOutput = buildMultisliceOutput_GPU_singlexfer;
+			}
+
+#else
+			buildMultisliceOutput = buildMultisliceOutput_CPUOnly;
+#endif //PRISMATIC_ENABLE_GPU
+		}
 	}
 }

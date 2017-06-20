@@ -5,7 +5,9 @@
 
 static PyObject* pyprismatic_go(PyObject *self, PyObject *args){
 	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
-
+	meta.filename_atoms = "/home/aj/hdd1/clion/PRISM/SI100.XYZ";
+	meta.filename_output = "/home/aj/hdd1/clion/PRISM/output_python.mrc";
+	meta.algorithm = Prismatic::Algorithm::Multislice;
 	// print metadata
     meta.toString();
 
@@ -13,7 +15,7 @@ static PyObject* pyprismatic_go(PyObject *self, PyObject *args){
 	Prismatic::configure(meta);
 
 	// execute simulation
-	// Prismatic::execute_plan(meta);
+	Prismatic::execute_plan(meta);
 	Py_RETURN_NONE;
 	// if (!PyArg_ParseTuple(args, "i", &result)){
 		// return NULL;
