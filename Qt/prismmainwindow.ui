@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1429</width>
-    <height>1202</height>
+    <width>800</width>
+    <height>800</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1024</width>
+    <height>1024</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>PRISMMainWindow</string>
@@ -997,7 +1003,7 @@
          <x>0</x>
          <y>0</y>
          <width>326</width>
-         <height>1120</height>
+         <height>1119</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -3000,7 +3006,7 @@ Step (A)</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1429</width>
+     <width>800</width>
      <height>22</height>
     </rect>
    </property>
