@@ -91,11 +91,11 @@ class Metadata(object):
 		self.algorithm				  = "prism"
 		self.include_thermal_effects  = True
 		self.also_do_CPU_work		  = True
-		self.save2DOutput			  = False
+		self.save2DOutput			  = True
 		self.save3DOutput		      = True
 		self.save4DOutput			  = False
-		self.integration_angle_min    = 0.0
-		self.integration_angle_max    = self.detector_angle_step
+		self.integration_angle_min    = 0
+		self.integration_angle_max    = 100
 		self.transfer_mode		      = "auto"
 		for k,v in kwargs.items():
 			if k not in Metadata.fields:
@@ -122,7 +122,7 @@ class Metadata(object):
 		# l[0] = 12
 		# l[1] = 11
 		# print(l[:38])
-		pyprismatic.core.go(*(l[:-7]))
+		pyprismatic.core.go(*(l))
 
 
 		import numpy as np

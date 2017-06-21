@@ -35,7 +35,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 
 	if (!PyArg_ParseTuple(
 		// args, "iissdddiddddiiiddiiiiiddddddddds",
-		args, "iissdddiddddiiiddiiiiiddddddddddddddisp",
+		args, "iissdddiddddiiiddiiiiiddddddddddddddispppppdds",
 	    &interpolationFactorX,
 	    &interpolationFactorY,
 	    &filename_atoms,
@@ -74,14 +74,14 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 		&scanWindowYMax,
 		&random_seed,	
 		&algorithm,
-		&include_thermal_effects)){
-		// &also_do_CPU_work,
-		// &save2DOutput,
-		// &save3DOutput,
-		// &save4DOutput,
-		// &integration_angle_min,
-		// &integration_angle_max,
-		// &transfer_mode)){
+		&include_thermal_effects,
+		&also_do_CPU_work,
+		&save2DOutput,
+		&save3DOutput,
+		&save4DOutput,
+		&integration_angle_min,
+		&integration_angle_max,
+		&transfer_mode)){
 		return NULL;
 	} 
 	meta.interpolationFactorX 	 = interpolationFactorX;
@@ -130,20 +130,20 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	}
 
 	meta.include_thermal_effects = include_thermal_effects;
-	// meta.also_do_CPU_work        = also_do_CPU_work;
-	// meta.save2DOutput			 = save2DOutput;
-	// meta.save3DOutput			 = save3DOutput;
-	// meta.save4DOutput			 = save4DOutput;
-	// meta.integration_angle_min   = integration_angle_min;
-	// meta.integration_angle_max   = integration_angle_max;
+	meta.also_do_CPU_work        = also_do_CPU_work;
+	meta.save2DOutput			 = save2DOutput;
+	meta.save3DOutput			 = save3DOutput;
+	meta.save4DOutput			 = save4DOutput;
+	meta.integration_angle_min   = integration_angle_min;
+	meta.integration_angle_max   = integration_angle_max;
 	
-	// if (std::string(transfer_mode) == "singlexfer"){
-	// 	meta.transfer_mode 		 = Prismatic::StreamingMode::SingleXfer;
-	// } else if (std::string(transfer_mode) == "streaming"){
-	// 	meta.transfer_mode 		 = Prismatic::StreamingMode::Stream;
-	// } else {
-	// 	meta.transfer_mode 		 = Prismatic::StreamingMode::Auto;
-	// }
+	if (std::string(transfer_mode) == "singlexfer"){
+		meta.transfer_mode 		 = Prismatic::StreamingMode::SingleXfer;
+	} else if (std::string(transfer_mode) == "streaming"){
+		meta.transfer_mode 		 = Prismatic::StreamingMode::Stream;
+	} else {
+		meta.transfer_mode 		 = Prismatic::StreamingMode::Auto;
+	}
 
 	// // meta.filename_atoms = "/home/aj/hdd1/clion/PRISM/SI100.XYZ";
 	// // meta.filename_output = "/home/aj/hdd1/clion/PRISM/output_python.mrc";
