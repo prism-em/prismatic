@@ -136,6 +136,9 @@ namespace Prismatic{
 		std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
 		std::cout << "cellDim[1] = " << cellDim[1] << std::endl;
 		std::cout << "cellDim[2] = " << cellDim[2] << std::endl;
+		std::cout << "tileX = " << tileX << std::endl;
+		std::cout << "tileY = " << tileY << std::endl;
+		std::cout << "tileZ = " << tileZ << std::endl;
 		std::cout << "probeDefocus = " << probeDefocus<< std::endl;
 		std::cout << "C3 = " << C3<< std::endl;
 		std::cout << "C5 = " << C5<< std::endl;

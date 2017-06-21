@@ -49,19 +49,19 @@ class Metadata(object):
 	"transfer_mode"]
 	def __init__(self, *args, **kwargs):
 		import numpy as np
-		self.interpolationFactorX 	  = 4
-		self.interpolationFactorY 	  = 4
+		self.interpolationFactorX 	  = 2
+		self.interpolationFactorY 	  = 2
 		self.filename_atoms		      = ""
 		self.filename_output	      = "output.mrc"
-		self.realspace_pixelSizeX     = 0.1
-		self.realspace_pixelSizeY     = 0.1
+		self.realspace_pixelSizeX     = 0.12
+		self.realspace_pixelSizeY     = 0.13
 		self.potBound				  = 0.1
 		self.numFP 				      = 1
 		self.sliceThickness		      = 2.0
 		self.cellDimX                 = 20.0
 		self.cellDimY                 = 20.0
-		self.cellDimZ                 = 20.0
-		self.tileX					  = 3
+		self.cellDimZ                 = 22.0
+		self.tileX					  = 5
 		self.tileY					  = 3
 		self.tileZ					  = 1
 		self.E0						  = 80e3
@@ -70,10 +70,10 @@ class Metadata(object):
 		self.NUM_STREAMS_PER_GPU      = 3	
 		self.NUM_THREADS		      = 12
 		self.batch_size_target_CPU	  = 1
-		self.batch_size_target_GPU    = 1
+		self.batch_size_target_GPU    = 2
 		self.batch_size_CPU           = 1
 		self.batch_size_GPU           = 1
-		self.gpu_cpu_ratio            = 100
+		self.gpu_cpu_ratio            = 100.0
 		self.probe_stepX		      = 0.25
 		self.probe_stepY			  = 0.25
 		self.probeDefocus			  = 0.0
@@ -94,7 +94,7 @@ class Metadata(object):
 		self.save2DOutput			  = False
 		self.save3DOutput		      = True
 		self.save4DOutput			  = False
-		self.integration_angle_min    = 0
+		self.integration_angle_min    = 0.0
 		self.integration_angle_max    = self.detector_angle_step
 		self.transfer_mode		      = "auto"
 		for k,v in kwargs.items():
@@ -112,13 +112,28 @@ class Metadata(object):
 		# pyprismatic.core.go(*[4,4,
 		 # "/home/aj/hdd1/clion/PRISM/SI100.XYZ", "/home/aj/hdd1/clion/PRISM/tt.mrc",
 		 # 0.25, 0.30])
+		print([getattr(self, field) for field in Metadata.fields])
+		# for a in [getattr(self, field) for field in Metadata.fields]:
+			# print(a, type(a))
+		# pyprismatic.core.go(*[getattr(self, field) for field in Metadata.fields])
+		# pyprismatic.core.go(*[6,5])
 
-		pyprismatic.core.go(*[getattr(self, field) for field in Metadata.fields])
+		l = [getattr(self, field) for field in Metadata.fields]
+		# l[0] = 12
+		# l[1] = 11
+		# print(l[:38])
+		pyprismatic.core.go(*(l[:-7]))
+
+
 		import numpy as np
 		from pyprismatic.fileio import readMRC
 		import matplotlib.pyplot as plt
-		result = readMRC("/mnt/spareA/clion/PRISM/tt.mrc")
+		result = readMRC("/home/aj/hdd1/clion/PRISM/build/lib.linux-x86_64-3.5/output.mrc")
 		plt.figure()
 		plt.imshow(np.squeeze(np.sum(result,axis=2)))
 		plt.show()
 		# result = readMRC(meta.filename_output)
+	def demo(self):
+		self.filename_atoms = '/home/aj/hdd1/clion/PRISM/SI100.XYZ'
+		self.toString()
+		self.go()
