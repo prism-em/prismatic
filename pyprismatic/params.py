@@ -106,12 +106,14 @@ class Metadata(object):
 		print("interpolationFactorX = {}".format(self.interpolationFactorX))
 		print("interpolationFactorY = {}".format(self.interpolationFactorY))
 	def go(self):
+		self.algorithm = self.algorithm.lower()
+		self.transfer_mode = self.transfer_mode.lower()
 		# self.toString()
-		pyprismatic.core.go(*[4,4,
-		 "/home/aj/hdd1/clion/PRISM/SI100.XYZ", "/home/aj/hdd1/clion/PRISM/tt.mrc",
-		 0.25, 0.30])
+		# pyprismatic.core.go(*[4,4,
+		 # "/home/aj/hdd1/clion/PRISM/SI100.XYZ", "/home/aj/hdd1/clion/PRISM/tt.mrc",
+		 # 0.25, 0.30])
 
-		# pyprismatic.core.go(*[getattr(self, field) for field in Metadata.fields])
+		pyprismatic.core.go(*[getattr(self, field) for field in Metadata.fields])
 		import numpy as np
 		from pyprismatic.fileio import readMRC
 		import matplotlib.pyplot as plt

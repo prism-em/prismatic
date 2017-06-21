@@ -9,17 +9,22 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 
 	int interpolationFactorX, interpolationFactorY, numFP,
 	tileX, tileY, tileZ, 
-	batch_size_target_CPU, batch_size_target_GPU;
-	char *filename_atoms, *filename_output;
+	batch_size_target_CPU, batch_size_target_GPU, 
+	NUM_GPUS, NUM_STREAMS_PER_GPU, NUM_THREADS;
+	char *filename_atoms, *filename_output, *algorithm, *transfer_mode;
 	double realspace_pixelSizeX, realspace_pixelSizeY, potBound,
 	 sliceThickness, probe_stepX, probe_stepY,
-	 cellDimX, cellDimY, cellDimZ, gpu_cpu_ratio, alphaBeamMax,
+	 cellDimX, cellDimY, cellDimZ, gpu_cpu_ratio, E0, alphaBeamMax,
 	 detector_angle_step, probeDefocus, C3,
 	 C5, probeSemiangle, probeXtilt,
 	 probeYtilt, scanWindowXMin, scanWindowXMax,
-	 scanWindowYMin, scanWindowYMax, random_seed;
+	 scanWindowYMin, scanWindowYMax, random_seed, 
+	 integration_angle_min, integration_angle_max;
+	 bool include_thermal_effects, also_do_CPU_work, save2DOutput,
+	 save3DOutput, save4DOutput;
+
 	if (!PyArg_ParseTuple(
-		args, "iissdddiddddddiiiiiddddddddddddddd",
+		args, "iissdddiddddddiiiiidddiiidddddddddddddspppppdds",
 	    &interpolationFactorX,
 	    &interpolationFactorY,
 	    &filename_atoms,
@@ -29,7 +34,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	    &potBound,
 	    &numFP,
 	    &sliceThickness,
-	    &probe_stepY,
+	    &probe_stepX,
 	    &probe_stepY, 
 	    &cellDimX, 
 	    &cellDimY, 
@@ -40,7 +45,11 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	    &batch_size_target_CPU,
 	    &batch_size_target_GPU,
 	    &gpu_cpu_ratio,
+	    &E0,
 	    &alphaBeamMax,
+	    &NUM_GPUS,
+	    &NUM_STREAMS_PER_GPU,
+	    &NUM_THREADS,
 		&detector_angle_step,
 		&probeDefocus,
 		&C3,
@@ -52,13 +61,18 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 		&scanWindowXMax,
 		&scanWindowYMin,
 		&scanWindowYMax,
-		&random_seed)){
+		&random_seed,	
+		&algorithm,
+		&include_thermal_effects,
+		&also_do_CPU_work,
+		&save2DOutput,
+		&save3DOutput,
+		&save4DOutput,
+		&integration_angle_min,
+		&integration_angle_max,
+		&transfer_mode)){
 		return NULL;
-	} else{
-		// return Py_BuildValue("i",add4_local(result));	
-		// return Py_BuildValue("i",add5_cuda(result));	
-	}
-
+	} 
 	meta.interpolationFactorX 	 = interpolationFactorX;
 	meta.interpolationFactorY 	 = interpolationFactorY;
 	meta.filename_atoms       	 = filename_atoms;
@@ -79,7 +93,11 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.batch_size_target_CPU   = batch_size_target_CPU;
 	meta.batch_size_target_GPU   = batch_size_target_GPU;
 	meta.gpu_cpu_ratio 			 = gpu_cpu_ratio;
-	meta.alphaBeamMax 			 = alphaBeamMax; // max semi angle for probe
+	meta.E0  	     			 = E0; 
+	meta.alphaBeamMax 			 = alphaBeamMax; 
+	meta.NUM_GPUS                = NUM_GPUS;
+    meta.NUM_STREAMS_PER_GPU     = NUM_STREAMS_PER_GPU;
+    meta.NUM_THREADS             = NUM_THREADS;
 	meta.detector_angle_step 	 = detector_angle_step;
 	meta.probeDefocus 			 = probeDefocus;
 	meta.C3 				     = C3;
@@ -92,6 +110,27 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.scanWindowYMin 	     = scanWindowYMin;
 	meta.scanWindowYMax 		 = scanWindowYMax;
 	meta.random_seed 		     = random_seed;
+	
+	if (std::string(algorithm) == "multislice"){
+
+	} else {
+		meta.algorithm 			 = Prismatic::Algorithm::PRISM;
+	}
+	meta.include_thermal_effects = include_thermal_effects;
+	meta.also_do_CPU_work        = also_do_CPU_work;
+	meta.save2DOutput			 = save2DOutput;
+	meta.save3DOutput			 = save3DOutput;
+	meta.save4DOutput			 = save4DOutput;
+	meta.integration_angle_min   = integration_angle_min;
+	meta.integration_angle_max   = integration_angle_max;
+	
+	if (std::string(transfer_mode) == "singlexfer"){
+		meta.transfer_mode 		 = Prismatic::StreamingMode::SingleXfer;
+	} else if (std::string(transfer_mode) == "streaming"){
+		meta.transfer_mode 		 = Prismatic::StreamingMode::Stream;
+	} else {
+		meta.transfer_mode 		 = Prismatic::StreamingMode::Auto;
+	}
 
 	// meta.filename_atoms = "/home/aj/hdd1/clion/PRISM/SI100.XYZ";
 	// meta.filename_output = "/home/aj/hdd1/clion/PRISM/output_python.mrc";
