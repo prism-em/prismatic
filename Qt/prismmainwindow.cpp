@@ -87,7 +87,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                        }");
 
 
-    potentialImage.load(":/images/prism.png");
+    //potentialImage.load(":/images/prism.png");
+    potentialImage.load(":/images/PRISM-logo.png");
     probeImage.load(":/images/probe.png");
     outputImage.load(":/images/output.png");
     probeImage_pr.load(":/images/airy.png");
