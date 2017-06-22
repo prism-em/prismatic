@@ -23,7 +23,7 @@ for i, filename in enumerate(output_filenames):
 	stack = pr.fileio.readMRC(filename)
 	img   = np.sum(stack[:, :, :10], axis=2)
 	ax[i].imshow(img)
-	ax[i].set_title("Thicknesss: {:.2f}$\AA$".format(i * 5.43))
+	ax[i].set_title("Thicknesss: {:.2f}$\AA$".format((i + 1) * 5.43))
 	ax[i].set_yticklabels([])
 	ax[i].set_xticklabels([])
 plt.suptitle("Bright Field (0-10 mrad) PRISM images for SI100 of varying thicknesses")
