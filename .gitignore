@@ -1,4 +1,5 @@
 build/
+*egg*
 dist/
 *.app/
 *.dylib

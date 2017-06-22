@@ -2,6 +2,9 @@
 #include "params.h"
 #include "configure.h"
 #include "parseInput.h"
+#ifdef PRISMATIC_ENABLE_GPU
+#include "cuprismatic.h"
+#endif //PRISMATIC_ENABLE_GPU
 
 
 static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
@@ -25,6 +28,9 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	 save3DOutput, save4DOutput;
 	std::cout << "before meta.interpolationFactorX= " << meta.interpolationFactorX<< std::endl;
 	std::cout << "before meta.interpolationFactorY= " << meta.interpolationFactorY<< std::endl;
+	#ifdef PRISMATIC_ENABLE_GPU
+	std::cout <<"COMPILED FOR GPU" << std::endl;
+	#endif //PRISMATIC_ENABLE_GPU
 
 	// if (!PyArg_ParseTuple(
 	// 	args, "ii",
