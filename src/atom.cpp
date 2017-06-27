@@ -22,7 +22,7 @@ namespace Prismatic {
 			for (auto ty = 0; ty < tileY; ++ty) {
 				for (auto tx = 0; tx < tileX; ++tx) {
 					for (auto i = 0; i < atoms.size(); ++i){
-						tiled_atoms.emplace_back(atom{(atoms[i].x + tx) / tileX, (atoms[i].y + ty) / tileY, (atoms[i].z + tz) / tileZ, atoms[i].species});
+						tiled_atoms.emplace_back(atom{(atoms[i].x + tx) / tileX, (atoms[i].y + ty) / tileY, (atoms[i].z + tz) / tileZ, atoms[i].species, atoms[i].sigma});
 					}
 				}
 			}

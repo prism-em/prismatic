@@ -185,7 +185,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
 		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
         this->ui->spinBox_numFP->setValue(this->meta->numFP);
-        this->ui->spinBox_numStreams->setValue(this->meta->NUM_GPUS);
+        this->ui->spinBox_numStreams->setValue(this->meta->NUM_STREAMS_PER_GPU);
 	}
 
     ui->checkBox_thermalEffects->setChecked(meta->include_thermal_effects);
@@ -202,6 +202,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	}
 #ifndef PRISMATIC_ENABLE_GPU
 	this->ui->spinBox_numGPUs->setEnabled(false);
+    this->ui->spinBox_numStreams->setEnabled(false);
     this->ui->lineEdit_batchGPU->setEnabled(false);
     this->ui->comboBox_streamMode->setEnabled(false);
 #endif //PRISMATIC_ENABLE_GPU

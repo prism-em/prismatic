@@ -24,8 +24,8 @@ namespace Prismatic {
 		long ncx = probe.get_dimi() / 2;
 		for (auto j = 0; j < probe.get_dimj(); ++j) {
 			for (auto i = 0; i < probe.get_dimi(); ++i) {
-				buffer_probe.at( (dimj + ((j - ncy + ys) % dimj)) % dimj,
-				                 (dimi + ((i - ncx + xs) % dimi)) % dimi) = probe.at(j, i);
+                buffer_probe.at( (dimj + ((j - ncy + ys) % dimj)) % dimj - 1,
+                                 (dimi + ((i - ncx + xs) % dimi)) % dimi - 1) = probe.at(j, i);
 //				std::cout << "(dimj + ((j - ncy) % dimj)) % dimj= " << (dimj + ((j - ncy) % dimj)) % dimj<< std::endl;
 //				std::cout << "(j - ncy)= " << (j - ncy) << std::endl;
 //				std::cout << "(j - ncy) % dimj)= " << (j - ncy) % dimj<< std::endl;
