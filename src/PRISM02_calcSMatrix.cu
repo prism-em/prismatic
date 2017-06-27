@@ -489,8 +489,8 @@ namespace Prismatic {
 		// synchronize workers
 		for (auto &t:workers_GPU)t.join();
 	}
-	 void launchWorkers_streaming(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-	                                    CudaParameters<PRISMATIC_FLOAT_PRECISION> &cuda_pars){
+	 inline void launchWorkers_streaming2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+	                                      CudaParameters<PRISMATIC_FLOAT_PRECISION> &cuda_pars){
 
 		 // launch workers
 		const int total_num_streams = pars.meta.NUM_GPUS * pars.meta.NUM_STREAMS_PER_GPU;
@@ -898,7 +898,7 @@ namespace Prismatic {
 		// In this version, each slice of the transmission matrix is streamed to the device
 
 		const size_t psi_size        = pars.imageSize[0] * pars.imageSize[1];
-		const size_t psi_small_size = pars.qxInd.size() * pars.qyInd.size();
+		const size_t psi_small_size  = pars.qxInd.size() * pars.qyInd.size();
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
 			// initialize psi -- for PRISM this is just a delta function in Fourier space located depending on which plane wave it is
 			initializePsi_oneNonzero<<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>>(psi_d + batch_idx*psi_size, psi_size, pars.beamsIndex[beamNumber + batch_idx]);
@@ -937,7 +937,7 @@ namespace Prismatic {
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
 		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[batch_idx*psi_small_size],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
 		cudaStreamSynchronize(stream);
-		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
+		memcpy(&pars.Scompact[(beamNumber + batch_idx) * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
 			}
 	}
 
@@ -967,7 +967,7 @@ namespace Prismatic {
 
 		// determine the batch size to use
         pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
-
+		std::cout << "@@@@@@@@pars.meta.batch_size_GPU = " << pars.meta.batch_size_GPU << std::endl;
 		// setup some arrays
 		setupArrays2(pars);
 
@@ -1025,7 +1025,7 @@ namespace Prismatic {
 		copyToDeviceMemory_streaming2(pars, cuda_pars);
 
 		// launch workers
-		launchWorkers_streaming(pars, cuda_pars);
+		launchWorkers_streaming2(pars, cuda_pars);
 
 		// free memory on the host/device
 		cleanupMemory2(pars, cuda_pars);
