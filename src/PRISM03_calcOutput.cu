@@ -455,7 +455,7 @@ namespace Prismatic {
 					if (pars.meta.numGPUs > 0) {
 						// if there are no GPUs, make sure to do all work on CPU
 						early_CPU_stop = (size_t) std::max((PRISMATIC_FLOAT_PRECISION) 0.0,
-						                                   pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+						                                   pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
 					} else {
 						early_CPU_stop = pars.xp.size() * pars.yp.size();
 					}
@@ -605,7 +605,7 @@ namespace Prismatic {
 					Nstart=Nstop=0;
 					if (pars.meta.numGPUs > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.gpu_cpu_ratio);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
 					} else {
 						early_CPU_stop = pars.xp.size() * pars.yp.size();
 					}
