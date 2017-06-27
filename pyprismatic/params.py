@@ -97,6 +97,14 @@ class Metadata(object):
 	"integrationAngleMax",
 	"transferMode"]
 	def __init__(self, *args, **kwargs):
+		"""
+		Fields within Metadata objects can be set either manually or at construction time. For example:
+
+		meta = Metadata(interpolationFactorX=8, filenameOutput="test.mrc") 
+
+		would initialize a Metadata object with all parameters set to defaults except for interpolationFactorX and filenameOutput, which take on the values 8 and "test.mrc"
+
+		"""
 		import numpy as np
 		self.interpolationFactorX 	  = 4
 		self.interpolationFactorY 	  = 4
