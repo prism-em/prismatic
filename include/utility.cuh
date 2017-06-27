@@ -146,7 +146,7 @@ __global__ void computePhaseCoeffs(PRISMATIC_CUDA_COMPLEX_FLOAT* phaseCoeffs,
                                    const size_t numBeams);
 
 //template <size_t BlockSizeX>
-//__global__ void scaleReduceS(const PRISMATIC_CUDA_COMPLEX_FLOAT *permuted_Scompact_d,
+//__global__ void scaleReduceS(const PRISMATIC_CUDA_COMPLEX_FLOAT *permutedScompact_d,
 //                             const PRISMATIC_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
 //                             PRISMATIC_CUDA_COMPLEX_FLOAT *psi_ds,
 //                             const long *y_ds,
@@ -157,14 +157,14 @@ __global__ void computePhaseCoeffs(PRISMATIC_CUDA_COMPLEX_FLOAT* phaseCoeffs,
 //                             const size_t dimj_psi,
 //                             const size_t dimi_psi);
 
-__global__ void integrateDetector(const float* psi_intensity_ds,
+__global__ void integrateDetector(const float* psiIntensity_ds,
                        const float* alphaInd_d,
                        float* integratedOutput,
                        const size_t N,
                        const size_t num_integration_bins);
 
 void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-                                PRISMATIC_FLOAT_PRECISION *psi_intensity_ds,
+                                PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *stack_ph,
                                 PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,

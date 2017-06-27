@@ -188,9 +188,9 @@ namespace Prismatic{
 			// query GPU properties
 		    int nDevices;
 		    cudaGetDeviceCount(&nDevices);
-		    if (nDevices < meta.NUM_GPUS){
-			    std::cout << "Warning: User requested " << meta.NUM_GPUS << " GPUs but only " << nDevices << " were found. Proceeding with " << nDevices << ".\n";
-			    meta.NUM_GPUS = nDevices;
+		    if (nDevices < meta.numGPUs){
+			    std::cout << "Warning: User requested " << meta.numGPUs << " GPUs but only " << nDevices << " were found. Proceeding with " << nDevices << ".\n";
+			    meta.numGPUs = nDevices;
 		    }
 
 		    // Check the properties of each GPU, which is used to choose kernel launch configurations. .

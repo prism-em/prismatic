@@ -77,16 +77,16 @@ namespace Prismatic {
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probeStepY, yR[1]);
 
 		// determine the batch size
-		size_t batch_size = std::min(meta.batchSizeTargetGPU, max((size_t)1, xp_d.size()*yp_d.size()/ max((size_t)1,(meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)))); // make sure the batch is small enough to spread work to all threads
+		size_t batch_size = std::min(meta.batchSizeTargetGPU, max((size_t)1, xp_d.size()*yp_d.size()/ max((size_t)1,(meta.numStreamsPerGPU*meta.numGPUs)))); // make sure the batch is small enough to spread work to all threads
 
 		// estimate the amount of buffer memory needed. The factor of 3 is because there are two arrays that must be allocated space that scales
 		// with the batch size, and the cuFFT plans also allocate internal buffers.
-		size_t estimatedBatchBufferSize =  meta.NUM_STREAMS_PER_GPU*3*batch_size*imageSize[0]*imageSize[1]*sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>);
+		size_t estimatedBatchBufferSize =  meta.numStreamsPerGPU*3*batch_size*imageSize[0]*imageSize[1]*sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>);
 		estimatedMaxMemoryUsage = 3*estimatedPotentialSize + estimatedBatchBufferSize; // factor of 3 is because there is a complex array of the same size created
 
 		cout << "Estimated potential array size = " << estimatedPotentialSize << '\n';
 		cout << "Estimated buffer memory needed = " << estimatedBatchBufferSize << '\n';
-		cout << "meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1]= " << meta.NUM_STREAMS_PER_GPU*2*batch_size*imageSize[0]*imageSize[1] << '\n';
+		cout << "meta.numStreamsPerGPU*2*batch_size*imageSize[0]*imageSize[1]= " << meta.numStreamsPerGPU*2*batch_size*imageSize[0]*imageSize[1] << '\n';
 
 		if (meta.algorithm == Prismatic::Algorithm::PRISM) {
 			Array1D<PRISMATIC_FLOAT_PRECISION> xv = makeFourierCoords(imageSize[1],

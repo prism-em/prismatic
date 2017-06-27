@@ -194,7 +194,7 @@ namespace Prismatic{
 		}
 
 #ifdef PRISMATIC_ENABLE_GPU
-        std::cout << "NUM_GPUS = " << NUM_GPUS<< std::endl;
+        std::cout << "numGPUs = " << numGPUs<< std::endl;
         std::cout << "numStreamsPerGPU = " << numStreamsPerGPU<< std::endl;
         std::cout << "alsoDoCPUWork = " << alsoDoCPUWork << std::endl;
         std::cout << "earlyCPUStopCount = " << earlyCPUStopCount  << std::endl;

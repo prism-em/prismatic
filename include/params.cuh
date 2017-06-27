@@ -19,7 +19,7 @@ namespace Prismatic {
 	template<class T>
 	class CudaParameters {
 	public:
-		PRISMATIC_CUDA_COMPLEX_FLOAT **permuted_Scompact_d;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **permutedScompact_d;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **PsiProbeInit_d;
 		PRISMATIC_FLOAT_PRECISION **qxaReduce_d;
 		PRISMATIC_FLOAT_PRECISION **qyaReduce_d;
@@ -29,11 +29,11 @@ namespace Prismatic {
 		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_ds;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_small_ds;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **phaseCoeffs_ds;
-		PRISMATIC_FLOAT_PRECISION **psi_intensity_ds;
+		PRISMATIC_FLOAT_PRECISION **psiIntensity_ds;
 		long **y_ds;
 		long **x_ds;
 		PRISMATIC_FLOAT_PRECISION **integratedOutput_ds;
-		cufftHandle *cufft_plans, *cufft_plans_small;
+		cufftHandle *cufftPlans, *cufftPlans_small;
 		cudaStream_t *streams;
 		std::complex<PRISMATIC_FLOAT_PRECISION>** Scompact_slice_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph;
@@ -49,7 +49,7 @@ namespace Prismatic {
 
 		// pinned memory buffers on host
 		PRISMATIC_FLOAT_PRECISION               **output_ph;
-		std::complex<PRISMATIC_FLOAT_PRECISION> *permuted_Scompact_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> *permutedScompact_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *PsiProbeInit_ph;
 		PRISMATIC_FLOAT_PRECISION               *qxaReduce_ph;
 		PRISMATIC_FLOAT_PRECISION               **qxa_ph;

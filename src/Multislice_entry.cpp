@@ -75,7 +75,7 @@ namespace Prismatic{
 			prism_image.toMRC_f(image_filename.c_str());
 		}
 #ifdef PRISMATIC_ENABLE_GPU
-		cout << "peak GPU memory usage = " << prismatic_pars.max_mem << '\n';
+		cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
 #endif //PRISMATIC_ENABLE_GPU
 		std::cout << "Calculation complete.\n" << std::endl;
 		return prismatic_pars;

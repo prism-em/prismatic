@@ -285,11 +285,11 @@ namespace Prismatic {
                         int& argc, const char*** argv){
 
         if (argc < 2){
-            cout << "No number of threads provided (syntax is -j num_threads)\n";
+            cout << "No number of threads provided (syntax is -j numThreads)\n";
             return false;
         }
         if ( (meta.numThreads = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of threads  (syntax is -j num_threads)\n";
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of threads  (syntax is -j numThreads)\n";
             return false;
         }
         argc-=2;
@@ -331,7 +331,7 @@ namespace Prismatic {
                         int& argc, const char*** argv){
 
         if (argc < 2){
-            cout << "No number of GPUs provided (syntax is -g num_GPUs)\n";
+            cout << "No number of GPUs provided (syntax is -g numGPUs)\n";
             return false;
         }
         if ( (string((*argv)[1]) == "0") ){
@@ -341,7 +341,7 @@ namespace Prismatic {
             return true;
         }
         if ( (meta.numGPUs = atoi((*argv)[1])) == 0){
-            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of GPUs (syntax is -g num_GPUs)\n";
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of GPUs (syntax is -g numGPUs)\n";
             return false;
         }
         argc-=2;

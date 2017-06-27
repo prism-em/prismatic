@@ -397,7 +397,7 @@ __global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
 
 
 // integrate computed intensities radially
-__global__ void integrateDetector(const float* psi_intensity_ds,
+__global__ void integrateDetector(const float* psiIntensity_ds,
                                   const float* alphaInd_d,
                                   float* integratedOutput,
                                   const size_t N,
@@ -406,12 +406,12 @@ __global__ void integrateDetector(const float* psi_intensity_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-			atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			//atomicAdd(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
+			atomicAdd(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
 	}
 }
 
-__global__ void integrateDetector(const double* psi_intensity_ds,
+__global__ void integrateDetector(const double* psiIntensity_ds,
                                   const double* alphaInd_d,
                                   double* integratedOutput,
                                   const size_t N,
@@ -420,14 +420,14 @@ __global__ void integrateDetector(const double* psi_intensity_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			//atomicAdd(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
-			atomicAdd_double(&integratedOutput[alpha-1], psi_intensity_ds[idx]);
+			//atomicAdd(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
+			atomicAdd_double(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
 	}
 }
 
 
 void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-                                PRISMATIC_FLOAT_PRECISION *psi_intensity_ds,
+                                PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *output_ph,
                                 PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
@@ -447,7 +447,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> currentImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
-		                           psi_intensity_ds,
+		                           psiIntensity_ds,
 		                           pars.psiProbeInit.size() * sizeof(PRISMATIC_FLOAT_PRECISION),
 		                           cudaMemcpyDeviceToHost,
 		                           stream));
@@ -480,13 +480,13 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 //	if (ax == 0 & ay == 0) {
 //		PRISMATIC_FLOAT_PRECISION ans;
 //		for (auto i = 98; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, psi_intensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "psi_intensity_ds[" << i << "] = " << ans << std::endl;
+//			cudaMemcpy(&ans, psiIntensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
+//			std::cout << "psiIntensity_ds[" << i << "] = " << ans << std::endl;
 //
 //		}
 //	}
 	integrateDetector << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-	                                                                              (psi_intensity_ds, alphaInd_d, integratedOutput_ds,
+	                                                                              (psiIntensity_ds, alphaInd_d, integratedOutput_ds,
 			                                                                              dimj *
 			                                                                              dimi, num_integration_bins);
 //	if (ax == 0 & ay == 0) {
@@ -502,7 +502,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 	multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                                (integratedOutput_ds, scale, num_integration_bins);
 //	}
-////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISMATIC_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psi_intensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
+////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISMATIC_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psiIntensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
 
 	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
 	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
