@@ -579,7 +579,7 @@ namespace Prismatic {
             cout << "No defocus value provided for -df (syntax is -df defocus_value (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+        if ( (meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value (in Angstroms)\n";
             return false;
         }
@@ -594,7 +594,7 @@ namespace Prismatic {
 			cout << "No C3 value provided for -C3 (syntax is -C3 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+		if ( (meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value (in Angstroms)\n";
 			return false;
 		}
@@ -609,7 +609,7 @@ namespace Prismatic {
 			cout << "No C5 value provided for -C5 (syntax is -C5 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) * 1e-10) == 0){
+		if ( (meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value (in Angstroms)\n";
 			return false;
 		}

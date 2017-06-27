@@ -351,9 +351,13 @@ namespace Prismatic {
 //		 The operators +, -, /, * return PRISM arrays by value, so to avoid unnecessary memory
 //		 allocations/copies for chained operations I try to do things like create variables
 //		 initially with at most one operation, and then perform in-place transforms if more is needed
-
+		std::cout << "(pars.meta.probeXtilt / pars.lambda) = " << (pars.meta.probeXtilt / pars.lambda) << std::endl;
+		std::cout << "pars.meta.probeXtilt = " << pars.meta.probeXtilt << std::endl;
+		std::cout << "pars.lambda = " << pars.lambda << std::endl;
 		Array2D<PRISMATIC_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.meta.probeXtilt / pars.lambda);
 		Array2D<PRISMATIC_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.meta.probeYtilt / pars.lambda);
+		pars.qxaReduce.toMRC_f("qxaReduce.mrc");
+		qxaShift.toMRC_f("qxaShift.mrc");
 		transform(qxaShift.begin(), qxaShift.end(),
 		          qyaShift.begin(), pars.q2.begin(),
 		          [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) { return a * a + b * b; });

@@ -147,7 +147,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->probe_stepY);
         this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->probeDefocus * 1e10);
+        ss << (this->meta->probeDefocus);
         this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
         ss.str("");
         ss << (this->meta->probeXtilt);
@@ -200,11 +200,11 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 										    this->ui->radBtn_Multislice->setChecked(true);
 			break;
 	}
-#ifndef PRISM_ENABLE_GPU
+#ifndef PRISMATIC_ENABLE_GPU
 	this->ui->spinBox_numGPUs->setEnabled(false);
     this->ui->lineEdit_batchGPU->setEnabled(false);
     this->ui->comboBox_streamMode->setEnabled(false);
-#endif //PRISM_ENABLE_GPU
+#endif //PRISMATIC_ENABLE_GPU
 
 
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
@@ -215,6 +215,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
     ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
+    ui->lbl_C3->setText(QString::fromUtf8("C3 (\u212B)"));
+    ui->lbl_C5->setText(QString::fromUtf8("C5 (\u212B)"));
     ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
     ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
 
@@ -323,11 +325,20 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
 	setAlgo(Prismatic::Algorithm::PRISM);
+    ui->lineEdit_interpFactor_x->setEnabled(true);
+    ui->lineEdit_interpFactor_y->setEnabled(true);
+    ui->lineEdit_probeTiltX->setEnabled(true);
+    ui->lineEdit_probeTiltY->setEnabled(true);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
 	std::cout << "Setting algorithm to Multislice" << std::endl;
 	setAlgo(Prismatic::Algorithm::Multislice);
+    ui->lineEdit_interpFactor_x->setDisabled(true);
+    ui->lineEdit_interpFactor_y->setDisabled(true);
+    ui->lineEdit_probeTiltX->setDisabled(true);
+    ui->lineEdit_probeTiltY->setDisabled(true);
+
 }
 
 void PRISMMainWindow::setAlgo(const Prismatic::Algorithm algo){
@@ -652,7 +663,7 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeDefocus->text().toDouble(&flag);
     if (flag){
-        this->meta->probeDefocus = val * 1e-10;
+        this->meta->probeDefocus = val;
         std::cout << "Setting probe defocus to " << val << " Angstroms" <<  std::endl;
     }
     resetCalculation();
@@ -662,7 +673,7 @@ void PRISMMainWindow::setprobe_C3_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble(&flag);
     if (flag){
-        this->meta->C3 = val * 1e-10;
+        this->meta->C3 = val;
         std::cout << "Setting C3 to " << val << " Angstroms" <<  std::endl;
     }
     resetCalculation();
@@ -672,7 +683,7 @@ void PRISMMainWindow::setprobe_C5_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_C5->text().toDouble(&flag);
     if (flag){
-        this->meta->C5 = val * 1e-10;
+        this->meta->C5 = val;
         std::cout << "Setting C5 to " << val << " Angstroms" <<  std::endl;
     }
     resetCalculation();
@@ -694,11 +705,11 @@ void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeTiltX->text().toDouble(&flag);
     if (flag){
         this->meta->probeXtilt = val;
-        std::cout << "Setting probe X tilt to " << val << std::endl;
+        std::cout << "Setting probe X tilt to " << val << " Angstroms" << std::endl;
         if (!probeTiltYSet){
             ui->lineEdit_probeTiltY->setText(ui->lineEdit_probeTiltX->text());
             this->meta->probeYtilt = val;
-            std::cout << "Setting probe Y tilt to " << val << std::endl;
+            std::cout << "Setting probe Y tilt to " << val << " Angstroms" << std::endl;
         }
     }
     resetCalculation();
@@ -708,8 +719,8 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toDouble(&flag);
     if (flag){
-        this->meta->probeYtilt = val;
-        std::cout << "Setting probe Y tilt to " << val << std::endl;
+        this->meta->probeYtilt =  val;
+        std::cout << "Setting probe Y tilt to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
