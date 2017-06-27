@@ -1,12 +1,61 @@
 import pyprismatic.core
 class Metadata(object):
+	"""
+	"interpolationFactorX" : PRISM interpolation factor in x-direction
+	"interpolationFactorY" : PRISM interpolation factor in y-direction
+	"filenameAtoms" : filename containing input atom information in XYZ format (see http://prism-em.com/about/ for more details)
+	"filenameOutput" : filename in which to save the 3D output. Also serves as base filename for 2D and 4D outputs if used
+	"realspacePixelSizeX" : size of pixel size in X for probe/potential arrays
+	"realspacePixelSizeY" : size of pixel size in Y for probe/potential arrays
+	"potBound" : limiting radius within which to compute projected potentials from the center of each atom (in Angstroms)
+	"numFP" : number of frozen phonon configurations to average over
+	"sliceThickness" : thickness of potential slices (in Angstroms)
+	"cellDimX" : unit cell dimension X (in Angstroms)
+	"cellDimY" : unit cell dimension Y (in Angstroms)
+	"cellDimZ" : unit cell dimension Z (in Angstroms)
+	"tileX" : number of unit cells to tile in X direction
+	"tileY" : number of unit cells to tile in Y direction
+	"tileZ" : number of unit cells to tile in Z direction
+	"E0" : electron beam energy (in eV)
+	"alphaBeamMax" : the maximum probe angle to consider (in mrad)
+	"numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used. 
+	"numStreamsPerGPU" : number of CUDA streams to use per GPU
+	"numThreads" : number of CPU worker threads to use
+	"batchSizeTargetCPU" : desired batch size for CPU FFTs.
+	"batchSizeTargetGPU" : desired batch size for GPU FFTs.
+	"earlyCPUStopCount" : the WorkDispatcher will cease providing work to CPU workers earlyCPUStopCount jobs from the end. This is to prevent the program waiting for slower CPU workers to complete.
+    "probeStepX" : step size of the probe in X direction (in Angstroms)
+	"probeStepY" : step size of the probe in Y direction (in Angstroms)
+	"probeDefocus" : probe defocus (in Angstroms)
+	"C3" : microscope C3 (in Angstroms)
+	"C5" : microscope C5 (in Angstroms)
+	"probeSemiangle" : probe convergence semi-angle (in mrad)
+	"detectorAngleStep" : angular step size for detector integration bins (in mrad)
+	"probeXtilt" : (in Angstroms)
+	"probeYtilt" : (in Angstroms)
+	"scanWindowXMin" : lower X size of the window to scan the probe (in fractional coordinates)
+	"scanWindowXMax" : upper X size of the window to scan the probe (in fractional coordinates)
+	"scanWindowYMin" : lower Y size of the window to scan the probe (in fractional coordinates)
+	"scanWindowYMax" : upper Y size of the window to scan the probe (in fractional coordinates)
+	"randomSeed" : number to use for random seeding of thermal effects
+	"algorithm" : simulation algorithm to use, "prism" or "multislice"
+	"includeThermalEffects" : true/false to apply random thermal displacements (Debye-Waller effect)
+	"alsoDoCPUWork" : true/false
+	"save2DOutput" : save the 2D STEM image integrated between integrationAngleMin and integrationAngleMax
+	"save3DOutput" : true/false Also save the 3D output at the detector for each probe (3D output mode)
+	"save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
+	"integrationAngleMin" : (in mrad)
+	"integrationAngleMax" : (in mrad)
+	"transferMode : memory model to use, either "streaming", "singlexfer", or "auto"
+	"""
+
 	fields=[
 	"interpolationFactorX",
 	"interpolationFactorY",
-	"filename_atoms",
-	"filename_output",
-	"realspace_pixelSizeX",
-	"realspace_pixelSizeY",
+	"filenameAtoms",
+	"filenameOutput",
+	"realspacePixelSizeX",
+	"realspacePixelSizeY",
 	"potBound",
 	"numFP",
 	"sliceThickness",
@@ -18,43 +67,43 @@ class Metadata(object):
 	"tileZ",
 	"E0",
 	"alphaBeamMax",
-	"NUM_GPUS",
-	"NUM_STREAMS_PER_GPU",
-	"NUM_THREADS",
-	"batch_size_target_CPU",
-	"batch_size_target_GPU",
-	"gpu_cpu_ratio",
-    "probe_stepX",
-	"probe_stepY",
+	"numGPUs",
+	"numStreamsPerGPU",
+	"numThreads",
+	"batchSizeTargetCPU",
+	"batchSizeTargetGPU",
+	"earlyCPUStopCount",
+    "probeStepX",
+	"probeStepY",
 	"probeDefocus",
 	"C3",
 	"C5",
 	"probeSemiangle",
-	"detector_angle_step",
+	"detectorAngleStep",
 	"probeXtilt",
 	"probeYtilt",
 	"scanWindowXMin",
 	"scanWindowXMax",
 	"scanWindowYMin",
 	"scanWindowYMax",
-	"random_seed",
+	"randomSeed",
 	"algorithm",
-	"include_thermal_effects",
-	"also_do_CPU_work",
+	"includeThermalEffects",
+	"alsoDoCPUWork",
 	"save2DOutput",
 	"save3DOutput",
 	"save4DOutput",
-	"integration_angle_min",
-	"integration_angle_max",
-	"transfer_mode"]
+	"integrationAngleMin",
+	"integrationAngleMax",
+	"transferMode"]
 	def __init__(self, *args, **kwargs):
 		import numpy as np
 		self.interpolationFactorX 	  = 4
 		self.interpolationFactorY 	  = 4
-		self.filename_atoms		      = ""
-		self.filename_output	      = "output.mrc"
-		self.realspace_pixelSizeX     = 0.1
-		self.realspace_pixelSizeY     = 0.1
+		self.filenameAtoms		      = ""
+		self.filenameOutput	          = "output.mrc"
+		self.realspacePixelSizeX      = 0.1
+		self.realspacePixelSizeY      = 0.1
 		self.potBound				  = 1.0
 		self.numFP 				      = 1
 		self.sliceThickness		      = 2.0
@@ -66,75 +115,47 @@ class Metadata(object):
 		self.tileZ					  = 1
 		self.E0						  = 80e3
 		self.alphaBeamMax			  = 0.024
-		self.NUM_GPUS				  = 4
-		self.NUM_STREAMS_PER_GPU      = 3	
-		self.NUM_THREADS		      = 12
-		self.batch_size_target_CPU	  = 1
-		self.batch_size_target_GPU    = 2
-		self.batch_size_CPU           = 1
-		self.batch_size_GPU           = 1
-		self.gpu_cpu_ratio            = 100.0
-		self.probe_stepX		      = 0.25
-		self.probe_stepY			  = 0.25
+		self.numGPUs     			  = 4
+		self.numStreamsPerGPU         = 3	
+		self.numThreads  		      = 12
+		self.batchSizeTargetCPU	      = 1
+		self.batchSizeTargetGPU       = 2
+		self.batchSizeCPU             = 1
+		self.batchSizeGPU             = 1
+		self.earlyCPUStopCount        = 100.0
+		self.probeStepX		          = 0.25
+		self.probeStepY			      = 0.25
 		self.probeDefocus			  = 0.0
 		self.C3						  = 0.0
 		self.C5						  = 0.0
 		self.probeSemiangle			  = 0.02
-		self.detector_angle_step	  = 0.001
+		self.detectorAngleStep	      = 0.001
 		self.probeXtilt				  = 0.0
 		self.probeYtilt				  = 0.0
 		self.scanWindowXMin			  = 0.0
 		self.scanWindowXMax			  = 1.0
 		self.scanWindowYMin  		  = 0.0
 		self.scanWindowYMax			  = 1.0
-		self.random_seed		      = np.random.randint(0,999999)
+		self.randomSeed	     	      = np.random.randint(0,999999)
 		self.algorithm				  = "prism"
-		self.include_thermal_effects  = False
-		self.also_do_CPU_work		  = True
+		self.includeThermalEffects    = False
+		self.alsoDoCPUWork		      = True
 		self.save2DOutput			  = False
 		self.save3DOutput		      = True
 		self.save4DOutput			  = False
-		self.integration_angle_min    = 0
-		self.integration_angle_max    = .001
-		self.transfer_mode		      = "auto"
+		self.integrationAngleMin      = 0
+		self.integrationAngleMax      = .001
+		self.transferMode		      = "auto"
 		for k,v in kwargs.items():
 			if k not in Metadata.fields:
 				print("Invalid metaparameter \"{}\" provided".format(k))
 			else:
 				setattr(self, k, v)
 	def toString(self):
-		print("interpolationFactorX = {}".format(self.interpolationFactorX))
-		print("interpolationFactorY = {}".format(self.interpolationFactorY))
+			for field in Metadata.fields:
+				print("{} = {}".format(field, getattr(self, field)))
 	def go(self):
-		self.algorithm = self.algorithm.lower()
-		self.transfer_mode = self.transfer_mode.lower()
-		print([getattr(self, field) for field in Metadata.fields])
+		self.algorithm    = self.algorithm.lower()
+		self.transferMode = self.transferMode.lower()
 		l = [getattr(self, field) for field in Metadata.fields]
 		pyprismatic.core.go(*(l))
-
-def demo(self):
-	import os 
-	with open('temp.XYZ', 'w') as fid:
-		fid.write("one unit cell of 100 silicon\n\
-  5.43    5.43    5.43\n\
-14  0.0000  0.0000  0.0000  1.0  0.076\n\
-14  2.7150  2.7150  0.0000  1.0  0.076\n\
-14  1.3575  4.0725  1.3575  1.0  0.076\n\
-14  4.0725  1.3575  1.3575  1.0  0.076\n\
-14  2.7150  0.0000  2.7150  1.0  0.076\n\
-14  0.0000  2.7150  2.7150  1.0  0.076\n\
-14  1.3575  1.3575  4.0725  1.0  0.076\n\
-14  4.0725  4.0725  4.0725  1.0  0.076\n\
--1")
-	self.filename_atoms  = 'temp.XYZ'
-	self.filename_output = 'output.mrc'
-	self.toString()
-	self.go()
-	import numpy as np
-	from pyprismatic.fileio import readMRC
-	import matplotlib.pyplot as plt
-	result = readMRC("output.mrc")
-	plt.figure()
-	plt.imshow(np.squeeze(np.sum(result,axis=2)))
-	plt.show()
-	os.remove("temp.XYZ")

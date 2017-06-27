@@ -16,8 +16,8 @@ def demo():
 14  1.3575  1.3575  4.0725  1.0  0.076\n\
 14  4.0725  4.0725  4.0725  1.0  0.076\n\
 -1")
-	meta = Metadata(filename_atoms='temp.XYZ',
-				    filename_output='output.mrc');
+	meta = Metadata(filenameAtoms='temp.XYZ',
+				    filenameOutput='output.mrc');
 	meta.go()
 	import numpy as np
 	from pyprismatic.fileio import readMRC
