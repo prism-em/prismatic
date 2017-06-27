@@ -61,10 +61,10 @@ namespace Prismatic {
 		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
 
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
-//		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probe_stepX / 2, pars.meta.probe_stepX, xR[1] - pars.meta.probe_stepX / 2);
-//		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probe_stepY / 2, pars.meta.probe_stepY, yR[1] - pars.meta.probe_stepY / 2);
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
+//		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probeStepX / 2, pars.meta.probeStepX, xR[1] - pars.meta.probeStepX / 2);
+//		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probeStepY / 2, pars.meta.probeStepY, yR[1] - pars.meta.probeStepY / 2);
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
@@ -77,8 +77,8 @@ namespace Prismatic {
 
 		pars.alphaMax = pars.qMax * pars.lambda;
 
-		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detector_angle_step / 2, pars.meta.detector_angle_step,
-		                                                              pars.alphaMax - pars.meta.detector_angle_step / 2);
+		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep / 2, pars.meta.detectorAngleStep,
+		                                                              pars.alphaMax - pars.meta.detectorAngleStep / 2);
 		Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		PRISMATIC_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactorY / 2;
@@ -221,12 +221,12 @@ namespace Prismatic {
 
 		// initialize FFTW threads
 		PRISMATIC_FFTW_INIT_THREADS();
-		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 		vector<thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.numThreads); // prevents multiple reallocations
 		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
         WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
-		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+		for (auto t = 0; t < pars.meta.numThreads; ++t) {
 			cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 			workers.push_back(thread([&pars, &dispatcher, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop, ay, ax;
@@ -377,7 +377,7 @@ namespace Prismatic {
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),
 		          [&pars](const PRISMATIC_FLOAT_PRECISION &a) {
-			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.detector_angle_step);
+			          return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.detectorAngleStep);
 		          });
 		transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 		          pars.alphaInd.begin(),

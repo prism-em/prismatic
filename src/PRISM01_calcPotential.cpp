@@ -103,15 +103,15 @@ namespace Prismatic {
 		//loop over each plane, perturb the atomic positions, and place the corresponding potential at each location
 		// using parallel calculation of each individual slice
 		std::vector<std::thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS);
+		workers.reserve(pars.meta.numThreads);
 
 		WorkDispatcher dispatcher(0, pars.numPlanes);
-		for (long t = 0; t < pars.meta.NUM_THREADS; ++t){
+		for (long t = 0; t < pars.meta.numThreads; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma,
 											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
-				std::default_random_engine de(pars.meta.random_seed);
+				std::default_random_engine de(pars.meta.randomSeed);
 				normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
 				Array1D<long> yp;
@@ -127,7 +127,7 @@ namespace Prismatic {
 								const long dim1 = (long) pars.imageSize[1];
 								const size_t cur_Z = Z_lookup[ID[a2]];
 								PRISMATIC_FLOAT_PRECISION X, Y;
-								if (pars.meta.include_thermal_effects) { // apply random perturbations
+								if (pars.meta.includeThermalEffects) { // apply random perturbations
 									X = round((x[a2] + randn(de) * sigma[a2]) / pars.pixelSize[1]);
 									Y = round((y[a2] + randn(de) * sigma[a2]) / pars.pixelSize[0]);
 								} else {

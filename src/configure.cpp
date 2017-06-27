@@ -55,8 +55,8 @@ namespace Prismatic {
 	    T f_x = 4 * meta.interpolationFactorX;
 	    T f_y = 4 * meta.interpolationFactorY;
 	    Array1D<size_t> imageSize({{(size_t)(meta.cellDim[1] * meta.tileY), (size_t)(meta.cellDim[2] * meta.tileX)}}, {{2}});
-	    imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspace_pixelSize[0] / f_y)));
-	    imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspace_pixelSize[1] / f_x)));
+	    imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_y * round(((T)imageSize[0]) / meta.realspacePixelSize[0] / f_y)));
+	    imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (f_x * round(((T)imageSize[1]) / meta.realspacePixelSize[1] / f_x)));
 
 
 
@@ -73,11 +73,11 @@ namespace Prismatic {
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		yR[0] = meta.scanWindowYMin * meta.cellDim[1] * meta.tileY;
 		yR[1] = meta.scanWindowYMax * meta.cellDim[1] * meta.tileY;
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probe_stepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probe_stepY, yR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probeStepY, yR[1]);
 
 		// determine the batch size
-		size_t batch_size = std::min(meta.batch_size_target_GPU, max((size_t)1, xp_d.size()*yp_d.size()/ max((size_t)1,(meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)))); // make sure the batch is small enough to spread work to all threads
+		size_t batch_size = std::min(meta.batchSizeTargetGPU, max((size_t)1, xp_d.size()*yp_d.size()/ max((size_t)1,(meta.NUM_STREAMS_PER_GPU*meta.NUM_GPUS)))); // make sure the batch is small enough to spread work to all threads
 
 		// estimate the amount of buffer memory needed. The factor of 3 is because there are two arrays that must be allocated space that scales
 		// with the batch size, and the cuFFT plans also allocate internal buffers.
@@ -95,8 +95,8 @@ namespace Prismatic {
 			                                                      (PRISMATIC_FLOAT_PRECISION) 1 / imageSize[0]);
 			pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh_a = meshgrid(yv, xv);
 
-			Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspace_pixelSize[1]);
-			Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspace_pixelSize[0]);
+			Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(imageSize[1], meta.realspacePixelSize[1]);
+			Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(imageSize[0], meta.realspacePixelSize[0]);
 
 			pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy, qx);
 			Array2D<PRISMATIC_FLOAT_PRECISION> q2(mesh.first);
@@ -176,10 +176,10 @@ namespace Prismatic {
 			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
 			execute_plan = PRISM_entry;
 #ifdef PRISMATIC_ENABLE_GPU
-            if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
-            	meta.transfer_mode = transferMethodAutoChooser(meta);
+            if (meta.transferMode == Prismatic::StreamingMode::Auto){
+            	meta.transferMode = transferMethodAutoChooser(meta);
             }
-			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
+			if (meta.transferMode == Prismatic::StreamingMode::Stream) {
 				cout << "Using streaming method\n";
 				fill_Scompact = fill_Scompact_GPU_streaming;
 				buildPRISMOutput = buildPRISMOutput_GPU_streaming;
@@ -198,10 +198,10 @@ namespace Prismatic {
 			execute_plan = Multislice_entry;
 #ifdef PRISMATIC_ENABLE_GPU
 			std::cout << "Using GPU codes" << '\n';
-			if (meta.transfer_mode == Prismatic::StreamingMode::Auto){
-				meta.transfer_mode = transferMethodAutoChooser(meta);
+			if (meta.transferMode == Prismatic::StreamingMode::Auto){
+				meta.transferMode = transferMethodAutoChooser(meta);
 			}
-			if (meta.transfer_mode == Prismatic::StreamingMode::Stream) {
+			if (meta.transferMode == Prismatic::StreamingMode::Stream) {
 				cout << "Using streaming method\n";
 				buildMultisliceOutput = buildMultisliceOutput_GPU_streaming;
 			} else {

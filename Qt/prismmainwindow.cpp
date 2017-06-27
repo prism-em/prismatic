@@ -149,10 +149,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 		ss << (this->meta->E0 *1e-3);
 		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
 		ss.str("");
-        ss << (this->meta->probe_stepX);
+        ss << (this->meta->probeStepX);
         this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->probe_stepY);
+        ss << (this->meta->probeStepY);
         this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
         ss.str("");
         ss << (this->meta->probeDefocus);
@@ -164,7 +164,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->probeYtilt);
         this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->detector_angle_step * 1e3);
+        ss << (this->meta->detectorAngleStep * 1e3);
         this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
         ss.str("");
         ss << (this->meta->scanWindowXMin);
@@ -179,24 +179,24 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->scanWindowYMax);
         this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->random_seed);
+        ss << (this->meta->randomSeed);
         this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->batch_size_target_CPU);
+        ss << (this->meta->batchSizeTargetCPU);
         this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
-        ss << (this->meta->batch_size_target_GPU);
+        ss << (this->meta->batchSizeTargetGPU);
         this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
 
         this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
-		this->ui->spinBox_numGPUs->setValue(this->meta->NUM_GPUS);
-		this->ui->spinBox_numThreads->setValue(this->meta->NUM_THREADS);
+		this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
+		this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
         this->ui->spinBox_numFP->setValue(this->meta->numFP);
-        this->ui->spinBox_numStreams->setValue(this->meta->NUM_STREAMS_PER_GPU);
+        this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
 	}
 
-    ui->checkBox_thermalEffects->setChecked(meta->include_thermal_effects);
+    ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
 
@@ -229,7 +229,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
     ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
 
-    this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filename_output));
+    this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
 
     // connect signals and slots
     connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorX()));
@@ -257,11 +257,11 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_probeDefocus,           SIGNAL(textEdited(QString)),      this, SLOT(setprobe_defocus_fromLineEdit()));
     connect(this->ui->lineEdit_C3,                     SIGNAL(textEdited(QString)),      this, SLOT(setprobe_C3_fromLineEdit()));
     connect(this->ui->lineEdit_C5,                     SIGNAL(textEdited(QString)),      this, SLOT(setprobe_C5_fromLineEdit()));
-    connect(this->ui->lineEdit_detectorAngle,          SIGNAL(textEdited(QString)),      this, SLOT(setDetector_angle_step_fromLineEdit()));
+    connect(this->ui->lineEdit_detectorAngle,          SIGNAL(textEdited(QString)),      this, SLOT(setdetectorAngleStep_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltX,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_Xtilt_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltY,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_Ytilt_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepX,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_stepX_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepY,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_stepY_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepX,             SIGNAL(textEdited(QString)),      this, SLOT(setprobeStepX_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepY,             SIGNAL(textEdited(QString)),      this, SLOT(setprobeStepY_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMin,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowXMin_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMax,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowXMax_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowYMin,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowYMin_fromLineEdit()));
@@ -387,7 +387,7 @@ void PRISMMainWindow::setFilenameAtoms_fromDialog(){
     filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Atomic Model(*.xyz *.XYZ);;All files(*)"));
     if (validateFilename(filename.toStdString())){
         updateUCdims(filename.toStdString());
-        meta->user_specified_celldims = false;
+        meta->userSpecifiedCelldims = false;
     }
     resetCalculation();
 }
@@ -443,41 +443,41 @@ void PRISMMainWindow::setFilenameOutput_fromLineEdit(){
 
 void PRISMMainWindow::setFilenameAtoms(const std::string& filename){
 	std::cout << "Setting atoms filename to " << filename << std::endl;
-	this->meta->filename_atoms = filename;
+	this->meta->filenameAtoms = filename;
     resetCalculation();
 }
 
 void PRISMMainWindow::setFilenameOutput(const std::string& filename){
 	std::cout << "Setting output filename to " << filename << std::endl;
-	this->meta->filename_output = filename;
+	this->meta->filenameOutput = filename;
     resetCalculation();
 }
 
 
 void PRISMMainWindow::setNumGPUs(const int& num){
     if (num >= 0){
-        this->meta->NUM_GPUS = num;
+        this->meta->numGPUs = num;
         std::cout << "Setting number of GPUs to " << num << std::endl;
         QMutexLocker gatekeeper(&dataLock);
-        this->pars.meta.NUM_GPUS = num;
+        this->pars.meta.numGPUs = num;
     }
 }
 
 void PRISMMainWindow::setNumThreads(const int& num){
     if (num > 0){
-        this->meta->NUM_THREADS = num;
+        this->meta->numThreads = num;
         std::cout << "Setting number of CPU Threads to " << num << std::endl;
         QMutexLocker gatekeeper(&dataLock);
-        this->pars.meta.NUM_THREADS = num;
+        this->pars.meta.numThreads = num;
     }
 }
 
 void PRISMMainWindow::setNumStreams(const int& num){
     if (num >= 0){
-        this->meta->NUM_STREAMS_PER_GPU = num;
+        this->meta->numStreamsPerGPU = num;
         std::cout << "Setting number of CUDA streams per GPU to " << num << std::endl;
         QMutexLocker gatekeeper(&dataLock);
-        this->pars.meta.NUM_STREAMS_PER_GPU = num;
+        this->pars.meta.numStreamsPerGPU = num;
     }
 }
 
@@ -494,11 +494,11 @@ void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val =(PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble(&flag);
     if (flag & (val > 0)){
-        this->meta->realspace_pixelSize[1] = val;
+        this->meta->realspacePixelSize[1] = val;
         std::cout << "Setting X pixel size to " << val << " Angstroms" << std::endl;
         if (!pixelSizeYSet){
             ui->lineEdit_pixelSizeY->setText(QString::number(val));
-            this->meta->realspace_pixelSize[0] = val;
+            this->meta->realspacePixelSize[0] = val;
             std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
 //            setPixelSizeY_fromLineEdit();
         }
@@ -511,7 +511,7 @@ void PRISMMainWindow::setPixelSizeY_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val =(PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeY->text().toDouble(&flag);
     if (flag & (val > 0)){
-        this->meta->realspace_pixelSize[0] = val;
+        this->meta->realspacePixelSize[0] = val;
         std::cout << "Setting Y pixel size to " << val << " Angstroms" << std::endl;
         updateAlphaMax();
     }
@@ -623,7 +623,7 @@ void PRISMMainWindow::setRandomSeed_fromLineEdit(){
     bool flag = false;
     int val = this->ui->lineEdit_randomSeed->text().toInt(&flag);
     if (flag){
-        this->meta->random_seed = (size_t)val;
+        this->meta->randomSeed = (size_t)val;
         std::cout << "Setting random seed to " << val << std::endl;
     }
     resetCalculation();
@@ -643,27 +643,27 @@ void PRISMMainWindow::setE0_fromLineEdit(){
     resetCalculation();
 }
 
-void PRISMMainWindow::setprobe_stepX_fromLineEdit(){
+void PRISMMainWindow::setprobeStepX_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeStepX->text().toDouble(&flag);
     if (flag & (val > 0)){
-        this->meta->probe_stepX = val;
-        std::cout << "Setting probe_stepX to " << val << " Angstroms" << std::endl;
+        this->meta->probeStepX = val;
+        std::cout << "Setting probeStepX to " << val << " Angstroms" << std::endl;
         if (!probeStepYSet){
             this->ui->lineEdit_probeStepY->setText(this->ui->lineEdit_probeStepX->text());
-            this->meta->probe_stepY = val;
-            std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
+            this->meta->probeStepY = val;
+            std::cout << "Setting probeStepY to " << val << " Angstroms" << std::endl;
         }
     }
     resetCalculation();
 }
 
-void PRISMMainWindow::setprobe_stepY_fromLineEdit(){
+void PRISMMainWindow::setprobeStepY_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeStepY->text().toDouble(&flag);
     if (flag & (val > 0)){
-        this->meta->probe_stepY = val;
-        std::cout << "Setting probe_stepY to " << val << " Angstroms" << std::endl;
+        this->meta->probeStepY = val;
+        std::cout << "Setting probeStepY to " << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
@@ -698,11 +698,11 @@ void PRISMMainWindow::setprobe_C5_fromLineEdit(){
     resetCalculation();
 }
 
-void PRISMMainWindow::setDetector_angle_step_fromLineEdit(){
+void PRISMMainWindow::setdetectorAngleStep_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_detectorAngle->text().toDouble(&flag);
     if (flag){
-        this->meta->detector_angle_step = val / 1000;
+        this->meta->detectorAngleStep = val / 1000;
         std::cout << "Setting detector angle step to " << val << " mrad" << std::endl;
     }
     resetCalculation();
@@ -738,11 +738,11 @@ void PRISMMainWindow::setBatchGPU_fromLineEdit(){
     bool flag = false;
     int val = this->ui->lineEdit_batchGPU->text().toInt(&flag);
     if (flag){
-        this->meta->batch_size_target_GPU = val;
-        this->meta->batch_size_GPU = val;
+        this->meta->batchSizeTargetGPU = val;
+        this->meta->batchSizeGPU = val;
         QMutexLocker gatekeeper(&dataLock);
-        this->pars.meta.batch_size_target_GPU = val;
-        this->pars.meta.batch_size_GPU = val;
+        this->pars.meta.batchSizeTargetGPU = val;
+        this->pars.meta.batchSizeGPU = val;
         std::cout << "Setting batch size (GPU) to " << val << std::endl;
     }
 }
@@ -751,11 +751,11 @@ void PRISMMainWindow::setBatchCPU_fromLineEdit(){
     bool flag = false;
     int val = this->ui->lineEdit_batchCPU->text().toInt(&flag);
     if (flag){
-        this->meta->batch_size_target_CPU = val;
-        this->meta->batch_size_CPU = val;
+        this->meta->batchSizeTargetCPU = val;
+        this->meta->batchSizeCPU = val;
         QMutexLocker gatekeeper(&dataLock);
-        this->pars.meta.batch_size_target_CPU = val;
-        this->pars.meta.batch_size_CPU = val;
+        this->pars.meta.batchSizeTargetCPU = val;
+        this->pars.meta.batchSizeCPU = val;
         std::cout << "Setting batch size (CPU) to " << val << std::endl;
     }
 }
@@ -1051,7 +1051,7 @@ void PRISMMainWindow::displayErrorReadingAtomsDialog(){
     QMessageBox* popup = new QMessageBox;
     popup->setWindowTitle("Prismatic: Error!");
     popup->setText(QString::fromStdString(std::string("An error occurred while attempting to read atomic coordinates from file:\n\n") +
-                                          meta->filename_atoms +
+                                          meta->filenameAtoms +
                                           std::string("\n\nEnsure that the file is accessible and is formatted correctly. Here is an example:\n\nComment line goes here\n\t5.43    5.43    5.43\n14  0.0000  0.0000  0.0000  1.0  0.076\n14  2.7150  2.7150  0.0000  1.0  0.076\n14  1.3575  4.0725  1.3575  1.0  0.076\n14  4.0725  1.3575  1.3575  1.0  0.076\n14  2.7150  0.0000  2.7150  1.0  0.076\n14  0.0000  2.7150  2.7150  1.0  0.076\n14  1.3575  1.3575  4.0725  1.0  0.076\n14  4.0725  4.0725  4.0725  1.0  0.076\n-1\n")));
     popup->show();
 }
@@ -1323,13 +1323,13 @@ void PRISMMainWindow::updateAlphaMax(){
     PRISMATIC_FLOAT_PRECISION f_x = 4 * meta->interpolationFactorX;
     PRISMATIC_FLOAT_PRECISION f_y = 4 * meta->interpolationFactorY;
     Array1D<size_t> imageSize({{(size_t)(meta->cellDim[1] * meta->tileY), (size_t)(meta->cellDim[2] * meta->tileX)}}, {{2}});
-    imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round(((PRISMATIC_FLOAT_PRECISION)imageSize[0]) / meta->realspace_pixelSize[0] / f_y)));
-    imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round(((PRISMATIC_FLOAT_PRECISION)imageSize[1]) / meta->realspace_pixelSize[1] / f_x)));
+    imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round(((PRISMATIC_FLOAT_PRECISION)imageSize[0]) / meta->realspacePixelSize[0] / f_y)));
+    imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round(((PRISMATIC_FLOAT_PRECISION)imageSize[1]) / meta->realspacePixelSize[1] / f_x)));
 
     long long ncx = (size_t) floor((PRISMATIC_FLOAT_PRECISION) imageSize[1] / 2);
-    PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[1] * meta->realspace_pixelSize[1]);
+    PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[1] * meta->realspacePixelSize[1]);
     long long ncy = (size_t) floor((PRISMATIC_FLOAT_PRECISION) imageSize[0] / 2);
-    PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[0] * meta->realspace_pixelSize[0]);
+    PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[0] * meta->realspacePixelSize[0]);
     PRISMATIC_FLOAT_PRECISION qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
 
     PRISMATIC_FLOAT_PRECISION alphaMax = qMax * calculateLambda(*meta);
@@ -1487,12 +1487,12 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)ui->lineEdit_pixelSizeX->text().toDouble(&flag);
     if (!flag | (val < 0)){
-        meta->realspace_pixelSize[1] = 0.1;
+        meta->realspacePixelSize[1] = 0.1;
     }
-    ui->lineEdit_pixelSizeX->setText(QString::number(meta->realspace_pixelSize[1]));
+    ui->lineEdit_pixelSizeX->setText(QString::number(meta->realspacePixelSize[1]));
     if (!pixelSizeYSet){
-        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspace_pixelSize[1]));
-        this->meta->realspace_pixelSize[0] = meta->realspace_pixelSize[1];
+        this->ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspacePixelSize[1]));
+        this->meta->realspacePixelSize[0] = meta->realspacePixelSize[1];
     }
 }
 
@@ -1502,9 +1502,9 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)ui->lineEdit_pixelSizeY->text().toDouble(&flag);
     if (!flag | (val < 0)){
-        meta->realspace_pixelSize[0] = 0.1;
+        meta->realspacePixelSize[0] = 0.1;
     }
-    ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspace_pixelSize[0]));
+    ui->lineEdit_pixelSizeY->setText(QString::number(meta->realspacePixelSize[0]));
 }
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
@@ -1517,15 +1517,15 @@ void PRISMMainWindow::setStreamingMode(int val){
     enum{Auto=0, SingleXfer=1, Stream=2} setting;
     switch (val){
         case Auto:
-            meta->transfer_mode = Prismatic::StreamingMode::Auto;
+            meta->transferMode = Prismatic::StreamingMode::Auto;
             std::cout << "Setting streaming mode: Auto" << std::endl;
             break;
         case SingleXfer:
-            meta->transfer_mode = Prismatic::StreamingMode::SingleXfer;
+            meta->transferMode = Prismatic::StreamingMode::SingleXfer;
             std::cout << "Setting streaming mode: Single Transfer" << std::endl;
             break;
         case Stream:
-            meta->transfer_mode = Prismatic::StreamingMode::Stream;
+            meta->transferMode = Prismatic::StreamingMode::Stream;
             std::cout << "Setting streaming mode: Streaming" << std::endl;
             break;
     }
@@ -1534,7 +1534,7 @@ void PRISMMainWindow::setStreamingMode(int val){
 void PRISMMainWindow::newRandomSeed(){
     PRISMATIC_FLOAT_PRECISION val = rand() % 100000;
     ui->lineEdit_randomSeed->setText(QString::number(val));
-    meta->random_seed = val;
+    meta->randomSeed = val;
 }
 
 void PRISMMainWindow::toggle3DOutput(){
@@ -1546,7 +1546,7 @@ void PRISMMainWindow::toggle4DOutput(){
 }
 
 void PRISMMainWindow::toggleThermalEffects(){
-    meta->include_thermal_effects = ui->checkBox_thermalEffects->isChecked();
+    meta->includeThermalEffects = ui->checkBox_thermalEffects->isChecked();
     resetCalculation();
 }
 
@@ -1722,7 +1722,7 @@ void PRISMMainWindow::setprobeTiltYSet_edited(){
 }
 
 void PRISMMainWindow::userHasSetCellDims(){
-    meta->user_specified_celldims = true;
+    meta->userSpecifiedCelldims = true;
 }
 
 void PRISMMainWindow::resizeEvent(QResizeEvent* event)

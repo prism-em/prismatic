@@ -119,21 +119,21 @@ namespace Prismatic{
 		    const double pi = std::acos(-1);
 
 			try {
-				atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms_xyz(meta.filename_atoms));
-				if (!meta.user_specified_celldims){
-					std::array<double, 3> dims = peekDims_xyz(meta.filename_atoms);
+				atoms = tileAtoms(meta.tileX, meta.tileY, meta.tileZ, readAtoms_xyz(meta.filenameAtoms));
+				if (!meta.userSpecifiedCelldims){
+					std::array<double, 3> dims = peekDims_xyz(meta.filenameAtoms);
 					meta.cellDim[0] = dims[0];
 					meta.cellDim[1] = dims[1];
 					meta.cellDim[2] = dims[2];
 				}
 			}
 			catch (const std::runtime_error &e) {
-				std::cout << "PRISM: Error opening " << meta.filename_atoms << std::endl;
+				std::cout << "PRISM: Error opening " << meta.filenameAtoms << std::endl;
 				std::cout << e.what();
 				throw;
 			}
 			catch (const std::domain_error &e) {
-				std::cout << "PRISM: Error extracting atomic data from " << meta.filename_atoms << "!" << std::endl;
+				std::cout << "PRISM: Error extracting atomic data from " << meta.filenameAtoms << "!" << std::endl;
 				std::cout << e.what();
 				throw;
 			}
@@ -159,15 +159,15 @@ namespace Prismatic{
 		    std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
 		    std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
-		    _imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)));
-		    _imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspace_pixelSize[1] / f_x)));
+		    _imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)));
+		    _imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspacePixelSize[1] / f_x)));
 
-		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspace_pixelSize[0] / f_y)) << std::endl;
+		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)) << std::endl;
 		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
 		    std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
 //		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
 //		                   [&f, this](size_t &a) {
-//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspace_pixelSize / f)));
+//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspacePixelSize / f)));
 //		                   });
 		    this->imageSize = _imageSize;
 

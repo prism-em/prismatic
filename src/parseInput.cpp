@@ -107,13 +107,13 @@ namespace Prismatic {
 			cout << "No batch size provided for -b (syntax is -b batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_target_CPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batchSizeTargetCPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for batch size (syntax is -b batch_size)\n";
 			return false;
 		}
-		meta.batch_size_target_GPU = meta.batch_size_target_CPU;
-		meta.batch_size_GPU = meta.batch_size_target_GPU;
-		meta.batch_size_CPU = meta.batch_size_target_CPU;
+		meta.batchSizeTargetGPU = meta.batchSizeTargetCPU;
+		meta.batchSizeGPU = meta.batchSizeTargetGPU;
+		meta.batchSizeCPU = meta.batchSizeTargetCPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -125,11 +125,11 @@ namespace Prismatic {
 			cout << "No batch size provided for -bc (syntax is -bc batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_target_CPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batchSizeTargetCPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for CPU batch size (syntax is -bc batch_size)\n";
 			return false;
 		}
-		meta.batch_size_CPU = meta.batch_size_target_CPU;
+		meta.batchSizeCPU = meta.batchSizeTargetCPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -141,11 +141,11 @@ namespace Prismatic {
 			cout << "No batch size provided for -bg (syntax is -bg batch_size)\n";
 			return false;
 		}
-		if ( (meta.batch_size_target_GPU = atoi((*argv)[1])) == 0){
+		if ( (meta.batchSizeTargetGPU = atoi((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for GPU batch size (syntax is -bg batch_size)\n";
 			return false;
 		}
-		meta.batch_size_GPU = meta.batch_size_target_GPU;
+		meta.batchSizeGPU = meta.batchSizeTargetGPU;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -172,7 +172,7 @@ namespace Prismatic {
             cout << "Invalid value \"" << (*argv)[3] << "\" provided for Z cell dimension (syntax is -c x, y, z)\n";
             return false;
         }
-        meta.user_specified_celldims = true;
+        meta.userSpecifiedCelldims = true;
         argc-=4;
         argv[0]+=4;
         return true;
@@ -184,7 +184,7 @@ namespace Prismatic {
             cout << "No state provided for -C (syntax is -f 0/1)\n";
             return false;
         }
-        meta.also_do_CPU_work = std::string((*argv)[1]) == "0" ? false : true;
+        meta.alsoDoCPUWork = std::string((*argv)[1]) == "0" ? false : true;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -196,7 +196,7 @@ namespace Prismatic {
 			cout << "No detector angle step provided for -d (syntax is -d detector_step (in mrad))\n";
 			return false;
 		}
-		if ( (meta.detector_angle_step = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+		if ( (meta.detectorAngleStep = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for potential bound (syntax is -d detector_step (in mrad)\n";
 			return false;
 		}
@@ -211,7 +211,7 @@ namespace Prismatic {
             cout << "No state provided for -C (syntax is -f 0/1)\n";
             return false;
         }
-        meta.transfer_mode = std::string((*argv)[1]) == "0" ? Prismatic::StreamingMode::SingleXfer :  Prismatic::StreamingMode::Stream;
+        meta.transferMode = std::string((*argv)[1]) == "0" ? Prismatic::StreamingMode::SingleXfer :  Prismatic::StreamingMode::Stream;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -229,7 +229,7 @@ namespace Prismatic {
             cout << "No filename provided for -i (syntax is -i filename)\n";
             return false;
         }
-        meta.filename_atoms = std::string((*argv)[1]);
+        meta.filenameAtoms = std::string((*argv)[1]);
         argc-=2;
         argv[0]+=2;
         return true;
@@ -288,7 +288,7 @@ namespace Prismatic {
             cout << "No number of threads provided (syntax is -j num_threads)\n";
             return false;
         }
-        if ( (meta.NUM_THREADS = atoi((*argv)[1])) == 0){
+        if ( (meta.numThreads = atoi((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of threads  (syntax is -j num_threads)\n";
             return false;
         }
@@ -335,12 +335,12 @@ namespace Prismatic {
             return false;
         }
         if ( (string((*argv)[1]) == "0") ){
-            meta.NUM_GPUS = 0;
+            meta.numGPUs = 0;
             argc-=2;
             argv[0]+=2;
             return true;
         }
-        if ( (meta.NUM_GPUS = atoi((*argv)[1])) == 0){
+        if ( (meta.numGPUs = atoi((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of GPUs (syntax is -g num_GPUs)\n";
             return false;
         }
@@ -372,7 +372,7 @@ namespace Prismatic {
             cout << "No number of CUDA streams per GPU provided (syntax is -S num_streams)\n";
             return false;
         }
-        if ( (meta.NUM_STREAMS_PER_GPU = atoi((*argv)[1])) == 0){
+        if ( (meta.numStreamsPerGPU = atoi((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of streams (syntax is -S num_streams)\n";
             return false;
         }
@@ -417,8 +417,8 @@ namespace Prismatic {
             cout << "No filename provided for -o (syntax is -o filename)\n";
             return false;
         }
-        meta.filename_output = std::string((*argv)[1]);
-        //cout <<"meta.filename_atoms = " << meta.filename_atoms << endl;
+        meta.filenameOutput = std::string((*argv)[1]);
+        //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -430,11 +430,11 @@ namespace Prismatic {
             cout << "No pixel size provided for -p (syntax is -p pixel_size)\n";
             return false;
         }
-        if ( (meta.realspace_pixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.realspacePixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for pixel size  (syntax is -p pixel_size)\n";
             return false;
         }
-	    meta.realspace_pixelSize[1] = meta.realspace_pixelSize[0];
+	    meta.realspacePixelSize[1] = meta.realspacePixelSize[0];
         argc-=2;
         argv[0]+=2;
         return true;
@@ -446,7 +446,7 @@ namespace Prismatic {
 			cout << "No pixel size provided for -px (syntax is -px pixel_size)\n";
 			return false;
 		}
-		if ( (meta.realspace_pixelSize[1] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.realspacePixelSize[1] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for X pixel size  (syntax is -px pixel_size)\n";
 			return false;
 		}
@@ -461,7 +461,7 @@ namespace Prismatic {
 			cout << "No pixel size provided for -py (syntax is -py pixel_size)\n";
 			return false;
 		}
-		if ( (meta.realspace_pixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.realspacePixelSize[0] = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for Y pixel size  (syntax is -py pixel_size)\n";
 			return false;
 		}
@@ -491,11 +491,11 @@ namespace Prismatic {
             cout << "No probe step provided for -r (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probe_stepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probeStepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -r probe_step (in Angstroms))\n";
             return false;
         }
-	    meta.probe_stepY = meta.probe_stepX;
+	    meta.probeStepY = meta.probeStepX;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -508,11 +508,11 @@ namespace Prismatic {
 			cout << "No probe step provided for -rx (syntax is -rx probe_step (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.probe_stepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.probeStepX = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -rx probe_step (in Angstroms))\n";
 			return false;
 		}
-		meta.probe_stepY = meta.probe_stepX;
+		meta.probeStepY = meta.probeStepX;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -526,7 +526,7 @@ namespace Prismatic {
 			cout << "No probe step provided for -ry (syntax is -ry probe_step (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.probe_stepY = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( (meta.probeStepY = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for probe_step (syntax is -ry probe_step (in Angstroms))\n";
 			return false;
 		}
@@ -542,7 +542,7 @@ namespace Prismatic {
 			cout << "No random seed provided for -rs (syntax is -rs integer)\n";
 			return false;
 		}
-		if ( ((meta.random_seed = atoi((*argv)[1])) == 0) & std::string(((*argv)[1]))!="0"){
+		if ( ((meta.randomSeed = atoi((*argv)[1])) == 0) & std::string(((*argv)[1]))!="0"){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for random seed (syntax is -rs integer)\n";
 			return false;
 		}
@@ -705,7 +705,7 @@ namespace Prismatic {
 			cout << "No value provided for -te (syntax is -te bool)\n";
 			return false;
 		}
-		meta.include_thermal_effects = std::string((*argv)[1]) == "0" ? false : true;
+		meta.includeThermalEffects = std::string((*argv)[1]) == "0" ? false : true;
 		argc-=2;
 		argv[0]+=2;
 		return true;
@@ -718,11 +718,11 @@ namespace Prismatic {
             return false;
         }
         meta.save2DOutput = true;
-        if ( (string((*argv)[1]) != "0") & ((meta.integration_angle_min = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0)){
+        if ( (string((*argv)[1]) != "0") & ((meta.integrationAngleMin = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0)){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for minimum integration angle (syntax is -2D ang_min ang_max (in mrad)\n";
             return false;
         }
-        if ( (meta.integration_angle_max = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) == 0){
+        if ( (meta.integrationAngleMax = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) == 0){
             cout << "Invalid value \"" << (*argv)[2] << "\" provided for maximum integration angle (syntax is -2D ang_min ang_max (in mrad))\n";
             return false;
         }

@@ -318,7 +318,7 @@ void FullPRISMCalcThread::run(){
     try {
         params = Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>(meta,progressbar);
     }catch (...){
-        std::cout <<"An error occurred while attempting to read from file " << meta.filename_atoms << std::endl;
+        std::cout <<"An error occurred while attempting to read from file " << meta.filenameAtoms << std::endl;
         error_reading = true;
     }
     gatekeeper.unlock();
@@ -381,7 +381,7 @@ void FullPRISMCalcThread::run(){
         Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
-            params.meta.random_seed = rand() % 100000;
+            params.meta.randomSeed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
@@ -410,9 +410,9 @@ void FullPRISMCalcThread::run(){
 
 //        this->parent->outputArrayExists = true;
 
-//        params.output.toMRC_f(params.meta.filename_output.c_str());
+//        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
+	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filenameOutput.c_str());
 //    this->parent->outputReceived(params.output);
     this->parent->outputReceived(params.output);
     emit outputCalculated();
@@ -461,7 +461,7 @@ void FullMultisliceCalcThread::run(){
         Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
-            params.meta.random_seed = rand() % 100000;
+            params.meta.randomSeed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
@@ -489,10 +489,10 @@ void FullMultisliceCalcThread::run(){
 //        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
 //        auto ptr = reshaped_output.begin();
 //        for (auto &i:params.output)*ptr++=i;
-//        reshaped_output.toMRC_f(params.meta.filename_output.c_str());
-//        params.output.toMRC_f(params.meta.filename_output.c_str());
+//        reshaped_output.toMRC_f(params.meta.filenameOutput.c_str());
+//        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filename_output.c_str());
+	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filenameOutput.c_str());
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;

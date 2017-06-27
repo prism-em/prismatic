@@ -82,8 +82,8 @@ public slots:
     void setBatchGPU_fromLineEdit();
     void setBatchCPU_fromLineEdit();
     void setE0_fromLineEdit();
-    void setprobe_stepX_fromLineEdit();
-    void setprobe_stepY_fromLineEdit();
+    void setprobeStepX_fromLineEdit();
+    void setprobeStepY_fromLineEdit();
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
@@ -117,7 +117,7 @@ public slots:
     void setRandomSeed_fromLineEdit();
     void setprobe_C3_fromLineEdit();
     void setprobe_C5_fromLineEdit();
-    void setDetector_angle_step_fromLineEdit();
+    void setdetectorAngleStep_fromLineEdit();
     void setprobe_Xtilt_fromLineEdit();
     void setprobe_Ytilt_fromLineEdit();
     void toggle3DOutput();

@@ -42,7 +42,7 @@ namespace Prismatic{
 			// run the rest of the frozen phonons
 			Array3D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
 			for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num){
-				meta.random_seed = rand() % 100000;
+				meta.randomSeed = rand() % 100000;
 				++meta.fpNum;
 				Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars(meta);
 				cout << "Frozen Phonon #" << fp_num << endl;
@@ -56,11 +56,11 @@ namespace Prismatic{
 			prismatic_pars.output = net_output;
 		}
 
-		if (prismatic_pars.meta.save3DOutput)prismatic_pars.output.toMRC_f(prismatic_pars.meta.filename_output.c_str());
+		if (prismatic_pars.meta.save3DOutput)prismatic_pars.output.toMRC_f(prismatic_pars.meta.filenameOutput.c_str());
 
 		if (prismatic_pars.meta.save2DOutput) {
-			size_t lower = std::max((size_t)0, (size_t)(prismatic_pars.meta.integration_angle_min / prismatic_pars.meta.detector_angle_step));
-			size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t) (prismatic_pars.meta.integration_angle_max / prismatic_pars.meta.detector_angle_step));
+			size_t lower = std::max((size_t)0, (size_t)(prismatic_pars.meta.integrationAngleMin / prismatic_pars.meta.detectorAngleStep));
+			size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t) (prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 			prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 					{{prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimj()}});
@@ -71,7 +71,7 @@ namespace Prismatic{
 					}
 				}
 			}
-			std::string image_filename = std::string("multislice_2Doutput_") + prismatic_pars.meta.filename_output;
+			std::string image_filename = std::string("multislice_2Doutput_") + prismatic_pars.meta.filenameOutput;
 			prism_image.toMRC_f(image_filename.c_str());
 		}
 #ifdef PRISMATIC_ENABLE_GPU

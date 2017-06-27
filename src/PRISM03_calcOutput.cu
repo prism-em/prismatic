@@ -444,10 +444,10 @@ namespace Prismatic {
 		// Now launch CPU work
 		if (pars.meta.also_do_CPU_work) {
 			PRISMATIC_FFTW_INIT_THREADS();
-			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 			vector <thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+			workers_CPU.reserve(pars.meta.numThreads); // prevents multiple reallocations
+			for (auto t = 0; t < pars.meta.numThreads; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;
@@ -595,10 +595,10 @@ namespace Prismatic {
 		// Now launch CPU work
 		if (pars.meta.also_do_CPU_work) {
 			PRISMATIC_FFTW_INIT_THREADS();
-			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 			vector<thread> workers_CPU;
-			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-			for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+			workers_CPU.reserve(pars.meta.numThreads); // prevents multiple reallocations
+			for (auto t = 0; t < pars.meta.numThreads; ++t) {
 				cout << "Launching CPU worker thread #" << t << " to compute partial PRISM result\n";
 				workers_CPU.push_back(thread([&pars, &dispatcher, t, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 					size_t Nstart, Nstop, ay, ax, early_CPU_stop;

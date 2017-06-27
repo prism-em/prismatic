@@ -27,7 +27,7 @@ namespace Prismatic {
 		// batch parameters for cuFFT
 		const int rank      = 2;
 		int n[]             = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
-		const int howmany   = pars.meta.batch_size_GPU;
+		const int howmany   = pars.meta.batchSizeGPU;
 		int idist           = n[0]*n[1];
 		int odist           = n[0]*n[1];
 		int istride         = 1;
@@ -152,13 +152,13 @@ namespace Prismatic {
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.NUM_GPUS));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],
-			                      pars.meta.batch_size_GPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_small_ds[s],
-			                      pars.meta.batch_size_GPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,
-			                      pars.meta.batch_size_GPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_small_ds[s], 0,
-			                      pars.meta.batch_size_GPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 		}
 	}
 
@@ -191,13 +191,13 @@ namespace Prismatic {
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.trans_d[s],
 			                      pars.imageSize[0]  *  pars.imageSize[1]    * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],
-			                      pars.meta.batch_size_GPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_small_ds[s],
-			                      pars.meta.batch_size_GPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,
-			                      pars.meta.batch_size_GPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_small_ds[s], 0,
-			                      pars.meta.batch_size_GPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
+			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 		}
 	}
 
@@ -355,9 +355,9 @@ namespace Prismatic {
 				// main loop
 				size_t currentBeam, stopBeam;
 				currentBeam=stopBeam=0;
-				while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_GPU)) {
+				while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeGPU)) {
 					while (currentBeam < stopBeam) {
-						if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_GPU | currentBeam == 100){
+						if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batchSizeGPU | currentBeam == 100){
 							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 						}
 //						propagatePlaneWave_GPU_singlexfer(pars,
@@ -404,7 +404,7 @@ namespace Prismatic {
 			// launch CPU work
 			vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
-			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
+			pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
 
 			// startup FFTW threads
 			PRISMATIC_FFTW_INIT_THREADS();
@@ -417,22 +417,22 @@ namespace Prismatic {
 					currentBeam=stopBeam=0;
 					if (pars.meta.NUM_GPUS > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio * pars.meta.batch_size_CPU);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio * pars.meta.batchSizeCPU);
 					} else {
 						early_CPU_stop = pars.numberBeams;
 					}
 
 					// get work
-					if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop)) {
+					if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU, early_CPU_stop)) {
 
 						// allocate array to hold the batch of propagated plane waves
 						Array1D<complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >(
-								{{pars.imageSize[0]*pars.imageSize[1]*pars.meta.batch_size_CPU}});
+								{{pars.imageSize[0]*pars.imageSize[1]*pars.meta.batchSizeCPU}});
 
 //						 setup batch FFTW parameters
 						const int rank    = 2;
 						int n[]           = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
-						const int howmany = pars.meta.batch_size_CPU;
+						const int howmany = pars.meta.batchSizeCPU;
 						int idist         = n[0]*n[1];
 						int odist         = n[0]*n[1];
 						int istride       = 1;
@@ -460,7 +460,7 @@ namespace Prismatic {
 						// main work loop
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
-								if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
+								if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batchSizeCPU | currentBeam == 100){
 									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 								}
 								// re-zero psi each iteration
@@ -474,7 +474,7 @@ namespace Prismatic {
 								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
-						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop));
+						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU, early_CPU_stop));
 						// clean up
 						gatekeeper.lock();
 						PRISMATIC_FFTW_DESTROY_PLAN(plan_forward);
@@ -539,9 +539,9 @@ namespace Prismatic {
 				// main work loop
 				size_t currentBeam, stopBeam;
 				currentBeam=stopBeam=0;
-				while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_GPU)) { // get a batch of work
+				while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeGPU)) { // get a batch of work
 					while (currentBeam < stopBeam) {
-						if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_GPU | currentBeam == 100){
+						if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batchSizeGPU | currentBeam == 100){
 							cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 						}
 //						propagatePlaneWave_GPU_streaming(pars,
@@ -591,7 +591,7 @@ namespace Prismatic {
 			vector<thread> workers_CPU;
 			workers_CPU.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
 			mutex fftw_plan_lock;
-			pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
+			pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numberBeams / pars.meta.NUM_THREADS));
 
 			// startup FFTW threads
 			PRISMATIC_FFTW_INIT_THREADS();
@@ -604,20 +604,20 @@ namespace Prismatic {
 					currentBeam=stopBeam=0;
 					if (pars.meta.NUM_GPUS > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio*pars.meta.batch_size_CPU);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0,pars.numberBeams - pars.meta.gpu_cpu_ratio*pars.meta.batchSizeCPU);
 					} else {
 						early_CPU_stop = pars.numberBeams;
 					}
 
-					if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop)) {
+					if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU, early_CPU_stop)) {
 						// allocate array for psi just once per thread
 						Array1D<complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >(
-								{{pars.imageSize[0]*pars.imageSize[1]*pars.meta.batch_size_CPU}});
+								{{pars.imageSize[0]*pars.imageSize[1]*pars.meta.batchSizeCPU}});
 
 						// setup batch FFTW parameters
 						const int rank    = 2;
 						int n[]           = {(int)pars.imageSize[0], (int)pars.imageSize[1]};
-						const int howmany = pars.meta.batch_size_CPU;
+						const int howmany = pars.meta.batchSizeCPU;
 						int idist         = n[0]*n[1];
 						int odist         = n[0]*n[1];
 						int istride       = 1;
@@ -644,7 +644,7 @@ namespace Prismatic {
 						// main work loop
 						do { // synchronously get work assignment
 							while (currentBeam < stopBeam) {
-								if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU | currentBeam == 100){
+								if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batchSizeCPU | currentBeam == 100){
 									cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
 								}
 								// re-zero psi each iteration
@@ -658,7 +658,7 @@ namespace Prismatic {
 //								++currentBeam;
 							}
 							if (currentBeam >= early_CPU_stop) break;
-						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU, early_CPU_stop));
+						} while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU, early_CPU_stop));
 						// clean up
 						gatekeeper.lock();
 						PRISMATIC_FFTW_DESTROY_PLAN(plan_forward);
@@ -966,8 +966,8 @@ namespace Prismatic {
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// determine the batch size to use
-        pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
-		std::cout << "@@@@@@@@pars.meta.batch_size_GPU = " << pars.meta.batch_size_GPU << std::endl;
+        pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
+		std::cout << "@@@@@@@@pars.meta.batchSizeGPU = " << pars.meta.batchSizeGPU << std::endl;
 		// setup some arrays
 		setupArrays2(pars);
 
@@ -1004,7 +1004,7 @@ namespace Prismatic {
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// determine the batch size to use
-		pars.meta.batch_size_GPU = min(pars.meta.batch_size_target_GPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
+		pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.NUM_STREAMS_PER_GPU*pars.meta.NUM_GPUS))));
 
 		// setup some arrays
 		setupArrays2(pars);

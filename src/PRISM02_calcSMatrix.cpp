@@ -53,9 +53,9 @@ namespace Prismatic {
 
 		// get qMax
         long long ncx = (long long) floor((PRISMATIC_FLOAT_PRECISION) pars.imageSize[1] / 2);
-        PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspace_pixelSize[1]);
+        PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspacePixelSize[1]);
         long long ncy = (long long) floor((PRISMATIC_FLOAT_PRECISION) pars.imageSize[0] / 2);
-        PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspace_pixelSize[0]);
+        PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspacePixelSize[0]);
         pars.qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
 
 		// construct anti-aliasing mask
@@ -250,7 +250,7 @@ namespace Prismatic {
 		complex<PRISMATIC_FLOAT_PRECISION>* slice_ptr = &pars.transmission[0];
 		for (auto a2 = 0; a2 < pars.numPlanes; ++a2) {
 			// transmit each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, stopBeam - currentBeam); ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, stopBeam - currentBeam); ++batch_idx){
 				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
 				auto psi_ptr = &psi_stack[batch_idx * slice_size];
 				for (auto jj = 0; jj < slice_size; ++jj){
@@ -261,7 +261,7 @@ namespace Prismatic {
 			PRISMATIC_FFTW_EXECUTE(plan_forward); // FFT
 
 			// propagate each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, stopBeam - currentBeam); ++batch_idx) {
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, stopBeam - currentBeam); ++batch_idx) {
 				auto p_ptr = pars.prop.begin();
 				auto psi_ptr = &psi_stack[batch_idx * slice_size];
 				for (auto jj = 0; jj < slice_size; ++jj){
@@ -327,15 +327,15 @@ namespace Prismatic {
 
 		// prepare to launch the calculation
 		vector<thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.numThreads); // prevents multiple reallocations
 		const size_t PRISMATIC_PRINT_FREQUENCY_BEAMS = max((size_t)1,pars.numberBeams / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.numberBeams);
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1,pars.numberBeams / pars.meta.NUM_THREADS));
+		pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1,pars.numberBeams / pars.meta.numThreads));
 
 		// initialize FFTW threads
 		PRISMATIC_FFTW_INIT_THREADS();
-		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
-		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t) {
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
+		for (auto t = 0; t < pars.meta.numThreads; ++t) {
             cout << "Launching thread #" << t << " to compute beams\n";
             workers.push_back(thread([&pars, &dispatcher, &PRISMATIC_PRINT_FREQUENCY_BEAMS]() {
                 // allocate array for psi just once per thread
@@ -343,9 +343,9 @@ namespace Prismatic {
 //						{{pars.imageSize[0], pars.imageSize[1]}});
                 size_t currentBeam, stopBeam;
                 currentBeam = stopBeam = 0;
-                if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU)) {
+                if (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU)) {
                     Array1D<complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >(
-                            {{pars.imageSize[0] * pars.imageSize[1] * pars.meta.batch_size_CPU}});
+                            {{pars.imageSize[0] * pars.imageSize[1] * pars.meta.batchSizeCPU}});
 //				PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 //				                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
 //				                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
@@ -359,7 +359,7 @@ namespace Prismatic {
                     // setup batch FFTW parameters
                     const int rank = 2;
                     int n[] = {(int) pars.imageSize[0], (int) pars.imageSize[1]};
-                    const int howmany = pars.meta.batch_size_CPU;
+                    const int howmany = pars.meta.batchSizeCPU;
                     int idist = n[0] * n[1];
                     int odist = n[0] * n[1];
                     int istride = 1;
@@ -389,7 +389,7 @@ namespace Prismatic {
 	                // main work loop
                     do { // synchronously get work assignment
                         while (currentBeam < stopBeam) {
-                            if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batch_size_CPU |
+                            if (currentBeam % PRISMATIC_PRINT_FREQUENCY_BEAMS < pars.meta.batchSizeCPU |
                                 currentBeam == 100) {
                                 cout << "Computing Plane Wave #" << currentBeam << "/" << pars.numberBeams << endl;
                             }
@@ -405,7 +405,7 @@ namespace Prismatic {
 #endif
                             currentBeam = stopBeam;
                         }
-                    } while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batch_size_CPU));
+                    } while (dispatcher.getWork(currentBeam, stopBeam, pars.meta.batchSizeCPU));
 
                     // clean up plans
                     gatekeeper.lock();

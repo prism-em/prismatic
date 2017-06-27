@@ -41,8 +41,8 @@ namespace Prismatic{
 		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
 
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probe_stepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probe_stepY, yR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
@@ -68,9 +68,9 @@ namespace Prismatic{
 
 		// get qMax
 		long long ncx = (long long) floor((PRISMATIC_FLOAT_PRECISION) pars.imageSize[1] / 2);
-		PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspace_pixelSize[1]);
+		PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspacePixelSize[1]);
 		long long ncy = (long long) floor((PRISMATIC_FLOAT_PRECISION) pars.imageSize[0] / 2);
-		PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspace_pixelSize[0]);
+		PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspacePixelSize[0]);
 		pars.qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
 
 
@@ -109,12 +109,12 @@ namespace Prismatic{
 
 	void setupDetector_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 		pars.alphaMax = pars.qMax * pars.lambda;
-		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detector_angle_step / 2, pars.meta.detector_angle_step, pars.alphaMax - pars.meta.detector_angle_step / 2);
+		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep / 2, pars.meta.detectorAngleStep, pars.alphaMax - pars.meta.detectorAngleStep / 2);
 		Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		pars.Ndet = pars.detectorAngles.size();
 		Array2D<PRISMATIC_FLOAT_PRECISION> alpha = pars.q1 * pars.lambda;
-		pars.alphaInd = (alpha + pars.meta.detector_angle_step/2) / pars.meta.detector_angle_step;
+		pars.alphaInd = (alpha + pars.meta.detectorAngleStep/2) / pars.meta.detectorAngleStep;
 		for (auto& q : pars.alphaInd) q = std::round(q);
 		pars.dq = (pars.qxa.at(0, 1) + pars.qya.at(1, 0)) / 2;
 	}
@@ -226,7 +226,7 @@ namespace Prismatic{
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > realspace_probe;
 		Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> > kspace_probe;
 		PRISMATIC_FFTW_INIT_THREADS();
-		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi(pars.psiProbeInit);
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
 		PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
@@ -299,7 +299,7 @@ namespace Prismatic{
 	                                  Array1D<complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack){
 		{
 			auto psi_ptr = psi_stack.begin();
-			for (auto batch_num = 0; batch_num < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_num) {
+			for (auto batch_num = 0; batch_num < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_num) {
 				for (auto i:pars.psiProbeInit)*psi_ptr++ = i;
 			}
 		}
@@ -311,7 +311,7 @@ namespace Prismatic{
 			const size_t ay = probe_num / pars.xp.size();
 			const size_t ax = probe_num % pars.xp.size();
 			// populates the output stack for Multislice simulation using the CPU. The number of
-			// threads used is determined by pars.meta.NUM_THREADS
+			// threads used is determined by pars.meta.numThreads
 			{
 				auto qxa_ptr = pars.qxa.begin();
 				auto qya_ptr = pars.qya.begin();
@@ -329,7 +329,7 @@ namespace Prismatic{
 			PRISMATIC_FFTW_EXECUTE(plan_inverse); // batch FFT
 
 			// transmit each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
 				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
@@ -340,7 +340,7 @@ namespace Prismatic{
 			PRISMATIC_FFTW_EXECUTE(plan_forward); // batch FFT
 
 			// propagate each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batch_size_CPU, Nstop - Nstart); ++batch_idx){
+			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
 				auto p_ptr = scaled_prop.begin();
 				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
 				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
@@ -360,7 +360,7 @@ namespace Prismatic{
 								Array2D<complex<PRISMATIC_FLOAT_PRECISION> >& psi){
 
 		// populates the output stack for Multislice simulation using the CPU. The number of
-		// threads used is determined by pars.meta.NUM_THREADS
+		// threads used is determined by pars.meta.numThreads
 //		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi(pars.psiProbeInit);
         psi = pars.psiProbeInit;
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
@@ -402,30 +402,30 @@ namespace Prismatic{
 #endif
 
 		vector<thread> workers;
-		workers.reserve(pars.meta.NUM_THREADS); // prevents multiple reallocations
+		workers.reserve(pars.meta.numThreads); // prevents multiple reallocations
 		PRISMATIC_FFTW_INIT_THREADS();
-		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.NUM_THREADS);
+		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
 		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
 
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
-		pars.meta.batch_size_CPU = min(pars.meta.batch_size_target_CPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.NUM_THREADS));
-		for (auto t = 0; t < pars.meta.NUM_THREADS; ++t){
+		pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.numThreads));
+		for (auto t = 0; t < pars.meta.numThreads; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 			workers.push_back(thread([&pars, &dispatcher, t, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {
 				size_t Nstart, Nstop;
                 Nstart=Nstop=0;
-				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU)){ // synchronously get work assignment
+				if (dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeCPU)){ // synchronously get work assignment
 
 					// Allocate memory for the propagated probes. These are 2D arrays, but as they will be operated on
 					// as a batch FFT they are all stacked together into one linearized array
-					Array1D<complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batch_size_CPU}});
+					Array1D<complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batchSizeCPU}});
 
 					// setup batch FFTW parameters
 					const int rank    = 2;
 					int n[]           = {(int)pars.psiProbeInit.get_dimj(), (int)pars.psiProbeInit.get_dimi()};
-					const int howmany = pars.meta.batch_size_CPU;
+					const int howmany = pars.meta.batchSizeCPU;
 					int idist         = n[0]*n[1];
 					int odist         = n[0]*n[1];
 					int istride       = 1;
@@ -461,7 +461,7 @@ namespace Prismatic{
 					// main work loop
                     do {
 						while (Nstart < Nstop) {
-							if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batch_size_CPU | Nstart == 100){
+							if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batchSizeCPU | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
 //							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
@@ -471,7 +471,7 @@ namespace Prismatic{
 #endif
 							Nstart=Nstop;
 						}
-					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batch_size_CPU));
+					} while(dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeCPU));
 					gatekeeper.lock();
 					PRISMATIC_FFTW_DESTROY_PLAN(plan_forward);
 					PRISMATIC_FFTW_DESTROY_PLAN(plan_inverse);
