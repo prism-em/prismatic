@@ -102,7 +102,7 @@ namespace Prismatic{
 		}
 
 #ifdef PRISMATIC_ENABLE_GPU
-		cout << "peak GPU memory usage = " << prismatic_pars.max_mem << '\n';
+		cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
 #endif //PRISMATIC_ENABLE_GPU
         std::cout << "PRISM Calculation complete.\n" << std::endl;
 		return prismatic_pars;

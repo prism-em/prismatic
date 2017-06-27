@@ -36,7 +36,7 @@ namespace Prismatic{
 	using Array4D = Prismatic::ArrayND<4, std::vector<T> >;
 
 	// for monitoring memory consumption on GPU
-	static std::mutex mem_lock;
+	static std::mutex memLock;
 
     template <class T>
     class Parameters {
@@ -98,8 +98,8 @@ namespace Prismatic{
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG
 		// for monitoring memory consumption on GPU
-	    size_t max_mem;
-	    size_t target_num_blocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
+	    size_t maxGPUMem;
+	    size_t targetNumBlocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
 //#endif //NDEBUG
 #endif // PRISMATIC_ENABLE_GPU
 #ifdef PRISMATIC_BUILDING_GUI
@@ -183,7 +183,7 @@ namespace Prismatic{
 #ifdef PRISMATIC_ENABLE_GPU
 #ifndef NDEBUG
 		// for monitoring memory consumption on GPU
-	    max_mem = 0;
+	    maxGPUMem = 0;
 #endif //NDEBUG
 			// query GPU properties
 		    int nDevices;
@@ -206,10 +206,10 @@ namespace Prismatic{
 				    }
 			    }
 		    }
-		    target_num_blocks = deviceProperties.multiProcessorCount * deviceProperties.maxThreadsPerBlock / BLOCK_SIZE1D *4; // the 4 is a fudge factor
+		    targetNumBlocks = deviceProperties.multiProcessorCount * deviceProperties.maxThreadsPerBlock / BLOCK_SIZE1D *4; // the 4 is a fudge factor
 		    std::cout << "deviceProperties.major = " << deviceProperties.major << std::endl;
 		    std::cout << "deviceProperties.maxThreadsPerBlock = " << deviceProperties.maxThreadsPerBlock << std::endl;
-		    std::cout << "target_num_blocks = " << target_num_blocks << std::endl;
+		    std::cout << "targetNumBlocks = " << targetNumBlocks << std::endl;
 
 #endif //PRISMATIC_ENABLE_GPU
 	    };
