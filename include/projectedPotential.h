@@ -1,13 +1,20 @@
 // Copyright Alan (AJ) Pryor, Jr. 2017
 // Transcribed from MATLAB code by Colin Ophus
-// PRISM is distributed under the GNU General Public License (GPL)
-// If you use PRISM, we ask that you cite the following papers:
+// Prismatic is distributed under the GNU General Public License (GPL)
+// If you use Prismatic, we kindly ask that you cite the following papers:
+
+// 1. Ophus, C.: A fast image simulation algorithm for scanning
+//    transmission electron microscopy. Advanced Structural and
+//    Chemical Imaging 3(1), 13 (2017)
+
+// 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
+//    Implementation of Image Simulation Algorithms for Scanning
+//	  Transmission Electron Microscopy. arXiv:####### (2017)
 
 #ifndef PRISM_PROJPOT_H
 #define PRISM_PROJPOT_H
 #include <vector>
 #include "ArrayND.h"
-// #include "boost/math/special_functions/bessel.hpp"
 #include <math.h>
 #include <iostream>
 #include <algorithm>
@@ -25,4 +32,4 @@ namespace Prismatic {
 	                                       const Array1D<PRISMATIC_FLOAT_PRECISION> &yr);
 
 }
-#endif //PRISM_PROJPOPRISMATIC_FLOAT_PRECISION_H
+#endif //PRISM_PROJPOT_H

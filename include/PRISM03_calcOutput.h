@@ -1,7 +1,15 @@
 // Copyright Alan (AJ) Pryor, Jr. 2017
 // Transcribed from MATLAB code by Colin Ophus
-// PRISM is distributed under the GNU General Public License (GPL)
-// If you use PRISM, we ask that you cite the following papers:
+// Prismatic is distributed under the GNU General Public License (GPL)
+// If you use Prismatic, we kindly ask that you cite the following papers:
+
+// 1. Ophus, C.: A fast image simulation algorithm for scanning
+//    transmission electron microscopy. Advanced Structural and
+//    Chemical Imaging 3(1), 13 (2017)
+
+// 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
+//    Implementation of Image Simulation Algorithms for Scanning
+//	  Transmission Electron Microscopy. arXiv:####### (2017)
 
 #ifndef PRISMATIC_PRISM03_H
 #define PRISMATIC_PRISM03_H
@@ -19,11 +27,6 @@ namespace Prismatic {
 	Array2D<PRISMATIC_FLOAT_PRECISION> array2D_subset(const Array2D<PRISMATIC_FLOAT_PRECISION> &arr,
 	                          const size_t &starty, const size_t &stepy, const size_t &stopy,
 	                          const size_t &startx, const size_t &stepx, const size_t &stopx);
-//	inline void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
-//	inline void setupDetector(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
-//	inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
-//	inline void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
-//	inline void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 	void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 	void setupDetector(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);

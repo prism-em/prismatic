@@ -1,26 +1,22 @@
 // Copyright Alan (AJ) Pryor, Jr. 2017
 // Transcribed from MATLAB code by Colin Ophus
-// PRISM is distributed under the GNU General Public License (GPL)
-// If you use PRISM, we ask that you cite the following papers:
+// Prismatic is distributed under the GNU General Public License (GPL)
+// If you use Prismatic, we kindly ask that you cite the following papers:
+
+// 1. Ophus, C.: A fast image simulation algorithm for scanning
+//    transmission electron microscopy. Advanced Structural and
+//    Chemical Imaging 3(1), 13 (2017)
+
+// 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
+//    Implementation of Image Simulation Algorithms for Scanning
+//	  Transmission Electron Microscopy. arXiv:####### (2017)
 
 #ifndef PRISMATIC_UTILITY_CUH
 #define PRISMATIC_UTILITY_CUH
 #define PI 3.14159265359
 #include "cuComplex.h"
-//#include <cuda_runtime.h>
 #include "configure.h"
 #include "utility.h"
-// define some constants
-//__device__ __constant__ float pi_f       = PI;
-//__device__ __constant__ cuFloatComplex i_f     = {0, 1};
-//__device__ __constant__ cuFloatComplex pi_cx_f = {PI, 0};
-//__device__ __constant__ cuFloatComplex minus_2pii_f = {0, -2*PI};
-//__device__ __constant__ double pi       = PI;
-//__device__ __constant__ cuDoubleComplex i     = {0, 1};
-//__device__ __constant__ cuDoubleComplex pi_cx = {PI, 0};
-//__device__ __constant__ cuDoubleComplex minus_2pii = {0, -2*PI};
-
-// computes exp(real(a) + i * imag(a))
 __device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a);
 __device__ __forceinline__ cuFloatComplex exp_cx(const cuFloatComplex a);
 
