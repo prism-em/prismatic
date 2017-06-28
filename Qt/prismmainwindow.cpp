@@ -843,6 +843,17 @@ void PRISMMainWindow::calculatePotential(){
 
 void PRISMMainWindow::openSaveAtomsDialog(){
     SaveAtomicCoordinatesDialog *dialog = new SaveAtomicCoordinatesDialog(this);
+    dialog->setFilenameText(QString::fromStdString(meta->filenameAtoms.substr(0, meta->filenameAtoms.rfind("."))));
+    std::stringstream tileX_ss; tileX_ss << meta->tileX;
+    std::stringstream tileY_ss; tileY_ss << meta->tileY;
+    std::stringstream tileZ_ss; tileZ_ss << meta->tileZ;
+    dialog->setCommentText(QString::fromStdString(meta->filenameAtoms +
+                                                  std::string(" tiled ") +
+                                                  tileX_ss.str() +
+                                                  std::string("x") +
+                                                  tileY_ss.str()  +
+                                                  std::string("x") +
+                                                  tileZ_ss.str() ));
     dialog->show();
     connect(dialog, SIGNAL(accepted()), dialog, SLOT(SaveAtomCoords()));
     connect(dialog, SIGNAL(signalSaveAtomCoords(QString, QString)), this, SLOT(saveAtomCoords(QString, QString)));
@@ -850,9 +861,9 @@ void PRISMMainWindow::openSaveAtomsDialog(){
 }
 
 void PRISMMainWindow::saveAtomCoords(QString filename, QString comment){
-    std::cout << "Saving tiled coords from file " << meta->filenameAtoms << std::endl;
-    std::cout << "Saving tiled coords with filename " << filename.toStdString() << std::endl;
-    std::cout << "Saving tiled coords with comment " << comment.toStdString() << std::endl;
+//    std::cout << "Saving tiled coords from file " << meta->filenameAtoms << std::endl;
+//    std::cout << "Saving tiled coords with filename " << filename.toStdString() << std::endl;
+//    std::cout << "Saving tiled coords with comment " << comment.toStdString() << std::endl;
     bool error_reading = false;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     try {

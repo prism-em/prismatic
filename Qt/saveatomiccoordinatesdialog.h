@@ -16,6 +16,8 @@ public:
     ~SaveAtomicCoordinatesDialog();
 public slots:
     void SaveAtomCoords();
+    void setFilenameText(QString);
+    void setCommentText(QString);
 signals:
     void signalSaveAtomCoords(QString, QString);
 private:
