@@ -23,6 +23,7 @@
 #include "configure.h"
 #include "prism_qthreads.h"
 #include "prism_progressbar.h"
+#include "saveatomiccoordinatesdialog.h"
 #include "utility.h"
 #include "atom.h"
 
@@ -236,6 +237,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorY()));
     connect(this->ui->lineEdit_outputfile,             SIGNAL(textEdited(QString)),      this, SLOT(setFilenameOutput_fromLineEdit()));
     connect(this->ui->btn_atomsfile_browse,            SIGNAL(pressed()),                this, SLOT(setFilenameAtoms_fromDialog()));
+    connect(this->ui->btn_saveCoordinates,             SIGNAL(pressed()),                this, SLOT(openSaveAtomsDialog()));
     connect(this->ui->spinBox_numGPUs,                 SIGNAL(valueChanged(int)),        this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads,              SIGNAL(valueChanged(int)),        this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumFP(const int&)));
@@ -410,18 +412,18 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
         this->setWindowTitle(QString::fromStdString(std::string("Prismatic (") + std::string(filename + std::string(")"))));
         if (uc_dims[0]>0){
             // update gui
-            ui->lineEdit_cellDimX->setText(QString::number(uc_dims[0]));
+            ui->lineEdit_cellDimX->setText(QString::number(uc_dims[2]));
             ui->lineEdit_cellDimY->setText(QString::number(uc_dims[1]));
-            ui->lineEdit_cellDimZ->setText(QString::number(uc_dims[2]));
+            ui->lineEdit_cellDimZ->setText(QString::number(uc_dims[0]));
 
             // move cursor of the cell dimension line edits back to 0 so they are easy to read
             ui->lineEdit_cellDimX->setCursorPosition(0);
             ui->lineEdit_cellDimY->setCursorPosition(0);
             ui->lineEdit_cellDimZ->setCursorPosition(0);
 
-            meta->cellDim[0] = uc_dims[2];
+            meta->cellDim[0] = uc_dims[0];
             meta->cellDim[1] = uc_dims[1];
-            meta->cellDim[2] = uc_dims[0];
+            meta->cellDim[2] = uc_dims[2];
         }
     }
 }
@@ -838,6 +840,34 @@ void PRISMMainWindow::calculatePotential(){
 //    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
 //    worker->start();
 //}
+
+void PRISMMainWindow::openSaveAtomsDialog(){
+    SaveAtomicCoordinatesDialog *dialog = new SaveAtomicCoordinatesDialog(this);
+    dialog->show();
+    connect(dialog, SIGNAL(accepted()), dialog, SLOT(SaveAtomCoords()));
+    connect(dialog, SIGNAL(signalSaveAtomCoords(QString, QString)), this, SLOT(saveAtomCoords(QString, QString)));
+    connect(dialog, SIGNAL(accepted()), dialog, SLOT(deleteLater()));
+}
+
+void PRISMMainWindow::saveAtomCoords(QString filename, QString comment){
+    std::cout << "Saving tiled coords from file " << meta->filenameAtoms << std::endl;
+    std::cout << "Saving tiled coords with filename " << filename.toStdString() << std::endl;
+    std::cout << "Saving tiled coords with comment " << comment.toStdString() << std::endl;
+    bool error_reading = false;
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
+    try {
+        pars = Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>(*meta);
+    } catch(const std::runtime_error &e){
+        error_reading = true;
+    }
+    if (error_reading){
+        displayErrorReadingAtomsDialog();
+    }else{
+        Prismatic::to_xyz(pars.atoms, filename.toStdString(), comment.toStdString(), pars.tiledCellDim[2], pars.tiledCellDim[1], pars.tiledCellDim[0]);
+//        Prismatic::to_xyz(pars.atoms, filename.toStdString(), comment.toStdString(), meta->cellDim[2], meta->cellDim[1], meta->cellDim[0]);
+
+    }
+}
 
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);

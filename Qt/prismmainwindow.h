@@ -166,6 +166,8 @@ public slots:
     void resetLinks();
     void moveBothPotentialSliders(int);
     void updateSlider_PotentialCombo(int);
+    void openSaveAtomsDialog();
+    void saveAtomCoords(QString, QString);
 protected:
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);

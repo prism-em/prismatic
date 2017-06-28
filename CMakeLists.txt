@@ -42,10 +42,10 @@ if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
         Qt/main.cpp
         Qt/prismmainwindow.cpp
-	Qt/prism_qthreads.cpp
+	    Qt/prism_qthreads.cpp
         Qt/prism_progressbar.cpp
-#        src/parseInput.cpp
-	Qt/prism_resources.qrc)
+        Qt/saveatomiccoordinatesdialog.cpp
+	    Qt/prism_resources.qrc)
 endif (PRISMATIC_ENABLE_GUI)
 
 if (PRISMATIC_ENABLE_GPU)

@@ -36,15 +36,18 @@ SOURCES += main.cpp\
     ../src/projectedPotential.cpp \
     ../src/utility.cpp \
     ../src/atom.cpp \
-    prism_progressbar.cpp
+    prism_progressbar.cpp \
+    saveatomiccoordinatesdialog.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h \
     prism_progressbar.h \
-    prism_qthreads.h
+    prism_qthreads.h \
+    saveatomiccoordinatesdialog.h
 QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \
     prismmainwindow.ui \
-    prism_progressbar.ui
+    prism_progressbar.ui \
+    saveatomiccoordinatesdialog.ui
 INCLUDEPATH += ../include \
 /usr/local/include
 INCLUDEPATH += ../

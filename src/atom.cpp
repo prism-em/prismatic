@@ -30,7 +30,7 @@ namespace Prismatic {
 			for (auto ty = 0; ty < tileY; ++ty) {
 				for (auto tx = 0; tx < tileX; ++tx) {
 					for (auto i = 0; i < atoms.size(); ++i){
-						tiled_atoms.emplace_back(atom{(atoms[i].x + tx) / tileX, (atoms[i].y + ty) / tileY, (atoms[i].z + tz) / tileZ, atoms[i].species, atoms[i].sigma});
+						tiled_atoms.emplace_back(atom{(atoms[i].x + tx) / tileX, (atoms[i].y + ty) / tileY, (atoms[i].z + tz) / tileZ, atoms[i].species, atoms[i].sigma, atoms[i].occ});
 					}
 				}
 			}
@@ -41,13 +41,16 @@ namespace Prismatic {
     void to_xyz(const std::vector<atom> atoms, const std::string filename, const std::string comment, double a, double b, double c){
         std::ofstream f(filename, std::ios::out);
         if (f){
-            std::stringstream ss;
+//            std::stringstream ss;
+			std::stringstream ss;
+			ss.precision(4);
             f << comment << '\n';
             ss << '\t';
             ss << a << '\t';
             ss << b << '\t';
             ss << c << '\n';
             f  << ss.str();
+            atoms[0].to_string();
 			for (auto& atom:atoms){
 				ss.str("\t");
 				ss << atom.species << '\t';
@@ -56,45 +59,47 @@ namespace Prismatic {
 				ss << atom.z * c << '\t';
 				ss << atom.occ << '\t';
 				ss << atom.sigma << '\n';
+				std::cout << "ss.str() = " << ss.str() << std::endl;
 				f << ss.str();
 			}
+            f << "-1\n";
         }
     }
 
-	std::vector<atom> readAtoms_csv(const std::string& filename){
-		std::vector<atom> atoms;
-		std::ifstream f(filename);
-		if (!f)throw std::runtime_error("Unable to open file.\n");
-		std::string line;
-		std::string token;
-		size_t line_num = 0;
-		size_t atom_count = 0;
-		while (std::getline(f,line)){
-			++atom_count;
-			++line_num;
-			double tx, ty, tz, sigma;
-			size_t tspecies;
-			std::stringstream ss(line);
-			if(!(ss >> tx))throw std::domain_error("Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
-			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> ty))throw std::domain_error("Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
-			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> tz))throw std::domain_error("Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
-			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> tspecies))throw std::domain_error("Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
-			if(ss.peek()==',')ss.ignore();
-			if(!(ss >> sigma))throw std::domain_error("Bad input data for thermal_sigma. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
-			if(ss.peek()==',')ss.ignore();
-			atoms.emplace_back(atom{tx,ty,tz,tspecies,sigma});
-		}
-		if (atom_count == 0){
-			std::domain_error("Bad input data. No atoms were found in this file.\n");
-		} else {
-			std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
-			          << std::endl;
-		}
-			return atoms;
-	};
+//	std::vector<atom> readAtoms_csv(const std::string& filename){
+//		std::vector<atom> atoms;
+//		std::ifstream f(filename);
+//		if (!f)throw std::runtime_error("Unable to open file.\n");
+//		std::string line;
+//		std::string token;
+//		size_t line_num = 0;
+//		size_t atom_count = 0;
+//		while (std::getline(f,line)){
+//			++atom_count;
+//			++line_num;
+//			double tx, ty, tz, sigma;
+//			size_t tspecies;
+//			std::stringstream ss(line);
+//			if(!(ss >> tx))throw std::domain_error("Bad input data for X. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+//			if(ss.peek()==',')ss.ignore();
+//			if(!(ss >> ty))throw std::domain_error("Bad input data for Y. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+//			if(ss.peek()==',')ss.ignore();
+//			if(!(ss >> tz))throw std::domain_error("Bad input data for Z. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+//			if(ss.peek()==',')ss.ignore();
+//			if(!(ss >> tspecies))throw std::domain_error("Bad input data for atomic species. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+//			if(ss.peek()==',')ss.ignore();
+//			if(!(ss >> sigma))throw std::domain_error("Bad input data for thermal_sigma. The txt file should continue 4 comma separated values per line (x,y,z,species,thermal_sigma).\n");
+//			if(ss.peek()==',')ss.ignore();
+//			atoms.emplace_back(atom{tx,ty,tz,tspecies,sigma});
+//		}
+//		if (atom_count == 0){
+//			std::domain_error("Bad input data. No atoms were found in this file.\n");
+//		} else {
+//			std::cout << "extracted " << atom_count << " atoms from " << line_num << " lines in " << filename
+//			          << std::endl;
+//		}
+//			return atoms;
+//	};
 
 	std::vector<atom> readAtoms_xyz(const std::string& filename){
 		std::vector<atom> atoms;
@@ -109,6 +114,9 @@ namespace Prismatic {
         double a,b,c; // unit cell params
 		{
 			std::stringstream ss(line);
+//			std::stringstream ss;
+//			ss.precision(4);
+//			ss << line;
 			if (!(ss >> a))
 				throw std::domain_error(
 						"Bad input data for unit cell dimension a.\n");
@@ -127,9 +135,12 @@ namespace Prismatic {
 				}
                 ++atom_count;
                 ++line_num;
-				double tx, ty, tz, unused, sigma;
+				double tx, ty, tz, occ, sigma;
 				size_t tspecies;
 				std::stringstream ss(line);
+//				std::stringstream ss;
+//				ss.precision(4);
+//				ss << line;
 				if (!(ss >> tspecies))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
 //				std::cout << ss.str() << std::endl;
@@ -139,11 +150,11 @@ namespace Prismatic {
 				if (ss.peek() == ',')ss.ignore();
 				if (!(ss >> tz))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> unused))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> occ))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
 				if (!(ss >> sigma))throw std::domain_error("Error reading from XYZ file.\n");
 				if (ss.peek() == ',')ss.ignore();
-				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies, sigma});
+				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies, sigma, occ});
 //				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies});
 			}
 			if (atom_count == 0) {
@@ -165,6 +176,9 @@ namespace Prismatic {
 		double a,b,c; // unit cell params
 		{
 			std::stringstream ss(line);
+//			std::stringstream ss;
+//			ss.precision(4);
+//			ss << line;
 			if (!(ss >> a))
 				throw std::domain_error("Bad input data for unit cell dimension a.\n");
 			if (!(ss >> b))
@@ -172,44 +186,45 @@ namespace Prismatic {
 			if (!(ss >> c))
 				throw std::domain_error("Bad input data for unit cell dimension c.\n");
 		}
-		return {a,b,c};
+//		return {a,b,c};
+        return {c,b,a};
 	}
 
-	std::array<double, 3> peekDims(const std::string& filename){
-		// retrieve the cell dimensions from the input file, if possible
+//	std::array<double, 3> peekDims(const std::string& filename){
+//		// retrieve the cell dimensions from the input file, if possible
+//
+//		std::string::size_type idx;
+//		idx = filename.rfind('.');
+//		if(idx != std::string::npos) {
+//			std::string ext = filename.substr(idx + 1);
+//			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+//
+//			if (ext == "xyz") {
+//				return peekDims_xyz(filename);
+//			}
+//		}
+//		return {};
+//	}
 
-		std::string::size_type idx;
-		idx = filename.rfind('.');
-		if(idx != std::string::npos) {
-			std::string ext = filename.substr(idx + 1);
-			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-			if (ext == "xyz") {
-				return peekDims_xyz(filename);
-			}
-		}
-		return {};
-	}
-
-	std::vector<atom> readAtoms(const std::string& filename){
-//		constexpr std::string supported_filetypes[] = {".csv",".xyz"};
-		std::string::size_type idx;
-		idx = filename.rfind('.');
-		if(idx != std::string::npos) {
-			std::string ext = filename.substr(idx+1);
-			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-			std::cout << "extension = " << ext << std::endl;
-			if (ext == "csv"){
-				return readAtoms_csv(filename);
-			}
-			if (ext == "xyz"){
-				return readAtoms_xyz(filename);
-			}
-			throw std::domain_error("Unsupported file extension. Make sure the input data is of a supported filetype and named accordingly.\n");
-		} else {
-			throw std::domain_error("Unable to determine file extension. Make sure an extension exists.\n");
-		}
-	}
+//	std::vector<atom> readAtoms(const std::string& filename){
+////		constexpr std::string supported_filetypes[] = {".csv",".xyz"};
+//		std::string::size_type idx;
+//		idx = filename.rfind('.');
+//		if(idx != std::string::npos) {
+//			std::string ext = filename.substr(idx+1);
+//			std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+//			std::cout << "extension = " << ext << std::endl;
+//			if (ext == "csv"){
+//				return readAtoms_csv(filename);
+//			}
+//			if (ext == "xyz"){
+//				return readAtoms_xyz(filename);
+//			}
+//			throw std::domain_error("Unsupported file extension. Make sure the input data is of a supported filetype and named accordingly.\n");
+//		} else {
+//			throw std::domain_error("Unable to determine file extension. Make sure an extension exists.\n");
+//		}
+//	}
     std::string getLowercaseExtension(const std::string filename){
         std::string::size_type idx;
         idx = filename.rfind('.');

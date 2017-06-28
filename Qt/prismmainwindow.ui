@@ -1008,8 +1008,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>320</width>
-         <height>1152</height>
+         <width>326</width>
+         <height>1119</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -1071,7 +1071,7 @@
                  <item>
                   <widget class="QPushButton" name="btn_saveCoordinates">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">

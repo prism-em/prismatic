@@ -25,7 +25,7 @@ struct atom{
     size_t species;
     double sigma;
     double occ;
-    void to_string(){
+    void to_string() const{
         std::cout << "x = " << x << std::endl;
         std::cout << "y = " << y << std::endl;
         std::cout << "z = " << z << std::endl;

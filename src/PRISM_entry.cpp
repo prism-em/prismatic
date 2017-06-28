@@ -36,7 +36,7 @@ namespace Prismatic{
 		}
 		prismatic_pars.meta.toString();
 
-        to_xyz(prismatic_pars.atoms, "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.XYZ", "comment", 5.43,5.43,5.43);
+//        to_xyz(prismatic_pars.atoms, "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.XYZ", "comment", 5.43,5.43,5.43);
 
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);
