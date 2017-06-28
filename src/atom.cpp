@@ -7,6 +7,10 @@
 //    transmission electron microscopy. Advanced Structural and
 //    Chemical Imaging 3(1), 13 (2017)
 
+// 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
+//    Implementation of Image Simulation Algorithms for Scanning
+//	  Transmission Electron Microscopy. arXiv:####### (2017)
+
 #include "atom.h"
 #include <array>
 #include <algorithm>
@@ -33,6 +37,29 @@ namespace Prismatic {
 		}
 		return tiled_atoms;
 	}
+
+    void to_xyz(const std::vector<atom> atoms, const std::string filename, const std::string comment, double a, double b, double c){
+        std::ofstream f(filename, std::ios::out);
+        if (f){
+            std::stringstream ss;
+            f << comment << '\n';
+            ss << '\t';
+            ss << a << '\t';
+            ss << b << '\t';
+            ss << c << '\n';
+            f  << ss.str();
+			for (auto& atom:atoms){
+				ss.str("\t");
+				ss << atom.species << '\t';
+				ss << atom.x * a << '\t';
+				ss << atom.y * b << '\t';
+				ss << atom.z * c << '\t';
+				ss << atom.occ << '\t';
+				ss << atom.sigma << '\n';
+				f << ss.str();
+			}
+        }
+    }
 
 	std::vector<atom> readAtoms_csv(const std::string& filename){
 		std::vector<atom> atoms;
