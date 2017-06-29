@@ -117,9 +117,9 @@ if (PRISMATIC_ENABLE_CLI)
     if (PRISMATIC_ENABLE_GPU)
 
         cuda_add_executable(prismatic
-                src/driver.cpp
-                ${SOURCE_FILES}
-                ${CUDA_SOURCE_FILES})
+                	     src/driver.cpp
+                	     ${SOURCE_FILES}
+                	     ${CUDA_SOURCE_FILES})
         cuda_add_cufft_to_target(prismatic)
     else(PRISMATIC_ENABLE_GPU)
 
@@ -129,9 +129,9 @@ if (PRISMATIC_ENABLE_CLI)
     endif (PRISMATIC_ENABLE_GPU)
 
     target_link_libraries(prismatic
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${Boost_LIBRARY_DIRS}
-        ${FFTW_LIBRARIES})
+        		   ${CMAKE_THREAD_LIBS_INIT}
+        		   ${Boost_LIBRARY_DIRS}
+        		   ${FFTW_LIBRARIES})
 endif (PRISMATIC_ENABLE_CLI)
 
 if (PRISMATIC_ENABLE_GUI)
@@ -182,11 +182,11 @@ if (PRISMATIC_ENABLE_GUI)
     endif (PRISMATIC_ENABLE_GPU)
     target_compile_definitions(prismatic-gui PRIVATE PRISMATIC_BUILDING_GUI=1)
 
-    install(TARGETS prismatic-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS prismatic-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif (PRISMATIC_ENABLE_GUI)
 
 if (PRISMATIC_ENABLE_CLI)
-install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif(PRISMATIC_ENABLE_CLI)
 
 if (PRISMATIC_ENABLE_PYTHON)
