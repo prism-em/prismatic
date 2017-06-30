@@ -93,10 +93,10 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	} 
 	meta.interpolationFactorX 	 = interpolationFactorX;
 	meta.interpolationFactorY 	 = interpolationFactorY;
-	meta.filename_atoms       	 = filenameAtoms;
-	meta.filename_output      	 = filenameOutput;
-	meta.realspace_pixelSize[0]  = realspacePixelSizeY;
-	meta.realspace_pixelSize[1]  = realspacePixelSizeX;
+	meta.filenameAtoms       	 = filenameAtoms;
+	meta.filenameOutput      	 = filenameOutput;
+	meta.realspacePixelSize[0]  = realspacePixelSizeY;
+	meta.realspacePixelSize[1]  = realspacePixelSizeX;
 	meta.potBound       	 	 = potBound;
 	meta.numFP      			 = numFP;
 	meta.sliceThickness      	 = sliceThickness;
@@ -108,45 +108,45 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.tileZ  			     = tileZ;
 	meta.E0  	     			 = E0; 
 	meta.alphaBeamMax 			 = alphaBeamMax;
-	meta.NUM_GPUS                = numGPUs;
-    meta.NUM_STREAMS_PER_GPU     = numStreamsPerGPU;
-    meta.NUM_THREADS             = numThreads;
-	meta.batch_size_target_CPU   = batchSizeTargetCPU;
-	meta.batch_size_target_GPU   = batchSizeTargetGPU;
-	meta.gpu_cpu_ratio 			 = earlyCPUStopCount;
-	meta.probe_stepX      	 	 = probeStepX;
-	meta.probe_stepY      	 	 = probeStepY;
+	meta.numGPUs                = numGPUs;
+    meta.numStreamsPerGPU     = numStreamsPerGPU;
+    meta.numThreads        = numThreads;
+	meta.batchSizeTargetCPU   = batchSizeTargetCPU;
+	meta.batchSizeTargetGPU   = batchSizeTargetGPU;
+	meta.earlyCPUStopCount	 = earlyCPUStopCount;
+	meta.probeStepX      	 	 = probeStepX;
+	meta.probeStepY      	 	 = probeStepY;
 	meta.probeDefocus 			 = probeDefocus;
 	meta.C3 				     = C3;
 	meta.C5 				     = C5;
 	meta.probeSemiangle 		 = probeSemiangle;
-	meta.detector_angle_step 	 = detectorAngleStep;
+	meta.detectorAngleStep 	 = detectorAngleStep;
 	meta.probeXtilt 			 = probeXtilt;
 	meta.probeYtilt 			 = probeYtilt;
 	meta.scanWindowXMin 		 = scanWindowXMin;
 	meta.scanWindowXMax 		 = scanWindowXMax;
 	meta.scanWindowYMin 	     = scanWindowYMin;
 	meta.scanWindowYMax 		 = scanWindowYMax;
-	meta.random_seed 		     = randomSeed;
+	meta.randomSeed 		     = randomSeed;
 	if (std::string(algorithm) == "multislice"){
 	} else {
 		meta.algorithm 			 = Prismatic::Algorithm::PRISM;
 	}
 
-	meta.include_thermal_effects = includeThermalEffects;
-	meta.also_do_CPU_work        = alsoDoCPUWork;
+	meta.includeThermalEffects = includeThermalEffects;
+	meta.alsoDoCPUWork        = alsoDoCPUWork;
 	meta.save2DOutput			 = save2DOutput;
 	meta.save3DOutput			 = save3DOutput;
 	meta.save4DOutput			 = save4DOutput;
-	meta.integration_angle_min   = integrationAngleMin;
-	meta.integration_angle_max   = integrationAngleMax;
+	meta.integrationAngleMin   = integrationAngleMin;
+	meta.integrationAngleMax   = integrationAngleMax;
 	
 	if (std::string(transferMode) == "singlexfer"){
-		meta.transfer_mode 		 = Prismatic::StreamingMode::SingleXfer;
+		meta.transferMode 		 = Prismatic::StreamingMode::SingleXfer;
 	} else if (std::string(transferMode) == "streaming"){
-		meta.transfer_mode 		 = Prismatic::StreamingMode::Stream;
+		meta.transferMode 		 = Prismatic::StreamingMode::Stream;
 	} else {
-		meta.transfer_mode 		 = Prismatic::StreamingMode::Auto;
+		meta.transferMode 		 = Prismatic::StreamingMode::Auto;
 	}
 
 	meta.algorithm = Prismatic::Algorithm::PRISM;
