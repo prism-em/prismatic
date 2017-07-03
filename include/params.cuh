@@ -9,7 +9,7 @@
 
 // 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
 //    Implementation of Image Simulation Algorithms for Scanning
-//	  Transmission Electron Microscopy. arXiv:####### (2017)
+//	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
 #ifndef PRISMATIC_PARAMS_CUH
 #define PRISMATIC_PARAMS_CUH

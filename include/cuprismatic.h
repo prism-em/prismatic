@@ -9,7 +9,7 @@
 
 // 2. Pryor, Jr., A., Ophus, C., and Miao, J.: A Streaming Multi-GPU
 //    Implementation of Image Simulation Algorithms for Scanning
-//	  Transmission Electron Microscopy. arXiv:####### (2017)
+//	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
 // This header file is for the shared library cuPrismatic, which is used for exposing the CUDA code in Prismatic to its Python package, PyPrismatic.
 // The cuPrismatic library is necessary for Python because distutils does not work with nvcc, so CMake is used to create an additional shared library that can
