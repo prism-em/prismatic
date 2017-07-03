@@ -21,31 +21,30 @@ namespace Prismatic {
 	public:
 		PRISMATIC_CUDA_COMPLEX_FLOAT **permutedScompact_d;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **PsiProbeInit_d;
-		PRISMATIC_FLOAT_PRECISION **qxaReduce_d;
-		PRISMATIC_FLOAT_PRECISION **qyaReduce_d;
-		size_t **yBeams_d;
-		size_t **xBeams_d;
-		PRISMATIC_FLOAT_PRECISION **alphaInd_d;
+		PRISMATIC_FLOAT_PRECISION    **qxaReduce_d;
+		PRISMATIC_FLOAT_PRECISION    **qyaReduce_d;
+		size_t 						 **yBeams_d;
+		size_t 						 **xBeams_d;
+		PRISMATIC_FLOAT_PRECISION    **alphaInd_d;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_ds;
-		PRISMATIC_CUDA_COMPLEX_FLOAT **psi_small_ds;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **psiSmall_ds;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **phaseCoeffs_ds;
-		PRISMATIC_FLOAT_PRECISION **psiIntensity_ds;
-		long **y_ds;
-		long **x_ds;
-		PRISMATIC_FLOAT_PRECISION **integratedOutput_ds;
-		cufftHandle *cufftPlans, *cufftPlans_small;
-		cudaStream_t *streams;
-		std::complex<PRISMATIC_FLOAT_PRECISION>** Scompact_slice_ph;
-		std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph;
-		std::complex<PRISMATIC_FLOAT_PRECISION> *prop_ph;
-		size_t **qxInd_ph;
-		size_t **qyInd_ph;
-		size_t **beamsIndex_ph;
+		PRISMATIC_FLOAT_PRECISION    **psiIntensity_ds;
+		long						 **y_ds;
+		long 						 **x_ds;
+		PRISMATIC_FLOAT_PRECISION    **integratedOutput_ds;
+		cufftHandle 			     *cufftPlans
+		cufftHandle					 *cufftPlans_small;
+		cudaStream_t 				 *streams;
+		size_t 						 **qxInd_ph;
+		size_t 					     **qyInd_ph;
+		size_t 						 **beamsIndex_ph;
         PRISMATIC_CUDA_COMPLEX_FLOAT **trans_d;
         PRISMATIC_CUDA_COMPLEX_FLOAT **prop_d;
-        size_t **qxInd_d;
-        size_t **qyInd_d;
-        size_t **beamsIndex_d;
+        size_t 					     **qxInd_d;
+        size_t 						 **qyInd_d;
+        size_t 					     **beamsIndex_d;
+
 
 		// pinned memory buffers on host
 		PRISMATIC_FLOAT_PRECISION               **output_ph;
@@ -58,8 +57,11 @@ namespace Prismatic {
 		PRISMATIC_FLOAT_PRECISION               **qya_ph;
 		PRISMATIC_FLOAT_PRECISION               **qya_d;
 		PRISMATIC_FLOAT_PRECISION               *alphaInd_ph;
-		size_t                              *xBeams_ph;
-		size_t                              *yBeams_ph;
+		size_t                                  *xBeams_ph;
+		size_t                                  *yBeams_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> **ScompactSlice_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> *prop_ph;
 
 	};
 }
