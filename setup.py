@@ -35,6 +35,11 @@ prismatic_sources 		    = [
 							]
 prismatic_include_dirs 		= ["./include"]
 prismatic_library_dirs 		= []
+# if "CPLUS_INCLUDE_PATH" in os.environ.keys():
+# 	prismatic_include_dirs.extend(os.environ["CPLUS_INCLUDE_PATH"])
+# if "LIBRARY_DIRS" in os.environ.keys():
+# 	prismatic_library_dirs.extend(os.environ["LIBRARY_DIRS"])
+
 if os.name == "nt": #check for Windows OS
 	prismatic_libs 		   		= ["libfftw3f-3.lib"]
 else:
