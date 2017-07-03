@@ -9,12 +9,12 @@ base_output_name = "thickness_scan"
 base_output_ext  = ".mrc"
 atom_filename    = "../SI100.XYZ"
 tileX=tileY=3
-meta = pr.Metadata(filename_atoms=atom_filename, tileX=tileX, tileY=tileY)
+meta = pr.Metadata(filenameAtoms=atom_filename, tileX=tileX, tileY=tileY)
 output_filenames=[]
 for tileZ in range(1,17):
 	meta.tileZ = tileZ
-	meta.filename_output = base_output_name + str(tileZ) + base_output_ext
-	output_filenames.extend([meta.filename_output])
+	meta.filenameOutput = base_output_name + str(tileZ) + base_output_ext
+	output_filenames.extend([meta.filenameOutput])
 	meta.go()
 
 f, ax = plt.subplots(4, 4)
