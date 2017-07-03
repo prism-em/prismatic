@@ -33,8 +33,8 @@ namespace Prismatic {
 		long						 **y_ds;
 		long 						 **x_ds;
 		PRISMATIC_FLOAT_PRECISION    **integratedOutput_ds;
-		cufftHandle 			     *cufftPlans
-		cufftHandle					 *cufftPlans_small;
+		cufftHandle 			     *cufftPlans;
+		cufftHandle					 *cufftPlansSmall;
 		cudaStream_t 				 *streams;
 		size_t 						 **qxInd_ph;
 		size_t 					     **qyInd_ph;

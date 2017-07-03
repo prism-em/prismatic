@@ -30,7 +30,7 @@ namespace Prismatic {
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 		cuda_pars.streams 		    = new cudaStream_t[total_num_streams];
 		cuda_pars.cufftPlans		= new cufftHandle[total_num_streams];
-		cuda_pars.cufftPlans_small = new cufftHandle[total_num_streams];
+		cuda_pars.cufftPlansSmall = new cufftHandle[total_num_streams];
 
 		// batch parameters for cuFFT
 		const int rank      = 2;
@@ -54,9 +54,9 @@ namespace Prismatic {
 			cudaSetDevice(j % pars.meta.numGPUs);
 			cudaErrchk(cudaStreamCreate(&cuda_pars.streams[j]));
 			cufftErrchk(cufftPlanMany(&cuda_pars.cufftPlans[j], rank, n, inembed, istride, idist, onembed, ostride, odist, PRISMATIC_CUFFT_PLAN_TYPE, howmany));
-			cufftErrchk(cufftPlanMany(&cuda_pars.cufftPlans_small[j], rank, n_small, inembed_small, istride, idist_small, onembed_small, ostride, odist_small, PRISMATIC_CUFFT_PLAN_TYPE, howmany));
+			cufftErrchk(cufftPlanMany(&cuda_pars.cufftPlansSmall[j], rank, n_small, inembed_small, istride, idist_small, onembed_small, ostride, odist_small, PRISMATIC_CUFFT_PLAN_TYPE, howmany));
 			cufftErrchk(cufftSetStream(cuda_pars.cufftPlans[j], cuda_pars.streams[j]));
-			cufftErrchk(cufftSetStream(cuda_pars.cufftPlans_small[j], cuda_pars.streams[j]));
+			cufftErrchk(cufftSetStream(cuda_pars.cufftPlansSmall[j], cuda_pars.streams[j]));
 		}
 	}
 
@@ -65,9 +65,9 @@ namespace Prismatic {
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 
 		// allocate pinned memory
-		cuda_pars.Scompact_slice_ph = new std::complex<PRISMATIC_FLOAT_PRECISION>*[total_num_streams];
+		cuda_pars.ScompactSlice_ph = new std::complex<PRISMATIC_FLOAT_PRECISION>*[total_num_streams];
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &cuda_pars.Scompact_slice_ph[s],
+			cudaErrchk(cudaMallocHost((void **) &cuda_pars.ScompactSlice_ph[s],
 			                          pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
 			                          sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)));
 		}
@@ -84,9 +84,9 @@ namespace Prismatic {
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 
 		// allocate pinned memory
-		cuda_pars.Scompact_slice_ph = new std::complex<PRISMATIC_FLOAT_PRECISION>*[total_num_streams];
+		cuda_pars.ScompactSlice_ph = new std::complex<PRISMATIC_FLOAT_PRECISION>*[total_num_streams];
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaMallocHost((void **) &cuda_pars.Scompact_slice_ph[s],
+			cudaErrchk(cudaMallocHost((void **) &cuda_pars.ScompactSlice_ph[s],
 			                          pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
 			                          sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)));
 		}
@@ -103,7 +103,7 @@ namespace Prismatic {
 
 		// copy host memory to pinned
 		for (auto s = 0; s < total_num_streams; ++s) {
-			memset(cuda_pars.Scompact_slice_ph[s], 0, pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
+			memset(cuda_pars.ScompactSlice_ph[s], 0, pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
 			                                          sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>));
 		}
 		memcpy(cuda_pars.trans_ph,      &pars.transmission[0], pars.transmission.size() * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>));
@@ -119,7 +119,7 @@ namespace Prismatic {
 
 		// copy host memory to pinned
 		for (auto s = 0; s < total_num_streams; ++s) {
-			memset(cuda_pars.Scompact_slice_ph[s], 0, pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
+			memset(cuda_pars.ScompactSlice_ph[s], 0, pars.Scompact.get_dimj() * pars.Scompact.get_dimi() *
 			                                          sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>));
 		}
 		memcpy(cuda_pars.trans_ph,      &pars.transmission[0], pars.transmission.size() * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>));
@@ -144,7 +144,7 @@ namespace Prismatic {
 
 //		// pointers to read/write GPU memory (one per stream)
 		cuda_pars.psi_ds       = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
-		cuda_pars.psi_small_ds = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		cuda_pars.psiSmall_ds = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
 
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.numGPUs; ++g) {
@@ -161,11 +161,11 @@ namespace Prismatic {
 			cudaErrchk(cudaSetDevice(s % pars.meta.numGPUs));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],
 			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_small_ds[s],
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiSmall_ds[s],
 			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,
 			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMemset(cuda_pars.psi_small_ds[s], 0,
+			cudaErrchk(cudaMemset(cuda_pars.psiSmall_ds[s], 0,
 			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 		}
 	}
@@ -181,7 +181,7 @@ namespace Prismatic {
 
 		// pointers to read/write GPU memory (one per stream)
 		cuda_pars.psi_ds       = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
-		cuda_pars.psi_small_ds = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
+		cuda_pars.psiSmall_ds = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
 		cuda_pars.trans_d      = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
 
 		// allocate memory on each GPU
@@ -200,11 +200,11 @@ namespace Prismatic {
 			                      pars.imageSize[0]  *  pars.imageSize[1]    * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],
 			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_small_ds[s],
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiSmall_ds[s],
 			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s], 0,
 			                      pars.meta.batchSizeGPU*pars.imageSize[0] * pars.imageSize[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMemset(cuda_pars.psi_small_ds[s], 0,
+			cudaErrchk(cudaMemset(cuda_pars.psiSmall_ds[s], 0,
 			                      pars.meta.batchSizeGPU*pars.qxInd.size() * pars.qyInd.size() * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 		}
 	}
@@ -338,13 +338,13 @@ namespace Prismatic {
 
 			// get pointers to per-stream arrays
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_ds           = cuda_pars.psi_ds[stream_count];
-			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_small_ds     = cuda_pars.psi_small_ds[stream_count];
+			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psiSmall_ds     = cuda_pars.psiSmall_ds[stream_count];
 			cufftHandle &current_cufft_plan                    = cuda_pars.cufftPlans[stream_count];
-			cufftHandle &current_cufft_plan_small              = cuda_pars.cufftPlans_small[stream_count];
-			complex<PRISMATIC_FLOAT_PRECISION> *current_S_slice_ph = cuda_pars.Scompact_slice_ph[stream_count];
+			cufftHandle &current_cufft_plan_small              = cuda_pars.cufftPlansSmall[stream_count];
+			complex<PRISMATIC_FLOAT_PRECISION> *current_S_slice_ph = cuda_pars.ScompactSlice_ph[stream_count];
 
 			workers_GPU.push_back(thread([&pars, current_trans_d, current_prop_d, current_qxInd_d, current_qyInd_d, &dispatcher,
-					                             current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
+					                             current_psi_ds, current_psiSmall_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                             current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream, &PRISMATIC_PRINT_FREQUENCY_BEAMS]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
@@ -371,7 +371,7 @@ namespace Prismatic {
 //						propagatePlaneWave_GPU_singlexfer(pars,
 //						                                  current_trans_d,
 //						                                  current_psi_ds,
-//						                                  current_psi_small_ds,
+//						                                  current_psiSmall_ds,
 //						                                  current_S_slice_ph,
 //						                                  current_qyInd_d,
 //						                                  current_qxInd_d,
@@ -384,7 +384,7 @@ namespace Prismatic {
 						propagatePlaneWave_GPU_singlexfer_batch(pars,
 						                                        current_trans_d,
 						                                        current_psi_ds,
-						                                        current_psi_small_ds,
+						                                        current_psiSmall_ds,
 						                                        current_S_slice_ph,
 						                                        current_qyInd_d,
 						                                        current_qxInd_d,
@@ -522,13 +522,13 @@ namespace Prismatic {
 			// get pointers to per-stream arrays
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_trans_ds         = cuda_pars.trans_d[stream_count];
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_ds           = cuda_pars.psi_ds[stream_count];
-			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_small_ds     = cuda_pars.psi_small_ds[stream_count];
+			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psiSmall_ds     = cuda_pars.psiSmall_ds[stream_count];
 			cufftHandle &current_cufft_plan                    = cuda_pars.cufftPlans[stream_count];
-			cufftHandle &current_cufft_plan_small              = cuda_pars.cufftPlans_small[stream_count];
-			complex<PRISMATIC_FLOAT_PRECISION> *current_S_slice_ph = cuda_pars.Scompact_slice_ph[stream_count];
+			cufftHandle &current_cufft_plan_small              = cuda_pars.cufftPlansSmall[stream_count];
+			complex<PRISMATIC_FLOAT_PRECISION> *current_S_slice_ph = cuda_pars.ScompactSlice_ph[stream_count];
 
 			workers_GPU.push_back(thread([&pars, current_trans_ds, current_prop_d, current_qxInd_d, current_qyInd_d, &dispatcher,
-					                             current_psi_ds, current_psi_small_ds, &current_cufft_plan, &current_cufft_plan_small,
+					                             current_psi_ds, current_psiSmall_ds, &current_cufft_plan, &current_cufft_plan_small,
 					                             current_S_slice_ph, current_beamsIndex, GPU_num, stream_count, &current_stream, &PRISMATIC_PRINT_FREQUENCY_BEAMS, &cuda_pars]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
@@ -556,7 +556,7 @@ namespace Prismatic {
 //						                                 current_trans_ds,
 //						                                 trans_ph,
 //						                                 current_psi_ds,
-//						                                 current_psi_small_ds,
+//						                                 current_psiSmall_ds,
 //						                                 current_S_slice_ph,
 //						                                 current_qyInd_d,
 //						                                 current_qxInd_d,
@@ -570,7 +570,7 @@ namespace Prismatic {
 						                                       current_trans_ds,
 						                                       cuda_pars.trans_ph,
 						                                       current_psi_ds,
-						                                       current_psi_small_ds,
+						                                       current_psiSmall_ds,
 						                                       current_S_slice_ph,
 						                                       current_qyInd_d,
 						                                       current_qxInd_d,
@@ -698,14 +698,14 @@ namespace Prismatic {
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.numGPUs));
 			cudaErrchk(cudaFree(cuda_pars.psi_ds[s]));
-			cudaErrchk(cudaFree(cuda_pars.psi_small_ds[s]));
+			cudaErrchk(cudaFree(cuda_pars.psiSmall_ds[s]));
 			cufftErrchk(cufftDestroy(cuda_pars.cufftPlans[s]));
-			cufftErrchk(cufftDestroy(cuda_pars.cufftPlans_small[s]));
+			cufftErrchk(cufftDestroy(cuda_pars.cufftPlansSmall[s]));
 		}
 
 		// free pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
-			cudaErrchk(cudaFreeHost(cuda_pars.Scompact_slice_ph[s]));
+			cudaErrchk(cudaFreeHost(cuda_pars.ScompactSlice_ph[s]));
 		}
 		cudaErrchk(cudaFreeHost(cuda_pars.trans_ph));
 		cudaErrchk(cudaFreeHost(cuda_pars.prop_ph));
@@ -727,22 +727,22 @@ namespace Prismatic {
 
 		delete[] cuda_pars.streams;
 		delete[] cuda_pars.cufftPlans;
-		delete[] cuda_pars.cufftPlans_small;
+		delete[] cuda_pars.cufftPlansSmall;
 		delete[] cuda_pars.trans_d;
 		delete[] cuda_pars.prop_d;
 		delete[] cuda_pars.qxInd_d;
 		delete[] cuda_pars.qyInd_d;
 		delete[] cuda_pars.beamsIndex_d;
 		delete[] cuda_pars.psi_ds;
-		delete[] cuda_pars.psi_small_ds;
-		delete[] cuda_pars.Scompact_slice_ph;
+		delete[] cuda_pars.psiSmall_ds;
+		delete[] cuda_pars.ScompactSlice_ph;
 	}
 
 	void propagatePlaneWave_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 		  	                               PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
 			                               PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
-			                               complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
+			                               complex<PRISMATIC_FLOAT_PRECISION>* ScompactSlice_ph,
 			                               const size_t* qyInd_d,
 			                               const size_t* qxInd_d,
 			                               const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
@@ -774,11 +774,11 @@ namespace Prismatic {
 		PRISMATIC_CUFFT_EXECUTE(plan_small,&psi_small_d[0], &psi_small_d[0], CUFFT_INVERSE);
         divide_inplace<<<(psi_small_size-1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_small_d, PRISMATIC_MAKE_CU_COMPLEX(psi_small_size, 0),psi_small_size);
 
-		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[0],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
+		cudaErrchk(cudaMemcpyAsync(ScompactSlice_ph,&psi_small_d[0],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
 		cudaStreamSynchronize(stream);
 		// copy result
 		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()],
-		       &Scompact_slice_ph[0],
+		       &ScompactSlice_ph[0],
 		       psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
 	}
 
@@ -786,7 +786,7 @@ namespace Prismatic {
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
-	                                             complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
+	                                             complex<PRISMATIC_FLOAT_PRECISION>* ScompactSlice_ph,
 	                                             const size_t* qyInd_d,
 	                                             const size_t* qxInd_d,
 	                                             const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
@@ -831,12 +831,12 @@ namespace Prismatic {
 
 		// copy result
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-			cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph, &psi_small_d[0 + batch_idx*psi_small_size],
+			cudaErrchk(cudaMemcpyAsync(ScompactSlice_ph, &psi_small_d[0 + batch_idx*psi_small_size],
 			                           psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),
 			                           cudaMemcpyDeviceToHost, stream));
 			cudaStreamSynchronize(stream);
 			memcpy(&pars.Scompact[(beamNumber + batch_idx) * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()],
-			       &Scompact_slice_ph[0],
+			       &ScompactSlice_ph[0],
 			       psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
 		}
 	}
@@ -846,7 +846,7 @@ namespace Prismatic {
 	                                      const std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph,
 	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
 	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
-	                                      complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
+	                                      complex<PRISMATIC_FLOAT_PRECISION>* ScompactSlice_ph,
 	                                      const size_t* qyInd_d,
 	                                      const size_t* qxInd_d,
 	                                      const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
@@ -882,9 +882,9 @@ namespace Prismatic {
 				(psi_small_d, PRISMATIC_MAKE_CU_COMPLEX(psi_small_size, 0),psi_small_size);
 
 		// copy result
-		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[0],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
+		cudaErrchk(cudaMemcpyAsync(ScompactSlice_ph,&psi_small_d[0],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
 		cudaStreamSynchronize(stream);
-		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
+		memcpy(&pars.Scompact[beamNumber * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &ScompactSlice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
 	}
 
 
@@ -893,7 +893,7 @@ namespace Prismatic {
 	                                            const std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph,
 	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* psi_d,
 	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* psi_small_d,
-	                                            complex<PRISMATIC_FLOAT_PRECISION>* Scompact_slice_ph,
+	                                            complex<PRISMATIC_FLOAT_PRECISION>* ScompactSlice_ph,
 	                                            const size_t* qyInd_d,
 	                                            const size_t* qxInd_d,
 	                                            const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
@@ -943,9 +943,9 @@ namespace Prismatic {
 
 		// copy the result
 		for (auto batch_idx = 0; batch_idx < (stopBeam-beamNumber); ++batch_idx) {
-		cudaErrchk(cudaMemcpyAsync(Scompact_slice_ph,&psi_small_d[batch_idx*psi_small_size],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
+		cudaErrchk(cudaMemcpyAsync(ScompactSlice_ph,&psi_small_d[batch_idx*psi_small_size],psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT),cudaMemcpyDeviceToHost,stream));
 		cudaStreamSynchronize(stream);
-		memcpy(&pars.Scompact[(beamNumber + batch_idx) * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &Scompact_slice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
+		memcpy(&pars.Scompact[(beamNumber + batch_idx) * pars.Scompact.get_dimj() * pars.Scompact.get_dimi()], &ScompactSlice_ph[0], psi_small_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT));
 			}
 	}
 
