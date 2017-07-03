@@ -14,6 +14,7 @@
 from setuptools import setup, Extension
 from setuptools.command.install import install
 import sys
+import os
 
 prismatic_extra_definitions = []
 prismatic_libs  		    = []
@@ -34,7 +35,10 @@ prismatic_sources 		    = [
 							]
 prismatic_include_dirs 		= ["./include"]
 prismatic_library_dirs 		= []
-prismatic_libs 		   		= ["fftw3f", "fftw3f_threads"]
+if os.name == "nt": #check for Windows OS
+	prismatic_libs 		   		= ["libfftw3f-3.lib"]
+else:
+	prismatic_libs 		   		= ["fftw3f", "fftw3f_threads"]
 prismatic_extra_compile_defs= ['-std=c++11']
 
 class InstallCommand(install):
@@ -54,11 +58,8 @@ class InstallCommand(install):
 
 
 if ("--enable-gpu" in sys.argv):
-	# print("GPU ENABLED")
 	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1)])
 	prismatic_libs.extend(["cuprismatic", "cufft", "cudart"])
-	# prismatic_include_dirs.extend(["/usr/local/cuda-8.0/include/"])
-	# prismatic_library_dirs.extend(["/usr/local/cuda-8.0/lib64/"])
 
 print("prismatic_libs = " , prismatic_libs)
 pyprimsatic_core = Extension('pyprismatic.core',
@@ -68,8 +69,6 @@ pyprimsatic_core = Extension('pyprismatic.core',
 	define_macros=prismatic_extra_definitions,
 	library_dirs=prismatic_library_dirs,
 	libraries=prismatic_libs)
-	# cmdclass={'install': InstallCommand})
-
 
 setup(name = 'PyPrismatic',
 	author = 'Alan (AJ) Pryor, Jr.', 
