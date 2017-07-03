@@ -95,8 +95,8 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.interpolationFactorY 	 = interpolationFactorY;
 	meta.filenameAtoms       	 = filenameAtoms;
 	meta.filenameOutput      	 = filenameOutput;
-	meta.realspacePixelSize[0]  = realspacePixelSizeY;
-	meta.realspacePixelSize[1]  = realspacePixelSizeX;
+	meta.realspacePixelSize[0]   = realspacePixelSizeY;
+	meta.realspacePixelSize[1]   = realspacePixelSizeX;
 	meta.potBound       	 	 = potBound;
 	meta.numFP      			 = numFP;
 	meta.sliceThickness      	 = sliceThickness;
@@ -108,19 +108,19 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.tileZ  			     = tileZ;
 	meta.E0  	     			 = E0; 
 	meta.alphaBeamMax 			 = alphaBeamMax;
-	meta.numGPUs                = numGPUs;
-    meta.numStreamsPerGPU     = numStreamsPerGPU;
-    meta.numThreads        = numThreads;
-	meta.batchSizeTargetCPU   = batchSizeTargetCPU;
-	meta.batchSizeTargetGPU   = batchSizeTargetGPU;
-	meta.earlyCPUStopCount	 = earlyCPUStopCount;
+	meta.numGPUs                 = numGPUs;
+    meta.numStreamsPerGPU        = numStreamsPerGPU;
+    meta.numThreads              = numThreads;
+	meta.batchSizeTargetCPU      = batchSizeTargetCPU;
+	meta.batchSizeTargetGPU      = batchSizeTargetGPU;
+	meta.earlyCPUStopCount	     = earlyCPUStopCount;
 	meta.probeStepX      	 	 = probeStepX;
 	meta.probeStepY      	 	 = probeStepY;
 	meta.probeDefocus 			 = probeDefocus;
 	meta.C3 				     = C3;
 	meta.C5 				     = C5;
 	meta.probeSemiangle 		 = probeSemiangle;
-	meta.detectorAngleStep 	 = detectorAngleStep;
+	meta.detectorAngleStep 	     = detectorAngleStep;
 	meta.probeXtilt 			 = probeXtilt;
 	meta.probeYtilt 			 = probeYtilt;
 	meta.scanWindowXMin 		 = scanWindowXMin;
@@ -133,13 +133,13 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 		meta.algorithm 			 = Prismatic::Algorithm::PRISM;
 	}
 
-	meta.includeThermalEffects = includeThermalEffects;
-	meta.alsoDoCPUWork        = alsoDoCPUWork;
+	meta.includeThermalEffects   = includeThermalEffects;
+	meta.alsoDoCPUWork           = alsoDoCPUWork;
 	meta.save2DOutput			 = save2DOutput;
 	meta.save3DOutput			 = save3DOutput;
 	meta.save4DOutput			 = save4DOutput;
-	meta.integrationAngleMin   = integrationAngleMin;
-	meta.integrationAngleMax   = integrationAngleMax;
+	meta.integrationAngleMin     = integrationAngleMin;
+	meta.integrationAngleMax     = integrationAngleMax;
 	
 	if (std::string(transferMode) == "singlexfer"){
 		meta.transferMode 		 = Prismatic::StreamingMode::SingleXfer;
