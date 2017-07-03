@@ -41,7 +41,7 @@ prismatic_library_dirs 		= []
 # 	prismatic_library_dirs.extend(os.environ["LIBRARY_DIRS"])
 
 if os.name == "nt": #check for Windows OS
-	prismatic_libs 		   		= ["libfftw3f-3.lib"]
+	prismatic_libs 		   		= ["libfftw3f-3"]
 else:
 	prismatic_libs 		   		= ["fftw3f", "fftw3f_threads"]
 prismatic_extra_compile_defs= ['-std=c++11']
