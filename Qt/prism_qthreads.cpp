@@ -190,6 +190,7 @@ void ProbeThread::run(){
 
     multislice_probes = Prismatic::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
+    std::cout << "Got Multislice Probe" << std::endl;
 
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy

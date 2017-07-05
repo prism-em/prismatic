@@ -967,7 +967,7 @@ namespace Prismatic {
 
 		// determine the batch size to use
         pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
-		std::cout << "@@@@@@@@pars.meta.batchSizeGPU = " << pars.meta.batchSizeGPU << std::endl;
+
 		// setup some arrays
 		setupArrays2(pars);
 
