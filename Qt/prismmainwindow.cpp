@@ -98,14 +98,16 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
     //potentialImage.load(":/images/prism.png");
     potentialImage.load(":/images/PRISM-logo.png");
-    probeImage.load(":/images/probe.png");
-    outputImage.load(":/images/output.png");
+    probeImage.load(":/images/PRISM-logo.png");
+    outputImage.load(":/images/PRISM-logo.png");
     probeImage_pr.load(":/images/airy.png");
     probeImage_pk.load(":/images/airy.png");
     probeImage_mr.load(":/images/airy.png");
     probeImage_mk.load(":/images/airy.png");
     probeImage_diffk.load(":/images/airy.png");
     probeImage_diffr.load(":/images/airy.png");
+//    probeImage.load(":/images/probe.png");
+//    outputImage.load(":/images/output.png");
     redrawImages();
     ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
                                                                                 ui->lbl_image_potential->height(),
