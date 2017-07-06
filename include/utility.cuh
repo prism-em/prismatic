@@ -163,7 +163,7 @@ __global__ void integrateDetector(const float* psiIntensity_ds,
                        const size_t N,
                        const size_t num_integration_bins);
 
-void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+CUPRISMATIC_API void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
                                 PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *stack_ph,
