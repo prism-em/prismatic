@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(Prismatic)
+project(PRISM)
 set(CMAKE_CXX_STANDARD 11)
 
 # set warning level
@@ -189,10 +189,14 @@ if (PRISMATIC_ENABLE_CLI)
     install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif(PRISMATIC_ENABLE_CLI)
 
-if (PRISMATIC_ENABLE_PYTHON AND PRISMATIC_ENABLE_GPU)
+if (PRISMATIC_ENABLE_PYTHON)
     cuda_add_library(cuprismatic SHARED
+	    	     ${SOURCE_FILES}
                      ${CUDA_SOURCE_FILES})
+    cuda_add_cufft_to_target(cuprismatic)
+    target_link_libraries(cuprismatic
+	    		  ${FFTW_LIBRARIES})
     install(TARGETS cuprismatic
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-            LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-endif(PRISMATIC_ENABLE_PYTHON AND PRISMATIC_ENABLE_GPU)
+	    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+endif(PRISMATIC_ENABLE_PYTHON)
