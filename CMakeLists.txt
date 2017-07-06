@@ -196,6 +196,7 @@ if (PRISMATIC_ENABLE_PYTHON)
     cuda_add_cufft_to_target(cuprismatic)
     target_link_libraries(cuprismatic
 	    		  ${FFTW_LIBRARIES})
+    target_compile_definitions(cuprismatic PRIVATE BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
     install(TARGETS cuprismatic
 	    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
 	    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

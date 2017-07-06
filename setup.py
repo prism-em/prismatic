@@ -55,7 +55,7 @@ class InstallCommand(install):
 
 if ("--enable-gpu" in sys.argv):
 	# print("GPU ENABLED")
-	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1)])
+	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1), ("BUILDING_CUPRISMATIC",1)])
 	prismatic_libs.extend(["cuprismatic", "cufft", "cudart"])
 	# prismatic_include_dirs.extend(["/usr/local/cuda-8.0/include/"])
 	# prismatic_library_dirs.extend(["/usr/local/cuda-8.0/lib64/"])
