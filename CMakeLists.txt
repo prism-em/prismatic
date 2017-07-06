@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(Prismatic)
 set(CMAKE_CXX_STANDARD 11)
 
@@ -189,10 +189,10 @@ if (PRISMATIC_ENABLE_CLI)
     install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif(PRISMATIC_ENABLE_CLI)
 
-if (PRISMATIC_ENABLE_PYTHON)
+if (PRISMATIC_ENABLE_PYTHON AND PRISMATIC_ENABLE_GPU)
     cuda_add_library(cuprismatic SHARED
                      ${CUDA_SOURCE_FILES})
     install(TARGETS cuprismatic
             ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
             LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-endif(PRISMATIC_ENABLE_PYTHON)
+endif(PRISMATIC_ENABLE_PYTHON AND PRISMATIC_ENABLE_GPU)
