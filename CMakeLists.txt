@@ -191,6 +191,13 @@ endif(PRISMATIC_ENABLE_CLI)
 
 if (PRISMATIC_ENABLE_PYTHON_GPU)
     cuda_add_library(cuprismatic SHARED
+	    	     ${SOURCE_FILES}
                      ${CUDA_SOURCE_FILES})
-    install(TARGETS cuprismatic LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+    cuda_add_cufft_to_target(cuprismatic)
+    target_link_libraries(cuprismatic
+	    		  ${FFTW_LIBRARIES})
+    target_compile_definitions(cuprismatic PRIVATE BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
+    install(TARGETS cuprismatic
+	    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 endif(PRISMATIC_ENABLE_PYTHON_GPU)

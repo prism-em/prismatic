@@ -364,8 +364,6 @@ namespace Prismatic {
 		std::cout << "pars.lambda = " << pars.lambda << std::endl;
 		Array2D<PRISMATIC_FLOAT_PRECISION> qxaShift = pars.qxaReduce - (pars.meta.probeXtilt / pars.lambda);
 		Array2D<PRISMATIC_FLOAT_PRECISION> qyaShift = pars.qyaReduce - (pars.meta.probeYtilt / pars.lambda);
-		pars.qxaReduce.toMRC_f("qxaReduce.mrc");
-		qxaShift.toMRC_f("qxaShift.mrc");
 		transform(qxaShift.begin(), qxaShift.end(),
 		          qyaShift.begin(), pars.q2.begin(),
 		          [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) { return a * a + b * b; });

@@ -17,7 +17,7 @@
 #include "configure.h"
 namespace Prismatic {
 	template<class T>
-	class CudaParameters {
+	CUPRISMATIC_API class CudaParameters {
 	public:
 		PRISMATIC_CUDA_COMPLEX_FLOAT **permutedScompact_d;
 		PRISMATIC_CUDA_COMPLEX_FLOAT **PsiProbeInit_d;

@@ -63,7 +63,12 @@ class InstallCommand(install):
 
 
 if ("--enable-gpu" in sys.argv):
+<<<<<<< HEAD
 	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1)])
+=======
+	# print("GPU ENABLED")
+	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1), ("BUILDING_CUPRISMATIC",1)])
+>>>>>>> 74d63b067f2295040f3841260dfe8a7b72f0bdca
 	prismatic_libs.extend(["cuprismatic", "cufft", "cudart"])
 
 print("prismatic_libs = " , prismatic_libs)

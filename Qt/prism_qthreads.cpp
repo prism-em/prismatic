@@ -48,7 +48,7 @@ void PotentialThread::run(){
     // indicate that the potential is ready
 
 //    this->parent->potentialArrayExists = true;
-    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+//    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     std::cout << "Projected potential calculation complete" << std::endl;
 }
 
