@@ -18,27 +18,32 @@ import os
 
 prismatic_extra_definitions = []
 prismatic_libs  		    = []
-prismatic_sources 		    = [
-							'pyprismatic/core.cpp',
-							'src/atom.cpp',
-							'src/configure.cpp',
-							'src/Multislice_calcOutput.cpp',
-							'src/Multislice_entry.cpp',#
-							'src/parseInput.cpp',#
-							'src/PRISM01_calcPotential.cpp',
-							'src/PRISM02_calcSMatrix.cpp',#
-							'src/PRISM03_calcOutput.cpp',#
-							'src/PRISM_entry.cpp',
-							'src/projectedPotential.cpp',#
-							'src/utility.cpp',#
-							'src/WorkDispatcher.cpp'
+
+# In CPU-only mode, all Prismatic C++ source files will be compiled into the Python package. For GPU support, a shared library is
+# built from the CUDA/C++ sources and the Python package links against it. The C++ files that are potentially compiled into
+# the shared library (along with CUDA files) are the "extra" sources and in CPU-mode they are added to the Python package sources.
+# The reason for doing it this way is for user convenience so that compiling/linking to an extra Prismatic library is not required until
+# enabling for GPU, at which point it is already necessary for the other CUDA libraries.
+prismatic_sources_base  = ['pyprismatic/core.cpp'
+						  ]
+prismatic_sources_extra = [
+	'src/go.cpp',
+	'src/atom.cpp',
+	'src/configure.cpp',
+	'src/Multislice_calcOutput.cpp',
+	'src/Multislice_entry.cpp',#
+	'src/parseInput.cpp',#
+	'src/PRISM01_calcPotential.cpp',
+	'src/PRISM02_calcSMatrix.cpp',#
+	'src/PRISM03_calcOutput.cpp',#
+	'src/PRISM_entry.cpp',
+	'src/projectedPotential.cpp',#
+	'src/utility.cpp',#
+	'src/WorkDispatcher.cpp'
 							]
+prismatic_sources 		    = prismatic_sources_base
 prismatic_include_dirs 		= ["./include"]
 prismatic_library_dirs 		= []
-# if "CPLUS_INCLUDE_PATH" in os.environ.keys():
-# 	prismatic_include_dirs.extend(os.environ["CPLUS_INCLUDE_PATH"])
-# if "LIBRARY_DIRS" in os.environ.keys():
-# 	prismatic_library_dirs.extend(os.environ["LIBRARY_DIRS"])
 
 if os.name == "nt": #check for Windows OS
 	prismatic_libs 		   		= ["libfftw3f-3"]
@@ -62,16 +67,12 @@ class InstallCommand(install):
 		install.run(self)
 
 
-if ("--enable-gpu" in sys.argv):
-<<<<<<< HEAD
-	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1)])
-=======
-	# print("GPU ENABLED")
+if ("--enable-gpu" in sys.argv): # GPU-mode, add some macro definitions and link with the CUDA libraries
 	prismatic_extra_definitions.extend([("PRISMATIC_ENABLE_GPU",1), ("BUILDING_CUPRISMATIC",1)])
->>>>>>> 74d63b067f2295040f3841260dfe8a7b72f0bdca
 	prismatic_libs.extend(["cuprismatic", "cufft", "cudart"])
+else: # CPU-only mode, add the extra C++ sources to the python package
+	prismatic_sources.extend(prismatic_sources_extra)
 
-print("prismatic_libs = " , prismatic_libs)
 pyprimsatic_core = Extension('pyprismatic.core',
 	sources=prismatic_sources,
 	include_dirs=prismatic_include_dirs,

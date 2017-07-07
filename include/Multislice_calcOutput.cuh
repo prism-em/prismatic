@@ -22,11 +22,11 @@
 #endif
 namespace Prismatic {
 
-	CUPRISMATIC_API void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISMATIC_FLOAT_PRECISION> &pars);
+	 void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISMATIC_FLOAT_PRECISION> &pars);
 
-	CUPRISMATIC_API void buildMultisliceOutput_GPU_streaming(Parameters <PRISMATIC_FLOAT_PRECISION> &pars);
+	 void buildMultisliceOutput_GPU_streaming(Parameters <PRISMATIC_FLOAT_PRECISION> &pars);
 
-	CUPRISMATIC_API void getMultisliceProbe_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	 void getMultisliceProbe_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
 	                                       PRISMATIC_CUDA_COMPLEX_FLOAT* psi_ds,
@@ -44,7 +44,7 @@ namespace Prismatic {
 	                                       const cufftHandle& plan,
 	                                       cudaStream_t& stream);
 
-	CUPRISMATIC_API void getMultisliceProbe_GPU_singlexfer_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	 void getMultisliceProbe_GPU_singlexfer_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
 	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_ds,
@@ -62,7 +62,7 @@ namespace Prismatic {
 	                                             const cufftHandle& plan,
 	                                             cudaStream_t& stream);
 
-	CUPRISMATIC_API void getMultisliceProbe_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	 void getMultisliceProbe_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                      const std::complex<PRISMATIC_FLOAT_PRECISION>* trans_ph,
 	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
@@ -81,7 +81,7 @@ namespace Prismatic {
 	                                      const cufftHandle& plan,
 	                                      cudaStream_t& stream);
 
-	CUPRISMATIC_API void getMultisliceProbe_GPU_streaming_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	 void getMultisliceProbe_GPU_streaming_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
 	                                            const std::complex<PRISMATIC_FLOAT_PRECISION>* trans_ph,
 	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,

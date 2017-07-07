@@ -36,7 +36,8 @@ set(SOURCE_FILES
 	    src/projectedPotential.cpp
         src/parseInput.cpp
         src/utility.cpp
-        src/atom.cpp)
+        src/atom.cpp
+        src/go.cpp)
 
 if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
@@ -130,7 +131,7 @@ if (PRISMATIC_ENABLE_CLI)
 
     target_link_libraries(prismatic
         		   ${CMAKE_THREAD_LIBS_INIT}
-        		   ${Boost_LIBRARY_DIRS}
+#        		   ${Boost_LIBRARY_DIRS}
         		   ${FFTW_LIBRARIES})
 endif (PRISMATIC_ENABLE_CLI)
 
@@ -166,7 +167,7 @@ if (PRISMATIC_ENABLE_GUI)
         target_link_libraries(prismatic-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
-                                ${Boost_LIBRARY_DIRS}
+#                                ${Boost_LIBRARY_DIRS}
                                 ${FFTW_LIBRARIES})
         cuda_add_cufft_to_target(prismatic-gui)
     else (PRISMATIC_ENABLE_GPU)
@@ -177,7 +178,7 @@ if (PRISMATIC_ENABLE_GUI)
         target_link_libraries(prismatic-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
-                                ${Boost_LIBRARY_DIRS}
+#                                ${Boost_LIBRARY_DIRS}
                                 ${FFTW_LIBRARIES})
     endif (PRISMATIC_ENABLE_GPU)
     target_compile_definitions(prismatic-gui PRIVATE PRISMATIC_BUILDING_GUI=1)
@@ -191,13 +192,13 @@ endif(PRISMATIC_ENABLE_CLI)
 
 if (PRISMATIC_ENABLE_PYTHON_GPU)
     cuda_add_library(cuprismatic SHARED
-	    	     ${SOURCE_FILES}
+	    	         ${SOURCE_FILES}
                      ${CUDA_SOURCE_FILES})
     cuda_add_cufft_to_target(cuprismatic)
     target_link_libraries(cuprismatic
-	    		  ${FFTW_LIBRARIES})
-    target_compile_definitions(cuprismatic PRIVATE BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
+	    		          ${FFTW_LIBRARIES})
+    target_compile_definitions(cuprismatic PRIVATE PRISMATIC_ENABLE_GPU=1 BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
     install(TARGETS cuprismatic
-	    ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-	    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+	        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+	        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 endif(PRISMATIC_ENABLE_PYTHON_GPU)

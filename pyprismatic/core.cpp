@@ -15,6 +15,7 @@
 #include "params.h"
 #include "configure.h"
 #include "parseInput.h"
+#include "go.h"
 #ifdef PRISMATIC_ENABLE_GPU
 #include "cuprismatic.h"
 #endif //PRISMATIC_ENABLE_GPU
@@ -154,11 +155,12 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	// print metadata
     meta.toString();
 
+	Prismatic::go(meta);
 	// configure simulation behavior
-	Prismatic::configure(meta);
+//	Prismatic::configure(meta);
 
 	// execute simulation
-	Prismatic::execute_plan(meta);
+//	Prismatic::execute_plan(meta);
 
 	Py_RETURN_NONE;
 

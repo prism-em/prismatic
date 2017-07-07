@@ -17,11 +17,11 @@
 #include "cufft.h"
 #include "params.cuh"
 namespace Prismatic {
-	CUPRISMATIC_API void buildPRISMOutput_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+	 void buildPRISMOutput_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
-	CUPRISMATIC_API void buildPRISMOutput_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+	 void buildPRISMOutput_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
-	CUPRISMATIC_API void buildSignal_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
+	 void buildSignal_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
 	                                const size_t& ay,
 	                                const size_t& ax,
 	                                const PRISMATIC_CUDA_COMPLEX_FLOAT *permutedScompact_d,
@@ -42,7 +42,7 @@ namespace Prismatic {
 	                                const cudaStream_t& stream,
 	                                CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
 
-	CUPRISMATIC_API void buildSignal_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
+	 void buildSignal_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
 	                               const size_t& ay,
 	                               const size_t& ax,
 	                               PRISMATIC_CUDA_COMPLEX_FLOAT *permutedScompact_ds,

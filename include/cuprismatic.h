@@ -17,20 +17,21 @@
 #ifndef CUPRISMATIC_H
 #define CUPRISMATIC_H
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && defined(BUILDING_CUPRISMATIC)
-    #ifdef CUPRISMATIC_EXPORT
-        #define PRISMATIC_API __declspec(dllexport)
-    #else
-        #define PRISMATIC_API __declspec(dllimport)
-    #endif //CUPRISMATIC_BUILDING
-#else
-    #define PRISMATIC_API
-#endif
+//#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && defined(BUILDING_CUPRISMATIC)
+//    #ifdef CUPRISMATIC_EXPORT
+//        #define PRISMATIC_API __declspec(dllexport)
+//    #else
+//        #define PRISMATIC_API __declspec(dllimport)
+//    #endif //CUPRISMATIC_BUILDING
+//#else
+//    #define PRISMATIC_API
+//#endif
 
-#include "PRISM02_calcSMatrix.cuh"
-#include "PRISM03_calcOutput.cuh"
-#include "Multislice_calcOutput.cuh"
-#include "params.cuh"
-#include "utility.cuh"
+//#include "PRISM02_calcSMatrix.cuh"
+//#include "PRISM03_calcOutput.cuh"
+//#include "Multislice_calcOutput.cuh"
+//#include "params.cuh"
+//#include "utility.cuh"
+#include "go.h"
 
 #endif // CUPRISMATIC_H

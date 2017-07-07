@@ -11,23 +11,24 @@
 //    Implementation of Image Simulation Algorithms for Scanning
 //	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+//#include <iostream>
+//#include <stdlib.h>
+//#include <algorithm>
+//#include <vector>
+#include "PRISM_entry.h"
+#include "Multislice_entry.h"
+//#include "configure.h"
+//#include "ArrayND.h"
 #include "params.h"
 #include "go.h"
-#include "configure.h"
-#include "parseInput.h"
 
-using namespace std;
-int main(int argc, const char** argv) {
-	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
 
-	// parse command line options
-	if (!Prismatic::parseInputs(meta, argc, &argv))return 1;
+namespace Prismatic{
+	void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta){
+		// configure simulation behavior
+		Prismatic::configure(meta);
 
-	// print metadata
-    meta.toString();
-
-	// execute simulation
-	Prismatic::go(meta);
-
-	return 0;
+		// execute simulation
+		Prismatic::execute_plan(meta);
+	}
 }

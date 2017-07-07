@@ -11,23 +11,22 @@
 //    Implementation of Image Simulation Algorithms for Scanning
 //	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
-#include "params.h"
-#include "go.h"
+#ifndef PRISM_GO_H
+#define PRISM_GO_H
 #include "configure.h"
-#include "parseInput.h"
+#include "params.h"
 
-using namespace std;
-int main(int argc, const char** argv) {
-	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && defined(BUILDING_CUPRISMATIC)
+#ifdef CUPRISMATIC_EXPORT
+        #define PRISMATIC_API __declspec(dllexport)
+    #else
+        #define PRISMATIC_API __declspec(dllimport)
+    #endif //CUPRISMATIC_BUILDING
+#else
+#define PRISMATIC_API
+#endif
 
-	// parse command line options
-	if (!Prismatic::parseInputs(meta, argc, &argv))return 1;
-
-	// print metadata
-    meta.toString();
-
-	// execute simulation
-	Prismatic::go(meta);
-
-	return 0;
+namespace Prismatic{
+	PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 }
+#endif //PRISM_GO_H
