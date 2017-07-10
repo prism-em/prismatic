@@ -1,6 +1,6 @@
 # Prismatic
 
-Full documentation, installers, tutorials, etc may be found at [www.prism-em.com](www.prism-em.com)
+Full documentation, installers, tutorials, etc may be found at [www.prism-em.com](http://www.prism-em.com)
 
 ## Installing `Prismatic`  
 ---
