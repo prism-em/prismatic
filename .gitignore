@@ -1,4 +1,5 @@
 build/
+.cproject
 *.so
 *egg*
 dist/
