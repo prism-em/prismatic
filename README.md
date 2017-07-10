@@ -1,4 +1,8 @@
-# Installing `Prismatic`  
+# Prismatic
+
+Full documentation, installers, tutorials, etc may be found at [www.prism-em.com](www.prism-em.com)
+
+## Installing `Prismatic`  
 ---
 Table of Contents    
 	- [Dependencies](#dependencies)  
