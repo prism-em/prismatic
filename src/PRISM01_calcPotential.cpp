@@ -71,6 +71,7 @@ namespace Prismatic {
 		Array1D<PRISMATIC_FLOAT_PRECISION> z     = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> ID    = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> sigma = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> occ   = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 
 		// populate arrays from the atoms structure
 		for (auto i = 0; i < pars.atoms.size(); ++i){
@@ -79,6 +80,7 @@ namespace Prismatic {
 			z[i]     = pars.atoms[i].z * pars.tiledCellDim[0];
 			ID[i]    = pars.atoms[i].species;
 			sigma[i] = pars.atoms[i].sigma;
+			occ[i]   = pars.atoms[i].occ;
 		}
 
 		// compute the z-slice index for each atom
@@ -108,51 +110,54 @@ namespace Prismatic {
 		WorkDispatcher dispatcher(0, pars.numPlanes);
 		for (long t = 0; t < pars.meta.numThreads; ++t){
 			cout << "Launching thread #" << t << " to compute projected potential slices\n";
-			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma,
+			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma, &occ,
 											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
+				srand(pars.meta.randomSeed);
 				std::default_random_engine de(pars.meta.randomSeed);
 				normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
 				Array1D<long> yp;
 
-				size_t currentBeam, stop;
-                currentBeam=stop=0;
-				while (dispatcher.getWork(currentBeam, stop)) { // synchronously get work assignment
+				size_t currentSlice, stop;
+                currentSlice=stop=0;
+				while (dispatcher.getWork(currentSlice, stop)) { // synchronously get work assignment
 					Array2D<PRISMATIC_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
-					while (currentBeam != stop) {
-						for (auto a2 = 0; a2 < x.size(); ++a2) {
-							if (zPlane[a2] == currentBeam) {
-								const long dim0 = (long) pars.imageSize[0];
-								const long dim1 = (long) pars.imageSize[1];
-								const size_t cur_Z = Z_lookup[ID[a2]];
-								PRISMATIC_FLOAT_PRECISION X, Y;
-								if (pars.meta.includeThermalEffects) { // apply random perturbations
-									X = round((x[a2] + randn(de) * sigma[a2]) / pars.pixelSize[1]);
-									Y = round((y[a2] + randn(de) * sigma[a2]) / pars.pixelSize[0]);
-								} else {
-									X = round((x[a2]) / pars.pixelSize[1]); // this line uses no thermal factor
-									Y = round((y[a2]) / pars.pixelSize[0]); // this line uses no thermal factor
-								}
-								xp = xvec + (long) X;
-								for (auto &i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
+					const long dim0 = (long) pars.imageSize[0];
+					const long dim1 = (long) pars.imageSize[1];
+					while (currentSlice != stop) {
+						for (auto atom_num = 0; atom_num < x.size(); ++atom_num) {
+							if (zPlane[atom_num] == currentSlice) {
+								if ( static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) <= occ[atom_num]) {
+									const size_t cur_Z = Z_lookup[ID[atom_num]];
+									PRISMATIC_FLOAT_PRECISION X, Y;
+									if (pars.meta.includeThermalEffects) { // apply random perturbations
+										X = round((x[atom_num] + randn(de) * sigma[atom_num]) / pars.pixelSize[1]);
+										Y = round((y[atom_num] + randn(de) * sigma[atom_num]) / pars.pixelSize[0]);
+									} else {
+										X = round((x[atom_num]) / pars.pixelSize[1]); // this line uses no thermal factor
+										Y = round((y[atom_num]) / pars.pixelSize[0]); // this line uses no thermal factor
+									}
+									xp = xvec + (long) X;
+									for (auto &i:xp)i = (i % dim1 + dim1) % dim1; // make sure to get a positive value
 
-								yp = yvec + (long) Y;
-								for (auto &i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
-								for (auto ii = 0; ii < xp.size(); ++ii) {
-									for (auto jj = 0; jj < yp.size(); ++jj) {
-										// fill in value with lookup table
-										projectedPotential.at(yp[jj], xp[ii]) += potentialLookup.at(cur_Z, jj, ii);
+									yp = yvec + (long) Y;
+									for (auto &i:yp) i = (i % dim0 + dim0) % dim0;// make sure to get a positive value
+									for (auto ii = 0; ii < xp.size(); ++ii) {
+										for (auto jj = 0; jj < yp.size(); ++jj) {
+											// fill in value with lookup table
+											projectedPotential.at(yp[jj], xp[ii]) += potentialLookup.at(cur_Z, jj, ii);
+										}
 									}
 								}
 							}
 						}
 						// copy the result to the full array
-						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentBeam,0,0));
+						copy(projectedPotential.begin(), projectedPotential.end(),&pars.pot.at(currentSlice,0,0));
 #ifdef PRISMATIC_BUILDING_GUI
-                        pars.progressbar->signalPotentialUpdate(currentBeam, pars.numPlanes);
+                        pars.progressbar->signalPotentialUpdate(currentSlice, pars.numPlanes);
 #endif //PRISMATIC_BUILDING_GUI
-						++currentBeam;
+						++currentSlice;
 					}
 				}
 			}));
