@@ -6,6 +6,8 @@ dist/
 *.app/
 *.dylib
 Qt/build*
+Qt/*.o
+Qt/Makefile
 test/
 profile/
 MATLAB/

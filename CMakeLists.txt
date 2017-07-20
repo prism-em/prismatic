@@ -23,6 +23,11 @@ if (PRISMATIC_ENABLE_GPU)
 endif (PRISMATIC_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+if (UNIX)
+	set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
+	link_directories(${CMAKE_LIBRARY_PATH})
+endif (UNIX)
+
 # create variables with various bundles of source files
 set(SOURCE_FILES
         src/configure.cpp
@@ -33,7 +38,7 @@ set(SOURCE_FILES
         src/PRISM03_calcOutput.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
-	    src/projectedPotential.cpp
+        src/projectedPotential.cpp
         src/parseInput.cpp
         src/utility.cpp
         src/atom.cpp
@@ -43,10 +48,10 @@ if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
         Qt/main.cpp
         Qt/prismmainwindow.cpp
-	    Qt/prism_qthreads.cpp
+	Qt/prism_qthreads.cpp
         Qt/prism_progressbar.cpp
         Qt/saveatomiccoordinatesdialog.cpp
-	    Qt/prism_resources.qrc)
+	Qt/prism_resources.qrc)
 endif (PRISMATIC_ENABLE_GUI)
 
 if (PRISMATIC_ENABLE_GPU)
@@ -81,7 +86,7 @@ endif (PRISMATIC_ENABLE_GUI)
 
 # add preprocessor directives based on configuration
 if (PRISMATIC_ENABLE_DOUBLE_PRECISION)
-add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
+    add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
 endif (PRISMATIC_ENABLE_DOUBLE_PRECISION)
 
 if (PRISMATIC_ENABLE_GUI)
@@ -101,7 +106,11 @@ if (NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
     message("Single precision enabled")
     if (UNIX)
 	    message(UNIX)
-    set(FFTW_LIBRARIES ${FFTW_EXECUTABLE_LIBRARIES})
+	    set(FFTW_LIBRARIES ${FFTW_EXECUTABLE_LIBRARIES})
+	    set(FFTW_LIBRARIES fftw3f fftw3f_threads)
+            set(FFTW_LIBRARY ${FFTW_EXECUTABLE_LIBRARIES})
+	    message("FFTW_EXECUTABLE_LIBRARIES = " ${FFTW_EXECUTABLE_LIBRARIES})
+	    message("FFTW_LIBRARY = " ${FFTW_LIBRARY})
     endif (UNIX)
 else(NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
     message("Double precision enabled")

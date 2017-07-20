@@ -14,6 +14,7 @@
 #ifndef PRISMATIC_DEFINES_H
 #define PRISMATIC_DEFINES_H
 
+
 namespace Prismatic {
 
 	enum class Algorithm {
