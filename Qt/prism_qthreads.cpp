@@ -337,12 +337,8 @@ void FullPRISMCalcThread::run(){
         Prismatic::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
     {
-//        QMutexLocker gatekeeper(&this->parent->potentialLock);
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
-//        this->parent->potential = params.pot;
-
-//        this->parent->potentialArrayExists = true;
         if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     this->parent->potentialReceived(params.pot);
@@ -386,6 +382,8 @@ void FullPRISMCalcThread::run(){
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
+            this->parent->potentialReceived(params.pot);
+            emit potentialCalculated();
             Prismatic::PRISM02_calcSMatrix(params);
             Prismatic::PRISM03_calcOutput(params);
             net_output += params.output;
@@ -466,6 +464,8 @@ void FullMultisliceCalcThread::run(){
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
+            this->parent->potentialReceived(params.pot);
+            emit potentialCalculated();
             Prismatic::Multislice_calcOutput(params);
             net_output += params.output;
         }
