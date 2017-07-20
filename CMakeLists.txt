@@ -165,14 +165,14 @@ if (PRISMATIC_ENABLE_GUI)
 	#                        ${Boost_LIBRARY_DIRS}
 	#                        ${FFTW_LIBRARIES})
 	#cuda_add_cufft_to_target(prism_shared)
-#            add_definitions(-DPRISMATIC_BUILDING_GUI)
+	#            add_definitions(-DPRISMATIC_BUILDING_GUI)
 #        add_definitions(-DHEY)
 #
         cuda_add_executable(prismatic-gui
                                 ${SOURCE_FILES}
                                 ${GUI_SOURCE_FILES}
                                 ${CUDA_SOURCE_FILES}
-                                OPTIONS -DPRISMATIC_BUILDING_GUI)
+				OPTIONS -DPRISMATIC_BUILDING_GUI)
         target_link_libraries(prismatic-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}

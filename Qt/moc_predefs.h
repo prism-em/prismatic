@@ -161,8 +161,8 @@
 #define __LP64__ 1
 #define __MACH__ 1
 #define __MMX__ 1
+#define __NO_INLINE__ 1
 #define __NO_MATH_INLINES 1
-#define __OPTIMIZE__ 1
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __ORDER_LITTLE_ENDIAN__ 1234
 #define __ORDER_PDP_ENDIAN__ 3412

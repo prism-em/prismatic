@@ -14,7 +14,7 @@
 #ifndef PRISM_PROGRESSBAR_H
 #define PRISM_PROGRESSBAR_H
 
-#define PRISMATIC_BUILDING_GUI
+//#define PRISMATIC_BUILDING_GUI
 
 #include <QDialog>
 #include <mutex>

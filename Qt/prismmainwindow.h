@@ -14,6 +14,7 @@
 #ifndef PRISMMAINWINDOW_H
 #define PRISMMAINWINDOW_H
 
+
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QMutex>
