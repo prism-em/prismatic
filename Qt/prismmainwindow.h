@@ -123,6 +123,7 @@ public slots:
     void toggle3DOutput();
     void toggle4DOutput();
     void toggleThermalEffects();
+    void toggleOccupancy();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();

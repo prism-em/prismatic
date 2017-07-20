@@ -128,7 +128,12 @@ namespace Prismatic {
 					while (currentSlice != stop) {
 						for (auto atom_num = 0; atom_num < x.size(); ++atom_num) {
 							if (zPlane[atom_num] == currentSlice) {
-								if ( static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) <= occ[atom_num]) {
+                                if (pars.meta.includeOccupancy){
+                                    if (static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) <= occ[atom_num]){
+                                        continue;
+                                    }
+                                }
+//								if ( !pars.meta.includeOccupancy || static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) <= occ[atom_num]) {
 									const size_t cur_Z = Z_lookup[ID[atom_num]];
 									PRISMATIC_FLOAT_PRECISION X, Y;
 									if (pars.meta.includeThermalEffects) { // apply random perturbations
@@ -149,7 +154,7 @@ namespace Prismatic {
 											projectedPotential.at(yp[jj], xp[ii]) += potentialLookup.at(cur_Z, jj, ii);
 										}
 									}
-								}
+//								}
 							}
 						}
 						// copy the result to the full array

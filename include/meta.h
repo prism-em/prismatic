@@ -67,6 +67,7 @@ namespace Prismatic{
 			randomSeed            = rand() % 100000;
 			algorithm             = Algorithm::PRISM;
 			includeThermalEffects = true;
+			includeOccupancy      = true;
 			alsoDoCPUWork         = true;
 			save2DOutput          = false;
 			save3DOutput          = true;
@@ -113,6 +114,7 @@ namespace Prismatic{
 		size_t numStreamsPerGPU; // number of CUDA streams to use per GPU
 		Algorithm algorithm;
 		bool includeThermalEffects;
+		bool includeOccupancy;
 		bool alsoDoCPUWork; // what fraction of computation to do on the cpu vs gpu
 		bool save2DOutput;
 		T integrationAngleMin;
@@ -162,6 +164,11 @@ namespace Prismatic{
 		std::cout << "integrationAngleMax = " << integrationAngleMax<< std::endl;
 		std::cout << "randomSeed = " << randomSeed << std::endl;
 
+		if (includeOccupancy) {
+			std::cout << "includeOccupancy = true" << std::endl;
+		} else {
+			std::cout << "includeOccupancy = false" << std::endl;
+		}
 		if (includeThermalEffects) {
 			std::cout << "includeThermalEffects = true" << std::endl;
 		} else {

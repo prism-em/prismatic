@@ -60,6 +60,7 @@ namespace Prismatic {
                 "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1)\n"
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
 		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects)\n"
+                "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site\n"
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads)\n"
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n"
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
@@ -711,6 +712,18 @@ namespace Prismatic {
 		return true;
 	};
 
+    bool parse_oc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                  int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -oc (syntax is -oc bool)\n";
+            return false;
+        }
+        meta.includeOccupancy = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_2D(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                   int& argc, const char*** argv){
         if (argc < 3){
@@ -808,6 +821,7 @@ namespace Prismatic {
             {"--tile-uc", parse_t}, {"-t", parse_t},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--thermal-effects", parse_te}, {"-te", parse_te},
+            {"--occupancy", parse_oc}, {"-oc", parse_oc},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D}

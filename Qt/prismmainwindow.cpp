@@ -200,6 +200,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 	}
 
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
+    ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
 
@@ -330,6 +331,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
+    connect(this->ui->checkBox_occupancy,              SIGNAL(toggled(bool)),            this, SLOT(toggleOccupancy()));
     connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
     //    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
     updateAlphaMax();
@@ -1590,6 +1592,11 @@ void PRISMMainWindow::toggle4DOutput(){
 
 void PRISMMainWindow::toggleThermalEffects(){
     meta->includeThermalEffects = ui->checkBox_thermalEffects->isChecked();
+    resetCalculation();
+}
+
+void PRISMMainWindow::toggleOccupancy(){
+    meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
     resetCalculation();
 }
 

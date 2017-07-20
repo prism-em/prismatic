@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1003</width>
-    <height>800</height>
+    <width>1336</width>
+    <height>1218</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -790,7 +790,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="prism_resources.qrc">:/images/output.png</pixmap>
+             <pixmap>:/images/output.png</pixmap>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -1009,7 +1009,7 @@
          <x>0</x>
          <y>0</y>
          <width>326</width>
-         <height>1119</height>
+         <height>1149</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -2592,9 +2592,23 @@ Step (A)</string>
                 </layout>
                </item>
                <item>
-                <widget class="QCheckBox" name="checkBox_thermalEffects">
+                <layout class="QHBoxLayout" name="horizontalLayout_47">
+                 <item>
+                  <widget class="QCheckBox" name="checkBox_thermalEffects">
+                   <property name="text">
+                    <string>Thermal Effects</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBox_occupancy">
                  <property name="text">
-                  <string>Thermal Effects</string>
+                  <string>Occupancy</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -3028,7 +3042,7 @@ Step (A)</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1003</width>
+     <width>1336</width>
      <height>22</height>
     </rect>
    </property>
@@ -3103,7 +3117,6 @@ Step (A)</string>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
   <tabstop>checkBox_4D</tabstop>
-  <tabstop>checkBox_thermalEffects</tabstop>
   <tabstop>spinBox_numThreads</tabstop>
   <tabstop>spinBox_numGPUs</tabstop>
   <tabstop>spinBox_numStreams</tabstop>
@@ -3115,8 +3128,6 @@ Step (A)</string>
   <tabstop>btn_reset</tabstop>
   <tabstop>btn_calcPotential</tabstop>
  </tabstops>
- <resources>
-  <include location="prism_resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
