@@ -173,12 +173,13 @@ namespace Prismatic {
 		formatOutput_GPU = formatOutput_GPU_integrate;
 #endif
 		if (meta.algorithm == Algorithm::PRISM) {
-			std::cout << "Execution plan: PRISM w/ single FP configuration\n";
+			std::cout << "Execution plan: PRISM\n";
 			execute_plan = PRISM_entry;
 #ifdef PRISMATIC_ENABLE_GPU
             if (meta.transferMode == Prismatic::StreamingMode::Auto){
             	meta.transferMode = transferMethodAutoChooser(meta);
             }
+			std::cout << "Using GPU codes" << '\n';
 			if (meta.transferMode == Prismatic::StreamingMode::Stream) {
 				cout << "Using streaming method\n";
 				fill_Scompact = fill_Scompact_GPU_streaming;
@@ -194,7 +195,7 @@ namespace Prismatic {
 			buildPRISMOutput = buildPRISMOutput_CPUOnly;
 #endif //PRISMATIC_ENABLE_GPU
 		} else if (meta.algorithm == Algorithm::Multislice) {
-			std::cout << "Execution plan: Multislice w/ single FP configuration\n";
+			std::cout << "Execution plan: Multislice\n";
 			execute_plan = Multislice_entry;
 #ifdef PRISMATIC_ENABLE_GPU
 			std::cout << "Using GPU codes" << '\n';
