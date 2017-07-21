@@ -223,7 +223,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
-    ui->lbl_probeStep->setText(QString::fromUtf8("Probe\nStep (\u212B)"));
+    ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
