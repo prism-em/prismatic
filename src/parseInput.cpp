@@ -52,8 +52,8 @@ namespace Prismatic {
                 "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms)\n"
                 "* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms)\n"
 		        "* --random-seed (-rs) step_size : random number seed\n"
-	            "* --probe-xtilt (-tx) value : probe X tilt\n"
-                "* --probe-ytilt (-ty) value : probe X tilt\n"
+	            "* --probe-xtilt (-tx) value : probe X tilt (in mrad)\n"
+                "* --probe-ytilt (-ty) value : probe X tilt (in mrad)\n"
                 "* --probe-defocus (-df) value : probe defocus\n"
                 "* --probe-semiangle (-sa) value : maximum probe semiangle\n"
                 "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1)\n"
@@ -558,7 +558,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
             return false;
         }
@@ -573,7 +573,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -ty (syntax is -ty probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( (meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -ty (syntax is -ty probe_tilt\n";
             return false;
         }

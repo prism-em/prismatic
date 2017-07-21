@@ -720,12 +720,12 @@ void PRISMMainWindow::setprobe_Xtilt_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeTiltX->text().toDouble(&flag);
     if (flag){
-        this->meta->probeXtilt = val;
-        std::cout << "Setting probe X tilt to " << val << std::endl;
+        this->meta->probeXtilt = val / 1000;
+        std::cout << "Setting probe X tilt to " << val << " mrad" << std::endl;
         if (!probeTiltYSet){
             ui->lineEdit_probeTiltY->setText(ui->lineEdit_probeTiltX->text());
-            this->meta->probeYtilt = val;
-            std::cout << "Setting probe Y tilt to " << val << std::endl;
+            this->meta->probeYtilt = val / 1000;
+            std::cout << "Setting probe Y tilt to " << val << " mrad" << std::endl;
         }
     }
     resetCalculation();
@@ -735,8 +735,8 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_probeTiltY->text().toDouble(&flag);
     if (flag){
-        this->meta->probeYtilt =  val;
-        std::cout << "Setting probe Y tilt to " << val << std::endl;
+        this->meta->probeYtilt =  val / 1000;
+        std::cout << "Setting probe Y tilt to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
