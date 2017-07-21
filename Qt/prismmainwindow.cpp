@@ -343,8 +343,8 @@ void PRISMMainWindow::setAlgo_PRISM(){
 	setAlgo(Prismatic::Algorithm::PRISM);
     ui->lineEdit_interpFactor_x->setEnabled(true);
     ui->lineEdit_interpFactor_y->setEnabled(true);
-    ui->lineEdit_probeTiltX->setEnabled(true);
-    ui->lineEdit_probeTiltY->setEnabled(true);
+//    ui->lineEdit_probeTiltX->setEnabled(true);
+//    ui->lineEdit_probeTiltY->setEnabled(true);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
@@ -352,8 +352,8 @@ void PRISMMainWindow::setAlgo_Multislice(){
 	setAlgo(Prismatic::Algorithm::Multislice);
     ui->lineEdit_interpFactor_x->setDisabled(true);
     ui->lineEdit_interpFactor_y->setDisabled(true);
-    ui->lineEdit_probeTiltX->setDisabled(true);
-    ui->lineEdit_probeTiltY->setDisabled(true);
+//    ui->lineEdit_probeTiltX->setDisabled(true);
+//    ui->lineEdit_probeTiltY->setDisabled(true);
 
 }
 

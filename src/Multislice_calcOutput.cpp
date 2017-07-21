@@ -95,12 +95,20 @@ namespace Prismatic{
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 				if (pars.qMask.at(y,x)==1)
 				{
-					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
-					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
-					pars.propBack.at(y,x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
-					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+//					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
+//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+//					pars.propBack.at(y,x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
+//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+
+					pars.prop.at(y,x)     = exp(-i*pi*complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+												complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
+												complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0) +
+												i * complex<PRISMATIC_FLOAT_PRECISION>(2, 0)*pi *
+												complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
+												(qx[x] * tan(pars.meta.probeXtilt) + qy[y] * tan(pars.meta.probeYtilt)));
+
 				}
 			}
 		}
