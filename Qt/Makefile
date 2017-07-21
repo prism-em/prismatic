@@ -570,12 +570,17 @@ prismatic-gui.app/Contents/Resources/empty.lproj:
 prismatic-gui.app/Contents/Info.plist: 
 	@test -d prismatic-gui.app/Contents || mkdir -p prismatic-gui.app/Contents
 	@$(DEL_FILE) prismatic-gui.app/Contents/Info.plist
-	@sed -e "s,@SHORT_VERSION@,1.0,g" -e "s,@FULL_VERSION@,1.0.0,g" -e "s,@TYPEINFO@,????,g" -e "s,@BUNDLEIDENTIFIER@,AJ.prismatic-gui,g" -e "s,@ICON@,,g" -e "s,@EXECUTABLE@,prismatic-gui,g" -e "s,@LIBRARY@,prismatic-gui,g" -e "s,@TYPEINFO@,????,g" /Users/ajpryor/Qt5/qtbase/mkspecs/macx-clang/Info.plist.app >prismatic-gui.app/Contents/Info.plist
+	@sed -e "s,@SHORT_VERSION@,1.0,g" -e "s,@FULL_VERSION@,1.0.0,g" -e "s,@TYPEINFO@,????,g" -e "s,@BUNDLEIDENTIFIER@,AJ.prismatic-gui,g" -e "s,@ICON@,prismatic-gui.icns,g" -e "s,@EXECUTABLE@,prismatic-gui,g" -e "s,@LIBRARY@,prismatic-gui,g" -e "s,@TYPEINFO@,????,g" /Users/ajpryor/Qt5/qtbase/mkspecs/macx-clang/Info.plist.app >prismatic-gui.app/Contents/Info.plist
+prismatic-gui.app/Contents/Resources/prismatic-gui.icns: prismatic-gui.icns
+	@test -d prismatic-gui.app/Contents/Resources/ || mkdir -p prismatic-gui.app/Contents/Resources/
+	@$(DEL_FILE) prismatic-gui.app/Contents/Resources/prismatic-gui.icns
+	@$(COPY_FILE) prismatic-gui.icns prismatic-gui.app/Contents/Resources/prismatic-gui.icns
 
 all: Makefile \
 		prismatic-gui.app/Contents/PkgInfo \
 		prismatic-gui.app/Contents/Resources/empty.lproj \
-		prismatic-gui.app/Contents/Info.plist $(TARGET)
+		prismatic-gui.app/Contents/Info.plist \
+		prismatic-gui.app/Contents/Resources/prismatic-gui.icns $(TARGET)
 
 dist: distdir FORCE
 	(cd `dirname $(DISTDIR)` && $(TAR) $(DISTNAME).tar $(DISTNAME) && $(COMPRESS) $(DISTNAME).tar) && $(MOVE) `dirname $(DISTDIR)`/$(DISTNAME).tar.gz . && $(DEL_FILE) -r $(DISTDIR)
@@ -850,6 +855,7 @@ moc_prismmainwindow.cpp: /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QMainWindow
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		prismmainwindow.h \
 		moc_predefs.h \
 		/Users/ajpryor/Qt5/qtbase/bin/moc
@@ -1078,6 +1084,7 @@ moc_prism_progressbar.cpp: /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QDialog \
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		../include/configure.h \
 		prism_progressbar.h \
 		prism_progressbar.h \
@@ -1312,6 +1319,7 @@ moc_prism_qthreads.cpp: /Users/ajpryor/Qt5/qtbase/include/QtCore/QThread \
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		../include/configure.h \
 		prism_qthreads.h \
 		moc_predefs.h \
@@ -1785,7 +1793,8 @@ main.o: main.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QApplication \
 		../include/defines.h \
 		../include/ArrayND.h \
 		../include/params.h \
-		../include/atom.h
+		../include/atom.h \
+		prism_colormapper.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QFileDialog \
@@ -2025,6 +2034,7 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		ui_prismmainwindow.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QVariant \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QAction \
@@ -2380,6 +2390,7 @@ prism_qthreads.o: prism_qthreads.cpp prism_qthreads.h \
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		../include/configure.h \
 		../include/PRISM01_calcPotential.h \
 		../include/projectedPotential.h \
@@ -2617,6 +2628,7 @@ configure.o: ../src/configure.cpp ../include/configure.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/PRISM_entry.h \
 		../include/Multislice_entry.h \
 		../include/Multislice_calcOutput.h \
@@ -2860,7 +2872,8 @@ WorkDispatcher.o: ../src/WorkDispatcher.cpp ../include/WorkDispatcher.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutex \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
-		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o WorkDispatcher.o ../src/WorkDispatcher.cpp
 
 Multislice_entry.o: ../src/Multislice_entry.cpp ../include/meta.h \
@@ -3088,6 +3101,7 @@ Multislice_entry.o: ../src/Multislice_entry.cpp ../include/meta.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/Multislice_calcOutput.h \
 		../include/utility.h \
 		/usr/local/include/fftw3.h \
@@ -3323,6 +3337,7 @@ Multislice_calcOutput.o: ../src/Multislice_calcOutput.cpp ../include/configure.h
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/utility.h \
 		/usr/local/include/fftw3.h \
 		../include/WorkDispatcher.h \
@@ -3555,6 +3570,7 @@ PRISM_entry.o: ../src/PRISM_entry.cpp ../include/PRISM_entry.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/PRISM01_calcPotential.h \
 		../include/projectedPotential.h \
 		../include/fparams.h \
@@ -3792,6 +3808,7 @@ PRISM01_calcPotential.o: ../src/PRISM01_calcPotential.cpp ../include/PRISM01_cal
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM01_calcPotential.o ../src/PRISM01_calcPotential.cpp
 
@@ -4022,6 +4039,7 @@ PRISM02_calcSMatrix.o: ../src/PRISM02_calcSMatrix.cpp ../include/PRISM02_calcSMa
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/utility.h \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM02_calcSMatrix.o ../src/PRISM02_calcSMatrix.cpp
@@ -4254,6 +4272,7 @@ PRISM03_calcOutput.o: ../src/PRISM03_calcOutput.cpp ../include/PRISM03_calcOutpu
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM03_calcOutput.o ../src/PRISM03_calcOutput.cpp
 
@@ -4484,6 +4503,7 @@ projectedPotential.o: ../src/projectedPotential.cpp ../include/projectedPotentia
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h \
 		../include/boost/boost/math/special_functions/bessel.hpp \
 		../include/boost/boost/math/special_functions/math_fwd.hpp \
 		../include/boost/boost/math/special_functions/detail/round_fwd.hpp \
@@ -6049,7 +6069,8 @@ utility.o: ../src/utility.cpp ../include/utility.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutex \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
-		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
+		prism_colormapper.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utility.o ../src/utility.cpp
 
 atom.o: ../src/atom.cpp ../include/atom.h
@@ -6279,6 +6300,7 @@ prism_progressbar.o: prism_progressbar.cpp prism_progressbar.h \
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
+		prism_colormapper.h \
 		../include/configure.h \
 		ui_prism_progressbar.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QVariant \

@@ -129,7 +129,7 @@ namespace Prismatic {
 						for (auto atom_num = 0; atom_num < x.size(); ++atom_num) {
 							if (zPlane[atom_num] == currentSlice) {
                                 if (pars.meta.includeOccupancy){
-                                    if (static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) <= occ[atom_num]){
+                                    if (static_cast<PRISMATIC_FLOAT_PRECISION>(rand())/static_cast<PRISMATIC_FLOAT_PRECISION> (RAND_MAX) > occ[atom_num]){
                                         continue;
                                     }
                                 }
