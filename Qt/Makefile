@@ -570,17 +570,12 @@ prismatic-gui.app/Contents/Resources/empty.lproj:
 prismatic-gui.app/Contents/Info.plist: 
 	@test -d prismatic-gui.app/Contents || mkdir -p prismatic-gui.app/Contents
 	@$(DEL_FILE) prismatic-gui.app/Contents/Info.plist
-	@sed -e "s,@SHORT_VERSION@,1.0,g" -e "s,@FULL_VERSION@,1.0.0,g" -e "s,@TYPEINFO@,????,g" -e "s,@BUNDLEIDENTIFIER@,AJ.prismatic-gui,g" -e "s,@ICON@,prismatic-gui.icns,g" -e "s,@EXECUTABLE@,prismatic-gui,g" -e "s,@LIBRARY@,prismatic-gui,g" -e "s,@TYPEINFO@,????,g" /Users/ajpryor/Qt5/qtbase/mkspecs/macx-clang/Info.plist.app >prismatic-gui.app/Contents/Info.plist
-prismatic-gui.app/Contents/Resources/prismatic-gui.icns: prismatic-gui.icns
-	@test -d prismatic-gui.app/Contents/Resources/ || mkdir -p prismatic-gui.app/Contents/Resources/
-	@$(DEL_FILE) prismatic-gui.app/Contents/Resources/prismatic-gui.icns
-	@$(COPY_FILE) prismatic-gui.icns prismatic-gui.app/Contents/Resources/prismatic-gui.icns
+	@sed -e "s,@SHORT_VERSION@,1.0,g" -e "s,@FULL_VERSION@,1.0.0,g" -e "s,@TYPEINFO@,????,g" -e "s,@BUNDLEIDENTIFIER@,AJ.prismatic-gui,g" -e "s,@ICON@,,g" -e "s,@EXECUTABLE@,prismatic-gui,g" -e "s,@LIBRARY@,prismatic-gui,g" -e "s,@TYPEINFO@,????,g" /Users/ajpryor/Qt5/qtbase/mkspecs/macx-clang/Info.plist.app >prismatic-gui.app/Contents/Info.plist
 
 all: Makefile \
 		prismatic-gui.app/Contents/PkgInfo \
 		prismatic-gui.app/Contents/Resources/empty.lproj \
-		prismatic-gui.app/Contents/Info.plist \
-		prismatic-gui.app/Contents/Resources/prismatic-gui.icns $(TARGET)
+		prismatic-gui.app/Contents/Info.plist $(TARGET)
 
 dist: distdir FORCE
 	(cd `dirname $(DISTDIR)` && $(TAR) $(DISTNAME).tar $(DISTNAME) && $(COMPRESS) $(DISTNAME).tar) && $(MOVE) `dirname $(DISTDIR)`/$(DISTNAME).tar.gz . && $(DEL_FILE) -r $(DISTDIR)
