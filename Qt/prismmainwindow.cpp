@@ -52,7 +52,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     potentialImage(QImage()),
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0),
-    pixelSize({1,1})
+    pixelSize({1,1}),
+    colormapper(Prismatic::Colormapper(Prismatic::GrayscaleColormap))
 {
     qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
     qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");
@@ -1259,6 +1260,8 @@ void PRISMMainWindow::updateOutputDisplay(){
                                                   contrast_outputMin,
                                                   contrast_outputMax);
                     outputImage.setPixel(j, i, qRgba(val,val,val,255));
+
+
                 }
             }
 
@@ -1794,7 +1797,6 @@ unsigned char getUcharFromFloat(PRISMATIC_FLOAT_PRECISION val,
 
     if (val < contrast_low)  return 0;
     if (val > contrast_high) return 255;
-//    return (unsigned char)( val / contrast_high * 255);
     return (unsigned char)( (val - contrast_low) / (contrast_high - contrast_low) * 255);
 
 }

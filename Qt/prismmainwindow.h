@@ -27,6 +27,7 @@
 #include "defines.h"
 #include "ArrayND.h"
 #include "params.h"
+#include "prism_colormapper.h"
 namespace Ui {
 	class PRISMMainWindow;
 }
@@ -186,6 +187,7 @@ protected:
 
 private:
     Ui::PRISMMainWindow *ui;
+    Prismatic::Colormapper colormapper;
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> *meta;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
