@@ -107,12 +107,15 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     probeImage_mk.load(":/images/airy.png");
     probeImage_diffk.load(":/images/airy.png");
     probeImage_diffr.load(":/images/airy.png");
+    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(540,
+                                                                                420,
+                                                                                Qt::KeepAspectRatio)));
+
 //    probeImage.load(":/images/probe.png");
 //    outputImage.load(":/images/output.png");
     redrawImages();
-    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
-                                                                                ui->lbl_image_potential->height(),
-                                                                                Qt::KeepAspectRatio)));
+
+
 	// set initially displayed values based on the default parameters
 	this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
 	{
@@ -340,6 +343,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
     //    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
     updateAlphaMax();
+//    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->tabs->width(),
+//                                                                                ui->tabs->height(),
+//                                                                                Qt::KeepAspectRatio)));
+
 }
 
 void PRISMMainWindow::setAlgo_PRISM(){
