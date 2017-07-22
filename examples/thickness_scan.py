@@ -11,12 +11,16 @@ atom_filename    = "../SI100.XYZ"
 tileX=tileY=3
 meta = pr.Metadata(filenameAtoms=atom_filename, tileX=tileX, tileY=tileY)
 output_filenames=[]
+
+# run simulations
 for tileZ in range(1,17):
 	meta.tileZ = tileZ
 	meta.filenameOutput = base_output_name + str(tileZ) + base_output_ext
 	output_filenames.extend([meta.filenameOutput])
 	meta.go()
 
+
+# print the results
 f, ax = plt.subplots(4, 4)
 ax = ax.ravel()
 for i, filename in enumerate(output_filenames):

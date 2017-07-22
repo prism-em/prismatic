@@ -38,12 +38,14 @@ SOURCES += main.cpp\
     ../src/utility.cpp \
     ../src/atom.cpp \
     prism_progressbar.cpp \
-    saveatomiccoordinatesdialog.cpp
+    saveatomiccoordinatesdialog.cpp \
+    prism_colormapper.cpp
 LIBS +=  -lfftw3 -lfftw3f -lfftw3_threads -lfftw3f_threads -L/usr/local/lib  
 HEADERS  += prismmainwindow.h \
     prism_progressbar.h \
     prism_qthreads.h \
-    saveatomiccoordinatesdialog.h
+    saveatomiccoordinatesdialog.h \
+    prism_colormapper.h
 QMAKE_CXXFLAGS += -std=c++11
 FORMS    += \
     prismmainwindow.ui \

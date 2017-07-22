@@ -53,7 +53,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0),
     pixelSize({1,1}),
-    colormapper(Prismatic::Colormapper(Prismatic::GrayscaleColormap))
+    colormapper(Prismatic::Colormapper(Prismatic::MixColormap))
 {
     qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
     qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");
@@ -1013,14 +1013,16 @@ void PRISMMainWindow::updatePotentialDisplay(){
             QMutexLocker gatekeeper(&potentialLock);
 //            QMutexLocker gatekeeper(&dataLock);
 
-            std::cout << "filling in potential image " << std::endl;
             if (ui->checkBox_sqrtIntensityPot->isChecked()){
                 for (auto j = 0; j < potential.get_dimj(); ++j){
                     for (auto i = 0; i < potential.get_dimi(); ++i){
-                        uchar val = getUcharFromFloat(std::sqrt(potentialImage_float.at(j,i)),
-                                                      contrast_potentialMin,
-                                                      contrast_potentialMax);
-                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+//                        uchar val = getUcharFromFloat(std::sqrt(potentialImage_float.at(j,i)),
+//                                                      contrast_potentialMin,
+//                                                      contrast_potentialMax);
+//                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+                        potentialImage.setPixel(j, i, this->colormapper.getColor(std::sqrt(potentialImage_float.at(j,i)),
+                                                                                           contrast_potentialMin,
+                                                                                           contrast_potentialMax));
                     }
                 }
             } else {
@@ -1056,7 +1058,6 @@ void PRISMMainWindow::updatePotentialDisplay(){
 
         probeImage = potentialImage;
         PRISMATIC_FLOAT_PRECISION xc, yc;
-        std::cout <<"currently_calculated_X = " <<currently_calculated_X << std::endl;
         xc = currently_calculated_X / pixelSize[1];
         yc = currently_calculated_Y / pixelSize[0];
         long xc_im, yc_im;
