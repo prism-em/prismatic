@@ -2,8 +2,9 @@
 #include <QColor>
 #include <cmath>
 #include <iostream>
+#include <map>
 namespace Prismatic{
-	
+
 	void Colormapper::setColormap(const Colormap& cmap){this->colormap = cmap;}
 
     QRgb Colormapper::getColor(const double value, const double contrastMin, const double contrastMax) {
@@ -58,7 +59,7 @@ namespace Prismatic{
                                      (unsigned char)( (weight1*cLow.g + weight2*cHigh.g) * 255.0),
                                      (unsigned char)( (weight1*cLow.b + weight2*cHigh.b) * 255.0)};
         }
-        return qRgba(c.r, c.g, c.g, 255);
+        return qRgba(c.r, c.g, c.b, 255);
 //          return qRgba(0, 0, 0, 255);
 	}
 	

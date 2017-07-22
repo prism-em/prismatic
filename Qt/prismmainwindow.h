@@ -171,6 +171,7 @@ public slots:
     void updateSlider_PotentialCombo(int);
     void openSaveAtomsDialog();
     void saveAtomCoords(QString, QString);
+    void changeColormap(QString);
 protected:
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);

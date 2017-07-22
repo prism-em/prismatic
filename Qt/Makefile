@@ -63,7 +63,8 @@ SOURCES       = main.cpp \
 		../src/utility.cpp \
 		../src/atom.cpp \
 		prism_progressbar.cpp \
-		saveatomiccoordinatesdialog.cpp /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismatic-gui_plugin_import.cpp \
+		saveatomiccoordinatesdialog.cpp \
+		prism_colormapper.cpp /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismatic-gui_plugin_import.cpp \
 		qrc_prism_resources.cpp \
 		moc_prismmainwindow.cpp \
 		moc_prism_progressbar.cpp \
@@ -85,6 +86,7 @@ OBJECTS       = main.o \
 		atom.o \
 		prism_progressbar.o \
 		saveatomiccoordinatesdialog.o \
+		prism_colormapper.o \
 		prismatic-gui_plugin_import.o \
 		qrc_prism_resources.o \
 		moc_prismmainwindow.o \
@@ -230,7 +232,8 @@ DIST          = /Users/ajpryor/Qt5/qtbase/mkspecs/features/spec_pre.prf \
 		prismatic-gui.pro prismmainwindow.h \
 		prism_progressbar.h \
 		prism_qthreads.h \
-		saveatomiccoordinatesdialog.h main.cpp \
+		saveatomiccoordinatesdialog.h \
+		prism_colormapper.h main.cpp \
 		prismmainwindow.cpp \
 		prism_qthreads.cpp \
 		../src/configure.cpp \
@@ -245,7 +248,8 @@ DIST          = /Users/ajpryor/Qt5/qtbase/mkspecs/features/spec_pre.prf \
 		../src/utility.cpp \
 		../src/atom.cpp \
 		prism_progressbar.cpp \
-		saveatomiccoordinatesdialog.cpp
+		saveatomiccoordinatesdialog.cpp \
+		prism_colormapper.cpp
 QMAKE_TARGET  = prismatic-gui
 DESTDIR       = 
 TARGET        = prismatic-gui.app/Contents/MacOS/prismatic-gui
@@ -585,8 +589,8 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents prism_resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /Users/ajpryor/Qt5/qtbase/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents prismmainwindow.h prism_progressbar.h prism_qthreads.h saveatomiccoordinatesdialog.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp prismmainwindow.cpp prism_qthreads.cpp ../src/configure.cpp ../src/WorkDispatcher.cpp ../src/Multislice_entry.cpp ../src/Multislice_calcOutput.cpp ../src/PRISM_entry.cpp ../src/PRISM01_calcPotential.cpp ../src/PRISM02_calcSMatrix.cpp ../src/PRISM03_calcOutput.cpp ../src/projectedPotential.cpp ../src/utility.cpp ../src/atom.cpp prism_progressbar.cpp saveatomiccoordinatesdialog.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents prismmainwindow.h prism_progressbar.h prism_qthreads.h saveatomiccoordinatesdialog.h prism_colormapper.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp prismmainwindow.cpp prism_qthreads.cpp ../src/configure.cpp ../src/WorkDispatcher.cpp ../src/Multislice_entry.cpp ../src/Multislice_calcOutput.cpp ../src/PRISM_entry.cpp ../src/PRISM01_calcPotential.cpp ../src/PRISM02_calcSMatrix.cpp ../src/PRISM03_calcOutput.cpp ../src/projectedPotential.cpp ../src/utility.cpp ../src/atom.cpp prism_progressbar.cpp saveatomiccoordinatesdialog.cpp prism_colormapper.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents prismmainwindow.ui prism_progressbar.ui saveatomiccoordinatesdialog.ui $(DISTDIR)/
 
 
@@ -851,6 +855,7 @@ moc_prismmainwindow.cpp: /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QMainWindow
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		prismmainwindow.h \
 		moc_predefs.h \
 		/Users/ajpryor/Qt5/qtbase/bin/moc
@@ -1080,6 +1085,7 @@ moc_prism_progressbar.cpp: /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QDialog \
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/configure.h \
 		prism_progressbar.h \
 		prism_progressbar.h \
@@ -1315,6 +1321,7 @@ moc_prism_qthreads.cpp: /Users/ajpryor/Qt5/qtbase/include/QtCore/QThread \
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/configure.h \
 		prism_qthreads.h \
 		moc_predefs.h \
@@ -1789,7 +1796,8 @@ main.o: main.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QApplication \
 		../include/ArrayND.h \
 		../include/params.h \
 		../include/atom.h \
-		prism_colormapper.h
+		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidgets/QFileDialog \
@@ -2030,6 +2038,7 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		ui_prismmainwindow.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QVariant \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QAction \
@@ -2086,18 +2095,19 @@ prismmainwindow.o: prismmainwindow.cpp /Users/ajpryor/Qt5/qtbase/include/QtWidge
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/qabstractitemmodel.h \
 		/Users/ajpryor/Qt5/qtbase/src/corelib/itemmodels/qabstractitemmodel.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QFrame \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QGroupBox \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgroupbox.h \
-		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qgroupbox.h \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QHBoxLayout \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qboxlayout.h \
-		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qboxlayout.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QGridLayout \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgridlayout.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qgridlayout.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qlayout.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qlayout.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qlayoutitem.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qlayoutitem.h \
-		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgridlayout.h \
-		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qgridlayout.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qboxlayout.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/kernel/qboxlayout.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QGroupBox \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qgroupbox.h \
+		/Users/ajpryor/Qt5/qtbase/src/widgets/widgets/qgroupbox.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QHBoxLayout \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QHeaderView \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/qheaderview.h \
 		/Users/ajpryor/Qt5/qtbase/src/widgets/itemviews/qheaderview.h \
@@ -2386,6 +2396,7 @@ prism_qthreads.o: prism_qthreads.cpp prism_qthreads.h \
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/configure.h \
 		../include/PRISM01_calcPotential.h \
 		../include/projectedPotential.h \
@@ -2624,6 +2635,7 @@ configure.o: ../src/configure.cpp ../include/configure.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/PRISM_entry.h \
 		../include/Multislice_entry.h \
 		../include/Multislice_calcOutput.h \
@@ -2868,7 +2880,8 @@ WorkDispatcher.o: ../src/WorkDispatcher.cpp ../include/WorkDispatcher.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
-		prism_colormapper.h
+		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o WorkDispatcher.o ../src/WorkDispatcher.cpp
 
 Multislice_entry.o: ../src/Multislice_entry.cpp ../include/meta.h \
@@ -3097,6 +3110,7 @@ Multislice_entry.o: ../src/Multislice_entry.cpp ../include/meta.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/Multislice_calcOutput.h \
 		../include/utility.h \
 		/usr/local/include/fftw3.h \
@@ -3333,6 +3347,7 @@ Multislice_calcOutput.o: ../src/Multislice_calcOutput.cpp ../include/configure.h
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/utility.h \
 		/usr/local/include/fftw3.h \
 		../include/WorkDispatcher.h \
@@ -3566,6 +3581,7 @@ PRISM_entry.o: ../src/PRISM_entry.cpp ../include/PRISM_entry.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/PRISM01_calcPotential.h \
 		../include/projectedPotential.h \
 		../include/fparams.h \
@@ -3804,6 +3820,7 @@ PRISM01_calcPotential.o: ../src/PRISM01_calcPotential.cpp ../include/PRISM01_cal
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM01_calcPotential.o ../src/PRISM01_calcPotential.cpp
 
@@ -4035,6 +4052,7 @@ PRISM02_calcSMatrix.o: ../src/PRISM02_calcSMatrix.cpp ../include/PRISM02_calcSMa
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/utility.h \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM02_calcSMatrix.o ../src/PRISM02_calcSMatrix.cpp
@@ -4268,6 +4286,7 @@ PRISM03_calcOutput.o: ../src/PRISM03_calcOutput.cpp ../include/PRISM03_calcOutpu
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/WorkDispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o PRISM03_calcOutput.o ../src/PRISM03_calcOutput.cpp
 
@@ -4499,6 +4518,7 @@ projectedPotential.o: ../src/projectedPotential.cpp ../include/projectedPotentia
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/boost/boost/math/special_functions/bessel.hpp \
 		../include/boost/boost/math/special_functions/math_fwd.hpp \
 		../include/boost/boost/math/special_functions/detail/round_fwd.hpp \
@@ -6065,7 +6085,8 @@ utility.o: ../src/utility.cpp ../include/utility.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QMutexLocker \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QImage \
 		/Users/ajpryor/Qt5/qtbase/include/QtGui/QPixmap \
-		prism_colormapper.h
+		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utility.o ../src/utility.cpp
 
 atom.o: ../src/atom.cpp ../include/atom.h
@@ -6296,6 +6317,7 @@ prism_progressbar.o: prism_progressbar.cpp prism_progressbar.h \
 		../include/params.h \
 		../include/atom.h \
 		prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
 		../include/configure.h \
 		ui_prism_progressbar.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtCore/QVariant \
@@ -6661,6 +6683,94 @@ saveatomiccoordinatesdialog.o: saveatomiccoordinatesdialog.cpp saveatomiccoordin
 		/Users/ajpryor/Qt5/qtbase/src/gui/text/qtextoption.h \
 		/Users/ajpryor/Qt5/qtbase/include/QtWidgets/QVBoxLayout
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o saveatomiccoordinatesdialog.o saveatomiccoordinatesdialog.cpp
+
+prism_colormapper.o: prism_colormapper.cpp prism_colormapper.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/QColor \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qcolor.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qcolor.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtguiglobal.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/kernel/qtguiglobal.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qglobal.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qglobal.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qconfig-bootstrapped.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qconfig-bootstrapped.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qconfig.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qconfig.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qtcore-config.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/qtcore-config.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsystemdetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qsystemdetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qprocessordetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qprocessordetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qcompilerdetection.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qcompilerdetection.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qtypeinfo.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qtypeinfo.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qsysinfo.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qsysinfo.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qlogging.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qlogging.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qflags.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qflags.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbasicatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qbasicatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_bootstrap.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_bootstrap.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qgenericatomic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qgenericatomic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_cxx11.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_cxx11.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qatomic_msvc.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/arch/qatomic_msvc.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qglobalstatic.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qglobalstatic.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qmutex.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/thread/qmutex.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qnumeric.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qnumeric.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qversiontagging.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qversiontagging.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qtgui-config.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/qtgui-config.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qrgb.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qrgb.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qnamespace.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/global/qnamespace.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringlist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringlist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qlist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qlist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qalgorithms.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qalgorithms.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qiterator.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qiterator.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qrefcount.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qrefcount.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qarraydata.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qarraydata.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qhashfunctions.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qhashfunctions.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qchar.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qchar.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qpair.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qpair.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbytearraylist.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qbytearraylist.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qbytearray.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qbytearray.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstring.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstring.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringbuilder.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringbuilder.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qregexp.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qregexp.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtCore/qstringmatcher.h \
+		/Users/ajpryor/Qt5/qtbase/src/corelib/tools/qstringmatcher.h \
+		/Users/ajpryor/Qt5/qtbase/include/QtGui/qrgba64.h \
+		/Users/ajpryor/Qt5/qtbase/src/gui/painting/qrgba64.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o prism_colormapper.o prism_colormapper.cpp
 
 prismatic-gui_plugin_import.o: /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismatic-gui_plugin_import.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o prismatic-gui_plugin_import.o /Users/ajpryor/Documents/MATLAB/multislice/PRISM/Qt/prismatic-gui_plugin_import.cpp

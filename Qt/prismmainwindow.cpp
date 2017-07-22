@@ -53,7 +53,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0),
     pixelSize({1,1}),
-    colormapper(Prismatic::Colormapper(Prismatic::MixColormap))
+    colormapper(Prismatic::Colormapper(Prismatic::JetColormap))
 {
     qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
     qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");
@@ -334,6 +334,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
     connect(this->ui->checkBox_occupancy,              SIGNAL(toggled(bool)),            this, SLOT(toggleOccupancy()));
     connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
+    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updateOutputFloatImage()));
+
     //    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
     updateAlphaMax();
 }
@@ -1028,10 +1032,13 @@ void PRISMMainWindow::updatePotentialDisplay(){
             } else {
                 for (auto j = 0; j < potential.get_dimj(); ++j){
                     for (auto i = 0; i < potential.get_dimi(); ++i){
-                        uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
-                                                      contrast_potentialMin,
-                                                      contrast_potentialMax);
-                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+//                        uchar val = getUcharFromFloat(potentialImage_float.at(j,i),
+//                                                      contrast_potentialMin,
+//                                                      contrast_potentialMax);
+//                        potentialImage.setPixel(j, i, qRgba(val,val,val,255));
+                        potentialImage.setPixel(j, i, this->colormapper.getColor(potentialImage_float.at(j,i),
+                                                                                 contrast_potentialMin,
+                                                                                 contrast_potentialMax));
                     }
                 }
             }
@@ -1072,6 +1079,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
 //                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
              probeImage.setPixel((probeImage.width()  + (ypix + yc_im) % probeImage.width()) % probeImage.width(),
                                  (probeImage.height() + (x + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
+
             }
         }
 
@@ -1110,8 +1118,11 @@ void PRISMMainWindow::updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PREC
 //    std::cout << "pK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_pk.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_pk.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_pk.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                   *contrast.first,
+                                                                   *contrast.second));
         }
     }
     ui->lbl_image_probe_pk->setPixmap(QPixmap::fromImage(probeImage_pk.scaled(ui->lbl_image_probe_pk->width(),
@@ -1126,8 +1137,11 @@ void PRISMMainWindow::updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PREC
 //    std::cout << "pReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_pr.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_pr.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_pr.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                   *contrast.first,
+                                                                   *contrast.second));
         }
     }
     ui->lbl_image_probe_pr->setPixmap(QPixmap::fromImage(probeImage_pr.scaled(ui->lbl_image_probe_pr->width(),
@@ -1142,8 +1156,11 @@ void PRISMMainWindow::updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT
 //    std::cout << "mK *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_mk.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_mk.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_mk.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                   *contrast.first,
+                                                                   *contrast.second));
         }
     }
     ui->lbl_image_probe_mk->setPixmap(QPixmap::fromImage(probeImage_mk.scaled(ui->lbl_image_probe_mk->width(),
@@ -1158,8 +1175,11 @@ void PRISMMainWindow::updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT
 //    std::cout << "mReal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_mr.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_mr.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_mr.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                   *contrast.first,
+                                                                   *contrast.second));
         }
     }
     ui->lbl_image_probe_mr->setPixmap(QPixmap::fromImage(probeImage_mr.scaled(ui->lbl_image_probe_mr->width(),
@@ -1175,8 +1195,11 @@ void PRISMMainWindow::updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECI
 //    std::cout << "diffreal *contrast.second= " << *contrast.first<< std::endl;
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_diffr.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_diffr.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_diffr.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                      *contrast.first,
+                                                                      *contrast.second));
         }
     }
     ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(probeImage_diffr.scaled(ui->lbl_image_probeDifferenceR->width(),
@@ -1192,8 +1215,11 @@ void PRISMMainWindow::updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECI
 
     for (auto j = 0; j < arr.get_dimj(); ++j){
         for (auto i = 0; i < arr.get_dimi(); ++i){
-            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
-            probeImage_diffk.setPixel(j, i, qRgba(val,val,val,255));
+//            uchar val = getUcharFromFloat(arr.at(j,i),*contrast.first, *contrast.second);
+//            probeImage_diffk.setPixel(j, i, qRgba(val,val,val,255));
+            probeImage_diffk.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
+                                                                      *contrast.first,
+                                                                      *contrast.second));
         }
     }
     ui->lbl_image_probeDifferenceK->setPixmap(QPixmap::fromImage(probeImage_diffk.scaled(ui->lbl_image_probeDifferenceK->width(),
@@ -1257,11 +1283,13 @@ void PRISMMainWindow::updateOutputDisplay(){
         QMutexLocker gatekeeper(&outputLock);
             for (auto j = 0; j < output.get_dimk(); ++j){
                 for (auto i = 0; i < output.get_dimj(); ++i){
-                    uchar val = getUcharFromFloat(outputImage_float.at(j,i),
-                                                  contrast_outputMin,
-                                                  contrast_outputMax);
-                    outputImage.setPixel(j, i, qRgba(val,val,val,255));
-
+//                    uchar val = getUcharFromFloat(outputImage_float.at(j,i),
+//                                                  contrast_outputMin,
+//                                                  contrast_outputMax);
+//                    outputImage.setPixel(j, i, qRgba(val,val,val,255));
+                    outputImage.setPixel(j, i,this->colormapper.getColor(outputImage_float.at(j,i),
+                                                                         contrast_outputMin,
+                                                                         contrast_outputMax));
 
                 }
             }
@@ -1382,7 +1410,7 @@ void PRISMMainWindow::updateAlphaMax(){
     PRISMATIC_FLOAT_PRECISION qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
 
     PRISMATIC_FLOAT_PRECISION alphaMax = qMax * calculateLambda(*meta);
-    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ") + QString::number(alphaMax));
+    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ") + QString::number(alphaMax * 1000) + QString(" mrad"));
 }
 
 void PRISMMainWindow::checkInput_lineEdit_scanWindowXMin(){
@@ -1602,6 +1630,12 @@ void PRISMMainWindow::toggleThermalEffects(){
 void PRISMMainWindow::toggleOccupancy(){
     meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
     resetCalculation();
+}
+
+void PRISMMainWindow::changeColormap(QString color){
+    this->colormapper.setColormap(Prismatic::ColorTable[color]);
+//    this->colormapper.setColormap(Prismatic::ColorTable[QString("Jet")]);
+
 }
 
 void PRISMMainWindow::update_pearsonReal(QString str){
