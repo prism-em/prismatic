@@ -975,9 +975,11 @@ void PRISMMainWindow::updatePotentialImage(){
             this->ui->slider_slicemax->setMinimum(1);
             this->ui->slider_slicemin->setMaximum(potential.get_dimk());
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
+            this->ui->slider_bothSlices->setMaximum(potential.get_dimk());
 
             // I set the value to 0 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
             this->ui->slider_slicemax->setValue(0);
+            this->ui->slider_bothSlices->setValue(0);
             this->ui->slider_slicemax->setValue(potential.get_dimk());
         }
 }
@@ -1711,8 +1713,18 @@ void PRISMMainWindow::outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISIO
 
 void PRISMMainWindow::moveBothPotentialSliders(int val){
     int difference = ui->slider_slicemax->value() - ui->slider_slicemin->value();
-    ui->slider_slicemin->setValue(val);
-    ui->slider_slicemax->setValue(std::min(val + difference, ui->slider_slicemax->maximum()));
+//    ui->slider_slicemin->setValue(val);
+//    ui->slider_slicemax->setValue(std::min(val + difference, ui->slider_slicemax->maximum()));
+    std::cout << "difference = " << difference << std::endl;
+    std::cout << "slider_slicemin->value() = " <<  ui->slider_slicemin->value() << std::endl;
+    std::cout << "slider_slicemax->value() = " <<  ui->slider_slicemax->value() << std::endl;
+//    int difference = val - ui->slider_slicemin->value();
+    if (val + difference < ui->slider_slicemax->maximum()){
+        ui->slider_slicemin->setValue(val);
+        ui->slider_slicemax->setValue(val + difference);
+    } else {
+        ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
+    }
 }
 
 void PRISMMainWindow::updateSlider_PotentialCombo(int val){
