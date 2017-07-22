@@ -4,5 +4,29 @@
         <file>probe.png</file>
         <file>prism.png</file>
         <file>airy.png</file>
+        <file>Grays.png</file>
+        <file>Autumn.png</file>
+        <file>Blues.png</file>
+        <file>Bone.png</file>
+        <file>Cool.png</file>
+        <file>Copper.png</file>
+        <file>Dusk.png</file>
+	<file>Fire.png</file>
+        <file>Grays.png</file>
+        <file>Greens.png</file>
+        <file>HSV.png</file>
+        <file>Hot.png</file>
+        <file>Ice.png</file>
+        <file>Jet.png</file>
+        <file>Kryptonite.png</file>
+        <file>Parula.png</file>
+        <file>RedBlue.png</file>
+        <file>Reds.png</file>
+        <file>Seashore.png</file>
+        <file>Spring.png</file>
+        <file>Summer.png</file>
+        <file>Teals.png</file>
+        <file>Violetfire.png</file>
+        <file>Winter.png</file>
     </qresource>
 </RCC>

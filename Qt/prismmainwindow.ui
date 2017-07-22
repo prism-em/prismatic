@@ -995,119 +995,217 @@
           <property name="layoutDirection">
            <enum>Qt::RightToLeft</enum>
           </property>
+          <property name="iconSize">
+           <size>
+            <width>64</width>
+            <height>16</height>
+           </size>
+          </property>
           <item>
            <property name="text">
             <string>Violet Fire</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Violetfire.png</normaloff>:/images/Violetfire.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Jet</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Jet.png</normaloff>:/images/Jet.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Fire</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Fire.png</normaloff>:/images/Fire.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Ice</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Ice.png</normaloff>:/images/Ice.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Bone</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Bone.png</normaloff>:/images/Bone.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Dusk</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Dusk.png</normaloff>:/images/Dusk.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Hot</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Hot.png</normaloff>:/images/Hot.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Cool</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Cool.png</normaloff>:/images/Cool.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Spring</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Spring.png</normaloff>:/images/Spring.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Summer</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Summer.png</normaloff>:/images/Summer.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Autumn</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Autumn.png</normaloff>:/images/Autumn.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Winter</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Winter.png</normaloff>:/images/Winter.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Copper</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Copper.png</normaloff>:/images/Copper.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Grays</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Grays.png</normaloff>:/images/Grays.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Reds</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Reds.png</normaloff>:/images/Reds.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Greens</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Greens.png</normaloff>:/images/Greens.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Blues</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Blues.png</normaloff>:/images/Blues.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Teals</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Teals.png</normaloff>:/images/Teals.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Kryptonite</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Kryptonite.png</normaloff>:/images/Kryptonite.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>Red/Blue</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/RedBlue.png</normaloff>:/images/RedBlue.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Seashore</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Seashore.png</normaloff>:/images/Seashore.png</iconset>
            </property>
           </item>
           <item>
            <property name="text">
             <string>HSV</string>
            </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/HSV.png</normaloff>:/images/HSV.png</iconset>
+           </property>
           </item>
           <item>
            <property name="text">
             <string>Parula</string>
+           </property>
+           <property name="icon">
+            <iconset resource="prism_resources.qrc">
+             <normaloff>:/images/Parula.png</normaloff>:/images/Parula.png</iconset>
            </property>
           </item>
          </widget>
@@ -3282,6 +3380,8 @@ Thickness (A)</string>
   <tabstop>btn_reset</tabstop>
   <tabstop>btn_calcPotential</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="prism_resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
