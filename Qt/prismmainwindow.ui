@@ -1007,6 +1007,36 @@
           </item>
           <item>
            <property name="text">
+            <string>Parula</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>HSV</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Hot</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Cool</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Spring</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Summer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
             <string>Gray</string>
            </property>
           </item>
