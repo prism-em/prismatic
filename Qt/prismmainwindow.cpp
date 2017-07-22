@@ -53,7 +53,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0),
     pixelSize({1,1}),
-    colormapper(Prismatic::Colormapper(Prismatic::JetColormap))
+    colormapper(Prismatic::Colormapper(Prismatic::VioletFireColormap))
 {
     qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
     qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");

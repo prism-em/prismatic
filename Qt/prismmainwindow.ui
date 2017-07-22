@@ -997,22 +997,32 @@
           </property>
           <item>
            <property name="text">
-            <string>Jet</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
             <string>Violet Fire</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Parula</string>
+            <string>Jet</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>HSV</string>
+            <string>Fire</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Ice</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bone</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Dusk</string>
            </property>
           </item>
           <item>
@@ -1037,22 +1047,67 @@
           </item>
           <item>
            <property name="text">
-            <string>Gray</string>
+            <string>Autumn</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Red</string>
+            <string>Winter</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Green</string>
+            <string>Copper</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Blue</string>
+            <string>Grays</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Reds</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Greens</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Blues</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Teals</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Kryptonite</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Red/Blue</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Seashore</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>HSV</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Parula</string>
            </property>
           </item>
          </widget>
@@ -1998,6 +2053,19 @@
                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                      </property>
                     </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
                    </item>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_45">
