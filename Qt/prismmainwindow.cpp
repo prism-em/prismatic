@@ -1836,6 +1836,8 @@ void PRISMMainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
    redrawImages();
+//   ui->horizontalSlider_bothDetectors->resize(ui->slider_angmin->width() + ui->lineEdit_angmin->width(),
+//                                              ui->horizontalSlider_bothDetectors->height());
 }
 
 
