@@ -1095,20 +1095,22 @@ void PRISMMainWindow::updatePotentialDisplay(){
 
         probeImage = potentialImage;
         PRISMATIC_FLOAT_PRECISION xc, yc;
-        xc = currently_calculated_X / pixelSize[1];
-        yc = currently_calculated_Y / pixelSize[0];
+        xc = currently_calculated_X / (meta->realspacePixelSize[1]);
+        yc = currently_calculated_Y / (meta->realspacePixelSize[0]);
         long xc_im, yc_im;
         xc_im = (xc / potential.get_dimi()) * probeImage.height();
         yc_im = (yc / potential.get_dimj()) * probeImage.width();
 
         // draw the reticle
-        const long linehalfwidth = 1;
-        const long linelength = 10;
+//        const long linehalfwidth = 1;
+//        const long linelength = 10;
+        const long linehalfwidth = 1+probeImage.width()/200;
+        const long linelength = 1+probeImage.width()/10;
         for (auto ypix = -linehalfwidth; ypix <= linehalfwidth; ++ypix){
             for (auto x = -linelength; x <= linelength; ++x){
 //                std::cout << "ypix + yc_im) % probeImage.width() = " << (ypix + yc_im) % probeImage.width()<< std::endl;
              probeImage.setPixel((probeImage.width()  + (ypix + yc_im) % probeImage.width()) % probeImage.width(),
-                                 (probeImage.height() + (x + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
+                                 (probeImage.height() + (x + xc_im) % probeImage.height()) % probeImage.height(), qRgba(255, 255, 255, 50));
 
             }
         }
@@ -1116,7 +1118,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
         for (auto xpix = -linehalfwidth; xpix <= linehalfwidth; ++xpix){
             for (auto y = -linelength; y <= linelength; ++y){
              probeImage.setPixel((probeImage.width()  + (y + yc_im) % probeImage.width()) % probeImage.width(),
-                                 (probeImage.height() + (xpix + xc_im) % probeImage.height()) % probeImage.height(), qRgba(0, 255, 255, 100));
+                                 (probeImage.height() + (xpix + xc_im) % probeImage.height()) % probeImage.height(), qRgba(255, 255, 255, 50));
             }
         }
 
@@ -1340,9 +1342,11 @@ void PRISMMainWindow::updateOutputImage(){
             // update sliders to match dimensions of output, which also triggers a redraw of the image
             this->ui->slider_angmin->setMinimum(0);
             this->ui->slider_angmax->setMinimum(0);
+            this->ui->slider_bothSlices->setMinimum(0);
             this->ui->slider_angmin->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_angmax->setMaximum(detectorAngles.size() - 1);
-            this->ui->slider_angmax->setValue(detectorAngles.size() - 1);
+            this->ui->slider_bothSlices->setMaximum(detectorAngles.size() - 1);
+            this->ui->slider_angmax->setValue(std::min(this->ui->slider_angmax->value(), this->ui->slider_angmax->maximum()));
             this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0] - (detectorAngles[1] - detectorAngles[0])/2));
             this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1] + (detectorAngles[1] - detectorAngles[0])/2));
         }
@@ -1444,6 +1448,7 @@ void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
                                                          this->ui->slider_angmax->value()));
             this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval) - 1,
                                                          this->ui->slider_angmin->value()));
+            this->ui->slider_bothDetectors->setValue(this->ui->slider_angmin->value());
             updateSlider_lineEdits_max_ang(this->ui->slider_angmax->value());
             updateSlider_lineEdits_min_ang(this->ui->slider_angmin->value());
         }
@@ -1476,7 +1481,7 @@ void PRISMMainWindow::updateSlider_lineEdits_max_ang(int val){
             this->ui->lineEdit_angmax->setText(QString::number(scaled_val));
         } else {
             this->ui->slider_angmax->setValue(this->ui->slider_angmin->value());
-        }
+        }        
     }
 }
 
@@ -1784,9 +1789,9 @@ bool PRISMMainWindow::potentialIsReady(){
     return potentialReady;
 }
 bool PRISMMainWindow::SMatrixIsReady(){
-    return false;
-//    QMutexLocker gatekeeper(&dataLock);
-//    return ScompactReady & potentialReady;
+//    return false;
+    QMutexLocker gatekeeper(&dataLock);
+    return ScompactReady;
 }
 bool PRISMMainWindow::OutputIsReady(){
     QMutexLocker gatekeeper(&dataLock);

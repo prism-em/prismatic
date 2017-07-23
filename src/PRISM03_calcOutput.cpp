@@ -149,9 +149,9 @@ namespace Prismatic {
 				{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		unique_lock<mutex> gatekeeper(fftw_plan_lock);
 		PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-		                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-		                                              FFTW_FORWARD, FFTW_ESTIMATE);
+                                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+                                                              reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+                                                              FFTW_FORWARD, FFTW_ESTIMATE);
 		gatekeeper.unlock();
 		const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 		const static PRISMATIC_FLOAT_PRECISION pi = std::acos(-1);

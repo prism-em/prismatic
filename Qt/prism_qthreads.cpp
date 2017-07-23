@@ -105,7 +105,9 @@ void ProbeThread::run(){
 
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
-    if (!this->parent->potentialIsReady()){
+    if ((!this->parent->potentialIsReady()) || !(params.meta == *(this->parent->getMetadata()))){
+//    if ((!this->parent->potentialIsReady())){
+
         Prismatic::configure(meta);
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         Prismatic::PRISM01_calcPotential(params);
@@ -125,16 +127,16 @@ void ProbeThread::run(){
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
-    if (!this->parent->SMatrixIsReady()){
+    if ((!this->parent->SMatrixIsReady()) || !(params.meta == *(this->parent->getMetadata()))){
         Prismatic::PRISM02_calcSMatrix(params);
     {
-//        std::cout << "S-Matrix finished calculating." << std::endl;
-//        QMutexLocker gatekeeper(&this->parent->dataLock);
-//        // perform copy
-//        this->parent->pars = params;
+        std::cout << "S-Matrix finished calculating." << std::endl;
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        // perform copy
+        this->parent->pars = params;
 
-//        // indicate that the S-Matrix is ready
-//        this->parent->ScompactReady = true;
+        // indicate that the S-Matrix is ready
+        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -168,6 +170,8 @@ void ProbeThread::run(){
     Prismatic::initializeProbes(params);
 
     std::cout << "Getting PRISM Probe" << std::endl;
+    std::cout << "X = " << X << std::endl;
+    std::cout << "Y = " << Y << std::endl;
     prism_probes = Prismatic::getSinglePRISMProbe_CPU(params, X, Y);
 
 
@@ -189,11 +193,11 @@ void ProbeThread::run(){
 
     multislice_probes = Prismatic::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
-    if (params.meta == *(this->parent->getMetadata())){
-        std::cout << "Metadata equal!" << std::endl;
-    } else {
-        std::cout << "Metadata not equal!" << std::endl;
-    }
+//    if (params.meta == *(this->parent->getMetadata())){
+//        std::cout << "Metadata equal!" << std::endl;
+//    } else {
+//        std::cout << "Metadata not equal!" << std::endl;
+//    }
 
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
@@ -334,7 +338,7 @@ void FullPRISMCalcThread::run(){
 
     Prismatic::configure(meta);
 //  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
-    if (!this->parent->potentialIsReady()){
+    if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         Prismatic::PRISM01_calcPotential(params);
         std::cout <<"Potential Calculated" << std::endl;
@@ -352,7 +356,7 @@ void FullPRISMCalcThread::run(){
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
-    if (!this->parent->SMatrixIsReady()){
+    if ((!this->parent->SMatrixIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
     Prismatic::PRISM02_calcSMatrix(params);
     {
 //        QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -432,7 +436,7 @@ void FullMultisliceCalcThread::run(){
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
-        if (!this->parent->potentialIsReady()) {
+        if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))) {
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
             Prismatic::PRISM01_calcPotential(params);
             std::cout << "Potential Calculated" << std::endl;
