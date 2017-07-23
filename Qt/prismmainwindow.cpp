@@ -971,6 +971,7 @@ void PRISMMainWindow::updatePotentialImage(){
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
             this->ui->slider_bothSlices->setMinimum(1);
+            this->ui->slider_slicemin->setValue(1);
             this->ui->slider_bothSlices->setValue(1);
             this->ui->slider_slicemin->setMaximum(potential.get_dimk());
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
@@ -1312,7 +1313,6 @@ void PRISMMainWindow::updateOutputDisplay(){
 }
 
 void PRISMMainWindow::updateSliders_fromLineEdits(){
-    std::cout << "updateSliders_fromLineEdits" << std::endl;
     this->ui->slider_slicemin->setValue(std::min(this->ui->lineEdit_slicemin->text().toInt(),
                                                  this->ui->slider_slicemax->value()));
     this->ui->slider_bothSlices->setValue(this->ui->slider_slicemin->value());
@@ -1754,9 +1754,9 @@ void PRISMMainWindow::resetLinks(){
 
 void PRISMMainWindow::redrawImages(){
     updatePotentialDisplay();
-//    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
-//                                                                                ui->lbl_image_potential->height(),
-//                                                                                Qt::KeepAspectRatio)));
+    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
+                                                                                ui->lbl_image_potential->height(),
+                                                                                Qt::KeepAspectRatio)));
 
     ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
                                                                                    ui->lbl_image_probeInteractive->height(),
