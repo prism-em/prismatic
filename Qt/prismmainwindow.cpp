@@ -960,7 +960,6 @@ void PRISMMainWindow::calculateProbe(){
 }
 
 void PRISMMainWindow::updatePotentialImage(){
-    std::cout<<"updatePotentialImage"<<std::endl;
     if (checkpotentialArrayExists()){
             {
             QMutexLocker gatekeeper(&potentialLock);
@@ -968,8 +967,6 @@ void PRISMMainWindow::updatePotentialImage(){
             potentialImage = QImage(potential.get_dimj(), potential.get_dimi(), QImage::Format_ARGB32);
             }
 
-            std::cout<<"update sliders"<<std::endl;
-            std::cout <<"potential.get_dimk()= " <<potential.get_dimk() << std::endl;
             // update sliders to match dimensions of potential, which also triggers a redraw of the image
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
@@ -1356,7 +1353,6 @@ void PRISMMainWindow::updateSlider_lineEdits_min(int val){
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_max(int val){
-    std::cout << "updateSlider_lineEdits_max " << val << std::endl;
     if (val >= this->ui->slider_slicemin->value()){
         this->ui->lineEdit_slicemax->setText(QString::number(val));
     } else {
@@ -1719,26 +1715,12 @@ void PRISMMainWindow::outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISIO
 
 void PRISMMainWindow::moveBothPotentialSliders(int val){
     int difference = ui->slider_slicemax->value() - ui->slider_slicemin->value();
-//    ui->slider_slicemin->setValue(val);
-//    ui->slider_slicemax->setValue(std::min(val + difference, ui->slider_slicemax->maximum()));
-    std::cout << "difference = " << difference << std::endl;
-    std::cout << "slider_slicemin->value() = " <<  ui->slider_slicemin->value() << std::endl;
-    std::cout << "slider_slicemax->value() = " <<  ui->slider_slicemax->value() << std::endl;
-    std::cout << "val = " << val << std::endl;
-//    int difference = val - ui->slider_slicemin->value();
     if (val + difference <= ui->slider_slicemax->maximum()){
         ui->slider_slicemax->setValue(val + difference);
         ui->slider_slicemin->setValue(val);
-    } else {
-//        ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
     }
     ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
-
 }
-
-//void PRISMMainWindow::updateSlider_PotentialCombo(int val){
-//    ui->slider_bothSlices->setValue(val);
-//}
 
 
 void PRISMMainWindow::enableOutputWidgets(){
