@@ -620,11 +620,34 @@ compiler_rcc_clean:
 	-$(DEL_FILE) qrc_prism_resources.cpp
 qrc_prism_resources.cpp: prism_resources.qrc \
 		/Users/ajpryor/Qt5/qtbase/bin/rcc \
+		Seashore.png \
+		Greens.png \
+		Winter.png \
+		Copper.png \
+		Grays.png \
+		Grays.png \
+		Violetfire.png \
+		Fire.png \
+		Ice.png \
+		Blues.png \
+		Jet.png \
 		prism.png \
+		Parula.png \
+		airy.png \
+		Summer.png \
+		RedBlue.png \
+		Spring.png \
+		Dusk.png \
+		HSV.png \
 		probe.png \
+		Reds.png \
+		Bone.png \
+		Autumn.png \
+		Cool.png \
+		Kryptonite.png \
+		Hot.png \
 		prismatic-logo.png \
-		gray.png \
-		airy.png
+		Teals.png
 	/Users/ajpryor/Qt5/qtbase/bin/rcc -name prism_resources prism_resources.qrc -o qrc_prism_resources.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h

@@ -168,7 +168,7 @@ public slots:
     void userHasSetCellDims();
     void resetLinks();
     void moveBothPotentialSliders(int);
-    void updateSlider_PotentialCombo(int);
+//    void updateSlider_PotentialCombo(int);
     void openSaveAtomsDialog();
     void saveAtomCoords(QString, QString);
     void changeColormap(QString);

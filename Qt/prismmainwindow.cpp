@@ -310,7 +310,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_slicemin,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->slider_bothSlices,               SIGNAL(valueChanged(int)),        this, SLOT(moveBothPotentialSliders(int)));
-    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
+//    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_min(int)));
     connect(this->ui->slider_slicemax,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_max(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updatePotentialFloatImage()));
@@ -973,13 +973,14 @@ void PRISMMainWindow::updatePotentialImage(){
             // update sliders to match dimensions of potential, which also triggers a redraw of the image
             this->ui->slider_slicemin->setMinimum(1);
             this->ui->slider_slicemax->setMinimum(1);
+            this->ui->slider_bothSlices->setMinimum(1);
+            this->ui->slider_bothSlices->setValue(1);
             this->ui->slider_slicemin->setMaximum(potential.get_dimk());
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
             this->ui->slider_bothSlices->setMaximum(potential.get_dimk());
 
             // I set the value to 0 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
-            this->ui->slider_slicemax->setValue(0);
-            this->ui->slider_bothSlices->setValue(0);
+            this->ui->slider_slicemax->setValue(1);
             this->ui->slider_slicemax->setValue(potential.get_dimk());
         }
 }
@@ -1314,8 +1315,10 @@ void PRISMMainWindow::updateOutputDisplay(){
 }
 
 void PRISMMainWindow::updateSliders_fromLineEdits(){
+    std::cout << "updateSliders_fromLineEdits" << std::endl;
     this->ui->slider_slicemin->setValue(std::min(this->ui->lineEdit_slicemin->text().toInt(),
                                                  this->ui->slider_slicemax->value()));
+    this->ui->slider_bothSlices->setValue(this->ui->slider_slicemin->value());
     this->ui->slider_slicemax->setValue(std::max(this->ui->lineEdit_slicemax->text().toInt(),
                                                  this->ui->slider_slicemin->value()));
 }
@@ -1348,9 +1351,12 @@ void PRISMMainWindow::updateSlider_lineEdits_min(int val){
     } else {
         this->ui->slider_slicemin->setValue(this->ui->slider_slicemax->value());
     }
+    this->ui->slider_bothSlices->setValue(this->ui->slider_slicemin->value());
+
 }
 
 void PRISMMainWindow::updateSlider_lineEdits_max(int val){
+    std::cout << "updateSlider_lineEdits_max " << val << std::endl;
     if (val >= this->ui->slider_slicemin->value()){
         this->ui->lineEdit_slicemax->setText(QString::number(val));
     } else {
@@ -1718,18 +1724,21 @@ void PRISMMainWindow::moveBothPotentialSliders(int val){
     std::cout << "difference = " << difference << std::endl;
     std::cout << "slider_slicemin->value() = " <<  ui->slider_slicemin->value() << std::endl;
     std::cout << "slider_slicemax->value() = " <<  ui->slider_slicemax->value() << std::endl;
+    std::cout << "val = " << val << std::endl;
 //    int difference = val - ui->slider_slicemin->value();
-    if (val + difference < ui->slider_slicemax->maximum()){
-        ui->slider_slicemin->setValue(val);
+    if (val + difference <= ui->slider_slicemax->maximum()){
         ui->slider_slicemax->setValue(val + difference);
+        ui->slider_slicemin->setValue(val);
     } else {
-        ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
+//        ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
     }
+    ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
+
 }
 
-void PRISMMainWindow::updateSlider_PotentialCombo(int val){
-    ui->slider_bothSlices->setValue(val);
-}
+//void PRISMMainWindow::updateSlider_PotentialCombo(int val){
+//    ui->slider_bothSlices->setValue(val);
+//}
 
 
 void PRISMMainWindow::enableOutputWidgets(){
@@ -1836,8 +1845,7 @@ void PRISMMainWindow::resizeEvent(QResizeEvent* event)
 {
    QMainWindow::resizeEvent(event);
    redrawImages();
-//   ui->horizontalSlider_bothDetectors->resize(ui->slider_angmin->width() + ui->lineEdit_angmin->width(),
-//                                              ui->horizontalSlider_bothDetectors->height());
+
 }
 
 

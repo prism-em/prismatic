@@ -45,7 +45,7 @@
          </sizepolicy>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_potential">
          <attribute name="title">
@@ -77,176 +77,156 @@
              </widget>
             </item>
             <item>
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="3" column="4">
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QSlider" name="slider_slicemax">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_51">
+                <property name="text">
+                 <string>Max</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QLineEdit" name="lineEdit_contrastPotMin">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QSlider" name="slider_bothSlices">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="lineEdit_slicemin">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>1</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_29">
+                <property name="text">
+                 <string>Min</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QLineEdit" name="lineEdit_contrastPotMax">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QSlider" name="slider_slicemin">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="lineEdit_slicemax">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>1</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Slice number</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>Contrast</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_sqrtIntensityPot">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Square Root Intensity</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_28">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_17">
-                <item>
-                 <widget class="QLabel" name="label_23">
-                  <property name="text">
-                   <string>Slice min/max</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_23">
-                  <item>
-                   <widget class="QLineEdit" name="lineEdit_slicemin">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>30</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>0</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="slider_slicemin">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_27">
-                  <item>
-                   <widget class="QLineEdit" name="lineEdit_slicemax">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>30</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>0</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="slider_slicemax">
-                    <property name="enabled">
-                     <bool>true</bool>
-                    </property>
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="QSlider" name="slider_bothSlices">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="checkBox_sqrtIntensityPot">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="text">
-                   <string>Square Root Intensity</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_18">
-                <item>
-                 <widget class="QLabel" name="label_15">
-                  <property name="text">
-                   <string>Contrast</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="lineEdit_contrastPotMin">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="lineEdit_contrastPotMax">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>60</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_24">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_11">
-                <item>
-                 <widget class="QLabel" name="label_22">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_16">
-                  <property name="text">
-                   <string>Min</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_17">
-                  <property name="text">
-                   <string>Max</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_25">
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <layout class="QVBoxLayout" name="verticalLayout_11"/>
               </item>
              </layout>
             </item>
@@ -1307,8 +1287,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>326</width>
-         <height>1136</height>
+         <width>320</width>
+         <height>1137</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -3364,11 +3344,6 @@ Thickness (A)</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>lineEdit_slicemin</tabstop>
-  <tabstop>slider_slicemin</tabstop>
-  <tabstop>lineEdit_contrastPotMin</tabstop>
-  <tabstop>lineEdit_slicemax</tabstop>
-  <tabstop>slider_slicemax</tabstop>
   <tabstop>btn_calculateProbe</tabstop>
   <tabstop>lineEdit_probeX</tabstop>
   <tabstop>lineEdit_probeY</tabstop>
@@ -3381,8 +3356,6 @@ Thickness (A)</string>
   <tabstop>scrollArea</tabstop>
   <tabstop>btn_atomsfile_browse</tabstop>
   <tabstop>btn_go</tabstop>
-  <tabstop>checkBox_sqrtIntensityPot</tabstop>
-  <tabstop>lineEdit_contrastPotMax</tabstop>
   <tabstop>lineEdit_cellDimX</tabstop>
   <tabstop>lineEdit_cellDimY</tabstop>
   <tabstop>lineEdit_cellDimZ</tabstop>
