@@ -933,26 +933,19 @@
                   </item>
                   <item>
                    <layout class="QGridLayout" name="gridLayout_3">
-                    <item row="1" column="4">
-                     <widget class="QLabel" name="label_30">
-                      <property name="text">
-                       <string>Min</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="3">
-                     <widget class="QLineEdit" name="lineEdit_contrast_outputMin">
+                    <item row="2" column="2">
+                     <widget class="QSlider" name="slider_angmax">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>75</width>
-                        <height>16777215</height>
-                       </size>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
                       </property>
-                      <property name="maxLength">
-                       <number>16</number>
+                      <property name="tickPosition">
+                       <enum>QSlider::TicksBothSides</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>1</number>
                       </property>
                      </widget>
                     </item>
@@ -964,79 +957,38 @@
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
                       </property>
+                      <property name="tickPosition">
+                       <enum>QSlider::NoTicks</enum>
+                      </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="label_43">
-                      <property name="minimumSize">
-                       <size>
-                        <width>35</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>35</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
+                    <item row="1" column="4">
+                     <widget class="QLabel" name="label_30">
                       <property name="text">
-                       <string>Inner</string>
+                       <string>Min</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="3">
-                     <widget class="QLabel" name="label_27">
+                    <item row="0" column="0" colspan="2">
+                     <widget class="QLabel" name="label_26">
                       <property name="text">
-                       <string>Contrast</string>
+                       <string>Virtual Detectors</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="2">
-                     <widget class="QSlider" name="slider_angmax">
+                    <item row="2" column="3">
+                     <widget class="QLineEdit" name="lineEdit_contrast_outputMax">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLineEdit" name="lineEdit_angmax">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>50</width>
-                        <height>0</height>
-                       </size>
-                      </property>
                       <property name="maximumSize">
                        <size>
-                        <width>60</width>
+                        <width>75</width>
                         <height>16777215</height>
                        </size>
                       </property>
                       <property name="maxLength">
-                       <number>6</number>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="4">
-                     <widget class="QLabel" name="label_31">
-                      <property name="text">
-                       <string>Max</string>
+                       <number>16</number>
                       </property>
                      </widget>
                     </item>
@@ -1090,8 +1042,65 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="3">
-                     <widget class="QLineEdit" name="lineEdit_contrast_outputMax">
+                    <item row="2" column="1">
+                     <widget class="QLineEdit" name="lineEdit_angmax">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>50</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>60</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="maxLength">
+                       <number>6</number>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="4">
+                     <widget class="QLabel" name="label_31">
+                      <property name="text">
+                       <string>Max</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_43">
+                      <property name="minimumSize">
+                       <size>
+                        <width>35</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>35</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Inner</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="3">
+                     <widget class="QLineEdit" name="lineEdit_contrast_outputMin">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -1106,6 +1115,13 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="0" column="3">
+                     <widget class="QLabel" name="label_27">
+                      <property name="text">
+                       <string>Contrast</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="3" column="2">
                      <widget class="QSlider" name="slider_bothDetectors">
                       <property name="enabled">
@@ -1114,12 +1130,8 @@
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0" colspan="2">
-                     <widget class="QLabel" name="label_26">
-                      <property name="text">
-                       <string>Virtual Detectors</string>
+                      <property name="tickPosition">
+                       <enum>QSlider::NoTicks</enum>
                       </property>
                      </widget>
                     </item>
@@ -3468,7 +3480,6 @@ Thickness (A)</string>
          </layout>
         </item>
        </layout>
-       <zorder></zorder>
       </widget>
      </widget>
     </item>
