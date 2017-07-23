@@ -1896,6 +1896,7 @@ void PRISMMainWindow::moveBothPotentialSliders(int val){
 void PRISMMainWindow::enableOutputWidgets(){
     ui->slider_angmax->setEnabled(true);
     ui->slider_angmin->setEnabled(true);
+    ui->slider_bothDetectors->setEnabled(true);
     ui->lineEdit_contrast_outputMax->setEnabled(true);
     ui->lineEdit_contrast_outputMin->setEnabled(true);
     ui->lineEdit_angmin->setEnabled(true);
