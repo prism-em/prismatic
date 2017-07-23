@@ -25,6 +25,8 @@ namespace Prismatic{
 	class Metadata{
 	public:
 		void toString();
+		bool operator==(const Metadata<T> other);
+	
 		Metadata(){
 			interpolationFactorY  = 4;
 			interpolationFactorX  = 4;
@@ -123,6 +125,7 @@ namespace Prismatic{
 		bool save4DOutput;
 		bool userSpecifiedCelldims;
 		StreamingMode transferMode;
+
 	};
 
 	template <class T>
@@ -213,6 +216,49 @@ namespace Prismatic{
 			std::cout << "Data Transfer : Streaming" << std::endl;
 		}
 #endif // PRISMATIC_ENABLE_GPU
+	}
+
+	template <class T>
+	bool Metadata<T>::operator==(const Metadata<T> other){
+		if(interpolationFactorY != other.interpolationFactorY)return false;
+		if(interpolationFactorX != other.interpolationFactorX)return false;
+		if(filenameAtoms != other.filenameAtoms)return false;
+		if(filenameOutput != other.filenameOutput)return false;
+		if(realspacePixelSize[0] != realspacePixelSize[0])return false;
+		if(realspacePixelSize[1] != other.realspacePixelSize[1])return false;
+		if(potBound != other.potBound)return false;
+		if(numFP != other.numFP)return false;
+		if(sliceThickness != other.sliceThickness)return false;
+		if(cellDim[0] != other.cellDim[0])return false;
+		if(cellDim[1] != other.cellDim[1])return false;
+		if(cellDim[2] != other.cellDim[2])return false;
+		if(tileX != other.tileX)return false;
+		if(tileY != other.tileY)return false;
+		if(tileZ != other.tileZ)return false;
+		if(E0 != other.E0)return false;
+		if(alphaBeamMax != other.alphaBeamMax)return false;
+		if(probeStepX != other.probeStepX)return false;
+		if(probeStepY != other.probeStepY)return false;
+		if(probeSemiangle != other.probeSemiangle)return false;
+		if(C3 != other.C3)return false;
+		if(C5 != other.C5)return false;
+		if(probeDefocus != other.probeDefocus)return false;
+		if(detectorAngleStep != other.detectorAngleStep)return false;
+		if(probeXtilt != other.probeXtilt)return false;
+		if(probeYtilt != other.probeYtilt)return false;
+		if(scanWindowXMin != other.scanWindowXMin)return false;
+		if(scanWindowXMax != other.scanWindowXMax)return false;
+		if(scanWindowYMin != other.scanWindowYMin)return false;
+		if(scanWindowYMax != other.scanWindowYMax)return false;
+		if(randomSeed != other.randomSeed)return false;
+		if(includeThermalEffects != other.includeThermalEffects)return false;
+		if(includeOccupancy != other.includeOccupancy)return false;
+		if(alsoDoCPUWork != other.alsoDoCPUWork)return false;
+		if(save2DOutput != other.save2DOutput)return false;
+		if(save3DOutput != other.save3DOutput)return false;
+		if(save4DOutput != other.save4DOutput)return false;
+		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
+		return true;
 	}
 
 }

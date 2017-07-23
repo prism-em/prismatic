@@ -189,6 +189,12 @@ void ProbeThread::run(){
 
     multislice_probes = Prismatic::getSingleMultisliceProbe_CPU(params_multi, X, Y);
 
+    if (params.meta == *(this->parent->getMetadata())){
+        std::cout << "Metadata equal!" << std::endl;
+    } else {
+        std::cout << "Metadata not equal!" << std::endl;
+    }
+
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
 //    this->parent->pars = params;
