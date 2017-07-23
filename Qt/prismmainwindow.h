@@ -143,6 +143,7 @@ public slots:
     void updateProbeR_PRISMDisplay();
     void updateProbeK_MultisliceDisplay();
     void updateProbeR_MultisliceDisplay();
+    void updateProbeImages();
     void updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
     void updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
     void updateAllImages();
@@ -179,6 +180,8 @@ public slots:
     void openSaveAtomsDialog();
     void saveAtomCoords(QString, QString);
     void changeColormap(QString);
+    bool checkProbesCalculated();
+
 
 protected:
     void setFilenameAtoms(const std::string& filename);
@@ -210,6 +213,7 @@ private:
     QMutex outputLock;
     QMutex dataLock;
     QMutex calculationLock;
+    QMutex probeLock;
 
     bool potentialReady;
     bool ScompactReady;
@@ -218,6 +222,7 @@ private:
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
+    bool probesCalculated;
     bool interpYSet;
     bool pixelSizeYSet;
     bool probeStepYSet;

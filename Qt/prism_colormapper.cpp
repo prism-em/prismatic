@@ -8,6 +8,7 @@ namespace Prismatic{
 	void Colormapper::setColormap(const Colormap& cmap){this->colormap = cmap;}
 
     QRgb Colormapper::getColor(const double value, const double contrastMin, const double contrastMax) {
+
         Color<double> color_fraction;
         Color<unsigned char> c;
 //        std::cout << "value  " << value << std::endl;

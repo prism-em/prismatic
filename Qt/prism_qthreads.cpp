@@ -262,24 +262,24 @@ void ProbeThread::run(){
 
 
 
-if (use_log_scale){
-    for (auto i = 0; i < prism_probes.first.size(); ++i){
-        pr[i] =  std::log(1e-5 + std::abs(prism_probes.first[i]));
-    }
-    for (auto i = 0; i < prism_probes.second.size(); ++i){
-        pk[i] =  std::log(1e-5 + std::abs(prism_probes.second[i]));
-    }
-    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-        mr[i] =  std::log(1e-5 + std::abs(multislice_probes.first[i]));
-    }
-    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-        mk[i] =  std::log(1e-5 + std::abs(multislice_probes.second[i]));
-    }
-    for (auto i = 0; i < prism_probes.second.size(); ++i){
-        diffr[i] =  log(1e-5 + std::abs(pr[i] - mr[i]));
-        diffk[i] =  log(1e-5 + std::abs(pk[i] - mk[i]));
-    }
-} else{
+//if (use_log_scale){
+//    for (auto i = 0; i < prism_probes.first.size(); ++i){
+//        pr[i] =  std::log(1e-5 + std::abs(prism_probes.first[i]));
+//    }
+//    for (auto i = 0; i < prism_probes.second.size(); ++i){
+//        pk[i] =  std::log(1e-5 + std::abs(prism_probes.second[i]));
+//    }
+//    for (auto i = 0; i < multislice_probes.first.size(); ++i){
+//        mr[i] =  std::log(1e-5 + std::abs(multislice_probes.first[i]));
+//    }
+//    for (auto i = 0; i < multislice_probes.second.size(); ++i){
+//        mk[i] =  std::log(1e-5 + std::abs(multislice_probes.second[i]));
+//    }
+//    for (auto i = 0; i < prism_probes.second.size(); ++i){
+//        diffr[i] =  log(1e-5 + std::abs(pr[i] - mr[i]));
+//        diffk[i] =  log(1e-5 + std::abs(pk[i] - mk[i]));
+//    }
+//} else{
     for (auto i = 0; i < prism_probes.first.size(); ++i){
         pr[i] =  std::abs(prism_probes.first[i]);
     }
@@ -296,7 +296,7 @@ if (use_log_scale){
         diffr[i] =  (std::abs(pr[i] - mr[i]));
         diffk[i] =  (std::abs(pk[i] - mk[i]));
     }
-}
+//}
 
     emit signalProbeR_PRISM((pr));
     emit signalProbeK_PRISM(fftshift2(pk));
