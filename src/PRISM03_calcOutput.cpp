@@ -202,7 +202,6 @@ namespace Prismatic {
 		PRISMATIC_FFTW_EXECUTE(plan);
 		kspace_probe = psi;
 		gatekeeper.lock();
-		cout <<"destroying plan"<<endl;
 		PRISMATIC_FFTW_DESTROY_PLAN(plan);
 		gatekeeper.unlock();
 		return std::make_pair(realspace_probe, kspace_probe);

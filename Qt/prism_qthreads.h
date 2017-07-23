@@ -58,8 +58,8 @@ signals:
     void signalProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void signalProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void signalProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void signal_pearsonReal(QString str);
     void signal_pearsonK(QString str);
     void signal_RReal(QString str);

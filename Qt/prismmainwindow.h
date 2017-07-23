@@ -143,9 +143,11 @@ public slots:
     void updateProbeR_PRISMDisplay();
     void updateProbeK_MultisliceDisplay();
     void updateProbeR_MultisliceDisplay();
+    void updateProbe_diffRDisplay();
+    void updateProbe_diffKDisplay();
     void updateProbeImages();
-    void updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
-    void updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
+    void calculateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void calculateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void updateAllImages();
     void update_pearsonReal(QString str);
     void update_pearsonK(QString str);

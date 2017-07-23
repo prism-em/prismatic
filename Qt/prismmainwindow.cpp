@@ -972,8 +972,10 @@ void PRISMMainWindow::calculateProbe(){
                 this, SLOT(probeR_MultisliceReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
 
 
-        connect(worker, SIGNAL(signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
-        connect(worker, SIGNAL(signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)), this, SLOT(updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)),
+                this, SLOT(calculateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
+        connect(worker, SIGNAL(signalProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)),
+                this, SLOT(calculateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>)));
         worker->start();
     }
 }
@@ -1263,44 +1265,66 @@ void PRISMMainWindow::updateProbeR_MultisliceDisplay(){
     }
 }
 
-void PRISMMainWindow::updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
+void PRISMMainWindow::updateProbe_diffRDisplay(){
     if (checkProbesCalculated()){
-        probeImage_diffr = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
-        auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
+        probeImage_diffr = QImage(probeImage_diffr_float.get_dimj(), probeImage_diffr_float.get_dimi(), QImage::Format_ARGB32);
+        auto contrast = std::minmax_element(probeImage_mr_float.begin(), probeImage_mr_float.end());
         double cHigh, cLow;
         cLow  = *contrast.first;
         cHigh = *contrast.second;
-        for (auto j = 0; j < arr.get_dimj(); ++j){
-            for (auto i = 0; i < arr.get_dimi(); ++i){
-                probeImage_diffr.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
-                                                                          cLow,
-                                                                          cHigh));
+        if (ui->checkBox_log->isChecked()){
+            cLow  = std::log(1e-5 + std::abs(cLow));
+            cHigh = std::log(1e-5 + std::abs(cHigh));
+            for (auto j = 0; j < probeImage_diffr_float.get_dimj(); ++j){
+                for (auto i = 0; i < probeImage_diffr_float.get_dimi(); ++i){
+                    probeImage_diffr.setPixel(j, i,this->colormapper.getColor(std::log(1e-5 + std::abs(probeImage_diffr_float.at(j,i))),
+                                                                              cLow,
+                                                                              cHigh));
+                }
+            }
+        } else {
+            for (auto j = 0; j < probeImage_diffr_float.get_dimj(); ++j){
+                for (auto i = 0; i < probeImage_diffr_float.get_dimi(); ++i){
+                    probeImage_diffr.setPixel(j, i,this->colormapper.getColor(probeImage_diffr_float.at(j,i),
+                                                                              cLow,
+                                                                              cHigh));
+                }
             }
         }
         ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(probeImage_diffr.scaled(ui->lbl_image_probeDifferenceR->width(),
                                                                                              ui->lbl_image_probeDifferenceR->height(),
                                                                                              Qt::KeepAspectRatio)));
-        probeImage_diffr_float = arr;
     }
 }
-void PRISMMainWindow::updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast){
+void PRISMMainWindow::updateProbe_diffKDisplay(){
     if (checkProbesCalculated()){
-        probeImage_diffk = QImage(arr.get_dimj(), arr.get_dimi(), QImage::Format_ARGB32);
-        auto contrast = std::minmax_element(arr_contrast.begin(), arr_contrast.end());
+        probeImage_diffk = QImage(probeImage_diffk_float.get_dimj(), probeImage_diffk_float.get_dimi(), QImage::Format_ARGB32);
+        auto contrast = std::minmax_element(probeImage_mk_float.begin(), probeImage_mk_float.end());
         double cHigh, cLow;
         cLow  = *contrast.first;
         cHigh = *contrast.second;
-        for (auto j = 0; j < arr.get_dimj(); ++j){
-            for (auto i = 0; i < arr.get_dimi(); ++i){
-                probeImage_diffk.setPixel(j, i,this->colormapper.getColor(arr.at(j,i),
-                                                                          cLow,
-                                                                          cHigh));
+        if (ui->checkBox_log->isChecked()){
+            cLow  = std::log(1e-5 + std::abs(cLow));
+            cHigh = std::log(1e-5 + std::abs(cHigh));
+            for (auto j = 0; j < probeImage_diffk_float.get_dimj(); ++j){
+                for (auto i = 0; i < probeImage_diffk_float.get_dimi(); ++i){
+                    probeImage_diffk.setPixel(j, i,this->colormapper.getColor(std::log(1e-5 + std::abs(probeImage_diffk_float.at(j,i))),
+                                                                              cLow,
+                                                                              cHigh));
+                }
+            }
+        } else {
+            for (auto j = 0; j < probeImage_diffk_float.get_dimj(); ++j){
+                for (auto i = 0; i < probeImage_diffk_float.get_dimi(); ++i){
+                    probeImage_diffk.setPixel(j, i,this->colormapper.getColor(probeImage_diffk_float.at(j,i),
+                                                                              cLow,
+                                                                              cHigh));
+                }
             }
         }
         ui->lbl_image_probeDifferenceK->setPixmap(QPixmap::fromImage(probeImage_diffk.scaled(ui->lbl_image_probeDifferenceK->width(),
                                                                                              ui->lbl_image_probeDifferenceK->height(),
                                                                                              Qt::KeepAspectRatio)));
-        probeImage_diffk_float = arr;
     }
 }
 
@@ -1385,6 +1409,8 @@ void PRISMMainWindow::updateProbeImages(){
     updateProbeK_PRISMDisplay();
     updateProbeR_MultisliceDisplay();
     updateProbeK_MultisliceDisplay();
+    updateProbe_diffRDisplay();
+    updateProbe_diffKDisplay();
 }
 
 void PRISMMainWindow::updateAllImages(){
@@ -1817,6 +1843,24 @@ void PRISMMainWindow::probeR_MultisliceReceived(Prismatic::Array2D<PRISMATIC_FLO
         probesCalculated = true;
     }
     updateProbeR_MultisliceDisplay();
+}
+
+void PRISMMainWindow::calculateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+    {
+        QMutexLocker gatekeeper(&probeLock);
+        probeImage_diffr_float = arr;
+        probesCalculated = true;
+    }
+    updateProbe_diffRDisplay();
+}
+
+void PRISMMainWindow::calculateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr){
+    {
+        QMutexLocker gatekeeper(&probeLock);
+        probeImage_diffk_float = arr;
+        probesCalculated = true;
+    }
+    updateProbe_diffKDisplay();
 }
 
 

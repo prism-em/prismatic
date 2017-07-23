@@ -186,11 +186,8 @@ void ProbeThread::run(){
 
     // initialize output stack
     Prismatic::createStack(params_multi);
-    std::cout << "Getting Multislice Probe" << std::endl;
 
     multislice_probes = Prismatic::getSingleMultisliceProbe_CPU(params_multi, X, Y);
-
-    std::cout << "Got Multislice Probe" << std::endl;
 
     QMutexLocker gatekeeper(&this->parent->dataLock);
     // perform copy
@@ -215,7 +212,6 @@ void ProbeThread::run(){
     for (auto& i : multislice_probes.first)  i /= mr_sum;
     for (auto& i : multislice_probes.second) i /= mk_sum;
 
-    std::cout << "emitting signal" << std::endl;
     emit signal_pearsonReal(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.first, multislice_probes.first)));
     emit signal_pearsonK(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.second, multislice_probes.second)));
     emit signal_RReal(QString("R = ") + QString::number(computeRfactor(prism_probes.first, multislice_probes.first)));
@@ -302,8 +298,8 @@ void ProbeThread::run(){
     emit signalProbeK_PRISM(fftshift2(pk));
     emit signalProbeR_Multislice((mr));
     emit signalProbeK_Multislice(fftshift2(mk));
-    emit signalProbe_diffR((diffr), mr);
-    emit signalProbe_diffK(fftshift2(diffk), mk);
+    emit signalProbe_diffR(diffr);
+    emit signalProbe_diffK(fftshift2(diffk));
 }
 
 FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
