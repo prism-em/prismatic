@@ -1427,7 +1427,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-34</y>
+               <y>0</y>
                <width>320</width>
                <height>1153</height>
               </rect>
@@ -1593,7 +1593,7 @@
                             <enum>Qt::LeftToRight</enum>
                            </property>
                            <property name="text">
-                            <string>100</string>
+                            <string>10</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1610,6 +1610,9 @@
                              <width>40</width>
                              <height>16777215</height>
                             </size>
+                           </property>
+                           <property name="text">
+                            <string>1</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1659,7 +1662,7 @@
                             </size>
                            </property>
                            <property name="text">
-                            <string>100</string>
+                            <string>10</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1676,6 +1679,9 @@
                              <width>40</width>
                              <height>16777215</height>
                             </size>
+                           </property>
+                           <property name="text">
+                            <string>1</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1725,7 +1731,7 @@
                             </size>
                            </property>
                            <property name="text">
-                            <string>80</string>
+                            <string>10</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1742,6 +1748,9 @@
                              <width>40</width>
                              <height>16777215</height>
                             </size>
+                           </property>
+                           <property name="text">
+                            <string>1</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3461,7 +3470,6 @@ Thickness (A)</string>
          </layout>
         </item>
        </layout>
-       <zorder></zorder>
        <zorder></zorder>
       </widget>
      </widget>

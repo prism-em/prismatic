@@ -65,7 +65,6 @@ public slots:
 	void setFilenameAtoms_fromDialog();
 	void setFilenameOutput_fromLineEdit();
 	void setFilenameOutput_fromDialog();
-//	void launch();
     void setNumGPUs(const int& numGPUs);
     void setNumThreads(const int& numThreads);
     void setNumFP(const int& numFP);
@@ -89,7 +88,6 @@ public slots:
 	void setAlgo_PRISM();
 	void setAlgo_Multislice();
     void calculatePotential();
-//    void calculateSMatrix();
     void calculateAll();
     void calculateProbe();
     void updatePotentialImage();
@@ -132,12 +130,22 @@ public slots:
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
     void newRandomSeed();
-    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-    void updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+
+//    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+//    void updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+//    void updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+//    void updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void probeK_PRISMReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void probeR_PRISMReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void probeK_MultisliceReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void probeR_MultisliceReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    void updateProbeK_PRISMDisplay();
+    void updateProbeR_PRISMDisplay();
+    void updateProbeK_MultisliceDisplay();
+    void updateProbeR_MultisliceDisplay();
     void updateProbe_diffR(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
     void updateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>, Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> arr_contrast);
+    void updateAllImages();
     void update_pearsonReal(QString str);
     void update_pearsonK(QString str);
     void update_RReal(QString str);
@@ -168,10 +176,10 @@ public slots:
     void userHasSetCellDims();
     void resetLinks();
     void moveBothPotentialSliders(int);
-//    void updateSlider_PotentialCombo(int);
     void openSaveAtomsDialog();
     void saveAtomCoords(QString, QString);
     void changeColormap(QString);
+
 protected:
     void setFilenameAtoms(const std::string& filename);
     void setFilenameOutput(const std::string& filename);
@@ -192,17 +200,13 @@ private:
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> *meta;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
-
-//    QGraphicsScene *potentialScene;
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
-//    Prismatic::Array3D<std::complex< PRISMATIC_FLOAT_PRECISION> > Scompact;
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output;
     Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
 
     QMutex potentialLock;
-//    QMutex sMatrixLock;
     QMutex outputLock;
     QMutex dataLock;
     QMutex calculationLock;
@@ -246,7 +250,6 @@ private:
     PRISMATIC_FLOAT_PRECISION contrast_outputMax;
     PRISMATIC_FLOAT_PRECISION currently_calculated_X;
     PRISMATIC_FLOAT_PRECISION currently_calculated_Y;
-//    QImage potenetialImage;
 
 };
 
