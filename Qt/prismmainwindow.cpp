@@ -310,7 +310,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->lineEdit_slicemin,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->slider_bothSlices,               SIGNAL(valueChanged(int)),        this, SLOT(moveBothPotentialSliders(int)));
-//    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
+    connect(this->ui->slider_bothDetectors,            SIGNAL(valueChanged(int)),        this, SLOT(moveBothDetectorSliders(int)));
+    //    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_min(int)));
     connect(this->ui->slider_slicemax,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_max(int)));
     connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updatePotentialFloatImage()));
@@ -1439,9 +1440,6 @@ void PRISMMainWindow::updateSliders_fromLineEdits_ang(){
         PRISMATIC_FLOAT_PRECISION maxval = ( (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_angmax->text().toDouble(&flagMax)) /
         (detectorAngles[1]-detectorAngles[0]);
         if (flagMin & flagMax){
-            std::cout << "minval = " << (int)std::round(minval) << std::endl;
-            std::cout << "maxval = " << (int)std::round(maxval) << std::endl;
-
             this->ui->slider_angmin->setValue(std::min( (int)std::round(minval),
                                                          this->ui->slider_angmax->value()));
             this->ui->slider_angmax->setValue(std::max( (int)std::round(maxval) - 1,
@@ -1490,6 +1488,7 @@ void PRISMMainWindow::updateSlider_lineEdits_min_ang(int val){
         } else {
             this->ui->slider_angmin->setValue(this->ui->slider_angmax->value());
         }
+        this->ui->slider_bothDetectors->setValue(this->ui->slider_angmin->value());
     }
 }
 
@@ -1890,6 +1889,15 @@ void PRISMMainWindow::moveBothPotentialSliders(int val){
         ui->slider_slicemin->setValue(val);
     }
     ui->slider_bothSlices->setValue(ui->slider_slicemin->value());
+}
+
+void PRISMMainWindow::moveBothDetectorSliders(int val){
+    int difference = ui->slider_angmax->value() - ui->slider_angmin->value();
+    if (val + difference <= ui->slider_angmax->maximum()){
+        ui->slider_angmax->setValue(val + difference);
+        ui->slider_angmin->setValue(val);
+    }
+    ui->slider_bothDetectors->setValue(ui->slider_angmin->value());
 }
 
 
