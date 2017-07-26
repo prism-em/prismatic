@@ -49,7 +49,7 @@
                </sizepolicy>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tab_potential">
                <attribute name="title">
@@ -3539,16 +3539,6 @@ Thickness (A)</string>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>btn_calculateProbe</tabstop>
-  <tabstop>lineEdit_probeX</tabstop>
-  <tabstop>lineEdit_probeY</tabstop>
-  <tabstop>checkBox_log</tabstop>
-  <tabstop>lineEdit_saveOutputImage</tabstop>
-  <tabstop>btn_saveOutputImage</tabstop>
-  <tabstop>btn_saveCoordinates</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>btn_atomsfile_browse</tabstop>
-  <tabstop>btn_go</tabstop>
   <tabstop>lineEdit_cellDimX</tabstop>
   <tabstop>lineEdit_cellDimY</tabstop>
   <tabstop>lineEdit_cellDimZ</tabstop>
@@ -3567,10 +3557,22 @@ Thickness (A)</string>
   <tabstop>spinBox_numFP</tabstop>
   <tabstop>lineEdit_sliceThickness</tabstop>
   <tabstop>lineEdit_detectorAngle</tabstop>
+  <tabstop>lineEdit_interpFactor_x</tabstop>
+  <tabstop>lineEdit_interpFactor_y</tabstop>
+  <tabstop>lineEdit_probeStepX</tabstop>
+  <tabstop>lineEdit_probeStepY</tabstop>
+  <tabstop>lineEdit_probeTiltX</tabstop>
+  <tabstop>lineEdit_probeTiltY</tabstop>
+  <tabstop>lineEdit_scanWindowXMin</tabstop>
+  <tabstop>lineEdit_scanWindowXMax</tabstop>
+  <tabstop>lineEdit_scanWindowYMin</tabstop>
+  <tabstop>lineEdit_scanWindowYMax</tabstop>
   <tabstop>lineEdit_outputfile</tabstop>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
   <tabstop>checkBox_4D</tabstop>
+  <tabstop>checkBox_thermalEffects</tabstop>
+  <tabstop>checkBox_occupancy</tabstop>
   <tabstop>spinBox_numThreads</tabstop>
   <tabstop>spinBox_numGPUs</tabstop>
   <tabstop>spinBox_numStreams</tabstop>
@@ -3581,6 +3583,34 @@ Thickness (A)</string>
   <tabstop>radBtn_Multislice</tabstop>
   <tabstop>btn_reset</tabstop>
   <tabstop>btn_calcPotential</tabstop>
+  <tabstop>btn_go</tabstop>
+  <tabstop>lineEdit_slicemin</tabstop>
+  <tabstop>lineEdit_slicemax</tabstop>
+  <tabstop>slider_slicemin</tabstop>
+  <tabstop>slider_slicemax</tabstop>
+  <tabstop>slider_bothSlices</tabstop>
+  <tabstop>lineEdit_contrastPotMin</tabstop>
+  <tabstop>lineEdit_contrastPotMax</tabstop>
+  <tabstop>checkBox_sqrtIntensityPot</tabstop>
+  <tabstop>comboBox_colormap</tabstop>
+  <tabstop>btn_calculateProbe</tabstop>
+  <tabstop>lineEdit_probeX</tabstop>
+  <tabstop>lineEdit_probeY</tabstop>
+  <tabstop>checkBox_log</tabstop>
+  <tabstop>lineEdit_angmin</tabstop>
+  <tabstop>lineEdit_angmax</tabstop>
+  <tabstop>slider_angmin</tabstop>
+  <tabstop>slider_angmax</tabstop>
+  <tabstop>slider_bothDetectors</tabstop>
+  <tabstop>lineEdit_contrast_outputMin</tabstop>
+  <tabstop>lineEdit_contrast_outputMax</tabstop>
+  <tabstop>lineEdit_saveOutputImage</tabstop>
+  <tabstop>btn_saveOutputImage</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>btn_atomsfile_browse</tabstop>
+  <tabstop>btn_saveCoordinates</tabstop>
+  <tabstop>scrollArea_2</tabstop>
+  <tabstop>tabs</tabstop>
  </tabstops>
  <resources>
   <include location="prism_resources.qrc"/>
