@@ -1421,10 +1421,7 @@ void PRISMMainWindow::updateProbeImages(){
 void PRISMMainWindow::updateAllImages(){
     updateOutputImage();
     updatePotentialImage();
-    updateProbeR_PRISMDisplay();
-    updateProbeK_PRISMDisplay();
-    updateProbeR_MultisliceDisplay();
-    updateProbeK_MultisliceDisplay();
+    updateProbeImages();
 }
 
 void PRISMMainWindow::updateSliders_fromLineEdits(){
