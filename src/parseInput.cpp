@@ -21,49 +21,50 @@ namespace Prismatic {
     using namespace std;
 
     void printHelp() {
+        Metadata<PRISMATIC_FLOAT_PRECISION> defaults;
         std::cout << "The following options are available with `prism`, each documented as long form (short form) *parameters* : description\n"
                 "\n"
-                "* --input-file (-i) filename : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z \n"
-                "* --output-file(-o) filename : output filename\n"
-                "* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y\n"
-		        "* --interp-factor-x (-fx) number : PRISM interpolation factor in X\n"
-		        "* --interp-factor-y (-fy) number : PRISM interpolation factor in Y\n"
-                "* --num-threads (-j) value : number of CPU threads to use\n"
-                "* --num-streams (-S) value : number of CUDA streams to create per GPU\n"
-		        "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.\n"
-                "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms)\n"
-		        "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers.\n"
-		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers.\n"
-		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers.\n"
+                "* --input-file (-i) filename : the filename containing the atomic coordinates, which should be a plain text file with comma-separated values in the format x, y, z, Z (default: " << defaults.filenameAtoms << ")\n" <<
+                "* --output-file(-o) filename : output filename (default: " << defaults.filenameOutput << ")\n" <<
+                "* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y (default: " << defaults.interpolationFactorX << ")\n" <<
+		        "* --interp-factor-x (-fx) number : PRISM interpolation factor in X (default: " << defaults.interpolationFactorX << ")\n" <<
+		        "* --interp-factor-y (-fy) number : PRISM interpolation factor in Y (default: " << defaults.interpolationFactorY << ")\n" <<
+                "* --num-threads (-j) value : number of CPU threads to use (default: " << defaults.numThreads << ")\n" <<
+                "* --num-streams (-S) value : number of CUDA streams to create per GPU (default: " << defaults.numStreamsPerGPU << ")\n" <<
+		        "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used. (default: " << defaults.numGPUs << ")\n" <<
+                "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms) (default: " << defaults.sliceThickness << ")\n" <<
+		        "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
+		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
+		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers. (default: " << defaults.batchSizeGPU << ")\n" <<
                 "* --help(-h) : print information about the available options\n"
-                "* --pixel-size (-p) pixel_size : size of simulation X/Y pixel size\n"
-		        "* --pixel-size-x (-px) pixel_size : size of simulation X pixel size\n"
-		        "* --pixel-size-y (-py) pixel_size : size of simulation Y pixel size\n"
-		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins"
-                "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms)\n"
-		        "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively\n"
-                "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice\n"
-                "* --energy (-E) value : the energy of the electron beam (in keV)\n"
-                "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad)\n"
-                "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms)\n"
-                "* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones\n"
-                "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically.\n"
-                "* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms)\n"
-                "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms)\n"
-                "* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms)\n"
+                "* --pixel-size (-p) pixel_size : size of simulated potential/probe X/Y pixel size (default: " << defaults.realspacePixelSize[0] << ")\n" <<
+		        "* --pixel-size-x (-px) pixel_size : size of simulated potential/probe X pixel size (default: " << defaults.realspacePixelSize[1] << ")\n" <<
+		        "* --pixel-size-y (-py) pixel_size : size of simulated potential/probe Y pixel size (default: " << defaults.realspacePixelSize[0] << ")\n" <<
+		        "* --detector-angle-step (-d) step_size : angular step size for detector integration bins (in mrad) (default: " << (1000 * defaults.detectorAngleStep) << ")\n" <<
+                "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms) (default: " << defaults.cellDim[2] << " " << defaults.cellDim[1] << " " << defaults.cellDim[0] << ")\n" <<
+		        "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively (default: " << defaults.tileX << " " << defaults.tileY << " " << defaults.tileZ << ")\n" <<
+                "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice (default: PRISM)\n" <<
+                "* --energy (-E) value : the energy of the electron beam (in keV) (default: " << defaults.E0 << ")\n" <<
+                "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad) (default: " << defaults.alphaBeamMax << ")\n" <<
+                "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms) (default: " << defaults.potBound << ")\n" <<
+                "* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones (default: 1)\n" <<
+                "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically. (default: Auto)\n" <<
+                "* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms) (default: " << defaults.probeStepX << ")\n" <<
+                "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms) (default: " << defaults.probeStepX << ")\n" <<
+                "* --probe-step-y (-ry) step_size : step size of the probe in Y direction (in Angstroms) (default: " << defaults.probeStepY << ")\n" <<
 		        "* --random-seed (-rs) step_size : random number seed\n"
-	            "* --probe-xtilt (-tx) value : probe X tilt (in mrad)\n"
-                "* --probe-ytilt (-ty) value : probe X tilt (in mrad)\n"
-                "* --probe-defocus (-df) value : probe defocus\n"
-                "* --probe-semiangle (-sa) value : maximum probe semiangle\n"
-                "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1)\n"
-                "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1)\n"
-                "* --num-FP (-F) value : number of frozen phonon configurations to calculate\n"
-		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects)\n"
-                "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site\n"
-		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads)\n"
-	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode)\n"
-                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode)\n";
+	            "* --probe-xtilt (-tx) value : probe X tilt (in mrad) (default: " << defaults.probeXtilt << ")\n" <<
+                "* --probe-ytilt (-ty) value : probe X tilt (in mrad) (default: " << defaults.probeYtilt << ")\n" <<
+                "* --probe-defocus (-df) value : probe defocus (default: " << defaults.probeDefocus << ")\n" <<
+                "* --probe-semiangle (-sa) value : maximum probe semiangle (in mrad) (default: " << defaults.probeSemiangle << ")\n" <<
+                "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowXMin << " " << defaults.scanWindowXMax << ")\n" <<
+                "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowYMin << " " << defaults.scanWindowYMax << ")\n" <<
+                "* --num-FP (-F) value : number of frozen phonon configurations to calculate (default: " << defaults.numFP << ")\n" <<
+		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects) (default: True)\n" <<
+                "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n" <<
+		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n" <<
+	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
+                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
     }
 
     bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
