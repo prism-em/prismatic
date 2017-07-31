@@ -143,7 +143,7 @@ namespace Prismatic{
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
-			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t); // TODO: fix hardcoded length-1 defocus
+			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
 			          return a;
 		          });
 		PRISMATIC_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
