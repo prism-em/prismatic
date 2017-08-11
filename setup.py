@@ -84,10 +84,8 @@ pyprimsatic_core = Extension('pyprismatic.core',
 setup(name = 'PyPrismatic',
 	author = 'Alan (AJ) Pryor, Jr.', 
 	author_email='apryor6@gmail.com',
-	version = '1.1.11',
-	description="Python wrapper for Prismatic package for\
-	 fast image simulation using the PRISM and multislice algorithms in\
-	  Scanning Transmission Electron Microscopy (STEM)",
+	version = '1.1.12',
+	description="Python wrapper for Prismatic package for fast image simulation using the PRISM and multislice algorithms in Scanning Transmission Electron Microscopy (STEM)",
 	ext_modules=[pyprimsatic_core],
 	packages=['pyprismatic'],
     install_requires=['numpy>=1.13.0','matplotlib>=2.0.2'],
