@@ -217,9 +217,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 			break;
 	}
 #ifndef PRISMATIC_ENABLE_GPU
-	this->ui->spinBox_numGPUs->setEnabled(false);
+    this->ui->spinBox_numGPUs->setEnabled(false);
     this->ui->spinBox_numStreams->setEnabled(false);
-    this->ui->lineEdit_batchGPU->setEnabled(false);
+    this->ui->lineEdit_batchGPU ->setEnabled(false);
     this->ui->comboBox_streamMode->setEnabled(false);
 #endif //PRISMATIC_ENABLE_GPU
 
@@ -1081,6 +1081,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
         QPixmap qpix = QPixmap::fromImage( potentialImage.scaled(ui->lbl_image_potential->width(),
                                                                  ui->lbl_image_potential->height(),
                                                                  Qt::KeepAspectRatio));
+
         // draw a rectangle around the region that will be scanned
         QPainter p;
         p.begin(&qpix);
@@ -1934,10 +1935,6 @@ void PRISMMainWindow::resetLinks(){
 }
 
 void PRISMMainWindow::redrawImages(){
-    updatePotentialDisplay();
-    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->lbl_image_potential->width(),
-                                                                                ui->lbl_image_potential->height(),
-                                                                                Qt::KeepAspectRatio)));
 
     ui->lbl_image_probeInteractive->setPixmap(QPixmap::fromImage(probeImage.scaled(ui->lbl_image_probeInteractive->width(),
                                                                                    ui->lbl_image_probeInteractive->height(),
@@ -1973,7 +1970,7 @@ void PRISMMainWindow::redrawImages(){
                                                                           ui->lbl_image_output->height(),
                                                                           Qt::KeepAspectRatio)));
 
-
+    updatePotentialDisplay();
 }
 
 void PRISMMainWindow::setscan_WindowYMin_edited(){
