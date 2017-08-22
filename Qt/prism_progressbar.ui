@@ -21,7 +21,7 @@
        <item>
         <widget class="QLabel" name="lbl_Algorithm">
          <property name="text">
-          <string>PRISM:</string>
+          <string>Prismatic</string>
          </property>
         </widget>
        </item>
@@ -30,7 +30,7 @@
      <item>
       <widget class="QLabel" name="lbl_Description">
        <property name="text">
-        <string>Computing Probe</string>
+        <string>Thinking...</string>
        </property>
       </widget>
      </item>

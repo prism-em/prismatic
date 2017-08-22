@@ -214,9 +214,7 @@ namespace Prismatic {
 		// as long as the number of xp and yp are similar.
 		// If that is not the case
 		// this may need to be adapted
-#ifdef PRISMATIC_BUILDING_GUI
-        pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");
-#endif
+
 
 		// initialize FFTW threads
 		PRISMATIC_FFTW_INIT_THREADS();
@@ -450,6 +448,11 @@ namespace Prismatic {
 
 		// initialize/compute the probes
 		initializeProbes(pars);
+
+#ifdef PRISMATIC_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");
+        pars.progressbar->signalOutputUpdate(0, pars.xp.size() * pars.yp.size());
+#endif
 
 		// compute the final PRISM output
 		buildPRISMOutput(pars);

@@ -33,6 +33,8 @@ PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_p
 void PotentialThread::run(){
     // create parameters
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    progressbar->signalDescriptionMessage("Computing projected potential");
+
     {
         QMutexLocker calculationLocker(&this->parent->calculationLock);
         Prismatic::configure(meta);
@@ -99,6 +101,8 @@ PRISMThread(_parent, _progressbar), X(_X), Y(_Y), use_log_scale(_use_log_scale){
 
 void ProbeThread::run(){
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    progressbar->signalDescriptionMessage("Computing single probe");
+    progressbar->setProgress(10);
 //    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta);
 
 //    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
@@ -318,6 +322,7 @@ FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progres
 
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
+    progressbar->signalDescriptionMessage("Initiating PRISM simulation");
     emit signalTitle("PRISM: Frozen Phonon #1");
     bool error_reading = false;
     QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -432,8 +437,10 @@ FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, pri
 
 
 void FullMultisliceCalcThread::run(){
-    std::cout << "Full Multislice Calculation thread running" << std::endl;
+
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    progressbar->signalDescriptionMessage("Initiating Multislice simulation");
+
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
         if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))) {

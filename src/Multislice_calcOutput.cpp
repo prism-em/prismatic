@@ -516,6 +516,11 @@ namespace Prismatic{
 		// initialize output stack
 		createStack(pars);
 
+#ifdef PRISMATIC_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
+        pars.progressbar->signalOutputUpdate(0, pars.xp.size() * pars.yp.size());
+#endif
+
 		// create the output
 		buildMultisliceOutput(pars);
 	}

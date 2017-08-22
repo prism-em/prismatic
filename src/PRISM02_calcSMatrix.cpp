@@ -306,10 +306,7 @@ namespace Prismatic {
 	void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		// populates the compact S-matrix using CPU resources
 
-#ifdef PRISMATIC_BUILDING_GUI
-        pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
-		pars.progressbar->signalScompactUpdate(-1, pars.numberBeams);
-#endif
+
         extern mutex fftw_plan_lock; // lock for protecting FFTW plans
 
 		// initialize arrays
@@ -442,6 +439,11 @@ namespace Prismatic {
 		setupSMatrixCoordinates(pars);
 
 		cout << "Computing compact S matrix" << endl;
+
+#ifdef PRISMATIC_BUILDING_GUI
+        pars.progressbar->signalDescriptionMessage("Computing compact S-matrix");
+        pars.progressbar->signalScompactUpdate(-1, pars.numberBeams);
+#endif //PRISMATIC_BUILDING_GUI
 
 		// populate compact S-matrix
 		fill_Scompact(pars);
