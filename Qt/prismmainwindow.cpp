@@ -849,7 +849,7 @@ void PRISMMainWindow::calculatePotential(){
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
     connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+    //connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -1040,6 +1040,7 @@ void PRISMMainWindow::updatePotentialFloatImage(){
                 }
             }
         }
+
 
         // get max/min values for contrast setting
         auto minval = std::min_element(potentialImage_float.begin(),
