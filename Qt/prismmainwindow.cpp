@@ -1017,9 +1017,7 @@ void PRISMMainWindow::updatePotentialImage(){
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
             this->ui->slider_bothSlices->setMaximum(potential.get_dimk());
 
-            // I set the value to 1 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
-            this->ui->slider_slicemax->setValue(1);
-            this->ui->slider_slicemax->setValue(potential.get_dimk());
+            updatePotentialFloatImage();
         }
 }
 
