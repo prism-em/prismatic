@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>893</width>
+    <width>1057</width>
     <height>1218</height>
    </rect>
   </property>
@@ -31,8 +31,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>920</width>
-         <height>1123</height>
+         <width>1037</width>
+         <height>1137</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_25">
@@ -1471,7 +1471,7 @@
                <x>0</x>
                <y>0</y>
                <width>320</width>
-               <height>1153</height>
+               <height>1223</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -2623,44 +2623,14 @@ Thickness (A)</string>
                              <property name="verticalSpacing">
                               <number>0</number>
                              </property>
-                             <item row="4" column="3">
-                              <layout class="QHBoxLayout" name="horizontalLayout_49">
-                               <item>
-                                <widget class="QLineEdit" name="lineEdit_scanWindowYMin">
-                                 <property name="maximumSize">
-                                  <size>
-                                   <width>40</width>
-                                   <height>16777215</height>
-                                  </size>
-                                 </property>
-                                 <property name="text">
-                                  <string>0.1</string>
-                                 </property>
-                                 <property name="alignment">
-                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                                 </property>
-                                </widget>
-                               </item>
-                               <item>
-                                <widget class="QLineEdit" name="lineEdit_scanWindowYMax">
-                                 <property name="maximumSize">
-                                  <size>
-                                   <width>40</width>
-                                   <height>16777215</height>
-                                  </size>
-                                 </property>
-                                 <property name="text">
-                                  <string>0.9</string>
-                                 </property>
-                                 <property name="alignment">
-                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                                 </property>
-                                </widget>
-                               </item>
-                              </layout>
-                             </item>
                              <item row="2" column="3">
                               <widget class="QLineEdit" name="lineEdit_probeStepY">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>50</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>40</width>
@@ -2707,6 +2677,12 @@ Thickness (A)</string>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
                                </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>50</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>40</width>
@@ -2723,6 +2699,12 @@ Thickness (A)</string>
                              </item>
                              <item row="3" column="1">
                               <widget class="QLineEdit" name="lineEdit_probeTiltX">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>50</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>40</width>
@@ -2736,24 +2718,6 @@ Thickness (A)</string>
                                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                </property>
                               </widget>
-                             </item>
-                             <item row="5" column="1">
-                              <layout class="QHBoxLayout" name="horizontalLayout_50">
-                               <item>
-                                <widget class="QLabel" name="label_33">
-                                 <property name="text">
-                                  <string>min</string>
-                                 </property>
-                                </widget>
-                               </item>
-                               <item>
-                                <widget class="QLabel" name="label_34">
-                                 <property name="text">
-                                  <string>max</string>
-                                 </property>
-                                </widget>
-                               </item>
-                              </layout>
                              </item>
                              <item row="0" column="3">
                               <widget class="QLabel" name="label_14">
@@ -2796,6 +2760,12 @@ Thickness (A)</string>
                                <property name="enabled">
                                 <bool>true</bool>
                                </property>
+                               <property name="minimumSize">
+                                <size>
+                                 <width>50</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>40</width>
@@ -2837,44 +2807,17 @@ Thickness (A)</string>
                                </property>
                               </widget>
                              </item>
-                             <item row="4" column="1">
-                              <layout class="QHBoxLayout" name="horizontalLayout_48">
-                               <item>
-                                <widget class="QLineEdit" name="lineEdit_scanWindowXMin">
-                                 <property name="maximumSize">
-                                  <size>
-                                   <width>40</width>
-                                   <height>16777215</height>
-                                  </size>
-                                 </property>
-                                 <property name="text">
-                                  <string>0.1</string>
-                                 </property>
-                                 <property name="alignment">
-                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                                 </property>
-                                </widget>
-                               </item>
-                               <item>
-                                <widget class="QLineEdit" name="lineEdit_scanWindowXMax">
-                                 <property name="maximumSize">
-                                  <size>
-                                   <width>40</width>
-                                   <height>16777215</height>
-                                  </size>
-                                 </property>
-                                 <property name="text">
-                                  <string>0.9</string>
-                                 </property>
-                                 <property name="alignment">
-                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                                 </property>
-                                </widget>
-                               </item>
-                              </layout>
+                             <item row="6" column="1">
+                              <layout class="QHBoxLayout" name="horizontalLayout_48"/>
                              </item>
                              <item row="1" column="1">
                               <widget class="QLineEdit" name="lineEdit_interpFactor_x">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>50</width>
+                                 <height>0</height>
+                                </size>
+                               </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>40</width>
@@ -2889,23 +2832,11 @@ Thickness (A)</string>
                                </property>
                               </widget>
                              </item>
-                             <item row="4" column="0">
-                              <widget class="QLabel" name="label_28">
-                               <property name="font">
-                                <font>
-                                 <pointsize>10</pointsize>
-                                </font>
-                               </property>
-                               <property name="text">
-                                <string>Scan Window (fractional)</string>
-                               </property>
-                              </widget>
-                             </item>
                              <item row="3" column="3">
                               <widget class="QLineEdit" name="lineEdit_probeTiltY">
                                <property name="minimumSize">
                                 <size>
-                                 <width>0</width>
+                                 <width>50</width>
                                  <height>0</height>
                                 </size>
                                </property>
@@ -2923,19 +2854,144 @@ Thickness (A)</string>
                                </property>
                               </widget>
                              </item>
-                             <item row="5" column="3">
-                              <layout class="QHBoxLayout" name="horizontalLayout_52">
+                             <item row="5" column="0">
+                              <layout class="QHBoxLayout" name="horizontalLayout_30">
                                <item>
-                                <widget class="QLabel" name="label_36">
+                                <widget class="QLabel" name="label_28">
+                                 <property name="font">
+                                  <font>
+                                   <pointsize>10</pointsize>
+                                  </font>
+                                 </property>
                                  <property name="text">
-                                  <string>min</string>
+                                  <string>Scan Window
+ (fractional)</string>
                                  </property>
                                 </widget>
                                </item>
                                <item>
-                                <widget class="QLabel" name="label_35">
+                                <layout class="QVBoxLayout" name="verticalLayout_24">
+                                 <item>
+                                  <widget class="QLabel" name="label_33">
+                                   <property name="text">
+                                    <string>min</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QLabel" name="label_34">
+                                   <property name="text">
+                                    <string>max</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </item>
+                              </layout>
+                             </item>
+                             <item row="5" column="3">
+                              <layout class="QVBoxLayout" name="verticalLayout_18">
+                               <item>
+                                <widget class="QLineEdit" name="lineEdit_scanWindowYMin">
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>0</height>
+                                  </size>
+                                 </property>
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>40</width>
+                                   <height>16777215</height>
+                                  </size>
+                                 </property>
                                  <property name="text">
-                                  <string>max</string>
+                                  <string>0.1</string>
+                                 </property>
+                                 <property name="alignment">
+                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item>
+                                <widget class="QLineEdit" name="lineEdit_scanWindowYMax">
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>0</height>
+                                  </size>
+                                 </property>
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>40</width>
+                                   <height>16777215</height>
+                                  </size>
+                                 </property>
+                                 <property name="text">
+                                  <string>0.9</string>
+                                 </property>
+                                 <property name="alignment">
+                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                 </property>
+                                </widget>
+                               </item>
+                              </layout>
+                             </item>
+                             <item row="5" column="1">
+                              <layout class="QVBoxLayout" name="verticalLayout_17">
+                               <item>
+                                <widget class="QLineEdit" name="lineEdit_scanWindowXMin">
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>0</height>
+                                  </size>
+                                 </property>
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>40</width>
+                                   <height>16777215</height>
+                                  </size>
+                                 </property>
+                                 <property name="text">
+                                  <string>0.1</string>
+                                 </property>
+                                 <property name="alignment">
+                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item>
+                                <widget class="QLineEdit" name="lineEdit_scanWindowXMax">
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>50</width>
+                                   <height>0</height>
+                                  </size>
+                                 </property>
+                                 <property name="maximumSize">
+                                  <size>
+                                   <width>40</width>
+                                   <height>16777215</height>
+                                  </size>
+                                 </property>
+                                 <property name="layoutDirection">
+                                  <enum>Qt::LeftToRight</enum>
+                                 </property>
+                                 <property name="text">
+                                  <string>0.9</string>
+                                 </property>
+                                 <property name="cursorPosition">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="alignment">
+                                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                  </property>
                                 </widget>
                                </item>
@@ -3522,7 +3578,7 @@ Thickness (A)</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>893</width>
+     <width>1057</width>
      <height>22</height>
     </rect>
    </property>
@@ -3563,10 +3619,6 @@ Thickness (A)</string>
   <tabstop>lineEdit_probeStepY</tabstop>
   <tabstop>lineEdit_probeTiltX</tabstop>
   <tabstop>lineEdit_probeTiltY</tabstop>
-  <tabstop>lineEdit_scanWindowXMin</tabstop>
-  <tabstop>lineEdit_scanWindowXMax</tabstop>
-  <tabstop>lineEdit_scanWindowYMin</tabstop>
-  <tabstop>lineEdit_scanWindowYMax</tabstop>
   <tabstop>lineEdit_outputfile</tabstop>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
