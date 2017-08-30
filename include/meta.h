@@ -62,9 +62,9 @@ namespace Prismatic{
 			probeXtilt            = 0;
 			probeYtilt            = 0;
 			scanWindowXMin        = 0.0;
-			scanWindowXMax        = 0.9999999;
+			scanWindowXMax        = 0.99999;
 			scanWindowYMin        = 0.0;
-			scanWindowYMax        = 0.9999999;
+			scanWindowYMax        = 0.99999;
 			srand(time(0));
 			randomSeed            = rand() % 100000;
 			algorithm             = Algorithm::PRISM;

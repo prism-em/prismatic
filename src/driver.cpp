@@ -24,7 +24,7 @@ int main(int argc, const char** argv) {
 	if (!Prismatic::parseInputs(meta, argc, &argv))return 1;
 
 	// print metadata
-    meta.toString();
+        meta.toString();
 
 	// execute simulation
 	Prismatic::go(meta);
