@@ -15,6 +15,7 @@
 #include "go.h"
 #include "configure.h"
 #include "parseInput.h"
+#include "utility.h"
 
 using namespace std;
 int main(int argc, const char** argv) {
@@ -25,11 +26,15 @@ int main(int argc, const char** argv) {
 
 	Prismatic::printHeader();
 
+    Prismatic::printTime();
+
 	// print metadata
-        meta.toString();
+    meta.toString();
 
 	// execute simulation
 	Prismatic::go(meta);
+
+    Prismatic::printTime();
 
 	return 0;
 }

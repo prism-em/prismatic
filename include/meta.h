@@ -130,6 +130,8 @@ namespace Prismatic{
 
 	template <class T>
 	void Metadata<T>::toString(){
+		std::cout << "\nSimulation parameters:" << std::endl;
+		std::cout << "=====================\n" << std::endl;
 		if (algorithm == Prismatic::Algorithm::PRISM){
 			std::cout << "Algorithm: PRISM" << std::endl;
 			std::cout << "interpolationFactorX = " << interpolationFactorX << std::endl;

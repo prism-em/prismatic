@@ -18,11 +18,18 @@
 #include <sstream>
 #include <mutex>
 #include <complex>
+#include <ctime>
+#include <iomanip>
 #include "defines.h"
 #include "fftw3.h"
 #include "configure.h"
-namespace Prismatic {
 
+namespace Prismatic {
+	inline void printTime(){
+		auto t = std::time(nullptr);
+		auto tm = *std::localtime(&t);
+		std::cout << "Current time: " << std::put_time(&tm, "%F %H:%M:%S") << std::endl;
+	}
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
 

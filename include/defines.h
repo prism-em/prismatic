@@ -15,15 +15,22 @@
 #define PRISMATIC_DEFINES_H
 
 #include <iostream>
+
 namespace Prismatic {
 
 	enum class Algorithm {
 		PRISM, Multislice
 	};
-	inline void printHeader(){
-        std::cout << "\n\n*****************************************" << std::endl;
-		std::cout << "Launching Prismatic calculation" << std::endl;
-		std::cout << "*****************************************\n\n" << std::endl;
+
+    inline void printHeader(){
+        std::cout << "\n\n*********************************************************************" << std::endl;
+		std::cout << "    ____             _                                __     _        \n"
+                "   / __ \\   _____   (_)   _____   ____ ___   ____ _  / /_   (_)  _____\n"
+                "  / /_/ /  / ___/  / /   / ___/  / __ `__ \\ / __ `/ / __/  / /  / ___/\n"
+                " / ____/  / /     / /   (__  )  / / / / / // /_/ / / /_   / /  / /__  \n"
+                "/_/      /_/     /_/   /____/  /_/ /_/ /_/ \\__,_/  \\__/  /_/   \\___/\n\n";
+		std::cout << "*********************************************************************\n\n";
+        std::cout << "Author: Alan \"AJ\" Pryor (apryor6@gmail.com)\nbased on work by Colin Ophus (clophus@lbl.gov)\n" << std::endl;
 	}
 }
 #ifdef PRISMATIC_ENABLE_GPU
