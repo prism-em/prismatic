@@ -22,7 +22,8 @@ namespace Prismatic {
 
     void printHelp() {
         Metadata<PRISMATIC_FLOAT_PRECISION> defaults;
-        std::cout << "The following options are available with `prism`, each documented as long form (short form) *parameters* : description\n"
+        std::cout << "Basic usage is prismatic -i filename [other options]" << std::endl;
+        std::cout << "The following options are available with prismatic, each documented as long form (short form) *parameters* : description\n"
                 "\n"
                 "* --input-file (-i) filename : the filename containing the atomic coordinates, see www.prism-em.com/about for details (default: " << defaults.filenameAtoms << ")\n" <<
                 "* --output-file(-o) filename : output filename (default: " << defaults.filenameOutput << ")\n" <<
