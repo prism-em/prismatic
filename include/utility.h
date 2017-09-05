@@ -22,6 +22,7 @@
 #include "fftw3.h"
 #include "configure.h"
 namespace Prismatic {
+
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 
 

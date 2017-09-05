@@ -130,8 +130,14 @@ namespace Prismatic{
 
 	template <class T>
 	void Metadata<T>::toString(){
-		std::cout << "interpolationFactorX = " << interpolationFactorX << std::endl;
-		std::cout << "interpolationFactorY = " << interpolationFactorY << std::endl;
+		if (algorithm == Prismatic::Algorithm::PRISM){
+			std::cout << "Algorithm: PRISM" << std::endl;
+			std::cout << "interpolationFactorX = " << interpolationFactorX << std::endl;
+			std::cout << "interpolationFactorY = " << interpolationFactorY << std::endl;
+		} else {
+			std::cout << "Algorithm: Multislice" << std::endl;
+		}
+
 		std::cout << "filenameAtoms = " <<  filenameAtoms     << std::endl;
 		std::cout << "filenameOutput = " << filenameOutput  << std::endl;
 		std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0]<< std::endl;
@@ -197,11 +203,7 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
-        if (algorithm == Prismatic::Algorithm::PRISM){
-            std::cout << "Algorithm: PRISM" << std::endl;
-        } else {
-			std::cout << "Algorithm: Multislice" << std::endl;
-		}
+
 
 #ifdef PRISMATIC_ENABLE_GPU
         std::cout << "numGPUs = " << numGPUs<< std::endl;

@@ -14,12 +14,17 @@
 #ifndef PRISMATIC_DEFINES_H
 #define PRISMATIC_DEFINES_H
 
-
+#include <iostream>
 namespace Prismatic {
 
 	enum class Algorithm {
 		PRISM, Multislice
 	};
+	inline void printHeader(){
+        std::cout << "\n\n*****************************************" << std::endl;
+		std::cout << "Launching Prismatic calculation" << std::endl;
+		std::cout << "*****************************************\n\n" << std::endl;
+	}
 }
 #ifdef PRISMATIC_ENABLE_GPU
 #include "cuComplex.h"

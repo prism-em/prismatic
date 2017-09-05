@@ -23,6 +23,8 @@ int main(int argc, const char** argv) {
 	// parse command line options
 	if (!Prismatic::parseInputs(meta, argc, &argv))return 1;
 
+	Prismatic::printHeader();
+
 	// print metadata
     meta.toString();
 
