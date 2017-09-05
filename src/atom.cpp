@@ -20,8 +20,20 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include "kirkland_params.h"
 
 namespace Prismatic {
+    std::string atomReadError(size_t line_num, const std::string str){
+        std::string msg(" \n\nPrismatic: Error getting atomic species from");
+        std::stringstream ssError;
+        msg += " line ";
+        ssError << line_num;
+        msg += ssError.str();
+		msg += ":\n ";
+		msg += str;
+        msg += " \n";
+        return msg;
+    }
 	std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms) {
 		if (tileX == 1 & tileY == 1 & tileZ == 1)return atoms; // case where no tiling is necessary
 		std::vector<atom> tiled_atoms;
@@ -72,7 +84,7 @@ namespace Prismatic {
 		if (!f)throw std::runtime_error("Unable to open file.\n");
 		std::string line;
 		std::string token;
-		size_t line_num = 0;
+		size_t line_num = 2;
 		size_t atom_count = 0;
 		if (!std::getline(f,line)) throw std::runtime_error("Error reading comment line.\n");
 		if (!std::getline(f,line)) throw std::runtime_error("Error reading unit cell params.\n");
@@ -105,18 +117,30 @@ namespace Prismatic {
 				std::stringstream ss;
 				ss.precision(8);
 				ss << line;
-				if (!(ss >> tspecies))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> tspecies) || (tspecies > NUM_SPECIES_KIRKLAND)){
+					throw std::domain_error(atomReadError(line_num, line));
+				}
 				if (ss.peek() == ',')ss.ignore();
 //				std::cout << ss.str() << std::endl;
-				if (!(ss >> tx))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> tx)){
+					throw std::domain_error(atomReadError(line_num, line));
+				}
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> ty))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> ty)){
+					throw std::domain_error(atomReadError(line_num, line));
+				}
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> tz))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> tz)){
+							throw std::domain_error(atomReadError(line_num, line));
+					}
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> occ))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> occ)){
+					throw std::domain_error(atomReadError(line_num, line));
+				}
 				if (ss.peek() == ',')ss.ignore();
-				if (!(ss >> sigma))throw std::domain_error("Error reading from XYZ file.\n");
+				if (!(ss >> sigma)){
+					throw std::domain_error(atomReadError(line_num, line));
+				}
 				if (ss.peek() == ',')ss.ignore();
 				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies, sigma, occ});
 //				atoms.emplace_back(atom{tx / a, ty / b , tz / c, tspecies});

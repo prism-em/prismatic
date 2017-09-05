@@ -1150,7 +1150,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
 void PRISMMainWindow::displayErrorReadingAtomsDialog(){
     QMessageBox* popup = new QMessageBox;
     popup->setWindowTitle("Prismatic: Error!");
-    popup->setText(QString::fromStdString(std::string("An error occurred while attempting to read atomic coordinates from file:\n\n") +
+    popup->setText(QString::fromStdString(std::string("An error occurred (see Prismatic output for more details) while attempting to read atomic coordinates from file:\n\n") +
                                           meta->filenameAtoms +
                                           std::string("\n\nEnsure that the file is accessible and is formatted correctly. Here is an example:\n\nComment line goes here\n\t5.43    5.43    5.43\n14  0.0000  0.0000  0.0000  1.0  0.076\n14  2.7150  2.7150  0.0000  1.0  0.076\n14  1.3575  4.0725  1.3575  1.0  0.076\n14  4.0725  1.3575  1.3575  1.0  0.076\n14  2.7150  0.0000  2.7150  1.0  0.076\n14  0.0000  2.7150  2.7150  1.0  0.076\n14  1.3575  1.3575  4.0725  1.0  0.076\n14  4.0725  4.0725  4.0725  1.0  0.076\n-1\n")));
     popup->show();

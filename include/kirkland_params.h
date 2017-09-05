@@ -15,8 +15,8 @@
 #ifndef FPARAMS_H
 #define FPARAMS_H
 #include <stdlib.h>
-constexpr size_t num_species  = 103; // number of atomic species (number of rows)
-constexpr size_t n_parameters = 12;  // number of parameters for each species (number of columns)
+constexpr size_t NUM_SPECIES_KIRKLAND  = 103; // number of atomic species (number of rows)
+constexpr size_t NUM_PARAMETERS = 12;  // number of parameters for each species (number of columns)
 constexpr double fparams[] = {
 		0.0355221981,0.225354459,0.0262782423,0.225354636,0.0352695173,0.225355749,0.0677755867,4.38850114,0.00356601775,0.40388115,0.0276131055,1.44488619,
 		0.0373696013,0.536479656,0.0360228922,0.536480729,0.122544155,0.536493547,0.00506400486,0.270930915,0.0203620941,0.851962305,0.0274236552,2.33542971,

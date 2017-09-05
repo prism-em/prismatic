@@ -19,7 +19,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include "fparams.h"
+#include "kirkland_params.h"
 #include "defines.h"
 #include "configure.h"
 
@@ -115,9 +115,9 @@ namespace Prismatic {
 
 		// get the relevant table values
 		std::vector<PRISMATIC_FLOAT_PRECISION> ap;
-		ap.resize(n_parameters);
-		for (auto i = 0; i < n_parameters; ++i){
-			ap[i] = fparams[(Z-1)*n_parameters + i];
+		ap.resize(NUM_PARAMETERS);
+		for (auto i = 0; i < NUM_PARAMETERS; ++i){
+			ap[i] = fparams[(Z-1)*NUM_PARAMETERS + i];
 		}
 
 		// compute the potential

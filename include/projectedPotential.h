@@ -19,7 +19,7 @@
 #include <iostream>
 #include <algorithm>
 #include <numeric>
-#include "fparams.h"
+#include "kirkland_params.h"
 #include "configure.h"
 namespace Prismatic {
 
