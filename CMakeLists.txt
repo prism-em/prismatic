@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(PRISM)
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE RELEASE)
 
 # set warning level
 if ( CMAKE_COMPILER_IS_GNUCC )

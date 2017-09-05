@@ -199,6 +199,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
         ss.str("");
 
+        this->ui->lineEdit_scanWindowXMin->setCursorPosition(0);
+        this->ui->lineEdit_scanWindowXMax->setCursorPosition(0);
+        this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
+        this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
+        this->ui->lineEdit_randomSeed->setCursorPosition(0);
+
         this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
 		this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
 		this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
@@ -855,7 +861,7 @@ void PRISMMainWindow::calculatePotential(){
     PotentialThread *worker = new PotentialThread(this, progressbar);
     worker->meta.toString();
     connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+    //connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), this, SLOT(updatePotentialImage()));
     connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
@@ -875,17 +881,29 @@ void PRISMMainWindow::calculatePotential(){
 
 void PRISMMainWindow::openSaveAtomsDialog(){
     SaveAtomicCoordinatesDialog *dialog = new SaveAtomicCoordinatesDialog(this);
-    dialog->setFilenameText(QString::fromStdString(meta->filenameAtoms.substr(0, meta->filenameAtoms.rfind("."))));
+    //dialog->setFilenameText(QString::fromStdString(meta->filenameAtoms.substr(0, meta->filenameAtoms.rfind("."))));
     std::stringstream tileX_ss; tileX_ss << meta->tileX;
     std::stringstream tileY_ss; tileY_ss << meta->tileY;
     std::stringstream tileZ_ss; tileZ_ss << meta->tileZ;
-    dialog->setCommentText(QString::fromStdString(meta->filenameAtoms +
-                                                  std::string(" tiled ") +
-                                                  tileX_ss.str() +
-                                                  std::string("x") +
-                                                  tileY_ss.str()  +
-                                                  std::string("x") +
-                                                  tileZ_ss.str() ));
+    dialog->setFilenameText(QString::fromStdString(
+		    meta->filenameAtoms.substr(0, meta->filenameAtoms.rfind(".")) +
+            std::string("tiled") +
+            tileX_ss.str() +
+            std::string("x") +
+            tileY_ss.str()  +
+            std::string("x") +
+            tileZ_ss.str()  +
+            std::string(".XYZ")));
+
+    dialog->setCommentText(QString::fromStdString(
+		    meta->filenameAtoms +
+		    std::string(" tiled ") +
+		    tileX_ss.str() +
+		    std::string("x") +
+		    tileY_ss.str()  +
+		    std::string("x") +
+		    tileZ_ss.str() ));
+
     dialog->show();
     connect(dialog, SIGNAL(accepted()), dialog, SLOT(SaveAtomCoords()));
     connect(dialog, SIGNAL(signalSaveAtomCoords(QString, QString)), this, SLOT(saveAtomCoords(QString, QString)));
@@ -1011,9 +1029,7 @@ void PRISMMainWindow::updatePotentialImage(){
             this->ui->slider_slicemax->setMaximum(potential.get_dimk());
             this->ui->slider_bothSlices->setMaximum(potential.get_dimk());
 
-            // I set the value to 1 and then to the correct value to ensure that the display update is triggered. A bit of a hack..
-            this->ui->slider_slicemax->setValue(1);
-            this->ui->slider_slicemax->setValue(potential.get_dimk());
+            updatePotentialFloatImage();
         }
 }
 
@@ -1034,6 +1050,7 @@ void PRISMMainWindow::updatePotentialFloatImage(){
                 }
             }
         }
+
 
         // get max/min values for contrast setting
         auto minval = std::min_element(potentialImage_float.begin(),
