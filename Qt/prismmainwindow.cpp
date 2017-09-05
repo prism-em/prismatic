@@ -1347,15 +1347,9 @@ void PRISMMainWindow::updateOutputImage(){
             this->ui->slider_angmin->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_angmax->setMaximum(detectorAngles.size() - 1);
             this->ui->slider_bothSlices->setMaximum(detectorAngles.size() - 1);
-        std::cout << "@@@@ detectorAngles[this->ui->slider_angmin->value() = " << detectorAngles[this->ui->slider_angmin->value()] << std::endl;
-            std::cout << "detectorAngles[1] = " << detectorAngles[1] << std::endl;
-        std::cout << "detectorAngles[0] = " << detectorAngles[0] << std::endl;
-
-                      this->ui->slider_angmax->setValue(std::min(this->ui->slider_angmax->value(), this->ui->slider_angmax->maximum()));
-        this->ui->lineEdit_angmin->setText(QString::number(std::max((PRISMATIC_FLOAT_PRECISION)0.0, detectorAngles[this->ui->slider_angmin->value()] - (detectorAngles[1] - detectorAngles[0])/2)));
-        this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[this->ui->slider_angmax->value()] + (detectorAngles[1] - detectorAngles[0])/2));
-//            this->ui->lineEdit_angmin->setText(QString::number(detectorAngles[0] - (detectorAngles[1] - detectorAngles[0])/2));
-//            this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[detectorAngles.size() - 1] + (detectorAngles[1] - detectorAngles[0])/2));
+            this->ui->slider_angmax->setValue(std::min(this->ui->slider_angmax->value(), this->ui->slider_angmax->maximum()));
+            this->ui->lineEdit_angmin->setText(QString::number(std::max((PRISMATIC_FLOAT_PRECISION)0.0, detectorAngles[this->ui->slider_angmin->value()] - (detectorAngles[1] - detectorAngles[0])/2)));
+            this->ui->lineEdit_angmax->setText(QString::number(detectorAngles[std::min((int)detectorAngles.size(), this->ui->slider_angmax->value())] + (detectorAngles[1] - detectorAngles[0])/2));
         }
     updateOutputFloatImage();
 }
