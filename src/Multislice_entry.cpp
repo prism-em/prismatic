@@ -26,7 +26,7 @@ namespace Prismatic{
 		Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars;
 		try { // read atomic coordinates
 			prismatic_pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
-		} catch(const std::runtime_error &e){
+		} catch(...){
 			std::cout << "Terminating" << std::endl;
 			exit(1);
 		}

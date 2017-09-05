@@ -128,12 +128,12 @@ namespace Prismatic{
 				}
 			}
 			catch (const std::runtime_error &e) {
-				std::cout << "PRISM: Error opening " << meta.filenameAtoms << std::endl;
+				std::cout << "Prismatic: Error opening " << meta.filenameAtoms << std::endl;
 				std::cout << e.what();
 				throw;
 			}
 			catch (const std::domain_error &e) {
-				std::cout << "PRISM: Error extracting atomic data from " << meta.filenameAtoms << "!" << std::endl;
+				std::cout << "Prismatic: Error extracting atomic data from " << meta.filenameAtoms << "!" << std::endl;
 				std::cout << e.what();
 				throw;
 			}

@@ -82,17 +82,16 @@ namespace Prismatic {
 			std::stringstream ss;
 			ss.precision(8);
 			ss << line;
-			if (!(ss >> a))
+			if (!(ss >> a) || (a <= 0))
 				throw std::domain_error(
 						"Bad input data for unit cell dimension a.\n");
-			if (!(ss >> b))
+			if (!(ss >> b) || (b <= 0))
 				throw std::domain_error(
 						"Bad input data for unit cell dimension b.\n");
-			if (!(ss >> c))
+			if (!(ss >> c) || (c <= 0))
 				throw std::domain_error(
 						"Bad input data for unit cell dimension c.\n");
 		}
-//        std::cout << "Unit cell a, b, c = " << a << ", " << b << ", " << c << std::endl;
 			while (std::getline(f, line)) {
                 line = line.substr(line.find_first_not_of(" \n\t"), line.find_last_not_of(" \n\t"));
 				if (line.size() <=3){
