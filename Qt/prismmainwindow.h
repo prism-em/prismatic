@@ -73,6 +73,7 @@ public slots:
     void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
+    void setalphaBeamMax_fromLineEdit();
     void setSliceThickness_fromLineEdit();
     void setCellDimX_fromLineEdit();
     void setCellDimY_fromLineEdit();

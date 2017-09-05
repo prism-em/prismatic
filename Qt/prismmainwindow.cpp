@@ -254,6 +254,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numFP,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumFP(const int&)));
     connect(this->ui->spinBox_numStreams,              SIGNAL(valueChanged(int)),        this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
+    connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
     connect(this->ui->lineEdit_batchCPU,               SIGNAL(textEdited(QString)),      this, SLOT(setBatchCPU_fromLineEdit()));
@@ -558,6 +559,16 @@ void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
     if (flag){
         this->meta->probeSemiangle = val / 1000;
         std::cout << "Setting probe semiangle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
+    if (flag){
+        this->meta->alphaBeamMax = val / 1000;
+        std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
