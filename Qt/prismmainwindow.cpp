@@ -132,6 +132,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
         ss << (this->meta->probeSemiangle * 1e3);
         this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
 		ss.str("");
+        ss << (this->meta->alphaBeamMax * 1e3);
+        this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+        ss.str("");
 		ss << this->meta->sliceThickness;
 		this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
 		ss.str("");
@@ -228,6 +231,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
+    ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
@@ -358,8 +362,7 @@ void PRISMMainWindow::setAlgo_PRISM(){
 	setAlgo(Prismatic::Algorithm::PRISM);
     ui->lineEdit_interpFactor_x->setEnabled(true);
     ui->lineEdit_interpFactor_y->setEnabled(true);
-//    ui->lineEdit_probeTiltX->setEnabled(true);
-//    ui->lineEdit_probeTiltY->setEnabled(true);
+    ui->lineEdit_alphaBeamMax->setEnabled(true);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
@@ -367,9 +370,7 @@ void PRISMMainWindow::setAlgo_Multislice(){
 	setAlgo(Prismatic::Algorithm::Multislice);
     ui->lineEdit_interpFactor_x->setDisabled(true);
     ui->lineEdit_interpFactor_y->setDisabled(true);
-//    ui->lineEdit_probeTiltX->setDisabled(true);
-//    ui->lineEdit_probeTiltY->setDisabled(true);
-
+    ui->lineEdit_alphaBeamMax->setDisabled(true);
 }
 
 void PRISMMainWindow::setAlgo(const Prismatic::Algorithm algo){

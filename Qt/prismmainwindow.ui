@@ -1471,7 +1471,7 @@
                <x>0</x>
                <y>0</y>
                <width>320</width>
-               <height>1153</height>
+               <height>1160</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -2186,6 +2186,41 @@
                           </layout>
                          </item>
                          <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_30">
+                           <item>
+                            <widget class="QLabel" name="lbl_alphaBeamMax">
+                             <property name="font">
+                              <font>
+                               <pointsize>10</pointsize>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>a_beam_max</string>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLineEdit" name="lineEdit_alphaBeamMax">
+                             <property name="minimumSize">
+                              <size>
+                               <width>40</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>40</width>
+                               <height>16777215</height>
+                              </size>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_34">
                            <property name="spacing">
                             <number>0</number>
@@ -2256,7 +2291,7 @@
                                 <string>0</string>
                                </property>
                                <property name="alignment">
-                                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                </property>
                               </widget>
                              </item>
@@ -2286,6 +2321,9 @@
                                <property name="text">
                                 <string>0</string>
                                </property>
+                               <property name="alignment">
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                               </property>
                               </widget>
                              </item>
                              <item>
@@ -2313,6 +2351,9 @@
                                </property>
                                <property name="text">
                                 <string>0</string>
+                               </property>
+                               <property name="alignment">
+                                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                </property>
                               </widget>
                              </item>
