@@ -26,15 +26,15 @@ int main(int argc, const char** argv) {
 
 	Prismatic::printHeader();
 
-    Prismatic::printTime();
+//	Prismatic::printTime();
 
 	// print metadata
-    meta.toString();
+	meta.toString();
 
 	// execute simulation
 	Prismatic::go(meta);
 
-    Prismatic::printTime();
+//	Prismatic::printTime();
 
 	return 0;
 }
