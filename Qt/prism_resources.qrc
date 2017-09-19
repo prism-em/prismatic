@@ -2,7 +2,6 @@
     <qresource prefix="/images">
         <file>prismatic-logo.png</file>
         <file>probe.png</file>
-        <file>prism.png</file>
         <file>airy.png</file>
         <file>Grays.png</file>
         <file>Autumn.png</file>
