@@ -151,8 +151,6 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 		meta.transferMode 		 = Prismatic::StreamingMode::Auto;
 	}
 
-	meta.algorithm = Prismatic::Algorithm::PRISM;
-
 	// print metadata
     meta.toString();
 

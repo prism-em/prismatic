@@ -31,6 +31,7 @@ def demo():
 -1")
 	meta = Metadata(filenameAtoms='temp.XYZ',
 				    filenameOutput='output.mrc');
+	meta.algorithm = 'multislice'
 	meta.go()
 	import numpy as np
 	from pyprismatic.fileio import readMRC
