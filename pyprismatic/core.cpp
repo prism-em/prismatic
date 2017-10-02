@@ -130,6 +130,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.scanWindowYMax 		 = scanWindowYMax;
 	meta.randomSeed 		     = randomSeed;
 	if (std::string(algorithm) == "multislice"){
+		meta.algorithm 			 = Prismatic::Algorithm::Multislice;
 	} else {
 		meta.algorithm 			 = Prismatic::Algorithm::PRISM;
 	}
