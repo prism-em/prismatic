@@ -146,6 +146,16 @@ if (PRISMATIC_ENABLE_CLI)
         		   ${FFTW_LIBRARIES})
 endif (PRISMATIC_ENABLE_CLI)
 
+if(APPLE)
+  list(APPEND GUI_SOURCE_FILES ../Qt/icons/prismatic-icon.icns)
+  set(MACOSX_BUNDLE_ICON_FILE prismatic-icon.icns)
+  set(MACOSX_BUNDLE_BUNDLE_VERSION 0.1)
+  set_source_files_properties(../Qt/icons/prismatic-icon.icns PROPERTIES
+    MACOSX_PACKAGE_LOCATION Resources)
+elseif(WIN32)
+  list(APPEND GUI_SOURCE_FILES ../Qt/icons/prismatic.ico)
+endif()
+
 if (PRISMATIC_ENABLE_GUI)
     # build GUI
     set(CMAKE_AUTOMOC ON)
@@ -183,9 +193,9 @@ if (PRISMATIC_ENABLE_GUI)
         cuda_add_cufft_to_target(prismatic-gui)
     else (PRISMATIC_ENABLE_GPU)
         add_executable(prismatic-gui
+                        WIN32 MACOSX_BUNDLE
                         ${SOURCE_FILES}
                         ${GUI_SOURCE_FILES})
-
         target_link_libraries(prismatic-gui
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
@@ -194,8 +204,16 @@ if (PRISMATIC_ENABLE_GUI)
     endif (PRISMATIC_ENABLE_GPU)
     target_compile_definitions(prismatic-gui PRIVATE PRISMATIC_BUILDING_GUI=1)
 
-    install(TARGETS prismatic-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    if(APPLE)
+        install(TARGETS prismatic-gui DESTINATION Applications COMPONENT runtime)
+    else(APPLE)
+        install(TARGETS prismatic-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+    endif(APPLE)
 endif (PRISMATIC_ENABLE_GUI)
+
+
+
+
 
 if (PRISMATIC_ENABLE_CLI)
     install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
