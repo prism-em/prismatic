@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <iostream>
 #include "defines.h"
+#include <time.h>
 namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
