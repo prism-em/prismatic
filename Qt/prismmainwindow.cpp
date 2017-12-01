@@ -33,6 +33,12 @@ bool validateFilename(const std::string str){
     std::ifstream f(str);
     return f.good();
 }
+
+bool validateWriteFilename(const std::string str){
+    std::ofstream f(str);
+    return f.good();
+}
+
 PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 
 PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
@@ -260,6 +266,7 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     }
     // connect signals and slots
     connect(this->ui->btn_loadParams,                  SIGNAL(pressed()),                this, SLOT(selectParameterFile()));
+    connect(this->ui->btn_saveParams,                  SIGNAL(pressed()),                this, SLOT(writeParameterFile()));
     connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorX()));
     connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorY()));
     connect(this->ui->lineEdit_outputfile,             SIGNAL(textEdited(QString)),      this, SLOT(setFilenameOutput_fromLineEdit()));
@@ -524,6 +531,13 @@ void PRISMMainWindow::selectParameterFile(){
     }
 }
 
+void PRISMMainWindow::writeParameterFile(){
+    QString filename;
+    filename = QFileDialog::getSaveFileName(this, tr("ExistingFile"), filename, tr("Parameter File(*.txt);;All files(*)"));
+    if (validateWriteFilename(filename.toStdString())){
+        Prismatic::writeParamFile(*this->meta, filename.toStdString());
+    }
+}
 
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;

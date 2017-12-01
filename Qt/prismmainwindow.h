@@ -62,6 +62,7 @@ public:
 public slots:
     void updateDisplay();
     void selectParameterFile();
+    void writeParameterFile();
     void readParams(const std::string param_filename);
 	void setInterpolationFactorX();
 	void setInterpolationFactorY();
