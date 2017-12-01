@@ -132,6 +132,11 @@ namespace Prismatic {
         return true;
     }
 
+    bool validateFilename(const std::string str){
+        std::ifstream f(str);
+        return f.good();
+    }
+
     bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                                 const std::string param_filename){
         std::cout << "Writing simulation parameters to file " << param_filename << std::endl;
@@ -143,7 +148,7 @@ namespace Prismatic {
         } else {
              f << "--algorithm:" << 'p' << '\n';
         }
-        f << "--input-file:" <<  meta.filenameAtoms     << '\n';
+        if (validateFilename(meta.filenameAtoms))f << "--input-file:" <<  meta.filenameAtoms     << '\n';
         f << "--output-file:" << meta.filenameOutput  << '\n';
         f << "--num-threads:" << meta.numThreads << '\n';
         f << "--pixel-size:" << meta.realspacePixelSize[0] << ' ' << meta.realspacePixelSize[1] << '\n';
@@ -159,8 +164,12 @@ namespace Prismatic {
         if (meta.userSpecifiedCelldims == true){
             f << "--cell-dimension:" << meta.cellDim[2] << ' ' << meta.cellDim[1] << ' ' << meta.cellDim[0] << '\n';
         } else {
-            std::array<double, 3> cell_dims = peekDims_xyz(meta.filenameAtoms);
-            f << "--cell-dimension:" << cell_dims[2] << ' ' << cell_dims[1] << ' ' << cell_dims[0] << '\n';
+            try{
+                std::array<double, 3> cell_dims = peekDims_xyz(meta.filenameAtoms);
+                f << "--cell-dimension:" << cell_dims[2] << ' ' << cell_dims[1] << ' ' << cell_dims[0] << '\n';
+            } catch(std::runtime_error){
+
+            }
         }
         f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
         f << "--probe-defocus:" << meta.probeDefocus * 1000 << '\n';

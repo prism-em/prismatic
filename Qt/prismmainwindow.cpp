@@ -35,7 +35,9 @@ bool validateFilename(const std::string str){
 }
 
 bool validateWriteFilename(const std::string str){
+    std::cout << "Validating file " << str << " for writing" << std::endl;
     std::ofstream f(str);
+    if (f.good())std::cout <<"file " << str << " good" << std::endl;
     return f.good();
 }
 
@@ -518,9 +520,11 @@ void PRISMMainWindow::readParams(std::string param_filename){
     if(!Prismatic::parseParamFile(*this->meta, param_filename)){
         displayErrorReadingParamsDialog();
     } else {
-        updateUCdims(this->meta->filenameAtoms);
-        updateDisplay();
+        if (validateFilename(this->meta->filenameAtoms)){
+            updateUCdims(this->meta->filenameAtoms);
+        }
     }
+    updateDisplay();
 }
 
 void PRISMMainWindow::selectParameterFile(){
