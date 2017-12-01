@@ -27,6 +27,7 @@
 #include "utility.h"
 #include "atom.h"
 #include "parseInput.h"
+#define PRISMATIC_GUI_PARAM_FILENAME "prismatic_gui_params.txt"
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -254,6 +255,9 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 //     this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
 
+    if (validateFilename(PRISMATIC_GUI_PARAM_FILENAME)){
+        readParams(PRISMATIC_GUI_PARAM_FILENAME);
+    }
     // connect signals and slots
     connect(this->ui->btn_loadParams,                  SIGNAL(pressed()),                this, SLOT(selectParameterFile()));
     connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorX()));
@@ -1117,6 +1121,7 @@ void PRISMMainWindow::calculateAll(){
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
         worker->start();
     }
+    Prismatic::writeParamFile(*this->meta, PRISMATIC_GUI_PARAM_FILENAME);
 }
 
 void PRISMMainWindow::calculateProbe(){
