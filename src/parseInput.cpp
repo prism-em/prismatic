@@ -13,6 +13,10 @@
 
 #include "parseInput.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
 #include <map>
 #include <string>
 #include <stdlib.h>
@@ -22,10 +26,13 @@ namespace Prismatic {
 
     void printHelp() {
         Metadata<PRISMATIC_FLOAT_PRECISION> defaults;
+        // bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                       // int& argc, const char*** argv);
         std::cout << "Basic usage is prismatic -i filename [other options]" << std::endl;
         std::cout << "The following options are available with prismatic, each documented as long form (short form) *parameters* : description\n"
                 "\n"
-                "* --input-file (-i) filename : the filename containing the atomic coordinates, see www.prism-em.com/about for details (default: " << defaults.filenameAtoms << ")\n" <<
+                "* --input-file (-i) filename :  filename containing the atomic coordinates, see www.prism-em.com/about for details (default: " << defaults.filenameAtoms << ")\n" <<
+                "* --param-file (-pf) filename : filename containing simulation parameters. This optional file can contain any number of parameters in the form of a text file with one entry per line of the form param:value.\n" <<
                 "* --output-file(-o) filename : output filename (default: " << defaults.filenameOutput << ")\n" <<
                 "* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y (default: " << defaults.interpolationFactorX << ")\n" <<
 		        "* --interp-factor-x (-fx) number : PRISM interpolation factor in X (default: " << defaults.interpolationFactorX << ")\n" <<
@@ -69,6 +76,72 @@ namespace Prismatic {
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
     }
+
+
+    // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+    // trim from start (in place)
+    static inline void ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+            return !std::isspace(ch);
+        }));
+    }
+
+    // trim from end (in place)
+    static inline void rtrim(std::string &s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+            return !std::isspace(ch);
+        }).base(), s.end());
+    }
+
+    // trim from both ends (in place)
+    static inline std::string trim(std::string s) {
+        ltrim(s);
+        rtrim(s);
+        return std::string(s);
+    }
+
+    bool parseParamLine(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                std::string param_line){
+        param_line = trim(param_line);
+        size_t colon_pos = param_line.find(':');
+        if ((colon_pos == param_line.npos) | (colon_pos==0)){
+            std::cout << "Invalid parameter file entry found in line\n" << param_line << std::endl;
+            return false;
+        }
+        std::string option = trim(param_line.substr(0, colon_pos));
+        std::string args   = trim(param_line.substr(colon_pos+1)); 
+        const std::string command = option + " " + args;
+        int argc = 1 + std::count(command.begin(), command.end(), ' ');
+        std::istringstream iss(command);
+        std::vector<string> tokens{std::istream_iterator<string>{iss},
+                                   std::istream_iterator<string>{}};
+        const char** command_c = new const char*[tokens.size()];
+        for (int i = 0; i < tokens.size(); ++i){
+            command_c[i] = tokens[i].c_str();
+        }
+
+        // because the pointer is incremented during parseInput, we 
+        // save the location so that it can be deleted at the end to avoid a memory leak
+        const char** command_c_saved =  command_c;
+        if (!parseInput(meta, argc, (const char***)&command_c)){
+            delete[] command_c_saved;
+            return false;
+        }
+        delete[] command_c_saved;
+        return true;
+    }
+
+     bool parseParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                const std::string param_filename){
+        std::cout << "Parsing parameter file " << param_filename << std::endl;
+        std::ifstream f(param_filename);
+        if (!f)throw std::runtime_error("Unable to open file.\n");
+        std::string line;
+        while (std::getline(f, line)) {
+            if(!parseParamLine(meta, line)) return false;
+        }
+        return true;
+     }
 
     bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -235,6 +308,18 @@ namespace Prismatic {
             return false;
         }
         meta.filenameAtoms = std::string((*argv)[1]);
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_pf(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No filename provided for -pf (syntax is -pf filename)\n";
+            return false;
+        }
+        if (!parseParamFile(meta, std::string((*argv)[1]))) return false;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -787,6 +872,7 @@ namespace Prismatic {
                                           int& argc, const char*** argv);
     static std::map<std::string, parseFunction> parser{
             {"--input-file", parse_i}, {"-i", parse_i},
+            {"--param-file", parse_pf}, {"-pf", parse_pf},
             {"--interp-factor", parse_f}, {"-f", parse_f},
             {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
             {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},
