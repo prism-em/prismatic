@@ -1470,8 +1470,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>320</width>
-               <height>1223</height>
+               <width>339</width>
+               <height>1200</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -1893,6 +1893,24 @@
                      <property name="topMargin">
                       <number>10</number>
                      </property>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_31">
+                       <item>
+                        <widget class="QPushButton" name="btn_loadParams">
+                         <property name="text">
+                          <string>Load Parameters</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_saveParams">
+                         <property name="text">
+                          <string>Save Parameters</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
                      <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_4">
                        <property name="spacing">
@@ -3029,7 +3047,7 @@ Thickness (A)</string>
                                   <string>0.9</string>
                                  </property>
                                  <property name="cursorPosition">
-                                  <number>0</number>
+                                  <number>3</number>
                                  </property>
                                  <property name="alignment">
                                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

@@ -26,6 +26,7 @@
 #include "saveatomiccoordinatesdialog.h"
 #include "utility.h"
 #include "atom.h"
+#include "parseInput.h"
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -118,138 +119,143 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 	// set initially displayed values based on the default parameters
 	this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
-	{
-		std::stringstream ss;
-        ss << this->meta->interpolationFactorX;
-        this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-        ss << this->meta->interpolationFactorY;
-        this->ui->lineEdit_interpFactor_y->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-		ss << this->meta->potBound;
-		this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-        ss << (this->meta->probeSemiangle * 1e3);
-        this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-        ss << (this->meta->alphaBeamMax * 1e3);
-        this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-		ss << this->meta->sliceThickness;
-		this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-		ss << this->meta->cellDim[2];
-		this->ui->lineEdit_cellDimX->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-		ss << this->meta->cellDim[1];
-		this->ui->lineEdit_cellDimY->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-		ss << this->meta->cellDim[0];
-		this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-        ss << this->meta->tileX;
-        this->ui->lineEdit_tileX->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << this->meta->tileY;
-        this->ui->lineEdit_tileY->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << this->meta->tileZ;
-        this->ui->lineEdit_tileZ->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-		ss << (this->meta->E0 *1e-3);
-		this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
-		ss.str("");
-        ss << (this->meta->probeStepX);
-        this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->probeStepY);
-        this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->probeDefocus);
-        this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->probeXtilt);
-        this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->probeYtilt);
-        this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->detectorAngleStep * 1e3);
-        this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->scanWindowXMin);
-        this->ui->lineEdit_scanWindowXMin->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->scanWindowXMax);
-        this->ui->lineEdit_scanWindowXMax->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->scanWindowYMin);
-        this->ui->lineEdit_scanWindowYMin->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->scanWindowYMax);
-        this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->randomSeed);
-        this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->batchSizeTargetCPU);
-        this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
-        ss.str("");
-        ss << (this->meta->batchSizeTargetGPU);
-        this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
-        ss.str("");
+    updateDisplay();
 
-        this->ui->lineEdit_scanWindowXMin->setCursorPosition(0);
-        this->ui->lineEdit_scanWindowXMax->setCursorPosition(0);
-        this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
-        this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
-        this->ui->lineEdit_randomSeed->setCursorPosition(0);
+	// {
+	// 	std::stringstream ss;
+ //        ss << this->meta->interpolationFactorX;
+ //        this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+ //        ss << this->meta->interpolationFactorY;
+ //        this->ui->lineEdit_interpFactor_y->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+	// 	ss << this->meta->potBound;
+	// 	this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+ //        ss << (this->meta->probeSemiangle * 1e3);
+ //        this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+ //        ss << (this->meta->alphaBeamMax * 1e3);
+ //        this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+	// 	ss << this->meta->sliceThickness;
+	// 	this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+	// 	ss << this->meta->cellDim[2];
+	// 	this->ui->lineEdit_cellDimX->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+	// 	ss << this->meta->cellDim[1];
+	// 	this->ui->lineEdit_cellDimY->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+	// 	ss << this->meta->cellDim[0];
+	// 	this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+ //        ss << this->meta->tileX;
+ //        this->ui->lineEdit_tileX->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << this->meta->tileY;
+ //        this->ui->lineEdit_tileY->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << this->meta->tileZ;
+ //        this->ui->lineEdit_tileZ->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+	// 	ss << (this->meta->E0 *1e-3);
+	// 	this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
+	// 	ss.str("");
+ //        ss << (this->meta->probeStepX);
+ //        this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->probeStepY);
+ //        this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->probeDefocus);
+ //        this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->probeXtilt);
+ //        this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->probeYtilt);
+ //        this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->detectorAngleStep * 1e3);
+ //        this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->scanWindowXMin);
+ //        this->ui->lineEdit_scanWindowXMin->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->scanWindowXMax);
+ //        this->ui->lineEdit_scanWindowXMax->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->scanWindowYMin);
+ //        this->ui->lineEdit_scanWindowYMin->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->scanWindowYMax);
+ //        this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->randomSeed);
+ //        this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->batchSizeTargetCPU);
+ //        this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
+ //        ss << (this->meta->batchSizeTargetGPU);
+ //        this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
+ //        ss.str("");
 
-        this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
-		this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
-		this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
-        this->ui->spinBox_numFP->setValue(this->meta->numFP);
-        this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
-	}
+ //        this->ui->lineEdit_scanWindowXMin->setCursorPosition(0);
+ //        this->ui->lineEdit_scanWindowXMax->setCursorPosition(0);
+ //        this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
+ //        this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
+ //        this->ui->lineEdit_randomSeed->setCursorPosition(0);
 
-    ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
-    ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
-    ui->checkBox_3D->setChecked(meta->save3DOutput);
-    ui->checkBox_4D->setChecked(meta->save4DOutput);
+ //        this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
+	// 	this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
+	// 	this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
+ //        this->ui->spinBox_numFP->setValue(this->meta->numFP);
+ //        this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
+	// }
 
-	switch (this->meta->algorithm){
-		case Prismatic::Algorithm::PRISM :      this->ui->radBtn_PRISM->setChecked(true);
-			                                this->ui->radBtn_Multislice->setChecked(false);
-			break;
-		case Prismatic::Algorithm::Multislice : this->ui->radBtn_PRISM->setChecked(false);
-										    this->ui->radBtn_Multislice->setChecked(true);
-			break;
-	}
-#ifndef PRISMATIC_ENABLE_GPU
-    this->ui->spinBox_numGPUs->setEnabled(false);
-    this->ui->spinBox_numStreams->setEnabled(false);
-    this->ui->lineEdit_batchGPU ->setEnabled(false);
-    this->ui->comboBox_streamMode->setEnabled(false);
-#endif //PRISMATIC_ENABLE_GPU
+//     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
+//     ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
+//     ui->checkBox_3D->setChecked(meta->save3DOutput);
+//     ui->checkBox_4D->setChecked(meta->save4DOutput);
+
+// 	switch (this->meta->algorithm){
+// 		case Prismatic::Algorithm::PRISM :
+//             this->ui->radBtn_PRISM->setChecked(true);
+//             this->ui->radBtn_Multislice->setChecked(false);
+// 			break;
+// 		case Prismatic::Algorithm::Multislice : 
+//              this->ui->radBtn_PRISM->setChecked(false);
+// 		    this->ui->radBtn_Multislice->setChecked(true);
+// 			break;
+// 	}
+// #ifndef PRISMATIC_ENABLE_GPU
+//     this->ui->spinBox_numGPUs->setEnabled(false);
+//     this->ui->spinBox_numStreams->setEnabled(false);
+//     this->ui->lineEdit_batchGPU ->setEnabled(false);
+//     this->ui->comboBox_streamMode->setEnabled(false);
+// #endif //PRISMATIC_ENABLE_GPU
 
 
-    ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
-    ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
-    ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
-    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
-    ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
-    ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
-    ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
-    ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
-    ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
-    ui->lbl_C3->setText(QString::fromUtf8("C3 (\u212B)"));
-    ui->lbl_C5->setText(QString::fromUtf8("C5 (\u212B)"));
-    ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
-    ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
+//     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
+//     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
+//     ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
+//     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
+//     ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
+//     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
+//     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
+//     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
+//     ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
+//     ui->lbl_C3->setText(QString::fromUtf8("C3 (\u212B)"));
+//     ui->lbl_C5->setText(QString::fromUtf8("C5 (\u212B)"));
+//     ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
+//     ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
 
-    this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
+//     this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
 
     // connect signals and slots
+    connect(this->ui->btn_loadParams,                  SIGNAL(pressed()),                this, SLOT(selectParameterFile()));
     connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorX()));
     connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorY()));
     connect(this->ui->lineEdit_outputfile,             SIGNAL(textEdited(QString)),      this, SLOT(setFilenameOutput_fromLineEdit()));
@@ -363,6 +369,157 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 //                                                                                Qt::KeepAspectRatio)));
 
 }
+
+void PRISMMainWindow::updateDisplay(){
+    std::stringstream ss;
+    ss << this->meta->interpolationFactorX;
+    this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->interpolationFactorY;
+    this->ui->lineEdit_interpFactor_y->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->potBound;
+    this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeSemiangle * 1e3);
+    this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->alphaBeamMax * 1e3);
+    this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->sliceThickness;
+    this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->cellDim[2];
+    this->ui->lineEdit_cellDimX->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->cellDim[1];
+    this->ui->lineEdit_cellDimY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->cellDim[0];
+    this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->tileX;
+    this->ui->lineEdit_tileX->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->tileY;
+    this->ui->lineEdit_tileY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << this->meta->tileZ;
+    this->ui->lineEdit_tileZ->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->E0 *1e-3);
+    this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeStepX);
+    this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeStepY);
+    this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus);
+    this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeXtilt);
+    this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeYtilt);
+    this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->detectorAngleStep * 1e3);
+    this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->scanWindowXMin);
+    this->ui->lineEdit_scanWindowXMin->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->scanWindowXMax);
+    this->ui->lineEdit_scanWindowXMax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->scanWindowYMin);
+    this->ui->lineEdit_scanWindowYMin->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->scanWindowYMax);
+    this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->randomSeed);
+    this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->batchSizeTargetCPU);
+    this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->batchSizeTargetGPU);
+    this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+
+    this->ui->lineEdit_scanWindowXMin->setCursorPosition(0);
+    this->ui->lineEdit_scanWindowXMax->setCursorPosition(0);
+    this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
+    this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
+    this->ui->lineEdit_randomSeed->setCursorPosition(0);
+
+    this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
+    this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
+    this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
+    this->ui->spinBox_numFP->setValue(this->meta->numFP);
+    this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
+    ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
+    ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
+    ui->checkBox_3D->setChecked(meta->save3DOutput);
+    ui->checkBox_4D->setChecked(meta->save4DOutput);
+
+    switch (this->meta->algorithm){
+        case Prismatic::Algorithm::PRISM :
+            this->ui->radBtn_PRISM->setChecked(true);
+            this->ui->radBtn_Multislice->setChecked(false);
+            break;
+        case Prismatic::Algorithm::Multislice : 
+             this->ui->radBtn_PRISM->setChecked(false);
+            this->ui->radBtn_Multislice->setChecked(true);
+            break;
+    }
+#ifndef PRISMATIC_ENABLE_GPU
+    this->ui->spinBox_numGPUs->setEnabled(false);
+    this->ui->spinBox_numStreams->setEnabled(false);
+    this->ui->lineEdit_batchGPU ->setEnabled(false);
+    this->ui->comboBox_streamMode->setEnabled(false);
+#endif //PRISMATIC_ENABLE_GPU
+
+
+    ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
+    ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
+    ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
+    ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
+    ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
+    ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
+    ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
+    ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
+    ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
+    ui->lbl_C3->setText(QString::fromUtf8("C3 (\u212B)"));
+    ui->lbl_C5->setText(QString::fromUtf8("C5 (\u212B)"));
+    ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
+    ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
+
+    this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
+}
+
+
+void PRISMMainWindow::readParams(std::string param_filename){
+    if(!Prismatic::parseParamFile(*this->meta, param_filename)){
+        std::cout << "Error reading param file" << std::endl;
+    } else {
+        updateUCdims(this->meta->filenameAtoms);
+        updateDisplay();
+    }
+}
+
+void PRISMMainWindow::selectParameterFile(){
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Parameter File(*.txt);;All files(*)"));
+    if (validateFilename(filename.toStdString())){
+        readParams(filename.toStdString());
+    }
+}
+
 
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
@@ -1950,6 +2107,9 @@ void PRISMMainWindow::resetCalculation(){
     ScompactReady   = false;
     potentialReady  = false;
     probeSetupReady = false;
+    // delete this->meta;
+    // this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
+    // updateDisplay();
 }
 
 

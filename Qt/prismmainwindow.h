@@ -60,6 +60,9 @@ public:
     ~PRISMMainWindow();
 
 public slots:
+    void updateDisplay();
+    void selectParameterFile();
+    void readParams(const std::string param_filename);
 	void setInterpolationFactorX();
 	void setInterpolationFactorY();
 	void setFilenameAtoms_fromDialog();
