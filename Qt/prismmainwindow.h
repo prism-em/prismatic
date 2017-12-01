@@ -160,6 +160,7 @@ public slots:
     void update_RK(QString str);
     void potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
     void outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
+    void displayErrorReadingParamsDialog();
     void displayErrorReadingAtomsDialog();
     void setscan_WindowYMin_edited();
     void setscan_WindowYMax_edited();
