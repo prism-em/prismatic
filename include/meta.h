@@ -143,6 +143,7 @@ namespace Prismatic{
 
 		std::cout << "filenameAtoms = " <<  filenameAtoms     << std::endl;
 		std::cout << "filenameOutput = " << filenameOutput  << std::endl;
+		std::cout << "numThreads = " << numThreads << std::endl;
 		std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0]<< std::endl;
 		std::cout << "realspacePixelSize[1] = " << realspacePixelSize[1]<< std::endl;
 		std::cout << "potBound = " << potBound << std::endl;

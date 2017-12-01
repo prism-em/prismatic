@@ -13,19 +13,27 @@
 
 #include "parseInput.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
 #include <map>
 #include <string>
 #include <stdlib.h>
+#include "atom.h"
 
 namespace Prismatic {
     using namespace std;
 
     void printHelp() {
         Metadata<PRISMATIC_FLOAT_PRECISION> defaults;
+        // bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                       // int& argc, const char*** argv);
         std::cout << "Basic usage is prismatic -i filename [other options]" << std::endl;
         std::cout << "The following options are available with prismatic, each documented as long form (short form) *parameters* : description\n"
                 "\n"
-                "* --input-file (-i) filename : the filename containing the atomic coordinates, see www.prism-em.com/about for details (default: " << defaults.filenameAtoms << ")\n" <<
+                "* --input-file (-i) filename :  filename containing the atomic coordinates, see www.prism-em.com/about for details (default: " << defaults.filenameAtoms << ")\n" <<
+                "* --param-file (-pf) filename : filename containing simulation parameters. This optional file can contain any number of parameters in the form of a text file with one entry per line of the form param:value.\n" <<
                 "* --output-file(-o) filename : output filename (default: " << defaults.filenameOutput << ")\n" <<
                 "* --interp-factor (-f) number : PRISM interpolation factor, used for both X and Y (default: " << defaults.interpolationFactorX << ")\n" <<
 		        "* --interp-factor-x (-fx) number : PRISM interpolation factor in X (default: " << defaults.interpolationFactorX << ")\n" <<
@@ -69,6 +77,152 @@ namespace Prismatic {
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
     }
+
+
+    // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+    // trim from start (in place)
+    static inline void ltrim(std::string &s) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+            return !std::isspace(ch);
+        }));
+    }
+
+    // trim from end (in place)
+    static inline void rtrim(std::string &s) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+            return !std::isspace(ch);
+        }).base(), s.end());
+    }
+
+    // trim from both ends (in place)
+    static inline std::string trim(std::string s) {
+        ltrim(s);
+        rtrim(s);
+        return std::string(s);
+    }
+
+    bool parseParamLine(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                std::string param_line){
+        param_line = trim(param_line);
+        size_t colon_pos = param_line.find(':');
+        if ((colon_pos == param_line.npos) | (colon_pos==0)){
+            std::cout << "Invalid parameter file entry found in line\n" << param_line << std::endl;
+            return false;
+        }
+        std::string option = trim(param_line.substr(0, colon_pos));
+        std::string args   = trim(param_line.substr(colon_pos+1)); 
+        const std::string command = option + " " + args;
+        int argc = 1 + std::count(command.begin(), command.end(), ' ');
+        std::istringstream iss(command);
+        std::vector<string> tokens{std::istream_iterator<string>{iss},
+                                   std::istream_iterator<string>{}};
+        const char** command_c = new const char*[tokens.size()];
+        for (int i = 0; i < tokens.size(); ++i){
+            command_c[i] = tokens[i].c_str();
+        }
+
+        // because the pointer is incremented during parseInput, we 
+        // save the location so that it can be deleted at the end to avoid a memory leak
+        const char** command_c_saved =  command_c;
+        if (!parseInput(meta, argc, (const char***)&command_c)){
+            delete[] command_c_saved;
+            return false;
+        }
+        delete[] command_c_saved;
+        return true;
+    }
+
+    bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                const std::string param_filename){
+        std::cout << "Writing simulation parameters to file " << param_filename << std::endl;
+        std::ofstream f(param_filename);
+        if (!f)throw std::runtime_error("Unable to open file.\n");
+        std::string line;
+        if (meta.algorithm == Algorithm::Multislice){
+            f << "--algorithm:" << 'm' << '\n';
+        } else {
+             f << "--algorithm:" << 'p' << '\n';
+        }
+        f << "--input-file:" <<  meta.filenameAtoms     << '\n';
+        f << "--output-file:" << meta.filenameOutput  << '\n';
+        f << "--num-threads:" << meta.numThreads << '\n';
+        f << "--pixel-size:" << meta.realspacePixelSize[0] << ' ' << meta.realspacePixelSize[1] << '\n';
+        f << "--potential-bound:" << meta.potBound << '\n';
+        f << "--num-FP:" << meta.numFP << '\n';
+        f << "--slice-thickness:" << meta.sliceThickness<< '\n';
+        f << "--energy:" << meta.E0 / 1000 << '\n';
+        f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
+        f << "--num-threads:" << meta.numThreads << '\n';
+        f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
+        f << "--probe-step-x:" << meta.probeStepX << '\n';
+        f << "--probe-step-y:" << meta.probeStepY << '\n';
+        if (meta.userSpecifiedCelldims == true){
+            f << "--cell-dimension:" << meta.cellDim[2] << ' ' << meta.cellDim[1] << ' ' << meta.cellDim[0] << '\n';
+        } else {
+            std::array<double, 3> cell_dims = peekDims_xyz(meta.filenameAtoms);
+            f << "--cell-dimension:" << cell_dims[2] << ' ' << cell_dims[1] << ' ' << cell_dims[0] << '\n';
+        }
+        f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
+        f << "--probe-defocus:" << meta.probeDefocus * 1000 << '\n';
+        f << "-C3:" << meta.C3 << '\n';
+        f << "-C5:" << meta.C5 << '\n';
+        f << "--probe-semiangle:" << meta.probeSemiangle * 1000 << '\n';
+        f << "--detector-angle-step:" << meta.detectorAngleStep * 1000 << '\n';
+        f << "--probe-xtilt:" << meta.probeXtilt * 1000 << '\n';
+        f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
+        f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
+        f << "--scan-window-y:" << meta.scanWindowYMin << ' ' << meta.scanWindowYMax << '\n';
+        f << "--random-seed:" << meta.randomSeed << '\n';
+        if (meta.includeThermalEffects == true){
+            f << "--thermal-effects:1\n";
+        } else {
+            f << "--thermal-effects:0\n";
+        }
+        if (meta.save2DOutput){
+            f << "--save-2D-output:" << meta.integrationAngleMin * 1000 << ' ' << meta.integrationAngleMax * 1000<< '\n';
+        } 
+        if (meta.save3DOutput){
+            f << "--save-3D-output:1\n";
+        } else {
+            f << "--save-3D-output:0\n";
+        }
+        if (meta.save4DOutput){
+            f << "--save-4D-output:1\n";
+        } else {
+            f << "--save-4D-output:0\n";
+        }
+        if (meta.includeOccupancy) {
+            f << "--occupancy:1\n";
+        } else {
+            f << "--occupancy:0\n";
+        }
+
+#ifdef PRISMATIC_ENABLE_GPU
+        if (meta.alsoDoCPUWork) {
+            f << "--also-do-cpu-work:1\n";
+        } else {
+            f << "--also-do-cpu-work:0\n";
+        }
+        f << "--batch-size-gpu:" << meta.batchSizeTargetGPU << '\n';
+        f << "--num-gpus:" << meta.numGPUs << '\n';
+        f << "--num-streams:" << meta.numStreamsPerGPU << '\n';
+#endif //PRISMATIC_ENABLE_GPU
+        return true;
+     }
+
+     bool parseParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                const std::string param_filename){
+        std::cout << "Parsing parameter file " << param_filename << std::endl;
+        std::ifstream f(param_filename);
+        if (!f)throw std::runtime_error("Unable to open file.\n");
+        std::string line;
+        while (std::getline(f, line)) {
+            if(!parseParamLine(meta, line)) return false;
+        }
+        return true;
+     }
+
+     
 
     bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -235,6 +389,18 @@ namespace Prismatic {
             return false;
         }
         meta.filenameAtoms = std::string((*argv)[1]);
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_pf(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No filename provided for -pf (syntax is -pf filename)\n";
+            return false;
+        }
+        if (!parseParamFile(meta, std::string((*argv)[1]))) return false;
         argc-=2;
         argv[0]+=2;
         return true;
@@ -562,7 +728,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( ((meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
             return false;
         }
@@ -577,7 +743,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -ty (syntax is -ty probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( ((meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -ty (syntax is -ty probe_tilt\n";
             return false;
         }
@@ -592,7 +758,7 @@ namespace Prismatic {
             cout << "No defocus value provided for -df (syntax is -df defocus_value (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( ((meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value (in Angstroms)\n";
             return false;
         }
@@ -607,7 +773,7 @@ namespace Prismatic {
 			cout << "No C3 value provided for -C3 (syntax is -C3 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( ((meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value (in Angstroms)\n";
 			return false;
 		}
@@ -622,7 +788,7 @@ namespace Prismatic {
 			cout << "No C5 value provided for -C5 (syntax is -C5 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( ((meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value (in Angstroms)\n";
 			return false;
 		}
@@ -787,6 +953,7 @@ namespace Prismatic {
                                           int& argc, const char*** argv);
     static std::map<std::string, parseFunction> parser{
             {"--input-file", parse_i}, {"-i", parse_i},
+            {"--param-file", parse_pf}, {"-pf", parse_pf},
             {"--interp-factor", parse_f}, {"-f", parse_f},
             {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
             {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},

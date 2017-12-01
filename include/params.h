@@ -143,7 +143,7 @@ namespace Prismatic{
 		    tiledCellDim[2] *= meta.tileX;
 		    tiledCellDim[1] *= meta.tileY;
 		    tiledCellDim[0] *= meta.tileZ;
-			std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
+		//	std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
 		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
@@ -154,17 +154,17 @@ namespace Prismatic{
 
 		    T f_x = 4 * meta.interpolationFactorX;
 		    T f_y = 4 * meta.interpolationFactorY;
-		    std::cout << "f_x = " << f_x << std::endl;
-		    std::cout << "f_y = " << f_y << std::endl;
-		    std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
-		    std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
+		    //std::cout << "f_x = " << f_x << std::endl;
+		    //std::cout << "f_y = " << f_y << std::endl;
+		    //std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
+		    //std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
 		    _imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)));
 		    _imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspacePixelSize[1] / f_x)));
 
-		    std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)) << std::endl;
-		    std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
-		    std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
+		    // std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)) << std::endl;
+		    // std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
+		    // std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
 //		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
 //		                   [&f, this](size_t &a) {
 //			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspacePixelSize / f)));
@@ -177,8 +177,8 @@ namespace Prismatic{
 		    pixelSize[1] /= (T)imageSize[1];
 
 
-		    std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
-		    std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
+		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
+		    // std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
 
 #ifdef PRISMATIC_ENABLE_GPU
 #ifndef NDEBUG
