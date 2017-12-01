@@ -167,7 +167,7 @@ namespace Prismatic {
 
 #endif
 	void configure(Metadata<PRISMATIC_FLOAT_PRECISION>& meta) {
-		std::cout << "Formatting" << std::endl;
+		// std::cout << "Formatting" << std::endl;
 		formatOutput_CPU = formatOutput_CPU_integrate;
 #ifdef PRISMATIC_ENABLE_GPU
 		formatOutput_GPU = formatOutput_GPU_integrate;

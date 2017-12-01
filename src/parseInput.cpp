@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 #include <stdlib.h>
+#include "atom.h"
 
 namespace Prismatic {
     using namespace std;
@@ -131,6 +132,66 @@ namespace Prismatic {
         return true;
     }
 
+    bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                                const std::string param_filename){
+        std::cout << "Writing parameter file " << param_filename << std::endl;
+        std::ofstream f(param_filename);
+        if (!f)throw std::runtime_error("Unable to open file.\n");
+        std::string line;
+        f << "--input-file:" <<  meta.filenameAtoms     << '\n';
+        f << "--output-file:" << meta.filenameOutput  << '\n';
+        f << "--pixel-size:" << meta.realspacePixelSize[0] << ' ' << meta.realspacePixelSize[1] << '\n';
+        f << "--potential-bound:" << meta.potBound << '\n';
+        f << "--num-FP:" << meta.numFP << '\n';
+        f << "--slice-thickness:" << meta.sliceThickness<< '\n';
+        f << "--energy:" << meta.E0 / 1000 << '\n';
+        f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
+        f << "--num-threads:" << meta.numThreads << '\n';
+        f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
+        f << "--batch-size-gpu:" << meta.batchSizeTargetGPU << '\n';
+        f << "--probe-step-x:" << meta.probeStepX << '\n';
+        f << "--probe-step-y:" << meta.probeStepY << '\n';
+        if (meta.userSpecifiedCelldims == true){
+            std::cout << "user specified cell dims" << std::endl;
+            f << "--cell-dimension:" << meta.cellDim[0] << ' ' << meta.cellDim[1] << ' ' << meta.cellDim[2] << '\n';
+        } else {
+            std::cout << "user did not specify cell dims" << std::endl;
+            std::array<double, 3> cell_dims = peekDims_xyz(meta.filenameAtoms);
+            cout << "cell_dims = " << cell_dims[2] << ',' << cell_dims[1] << ',' << cell_dims[0] << std::endl;
+            f << "--cell-dimension:" << cell_dims[2] << ' ' << cell_dims[1] << ' ' << cell_dims[0] << '\n';
+        }
+        f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
+        f << "--probe-defocus:" << meta.probeDefocus * 1000 << '\n';
+        f << "-C3:" << meta.C3 << '\n';
+        f << "-C5:" << meta.C5 << '\n';
+        f << "--probe-semiangle:" << meta.probeSemiangle * 1000 << '\n';
+        f << "--detector-angle-step:" << meta.detectorAngleStep * 1000 << '\n';
+        f << "--probe-xtilt:" << meta.probeXtilt * 1000 << '\n';
+        f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
+        f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
+        f << "--scan-window-y:" << meta.scanWindowYMin << ' ' << meta.scanWindowYMax << '\n';
+        f << "--random-seed:" << meta.randomSeed << '\n';
+        if (meta.includeThermalEffects == true){
+            f << "--thermal-effects:1\n";
+        } else {
+            f << "--thermal-effects:0\n";
+        }
+        if (meta.save2DOutput == true){
+            f << "--save-2D-output:" << meta.integrationAngleMin * 1000 << ' ' << meta.integrationAngleMax * 1000<< '\n';
+        } 
+        if (meta.save3DOutput == true){
+            f << "--save-3D-output:1\n";
+        } else {
+            f << "--save-3D-output:0\n";
+        }
+        if (meta.save4DOutput == true){
+            f << "--save-4D-output:1\n";
+        } else {
+            f << "--save-4D-output:0\n";
+        }
+        return true;
+     }
+
      bool parseParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                                 const std::string param_filename){
         std::cout << "Parsing parameter file " << param_filename << std::endl;
@@ -142,6 +203,8 @@ namespace Prismatic {
         }
         return true;
      }
+
+     
 
     bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
@@ -647,7 +710,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -tx (syntax is -tx probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( ((meta.probeXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
             return false;
         }
@@ -662,7 +725,7 @@ namespace Prismatic {
             cout << "No probe tilt provided for -ty (syntax is -ty probe_tilt)\n";
             return false;
         }
-        if ( (meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0){
+        if ( ((meta.probeYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -ty (syntax is -ty probe_tilt\n";
             return false;
         }
@@ -677,7 +740,7 @@ namespace Prismatic {
             cout << "No defocus value provided for -df (syntax is -df defocus_value (in Angstroms))\n";
             return false;
         }
-        if ( (meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+        if ( ((meta.probeDefocus = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for -df (syntax is -df defocus_value (in Angstroms)\n";
             return false;
         }
@@ -692,7 +755,7 @@ namespace Prismatic {
 			cout << "No C3 value provided for -C3 (syntax is -C3 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( ((meta.C3 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C3 (syntax is -C3 value (in Angstroms)\n";
 			return false;
 		}
@@ -707,7 +770,7 @@ namespace Prismatic {
 			cout << "No C5 value provided for -C5 (syntax is -C5 value (in Angstroms))\n";
 			return false;
 		}
-		if ( (meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0){
+		if ( ((meta.C5 = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0) & (std::string((*argv)[1]) != "0")){
 			cout << "Invalid value \"" << (*argv)[1] << "\" provided for -C5 (syntax is -C5 value (in Angstroms)\n";
 			return false;
 		}

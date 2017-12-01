@@ -113,6 +113,7 @@ namespace Prismatic {
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma, &occ,
 											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
+											 std::cout<<"random seed = " << pars.meta.randomSeed << std::endl;
 				srand(pars.meta.randomSeed);
 				std::default_random_engine de(pars.meta.randomSeed);
 				normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
