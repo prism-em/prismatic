@@ -31,7 +31,7 @@ namespace Prismatic{
 
 		// execute simulation
 		Prismatic::execute_plan(meta);
-	    Prismatic::writeParamFile(meta, std::string("/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.txt"));
+	    Prismatic::writeParamFile(meta, std::string("prismatic_params.txt"));
 
 	}
 }

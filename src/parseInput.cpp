@@ -134,12 +134,18 @@ namespace Prismatic {
 
     bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                                 const std::string param_filename){
-        std::cout << "Writing parameter file " << param_filename << std::endl;
+        std::cout << "Writing simulation parameters to file " << param_filename << std::endl;
         std::ofstream f(param_filename);
         if (!f)throw std::runtime_error("Unable to open file.\n");
         std::string line;
+        if (meta.algorithm == Algorithm::Multislice){
+            f << "--algorithm:" << 'm' << '\n';
+        } else {
+             f << "--algorithm:" << 'p' << '\n';
+        }
         f << "--input-file:" <<  meta.filenameAtoms     << '\n';
         f << "--output-file:" << meta.filenameOutput  << '\n';
+        f << "--num-threads:" << meta.numThreads << '\n';
         f << "--pixel-size:" << meta.realspacePixelSize[0] << ' ' << meta.realspacePixelSize[1] << '\n';
         f << "--potential-bound:" << meta.potBound << '\n';
         f << "--num-FP:" << meta.numFP << '\n';
@@ -148,16 +154,12 @@ namespace Prismatic {
         f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
         f << "--num-threads:" << meta.numThreads << '\n';
         f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
-        f << "--batch-size-gpu:" << meta.batchSizeTargetGPU << '\n';
         f << "--probe-step-x:" << meta.probeStepX << '\n';
         f << "--probe-step-y:" << meta.probeStepY << '\n';
         if (meta.userSpecifiedCelldims == true){
-            std::cout << "user specified cell dims" << std::endl;
-            f << "--cell-dimension:" << meta.cellDim[0] << ' ' << meta.cellDim[1] << ' ' << meta.cellDim[2] << '\n';
+            f << "--cell-dimension:" << meta.cellDim[2] << ' ' << meta.cellDim[1] << ' ' << meta.cellDim[0] << '\n';
         } else {
-            std::cout << "user did not specify cell dims" << std::endl;
             std::array<double, 3> cell_dims = peekDims_xyz(meta.filenameAtoms);
-            cout << "cell_dims = " << cell_dims[2] << ',' << cell_dims[1] << ',' << cell_dims[0] << std::endl;
             f << "--cell-dimension:" << cell_dims[2] << ' ' << cell_dims[1] << ' ' << cell_dims[0] << '\n';
         }
         f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
@@ -176,19 +178,35 @@ namespace Prismatic {
         } else {
             f << "--thermal-effects:0\n";
         }
-        if (meta.save2DOutput == true){
+        if (meta.save2DOutput){
             f << "--save-2D-output:" << meta.integrationAngleMin * 1000 << ' ' << meta.integrationAngleMax * 1000<< '\n';
         } 
-        if (meta.save3DOutput == true){
+        if (meta.save3DOutput){
             f << "--save-3D-output:1\n";
         } else {
             f << "--save-3D-output:0\n";
         }
-        if (meta.save4DOutput == true){
+        if (meta.save4DOutput){
             f << "--save-4D-output:1\n";
         } else {
             f << "--save-4D-output:0\n";
         }
+        if (meta.includeOccupancy) {
+            f << "--occupancy:1\n";
+        } else {
+            f << "--occupancy:0\n";
+        }
+
+#ifdef PRISMATIC_ENABLE_GPU
+        if (meta.alsoDoCPUWork) {
+            f << "--also-do-cpu-work:1\n";
+        } else {
+            f << "--also-do-cpu-work:0\n";
+        }
+        f << "--batch-size-gpu:" << meta.batchSizeTargetGPU << '\n';
+        f << "--num-gpus:" << meta.numGPUs << '\n';
+        f << "--num-streams:" << meta.numStreamsPerGPU << '\n';
+#endif //PRISMATIC_ENABLE_GPU
         return true;
      }
 
