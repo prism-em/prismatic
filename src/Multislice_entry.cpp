@@ -30,6 +30,7 @@ namespace Prismatic{
 			std::cout << "Terminating" << std::endl;
 			exit(1);
 		}
+		prismatic_pars.meta.toString();
 
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);
