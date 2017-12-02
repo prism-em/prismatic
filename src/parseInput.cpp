@@ -20,6 +20,9 @@
 #include <map>
 #include <string>
 #include <stdlib.h>
+#ifdef _WIN32
+#include <cctype>
+#endif //_WIN32
 #include "atom.h"
 
 namespace Prismatic {
