@@ -20,7 +20,11 @@
 #include <map>
 #include <string>
 #include <stdlib.h>
+#ifdef _WIN32
+#include <cctype>
+#endif //_WIN32
 #include "atom.h"
+
 
 namespace Prismatic {
     using namespace std;
@@ -151,13 +155,13 @@ namespace Prismatic {
         if (validateFilename(meta.filenameAtoms))f << "--input-file:" <<  meta.filenameAtoms     << '\n';
         f << "--output-file:" << meta.filenameOutput  << '\n';
         f << "--num-threads:" << meta.numThreads << '\n';
-        f << "--pixel-size:" << meta.realspacePixelSize[0] << ' ' << meta.realspacePixelSize[1] << '\n';
+        f << "--pixel-size-x:" << meta.realspacePixelSize[1] << '\n';
+		f << "--pixel-size-y:" << meta.realspacePixelSize[0] << '\n';
         f << "--potential-bound:" << meta.potBound << '\n';
         f << "--num-FP:" << meta.numFP << '\n';
         f << "--slice-thickness:" << meta.sliceThickness<< '\n';
         f << "--energy:" << meta.E0 / 1000 << '\n';
         f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
-        f << "--num-threads:" << meta.numThreads << '\n';
         f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
         f << "--probe-step-x:" << meta.probeStepX << '\n';
         f << "--probe-step-y:" << meta.probeStepY << '\n';
@@ -182,7 +186,7 @@ namespace Prismatic {
         f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
         f << "--scan-window-y:" << meta.scanWindowYMin << ' ' << meta.scanWindowYMax << '\n';
         f << "--random-seed:" << meta.randomSeed << '\n';
-        if (meta.includeThermalEffects == true){
+        if (meta.includeThermalEffects){
             f << "--thermal-effects:1\n";
         } else {
             f << "--thermal-effects:0\n";

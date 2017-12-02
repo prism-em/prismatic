@@ -385,6 +385,12 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 void PRISMMainWindow::updateDisplay(){
     std::stringstream ss;
+	ss << this->meta->realspacePixelSize[0];
+	this->ui->lineEdit_pixelSizeY->setText(QString::fromStdString(ss.str()));
+	ss.str("");
+	ss << this->meta->realspacePixelSize[1];
+	this->ui->lineEdit_pixelSizeX->setText(QString::fromStdString(ss.str()));
+	ss.str("");
     ss << this->meta->interpolationFactorX;
     this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
     ss.str("");
@@ -433,6 +439,12 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->probeDefocus);
     this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
     ss.str("");
+	ss << (this->meta->C3);
+	this->ui->lineEdit_C3->setText(QString::fromStdString(ss.str()));
+	ss.str("");
+	ss << (this->meta->C5);
+	this->ui->lineEdit_C5->setText(QString::fromStdString(ss.str()));
+	ss.str("");
     ss << (this->meta->probeXtilt);
     this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
     ss.str("");
