@@ -27,7 +27,6 @@
 #include "utility.h"
 #include "atom.h"
 #include "parseInput.h"
-#define PRISMATIC_GUI_PARAM_FILENAME "prismatic_gui_params.txt"
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -39,6 +38,16 @@ bool validateWriteFilename(const std::string str){
     std::ofstream f(str);
     if (f.good())std::cout <<"file " << str << " good" << std::endl;
     return f.good();
+}
+
+std::string get_default_parameter_filename() {
+
+#ifdef _WIN32
+	char* appdata = getenv("APPDATA");
+	return std::string(appdata) + "\prismatic_gui_params.txt";
+#else
+	return std::string("~/prismatic_gui_params.txt");
+#endif //_WIN32
 }
 
 PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta);
@@ -263,8 +272,8 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
 
 //     this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
 
-    if (validateFilename(PRISMATIC_GUI_PARAM_FILENAME)){
-        readParams(PRISMATIC_GUI_PARAM_FILENAME);
+    if (validateFilename(get_default_parameter_filename())){
+        readParams(get_default_parameter_filename());
     }
     // connect signals and slots
     connect(this->ui->btn_loadParams,                  SIGNAL(pressed()),                this, SLOT(selectParameterFile()));
@@ -1151,7 +1160,7 @@ void PRISMMainWindow::calculateAll(){
         connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
         worker->start();
     }
-    Prismatic::writeParamFile(*this->meta, PRISMATIC_GUI_PARAM_FILENAME);
+    Prismatic::writeParamFile(*this->meta, get_default_parameter_filename());
 }
 
 void PRISMMainWindow::calculateProbe(){
