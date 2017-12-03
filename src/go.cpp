@@ -22,7 +22,11 @@
 #include "params.h"
 #include "go.h"
 #include "parseInput.h"
-
+#ifdef _WIN32
+#define PRISMATIC_PARAM_FILENAME "%appdata%\prismatic_gui_params.txt"
+#else
+#define PRISMATIC_PARAM_FILENAME "~/prismatic_gui_params.txt"
+#endif //_WIN32
 
 namespace Prismatic{
 	void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta){
@@ -31,7 +35,13 @@ namespace Prismatic{
 
 		// execute simulation
 		Prismatic::execute_plan(meta);
-	    Prismatic::writeParamFile(meta, std::string("prismatic_params.txt"));
+
+#ifdef _WIN32
+		char* appdata = getenv("APPDATA");
+		Prismatic::writeParamFile(meta, std::string(appdata) + "\prismatic_gui_params.txt");
+#else
+		Prismatic::writeParamFile(meta, std::string("~/prismatic_gui_params.txt");
+#endif //_WIN32
 
 	}
 }
