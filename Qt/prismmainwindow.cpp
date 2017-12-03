@@ -46,7 +46,8 @@ std::string get_default_parameter_filename() {
 	char* appdata = getenv("APPDATA");
 	return std::string(appdata) + "\prismatic_gui_params.txt";
 #else
-	return std::string("~/prismatic_gui_params.txt");
+	char* appdata = getenv("HOME");
+	return std::string(appdata) + "/prismatic_gui_params.txt";
 #endif //_WIN32
 }
 
