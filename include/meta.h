@@ -35,7 +35,7 @@ namespace Prismatic{
 			filenameOutput       = "output.mrc";
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
-			potBound              = 1.0;
+			potBound              = 2.0;
 			numFP                 = 1;
             fpNum                 = 1;
 			sliceThickness        = 2.0;
