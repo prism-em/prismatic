@@ -388,6 +388,7 @@ void FullPRISMCalcThread::run(){
         // run the rest of the frozen phonons
         Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
+	    ++meta.fpNum;
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.randomSeed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
@@ -472,6 +473,7 @@ void FullMultisliceCalcThread::run(){
         // run the rest of the frozen phonons
         Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
+	    ++meta.fpNum;
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.randomSeed = rand() % 100000;
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
