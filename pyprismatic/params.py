@@ -42,8 +42,8 @@ class Metadata(object):
 	"probeDefocus" : probe defocus (in Angstroms)
 	"C3" : microscope C3 (in Angstroms)
 	"C5" : microscope C5 (in Angstroms)
-	"probeSemiangle" : probe convergence semi-angle (in mrad)
-	"detectorAngleStep" : angular step size for detector integration bins (in mrad)
+	"probeSemiangle" : probe convergence semi-angle (in rad)
+	"detectorAngleStep" : angular step size for detector integration bins (in rad)
 	"probeXtilt" : (in Angstroms)
 	"probeYtilt" : (in Angstroms)
 	"scanWindowXMin" : lower X size of the window to scan the probe (in fractional coordinates)
@@ -57,8 +57,8 @@ class Metadata(object):
 	"save2DOutput" : save the 2D STEM image integrated between integrationAngleMin and integrationAngleMax
 	"save3DOutput" : true/false Also save the 3D output at the detector for each probe (3D output mode)
 	"save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
-	"integrationAngleMin" : (in mrad)
-	"integrationAngleMax" : (in mrad)
+	"integrationAngleMin" : (in rad)
+	"integrationAngleMax" : (in rad)
 	"transferMode : memory model to use, either "streaming", "singlexfer", or "auto"
 	"""
 
