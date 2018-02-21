@@ -30,7 +30,7 @@ class Metadata(object):
 	"tileY" : number of unit cells to tile in Y direction
 	"tileZ" : number of unit cells to tile in Z direction
 	"E0" : electron beam energy (in eV)
-	"alphaBeamMax" : the maximum probe angle to consider (in mrad)
+	"alphaBeamMax" : the maximum probe angle to consider (in rad)
 	"numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used. 
 	"numStreamsPerGPU" : number of CUDA streams to use per GPU
 	"numThreads" : number of CPU worker threads to use
