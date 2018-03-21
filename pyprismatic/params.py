@@ -109,6 +109,26 @@ class Metadata(object):
               "integrationAngleMax",
               "transferMode"]
 
+    str_fields = ['algorith', 'transferMode']
+
+    int_fields = ['interpolationFactorX', 'interpolationFactorY',
+                  'tileX', 'tileY', 'tileZ', 'numFP'
+                  'numGPUs', 'numStreamsPerGPU', 'numThreads',
+                  'batchSizeTargetCPU', 'batchSizeTargetGPU',
+                  'batchSizeCPU', 'batchSizeGPU']
+
+    float_fields = ['realspacePixelSizeX', 'realspacePixelSizeY',
+                    'potBound', 'sliceThickness',
+                    'E0', 'alphaBeamMax'
+                    'earlyCPUStopCount',
+                    'probeStepX', 'probeStepY',
+                    'probeDefocus', 'C3', 'C5',
+                    'probeSemiangle', 'detectorAngleStep',
+                    'probeXtilt', 'probeYtilt',
+                    'scanWindowXMin', 'scanWindowXMax',
+                    'scanWindowYMin', 'scanWindowYMax',
+                    'integrationAngleMin', 'integrationAngleMax']
+
     def __init__(self, *args, **kwargs):
         """
         Fields within Metadata objects can be set either manually or at
@@ -172,6 +192,49 @@ class Metadata(object):
                 print("Invalid metaparameter \"{}\" provided".format(k))
             else:
                 setattr(self, k, v)
+
+    def readParameters(self, Fname):
+        """Read parameters from ``Fname`` previously stored by ``writeParameters()``.
+        No input verification is performed.
+        """
+        try:
+            inf = open(Fname, 'r')
+        except IOError:
+            print('Could not open parameter file {}'.format(Fname))
+
+        line = inf.readline()
+        while line:
+            field, value = line.split(' = ')
+            if field in Metadata.str_fields:
+                setattr(self, field, value)
+            elif field in Metadata.int_fields:
+                setattr(self, field, int(value))
+            elif field in Metadata.float_fields:
+                setattr(self, field, float(value))
+            else:
+                setattr(self, field, bool(value))
+            line = inf.readline()
+        inf.close()
+
+    def writeParameters(self, Fname):
+        """Write parameters to ``Fname`` but leave out parameters that define
+        the input obtained from ``filenameAtoms`` (incuding cell dimensions
+        and number of tiles) as well as the output specific settings.
+        """
+        try:
+            outf = open(Fname, 'w')
+        except IOError:
+            print('Could not open parameter file {}'.format(Fname))
+
+        for field in Metadata.fields:
+            if ('save' not in field) and ('filename' not in field) and ('cellDim' not in field):
+                #
+                # only save parameters that define a calculation but
+                # omit all related to specific input or to what kind of output is
+                # generated
+                #
+                outf.write("{} = {}\n".format(field, getattr(self, field)))
+        outf.close()
 
     def toString(self):
         for field in Metadata.fields:
