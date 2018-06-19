@@ -120,7 +120,7 @@ namespace Prismatic {
 	void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		// create output of a size corresponding to 3D mode (integration)
 
-		pars.output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
@@ -331,15 +331,15 @@ namespace Prismatic {
 
         //save 4D output if applicable
          if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, ay, ax);
+			std::string section4DFilename = generateFilename(pars, 1, ay, ax);
 			intOutput.toMRC_f(section4DFilename.c_str());
 		}
 
-//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
+			//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
-				pars.output.at(ay, ax, (*idx) - 1) += *counts * pars.scale;
+				pars.output.at(0, ay, ax, (*idx) - 1) += *counts * pars.scale;
 			}
 			++idx;
 		};

@@ -42,12 +42,14 @@ namespace Prismatic{
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                Array2D< complex<PRISMATIC_FLOAT_PRECISION> >& psi,
 	                                const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
+									const size_t currentSlice,
 	                                const size_t ay,
 	                                const size_t ax);
 
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
 	                                      const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
+										  const size_t currentSlice,
 	                                      const size_t ay,
 	                                      const size_t ax);
 

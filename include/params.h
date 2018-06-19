@@ -46,7 +46,7 @@ namespace Prismatic{
 	    void calculateLambda();
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
-	    Array3D<T> output;
+	    Array4D<T> output;
 		Array3D<T> pot;
 	    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION> > transmission;
 

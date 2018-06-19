@@ -46,6 +46,7 @@ namespace Prismatic {
                 "* --num-streams (-S) value : number of CUDA streams to create per GPU (default: " << defaults.numStreamsPerGPU << ")\n" <<
 		        "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used. (default: " << defaults.numGPUs << ")\n" <<
                 "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms) (default: " << defaults.sliceThickness << ")\n" <<
+                "* --num-slices (-ns) number of slices: in multislice mode, number of slices before intermediate output is given (default: " << defaults.numSlices << ")\n" <<
 		        "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
 		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
 		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers. (default: " << defaults.batchSizeGPU << ")\n" <<
@@ -160,6 +161,7 @@ namespace Prismatic {
         f << "--potential-bound:" << meta.potBound << '\n';
         f << "--num-FP:" << meta.numFP << '\n';
         f << "--slice-thickness:" << meta.sliceThickness<< '\n';
+        f << "--num-slices:" << meta.numSlices<< '\n';
         f << "--energy:" << meta.E0 / 1000 << '\n';
         f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
         f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
@@ -542,6 +544,22 @@ namespace Prismatic {
         }
         if ( (meta.sliceThickness = atof((*argv)[1])) == 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for slice_thickness (syntax is -s slice_thickness (in Angstroms))\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_ns(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+
+        if (argc < 2){
+            cout << "No number of slices provided for intermediate output (syntax is -ns num_slices)\n";
+            return false;
+        }
+        if ( (meta.numSlices = atoi((*argv)[1])) == 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of slices (syntax is -ns num_slices)\n";
             return false;
         }
         argc-=2;
@@ -974,6 +992,7 @@ namespace Prismatic {
             {"--num-threads", parse_j}, {"-j", parse_j},
             {"--num-streams", parse_S}, {"-S", parse_S},
             {"--slice-thickness", parse_s}, {"-s", parse_s},
+            {"--num-slices",parse_ns},{"-ns",parse_ns},
             {"--num-gpus", parse_g}, {"-g", parse_g},
             {"--batch-size", parse_b}, {"-b", parse_b},
             {"--batch-size-cpu", parse_bc}, {"-bc", parse_bc},

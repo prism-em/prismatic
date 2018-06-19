@@ -174,12 +174,15 @@ namespace Prismatic{
 	}
 
 	void createStack(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
-		pars.output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		size_t numLayers = pars.numPlanes / pars.meta.numSlices  + (pars.numPlanes % pars.meta.numSlices != 0);
+
+		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                       Array2D< complex<PRISMATIC_FLOAT_PRECISION> >& psi,
 	                                       const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
+										   const size_t currentSlice,
 	                                       const size_t ay,
 	                                       const size_t ax){
 		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
@@ -188,7 +191,7 @@ namespace Prismatic{
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, ay, ax);
+			std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 			intOutput.toMRC_f(section4DFilename.c_str());
 		}
 
@@ -196,7 +199,7 @@ namespace Prismatic{
 		auto idx = alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
 			if (*idx <= pars.Ndet){
-				pars.output.at(ay,ax,(*idx)-1) += *counts;
+				pars.output.at(currentSlice,ay,ax,(*idx)-1) += *counts;
 			}
 			++idx;
 		};
@@ -205,7 +208,8 @@ namespace Prismatic{
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
 	                                      const Array2D<PRISMATIC_FLOAT_PRECISION> &alphaInd,
 	                                      size_t Nstart,
-	                                      const size_t Nstop){
+	                                      const size_t Nstop,
+										  const size_t currentSlice){
 		int probe_idx = 0;
 		while (Nstart < Nstop) {
 			const size_t ay = Nstart / pars.xp.size();
@@ -217,7 +221,7 @@ namespace Prismatic{
 
 			//save 4D output if applicable
 			if (pars.meta.save4DOutput) {
-				std::string section4DFilename = generateFilename(pars, ay, ax);
+				std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 				intOutput.toMRC_f(section4DFilename.c_str());
 			}
 
@@ -225,7 +229,7 @@ namespace Prismatic{
 			auto idx = alphaInd.begin();
 			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 				if (*idx <= pars.Ndet) {
-					pars.output.at(ay, ax, (*idx) - 1) += *counts;
+					pars.output.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
 				}
 				++idx;
 			};
@@ -319,7 +323,7 @@ namespace Prismatic{
 		}
 		auto psi_ptr   = psi_stack.begin();
 		for (auto probe_num = Nstart; probe_num < Nstop; ++probe_num) {
-//			for (auto i:pars.psiProbeInit)*psi_ptr++=i;
+			//			for (auto i:pars.psiProbeInit)*psi_ptr++=i;
 			// Initialize the probes
 			// Determine x/y position from the linear index
 			const size_t ay = probe_num / pars.xp.size();
@@ -339,31 +343,37 @@ namespace Prismatic{
 		auto scaled_prop = pars.prop;
 		for (auto& jj : scaled_prop) jj/=pars.psiProbeInit.size(); // apply FFT scaling factor here once in advance rather than at every plane
 		complex<PRISMATIC_FLOAT_PRECISION>* slice_ptr = &pars.transmission[0];
-		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-			PRISMATIC_FFTW_EXECUTE(plan_inverse); // batch FFT
+		size_t currentSlice = 0;
 
-			// transmit each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
-				auto t_ptr   = slice_ptr; // start at the beginning of the current slice
-				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
-				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
-					*psi_ptr++ *= (*t_ptr++);// transmit
+			for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+				PRISMATIC_FFTW_EXECUTE(plan_inverse); // batch FFT
+
+				// transmit each of the probes in the batch
+				for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
+					auto t_ptr   = slice_ptr; // start at the beginning of the current slice
+					auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
+					for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
+						*psi_ptr++ *= (*t_ptr++);// transmit
+					}
+				}
+				slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
+				PRISMATIC_FFTW_EXECUTE(plan_forward); // batch FFT
+
+				// propagate each of the probes in the batch
+				for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
+					auto p_ptr = scaled_prop.begin();
+					auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
+					for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
+						*psi_ptr++ *= (*p_ptr++);// propagate
+					}
+				}
+				cout << "Location 6 plane " << a2 << endl;
+
+				if ( (((a2+1) % pars.meta.numSlices) == 0) || ((a2+1) == pars.numPlanes) ){
+					formatOutput_CPU_integrate_batch(pars, psi_stack, pars.alphaInd, Nstart, Nstop, currentSlice);
+					currentSlice++;
 				}
 			}
-			slice_ptr += pars.psiProbeInit.size(); // advance to point to the beginning of the next potential slice
-			PRISMATIC_FFTW_EXECUTE(plan_forward); // batch FFT
-
-			// propagate each of the probes in the batch
-			for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, Nstop - Nstart); ++batch_idx){
-				auto p_ptr = scaled_prop.begin();
-				auto psi_ptr = &psi_stack[batch_idx * pars.psiProbeInit.size()];
-				for (auto jj = 0; jj < pars.psiProbeInit.size(); ++jj){
-					*psi_ptr++ *= (*p_ptr++);// propagate
-				}
-			}
-
-		}
-		formatOutput_CPU_integrate_batch(pars, psi_stack, pars.alphaInd, Nstart, Nstop);
 	}
 
 	void getMultisliceProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -399,14 +409,21 @@ namespace Prismatic{
 		auto scaled_prop = pars.prop;
 		for (auto& i : scaled_prop) i/=psi.size(); // apply FFT scaling factor here once in advance rather than at every plane
 		complex<PRISMATIC_FLOAT_PRECISION>* t_ptr = &pars.transmission[0];
-		for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
-			PRISMATIC_FFTW_EXECUTE(plan_inverse);
-			for (auto& p:psi)p *= (*t_ptr++); // transmit
-			PRISMATIC_FFTW_EXECUTE(plan_forward);
-			auto p_ptr = scaled_prop.begin();
-			for (auto& p:psi)p *= (*p_ptr++); // propagate
-		}
-		formatOutput_CPU(pars, psi, pars.alphaInd, ay, ax);
+		size_t currentSlice = 0;
+
+			for (auto a2 = 0; a2 < pars.numPlanes; ++a2){
+				PRISMATIC_FFTW_EXECUTE(plan_inverse);
+				for (auto& p:psi)p *= (*t_ptr++); // transmit
+				PRISMATIC_FFTW_EXECUTE(plan_forward);
+				auto p_ptr = scaled_prop.begin();
+				for (auto& p:psi)p *= (*p_ptr++); // propagate
+				cout << "Location 5 plane " << a2 << endl;
+				
+				if ( (((a2+1) % pars.meta.numSlices) == 0) || ((a2+1) == pars.numPlanes) ){
+					formatOutput_CPU(pars, psi, pars.alphaInd, currentSlice, ay, ax);
+					currentSlice++;
+				}
+			}
 	}
 
 	void buildMultisliceOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){

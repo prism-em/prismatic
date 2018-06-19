@@ -39,6 +39,7 @@ namespace Prismatic{
 			numFP                 = 1;
             fpNum                 = 1;
 			sliceThickness        = 2.0;
+			numSlices		      = 0; //to give a logic check, so that intermediate output only given when positive integer is given
 			cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
 			tileX                 = 1;
 			tileY                 = 1;
@@ -89,6 +90,7 @@ namespace Prismatic{
 		size_t numFP; // number of frozen phonon configurations to compute
 		size_t fpNum; // current frozen phonon number
 		T sliceThickness; // thickness of slice in Z
+		size_t numSlices; //number of slices to itereate through in multislice before giving an output
 		T probeStepX;
 		T probeStepY;
 		std::vector<T> cellDim; // this is z,y,x format
@@ -149,7 +151,8 @@ namespace Prismatic{
 		std::cout << "potBound = " << potBound << std::endl;
 		std::cout << "numFP = " << numFP << std::endl;
 		std::cout << "sliceThickness = " << sliceThickness<< std::endl;
-		std::cout << "E0 = " << E0 << std::endl;
+		std::cout << "numSlices = " << numSlices << std::endl;
+ 		std::cout << "E0 = " << E0 << std::endl;
 		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
 		std::cout << "numThreads = " << numThreads<< std::endl;
 		std::cout << "batchSizeTargetCPU = " << batchSizeTargetCPU<< std::endl;
@@ -235,6 +238,7 @@ namespace Prismatic{
 		if(potBound != other.potBound)return false;
 		if(numFP != other.numFP)return false;
 		if(sliceThickness != other.sliceThickness)return false;
+		if(numSlices != other.numSlices)return false;
 		if(cellDim[0] != other.cellDim[0])return false;
 		if(cellDim[1] != other.cellDim[1])return false;
 		if(cellDim[2] != other.cellDim[2])return false;
