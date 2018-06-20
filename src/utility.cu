@@ -452,7 +452,26 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		                           pars.psiProbeInit.size() * sizeof(PRISMATIC_FLOAT_PRECISION),
 		                           cudaMemcpyDeviceToHost,
 		                           stream));
+
+		if (pars.meta.algorthm == Algorithm::Multislice){
+            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>  finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+            {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
+            {
+                long offset_x = pars.psiProbeInit.get_dimi() / 4;
+                long offset_y = pars.psiProbeInit.get_dimj() / 4;
+                long ndimy = (long) pars.psiProbeInit.get_dimj();
+                long ndimx = (long) pars.psiProbeInit.get_dimi();
+                for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+                    for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+                        finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                                    ((x - offset_x) % ndimx + ndimx) % ndimx);
+                    }
+                }
+			}
+		finalImage.toMRC_f(section4DFilename.c_str());
+        }else{                     
 		currentImage.toMRC_f(section4DFilename.c_str());
+        }
 	}
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 

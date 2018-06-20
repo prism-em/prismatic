@@ -189,10 +189,26 @@ namespace Prismatic{
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
 
+		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION> >({{psi.get_dimj()/2, psi.get_dimi()/2}});
+
+		{
+			long offset_x = psi.get_dimi() / 4;
+			long offset_y = psi.get_dimj() / 4;
+			long ndimy = (long) psi.get_dimj();
+			long ndimx = (long) psi.get_dimi();
+			for (long y = 0; y < psi.get_dimj() / 2; ++y) {
+				for (long x = 0; x < psi.get_dimi() / 2; ++x) {
+					intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+					                            ((x - offset_x) % ndimx + ndimx) % ndimx);
+				}
+			}
+		}
+
+
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
 			std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			intOutput.toMRC_f(section4DFilename.c_str());
+			intOutput_small.toMRC_f(section4DFilename.c_str());
 		}
 
 		//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
@@ -219,10 +235,26 @@ namespace Prismatic{
 			auto psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
 			for (auto &j:intOutput) j = pow(abs(*psi_ptr++), 2);
 
+			Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj()/2, pars.psiProbeInit.get_dimi()/2}});
+
+			{
+				long offset_x = pars.psiProbeInit.get_dimi() / 4;
+				long offset_y = pars.psiProbeInit.get_dimj() / 4;
+				long ndimy = (long) pars.psiProbeInit.get_dimj();
+				long ndimx = (long) pars.psiProbeInit.get_dimi();
+
+				for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+					for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+						intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+													((x - offset_x) % ndimx + ndimx) % ndimx);
+					}
+				}
+			}
+
 			//save 4D output if applicable
 			if (pars.meta.save4DOutput) {
 				std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-				intOutput.toMRC_f(section4DFilename.c_str());
+				intOutput_small.toMRC_f(section4DFilename.c_str());
 			}
 
 			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock

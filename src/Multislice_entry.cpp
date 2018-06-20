@@ -58,21 +58,8 @@ namespace Prismatic{
 		}
 
 		if (prismatic_pars.meta.save3DOutput){
-			if (prismatic_pars.meta.numSlices == 0){
 				//create dummy array to pass to
-				Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimi()}});
-				
-				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
-					for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
-						for (auto b = 0; b < prismatic_pars.output.get_dimi(); ++b){
-							output_image.at(y,x,b) = prismatic_pars.output.at(0,y,x,b);
-						}
-					}
-				}
-
-				output_image.toMRC_f(prismatic_pars.meta.filenameOutput.c_str());
-			}else{
-				std::string slice_filename;
+				std::string slice_filename = prismatic_pars.meta.filenameOutput;
 				Array3D<PRISMATIC_FLOAT_PRECISION> slice_image;
 				slice_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimi()}});
 
@@ -85,33 +72,22 @@ namespace Prismatic{
 							}
 						}
 					}
-
-					slice_filename = std::string("slice")+std::to_string(j)+std::string("_")+prismatic_pars.meta.filenameOutput;
+					if ( prismatic_pars.meta.numSlices != 0) slice_filename = std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
 					slice_image.toMRC_f(slice_filename.c_str());
 				}
-			}
 		}
 
 		if (prismatic_pars.meta.save2DOutput) {
 			size_t lower = std::max((size_t)0, (size_t)(prismatic_pars.meta.integrationAngleMin / prismatic_pars.meta.detectorAngleStep));
 			size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t) (prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
-			std::string image_filename;
-			prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-					{{prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimj()}});
+			std::string image_filename = std::string("multislice_2Doutput")+prismatic_pars.meta.filenameOutput;
 
-			if (prismatic_pars.meta.numSlices == 0){		
-				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y) {
-					for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x) {
-						for (auto b = lower; b < upper; ++b) {
-							prism_image.at(y, x) += prismatic_pars.output.at(0, y, x, b);
-						}
-					}
-				}
-				image_filename = std::string("multislice_2Doutput_") + prismatic_pars.meta.filenameOutput;
-				prism_image.toMRC_f(image_filename.c_str());
-			}else{
 				for (auto j = 0; j < prismatic_pars.output.get_diml(); j++){
+					//need to initiliaze output image at each slice to prevent overflow of value
+					prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+						{{prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimj()}});
+
 					for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y) {
 						for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x) {
 							for (auto b = lower; b < upper; ++b) {
@@ -119,10 +95,12 @@ namespace Prismatic{
 							}
 						}
 					}
-					image_filename = std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_") + prismatic_pars.meta.filenameOutput;
+					if (prismatic_pars.meta.numSlices != 0 ){
+						image_filename = (std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_")) + prismatic_pars.meta.filenameOutput;
+					}
 					prism_image.toMRC_f(image_filename.c_str());
+					
 				}
-			}
 		}
 
 #ifdef PRISMATIC_ENABLE_GPU
