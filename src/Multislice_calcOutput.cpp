@@ -189,7 +189,7 @@ namespace Prismatic{
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
 
-		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION> >({{psi.get_dimj()/2, psi.get_dimi()/2}});
+		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj()/2, psi.get_dimi()/2}});
 
 		{
 			long offset_x = psi.get_dimi() / 4;
@@ -203,7 +203,6 @@ namespace Prismatic{
 				}
 			}
 		}
-
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
