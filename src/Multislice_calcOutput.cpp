@@ -174,7 +174,7 @@ namespace Prismatic{
 	}
 
 	void createStack(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
-		size_t numLayers = pars.numPlanes / pars.numSlices  + (pars.numPlanes % pars.numSlices != 0);
+		size_t numLayers = (pars.numPlanes - pars.zStartPlane) / pars.numSlices  + ((pars.numPlanes - pars.zStartPlane) % pars.numSlices != 0);
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
@@ -400,7 +400,7 @@ namespace Prismatic{
 				}
 				cout << "Location 6 plane " << a2 << endl;
 
-				if ( (((a2+1) % pars.numSlices) == 0) || ((a2+1) == pars.numPlanes) ){
+				if  ( ( (((a2+1) % pars.numSlices) == 0) && ((a2+1) >= pars.zStartPlane) ) || ((a2+1) == pars.numPlanes) ){
 					formatOutput_CPU_integrate_batch(pars, psi_stack, pars.alphaInd, Nstart, Nstop, currentSlice);
 					currentSlice++;
 				}
@@ -450,7 +450,7 @@ namespace Prismatic{
 				for (auto& p:psi)p *= (*p_ptr++); // propagate
 				cout << "Location 5 plane " << a2 << endl;
 				
-				if ( (((a2+1) % pars.numSlices) == 0) || ((a2+1) == pars.numPlanes) ){
+				if ( ( (((a2+1) % pars.numSlices) == 0) && ((a2+1) >= pars.zStartPlane) ) || ((a2+1) == pars.numPlanes) ){
 					formatOutput_CPU(pars, psi, pars.alphaInd, currentSlice, ay, ax);
 					currentSlice++;
 				}

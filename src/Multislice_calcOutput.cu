@@ -646,7 +646,7 @@ namespace Prismatic{
 				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 				cout << "Location 1 plane " << planeNum << '\n';
 
-				if ( (((planeNum+1) % pars.numSlices) == 0) || ((planeNum+1) == pars.numPlanes) ){
+				if ( ( (((planeNum+1) % pars.numSlices) == 0 ) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
 					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
 					currentSlice++;
@@ -703,7 +703,7 @@ namespace Prismatic{
 				}
 				cout << "Location 4 plane " << planeNum << '\n';
 				
-				if ( (((planeNum+1) % pars.numSlices) == 0) || ((planeNum+1) == pars.numPlanes) ){
+				if ( ((((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 					cout << "Current Slice: " << currentSlice << '\n';
 					abs_squared << < ( psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
@@ -754,7 +754,7 @@ namespace Prismatic{
 				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 				cout << "Location 2 plane " << planeNum << '\n';
 
-				if ( (((planeNum+1) % pars.numSlices) == 0) || ((planeNum+1) == pars.numPlanes) ){
+				if ( ( (((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
 		
 					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds,currentSlice, ay, ax, dimj, dimi,stream);
@@ -815,7 +815,7 @@ namespace Prismatic{
 				}
 				cout << "Location 3 plane " << planeNum << '\n';
 
-				if ( (((planeNum+1) % pars.numSlices) == 0) || ((planeNum+1) == pars.numPlanes) ){
+				if ( ( ((planeNum+1) % pars.numSlices) == 0 && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared << < (psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
 		
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {

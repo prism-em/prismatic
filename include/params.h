@@ -94,6 +94,7 @@ namespace Prismatic{
         size_t Ndet;
         size_t numPlanes;
 		size_t numSlices;
+		size_t zStartPlane;
 	    size_t numberBeams;
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
@@ -176,7 +177,10 @@ namespace Prismatic{
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];
+
 			numSlices = meta.numSlices;
+			zStartPlane = (size_t) std::floor(meta.zStart / meta.sliceThickness);
+
 
 		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    // std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
