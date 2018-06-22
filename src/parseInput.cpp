@@ -558,7 +558,7 @@ namespace Prismatic {
             cout << "No number of slices provided for intermediate output (syntax is -ns num_slices)\n";
             return false;
         }
-        if ( (meta.numSlices = atoi((*argv)[1])) == 0){
+        if ( (meta.numSlices = atoi((*argv)[1])) < 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of slices (syntax is -ns num_slices)\n";
             return false;
         }

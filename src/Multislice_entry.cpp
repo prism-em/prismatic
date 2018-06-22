@@ -95,7 +95,7 @@ namespace Prismatic{
 							}
 						}
 					}
-					if (prismatic_pars.meta.numSlices != 0 ){
+					if (prismatic_pars.meta.numSlices != 0){
 						image_filename = (std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_")) + prismatic_pars.meta.filenameOutput;
 					}
 					prism_image.toMRC_f(image_filename.c_str());

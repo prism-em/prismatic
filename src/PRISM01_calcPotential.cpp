@@ -94,7 +94,7 @@ namespace Prismatic {
 
 		//check if intermediate output was specified, if so, create index of output slices
 		if(pars.meta.numSlices == 0){
-			pars.meta.numSlices = pars.numPlanes;
+			pars.numSlices = pars.numPlanes;
 		}
 
 #ifdef PRISMATIC_BUILDING_GUI

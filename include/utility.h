@@ -72,9 +72,10 @@ namespace Prismatic {
 	std::string generateFilename(const Parameters <T> &pars, const size_t currentSlice, const size_t ay, const size_t ax) {
 		std::string result = pars.meta.filenameOutput.substr(0, pars.meta.filenameOutput.find_last_of("."));
 		std::stringstream ss;
-		if(pars.meta.algorithm == Algorithm::PRISM){
+
+		if( (pars.meta.algorithm == Algorithm::PRISM) || (pars.meta.numSlices == 0) ) {
 		ss << "_X" << ax << "_Y" << ay << "_FP" << pars.meta.fpNum;
-		}else{
+		}else{	
 		ss << "_slice" << currentSlice << "_X" << ax << "_Y" << ay << "_FP" << pars.meta.fpNum;	
 		}
 		//result += "_X" + std::string(ax) + "_Y" + std::string(ay) + "_FP" + std::string(pars.meta.fpNum);
