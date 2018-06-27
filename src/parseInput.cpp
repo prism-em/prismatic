@@ -576,7 +576,7 @@ namespace Prismatic {
             cout << "No value for beginning intermediate output depth provided (syntax is -zs z_start (in Angstroms))\n";
             return false;
         }
-        if ( (meta.numSlices = atoi((*argv)[1])) < 0){
+        if ( (meta.zStart = atoi((*argv)[1])) < 0){
             cout << "Invalid value \"" << (*argv)[1] << "\" provided for beginning intermediate output depth (syntax is -zs z_start (in Angstroms))\n";
             return false;
         }

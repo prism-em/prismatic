@@ -174,7 +174,11 @@ namespace Prismatic{
 	}
 
 	void createStack(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
-		size_t numLayers = (pars.numPlanes - pars.zStartPlane) / pars.numSlices  + ((pars.numPlanes - pars.zStartPlane) % pars.numSlices != 0);
+		size_t numLayers = (pars.numPlanes / pars.numSlices) - (pars.zStartPlane / pars.numSlices)  + ((pars.numPlanes) % pars.numSlices != 0) + ((pars.zStartPlane) % pars.numSlices == 0);
+		size_t firstLayer = (pars.zStartPlane / pars.numSlices) + ((pars.zStartPlane) % pars.numSlices != 0);
+
+		cout << "Number of layers: " << numLayers << endl;
+		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << endl;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
@@ -398,7 +402,6 @@ namespace Prismatic{
 						*psi_ptr++ *= (*p_ptr++);// propagate
 					}
 				}
-				cout << "Location 6 plane " << a2 << endl;
 
 				if  ( ( (((a2+1) % pars.numSlices) == 0) && ((a2+1) >= pars.zStartPlane) ) || ((a2+1) == pars.numPlanes) ){
 					formatOutput_CPU_integrate_batch(pars, psi_stack, pars.alphaInd, Nstart, Nstop, currentSlice);
@@ -448,7 +451,6 @@ namespace Prismatic{
 				PRISMATIC_FFTW_EXECUTE(plan_forward);
 				auto p_ptr = scaled_prop.begin();
 				for (auto& p:psi)p *= (*p_ptr++); // propagate
-				cout << "Location 5 plane " << a2 << endl;
 				
 				if ( ( (((a2+1) % pars.numSlices) == 0) && ((a2+1) >= pars.zStartPlane) ) || ((a2+1) == pars.numPlanes) ){
 					formatOutput_CPU(pars, psi, pars.alphaInd, currentSlice, ay, ax);

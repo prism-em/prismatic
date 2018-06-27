@@ -644,7 +644,6 @@ namespace Prismatic{
 				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
 				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-				cout << "Location 1 plane " << planeNum << '\n';
 
 				if ( ( (((planeNum+1) % pars.numSlices) == 0 ) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
@@ -686,7 +685,6 @@ namespace Prismatic{
                 (psi_ds + (batch_idx * psi_size), PsiProbeInit_d, qya_d, qxa_d, psi_size, yp, xp);
 		}
 		size_t currentSlice = 0;
-		cout << "Output array size: " << pars.output.size() << '\n';
 
 			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
 				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
@@ -701,10 +699,9 @@ namespace Prismatic{
 					divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 							(psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 				}
-				cout << "Location 4 plane " << planeNum << '\n';
 				
 				if ( ((((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
-					cout << "Current Slice: " << currentSlice << '\n';
+
 					abs_squared << < ( psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
@@ -752,7 +749,6 @@ namespace Prismatic{
 				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
 				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
 				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-				cout << "Location 2 plane " << planeNum << '\n';
 
 				if ( ( (((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
@@ -813,11 +809,11 @@ namespace Prismatic{
 					divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 																	(psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 				}
-				cout << "Location 3 plane " << planeNum << '\n';
+
 
 				if ( ( ((planeNum+1) % pars.numSlices) == 0 && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared << < (psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
-		
+
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
