@@ -174,11 +174,13 @@ namespace Prismatic{
 	}
 
 	void createStack(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
-		size_t numLayers = (pars.numPlanes / pars.numSlices) - (pars.zStartPlane / pars.numSlices)  + ((pars.numPlanes) % pars.numSlices != 0) + ((pars.zStartPlane) % pars.numSlices == 0);
+		size_t numLayers = (pars.numPlanes / pars.numSlices) + ((pars.numPlanes) % pars.numSlices != 0);
+		if(pars.zStartPlane > 0)  numLayers += ((pars.zStartPlane) % pars.numSlices == 0) - (pars.zStartPlane / pars.numSlices) ;
+
 		size_t firstLayer = (pars.zStartPlane / pars.numSlices) + ((pars.zStartPlane) % pars.numSlices != 0);
 
 		cout << "Number of layers: " << numLayers << endl;
-		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << endl;
+		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
