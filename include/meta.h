@@ -37,9 +37,9 @@ namespace Prismatic{
 			realspacePixelSize[1] = 0.1;
 			potBound              = 2.0;
 			numFP                 = 1;
-            fpNum                 = 1;
+			fpNum                 = 1;
 			sliceThickness        = 2.0;
-			numSlices		      = 0; 
+			numSlices             = 0; 
 			zStart                = 0.0;
 			cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
 			tileX                 = 1;
@@ -52,10 +52,10 @@ namespace Prismatic{
 			numThreads            = 12;
 			batchSizeTargetCPU    = 1;
 			batchSizeTargetGPU    = 1;
-			batchSizeCPU 		  = batchSizeTargetCPU;
+			batchSizeCPU          = batchSizeTargetCPU;
 			batchSizeGPU          = batchSizeTargetGPU;
 			earlyCPUStopCount     = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-            probeStepX            = 0.25;
+			probeStepX            = 0.25;
 			probeStepY            = 0.25;
 			probeDefocus          = 0.0;
 			C3                    = 0.0;
@@ -68,8 +68,8 @@ namespace Prismatic{
 			scanWindowXMax        = 0.99999;
 			scanWindowYMin        = 0.0;
 			scanWindowYMax        = 0.99999;
-			scanWindowXMin_r	  = 0.0; //realspace alternatives to setting scan window
-			scanWindowXMax_r	  = 0.0;
+			scanWindowXMin_r      = 0.0; //realspace alternatives to setting scan window
+			scanWindowXMax_r      = 0.0;
 			scanWindowYMin_r      = 0.0;
 			scanWindowYMax_r      = 0.0;
 			srand(time(0));
@@ -81,10 +81,10 @@ namespace Prismatic{
 			save2DOutput          = false;
 			save3DOutput          = true;
 			save4DOutput          = false;
-			saveRealSpaceCoords	  = false;
+			saveRealSpaceCoords   = false;
 			userSpecifiedCelldims = false;
-			realSpaceWindow_x	  = false;
-			realSpaceWindow_y	  = false;
+			realSpaceWindow_x     = false;
+			realSpaceWindow_y     = false;
 			integrationAngleMin   = 0;
 			integrationAngleMax   = detectorAngleStep;
 			transferMode          = StreamingMode::Auto;
