@@ -81,6 +81,7 @@ namespace Prismatic{
 			save2DOutput          = false;
 			save3DOutput          = true;
 			save4DOutput          = false;
+			saveRealSpaceCoords	  = false;
 			userSpecifiedCelldims = false;
 			realSpaceWindow_x	  = false;
 			realSpaceWindow_y	  = false;
@@ -138,7 +139,10 @@ namespace Prismatic{
 		T integrationAngleMax;
 		bool save3DOutput;
 		bool save4DOutput;
+		bool saveRealSpaceCoords;
 		bool userSpecifiedCelldims;
+		bool realSpaceWindow_x;
+		bool realSpaceWindow_y;
 		StreamingMode transferMode;
 
 	};
@@ -227,6 +231,11 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
+		if (saveRealSpaceCoords) {
+			std::cout << "saveRealSpaceCoords = true" << std::endl;
+		} else {
+			std::cout << "saveRealSpaceCoords = false" << std::endl;
+		}
 
 
 #ifdef PRISMATIC_ENABLE_GPU
@@ -289,7 +298,10 @@ namespace Prismatic{
 		if(save2DOutput != other.save2DOutput)return false;
 		if(save3DOutput != other.save3DOutput)return false;
 		if(save4DOutput != other.save4DOutput)return false;
+		if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
+		if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
+		if(realSpaceWindow_y != other.realSpaceWindow_y)return false;
 		return true;
 	}
 
