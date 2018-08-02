@@ -84,6 +84,7 @@ namespace Prismatic {
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n" <<
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
+                "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n";
     }
 
 
@@ -1049,6 +1050,18 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_rsc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -rsc (syntax is -rsc bool)\n";
+            return false;
+        }
+        meta.saveRealSpaceCoords = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                      int &argc, const char ***argv) {
         if (argc==1)return true; // case of no inputs to parse
@@ -1110,7 +1123,8 @@ namespace Prismatic {
             {"--occupancy", parse_oc}, {"-oc", parse_oc},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
-            {"--save-4D-output", parse_4D}, {"-4D", parse_4D}
+            {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
+            {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc}
     };
     bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){

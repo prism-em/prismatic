@@ -24,6 +24,7 @@
 #include "fftw3.h"
 #include "utility.h"
 #include "WorkDispatcher.h"
+#include "ArrayND.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -68,6 +69,15 @@ namespace Prismatic {
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
+
+		if(pars.meta.saveRealSpaceCoords){
+			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
+			std::string x_name = "real_space_x.mrc"
+			std::string y_name = "real_space_x.mrc"
+			real_mesh.first.toMRC_f(x_name.c_str())
+			real_mesh.second.toMRC_f(y_name.c_str())
+		}
+
 		pars.xp = xp;
 		pars.yp = yp;
 	}

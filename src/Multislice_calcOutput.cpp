@@ -41,11 +41,21 @@ namespace Prismatic{
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
+
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
-
+		
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
+
+		if(pars.meta.saveRealSpaceCoords){
+			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
+			std::string x_name = "real_space_x.mrc"
+			std::string y_name = "real_space_x.mrc"
+			real_mesh.first.toMRC_f(x_name.c_str())
+			real_mesh.second.toMRC_f(y_name.c_str())
+		}
+		
 		pars.xp = xp;
 		pars.yp = yp;
 		pars.imageSize[0] = pars.pot.get_dimj();
