@@ -1062,6 +1062,18 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_ps(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -ps (syntax is -ps bool)\n";
+            return false;
+        }
+        meta.savePotentialSlices = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                      int &argc, const char ***argv) {
         if (argc==1)return true; // case of no inputs to parse
@@ -1124,7 +1136,8 @@ namespace Prismatic {
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
-            {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc}
+            {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc},
+            {"--save-potential-slices",parse_ps},{"-ps",parse_ps}
     };
     bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){

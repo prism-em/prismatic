@@ -82,6 +82,7 @@ namespace Prismatic{
 			save3DOutput          = true;
 			save4DOutput          = false;
 			saveRealSpaceCoords   = false;
+			savePotentialSlices   = false;
 			userSpecifiedCelldims = false;
 			realSpaceWindow_x     = false;
 			realSpaceWindow_y     = false;
@@ -140,6 +141,7 @@ namespace Prismatic{
 		bool save3DOutput;
 		bool save4DOutput;
 		bool saveRealSpaceCoords;
+		bool savePotentialSlices;
 		bool userSpecifiedCelldims;
 		bool realSpaceWindow_x;
 		bool realSpaceWindow_y;
@@ -236,6 +238,11 @@ namespace Prismatic{
 		} else {
 			std::cout << "saveRealSpaceCoords = false" << std::endl;
 		}
+		if (savePotentialSlices) {
+			std::cout << "savePotentialSlices = true" << std::endl;
+		} else {
+			std::cout << "savePotentialSlices= false" << std::endl;
+		}
 
 
 #ifdef PRISMATIC_ENABLE_GPU
@@ -299,6 +306,7 @@ namespace Prismatic{
 		if(save3DOutput != other.save3DOutput)return false;
 		if(save4DOutput != other.save4DOutput)return false;
 		if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
+		if(savePotentialSlices != other.savePotentialSlices)return false;
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
 		if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
 		if(realSpaceWindow_y != other.realSpaceWindow_y)return false;

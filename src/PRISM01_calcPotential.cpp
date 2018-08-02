@@ -211,5 +211,11 @@ namespace Prismatic {
 
 		// populate the slices with the projected potentials
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
+
+		if(pars.meta.savePotentialSlices){
+			std::string file_name = "potential_slices.mrc"
+			pars.pot.toMRC_f(file_name.c_str())
+		}
+
 	}
 }
