@@ -55,11 +55,11 @@ namespace Prismatic {
 
 	void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		xR[0] = pars.meta.scanWindowXMin * pars.tiledCellDim[2];
-		xR[1] = pars.meta.scanWindowXMax * pars.tiledCellDim[2];
+		xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
+		xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
-		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
+		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
+		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);

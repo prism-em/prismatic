@@ -76,6 +76,8 @@ namespace Prismatic {
                 "* --probe-semiangle (-sa) value : maximum probe semiangle (in mrad) (default: " << 1000*defaults.probeSemiangle << ")\n" <<
                 "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowXMin << " " << defaults.scanWindowXMax << ")\n" <<
                 "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowYMin << " " << defaults.scanWindowYMax << ")\n" <<
+                "* --scan-window-xr (-wxr) min max : size of the window to scan the probe in X (in Angstroms) (defaults to fractional coordinates) " << ")\n" <<
+                "* --scan-window-yr (-wyr) min max : size of the window to scan the probe in Y (in Angstroms) (defaults to fractional coordiantes) " << ")\n" <<
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate (default: " << defaults.numFP << ")\n" <<
 		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects) (default: True)\n" <<
                 "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n" <<
@@ -919,6 +921,66 @@ namespace Prismatic {
         return true;
     };
 
+	bool parse_wxr(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 3){
+			cout << "Invalid window provided for -wxr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+		PRISMATIC_FLOAT_PRECISION minval, maxval;
+		minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
+
+		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
+			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window Xr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+		if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
+			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window Xr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the X scan in real space is greater than the maximum(" << maxval <<")." << endl;
+         return false;
+        }
+        meta.scanWindowXMin_r = minval;
+        meta.scanWindowXMax_r = maxval;
+        meta.realSpaceWindow_x = true;
+		argc-=3;
+		argv[0]+=3;
+		return true;
+	};
+
+	bool parse_wyr(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 3){
+			cout << "Invalid window provided for -wyr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+		PRISMATIC_FLOAT_PRECISION minval, maxval;
+		minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
+
+		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
+			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window Yr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+		if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
+			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window Yr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the Y scan in real space is greater than the maximum(" << maxval <<")." << endl;
+         return false;
+        }
+        meta.scanWindowYMin_r = minval;
+        meta.scanWindowYMax_r = maxval;
+        meta.realSpaceWindow_y = true;
+		argc-=3;
+		argv[0]+=3;
+		return true;
+	};
+
 	bool parse_te(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
@@ -1040,6 +1102,8 @@ namespace Prismatic {
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
+            {"--scan-window-yr", parse_wyr}, {"-wyr", parse_wyr},
+            {"--scan-window-xr", parse_wxr}, {"-wxr", parse_wxr},
             {"--tile-uc", parse_t}, {"-t", parse_t},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--thermal-effects", parse_te}, {"-te", parse_te},

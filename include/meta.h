@@ -68,6 +68,10 @@ namespace Prismatic{
 			scanWindowXMax        = 0.99999;
 			scanWindowYMin        = 0.0;
 			scanWindowYMax        = 0.99999;
+			scanWindowXMin_r	  = 0.0; //realspace alternatives to setting scan window
+			scanWindowXMax_r	  = 0.0;
+			scanWindowYMin_r      = 0.0;
+			scanWindowYMax_r      = 0.0;
 			srand(time(0));
 			randomSeed            = rand() % 100000;
 			algorithm             = Algorithm::PRISM;
@@ -78,6 +82,8 @@ namespace Prismatic{
 			save3DOutput          = true;
 			save4DOutput          = false;
 			userSpecifiedCelldims = false;
+			realSpaceWindow_x	  = false;
+			realSpaceWindow_y	  = false;
 			integrationAngleMin   = 0;
 			integrationAngleMax   = detectorAngleStep;
 			transferMode          = StreamingMode::Auto;
@@ -115,6 +121,10 @@ namespace Prismatic{
 		T scanWindowXMax;
 		T scanWindowYMin;
 		T scanWindowYMax;
+		T scanWindowXMin_r;
+		T scanWindowXMax_r;
+		T scanWindowYMin_r;
+		T scanWindowYMax_r;
 		T randomSeed;
 		size_t numThreads; // number of CPU threads to use
 		size_t numGPUs; // number of GPUs to use
@@ -179,6 +189,10 @@ namespace Prismatic{
 		std::cout << "scanWindowXMax = " << scanWindowXMax<< std::endl;
 		std::cout << "scanWindowYMin = " << scanWindowYMin<< std::endl;
 		std::cout << "scanWindowYMax = " << scanWindowYMax<< std::endl;
+		std::cout << "scanWindowXMin_r = " << scanWindowXMin_r<< std::endl;
+		std::cout << "scanWindowXMax_r = " << scanWindowXMax_r<< std::endl;
+		std::cout << "scanWindowYMin_r = " << scanWindowYMin_r<< std::endl;
+		std::cout << "scanWindowYMax_r = " << scanWindowYMax_r<< std::endl;
 		std::cout << "integrationAngleMin = " << integrationAngleMin<< std::endl;
 		std::cout << "integrationAngleMax = " << integrationAngleMax<< std::endl;
 		std::cout << "randomSeed = " << randomSeed << std::endl;
@@ -264,6 +278,10 @@ namespace Prismatic{
 		if(scanWindowXMax != other.scanWindowXMax)return false;
 		if(scanWindowYMin != other.scanWindowYMin)return false;
 		if(scanWindowYMax != other.scanWindowYMax)return false;
+		if(scanWindowXMin_r != other.scanWindowXMin_r)return false;
+		if(scanWindowXMax_r != other.scanWindowXMax_r)return false;
+		if(scanWindowYMin_r != other.scanWindowYMin_r)return false;
+		if(scanWindowYMax_r != other.scanWindowYMax_r)return false;
 		if(randomSeed != other.randomSeed)return false;
 		if(includeThermalEffects != other.includeThermalEffects)return false;
 		if(includeOccupancy != other.includeOccupancy)return false;

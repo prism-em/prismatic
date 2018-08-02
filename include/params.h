@@ -91,6 +91,10 @@ namespace Prismatic{
 	    T sigma;
 	    T qMax;
 	    T alphaMax;
+		T scanWindowXMin;
+		T scanWindowXMax;
+		T scanWindowYMin;
+		T scanWindowYMax;
         size_t Ndet;
         size_t numPlanes;
 		size_t numSlices;
@@ -149,6 +153,23 @@ namespace Prismatic{
 		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
+
+			if(meta.realSpaceWindow_x){
+				scanWindowXMin = std::min(meta.scanWindowXMin_r, tiledCellDim[2]) / tiledCellDim[2] //default to max size if dimension exceeds tiled cell
+				scanWindowXMax = std::min(meta.scanWindowXMax_r, tiledCellDim[2]) / tiledCellDim[2]
+			}else{
+				scanWindowXMin = meta.scanWindowXMin
+				scanWindowXMax = meta.scanWindowXMax
+			}
+
+			if(meta.realSpaceWindow_y){
+				scanWindowYMin = std::min(meta.scanWindowYMin_r, tiledCellDim[1]) / tiledCellDim[1] //default to max size if dimension exceeds tiled cell
+				scanWindowYMax = std::min(meta.scanWindowYMax_r, tiledCellDim[1]) / tiledCellDim[1]
+			}else{
+				scanWindowYMin = meta.scanWindowYMin
+				scanWindowYMax = meta.scanWindowYMax
+			}
+
 			calculateLambda();
 //		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
