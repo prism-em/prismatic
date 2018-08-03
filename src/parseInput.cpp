@@ -83,8 +83,9 @@ namespace Prismatic {
                 "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n" <<
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n" <<
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
-                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
-                "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n";
+                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n" <<
+                "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n" <<
+                "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n";
     }
 
 
