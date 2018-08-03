@@ -67,20 +67,24 @@ namespace Prismatic {
 		// Estimate the amount of memory needed for the various buffers. This is affected by the batch size, which is inputted
 		// by the user but will be adjusted if it is inappropriate (i.e. not enough work per thread).
 		// Figure out the scan configuration to determine how many probes there are to compute
+		size_t scanWindowXMin;
+		size_t scanWindowXMax;
+		size_t scanWindowYMin;
+		size_t scanWindowYMax;
 		if(meta.realSpaceWindow_x){
-			size_t scanWindowXMin = meta.scanWindowXMin_r / (meta.cellDim[2] * meta.tileX);
-			size_t scanWindowXMax = meta.scanWindowXMax_r / (meta.cellDim[2] * meta.tileX);
+			scanWindowXMin = meta.scanWindowXMin_r / (meta.cellDim[2] * meta.tileX);
+			scanWindowXMax = meta.scanWindowXMax_r / (meta.cellDim[2] * meta.tileX);
 		}else{
-			size_t scanWindowXMin = meta.scanWindowXMin;
-			size_t scanWindowXMax = meta.scanWindowXMax;
+			scanWindowXMin = meta.scanWindowXMin;
+			scanWindowXMax = meta.scanWindowXMax;
 		}
 
 		if(meta.realSpaceWindow_y){
-			size_t scanWindowYMin = meta.scanWidnowYMin_r / (meta.cellDim[1] * meta.tileY);
-			size_t scanWindowYMax = meta.scanWidnowYMax_r / (meta.cellDim[1] * meta.tileY);
+			scanWindowYMin = meta.scanWindowYMin_r / (meta.cellDim[1] * meta.tileY);
+			scanWindowYMax = meta.scanWindowYMax_r / (meta.cellDim[1] * meta.tileY);
 		}else{
-			size_t scanWindowYMin = meta.scanWindowYMin;
-			size_t scanWindowYMax = meta.scanWindowYMax;
+			scanWindowYMin = meta.scanWindowYMin;
+			scanWindowYMax = meta.scanWindowYMax;
 		}
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});

@@ -72,10 +72,10 @@ namespace Prismatic {
 
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
-			std::string x_name = "real_space_x.mrc"
-			std::string y_name = "real_space_x.mrc"
-			real_mesh.first.toMRC_f(x_name.c_str())
-			real_mesh.second.toMRC_f(y_name.c_str())
+			std::string x_name = "real_space_x.mrc";
+			std::string y_name = "real_space_y.mrc";
+			real_mesh.first.toMRC_f(x_name.c_str());
+			real_mesh.second.toMRC_f(y_name.c_str());
 		}
 
 		pars.xp = xp;

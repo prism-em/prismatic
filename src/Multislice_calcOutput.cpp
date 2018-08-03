@@ -50,10 +50,10 @@ namespace Prismatic{
 
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
-			std::string x_name = "real_space_x.mrc"
-			std::string y_name = "real_space_x.mrc"
-			real_mesh.first.toMRC_f(x_name.c_str())
-			real_mesh.second.toMRC_f(y_name.c_str())
+			std::string x_name = "real_space_x.mrc";
+			std::string y_name = "real_space_y.mrc";
+			real_mesh.first.toMRC_f(x_name.c_str());
+			real_mesh.second.toMRC_f(y_name.c_str());
 		}
 		
 		pars.xp = xp;
@@ -188,6 +188,7 @@ namespace Prismatic{
 		if(pars.zStartPlane > 0)  numLayers += ((pars.zStartPlane) % pars.numSlices == 0) - (pars.zStartPlane / pars.numSlices) ;
 
 		size_t firstLayer = (pars.zStartPlane / pars.numSlices) + ((pars.zStartPlane) % pars.numSlices != 0);
+		if(pars.zStartPlane == 0) firstLayer = 1;
 
 		cout << "Number of layers: " << numLayers << endl;
 		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;

@@ -155,19 +155,19 @@ namespace Prismatic{
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
 
 			if(meta.realSpaceWindow_x){
-				scanWindowXMin = std::min(meta.scanWindowXMin_r, tiledCellDim[2]) / tiledCellDim[2] //default to max size if dimension exceeds tiled cell
-				scanWindowXMax = std::min(meta.scanWindowXMax_r, tiledCellDim[2]) / tiledCellDim[2]
+				scanWindowXMin = std::min(meta.scanWindowXMin_r, tiledCellDim[2]) / tiledCellDim[2]; //default to max size if dimension exceeds tiled cell
+				scanWindowXMax = std::min(meta.scanWindowXMax_r, tiledCellDim[2]) / tiledCellDim[2];
 			}else{
-				scanWindowXMin = meta.scanWindowXMin
-				scanWindowXMax = meta.scanWindowXMax
+				scanWindowXMin = meta.scanWindowXMin;
+				scanWindowXMax = meta.scanWindowXMax;
 			}
 
 			if(meta.realSpaceWindow_y){
-				scanWindowYMin = std::min(meta.scanWindowYMin_r, tiledCellDim[1]) / tiledCellDim[1] //default to max size if dimension exceeds tiled cell
-				scanWindowYMax = std::min(meta.scanWindowYMax_r, tiledCellDim[1]) / tiledCellDim[1]
+				scanWindowYMin = std::min(meta.scanWindowYMin_r, tiledCellDim[1]) / tiledCellDim[1]; //default to max size if dimension exceeds tiled cell
+				scanWindowYMax = std::min(meta.scanWindowYMax_r, tiledCellDim[1]) / tiledCellDim[1];
 			}else{
-				scanWindowYMin = meta.scanWindowYMin
-				scanWindowYMax = meta.scanWindowYMax
+				scanWindowYMin = meta.scanWindowYMin;
+				scanWindowYMax = meta.scanWindowYMax;
 			}
 
 			calculateLambda();
@@ -200,7 +200,7 @@ namespace Prismatic{
 		    pixelSize[1] /= (T)imageSize[1];
 
 			numSlices = meta.numSlices;
-			zStartPlane = (size_t) std::floor(meta.zStart / meta.sliceThickness);
+			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);
 
 
 		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
