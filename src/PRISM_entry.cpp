@@ -94,8 +94,8 @@ namespace Prismatic{
 					}
 				}
 			}
-
-			output_image.toMRC_f(prismatic_pars.meta.filenameOutput.c_str());
+			std::string image_filename = prismatic_pars.meta.outputFolder + prismatic_pars.meta.filenameOutput;
+			output_image.toMRC_f(image_filename.c_str());
 		}
 
 		if (prismatic_pars.meta.save2DOutput) {
@@ -111,7 +111,7 @@ namespace Prismatic{
 					}
 				}
 			}
-			std::string image_filename = std::string("prism_2Doutput_") + prismatic_pars.meta.filenameOutput;
+			std::string image_filename = prismatic_pars.meta.outputFolder + std::string("prism_2Doutput_") + prismatic_pars.meta.filenameOutput;
 			prism_image.toMRC_f(image_filename.c_str());
 		}
 

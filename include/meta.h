@@ -31,8 +31,9 @@ namespace Prismatic{
 		Metadata(){
 			interpolationFactorY  = 4;
 			interpolationFactorX  = 4;
-			filenameAtoms        = "/path/to/atoms.txt";
-			filenameOutput       = "output.mrc";
+			filenameAtoms         = "/path/to/atoms.txt";
+			filenameOutput        = "output.mrc";
+			outputFolder          = ""
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
 			potBound              = 2.0;
@@ -94,6 +95,7 @@ namespace Prismatic{
 		size_t interpolationFactorX; // PRISM f_x parameter
 		std::string filenameAtoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
 		std::string filenameOutput;// filename of output image
+		std::string outputFolder; // folder of output images
 		T realspacePixelSize[2]; // pixel size
 		T potBound; // bounding integration radius for potential calculation
 		size_t numFP; // number of frozen phonon configurations to compute
@@ -163,6 +165,7 @@ namespace Prismatic{
 
 		std::cout << "filenameAtoms = " <<  filenameAtoms     << std::endl;
 		std::cout << "filenameOutput = " << filenameOutput  << std::endl;
+		std::cout << "outputFolder = " << outputFolder  << std::endl;
 		std::cout << "numThreads = " << numThreads << std::endl;
 		std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0]<< std::endl;
 		std::cout << "realspacePixelSize[1] = " << realspacePixelSize[1]<< std::endl;
@@ -266,6 +269,7 @@ namespace Prismatic{
 		if(interpolationFactorX != other.interpolationFactorX)return false;
 		if(filenameAtoms != other.filenameAtoms)return false;
 		if(filenameOutput != other.filenameOutput)return false;
+		if(outputFolder != other.outputFolder)return false;
 		if(realspacePixelSize[0] != realspacePixelSize[0])return false;
 		if(realspacePixelSize[1] != other.realspacePixelSize[1])return false;
 		if(potBound != other.potBound)return false;

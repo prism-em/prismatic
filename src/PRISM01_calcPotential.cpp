@@ -213,7 +213,7 @@ namespace Prismatic {
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
 
 		if(pars.meta.savePotentialSlices){
-			std::string file_name = "potential_slices.mrc";
+			std::string file_name = pars.meta.outputFolder + "potential_slices.mrc";
 			pars.pot.toMRC_f(file_name.c_str());
 		}
 

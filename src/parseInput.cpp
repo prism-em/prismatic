@@ -193,6 +193,8 @@ namespace Prismatic {
         f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
         f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
         f << "--scan-window-y:" << meta.scanWindowYMin << ' ' << meta.scanWindowYMax << '\n';
+        f << "--scan-window-xr:" << meta.scanWindowXMin_r << ' ' << meta.scanWindowXMax_r << '\n';
+        f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
         f << "--random-seed:" << meta.randomSeed << '\n';
         if (meta.includeThermalEffects){
             f << "--thermal-effects:1\n";
@@ -211,6 +213,16 @@ namespace Prismatic {
             f << "--save-4D-output:1\n";
         } else {
             f << "--save-4D-output:0\n";
+        }
+        if (meta.savePotentialSlices){
+            f << "--save-potential-slices:1\n";
+        } else {
+            f << "--save-potential-slices:0\n";
+        }
+        if (meta.saveRealSpaceCoords){
+            f << "--save-real-space-coords:1\n";
+        } else {
+            f << "--save-real-space-coords:0\n";
         }
         if (meta.includeOccupancy) {
             f << "--occupancy:1\n";
@@ -642,6 +654,20 @@ namespace Prismatic {
             return false;
         }
         meta.filenameOutput = std::string((*argv)[1]);
+        //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_of(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+
+        if (argc < 2){
+            cout << "No folder provided for -of (syntax is -of /path/)\n";
+            return false;
+        }
+        meta.outputFolder = std::string((*argv)[1]);
         //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
         argc-=2;
         argv[0]+=2;
@@ -1095,6 +1121,7 @@ namespace Prismatic {
             {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
             {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},
             {"--output-file", parse_o}, {"-o", parse_o},
+            {"--output-folder", parse_of}, {"-of", parse_of},
             {"--num-threads", parse_j}, {"-j", parse_j},
             {"--num-streams", parse_S}, {"-S", parse_S},
             {"--slice-thickness", parse_s}, {"-s", parse_s},

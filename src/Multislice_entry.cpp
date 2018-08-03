@@ -72,7 +72,7 @@ namespace Prismatic{
 							}
 						}
 					}
-					if ( prismatic_pars.meta.numSlices != 0) slice_filename = std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
+					if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
 					slice_image.toMRC_f(slice_filename.c_str());
 				}
 		}
@@ -96,7 +96,7 @@ namespace Prismatic{
 						}
 					}
 					if (prismatic_pars.meta.numSlices != 0){
-						image_filename = (std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_")) + prismatic_pars.meta.filenameOutput;
+						image_filename = prismatic_pars.meta.outputFolder +  (std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_")) + prismatic_pars.meta.filenameOutput;
 					}
 					prism_image.toMRC_f(image_filename.c_str());
 					
