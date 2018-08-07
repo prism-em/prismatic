@@ -33,7 +33,7 @@ namespace Prismatic{
 			interpolationFactorX  = 4;
 			filenameAtoms         = "/path/to/atoms.txt";
 			filenameOutput        = "output.mrc";
-			outputFolder          = ""
+			outputFolder          = "";
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
 			potBound              = 2.0;
