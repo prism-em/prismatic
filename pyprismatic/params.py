@@ -200,7 +200,7 @@ class Metadata(object):
             print('Could not set cell dimensions from file {}'.format(Fname))
             return
         inf.readline()
-        self.cellDimX, self.cellDimY, self.cellDimZ = inf.readline().split()
+        cellDimX, cellDimY, cellDimZ = [float(i) for i in inf.readline().split()]
         inf.close()
 
     @property
