@@ -25,6 +25,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
 	int  interpolationFactorY = 1;
 	int  interpolationFactorX = 1;
+	int randomSeed;
 	int numFP, batchSizeTargetCPU, batchSizeTargetGPU, 
 	tileX, tileY, tileZ, 
 	numGPUs, numStreamsPerGPU, numThreads,includeThermalEffects, alsoDoCPUWork, save2DOutput,
@@ -36,7 +37,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	detectorAngleStep, probeDefocus, C3,
 	C5, probeSemiangle, probeXtilt,
 	probeYtilt, scanWindowXMin, scanWindowXMax,
-	scanWindowYMin, scanWindowYMax, randomSeed, 
+	scanWindowYMin, scanWindowYMax, 
 	integrationAngleMin, integrationAngleMax;
 	#ifdef PRISMATIC_ENABLE_GPU
 	std::cout <<"COMPILED FOR GPU" << std::endl;
