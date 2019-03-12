@@ -33,7 +33,7 @@ namespace Prismatic{
 
 #ifdef _WIN32
 		char* appdata = getenv("APPDATA");
-		Prismatic::writeParamFile(meta, std::string(appdata) + "\prismatic_gui_params.txt");
+		Prismatic::writeParamFile(meta, std::string(appdata) + "\\prismatic_gui_params.txt");
 #else
 		char* appdata = getenv("HOME");
 		Prismatic::writeParamFile(meta, std::string(appdata) + "/prismatic_gui_params.txt");
