@@ -67,12 +67,32 @@ namespace Prismatic {
 		// Estimate the amount of memory needed for the various buffers. This is affected by the batch size, which is inputted
 		// by the user but will be adjusted if it is inappropriate (i.e. not enough work per thread).
 		// Figure out the scan configuration to determine how many probes there are to compute
+		size_t scanWindowXMin;
+		size_t scanWindowXMax;
+		size_t scanWindowYMin;
+		size_t scanWindowYMax;
+		if(meta.realSpaceWindow_x){
+			scanWindowXMin = meta.scanWindowXMin_r / (meta.cellDim[2] * meta.tileX);
+			scanWindowXMax = meta.scanWindowXMax_r / (meta.cellDim[2] * meta.tileX);
+		}else{
+			scanWindowXMin = meta.scanWindowXMin;
+			scanWindowXMax = meta.scanWindowXMax;
+		}
+
+		if(meta.realSpaceWindow_y){
+			scanWindowYMin = meta.scanWindowYMin_r / (meta.cellDim[1] * meta.tileY);
+			scanWindowYMax = meta.scanWindowYMax_r / (meta.cellDim[1] * meta.tileY);
+		}else{
+			scanWindowYMin = meta.scanWindowYMin;
+			scanWindowYMax = meta.scanWindowYMax;
+		}
+
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		xR[0] = meta.scanWindowXMin * meta.cellDim[2] * meta.tileX;
-		xR[1] = meta.scanWindowXMax * meta.cellDim[2] * meta.tileX;
+		xR[0] = scanWindowXMin * meta.cellDim[2] * meta.tileX;
+		xR[1] = scanWindowXMax * meta.cellDim[2] * meta.tileX;
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		yR[0] = meta.scanWindowYMin * meta.cellDim[1] * meta.tileY;
-		yR[1] = meta.scanWindowYMax * meta.cellDim[1] * meta.tileY;
+		yR[0] = scanWindowYMin * meta.cellDim[1] * meta.tileY;
+		yR[1] = scanWindowYMax * meta.cellDim[1] * meta.tileY;
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probeStepY, yR[1]);
 

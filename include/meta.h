@@ -31,14 +31,17 @@ namespace Prismatic{
 		Metadata(){
 			interpolationFactorY  = 4;
 			interpolationFactorX  = 4;
-			filenameAtoms        = "/path/to/atoms.txt";
-			filenameOutput       = "output.mrc";
+			filenameAtoms         = "/path/to/atoms.txt";
+			filenameOutput        = "output.mrc";
+			outputFolder          = "";
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
 			potBound              = 2.0;
 			numFP                 = 1;
-            fpNum                 = 1;
+			fpNum                 = 1;
 			sliceThickness        = 2.0;
+			numSlices             = 0; 
+			zStart                = 0.0;
 			cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
 			tileX                 = 1;
 			tileY                 = 1;
@@ -50,10 +53,10 @@ namespace Prismatic{
 			numThreads            = 12;
 			batchSizeTargetCPU    = 1;
 			batchSizeTargetGPU    = 1;
-			batchSizeCPU 		  = batchSizeTargetCPU;
+			batchSizeCPU          = batchSizeTargetCPU;
 			batchSizeGPU          = batchSizeTargetGPU;
 			earlyCPUStopCount     = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
-            probeStepX            = 0.25;
+			probeStepX            = 0.25;
 			probeStepY            = 0.25;
 			probeDefocus          = 0.0;
 			C3                    = 0.0;
@@ -66,6 +69,10 @@ namespace Prismatic{
 			scanWindowXMax        = 0.99999;
 			scanWindowYMin        = 0.0;
 			scanWindowYMax        = 0.99999;
+			scanWindowXMin_r      = 0.0; //realspace alternatives to setting scan window
+			scanWindowXMax_r      = 0.0;
+			scanWindowYMin_r      = 0.0;
+			scanWindowYMax_r      = 0.0;
 			srand(time(0));
 			randomSeed            = rand() % 100000;
 			algorithm             = Algorithm::PRISM;
@@ -75,7 +82,11 @@ namespace Prismatic{
 			save2DOutput          = false;
 			save3DOutput          = true;
 			save4DOutput          = false;
+			saveRealSpaceCoords   = false;
+			savePotentialSlices   = false;
 			userSpecifiedCelldims = false;
+			realSpaceWindow_x     = false;
+			realSpaceWindow_y     = false;
 			integrationAngleMin   = 0;
 			integrationAngleMax   = detectorAngleStep;
 			transferMode          = StreamingMode::Auto;
@@ -84,11 +95,14 @@ namespace Prismatic{
 		size_t interpolationFactorX; // PRISM f_x parameter
 		std::string filenameAtoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
 		std::string filenameOutput;// filename of output image
+		std::string outputFolder; // folder of output images
 		T realspacePixelSize[2]; // pixel size
 		T potBound; // bounding integration radius for potential calculation
 		size_t numFP; // number of frozen phonon configurations to compute
 		size_t fpNum; // current frozen phonon number
 		T sliceThickness; // thickness of slice in Z
+		size_t numSlices; //number of slices to itereate through in multislice before giving an output
+		T zStart; //Z coordinate of cell where multislice intermediate output will begin outputting
 		T probeStepX;
 		T probeStepY;
 		std::vector<T> cellDim; // this is z,y,x format
@@ -111,6 +125,10 @@ namespace Prismatic{
 		T scanWindowXMax;
 		T scanWindowYMin;
 		T scanWindowYMax;
+		T scanWindowXMin_r;
+		T scanWindowXMax_r;
+		T scanWindowYMin_r;
+		T scanWindowYMax_r;
 		T randomSeed;
 		size_t numThreads; // number of CPU threads to use
 		size_t numGPUs; // number of GPUs to use
@@ -124,7 +142,11 @@ namespace Prismatic{
 		T integrationAngleMax;
 		bool save3DOutput;
 		bool save4DOutput;
+		bool saveRealSpaceCoords;
+		bool savePotentialSlices;
 		bool userSpecifiedCelldims;
+		bool realSpaceWindow_x;
+		bool realSpaceWindow_y;
 		StreamingMode transferMode;
 
 	};
@@ -143,13 +165,16 @@ namespace Prismatic{
 
 		std::cout << "filenameAtoms = " <<  filenameAtoms     << std::endl;
 		std::cout << "filenameOutput = " << filenameOutput  << std::endl;
+		std::cout << "outputFolder = " << outputFolder  << std::endl;
 		std::cout << "numThreads = " << numThreads << std::endl;
 		std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0]<< std::endl;
 		std::cout << "realspacePixelSize[1] = " << realspacePixelSize[1]<< std::endl;
 		std::cout << "potBound = " << potBound << std::endl;
 		std::cout << "numFP = " << numFP << std::endl;
 		std::cout << "sliceThickness = " << sliceThickness<< std::endl;
-		std::cout << "E0 = " << E0 << std::endl;
+		std::cout << "numSlices = " << numSlices << std::endl;
+		std::cout << "zStart = " << zStart << std::endl;
+ 		std::cout << "E0 = " << E0 << std::endl;
 		std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
 		std::cout << "numThreads = " << numThreads<< std::endl;
 		std::cout << "batchSizeTargetCPU = " << batchSizeTargetCPU<< std::endl;
@@ -173,6 +198,10 @@ namespace Prismatic{
 		std::cout << "scanWindowXMax = " << scanWindowXMax<< std::endl;
 		std::cout << "scanWindowYMin = " << scanWindowYMin<< std::endl;
 		std::cout << "scanWindowYMax = " << scanWindowYMax<< std::endl;
+		std::cout << "scanWindowXMin_r = " << scanWindowXMin_r<< std::endl;
+		std::cout << "scanWindowXMax_r = " << scanWindowXMax_r<< std::endl;
+		std::cout << "scanWindowYMin_r = " << scanWindowYMin_r<< std::endl;
+		std::cout << "scanWindowYMax_r = " << scanWindowYMax_r<< std::endl;
 		std::cout << "integrationAngleMin = " << integrationAngleMin<< std::endl;
 		std::cout << "integrationAngleMax = " << integrationAngleMax<< std::endl;
 		std::cout << "randomSeed = " << randomSeed << std::endl;
@@ -207,6 +236,16 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
+		if (saveRealSpaceCoords) {
+			std::cout << "saveRealSpaceCoords = true" << std::endl;
+		} else {
+			std::cout << "saveRealSpaceCoords = false" << std::endl;
+		}
+		if (savePotentialSlices) {
+			std::cout << "savePotentialSlices = true" << std::endl;
+		} else {
+			std::cout << "savePotentialSlices= false" << std::endl;
+		}
 
 
 #ifdef PRISMATIC_ENABLE_GPU
@@ -230,11 +269,14 @@ namespace Prismatic{
 		if(interpolationFactorX != other.interpolationFactorX)return false;
 		if(filenameAtoms != other.filenameAtoms)return false;
 		if(filenameOutput != other.filenameOutput)return false;
+		if(outputFolder != other.outputFolder)return false;
 		if(realspacePixelSize[0] != realspacePixelSize[0])return false;
 		if(realspacePixelSize[1] != other.realspacePixelSize[1])return false;
 		if(potBound != other.potBound)return false;
 		if(numFP != other.numFP)return false;
 		if(sliceThickness != other.sliceThickness)return false;
+		if(numSlices != other.numSlices)return false;
+		if(zStart != other.zStart)return false;
 		if(cellDim[0] != other.cellDim[0])return false;
 		if(cellDim[1] != other.cellDim[1])return false;
 		if(cellDim[2] != other.cellDim[2])return false;
@@ -256,6 +298,10 @@ namespace Prismatic{
 		if(scanWindowXMax != other.scanWindowXMax)return false;
 		if(scanWindowYMin != other.scanWindowYMin)return false;
 		if(scanWindowYMax != other.scanWindowYMax)return false;
+		if(scanWindowXMin_r != other.scanWindowXMin_r)return false;
+		if(scanWindowXMax_r != other.scanWindowXMax_r)return false;
+		if(scanWindowYMin_r != other.scanWindowYMin_r)return false;
+		if(scanWindowYMax_r != other.scanWindowYMax_r)return false;
 		if(randomSeed != other.randomSeed)return false;
 		if(includeThermalEffects != other.includeThermalEffects)return false;
 		if(includeOccupancy != other.includeOccupancy)return false;
@@ -263,7 +309,11 @@ namespace Prismatic{
 		if(save2DOutput != other.save2DOutput)return false;
 		if(save3DOutput != other.save3DOutput)return false;
 		if(save4DOutput != other.save4DOutput)return false;
+		if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
+		if(savePotentialSlices != other.savePotentialSlices)return false;
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
+		if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
+		if(realSpaceWindow_y != other.realSpaceWindow_y)return false;
 		return true;
 	}
 

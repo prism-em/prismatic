@@ -91,6 +91,12 @@ namespace Prismatic {
 		});
 		max_z = std::max_element(zPlane.begin(), zPlane.end());
 		pars.numPlanes = *max_z + 1;
+
+		//check if intermediate output was specified, if so, create index of output slices
+		if(pars.meta.numSlices == 0){
+			pars.numSlices = pars.numPlanes;
+		}
+
 #ifdef PRISMATIC_BUILDING_GUI
 		pars.progressbar->signalPotentialUpdate(0, pars.numPlanes);
 #endif
@@ -205,5 +211,11 @@ namespace Prismatic {
 
 		// populate the slices with the projected potentials
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
+
+		if(pars.meta.savePotentialSlices){
+			std::string file_name = pars.meta.outputFolder + "potential_slices.mrc";
+			pars.pot.toMRC_f(file_name.c_str());
+		}
+
 	}
 }

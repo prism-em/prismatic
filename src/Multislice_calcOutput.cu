@@ -634,16 +634,25 @@ namespace Prismatic{
 		PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = dimj*dimi;
+		size_t currentSlice = 0;
+
 		initializePsi<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, psi_size, yp, xp);
-		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*psi_size], psi_size);
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
-			divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-		}
-		abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
-		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi, stream);
+		
+			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, &trans_d[planeNum*psi_size], psi_size);
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
+				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+
+				if ( ( (((planeNum+1) % pars.numSlices) == 0 ) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
+					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+					currentSlice++;
+				}
+			}
+
+		
 }
 
 	__host__ void getMultisliceProbe_GPU_singlexfer_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -675,27 +684,36 @@ namespace Prismatic{
 			initializePsi << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
                 (psi_ds + (batch_idx * psi_size), PsiProbeInit_d, qya_d, qxa_d, psi_size, yp, xp);
 		}
-		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-						(psi_ds + (batch_idx * psi_size), &trans_d[planeNum * psi_size], psi_size);
+		size_t currentSlice = 0;
+
+			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+							(psi_ds + (batch_idx * psi_size), &trans_d[planeNum * psi_size], psi_size);
+				}
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+							(psi_ds + (batch_idx * psi_size), prop_d, psi_size);
+					divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+							(psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+				}
+				
+				if ( ((((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
+
+					abs_squared << < ( psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
+					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
+												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+					}
+
+					currentSlice++;
+				}
 			}
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-						(psi_ds + (batch_idx * psi_size), prop_d, psi_size);
-				divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-						(psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-			}
-		}
-		abs_squared << < ( psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
-		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
-			formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-			                           alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi, stream);
-		}
+
 	}
 
 	__host__ void getMultisliceProbe_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -720,19 +738,26 @@ namespace Prismatic{
 		PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 		PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = dimj*dimi;
+		size_t currentSlice = 0;
 		initializePsi<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PsiProbeInit_d, qya_d, qxa_d, dimj*dimi, yp, xp);
 
+											
+			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+				cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, trans_d, psi_size);
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+				multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
+				divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
 
-		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
-			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, trans_d, psi_size);
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			multiply_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, prop_d, psi_size);
-			divide_inplace<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psi_ds, PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-		}
-		abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
-		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi,stream);
+				if ( ( (((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
+					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
+		
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds,currentSlice, ay, ax, dimj, dimi,stream);
+					currentSlice++;
+				}
+			}
+		
 	}
 
 
@@ -766,29 +791,42 @@ namespace Prismatic{
 			                                                (psi_ds + (batch_idx * psi_size), PsiProbeInit_d, qya_d, qxa_d, psi_size, yp, xp);
 		}
 
-		for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+		size_t currentSlice = 0;
 
-			cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
-			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-				                                                   (psi_ds + (batch_idx * psi_size), trans_d, psi_size);
+
+			for (auto planeNum = 0; planeNum < pars.numPlanes; ++planeNum) {
+
+				cudaErrchk(cudaMemcpyAsync(trans_d, &trans_ph[planeNum*psi_size], psi_size * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT), cudaMemcpyHostToDevice, stream));
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_INVERSE));
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+																	(psi_ds + (batch_idx * psi_size), trans_d, psi_size);
+				}
+				cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
+				for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+					multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+																	(psi_ds + (batch_idx * psi_size), prop_d, psi_size);
+					divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+																	(psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
+				}
+
+
+				if ( ( ((planeNum+1) % pars.numSlices) == 0 && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
+					abs_squared << < (psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
+
+					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
+						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
+						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
+												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+					}
+					currentSlice++;
+				}
+			
 			}
-			cufftErrchk(PRISMATIC_CUFFT_EXECUTE(plan, &psi_ds[0], &psi_ds[0], CUFFT_FORWARD));
-			for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-				multiply_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-				                                                   (psi_ds + (batch_idx * psi_size), prop_d, psi_size);
-				divide_inplace << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
-				                                                 (psi_ds + (batch_idx * psi_size), PRISMATIC_MAKE_CU_COMPLEX(psi_size, 0), psi_size);
-			}
-		}
-		abs_squared << < (psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
-		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
-			formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-			                           alphaInd_d, output_ph, integratedOutput_ds, ay, ax, dimj, dimi, stream);
-		}
+
+
+		
 	}
     __host__ void buildMultisliceOutput_GPU_singlexfer(Parameters <PRISMATIC_FLOAT_PRECISION> &pars){
 		using namespace std;

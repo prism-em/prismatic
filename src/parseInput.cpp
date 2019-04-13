@@ -46,7 +46,9 @@ namespace Prismatic {
                 "* --num-streams (-S) value : number of CUDA streams to create per GPU (default: " << defaults.numStreamsPerGPU << ")\n" <<
 		        "* --num-gpus (-g) value : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used. (default: " << defaults.numGPUs << ")\n" <<
                 "* --slice-thickness (-s) thickness : thickness of each slice of projected potential (in Angstroms) (default: " << defaults.sliceThickness << ")\n" <<
-		        "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
+                "* --num-slices (-ns) number of slices: in multislice mode, number of slices before intermediate output is given (default: " << defaults.numSlices << ")\n" <<
+		        "* --zstart-slices (-zs) value: in multislice mode, depth Z at which to begin intermediate output (default: " << defaults.zStart << ")\n" <<
+                "* --batch-size (-b) value : number of probes/beams to propagate simultaneously for both CPU and GPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
 		        "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers. (default: " << defaults.batchSizeCPU << ")\n" <<
 		        "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers. (default: " << defaults.batchSizeGPU << ")\n" <<
                 "* --help(-h) : print information about the available options\n"
@@ -74,12 +76,16 @@ namespace Prismatic {
                 "* --probe-semiangle (-sa) value : maximum probe semiangle (in mrad) (default: " << 1000*defaults.probeSemiangle << ")\n" <<
                 "* --scan-window-x (-wx) min max : size of the window to scan the probe in X (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowXMin << " " << defaults.scanWindowXMax << ")\n" <<
                 "* --scan-window-y (-wy) min max : size of the window to scan the probe in Y (in fractional coordinates between 0 and 1) (default: " << defaults.scanWindowYMin << " " << defaults.scanWindowYMax << ")\n" <<
+                "* --scan-window-xr (-wxr) min max : size of the window to scan the probe in X (in Angstroms) (defaults to fractional coordinates) " << ")\n" <<
+                "* --scan-window-yr (-wyr) min max : size of the window to scan the probe in Y (in Angstroms) (defaults to fractional coordiantes) " << ")\n" <<
                 "* --num-FP (-F) value : number of frozen phonon configurations to calculate (default: " << defaults.numFP << ")\n" <<
 		        "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects) (default: True)\n" <<
                 "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n" <<
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n" <<
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
-                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n";
+                "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n" <<
+                "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n" <<
+                "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n";
     }
 
 
@@ -160,6 +166,8 @@ namespace Prismatic {
         f << "--potential-bound:" << meta.potBound << '\n';
         f << "--num-FP:" << meta.numFP << '\n';
         f << "--slice-thickness:" << meta.sliceThickness<< '\n';
+        f << "--num-slices:" << meta.numSlices<< '\n';
+        f << "--zstart-slices:" << meta.zStart<< '\n';
         f << "--energy:" << meta.E0 / 1000 << '\n';
         f << "--alpha-max:" << meta.alphaBeamMax * 1000 << '\n';
         f << "--batch-size-cpu:" << meta.batchSizeTargetCPU << '\n';
@@ -185,6 +193,8 @@ namespace Prismatic {
         f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
         f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
         f << "--scan-window-y:" << meta.scanWindowYMin << ' ' << meta.scanWindowYMax << '\n';
+        f << "--scan-window-xr:" << meta.scanWindowXMin_r << ' ' << meta.scanWindowXMax_r << '\n';
+        f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
         f << "--random-seed:" << meta.randomSeed << '\n';
         if (meta.includeThermalEffects){
             f << "--thermal-effects:1\n";
@@ -203,6 +213,16 @@ namespace Prismatic {
             f << "--save-4D-output:1\n";
         } else {
             f << "--save-4D-output:0\n";
+        }
+        if (meta.savePotentialSlices){
+            f << "--save-potential-slices:1\n";
+        } else {
+            f << "--save-potential-slices:0\n";
+        }
+        if (meta.saveRealSpaceCoords){
+            f << "--save-real-space-coords:1\n";
+        } else {
+            f << "--save-real-space-coords:0\n";
         }
         if (meta.includeOccupancy) {
             f << "--occupancy:1\n";
@@ -549,6 +569,38 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_ns(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+
+        if (argc < 2){
+            cout << "No number of slices provided for intermediate output (syntax is -ns num_slices)\n";
+            return false;
+        }
+        if ( (meta.numSlices = atoi((*argv)[1])) < 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of slices (syntax is -ns num_slices)\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_zs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+
+        if (argc < 2){
+            cout << "No value for beginning intermediate output depth provided (syntax is -zs z_start (in Angstroms))\n";
+            return false;
+        }
+        if ( (meta.zStart = atoi((*argv)[1])) < 0){
+            cout << "Invalid value \"" << (*argv)[1] << "\" provided for beginning intermediate output depth (syntax is -zs z_start (in Angstroms))\n";
+            return false;
+        }
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_S(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                         int& argc, const char*** argv){
 
@@ -602,6 +654,20 @@ namespace Prismatic {
             return false;
         }
         meta.filenameOutput = std::string((*argv)[1]);
+        //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_of(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                        int& argc, const char*** argv){
+
+        if (argc < 2){
+            cout << "No folder provided for -of (syntax is -of /path/)\n";
+            return false;
+        }
+        meta.outputFolder = std::string((*argv)[1]);
         //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
         argc-=2;
         argv[0]+=2;
@@ -883,6 +949,66 @@ namespace Prismatic {
         return true;
     };
 
+	bool parse_wxr(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 3){
+			cout << "Invalid window provided for -wxr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+		PRISMATIC_FLOAT_PRECISION minval, maxval;
+		minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
+
+		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
+			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window Xr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+		if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
+			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window Xr (syntax is -wxr min max (in Angstroms))\n";
+			return false;
+		}
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the X scan in real space is greater than the maximum(" << maxval <<")." << endl;
+         return false;
+        }
+        meta.scanWindowXMin_r = minval;
+        meta.scanWindowXMax_r = maxval;
+        meta.realSpaceWindow_x = true;
+		argc-=3;
+		argv[0]+=3;
+		return true;
+	};
+
+	bool parse_wyr(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+	             int& argc, const char*** argv){
+		if (argc < 3){
+			cout << "Invalid window provided for -wyr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+		PRISMATIC_FLOAT_PRECISION minval, maxval;
+		minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+        maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
+
+		if ( (minval == 0) & (std::string((*argv)[1]) != "0")){
+			cout << "Invalid lower bound \"" << (*argv)[1] << "\" provided for scan window Yr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+		if ( (maxval == 0) & (std::string((*argv)[2]) != "0")){
+			cout << "Invalid upper bound \"" << (*argv)[2] << "\" provided for scan window Yr (syntax is -wyr min max (in Angstroms))\n";
+			return false;
+		}
+        if (maxval < minval){
+            cout << "The provided lower bound(" << minval << ") for the Y scan in real space is greater than the maximum(" << maxval <<")." << endl;
+         return false;
+        }
+        meta.scanWindowYMin_r = minval;
+        meta.scanWindowYMax_r = maxval;
+        meta.realSpaceWindow_y = true;
+		argc-=3;
+		argv[0]+=3;
+		return true;
+	};
+
 	bool parse_te(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
 	              int& argc, const char*** argv){
 		if (argc < 2){
@@ -951,6 +1077,30 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_rsc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -rsc (syntax is -rsc bool)\n";
+            return false;
+        }
+        meta.saveRealSpaceCoords = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
+    bool parse_ps(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -ps (syntax is -ps bool)\n";
+            return false;
+        }
+        meta.savePotentialSlices = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                      int &argc, const char ***argv) {
         if (argc==1)return true; // case of no inputs to parse
@@ -971,9 +1121,12 @@ namespace Prismatic {
             {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
             {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},
             {"--output-file", parse_o}, {"-o", parse_o},
+            {"--output-folder", parse_of}, {"-of", parse_of},
             {"--num-threads", parse_j}, {"-j", parse_j},
             {"--num-streams", parse_S}, {"-S", parse_S},
             {"--slice-thickness", parse_s}, {"-s", parse_s},
+            {"--num-slices",parse_ns},{"-ns",parse_ns},
+            {"--zstart-slices",parse_zs},{"-zs",parse_zs},
             {"--num-gpus", parse_g}, {"-g", parse_g},
             {"--batch-size", parse_b}, {"-b", parse_b},
             {"--batch-size-cpu", parse_bc}, {"-bc", parse_bc},
@@ -1002,13 +1155,17 @@ namespace Prismatic {
             {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
             {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
             {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
+            {"--scan-window-yr", parse_wyr}, {"-wyr", parse_wyr},
+            {"--scan-window-xr", parse_wxr}, {"-wxr", parse_wxr},
             {"--tile-uc", parse_t}, {"-t", parse_t},
             {"--num-FP", parse_F}, {"-F", parse_F},
             {"--thermal-effects", parse_te}, {"-te", parse_te},
             {"--occupancy", parse_oc}, {"-oc", parse_oc},
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
-            {"--save-4D-output", parse_4D}, {"-4D", parse_4D}
+            {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
+            {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc},
+            {"--save-potential-slices",parse_ps},{"-ps",parse_ps}
     };
     bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){

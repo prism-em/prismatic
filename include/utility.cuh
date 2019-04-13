@@ -168,6 +168,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *stack_ph,
                                 PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+                                const size_t current_slice,
                                 const size_t ay,
                                 const size_t ax,
                                 const size_t& dimj,

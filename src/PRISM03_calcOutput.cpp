@@ -24,6 +24,7 @@
 #include "fftw3.h"
 #include "utility.h"
 #include "WorkDispatcher.h"
+#include "ArrayND.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -55,11 +56,11 @@ namespace Prismatic {
 
 	void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		xR[0] = pars.meta.scanWindowXMin * pars.tiledCellDim[2];
-		xR[1] = pars.meta.scanWindowXMax * pars.tiledCellDim[2];
+		xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
+		xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		yR[0] = pars.meta.scanWindowYMin * pars.tiledCellDim[1];
-		yR[1] = pars.meta.scanWindowYMax * pars.tiledCellDim[1];
+		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
+		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
@@ -68,6 +69,15 @@ namespace Prismatic {
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
+
+		if(pars.meta.saveRealSpaceCoords){
+			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
+			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
+			std::string y_name = pars.meta.outputFolder + "real_space_y.mrc";
+			real_mesh.first.toMRC_f(x_name.c_str());
+			real_mesh.second.toMRC_f(y_name.c_str());
+		}
+
 		pars.xp = xp;
 		pars.yp = yp;
 	}
@@ -120,7 +130,7 @@ namespace Prismatic {
 	void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		// create output of a size corresponding to 3D mode (integration)
 
-		pars.output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	}
 
 	void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
@@ -331,15 +341,15 @@ namespace Prismatic {
 
         //save 4D output if applicable
          if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, ay, ax);
+			std::string section4DFilename = generateFilename(pars, 0, ay, ax);
 			intOutput.toMRC_f(section4DFilename.c_str());
 		}
 
-//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
+			//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
-				pars.output.at(ay, ax, (*idx) - 1) += *counts * pars.scale;
+				pars.output.at(0, ay, ax, (*idx) - 1) += *counts * pars.scale;
 			}
 			++idx;
 		};

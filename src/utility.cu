@@ -430,7 +430,8 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                                 PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *output_ph,
-                                PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+								PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+								const size_t currentSlice,
                                 const size_t ay,
                                 const size_t ax,
                                 const size_t& dimj,
@@ -443,7 +444,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		// This section could be improved. It currently makes a new 2D array, copies to it, and
 		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
 		// memory isn't pinned, so the memcpy is not asynchronous.
-		std::string section4DFilename = generateFilename(pars, ay, ax);
+		std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 		Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> currentImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
@@ -451,7 +452,26 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		                           pars.psiProbeInit.size() * sizeof(PRISMATIC_FLOAT_PRECISION),
 		                           cudaMemcpyDeviceToHost,
 		                           stream));
+
+		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
+            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>  finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+            {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
+            {
+                long offset_x = pars.psiProbeInit.get_dimi() / 4;
+                long offset_y = pars.psiProbeInit.get_dimj() / 4;
+                long ndimy = (long) pars.psiProbeInit.get_dimj();
+                long ndimx = (long) pars.psiProbeInit.get_dimi();
+                for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+                    for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+                        finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                                    ((x - offset_x) % ndimx + ndimx) % ndimx);
+                    }
+                }
+			}
+		finalImage.toMRC_f(section4DFilename.c_str());
+        }else{                     
 		currentImage.toMRC_f(section4DFilename.c_str());
+        }
 	}
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 
@@ -513,7 +533,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 	cudaErrchk(cudaStreamSynchronize(stream));
 	//const size_t stack_start_offset = ay*pars.output.get_dimk()*pars.output.get_dimj()+ ax*pars.output.get_dimj();
 	const size_t stack_start_offset =
-			ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
+			currentSlice * pars.output.get_dimk() * pars.output.get_dimj() * pars.output.get_dimi() + ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION));
 }
 
