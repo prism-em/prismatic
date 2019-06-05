@@ -159,7 +159,7 @@ public slots:
     void update_RReal(QString str);
     void update_RK(QString str);
     void potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
-    void outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
+    void outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION>);
     void displayErrorReadingParamsDialog();
     void displayErrorReadingAtomsDialog();
     void setscan_WindowYMin_edited();
@@ -214,7 +214,7 @@ private:
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
-    Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output;
+    Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> output;
     Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
 

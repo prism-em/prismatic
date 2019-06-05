@@ -342,7 +342,7 @@ void FullPRISMCalcThread::run(){
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     Prismatic::configure(meta);
-//  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
+        //  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
     if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         Prismatic::PRISM01_calcPotential(params);
@@ -364,13 +364,13 @@ void FullPRISMCalcThread::run(){
     if ((!this->parent->SMatrixIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
     Prismatic::PRISM02_calcSMatrix(params);
     {
-//        QMutexLocker gatekeeper(&this->parent->dataLock);
+    //        QMutexLocker gatekeeper(&this->parent->dataLock);
 
-//        // perform copy
-//        this->parent->pars = params;
+    //        // perform copy
+    //        this->parent->pars = params;
 
-//        // indicate that the potential is ready
-//        this->parent->ScompactReady = true;
+    //        // indicate that the potential is ready
+    //        this->parent->ScompactReady = true;
     }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -378,7 +378,7 @@ void FullPRISMCalcThread::run(){
         params.progressbar = progressbar;
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
-//    emit ScompactCalculated();
+    //    emit ScompactCalculated();
 
     Prismatic::PRISM03_calcOutput(params);
 
@@ -386,7 +386,7 @@ void FullPRISMCalcThread::run(){
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
-        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
 	    ++meta.fpNum;
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
@@ -408,10 +408,10 @@ void FullPRISMCalcThread::run(){
 
 
 
-//    {
-//        QMutexLocker gatekeeper(&this->parent->dataLock);
-//        this->parent->pars = params;
-//    }
+    //    {
+    //        QMutexLocker gatekeeper(&this->parent->dataLock);
+    //        this->parent->pars = params;
+    //    }
 
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
@@ -419,12 +419,23 @@ void FullPRISMCalcThread::run(){
         for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->pixelSize = params.pixelSize;
 
-//        this->parent->outputArrayExists = true;
+    //        this->parent->outputArrayExists = true;
 
-//        params.output.toMRC_f(params.meta.filenameOutput.c_str());
+    //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filenameOutput.c_str());
-//    this->parent->outputReceived(params.output);
+	if (params.meta.save3DOutput){
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimk(),params.output.get_dimj(),params.output.get_dimi()}});
+
+        for (auto y = 0; y < params.output.get_dimk(); ++y){
+            for (auto x = 0; x < params.output.get_dimj();++x){
+                for (auto b = 0; b < params.output.get_dimi(); ++b){
+                    output_image.at(y,x,b) = params.output.at(0,y,x,b);
+                }
+            }
+        }
+        std::string image_filename = params.meta.outputFolder + params.meta.filenameOutput;
+        output_image.toMRC_f(image_filename.c_str());  
+    }
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "PRISM calculation complete" << std::endl;
@@ -453,7 +464,7 @@ void FullMultisliceCalcThread::run(){
                 this->parent->pars = params;
                 //        this->parent->potential = params.pot;
 
-//                this->parent->potentialArrayExists = true;
+                //              this->parent->potentialArrayExists = true;
                 if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
             }
         } else {
@@ -471,7 +482,7 @@ void FullMultisliceCalcThread::run(){
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
-        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
 	    ++meta.fpNum;
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
@@ -500,15 +511,27 @@ void FullMultisliceCalcThread::run(){
 	    for (auto& a:this->parent->detectorAngles) a*=1000; // convert to mrads
         this->parent->pixelSize = params.pixelSize;
 
-//        this->parent->outputArrayExists = true;
-//        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> reshaped_output = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
-//        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
-//        auto ptr = reshaped_output.begin();
-//        for (auto &i:params.output)*ptr++=i;
-//        reshaped_output.toMRC_f(params.meta.filenameOutput.c_str());
-//        params.output.toMRC_f(params.meta.filenameOutput.c_str());
+    //        this->parent->outputArrayExists = true;
+    //        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> reshaped_output = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
+    //        {{params.output.get_diml(), params.output.get_dimk(), params.output.get_dimj()}});
+    //        auto ptr = reshaped_output.begin();
+    //        for (auto &i:params.output)*ptr++=i;
+    //        reshaped_output.toMRC_f(params.meta.filenameOutput.c_str());
+    //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput)params.output.toMRC_f(params.meta.filenameOutput.c_str());
+	if (params.meta.save3DOutput){
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimk(),params.output.get_dimj(),params.output.get_dimi()}});
+
+        for (auto y = 0; y < params.output.get_dimk(); ++y){
+            for (auto x = 0; x < params.output.get_dimj();++x){
+                for (auto b = 0; b < params.output.get_dimi(); ++b){
+                    output_image.at(y,x,b) = params.output.at(0,y,x,b);
+                }
+            }
+        }
+        std::string image_filename = params.meta.outputFolder + params.meta.filenameOutput;
+        output_image.toMRC_f(image_filename.c_str());  
+    }
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;
