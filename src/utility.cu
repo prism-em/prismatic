@@ -452,7 +452,9 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		                           pars.psiProbeInit.size() * sizeof(PRISMATIC_FLOAT_PRECISION),
 		                           cudaMemcpyDeviceToHost,
 		                           stream));
-
+		//Need to scale the output by the square of the PRISM interpolation factor 
+		currentImage *= pars.scale;
+		
 		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
             Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>  finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
             {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});

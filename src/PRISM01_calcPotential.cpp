@@ -119,10 +119,10 @@ namespace Prismatic {
 			workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma, &occ,
 											 &zPlane, &yvec,&potentialLookup, &dispatcher](){
 				// create a random number generator to simulate thermal effects
-											 std::cout<<"random seed = " << pars.meta.randomSeed << std::endl;
-				srand(pars.meta.randomSeed);
-				std::default_random_engine de(pars.meta.randomSeed);
-				normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
+				// std::cout<<"random seed = " << pars.meta.randomSeed << std::endl;
+				// srand(pars.meta.randomSeed);
+				// std::default_random_engine de(pars.meta.randomSeed);
+				// normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
 				Array1D<long> xp;
 				Array1D<long> yp;
 
@@ -133,6 +133,13 @@ namespace Prismatic {
 					const long dim0 = (long) pars.imageSize[0];
 					const long dim1 = (long) pars.imageSize[1];
 					while (currentSlice != stop) {
+						
+						// create a random number generator to simulate thermal effects
+						std::cout<<"random seed = " << pars.meta.randomSeed + currentSlice*pars.numPlanes << std::endl;
+						srand(pars.meta.randomSeed +currentSlice*pars.numPlanes);
+						std::default_random_engine de(pars.meta.randomSeed +currentSlice*pars.numPlanes);
+						normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0,1);
+
 						for (auto atom_num = 0; atom_num < x.size(); ++atom_num) {
 							if (zPlane[atom_num] == currentSlice) {
                                 if (pars.meta.includeOccupancy){

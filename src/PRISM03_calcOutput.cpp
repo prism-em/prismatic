@@ -335,7 +335,7 @@ namespace Prismatic {
             PRISMATIC_FFTW_EXECUTE(plan);
 			for (auto jj = 0; jj < intOutput.get_dimj(); ++jj) {
 				for (auto ii = 0; ii < intOutput.get_dimi(); ++ii) {
-					intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2);
+					intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2) * pars.scale;
 				}
 			}
 
@@ -349,7 +349,7 @@ namespace Prismatic {
 		auto idx = pars.alphaInd.begin();
 		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
 			if (*idx <= pars.Ndet) {
-				pars.output.at(0, ay, ax, (*idx) - 1) += *counts * pars.scale;
+				pars.output.at(0, ay, ax, (*idx) - 1) += *counts;
 			}
 			++idx;
 		};

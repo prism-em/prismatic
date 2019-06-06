@@ -309,6 +309,7 @@ namespace Prismatic{
 			++stream_count;
 		}
 		// now launch CPU work
+		std::cout<<"Also do CPU work: "<<pars.meta.alsoDoCPUWork<<std::endl;
 		if (pars.meta.alsoDoCPUWork){
 			PRISMATIC_FFTW_INIT_THREADS();
 			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);vector<thread> workers_CPU;

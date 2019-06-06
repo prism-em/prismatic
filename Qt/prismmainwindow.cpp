@@ -28,6 +28,8 @@
 #include "atom.h"
 #include "parseInput.h"
 #include "params.h"
+#include <cstdio>
+//#include <unistd.h>
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -456,10 +458,10 @@ void PRISMMainWindow::updateDisplay(){
 	ss << (this->meta->C5);
 	this->ui->lineEdit_C5->setText(QString::fromStdString(ss.str()));
 	ss.str("");
-    ss << (this->meta->probeXtilt);
+    ss << (this->meta->probeXtilt * 1e3);
     this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
     ss.str("");
-    ss << (this->meta->probeYtilt);
+    ss << (this->meta->probeYtilt * 1e3);
     this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->detectorAngleStep * 1e3);
@@ -696,12 +698,21 @@ void PRISMMainWindow::setNumGPUs(const int& num){
 }
 
 void PRISMMainWindow::setNumThreads(const int& num){
+    std::cout << "Also do CPU work " << pars.meta.alsoDoCPUWork << std::endl;
     if (num > 0){
         this->meta->numThreads = num;
         std::cout << "Setting number of CPU Threads to " << num << std::endl;
         QMutexLocker gatekeeper(&dataLock);
+        this->meta->alsoDoCPUWork=true;
         this->pars.meta.numThreads = num;
     }
+    else if(num==0){
+      this->meta->numThreads = 1;
+      std::cout << "Setting number of CPU threads to " << num <<" (GPU only calculation)"<< std::endl;
+      this->meta->alsoDoCPUWork=false;
+      this->pars.meta.numThreads = 1;
+    }
+    std::cout << "Also do CPU work " << pars.meta.alsoDoCPUWork << std::endl;
 }
 
 void PRISMMainWindow::setNumStreams(const int& num){
@@ -1151,6 +1162,7 @@ void PRISMMainWindow::calculateAll(){
         worker->start();
     } else{
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
+        std::cout <<"Also do CPU work: "<<worker->meta.alsoDoCPUWork<<std::endl;
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));

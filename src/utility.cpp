@@ -15,6 +15,8 @@
 #include <complex>
 #include "defines.h"
 #include "configure.h"
+#include <boost/filesystem.hpp> 
+#include <unistd.h>
 namespace Prismatic {
 
 
@@ -93,6 +95,36 @@ namespace Prismatic {
 		return diffs / accum;
 	}
 
+	std::string remove_extension(const std::string& filename) {
+      size_t lastdot = filename.find_last_of(".");
+      if (lastdot == std::string::npos) return filename;
+      return filename.substr(0, lastdot);
+	}
 
+	bool testFilenameOutput(const std::string& filename){
+
+		int access_ok = access(filename.c_str(),W_OK);
+		//Check if file already exists and that we can write to it
+		if(access_ok == 1){
+		std::cout<<"Warning "<<filename<<" already exists and will be overwritten"<<std::endl;
+			return true;
+		}
+		else{
+			//If the file does not exist, check to see if we can open a file of that name
+			std::ofstream f(filename, std::ios::binary |std::ios::out);
+			if(f){
+				//If we can open such a file, close the file and delete it.
+				f.close();
+				std::remove(filename.c_str());
+				return true;
+			}
+			else{
+				std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
+				return false;
+			}
+		}
+
+
+	}
 
 }

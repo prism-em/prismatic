@@ -184,11 +184,14 @@ namespace Prismatic {
             }
         }
         f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
-        f << "--probe-defocus:" << meta.probeDefocus * 1000 << '\n';
+        f << "--probe-defocus:" << meta.probeDefocus << '\n';
         f << "-C3:" << meta.C3 << '\n';
         f << "-C5:" << meta.C5 << '\n';
         f << "--probe-semiangle:" << meta.probeSemiangle * 1000 << '\n';
         f << "--detector-angle-step:" << meta.detectorAngleStep * 1000 << '\n';
+        //The probe tilt variables are stored internally in units of radians
+        //but displayed in units of milliradians, a factor of 1000 converts
+        //between the two.
         f << "--probe-xtilt:" << meta.probeXtilt * 1000 << '\n';
         f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
         f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
