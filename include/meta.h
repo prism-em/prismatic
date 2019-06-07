@@ -82,6 +82,7 @@ namespace Prismatic{
 			save2DOutput          = false;
 			save3DOutput          = true;
 			save4DOutput          = false;
+			saveDPC_CoM           = false;
 			saveRealSpaceCoords   = false;
 			savePotentialSlices   = false;
 			userSpecifiedCelldims = false;
@@ -142,6 +143,7 @@ namespace Prismatic{
 		T integrationAngleMax;
 		bool save3DOutput;
 		bool save4DOutput;
+		bool saveDPC_CoM;
 		bool saveRealSpaceCoords;
 		bool savePotentialSlices;
 		bool userSpecifiedCelldims;
@@ -236,6 +238,12 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
+		}
+		if (saveDPC_CoM) {
+			std::cout << "saveDPC_CoM = true" << std::endl;
+		} else {
+			std::cout << "saveDPC_CoM = false" << std::endl;
+		}
 		if (saveRealSpaceCoords) {
 			std::cout << "saveRealSpaceCoords = true" << std::endl;
 		} else {
@@ -309,6 +317,7 @@ namespace Prismatic{
 		if(save2DOutput != other.save2DOutput)return false;
 		if(save3DOutput != other.save3DOutput)return false;
 		if(save4DOutput != other.save4DOutput)return false;
+		if(saveDPC_CoM != other.saveDPC_CoM)return false;
 		if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
 		if(savePotentialSlices != other.savePotentialSlices)return false;
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;

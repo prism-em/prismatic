@@ -14,9 +14,13 @@
 #include "utility.h"
 #include <complex>
 #include "defines.h"
-#include "configure.h"
-#include <boost/filesystem.hpp> 
-#include <unistd.h>
+#ifdef _WIN32
+   #include <io.h> 
+   #define access    _access_s
+#else
+   #include <unistd.h>
+#endif
+
 namespace Prismatic {
 
 
@@ -102,12 +106,16 @@ namespace Prismatic {
 	}
 
 	bool testFilenameOutput(const std::string& filename){
-
-		int access_ok = access(filename.c_str(),W_OK);
-		//Check if file already exists and that we can write to it
-		if(access_ok == 1){
+		bool exists = testExist(filename);
+		bool write_ok = testWrite(filename);
+		//Check if file already exists and if we can write to it
+		if(exists && write_ok){
 		std::cout<<"Warning "<<filename<<" already exists and will be overwritten"<<std::endl;
 			return true;
+		}
+		else if(exists && !write_ok){
+			std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
+			return false;
 		}
 		else{
 			//If the file does not exist, check to see if we can open a file of that name
@@ -126,5 +134,15 @@ namespace Prismatic {
 
 
 	}
+
+	int testWrite(const std::string& filename){
+        int answer = access(filename.c_str(),W_OK);
+        return answer;
+    }
+
+    int testExist(const std::string& filename){
+        int answer = access(filename.c_str(),F_OK);
+        return answer;
+    }
 
 }

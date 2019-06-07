@@ -131,6 +131,7 @@ namespace Prismatic {
 		// create output of a size corresponding to 3D mode (integration)
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
 	}
 
 	void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
@@ -343,6 +344,23 @@ namespace Prismatic {
          if (pars.meta.save4DOutput) {
 			std::string section4DFilename = generateFilename(pars, 0, ay, ax);
 			intOutput.toMRC_f(section4DFilename.c_str());
+		}
+
+		if (pars.meta.saveDPC_CoM){
+			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
+			for (long y = 0; y < intOutput.get_dimj(); ++y){
+				for (long x = 0; x < intOutput.get_dimi(); ++x){
+					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x);
+					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x);
+				}
+			}
+			//divide by sum of intensity
+			PRISMATIC_FLOAT_PRECISION intensitySum = 0;
+			for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
+				intensitySum += *iter;
+			}
+			pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+			pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
 		}
 
 			//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock

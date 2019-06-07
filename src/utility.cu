@@ -481,62 +481,28 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll << < (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                            (integratedOutput_ds, 0, num_integration_bins);
-//	if (ax == 0 & ay == 0) {
-//		PRISMATIC_FLOAT_PRECISION ans;
-//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "set 0 integratedOutput_ds[" << i << "] = " << ans << std::endl;
-//
-//		}
-//	}
-//
-//	if (ax == 0 & ay == 0) {
-//		PRISMATIC_FLOAT_PRECISION ans;
-//		for (auto i = 0; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, alphaInd_d + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "alphaInd_d[" << i << "] = " << ans << std::endl;
-//
-//		}
-//	}
-//
-//	if (ax == 0 & ay == 0) {
-//		PRISMATIC_FLOAT_PRECISION ans;
-//		for (auto i = 98; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, psiIntensity_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "psiIntensity_ds[" << i << "] = " << ans << std::endl;
-//
-//		}
-//	}
+
 	integrateDetector << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                              (psiIntensity_ds, alphaInd_d, integratedOutput_ds,
 			                                                                              dimj *
 			                                                                              dimi, num_integration_bins);
-//	if (ax == 0 & ay == 0) {
-//		PRISMATIC_FLOAT_PRECISION ans;
-//		for (auto i = 97; i < pars.detectorAngles.size(); ++i) {
-//			cudaMemcpy(&ans, integratedOutput_ds + i, sizeof(ans), cudaMemcpyDeviceToHost);
-//			std::cout << "after integrate integratedOutput_ds[" << i << "] = " << ans << std::endl;
-//
-//		}
-//	}
-//	if (scale != 1) {
-//		if (ax==0 & ay==0)std::cout << "scale = " << scale << std::endl;
+
 	multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
 	                                                                                (integratedOutput_ds, scale, num_integration_bins);
-//	}
-////	integrateDetector<<< (dimj*dimi - 1)/BLOCK_SIZE1D + 1, BLOCK_SIZE1D, sizeof(PRISMATIC_FLOAT_PRECISION) * pars.detectorAngles.size(), stream>>>(psiIntensity_ds, alphaInd_d, dimj*dimi, num_integration_bins);
 
-	// Copy result. For the integration case the 4th dim of stack is 1, so the offset strides need only consider k and j
 	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
 	                           num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION),
 	                           cudaMemcpyDeviceToHost, stream));
 
-//	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
+	//	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	cudaErrchk(cudaStreamSynchronize(stream));
-	//const size_t stack_start_offset = ay*pars.output.get_dimk()*pars.output.get_dimj()+ ax*pars.output.get_dimj();
 	const size_t stack_start_offset =
 			currentSlice * pars.output.get_dimk() * pars.output.get_dimj() * pars.output.get_dimi() + ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION));
+	
+	if(pars.meta.saveDPC_CoM){
+		
+	}
 }
 
 size_t getNextPower2(const size_t& val){
