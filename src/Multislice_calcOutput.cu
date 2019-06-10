@@ -648,7 +648,7 @@ namespace Prismatic{
 
 				if ( ( (((planeNum+1) % pars.numSlices) == 0 ) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
-					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					currentSlice++;
 				}
 			}
@@ -708,7 +708,7 @@ namespace Prismatic{
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
 
 					currentSlice++;
@@ -754,7 +754,7 @@ namespace Prismatic{
 				if ( ( (((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
 		
-					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds,currentSlice, ay, ax, dimj, dimi,stream);
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi,stream);
 					currentSlice++;
 				}
 			}
@@ -819,7 +819,7 @@ namespace Prismatic{
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
 					currentSlice++;
 				}

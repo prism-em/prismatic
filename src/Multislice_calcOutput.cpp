@@ -230,13 +230,18 @@ namespace Prismatic{
 		}
 
 		if (pars.meta.saveDPC_CoM){
+			long offset_x = psi.get_dimi() / 4;
+			long offset_y = psi.get_dimj() / 4;
+			long ndimy = (long) psi.get_dimj();
+			long ndimx = (long) psi.get_dimi();
+
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 			for (long y = 0; y < psi.get_dimj() / 2; ++y){
 				for (long x = 0; x < psi.get_dimi() / 2; ++x){
 					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx) 
+					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
 					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx) 
+					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
 				}
 			}
 			//divide by sum of intensity
@@ -295,13 +300,18 @@ namespace Prismatic{
 			}
 
 			if (pars.meta.saveDPC_CoM){
+				long offset_x = pars.psiProbeInit.get_dimi() / 4;
+				long offset_y = pars.psiProbeInit.get_dimj() / 4;
+				long ndimy = (long) pars.psiProbeInit.get_dimj();
+				long ndimx = (long) pars.psiProbeInit.get_dimi();
+
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
-				for (long y = 0; y < psi.get_dimj() / 2; ++y){
-					for (long x = 0; x < psi.get_dimi() / 2; ++x){
+				for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y){
+					for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x){
 						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx) 
+													((x - offset_x) % ndimx + ndimx) % ndimx); 
 						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx) 
+													((x - offset_x) % ndimx + ndimx) % ndimx); 
 					}
 				}
 				//divide by sum of intensity

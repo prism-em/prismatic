@@ -57,6 +57,8 @@ namespace Prismatic {
 	                                        const PRISMATIC_FLOAT_PRECISION *,
 	                                        PRISMATIC_FLOAT_PRECISION *,
 	                                        PRISMATIC_FLOAT_PRECISION*,
+	                                        const PRISMATIC_FLOAT_PRECISION *,
+	                                        const PRISMATIC_FLOAT_PRECISION *,
 	                                        const size_t,
 	                                        const size_t,
 											const size_t,

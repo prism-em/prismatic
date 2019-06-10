@@ -238,7 +238,6 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
-		}
 		if (saveDPC_CoM) {
 			std::cout << "saveDPC_CoM = true" << std::endl;
 		} else {

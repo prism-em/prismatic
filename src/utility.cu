@@ -425,12 +425,51 @@ __global__ void integrateDetector(const double* psiIntensity_ds,
 	}
 }
 
+__global__ void DPC_numerator_reduce(const float* psiIntensity_ds,
+									 const float* q_coord,
+									 float* numerator,
+									 const size_t N){
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N){
+		atomicAdd(&numerator[0], psiIntensity_ds[idx]*q_coord[idx]);
+	}
+}
+
+__global__ void DPC_numerator_reduce(const double* psiIntensity_ds,
+ 									 const double* q_coord,
+									 double* numerator,
+									 const size_t N){
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+		if (idx < N){
+			atomicAdd_double(&numerator[0], psiIntensity_ds[idx]*q_coord[idx]);
+		}
+}
+
+__global__ void DPC_denominator_reduce(const float* psiIntensity_ds,
+									   float* denominator,
+									   const size_t N){
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N){
+		atomicAdd(&denominator[0], psiIntensity_ds[idx]);
+	}										   
+}
+
+__global__ void DPC_denominator_reduce(const double* psiIntensity_ds,
+									   double* denominator,
+									   const size_t N){
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N){
+		atomicAdd_double(&denominator[0], psiIntensity_ds[idx]);
+	}			
+}
 
 void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
                                 PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *output_ph,
 								PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+								const PRISMATIC_FLOAT_PRECISION* qya_d,
+								const PRISMATIC_FLOAT_PRECISION* qxa_d,
 								const size_t currentSlice,
                                 const size_t ay,
                                 const size_t ax,
@@ -479,15 +518,15 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 
 
 	size_t num_integration_bins = pars.detectorAngles.size();
-	setAll << < (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	setAll <<< (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
 	                                                                            (integratedOutput_ds, 0, num_integration_bins);
 
-	integrateDetector << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	integrateDetector <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
 	                                                                              (psiIntensity_ds, alphaInd_d, integratedOutput_ds,
 			                                                                              dimj *
 			                                                                              dimi, num_integration_bins);
 
-	multiply_arr_scalar << < (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
+	multiply_arr_scalar <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
 	                                                                                (integratedOutput_ds, scale, num_integration_bins);
 
 	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
@@ -501,7 +540,30 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION));
 	
 	if(pars.meta.saveDPC_CoM){
+		PRISMATIC_FLOAT_PRECISION *num_qx;
+		PRISMATIC_FLOAT_PRECISION *num_qy;
+		cudaMallocManaged(&num_qx, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
+		cudaMallocManaged(&num_qy, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
+		num_qx[0] = 0.0;
+		num_qy[0] = 0.0;
 		
+		//reduce in X
+		DPC_numerator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+		(psiIntensity_ds,qxa_d, num_qx, dimj * dimi);
+		
+		//reduce in Y
+		DPC_numerator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+		(psiIntensity_ds,qya_d, num_qy, dimj * dimi);
+		
+		PRISMATIC_FLOAT_PRECISION *denominator;
+		cudaMallocManaged(&denominator, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
+		denominator[0] = 0.0;
+		
+		DPC_denominator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psiIntensity_ds, denominator, dimj*dimi);
+		
+		PRISMATIC_FLOAT_PRECISION DPC_CoM_x, DPC_CoM_y;
+		DPC_CoM_x = num_qx[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qx
+		DPC_CoM_y = num_qy[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qy
 	}
 }
 

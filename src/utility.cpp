@@ -136,12 +136,12 @@ namespace Prismatic {
 	}
 
 	int testWrite(const std::string& filename){
-        int answer = access(filename.c_str(),W_OK);
+        int answer = access(filename.c_str(),02); //W_OK = 02
         return answer;
     }
 
     int testExist(const std::string& filename){
-        int answer = access(filename.c_str(),F_OK);
+        int answer = access(filename.c_str(),00); //F_OK == 00
         return answer;
     }
 
