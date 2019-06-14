@@ -16,6 +16,13 @@
 #include "defines.h"
 #include "configure.h"
 #include "H5Cpp.h"
+#ifdef _WIN32
+   #include <io.h> 
+   #define access    _access_s
+#else
+   #include <unistd.h>
+#endif
+
 
 namespace Prismatic {
 
@@ -95,6 +102,50 @@ namespace Prismatic {
 		return diffs / accum;
 	}
 
+	std::string remove_extension(const std::string& filename) {
+      size_t lastdot = filename.find_last_of(".");
+      if (lastdot == std::string::npos) return filename;
+      return filename.substr(0, lastdot);
+	}
 
+	bool testFilenameOutput(const std::string& filename){
+		bool exists = testExist(filename);
+		bool write_ok = testWrite(filename);
+		//Check if file already exists and if we can write to it
+		if(exists && write_ok){
+		std::cout<<"Warning "<<filename<<" already exists and will be overwritten"<<std::endl;
+			return true;
+		}
+		else if(exists && !write_ok){
+			std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
+			return false;
+		}
+		else{
+			//If the file does not exist, check to see if we can open a file of that name
+			std::ofstream f(filename, std::ios::binary |std::ios::out);
+			if(f){
+				//If we can open such a file, close the file and delete it.
+				f.close();
+				std::remove(filename.c_str());
+				return true;
+			}
+			else{
+				std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
+				return false;
+			}
+		}
+
+
+	}
+
+	int testWrite(const std::string& filename){
+        int answer = access(filename.c_str(),02); //W_OK = 02
+        return answer;
+    }
+
+    int testExist(const std::string& filename){
+        int answer = access(filename.c_str(),00); //F_OK == 00
+        return answer;
+    }
 
 }

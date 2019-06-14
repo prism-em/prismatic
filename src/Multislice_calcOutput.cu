@@ -309,6 +309,7 @@ namespace Prismatic{
 			++stream_count;
 		}
 		// now launch CPU work
+		std::cout<<"Also do CPU work: "<<pars.meta.alsoDoCPUWork<<std::endl;
 		if (pars.meta.alsoDoCPUWork){
 			PRISMATIC_FFTW_INIT_THREADS();
 			PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);vector<thread> workers_CPU;
@@ -422,10 +423,10 @@ namespace Prismatic{
 			// get pointers to per-stream arrays
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_trans_ds         = cuda_pars.trans_d[stream_count];
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_ds           = cuda_pars.psi_ds[stream_count];
-			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds    = cuda_pars.psiIntensity_ds[stream_count];
+			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds     = cuda_pars.psiIntensity_ds[stream_count];
 			PRISMATIC_FLOAT_PRECISION *current_integratedOutput_ds = cuda_pars.integratedOutput_ds[stream_count];
 			PRISMATIC_FLOAT_PRECISION *current_output_ph           = cuda_pars.output_ph[stream_count];
-			cufftHandle & current_cufft_plan                   = cuda_pars.cufftPlans[stream_count];
+			cufftHandle & current_cufft_plan                   	   = cuda_pars.cufftPlans[stream_count];
 			// launch a new thread
 			// push_back is better whenever constructing a new object
 			workers_GPU.push_back(thread([&pars, current_trans_ds, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
@@ -647,7 +648,7 @@ namespace Prismatic{
 
 				if ( ( (((planeNum+1) % pars.numSlices) == 0 ) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
-					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					currentSlice++;
 				}
 			}
@@ -707,7 +708,7 @@ namespace Prismatic{
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
 
 					currentSlice++;
@@ -753,7 +754,7 @@ namespace Prismatic{
 				if ( ( (((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					abs_squared<<<(psi_size - 1) / BLOCK_SIZE1D + 1,BLOCK_SIZE1D, 0, stream>>>(psiIntensity_ds, psi_ds, psi_size);
 		
-					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds,currentSlice, ay, ax, dimj, dimi,stream);
+					formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi,stream);
 					currentSlice++;
 				}
 			}
@@ -818,7 +819,7 @@ namespace Prismatic{
 						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
 						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
-												alphaInd_d, output_ph, integratedOutput_ds, currentSlice, ay, ax, dimj, dimi, stream);
+												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
 					currentSlice++;
 				}

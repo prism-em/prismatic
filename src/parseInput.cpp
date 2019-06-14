@@ -84,6 +84,7 @@ namespace Prismatic {
 		        "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n" <<
 	            "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n" <<
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n" <<
+                "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n" <<
                 "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n" <<
                 "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n";
     }
@@ -184,11 +185,14 @@ namespace Prismatic {
             }
         }
         f << "--tile-uc:" << meta.tileX << ' ' << meta.tileY << ' ' << meta.tileZ << '\n';
-        f << "--probe-defocus:" << meta.probeDefocus * 1000 << '\n';
+        f << "--probe-defocus:" << meta.probeDefocus << '\n';
         f << "-C3:" << meta.C3 << '\n';
         f << "-C5:" << meta.C5 << '\n';
         f << "--probe-semiangle:" << meta.probeSemiangle * 1000 << '\n';
         f << "--detector-angle-step:" << meta.detectorAngleStep * 1000 << '\n';
+        //The probe tilt variables are stored internally in units of radians
+        //but displayed in units of milliradians, a factor of 1000 converts
+        //between the two.
         f << "--probe-xtilt:" << meta.probeXtilt * 1000 << '\n';
         f << "--probe-ytilt:" << meta.probeYtilt * 1000 << '\n';
         f << "--scan-window-x:" << meta.scanWindowXMin << ' ' << meta.scanWindowXMax << '\n';
@@ -210,6 +214,11 @@ namespace Prismatic {
             f << "--save-3D-output:0\n";
         }
         if (meta.save4DOutput){
+            f << "--save-4D-output:1\n";
+        } else {
+            f << "--save-4D-output:0\n";
+        }
+        if (meta.saveDPC_CoM){
             f << "--save-4D-output:1\n";
         } else {
             f << "--save-4D-output:0\n";
@@ -1077,6 +1086,18 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_dpc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -DPC (syntax is -DPC bool)\n";
+            return false;
+        }
+        meta.saveDPC_CoM = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_rsc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
@@ -1164,6 +1185,7 @@ namespace Prismatic {
             {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
             {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
+            {"--save-DPC_CoM", parse_dpc}, {"-DPC", parse_dpc},
             {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc},
             {"--save-potential-slices",parse_ps},{"-ps",parse_ps}
     };

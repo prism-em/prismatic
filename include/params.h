@@ -48,6 +48,7 @@ namespace Prismatic{
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> output;
+		Array4D<T> DPC_CoM;
 		Array3D<T> pot;
 	    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION> > transmission;
 

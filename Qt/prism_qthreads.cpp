@@ -19,6 +19,7 @@
 #include "Multislice_calcOutput.h"
 #include "utility.h"
 #include <iostream>
+#include <string>
 
 PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
@@ -48,6 +49,15 @@ void PotentialThread::run(){
     // perform copy
     this->parent->pars = params;
     // indicate that the potential is ready
+
+    // std::cout <<this->parent->saveProjectedPotential<<std::endl;
+
+    if (this->parent->saveProjectedPotential){
+      std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
+      outfile += ("_potential.mrc");
+      std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
+      params.pot.toMRC_f(outfile.c_str());
+    }
 
 //    this->parent->potentialArrayExists = true;
 //    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
@@ -121,9 +131,15 @@ void ProbeThread::run(){
             this->parent->pars = params;
         }
 //            this->parent->potentialArrayExists = true;
-        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
+
         this->parent->potentialReceived(params.pot);
         emit potentialCalculated();
+        if (this->parent->saveProjectedPotential){
+          std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
+          outfile += ("_potential.mrc");
+          std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
+          params.pot.toMRC_f(outfile.c_str());
+        }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -322,11 +338,14 @@ FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progres
 
 void FullPRISMCalcThread::run(){
     std::cout << "Full PRISM Calculation thread running" << std::endl;
+
     progressbar->signalDescriptionMessage("Initiating PRISM simulation");
     emit signalTitle("PRISM: Frozen Phonon #1");
     bool error_reading = false;
     QMutexLocker gatekeeper(&this->parent->dataLock);
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params;
+
+
     try {
         params = Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>(meta,progressbar);
     }catch (...){
@@ -335,7 +354,10 @@ void FullPRISMCalcThread::run(){
     }
     gatekeeper.unlock();
 
-
+    if(! Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str())){
+      std::cout<<"Aborting calculation, please choose an accessible output directory"<<std::endl;
+      return;
+    }
     if (error_reading){
         emit signalErrorReadingAtomsDialog();
     } else {
@@ -346,11 +368,19 @@ void FullPRISMCalcThread::run(){
     if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         Prismatic::PRISM01_calcPotential(params);
+
+        //Output potential if box is check
+        if (this->parent->saveProjectedPotential){
+          std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
+          outfile += ("_potential.mrc");
+          std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
+          params.pot.toMRC_f(outfile.c_str());
+        }
+        
         std::cout <<"Potential Calculated" << std::endl;
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
-        if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     }
     this->parent->potentialReceived(params.pot);
     emit potentialCalculated();
@@ -451,21 +481,31 @@ FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, pri
 void FullMultisliceCalcThread::run(){
 
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    if(! Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str())){
+      std::cout<<"Aborting calculation, please choose an accessible output directory"<<std::endl;
+      return;
+    }
     progressbar->signalDescriptionMessage("Initiating Multislice simulation");
 
+    std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
         if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))) {
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
             Prismatic::PRISM01_calcPotential(params);
             std::cout << "Potential Calculated" << std::endl;
+            if (this->parent->saveProjectedPotential){
+              std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
+              outfile += ("_potential.mrc");
+              std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
+              params.pot.toMRC_f(outfile.c_str());
+            }
             {
                 QMutexLocker gatekeeper(&this->parent->dataLock);
                 this->parent->pars = params;
                 //        this->parent->potential = params.pot;
 
                 //              this->parent->potentialArrayExists = true;
-                if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
             }
         } else {
             QMutexLocker gatekeeper(&this->parent->dataLock);
@@ -476,7 +516,8 @@ void FullMultisliceCalcThread::run(){
 
     this->parent->potentialReceived(params.pot);
     emit potentialCalculated();
-
+    std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
+    //Calls Multislice_calcOutput for first frozen phonon pass
     Prismatic::Multislice_calcOutput(params);
 
 

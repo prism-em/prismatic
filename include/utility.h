@@ -92,6 +92,12 @@ namespace Prismatic {
 	                                                Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
 	PRISMATIC_FLOAT_PRECISION computeRfactor(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
 	                                     Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
+
+	std::string remove_extension(const std::string& filename);
+
+	bool testFilenameOutput(const std::string& filename);
+	int testWrite(const std::string& filename);
+    int testExist(const std::string& filename);
 }
 
 #endif //PRISMATIC_UTILITY_H
