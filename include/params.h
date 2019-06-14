@@ -21,6 +21,7 @@
 #include "ArrayND.h"
 #include "atom.h"
 #include "meta.h"
+#include "H5Cpp.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
@@ -100,6 +101,7 @@ namespace Prismatic{
 		size_t numSlices;
 		size_t zStartPlane;
 	    size_t numberBeams;
+		H5::H5File outputFile;
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG

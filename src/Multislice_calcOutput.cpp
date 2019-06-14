@@ -25,6 +25,7 @@
 #include "fftw3.h"
 #include "WorkDispatcher.h"
 #include "Multislice_calcOutput.h"
+
 namespace Prismatic{
 	using namespace std;
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);

@@ -15,6 +15,8 @@
 #include <complex>
 #include "defines.h"
 #include "configure.h"
+#include "H5Cpp.h"
+
 namespace Prismatic {
 
 
