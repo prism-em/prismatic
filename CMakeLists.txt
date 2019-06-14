@@ -67,12 +67,15 @@ endif (PRISMATIC_ENABLE_GPU)
 # find core packages
 find_package (Threads REQUIRED)
 find_package (Boost REQUIRED)
-find_package(FFTW3 REQUIRED)
+find_package (FFTW3 REQUIRED)
+find_package (HDF5 REQUIRED)
+
 
 message("Boost dir " ${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
                     ${Boost_INCLUDE_DIRS}
-                    ${FFTW_INCLUDE_DIR})
+                    ${FFTW_INCLUDE_DIR}
+                    ${HDF5_INCLUDE_DIRS})
 # find CUDA package, if building for GPU
 if (PRISMATIC_ENABLE_GPU)
     message("GPU support enabled")

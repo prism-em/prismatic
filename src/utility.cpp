@@ -14,12 +14,15 @@
 #include "utility.h"
 #include <complex>
 #include "defines.h"
+#include "configure.h"
+#include "H5Cpp.h"
 #ifdef _WIN32
    #include <io.h> 
    #define access    _access_s
 #else
    #include <unistd.h>
 #endif
+
 
 namespace Prismatic {
 

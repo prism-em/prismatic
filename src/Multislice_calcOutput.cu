@@ -263,7 +263,7 @@ namespace Prismatic{
 			cufftHandle & current_cufft_plan                   = cuda_pars.cufftPlans[stream_count];
 
 			// launch a new thread
-			workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
+				workers_GPU.push_back(thread([&pars, current_trans_d, current_PsiProbeInit_d, current_alphaInd_d, &dispatcher,
 					                             current_psi_ds, current_psiIntensity_ds, current_integratedOutput_ds,
 					                             GPU_num, current_qya_d, current_qxa_d, current_output_ph, &current_cufft_plan,
 					                             current_prop_d, &current_stream, &psi_size, stream_count, &PRISMATIC_PRINT_FREQUENCY_PROBES, &cuda_pars]() {
