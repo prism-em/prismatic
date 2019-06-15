@@ -98,6 +98,14 @@ namespace Prismatic {
 	bool testFilenameOutput(const std::string& filename);
 	int testWrite(const std::string& filename);
     int testExist(const std::string& filename);
+
+	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars);
+
+	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers);
+
+	void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION* buffer, const hsize_t* mdims);
+
+	void writeDatacube4D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION* buffer, const hsize_t* mdims, const hsize_t* offset);
 }
 
 #endif //PRISMATIC_UTILITY_H

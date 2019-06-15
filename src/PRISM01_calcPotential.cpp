@@ -220,8 +220,27 @@ namespace Prismatic {
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
 
 		if(pars.meta.savePotentialSlices){
-			std::string file_name = pars.meta.outputFolder + "potential_slices.mrc";
-			pars.pot.toMRC_f(file_name.c_str());
+			//create new datacube group
+			H5::Group datacubes = pars.outputFile.openGroup("data/datacubes");
+			H5::Group potSlices(datacubes.createGroup("potential_slices"));
+
+			hsize_t attr_dims[1] = {1};
+			H5::DataSpace attr_dataspace(1,attr_dims);
+			H5::Attribute emd_group_type = potSlices.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+
+			int group_type[1] = {1};
+			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);
+
+			//create dataset
+			hsize_t dataDims[3] = {pars.numPlanes, pars.imageSize[0], pars.imageSize[1]};
+			H5::DataSpace mspace(3,dataDims);
+			H5::DataSet potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);
+
+			//write to group
+			writeDatacube3D(potSliceData,&pars.pot[0],dataDims);
+			mspace.close();
+			potSliceData.close();
+			//pars.pot.toMRC_f(file_name.c_str());
 		}
 
 	}

@@ -19,6 +19,7 @@
 #include "PRISM01_calcPotential.h"
 #include "PRISM02_calcSMatrix.h"
 #include <algorithm>
+#include "utility.h"
 
 
 namespace Prismatic{
@@ -32,10 +33,13 @@ namespace Prismatic{
 		}
 		prismatic_pars.meta.toString();
 
+		prismatic_pars.outputFile = H5::H5File(prismatic_pars.filenameOutput.c_str(),H5F_ACC_TRUNC);
+		setupOutputFile(prismatic_pars);
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);
 
 		// compute final output
+		
 		Multislice_calcOutput(prismatic_pars);
 
 		// calculate remaining frozen phonon configurations

@@ -22,6 +22,8 @@
 #include "PRISM02_calcSMatrix.h"
 #include "PRISM03_calcOutput.h"
 #include "params.h"
+#include "H5Cpp.h"
+#include "utility.h"
 
 
 namespace Prismatic{
@@ -37,7 +39,9 @@ namespace Prismatic{
 		prismatic_pars.meta.toString();
 
 //        to_xyz(prismatic_pars.atoms, "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.XYZ", "comment", 5.43,5.43,5.43);
-
+		
+		prismatic_pars.outputFile = H5::H5File(prismatic_pars.filenameOutput.c_str(),H5F_ACC_TRUNC);
+		setupOutputFile(prismatic_pars);
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);
 

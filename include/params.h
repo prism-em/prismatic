@@ -70,6 +70,8 @@ namespace Prismatic{
 	    Array2D<T> q1;
         Array1D<T> xp;
         Array1D<T> yp;
+		Array1D<T> qx;
+		Array1D<T> qy;
         std::vector<size_t> beamsIndex;
 	    Prismatic::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D<T> beams;

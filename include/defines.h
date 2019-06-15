@@ -39,6 +39,7 @@ namespace Prismatic {
 #include <cstdio>
 #include <cstdlib>
 #include "cufft.h"
+#include "H5Cpp.h"
 
 //#define BLOCK_SIZE1D 1024
 #define BLOCK_SIZE1D 512

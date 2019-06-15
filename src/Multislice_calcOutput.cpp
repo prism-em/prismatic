@@ -49,13 +49,14 @@ namespace Prismatic{
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
+		/*
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
 			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
 			std::string y_name = pars.meta.outputFolder + "real_space_y.mrc";
 			real_mesh.first.toMRC_f(x_name.c_str());
 			real_mesh.second.toMRC_f(y_name.c_str());
-		}
+		} */
 		
 		pars.xp = xp;
 		pars.yp = yp;
@@ -63,7 +64,9 @@ namespace Prismatic{
 		pars.imageSize[1] = pars.pot.get_dimi();
 		Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 		Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
-
+		pars.qx = qx;
+		pars.qy = qy;
+		
 		pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
 		pars.qya = mesh.first;
 		pars.qxa = mesh.second;
@@ -197,6 +200,8 @@ namespace Prismatic{
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
+
+		//set up
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
