@@ -498,8 +498,8 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		//Need to scale the output by the square of the PRISM interpolation factor 
 		currentImage *= pars.scale;
 		std::stringstream nameString;
-		nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
-
+		nameString << "/4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+		
 		H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 

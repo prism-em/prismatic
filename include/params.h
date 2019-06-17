@@ -105,6 +105,7 @@ namespace Prismatic{
 		size_t zStartPlane;
 	    size_t numberBeams;
 		H5::H5File outputFile;
+		size_t fpFlag; //flag to prevent creation of new HDF5 files
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG

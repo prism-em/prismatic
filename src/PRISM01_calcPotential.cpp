@@ -223,7 +223,8 @@ namespace Prismatic {
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
 			H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
-			H5::Group potSlices(datacubes.createGroup("potential_slices"));
+			std::string groupName = "potential_slices_FP" + std::to_string(pars.fpFlag);
+			H5::Group potSlices(datacubes.createGroup(groupName));
 
 			hsize_t attr_dims[1] = {1};
 			H5::DataSpace attr_dataspace(1,attr_dims);

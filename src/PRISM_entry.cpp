@@ -43,6 +43,7 @@ namespace Prismatic{
 		prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
 		setupOutputFile(prismatic_pars);
 		// compute projected potentials
+		prismatic_pars.fpFlag = 0;
 		PRISM01_calcPotential(prismatic_pars);
 
 //		prismatic_pars.pot.toMRC_f("debug_potential.mrc");
@@ -68,6 +69,7 @@ namespace Prismatic{
 
 		// compute final output
 		PRISM03_calcOutput(prismatic_pars);
+		prismatic_pars.outputFile.close();
 
 		// calculate remaining frozen phonon configurations
         if (prismatic_pars.meta.numFP > 1) {
@@ -79,18 +81,35 @@ namespace Prismatic{
 				Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars(meta);
                 cout << "Frozen Phonon #" << fp_num << endl;
 	            prismatic_pars.meta.toString();
+
+				prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+				prismatic_pars.fpFlag = fp_num;
+
 	        	PRISM01_calcPotential(prismatic_pars);
 	        	PRISM02_calcSMatrix(prismatic_pars);
                 PRISM03_calcOutput(prismatic_pars);
                 net_output += prismatic_pars.output;
+				prismatic_pars.outputFile.close();
             }
             // divide to take average
             for (auto&i:net_output) i/=prismatic_pars.meta.numFP;
 	        prismatic_pars.output = net_output;
         }
+
+		prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+
         if (prismatic_pars.meta.save3DOutput){
+			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(),dummy);
 			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimi()}});
 			
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/virtual_detector_slice" << 0;
+			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+			H5::DataSet VD_data = dataGroup.openDataSet("datacube");
+			hsize_t offset[3] = {0,0,0};
+			hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),prismatic_pars.Ndet};
+
 			for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
 				for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
 					for (auto b = 0; b < prismatic_pars.output.get_dimi(); ++b){
@@ -98,8 +117,12 @@ namespace Prismatic{
 					}
 				}
 			}
-			std::string image_filename = prismatic_pars.meta.outputFolder + prismatic_pars.meta.filenameOutput;
-			output_image.toMRC_f(image_filename.c_str());
+			//std::string image_filename = prismatic_pars.meta.outputFolder + prismatic_pars.meta.filenameOutput;
+			//output_image.toMRC_f(image_filename.c_str());
+			writeDatacube3D(VD_data,&output_image[0],mdims);
+
+			VD_data.close();
+			dataGroup.close();
 		}
 
 		if (prismatic_pars.meta.save2DOutput) {
@@ -118,6 +141,8 @@ namespace Prismatic{
 			std::string image_filename = prismatic_pars.meta.outputFolder + std::string("prism_2Doutput_") + prismatic_pars.meta.filenameOutput;
 			prism_image.toMRC_f(image_filename.c_str());
 		}
+
+		prismatic_pars.outputFile.close();
 
 #ifdef PRISMATIC_ENABLE_GPU
 		cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
