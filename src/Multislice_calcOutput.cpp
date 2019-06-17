@@ -198,9 +198,10 @@ namespace Prismatic{
 		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
-
+		if(pars.meta.save4DOutput) setup4DOutput(pars, numLayers, dummy);
 		//set up
 	}
 
@@ -231,8 +232,22 @@ namespace Prismatic{
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			intOutput_small.toMRC_f(section4DFilename.c_str());
+			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+
+			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset);
+
+			CBED_data.close();
+			dataGroup.close();
+
+			//intOutput_small.toMRC_f(section4DFilename.c_str());
 		}
 
 		if (pars.meta.saveDPC_CoM){
@@ -301,8 +316,21 @@ namespace Prismatic{
 
 			//save 4D output if applicable
 			if (pars.meta.save4DOutput) {
-				std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-				intOutput_small.toMRC_f(section4DFilename.c_str());
+				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+				std::stringstream nameString;
+				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+
+				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+				hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+
+				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset);
+
+				CBED_data.close();
+				dataGroup.close();
+				//intOutput_small.toMRC_f(section4DFilename.c_str());
 			}
 
 			if (pars.meta.saveDPC_CoM){

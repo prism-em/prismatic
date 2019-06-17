@@ -101,11 +101,17 @@ namespace Prismatic {
 
 	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars);
 
-	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers);
+	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
 
-	void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION* buffer, const hsize_t* mdims);
+	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
 
-	void writeDatacube4D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION* buffer, const hsize_t* mdims, const hsize_t* offset);
+	void writeDatacube3D(H5::DataSet dataset, const float* buffer, const hsize_t* mdims);
+
+	void writeDatacube3D(H5::DataSet dataset, const double* buffer, const hsize_t* mdims);
+
+	void writeDatacube4D(H5::DataSet dataset, float* buffer, const hsize_t* mdims, const hsize_t* offset);
+	
+	void writeDatacube4D(H5::DataSet dataset, double* buffer, const hsize_t* mdims, const hsize_t* offset);
 }
 
 #endif //PRISMATIC_UTILITY_H

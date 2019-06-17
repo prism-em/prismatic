@@ -70,6 +70,10 @@ find_package (Boost REQUIRED)
 find_package (FFTW3 REQUIRED)
 find_package (HDF5 REQUIRED)
 
+if (UNIX)
+    set(HDF5_LIBRARIES ${HDF5_LIBRARIES})
+endif (UNIX)
+
 
 message("Boost dir " ${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
@@ -146,7 +150,8 @@ if (PRISMATIC_ENABLE_CLI)
     target_link_libraries(prismatic
         		   ${CMAKE_THREAD_LIBS_INIT}
 #        		   ${Boost_LIBRARY_DIRS}
-        		   ${FFTW_LIBRARIES})
+                   ${FFTW_LIBRARIES}
+                   ${HDF5_LIBRARIES})
 endif (PRISMATIC_ENABLE_CLI)
 
 if(APPLE)
@@ -192,7 +197,8 @@ if (PRISMATIC_ENABLE_GUI)
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
 #                                ${Boost_LIBRARY_DIRS}
-                                ${FFTW_LIBRARIES})
+                                ${FFTW_LIBRARIES}
+                                ${HDF5_LIBRARIES})
         cuda_add_cufft_to_target(prismatic-gui)
     else (PRISMATIC_ENABLE_GPU)
         add_executable(prismatic-gui
@@ -203,7 +209,8 @@ if (PRISMATIC_ENABLE_GUI)
                                 Qt5::Widgets
                                 ${CMAKE_THREAD_LIBS_INIT}
 #                                ${Boost_LIBRARY_DIRS}
-                                ${FFTW_LIBRARIES})
+                                ${FFTW_LIBRARIES}
+                                ${HDF5_LIBRARIES})
     endif (PRISMATIC_ENABLE_GPU)
     target_compile_definitions(prismatic-gui PRIVATE PRISMATIC_BUILDING_GUI=1)
 
@@ -228,7 +235,7 @@ if (PRISMATIC_ENABLE_PYTHON_GPU AND PRISMATIC_ENABLE_GPU)
                      ${CUDA_SOURCE_FILES})
     cuda_add_cufft_to_target(cuprismatic)
     target_link_libraries(cuprismatic
-	    		          ${FFTW_LIBRARIES})
+                          ${FFTW_LIBRARIES})
     target_compile_definitions(cuprismatic PRIVATE PRISMATIC_ENABLE_GPU=1 BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
     install(TARGETS cuprismatic
 	        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib

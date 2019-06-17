@@ -40,7 +40,7 @@ namespace Prismatic{
 
 //        to_xyz(prismatic_pars.atoms, "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.XYZ", "comment", 5.43,5.43,5.43);
 		
-		prismatic_pars.outputFile = H5::H5File(prismatic_pars.filenameOutput.c_str(),H5F_ACC_TRUNC);
+		prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
 		setupOutputFile(prismatic_pars);
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);

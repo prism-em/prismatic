@@ -25,6 +25,7 @@
 #include "ArrayND.h"
 #include "projectedPotential.h"
 #include "WorkDispatcher.h"
+#include "utility.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -221,7 +222,7 @@ namespace Prismatic {
 
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
-			H5::Group datacubes = pars.outputFile.openGroup("data/datacubes");
+			H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
 			H5::Group potSlices(datacubes.createGroup("potential_slices"));
 
 			hsize_t attr_dims[1] = {1};
@@ -234,7 +235,14 @@ namespace Prismatic {
 			//create dataset
 			hsize_t dataDims[3] = {pars.numPlanes, pars.imageSize[0], pars.imageSize[1]};
 			H5::DataSpace mspace(3,dataDims);
-			H5::DataSet potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);
+
+			H5::DataSet potSliceData;
+			//switch between float and double, maybe not the best way to do so
+			if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+				potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);
+			}else{
+				potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_DOUBLE,mspace);
+			}
 
 			//write to group
 			writeDatacube3D(potSliceData,&pars.pot[0],dataDims);

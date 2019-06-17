@@ -12,8 +12,10 @@
 //	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
 #include "utility.cuh"
+#include "utility.h"
 #include "cuComplex.h"
 #include <iostream>
+#include <sstream>
 
 #define PI 3.14159265359
 // define some constants
@@ -483,19 +485,29 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		// This section could be improved. It currently makes a new 2D array, copies to it, and
 		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
 		// memory isn't pinned, so the memcpy is not asynchronous.
-		std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+		//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+		
 		Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> currentImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 		cudaErrchk(cudaMemcpyAsync(&currentImage[0],
 		                           psiIntensity_ds,
 		                           pars.psiProbeInit.size() * sizeof(PRISMATIC_FLOAT_PRECISION),
 		                           cudaMemcpyDeviceToHost,
-		                           stream));
+								   stream));
+								   
 		//Need to scale the output by the square of the PRISM interpolation factor 
 		currentImage *= pars.scale;
+		std::stringstream nameString;
+		nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+
+		H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
 		
+
 		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
-            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>  finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
             {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
             {
                 long offset_x = pars.psiProbeInit.get_dimi() / 4;
@@ -505,14 +517,23 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                 for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
                     for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
                         finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-                                                    ((x - offset_x) % ndimx + ndimx) % ndimx);
+													((x - offset_x) % ndimx + ndimx) % ndimx);
+													
                     }
                 }
 			}
-		finalImage.toMRC_f(section4DFilename.c_str());
+
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+			Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset);
+			//finalImage.toMRC_f(section4DFilename.c_str());
         }else{                     
-		currentImage.toMRC_f(section4DFilename.c_str());
-        }
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj(),pars.psiProbeInit.get_dimi()};
+			Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset);
+			//currentImage.toMRC_f(section4DFilename.c_str());
+		}
+		
+		CBED_data.close();
+		dataGroup.close();
 	}
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 

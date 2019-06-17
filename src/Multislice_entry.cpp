@@ -33,13 +33,13 @@ namespace Prismatic{
 		}
 		prismatic_pars.meta.toString();
 
-		prismatic_pars.outputFile = H5::H5File(prismatic_pars.filenameOutput.c_str(),H5F_ACC_TRUNC);
+		prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
 		setupOutputFile(prismatic_pars);
 		// compute projected potentials
 		PRISM01_calcPotential(prismatic_pars);
 
+		prismatic_pars.scale = 1.0;
 		// compute final output
-		
 		Multislice_calcOutput(prismatic_pars);
 
 		// calculate remaining frozen phonon configurations

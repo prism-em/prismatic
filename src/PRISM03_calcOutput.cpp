@@ -131,7 +131,10 @@ namespace Prismatic {
 		// create output of a size corresponding to 3D mode (integration)
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		size_t numLayers = 1;
+		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1,pars.yp.size(),pars.xp.size(),2}});
+		if(pars.meta.save4DOutput) setup4DOutput(pars, numLayers, dummy);
 	}
 
 	void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
@@ -143,6 +146,20 @@ namespace Prismatic {
 		pars.qyaReduce = array2D_subset(pars.qyaOutput,
 		                                0, pars.meta.interpolationFactorY, pars.qyaOutput.get_dimj(),
 		                                0, pars.meta.interpolationFactorX, pars.qyaOutput.get_dimi());
+
+		//grabbing 1D vector of fourier coordinates for output storage
+		Array1D<PRISMATIC_FLOAT_PRECISION> qx = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxaReduce.get_dimi()}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> qy = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qyaReduce.get_dimj()}});
+		for(auto i = 0; i < pars.qxaReduce.get_dimi(); i++) qx[i] = pars.qxaReduce.at(0,i);
+		for(auto j = 0; j < pars.qyaReduce.get_dimj(); j++) qy[j] = pars.qyaReduce.at(j,0);
+
+		std::cout << "Reduce size: " << pars.qxaReduce.get_dimi() << std::endl;
+
+		std::cout << "qx 0: " << qx[1] << std::endl;
+		std::cout << "qy 0: " << qy[1] << std::endl;
+		pars.qx = qx;
+		pars.qy = qy;
+		
 		pars.q1 = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 		pars.q2 = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 	}
@@ -342,8 +359,21 @@ namespace Prismatic {
 
         //save 4D output if applicable
          if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, 0, ay, ax);
-			intOutput.toMRC_f(section4DFilename.c_str());
+			//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << 0;
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,intOutput.get_dimi(),intOutput.get_dimj()};
+
+			writeDatacube4D(CBED_data, &intOutput[0],mdims,offset);
+
+			CBED_data.close();
+			dataGroup.close();
+			//intOutput.toMRC_f(section4DFilename.c_str());
 		}
 
 		if (pars.meta.saveDPC_CoM){
