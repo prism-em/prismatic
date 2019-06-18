@@ -93,6 +93,9 @@ namespace Prismatic {
 	PRISMATIC_FLOAT_PRECISION computeRfactor(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
 	                                     Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
 
+	
+	int nyquistProbes(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION > pars, size_t dim);
+
 	std::string remove_extension(const std::string& filename);
 
 	bool testFilenameOutput(const std::string& filename);

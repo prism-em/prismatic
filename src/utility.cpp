@@ -103,6 +103,11 @@ namespace Prismatic {
 		return diffs / accum;
 	}
 
+	int nyquistProbes(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, size_t dim){
+		int nProbes = ceil(4*(pars.meta.probeSemiangle / pars.lambda) * pars.tiledCellDim[dim])
+		return nProbes;
+	}
+
 	std::string remove_extension(const std::string& filename) {
       size_t lastdot = filename.find_last_of(".");
       if (lastdot == std::string::npos) return filename;

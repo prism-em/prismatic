@@ -91,6 +91,7 @@ namespace Prismatic{
 			integrationAngleMin   = 0;
 			integrationAngleMax   = detectorAngleStep;
 			transferMode          = StreamingMode::Auto;
+			nyquistSampling		  = false;
 		}
 		size_t interpolationFactorY; // PRISM f_y parameter
 		size_t interpolationFactorX; // PRISM f_x parameter
@@ -149,6 +150,7 @@ namespace Prismatic{
 		bool userSpecifiedCelldims;
 		bool realSpaceWindow_x;
 		bool realSpaceWindow_y;
+		bool nyquistSampling;
 		StreamingMode transferMode;
 
 	};
@@ -253,6 +255,11 @@ namespace Prismatic{
 		} else {
 			std::cout << "savePotentialSlices= false" << std::endl;
 		}
+		if (nyquistSampling) {
+			std::cout << "nyquistSampling = true" << std::endl;
+		}else{
+			std::cout << "nyquistSampling = false" << std::endl;
+		}
 
 
 #ifdef PRISMATIC_ENABLE_GPU
@@ -322,6 +329,7 @@ namespace Prismatic{
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
 		if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
 		if(realSpaceWindow_y != other.realSpaceWindow_y)return false;
+		if(nyquistSampling != other.nyquistSampling)return false;
 		return true;
 	}
 

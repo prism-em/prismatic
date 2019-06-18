@@ -42,7 +42,17 @@ namespace Prismatic{
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
-
+		PRISMATIC_FLOAT_PRECISION probeStepX;
+		PRISMATIC_FLOAT_PRECISION probeStepY;
+		if(pars.meta.nyquistSampling){
+			int numX = nyquistProbes(pars,2); //x is dim 2
+			int numY = nyquistProbes(pars,1); //y is dim 1
+			probeStepX = pars.tiledCellDim[2]/numX;
+			probeStepY = pars.tiledCellDim[1]/numY;
+		}else{
+			probeStepX = pars.meta.probeStepX;
+			probeStepY = pars.meta.probeStepY;
+		}
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
 		
