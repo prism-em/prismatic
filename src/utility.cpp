@@ -193,7 +193,7 @@ namespace Prismatic {
 		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
 
 		//shared properties 
-		std::string base_name = "CBED_array_slice";
+		std::string base_name = "CBED_array_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[4];
 		data_dims[0] = {pars.xp.size()};
@@ -301,7 +301,7 @@ namespace Prismatic {
 		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
 
 		//shared properties 
-		std::string base_name = "CBED_array_slice";
+		std::string base_name = "CBED_array_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[4];
 		data_dims[0] = {pars.xp.size()};
@@ -407,7 +407,7 @@ namespace Prismatic {
 		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
 
 		//shared properties 
-		std::string base_name = "virtual_detector_slice";
+		std::string base_name = "virtual_detector_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
@@ -421,17 +421,17 @@ namespace Prismatic {
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
 			std::string nth_name = base_name + std::to_string(n);
-			H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
+			H5::Group VD_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
 			H5::DataSpace attr_dataspace(1,attr_dims);
-			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 			int group_type[1] = {1};
 			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
-			H5::DataSet CBED_data = CBED_slice_n.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);			
+			H5::DataSet CBED_data = VD_slice_n.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);			
 			mspace.close();
 
 			//write dimensions
@@ -444,9 +444,9 @@ namespace Prismatic {
 			H5::DataSpace dim2_mspace(1,ry_dim);
 			//H5::DataSpace dim3_mspace(1,qx_dim);
 
-			H5::DataSet dim1 = CBED_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
-			H5::DataSet dim2 = CBED_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
-			//H5::DataSet dim3 = CBED_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
+			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			//H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -481,7 +481,7 @@ namespace Prismatic {
 			dim2_unit.write(strdatatype,dim2_unit_str);
 			//dim3_unit.write(strdatatype,dim3_unit_str);
 
-			CBED_slice_n.close();
+			VD_slice_n.close();
 		}
 
 		datacubes.close();
@@ -491,7 +491,7 @@ namespace Prismatic {
 		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
 
 		//shared properties 
-		std::string base_name = "virtual_detector_slice";
+		std::string base_name = "virtual_detector_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
@@ -505,17 +505,17 @@ namespace Prismatic {
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
 			std::string nth_name = base_name + std::to_string(n);
-			H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
+			H5::Group VD_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
 			H5::DataSpace attr_dataspace(1,attr_dims);
-			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 			int group_type[1] = {1};
 			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
-			H5::DataSet CBED_data = CBED_slice_n.createDataSet("datacube",H5::PredType::NATIVE_DOUBLE,mspace);			
+			H5::DataSet CBED_data = VD_slice_n.createDataSet("datacube",H5::PredType::NATIVE_DOUBLE,mspace);			
 			mspace.close();
 
 			//write dimensions
@@ -528,9 +528,9 @@ namespace Prismatic {
 			H5::DataSpace dim2_mspace(1,ry_dim);
 			//H5::DataSpace dim3_mspace(1,qx_dim);
 
-			H5::DataSet dim1 = CBED_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
-			H5::DataSet dim2 = CBED_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
-			//H5::DataSet dim3 = CBED_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
+			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			//H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -565,7 +565,7 @@ namespace Prismatic {
 			dim2_unit.write(strdatatype,dim2_unit_str);
 			//dim3_unit.write(strdatatype,dim3_unit_str);
 
-			CBED_slice_n.close();
+			VD_slice_n.close();
 		}
 
 		datacubes.close();
@@ -575,7 +575,7 @@ namespace Prismatic {
 		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
 
 		//shared properties 
-		std::string base_name = "annular_detector_slice";
+		std::string base_name = "annular_detector_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[2];
 		data_dims[0] = {pars.xp.size()};
@@ -588,17 +588,17 @@ namespace Prismatic {
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
 			std::string nth_name = base_name + std::to_string(n);
-			H5::Group CBED_slice_n(realslices.createGroup(nth_name.c_str()));
+			H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
 			H5::DataSpace attr_dataspace(1,attr_dims);
-			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 			int group_type[1] = {1};
 			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(2,data_dims); //rank is 3
-			H5::DataSet CBED_data = CBED_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);			
+			H5::DataSet CBED_data = annular_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);			
 			mspace.close();
 
 			//write dimensions
@@ -608,8 +608,8 @@ namespace Prismatic {
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
 
-			H5::DataSet dim1 = CBED_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
-			H5::DataSet dim2 = CBED_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim1 = annular_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = annular_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -636,7 +636,7 @@ namespace Prismatic {
 			dim1_unit.write(strdatatype,dim1_unit_str);
 			dim2_unit.write(strdatatype,dim2_unit_str);
 
-			CBED_slice_n.close();
+			annular_slice_n.close();
 		}
 
 		realslices.close();
@@ -646,7 +646,7 @@ namespace Prismatic {
 		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
 
 		//shared properties 
-		std::string base_name = "annular_detector_slice";
+		std::string base_name = "annular_detector_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[2];
 		data_dims[0] = {pars.xp.size()};
@@ -659,17 +659,17 @@ namespace Prismatic {
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
 			std::string nth_name = base_name + std::to_string(n);
-			H5::Group CBED_slice_n(realslices.createGroup(nth_name.c_str()));
+			H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
 			H5::DataSpace attr_dataspace(1,attr_dims);
-			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 			int group_type[1] = {1};
 			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(2,data_dims); //rank is 2
-			H5::DataSet CBED_data = CBED_slice_n.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);			
+			H5::DataSet CBED_data = annular_slice_n.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);			
 			mspace.close();
 
 			//write dimensions
@@ -679,8 +679,8 @@ namespace Prismatic {
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
 
-			H5::DataSet dim1 = CBED_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
-			H5::DataSet dim2 = CBED_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim1 = annular_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = annular_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -707,12 +707,180 @@ namespace Prismatic {
 			dim1_unit.write(strdatatype,dim1_unit_str);
 			dim2_unit.write(strdatatype,dim2_unit_str);
 
-			CBED_slice_n.close();
+			annular_slice_n.close();
 		}
 
 		realslices.close();
 	};
 
+	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy){
+		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
+
+		//shared properties 
+		std::string base_name = "DPC_CoM_depth";
+		hsize_t attr_dims[1] = {1};
+		hsize_t data_dims[3];
+		data_dims[0] = {pars.xp.size()};
+		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {2};
+
+		hsize_t rx_dim[1] = {pars.xp.size()};
+		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t measure[1]= {2};
+
+		for(auto n = 0; n < numLayers; n++){
+			//create slice group
+			std::string nth_name = base_name + std::to_string(n);
+			H5::Group DPC_CoM_slicen(datacubes.createGroup(nth_name.c_str()));
+			
+			//write group type attribute
+			H5::DataSpace attr_dataspace(1,attr_dims);
+			H5::Attribute emd_group_type = DPC_CoM_slicen.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			int group_type[1] = {1};
+			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+
+			//create dataset
+			H5::DataSpace mspace(3,data_dims); //rank is 3
+			H5::DataSet CBED_data = DPC_CoM_slicen.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);			
+			mspace.close();
+
+			//write dimensions
+			H5::DataSpace str_name_ds(H5S_SCALAR);
+			H5::StrType strdatatype(H5::PredType::C_S1,256);
+
+			H5::DataSpace dim1_mspace(1,rx_dim);
+			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,measure);
+
+			H5::DataSet dim1 = DPC_CoM_slicen.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = DPC_CoM_slicen.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim3 = DPC_CoM_slicen.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
+
+			H5::DataSpace dim1_fspace = dim1.getSpace();
+			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
+
+			PRISMATIC_FLOAT_PRECISION dim_data[2] = {0,1};
+
+			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
+			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
+			dim3.write(&dim_data[0],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
+			
+			//dimension attributes
+			const H5std_string dim1_name_str("R_x");
+			const H5std_string dim2_name_str("R_y");
+			const H5std_string dim3_name_str("direction");
+
+			H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim3_name = dim3.createAttribute("name",strdatatype,str_name_ds);
+
+			dim1_name.write(strdatatype,dim1_name_str);
+			dim2_name.write(strdatatype,dim2_name_str);
+			dim3_name.write(strdatatype,dim3_name_str);
+
+			const H5std_string dim1_unit_str("[n_m]");
+			const H5std_string dim2_unit_str("[n_m]");
+			const H5std_string dim3_unit_str("[---]");
+
+			H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim3_unit = dim3.createAttribute("units",strdatatype,str_name_ds);
+
+			dim1_unit.write(strdatatype,dim1_unit_str);
+			dim2_unit.write(strdatatype,dim2_unit_str);
+			dim3_unit.write(strdatatype,dim3_unit_str);
+
+			DPC_CoM_slicen.close();
+		}
+
+		datacubes.close();
+	};
+
+	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy){
+		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
+
+		//shared properties 
+		std::string base_name = "DPC_CoM_depth";
+		hsize_t attr_dims[1] = {1};
+		hsize_t data_dims[3];
+		data_dims[0] = {pars.xp.size()};
+		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {2};
+
+		hsize_t rx_dim[1] = {pars.xp.size()};
+		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t measure[1]= {2};
+
+		for(auto n = 0; n < numLayers; n++){
+			//create slice group
+			std::string nth_name = base_name + std::to_string(n);
+			H5::Group DPC_CoM_slicen(datacubes.createGroup(nth_name.c_str()));
+			
+			//write group type attribute
+			H5::DataSpace attr_dataspace(1,attr_dims);
+			H5::Attribute emd_group_type = DPC_CoM_slicen.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			int group_type[1] = {1};
+			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+
+			//create dataset
+			H5::DataSpace mspace(3,data_dims); //rank is 3
+			H5::DataSet CBED_data = DPC_CoM_slicen.createDataSet("datacube",H5::PredType::NATIVE_DOUBLE,mspace);			
+			mspace.close();
+
+			//write dimensions
+			H5::DataSpace str_name_ds(H5S_SCALAR);
+			H5::StrType strdatatype(H5::PredType::C_S1,256);
+
+			H5::DataSpace dim1_mspace(1,rx_dim);
+			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,measure);
+
+			H5::DataSet dim1 = DPC_CoM_slicen.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+			H5::DataSet dim2 = DPC_CoM_slicen.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim3 = DPC_CoM_slicen.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
+
+			H5::DataSpace dim1_fspace = dim1.getSpace();
+			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
+
+			PRISMATIC_FLOAT_PRECISION dim_data[2] = {0,1};
+
+			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
+			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
+			dim3.write(&dim_data[0],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
+			
+			//dimension attributes
+			const H5std_string dim1_name_str("R_x");
+			const H5std_string dim2_name_str("R_y");
+			const H5std_string dim3_name_str("direction");
+
+			H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim3_name = dim3.createAttribute("name",strdatatype,str_name_ds);
+
+			dim1_name.write(strdatatype,dim1_name_str);
+			dim2_name.write(strdatatype,dim2_name_str);
+			dim3_name.write(strdatatype,dim3_name_str);
+
+			const H5std_string dim1_unit_str("[n_m]");
+			const H5std_string dim2_unit_str("[n_m]");
+			const H5std_string dim3_unit_str("[---]");
+
+			H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim3_unit = dim3.createAttribute("units",strdatatype,str_name_ds);
+
+			dim1_unit.write(strdatatype,dim1_unit_str);
+			dim2_unit.write(strdatatype,dim2_unit_str);
+			dim3_unit.write(strdatatype,dim3_unit_str);
+
+			DPC_CoM_slicen.close();
+		}
+
+		datacubes.close();
+	};
+	
 	void writeDatacube3D(H5::DataSet dataset, const float* buffer, const hsize_t* mdims){
 		//set up file and memory spaces
 		H5::DataSpace fspace = dataset.getSpace(); //all 3D cubes will write full buffer at once
@@ -736,42 +904,62 @@ namespace Prismatic {
 	};
 
 	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-	void writeDatacube4D(H5::DataSet dataset, float* buffer, const hsize_t* mdims, const hsize_t* offset){
+	void writeDatacube4D(H5::DataSet dataset, float* buffer, const hsize_t* mdims, const hsize_t* offset, const float numFP){
 		//set up file and memory spaces
 		H5::DataSpace fspace = dataset.getSpace();
 		H5::DataSpace mspace(4,mdims); //rank = 4
 		
 		fspace.selectHyperslab(H5S_SELECT_SET,mdims,offset);
 
+		//divide by num FP
+		for(auto i = 0; i < mdims[0]*mdims[1]*mdims[2]*mdims[3]; i++) buffer[i] /= numFP;
+
+		//add frozen phonon set
 		float* readBuffer = (float*) malloc(mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(float));
 		dataset.read(&readBuffer[0],H5::PredType::NATIVE_FLOAT,mspace,fspace);
-		
-		//add frozen phonon set
 		for(auto i = 0; i < mdims[0]*mdims[1]*mdims[2]*mdims[3]; i++) buffer[i] += readBuffer[i];
 		free(readBuffer);
 
-		dataset.write(buffer,H5::PredType::NATIVE_FLOAT,mspace,fspace);
+		//restride the dataset so that qx and qy are flipped
+		float* finalBuffer = (float*) mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(float));
+		for(auto i = 0; i < mdims[2]; i++){
+			for(auto j = 0; j < mdims[3]; j++){
+				finalBuffer[i*mdims[3]+j] = buffer[j*mdims[2]+i];
+			}
+		}
 
+		dataset.write(finalBuffer,H5::PredType::NATIVE_FLOAT,mspace,fspace);
+		free(finalBuffer);
 		fspace.close();
 		mspace.close();
 	};
 
-	void writeDatacube4D(H5::DataSet dataset, double* buffer, const hsize_t* mdims, const hsize_t* offset){
+	void writeDatacube4D(H5::DataSet dataset, double* buffer, const hsize_t* mdims, const hsize_t* offset, const double numFP){
 		//set up file and memory spaces
 		H5::DataSpace fspace = dataset.getSpace();
 		H5::DataSpace mspace(4,mdims); //rank = 4
 		
 		fspace.selectHyperslab(H5S_SELECT_SET,mdims,offset);
 
-		double * readBuffer = (double*) malloc(mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(double));
-		dataset.read(&readBuffer[0],H5::PredType::NATIVE_DOUBLE,mspace,fspace);
+		//divide by num FP
+		for(auto i = 0; i < mdims[0]*mdims[1]*mdims[2]*mdims[3]; i++) buffer[i] /= numFP;
 
 		//add frozen phonon set
+		double * readBuffer = (double*) malloc(mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(double));
+		dataset.read(&readBuffer[0],H5::PredType::NATIVE_DOUBLE,mspace,fspace);
 		for(auto i = 0; i < mdims[0]*mdims[1]*mdims[2]*mdims[3]; i++) buffer[i] += readBuffer[i];
 		free(readBuffer);
 
-		dataset.write(buffer,H5::PredType::NATIVE_DOUBLE,mspace,fspace);
+		//restride the dataset so that qx and qy are flipped
+		double* finalBuffer = (double*) mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(double));
+		for(auto i = 0; i < mdims[2]; i++){
+			for(auto j = 0; j < mdims[3]; j++){
+				finalBuffer[i*mdims[3]+j] = buffer[j*mdims[2]+i];
+			}
+		}
 
+		dataset.write(finalBuffer,H5::PredType::NATIVE_DOUBLE,mspace,fspace);
+		free(finalBuffer);
 		fspace.close();
 		mspace.close();
 	};

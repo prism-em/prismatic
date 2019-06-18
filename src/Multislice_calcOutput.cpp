@@ -234,15 +234,15 @@ namespace Prismatic{
 		if (pars.meta.save4DOutput) {
 			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << currentSlice;
 
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
 			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-
-			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset);
+			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
 
 			CBED_data.close();
 			dataGroup.close();
@@ -318,15 +318,15 @@ namespace Prismatic{
 			if (pars.meta.save4DOutput) {
 				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 				std::stringstream nameString;
-				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << currentSlice;
 
 				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
 				hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-
-				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset);
+				PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
 
 				CBED_data.close();
 				dataGroup.close();

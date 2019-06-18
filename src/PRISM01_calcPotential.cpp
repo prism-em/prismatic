@@ -222,34 +222,127 @@ namespace Prismatic {
 
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
-			H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
-			std::string groupName = "potential_slices_FP" + std::to_string(pars.fpFlag);
-			H5::Group potSlices(datacubes.createGroup(groupName));
+			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+			std::string groupName = "ppotential_slice";
 
-			hsize_t attr_dims[1] = {1};
-			H5::DataSpace attr_dataspace(1,attr_dims);
-			H5::Attribute emd_group_type = potSlices.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+			for(auto Z = 0; Z < pars.numPlanes; Z++){
+				groupName = groupName + std::to_string(Z);
 
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);
+				//read in potential array and stride; also, divide by number of FP to do averaging
+				Array2D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1],imageSize[0]}});
+				for(auto x = 0; x < pars.imageSize[1]; x++){
+					for(auto y = 0; y < pars.imageSize[0]; y++){
+						writeBuffer.at(x,y) = pars.pot.at(Z,y,x)/pars.meta.numFP;
+					}
+				}
 
-			//create dataset
-			hsize_t dataDims[3] = {pars.numPlanes, pars.imageSize[0], pars.imageSize[1]};
-			H5::DataSpace mspace(3,dataDims);
+				H5::DataSet potSliceData; //declare out here to avoid scoping
+				if(pars.fpFlag > 0){
+					H5::Group potSlices(realslices.createGroup(groupName));
+					hsize_t attr_dims[1] = {1};
+					H5::DataSpace attr_dataspace(1,attr_dims);
+					H5::Attribute emd_group_type = potSlices.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 
-			H5::DataSet potSliceData;
-			//switch between float and double, maybe not the best way to do so
-			if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
-				potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_FLOAT,mspace);
-			}else{
-				potSliceData = potSlices.createDataSet("datacube",H5::PredType::NATIVE_DOUBLE,mspace);
+					int group_type[1] = {1};
+					emd_group_type.write(H5::PredType::NATIVE_INT, group_type);
+
+					//create dataset
+					//imageSize[1] is the x dimension
+					hsize_t dataDims[2] = {pars.imageSize[1], pars.imageSize[0]};
+					H5::DataSpace mspace(2,dataDims);
+
+					//switch between float and double, maybe not the best way to do so
+					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+						potSliceData = potSlices.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
+					}else{
+						potSliceData = potSlices.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);
+					}
+
+					//write dimensions
+					{
+						H5::DataSpace str_name_ds(H5S_SCALAR);
+						H5::StrType strdatatype(H5::PredType::C_S1,256);
+
+						H5::DataSpace dim1_mspace(1,{xvec.size()});
+						H5::DataSpace dim2_mspace(1,{yvec.size()});
+
+						H5::DataSet dim1;
+						H5::DataSet dim2;
+						
+						if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+							dim1 = potSlices.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+							dim2 = potSlices.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+
+							H5::DataSpace dim1_fspace = dim1.getSpace();
+							H5::DataSpace dim2_fspace = dim2.getSpace();
+
+							dim1.write(&xvec[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
+							dim2.write(&yvec[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
+						}else{
+							dim1 = potSlices.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
+							dim2 = potSlices.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
+
+							H5::DataSpace dim1_fspace = dim1.getSpace();
+							H5::DataSpace dim2_fspace = dim2.getSpace();
+
+							dim1.write(&xvec[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
+							dim2.write(&yvec[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
+						}
+						
+						//dimension attributes
+						const H5std_string dim1_name_str("R_x");
+						const H5std_string dim2_name_str("R_y");
+
+						H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
+						H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+
+						dim1_name.write(strdatatype,dim1_name_str);
+						dim2_name.write(strdatatype,dim2_name_str);
+
+						const H5std_string dim1_unit_str("[n_m]");
+						const H5std_string dim2_unit_str("[n_m]");
+
+						H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
+						H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+
+						dim1_unit.write(strdatatype,dim1_unit_str);
+						dim2_unit.write(strdatatype,dim2_unit_str);
+					}
+
+				}else{
+					H5::Group potSlices = realslices.openGroup(groupName);
+					potSliceData = potSlices.openDataSet("realslice");
+
+					PRISMATIC_FLOAT_PRECISION* readBuffer = (PRISMATIC_FLOAT_PRECISION*) malloc(pars.imageSize[0]*pars.imageSize[1]*sizeof(PRISMATIC_FLOAT_PRECISION));
+					H5::DataSpace rfspace = potSliceData.getSpace();
+					H5::DataSpace rmspace(2,{imageSize[1],imageSize[0]});
+
+					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_FLOAT,rmspace,rfspace);
+					}else{
+						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_DOUBLE,rmspace,rfspace);
+					}
+					
+					for(auto i = 0; i < imageSize[0]*imageSize[1]; i++) writeBuffer[i] += readBuffer[i];
+
+					free(readBuffer);
+					rfspace.close();
+					rmspace.close();
+				}
+
+				H5::DataSpace wfspace = potSliceData.getSpace();
+				H5::DataSpace wmspace(2,{imageSize[1],imageSize[0]});
+
+				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_FLOAT,wmspace,wfspace);
+				}else{
+					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_DOUBLE,wmspace,wfspace);
+				}
+				potSliceData.close()
+					
+
 			}
 
-			//write to group
-			writeDatacube3D(potSliceData,&pars.pot[0],dataDims);
-			mspace.close();
-			potSliceData.close();
-			//pars.pot.toMRC_f(file_name.c_str());
 		}
 
 	}

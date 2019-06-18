@@ -498,14 +498,15 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		//Need to scale the output by the square of the PRISM interpolation factor 
 		currentImage *= pars.scale;
 		std::stringstream nameString;
-		nameString << "/4DSTEM_experiment/data/datacubes/CBED_array_slice" << currentSlice;
+		nameString << "/4DSTEM_experiment/data/datacubes/CBED_array_depth" << currentSlice;
 		
 		H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
 		
-
+		
+		Prisatic::PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
             Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
             {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
@@ -523,12 +524,14 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                 }
 			}
 
+			//finalImage = fftshift2(finalImage);
 			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-			Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset);
+			Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
 			//finalImage.toMRC_f(section4DFilename.c_str());
         }else{                     
+			currentImage = fftshift2(currentImage);
 			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj(),pars.psiProbeInit.get_dimi()};
-			Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset);
+			Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset,numFP);
 			//currentImage.toMRC_f(section4DFilename.c_str());
 		}
 		
@@ -563,8 +566,8 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 	if(pars.meta.saveDPC_CoM){
 		PRISMATIC_FLOAT_PRECISION *num_qx;
 		PRISMATIC_FLOAT_PRECISION *num_qy;
-		cudaMallocManaged(&num_qx, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
-		cudaMallocManaged(&num_qy, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
+		cudaErrchk(cudaMallocManaged(&num_qx, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
+		cudaErrchk(cudaMallocManaged(&num_qy, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
 		num_qx[0] = 0.0;
 		num_qy[0] = 0.0;
 		
@@ -577,14 +580,22 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		(psiIntensity_ds,qya_d, num_qy, dimj * dimi);
 		
 		PRISMATIC_FLOAT_PRECISION *denominator;
-		cudaMallocManaged(&denominator, 1*sizeof(PRISMATIC_FLOAT_PRECISION));
+		cudaErrchk(cudaMallocManaged(&denominator, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
 		denominator[0] = 0.0;
 		
 		DPC_denominator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psiIntensity_ds, denominator, dimj*dimi);
 		
-		PRISMATIC_FLOAT_PRECISION DPC_CoM_x, DPC_CoM_y;
-		DPC_CoM_x = num_qx[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qx
-		DPC_CoM_y = num_qy[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qy
+		PRISMATIC_FLOAT_PRECISION DPC_CoM[2];
+		DPC_CoM[0] = num_qx[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qx
+		DPC_CoM[1] = num_qy[0]/denominator[0]; //measurement at ax,ay of CoM w.r.t. qy
+
+		const size_t dpc_stack_offset = 
+				currentSlice*pars.DPC_CoM.get_dimk() * pars.DPC_CoM.get_dimj() * pars.DPC_CoM.get_dimi() + ay * pars.DPC_CoM.get_dimj() * pars.DPC_CoM.get_dimi() + ax * pars.DPC_CoM.get_dimi();
+		memcpy(&pars.DPC_CoM[dpc_stack_offset],&DPC_CoM[0],2*sizeof(PRISMATIC_FLOAT_PRECISION));
+		cudaErrchk(cudaFree(num_qx));
+		cudaErrchk(cudaFree(num_qy));
+		cudaErrchk(cudaFree(denominator));
+		//cudaErrchk(cudaMemcpyAsync());
 	}
 }
 
