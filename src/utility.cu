@@ -506,7 +506,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
 		
 		
-		Prisatic::PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
             Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
             {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});

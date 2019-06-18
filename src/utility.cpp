@@ -104,7 +104,7 @@ namespace Prismatic {
 	}
 
 	int nyquistProbes(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, size_t dim){
-		int nProbes = ceil(4*(pars.meta.probeSemiangle / pars.lambda) * pars.tiledCellDim[dim])
+		int nProbes = ceil(4*(pars.meta.probeSemiangle / pars.lambda) * pars.tiledCellDim[dim]);
 		return nProbes;
 	}
 
@@ -926,7 +926,7 @@ namespace Prismatic {
 		free(readBuffer);
 
 		//restride the dataset so that qx and qy are flipped
-		float* finalBuffer = (float*) mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(float));
+		float* finalBuffer = (float*) malloc(mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(float));
 		for(auto i = 0; i < mdims[2]; i++){
 			for(auto j = 0; j < mdims[3]; j++){
 				finalBuffer[i*mdims[3]+j] = buffer[j*mdims[2]+i];
@@ -956,7 +956,7 @@ namespace Prismatic {
 		free(readBuffer);
 
 		//restride the dataset so that qx and qy are flipped
-		double* finalBuffer = (double*) mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(double));
+		double* finalBuffer = (double*) malloc(mdims[0]*mdims[1]*mdims[2]*mdims[3]*sizeof(double));
 		for(auto i = 0; i < mdims[2]; i++){
 			for(auto j = 0; j < mdims[3]; j++){
 				finalBuffer[i*mdims[3]+j] = buffer[j*mdims[2]+i];

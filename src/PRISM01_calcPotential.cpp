@@ -229,7 +229,7 @@ namespace Prismatic {
 				groupName = groupName + std::to_string(Z);
 
 				//read in potential array and stride; also, divide by number of FP to do averaging
-				Array2D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1],imageSize[0]}});
+				Array2D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1],pars.imageSize[0]}});
 				for(auto x = 0; x < pars.imageSize[1]; x++){
 					for(auto y = 0; y < pars.imageSize[0]; y++){
 						writeBuffer.at(x,y) = pars.pot.at(Z,y,x)/pars.meta.numFP;
@@ -263,8 +263,10 @@ namespace Prismatic {
 						H5::DataSpace str_name_ds(H5S_SCALAR);
 						H5::StrType strdatatype(H5::PredType::C_S1,256);
 
-						H5::DataSpace dim1_mspace(1,{xvec.size()});
-						H5::DataSpace dim2_mspace(1,{yvec.size()});
+						hsize_t x_size[1] = {xvec.size()};
+						hsize_t y_size[1] = {xvec.size()};
+						H5::DataSpace dim1_mspace(1,x_size);
+						H5::DataSpace dim2_mspace(1,y_size);
 
 						H5::DataSet dim1;
 						H5::DataSet dim2;
@@ -315,7 +317,8 @@ namespace Prismatic {
 
 					PRISMATIC_FLOAT_PRECISION* readBuffer = (PRISMATIC_FLOAT_PRECISION*) malloc(pars.imageSize[0]*pars.imageSize[1]*sizeof(PRISMATIC_FLOAT_PRECISION));
 					H5::DataSpace rfspace = potSliceData.getSpace();
-					H5::DataSpace rmspace(2,{imageSize[1],imageSize[0]});
+					hsize_t rmdims[2] = {pars.imageSize[1],pars.imageSize[0]};
+					H5::DataSpace rmspace(2,rmdims);
 
 					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
 						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_FLOAT,rmspace,rfspace);
@@ -323,22 +326,23 @@ namespace Prismatic {
 						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_DOUBLE,rmspace,rfspace);
 					}
 					
-					for(auto i = 0; i < imageSize[0]*imageSize[1]; i++) writeBuffer[i] += readBuffer[i];
+					for(auto i = 0; i < pars.imageSize[0]*pars.imageSize[1]; i++) writeBuffer[i] += readBuffer[i];
 
 					free(readBuffer);
 					rfspace.close();
 					rmspace.close();
 				}
 
+				hsize_t wmdims[2] = {pars.imageSize[1],pars.imageSize[0]};
 				H5::DataSpace wfspace = potSliceData.getSpace();
-				H5::DataSpace wmspace(2,{imageSize[1],imageSize[0]});
+				H5::DataSpace wmspace(2,wmdims);
 
 				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
 					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_FLOAT,wmspace,wfspace);
 				}else{
 					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_DOUBLE,wmspace,wfspace);
 				}
-				potSliceData.close()
+				potSliceData.close();
 					
 
 			}

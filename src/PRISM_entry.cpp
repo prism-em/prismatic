@@ -75,6 +75,8 @@ namespace Prismatic{
         if (prismatic_pars.meta.numFP > 1) {
             // run the rest of the frozen phonons
             Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
+			Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+			if(prismatic_pars.meta.saveDPC_CoM) DPC_CoM_output = prismatic_pars.DPC_CoM;
             for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num){
 	            meta.randomSeed = rand() % 100000;
 				++meta.fpNum;
@@ -89,11 +91,17 @@ namespace Prismatic{
 	        	PRISM02_calcSMatrix(prismatic_pars);
                 PRISM03_calcOutput(prismatic_pars);
                 net_output += prismatic_pars.output;
+				if(meta.saveDPC_CoM) DPC_CoM_output += prismatic_pars.DPC_CoM;
 				prismatic_pars.outputFile.close();
             }
             // divide to take average
             for (auto&i:net_output) i/=prismatic_pars.meta.numFP;
 	        prismatic_pars.output = net_output;
+
+			if(prismatic_pars.meta.saveDPC_CoM){
+				for (auto&j:DPC_CoM_output) j/=prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+				prismatic_pars.DPC_CoM = DPC_CoM_output;
+			}
         }
 
 		prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(),H5F_ACC_RDWR);

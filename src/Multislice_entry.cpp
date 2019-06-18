@@ -49,8 +49,8 @@ namespace Prismatic{
 		if (prismatic_pars.meta.numFP > 1) {
 			// run the rest of the frozen phonons
 			Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
-
-			if(prismatic_pars.meta.saveDPC_CoM) Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output(prismatic_pars.DPC_CoM);
+			Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+			if(prismatic_pars.meta.saveDPC_CoM) DPC_CoM_output = prismatic_pars.DPC_CoM;
 			for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num){
 				meta.randomSeed = rand() % 100000;
 				++meta.fpNum;
