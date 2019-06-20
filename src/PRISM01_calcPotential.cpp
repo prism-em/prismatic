@@ -237,7 +237,7 @@ namespace Prismatic {
 				}
 
 				H5::DataSet potSliceData; //declare out here to avoid scoping
-				if(pars.fpFlag > 0){
+				if(pars.fpFlag == 0){
 					H5::Group potSlices(realslices.createGroup(groupName));
 					hsize_t attr_dims[1] = {1};
 					H5::DataSpace attr_dataspace(1,attr_dims);
