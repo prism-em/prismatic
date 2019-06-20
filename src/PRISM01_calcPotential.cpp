@@ -223,9 +223,9 @@ namespace Prismatic {
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
 			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
-			std::string groupName = "ppotential_slice";
 
 			for(auto Z = 0; Z < pars.numPlanes; Z++){
+				std::string groupName = "ppotential_slice";
 				groupName = groupName + std::to_string(Z);
 
 				//read in potential array and stride; also, divide by number of FP to do averaging

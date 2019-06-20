@@ -156,17 +156,16 @@ namespace Prismatic {
 
 	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars){
 		//set version attributes
-		int maj_data[1] = {0};
-		int min_data[1] = {4};
-		hsize_t attr_dims[1] = {1};
+		int maj_data = 0;
+		int min_data = 4;
 
-		H5::DataSpace attr_dataspace(1,attr_dims);
+		H5::DataSpace attr_dataspace(H5S_SCALAR);
 
 		H5::Attribute maj_attr = pars.outputFile.createAttribute("version_major",H5::PredType::NATIVE_INT,attr_dataspace);
 		H5::Attribute min_attr = pars.outputFile.createAttribute("version_minor",H5::PredType::NATIVE_INT,attr_dataspace);
 
-		maj_attr.write(H5::PredType::NATIVE_INT, maj_data);
-		min_attr.write(H5::PredType::NATIVE_INT, min_data);
+		maj_attr.write(H5::PredType::NATIVE_INT, &maj_data);
+		min_attr.write(H5::PredType::NATIVE_INT, &min_data);
 
 		//create main groups
 		H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_experiment"));
@@ -183,13 +182,15 @@ namespace Prismatic {
 		H5::Group log(simulation.createGroup("log"));
 
 		//metadata groups
-		H5::Group metadata(simulation.createGroup("metadata_1"));
-		H5::Group original(metadata.createGroup("original"));
-		H5::Group microscope(metadata.createGroup("microscope"));
-		H5::Group sample(metadata.createGroup("sample"));
-		H5::Group user(metadata.createGroup("user"));
-		H5::Group calibration(metadata.createGroup("calibration"));
-		H5::Group comments(metadata.createGroup("comments"));
+		H5::Group metadata(simulation.createGroup("metadata"));
+		H5::Group metadata_1(metadata.createGroup("metadata_1")); //for consistency with py4DSTEM v0.4
+
+		H5::Group original(metadata_1.createGroup("original"));
+		H5::Group microscope(metadata_1.createGroup("microscope"));
+		H5::Group sample(metadata_1.createGroup("sample"));
+		H5::Group user(metadata_1.createGroup("user"));
+		H5::Group calibration(metadata_1.createGroup("calibration"));
+		H5::Group comments(metadata_1.createGroup("comments"));
 
 	}
 
@@ -234,15 +235,15 @@ namespace Prismatic {
 			H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = CBED_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//setup data set chunking properties
 			H5::DSetCreatPropList plist;
@@ -357,15 +358,15 @@ namespace Prismatic {
 			H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = CBED_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//set chunk properties
 			H5::DSetCreatPropList plist;
@@ -460,15 +461,15 @@ namespace Prismatic {
 			H5::Group VD_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = VD_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
@@ -549,15 +550,15 @@ namespace Prismatic {
 			H5::Group VD_slice_n(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = VD_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
@@ -637,15 +638,15 @@ namespace Prismatic {
 			H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = annular_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(2,data_dims); //rank is 3
@@ -713,15 +714,15 @@ namespace Prismatic {
 			H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = annular_slice_n.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 			//create dataset
 			H5::DataSpace mspace(2,data_dims); //rank is 2
 			H5::DataSet CBED_data = annular_slice_n.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);			
@@ -789,15 +790,15 @@ namespace Prismatic {
 			H5::Group DPC_CoM_slicen(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slicen.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = DPC_CoM_slicen.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
@@ -878,15 +879,15 @@ namespace Prismatic {
 			H5::Group DPC_CoM_slicen(datacubes.createGroup(nth_name.c_str()));
 			
 			//write group type attribute
-			H5::DataSpace attr1_dataspace(1,attr_dims);
+			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slicen.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type[1] = {1};
-			emd_group_type.write(H5::PredType::NATIVE_INT, group_type);	
+			int group_type = 1;
+			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
-			H5::DataSpace attr2_dataspace(1,attr_dims);
+			H5::DataSpace attr2_dataspace(H5S_SCALAR);
 			H5::Attribute metadata_group = DPC_CoM_slicen.createAttribute("metadata",H5::PredType::NATIVE_INT,attr2_dataspace);
-			metadata_group.write(H5::PredType::NATIVE_INT, group_type);	
+			metadata_group.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//create dataset
 			H5::DataSpace mspace(3,data_dims); //rank is 3
