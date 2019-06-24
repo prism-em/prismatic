@@ -369,25 +369,6 @@ namespace Prismatic {
 				}
 			}
 
-        //save 4D output if applicable
-         if (pars.meta.save4DOutput) {
-			//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
-			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << 0;
-
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
-
-			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
-			hsize_t mdims[4] = {1,1,intOutput.get_dimi(),intOutput.get_dimj()};
-			intOutput = fftshift2(intOutput);
-			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-			writeDatacube4D(CBED_data, &intOutput[0],mdims,offset,numFP);
-
-			CBED_data.close();
-			dataGroup.close();
-			//intOutput.toMRC_f(section4DFilename.c_str());
-		}
 
 		if (pars.meta.saveDPC_CoM){
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
@@ -414,6 +395,27 @@ namespace Prismatic {
 			}
 			++idx;
 		};
+		
+        //save 4D output if applicable
+         if (pars.meta.save4DOutput) {
+			//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(0);
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,intOutput.get_dimi(),intOutput.get_dimj()};
+
+			intOutput = fftshift2(intOutput);
+			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+			writeDatacube4D(CBED_data, &intOutput[0],mdims,offset,numFP);
+
+			CBED_data.close();
+			dataGroup.close();
+			//intOutput.toMRC_f(section4DFilename.c_str());
+		}
 	}
 
 	void transformIndices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){

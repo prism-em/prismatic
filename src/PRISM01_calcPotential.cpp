@@ -223,10 +223,84 @@ namespace Prismatic {
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
 			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+			std::string groupName = "ppotential";
+			H5::Group ppotential;
+			if(pars.fpFlag == 0){
+				ppotential = realslices.createGroup(groupName);
+
+				int depth = pars.numPlanes;
+				H5::DataSpace attr_dataspace(H5S_SCALAR);
+				H5::Attribute depth_attr = ppotential.createAttribute("depth",H5::PredType::NATIVE_INT,attr_dataspace);
+				depth_attr.write(H5::PredType::NATIVE_INT, &depth);
+
+				int group_type = 1;
+				H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+				emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+				H5::Attribute metadata_group = ppotential.createAttribute("metadata",H5::PredType::NATIVE_INT,attr_dataspace);
+				int mgroup = 0;
+				metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);	
+
+				//write dimensions
+				H5::DataSpace str_name_ds(H5S_SCALAR);
+				H5::StrType strdatatype(H5::PredType::C_S1,256);
+
+				hsize_t x_size[1] = {xvec.size()};
+				hsize_t y_size[1] = {xvec.size()};
+				H5::DataSpace dim1_mspace(1,x_size);
+				H5::DataSpace dim2_mspace(1,y_size);
+
+				H5::DataSet dim1;
+				H5::DataSet dim2;
+				
+				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_LONG,dim1_mspace);
+					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_LONG,dim2_mspace);
+
+					H5::DataSpace dim1_fspace = dim1.getSpace();
+					H5::DataSpace dim2_fspace = dim2.getSpace();
+
+					std::cout << "xvec 0 val: " << xvec[0] << std::endl;
+					std::cout << "xvec 1 val: " << xvec[0] << std::endl;
+					std::cout << "xvec 2 val: " << xvec[0] << std::endl;
+
+					dim1.write(&xvec[0],H5::PredType::NATIVE_LONG,dim1_mspace,dim1_fspace);
+					dim2.write(&yvec[0],H5::PredType::NATIVE_LONG,dim2_mspace,dim2_fspace);
+				}else{
+					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
+					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
+
+					H5::DataSpace dim1_fspace = dim1.getSpace();
+					H5::DataSpace dim2_fspace = dim2.getSpace();
+
+					dim1.write(&xvec[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
+					dim2.write(&yvec[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
+				}
+				
+				//dimension attributes
+				const H5std_string dim1_name_str("R_x");
+				const H5std_string dim2_name_str("R_y");
+
+				H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
+				H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+
+				dim1_name.write(strdatatype,dim1_name_str);
+				dim2_name.write(strdatatype,dim2_name_str);
+
+				const H5std_string dim1_unit_str("[n_m]");
+				const H5std_string dim2_unit_str("[n_m]");
+
+				H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
+				H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+
+				dim1_unit.write(strdatatype,dim1_unit_str);
+				dim2_unit.write(strdatatype,dim2_unit_str);
+			}else{
+				ppotential = realslices.openGroup(groupName);
+			}
 
 			for(auto Z = 0; Z < pars.numPlanes; Z++){
-				std::string groupName = "ppotential_slice";
-				groupName = groupName + std::to_string(Z);
+				std::string slice_name = "slice_" + getDigitString(Z);
 
 				//read in potential array and stride; also, divide by number of FP to do averaging
 				Array2D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1],pars.imageSize[0]}});
@@ -238,13 +312,6 @@ namespace Prismatic {
 
 				H5::DataSet potSliceData; //declare out here to avoid scoping
 				if(pars.fpFlag == 0){
-					H5::Group potSlices(realslices.createGroup(groupName));
-					hsize_t attr_dims[1] = {1};
-					H5::DataSpace attr_dataspace(1,attr_dims);
-					H5::Attribute emd_group_type = potSlices.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
-
-					int group_type[1] = {1};
-					emd_group_type.write(H5::PredType::NATIVE_INT, group_type);
 
 					//create dataset
 					//imageSize[1] is the x dimension
@@ -253,67 +320,12 @@ namespace Prismatic {
 
 					//switch between float and double, maybe not the best way to do so
 					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
-						potSliceData = potSlices.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
+						potSliceData = ppotential.createDataSet(slice_name,H5::PredType::NATIVE_FLOAT,mspace);
 					}else{
-						potSliceData = potSlices.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);
+						potSliceData = ppotential.createDataSet(slice_name,H5::PredType::NATIVE_DOUBLE,mspace);
 					}
-
-					//write dimensions
-					{
-						H5::DataSpace str_name_ds(H5S_SCALAR);
-						H5::StrType strdatatype(H5::PredType::C_S1,256);
-
-						hsize_t x_size[1] = {xvec.size()};
-						hsize_t y_size[1] = {xvec.size()};
-						H5::DataSpace dim1_mspace(1,x_size);
-						H5::DataSpace dim2_mspace(1,y_size);
-
-						H5::DataSet dim1;
-						H5::DataSet dim2;
-						
-						if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
-							dim1 = potSlices.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
-							dim2 = potSlices.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
-
-							H5::DataSpace dim1_fspace = dim1.getSpace();
-							H5::DataSpace dim2_fspace = dim2.getSpace();
-
-							dim1.write(&xvec[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
-							dim2.write(&yvec[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
-						}else{
-							dim1 = potSlices.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
-							dim2 = potSlices.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
-
-							H5::DataSpace dim1_fspace = dim1.getSpace();
-							H5::DataSpace dim2_fspace = dim2.getSpace();
-
-							dim1.write(&xvec[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
-							dim2.write(&yvec[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
-						}
-						
-						//dimension attributes
-						const H5std_string dim1_name_str("R_x");
-						const H5std_string dim2_name_str("R_y");
-
-						H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
-						H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
-
-						dim1_name.write(strdatatype,dim1_name_str);
-						dim2_name.write(strdatatype,dim2_name_str);
-
-						const H5std_string dim1_unit_str("[n_m]");
-						const H5std_string dim2_unit_str("[n_m]");
-
-						H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
-						H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
-
-						dim1_unit.write(strdatatype,dim1_unit_str);
-						dim2_unit.write(strdatatype,dim2_unit_str);
-					}
-
 				}else{
-					H5::Group potSlices = realslices.openGroup(groupName);
-					potSliceData = potSlices.openDataSet("realslice");
+					potSliceData = ppotential.openDataSet(slice_name);
 
 					PRISMATIC_FLOAT_PRECISION* readBuffer = (PRISMATIC_FLOAT_PRECISION*) malloc(pars.imageSize[0]*pars.imageSize[1]*sizeof(PRISMATIC_FLOAT_PRECISION));
 					H5::DataSpace rfspace = potSliceData.getSpace();

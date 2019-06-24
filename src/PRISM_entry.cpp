@@ -109,27 +109,28 @@ namespace Prismatic{
         if (prismatic_pars.meta.save3DOutput){
 			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(),dummy);
-			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimi()}});
+			Array2D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk()}});
 			
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/virtual_detector_depth" << 0;
+			nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-			H5::DataSet VD_data = dataGroup.openDataSet("datacube");
-			hsize_t offset[3] = {0,0,0};
-			hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),prismatic_pars.Ndet};
 
-			for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
-				for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
-					for (auto b = 0; b < prismatic_pars.output.get_dimi(); ++b){
-						output_image.at(y,x,b) = prismatic_pars.output.at(0,y,x,b);
+			for(auto b = 0; b < prismatic_pars.Ndet; b++){
+				std::string dataSetName = "bin" + getDigitString(b);
+				H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+
+				hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
+
+				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
+					for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
+						output_image.at(x,y) = prismatic_pars.output.at(0,y,x,b);
 					}
 				}
-			}
-			//std::string image_filename = prismatic_pars.meta.outputFolder + prismatic_pars.meta.filenameOutput;
-			//output_image.toMRC_f(image_filename.c_str());
-			writeDatacube3D(VD_data,&output_image[0],mdims);
 
-			VD_data.close();
+				writeRealSlice(VD_data,&output_image[0],mdims);
+				VD_data.close();
+			}
+
 			dataGroup.close();
 		}
 
@@ -138,36 +139,24 @@ namespace Prismatic{
 			size_t upper = std::min((size_t)prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 			prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-					{{prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimj()}});
+					{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
 			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 			setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml(),dummy);
 
 			for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y) {
 				for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x) {
 					for (auto b = lower; b < upper; ++b) {
-						prism_image.at(y, x) += prismatic_pars.output.at(0, y, x, b);
+						prism_image.at(x, y) += prismatic_pars.output.at(0, y, x, b);
 					}
 				}
 			}
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << 0;
+			nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 			H5::DataSet AD_data = dataGroup.openDataSet("realslice");
-			hsize_t offset[2] = {0,0};
 			hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
 
-			H5::DataSpace fspace = AD_data.getSpace();
-			H5::DataSpace mspace(2,mdims);
-
-			if(sizeof(dummy) == sizeof(float)){
-				AD_data.write(&prism_image[0],H5::PredType::NATIVE_FLOAT,mspace,fspace);
-			}else
-			{
-				AD_data.write(&prism_image[0],H5::PredType::NATIVE_DOUBLE,mspace,fspace);
-
-			}
-			mspace.close();
-			fspace.close();
+			writeRealSlice(AD_data,&prism_image[0],mdims);
 			AD_data.close();
 			dataGroup.close();
 
@@ -180,29 +169,36 @@ namespace Prismatic{
 			setupDPCOutput(prismatic_pars,prismatic_pars.output.get_diml(), dummy);
 
 			//create dummy array to pass to
-			Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
-			DPC_slice = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.DPC_CoM.get_dimk(),prismatic_pars.DPC_CoM.get_dimj(),prismatic_pars.DPC_CoM.get_dimi()}});
+			Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
 
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/DPC_CoM_depth" << 0;
+			nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-			H5::DataSet DPC_data = dataGroup.openDataSet("datacube");
-			hsize_t offset[3] = {0,0,0};
-			hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),2};
+			hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
 
+			for (auto b = 0; b < prismatic_pars.DPC_CoM.get_dimi(); ++b){
+				DPC_slice = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.DPC_CoM.get_dimj(),prismatic_pars.DPC_CoM.get_dimk()}});
+				std::string endName;
+				if(b == 0){
+					endName = "x";
+				}else{
+					endName = "y";
+				}
+				std::string dataSetName = "DPC_CoM_" + endName;
 
-			for (auto y = 0; y < prismatic_pars.DPC_CoM.get_dimk(); ++y){
-				for (auto x = 0; x < prismatic_pars.DPC_CoM.get_dimj();++x){
-					for (auto b = 0; b < prismatic_pars.DPC_CoM.get_dimi(); ++b){
-						DPC_slice.at(x,y,b) = prismatic_pars.DPC_CoM.at(0,y,x,b);
+				H5::DataSet DPC_data = dataGroup.openDataSet(dataSetName);
+
+				for (auto y = 0; y < prismatic_pars.DPC_CoM.get_dimk(); ++y){
+					for (auto x = 0; x < prismatic_pars.DPC_CoM.get_dimj();++x){
+							DPC_slice.at(x,y) = prismatic_pars.DPC_CoM.at(0,y,x,b);
 					}
 				}
+				//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
+				//slice_image.toMRC_f(slice_filename.c_str());
+				writeRealSlice(DPC_data,&DPC_slice[0],mdims);
+				DPC_data.close();
 			}
-			//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
-			//slice_image.toMRC_f(slice_filename.c_str());
-			writeDatacube3D(DPC_data,&DPC_slice[0],mdims);
 
-			DPC_data.close();
 			dataGroup.close();
 		}
 

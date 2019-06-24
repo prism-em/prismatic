@@ -245,7 +245,7 @@ namespace Prismatic{
 		if (pars.meta.save4DOutput) {
 			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << currentSlice;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
@@ -329,7 +329,7 @@ namespace Prismatic{
 			if (pars.meta.save4DOutput) {
 				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 				std::stringstream nameString;
-				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << currentSlice;
+				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
 				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
