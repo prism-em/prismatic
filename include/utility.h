@@ -69,6 +69,16 @@ namespace Prismatic {
 	};
 
 	template<class T>
+	Array1D <T> fftshift(Array1D<T> arr) {
+		Array1D<T> result(arr);
+		const long si = std::floor(arr.get_dimi() / 2);
+		for (auto i = 0; i < arr.get_dimi(); ++i) {
+			result.at((i + si) % arr.get_dimi()) = arr.at(i);
+		}
+		return result;
+	};
+
+	template<class T>
 	std::string generateFilename(const Parameters <T> &pars, const size_t currentSlice, const size_t ay, const size_t ax) {
 		std::string result = pars.meta.outputFolder + pars.meta.filenameOutput.substr(0, pars.meta.filenameOutput.find_last_of("."));
 		std::stringstream ss;

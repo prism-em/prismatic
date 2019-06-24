@@ -214,19 +214,32 @@ namespace Prismatic {
 		hsize_t qx_dim[1];
 		hsize_t qy_dim[1];
 
+		Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qx;
+		Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qy;
+		long offset_qx;
+		long offset_qy;
 
 		if(pars.meta.algorithm == Prismatic::Algorithm::Multislice){
 			data_dims[2] = {pars.psiProbeInit.get_dimi()/2};
 			data_dims[3] = {pars.psiProbeInit.get_dimj()/2};
 			qx_dim[0] = {pars.psiProbeInit.get_dimi()/2};
 			qy_dim[0] = {pars.psiProbeInit.get_dimj()/2};
+			qx = fftshift(pars.qx);
+			qy = fftshift(pars.qy);
+			offset_qx = pars.psiProbeInit.get_dimi()/4;
+			offset_qy = pars.psiProbeInit.get_dimj()/4;
 			chunkDims[2] = {pars.psiProbeInit.get_dimi()/2};
 			chunkDims[3] = {pars.psiProbeInit.get_dimj()/2};
+
 		}else{
 			data_dims[2] = {pars.qx.get_dimi()};
 			data_dims[3] = {pars.qy.get_dimi()};
 			qx_dim[0] = {pars.qx.get_dimi()};
 			qy_dim[0] = {pars.qy.get_dimi()};
+			qx = pars.qx;
+			qy = pars.qy;
+			offset_qx = 0;
+			offset_qy = 0;
 			chunkDims[2] = {pars.qx.get_dimi()};
 			chunkDims[3] = {pars.qy.get_dimi()};
 			//std::cout << "Probe size: " << pars.psiProbeInit.get_dimi() << std::endl;
@@ -282,8 +295,8 @@ namespace Prismatic {
 
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
-			dim3.write(&pars.qx[0],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
-			dim4.write(&pars.qy[0],H5::PredType::NATIVE_FLOAT,dim4_mspace,dim4_fspace);
+			dim3.write(&qx[offset_qx],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
+			dim4.write(&qy[offset_qy],H5::PredType::NATIVE_FLOAT,dim4_mspace,dim4_fspace);
 			
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
@@ -338,19 +351,32 @@ namespace Prismatic {
 		hsize_t ry_dim[1] = {pars.yp.size()};
 		hsize_t qx_dim[1];
 		hsize_t qy_dim[1]; 
+		Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qx;
+		Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qy;
+		long offset_qx;
+		long offset_qy;
 
 		if(pars.meta.algorithm == Prismatic::Algorithm::Multislice){
 			data_dims[2] = {pars.psiProbeInit.get_dimi()/2};
 			data_dims[3] = {pars.psiProbeInit.get_dimj()/2};
 			qx_dim[0] = {pars.psiProbeInit.get_dimi()/2};
 			qy_dim[0] = {pars.psiProbeInit.get_dimj()/2};
+			qx = fftshift(pars.qx);
+			qy = fftshift(pars.qy);
+			offset_qx = pars.psiProbeInit.get_dimi()/4;
+			offset_qy = pars.psiProbeInit.get_dimj()/4;
 			chunkDims[2] = {pars.psiProbeInit.get_dimi()/2};
 			chunkDims[3] = {pars.psiProbeInit.get_dimj()/2};
+
 		}else{
 			data_dims[2] = {pars.qx.get_dimi()};
 			data_dims[3] = {pars.qy.get_dimi()};
 			qx_dim[0] = {pars.qx.get_dimi()};
-			qy_dim[0] = {pars.qy.get_dimi()};	
+			qy_dim[0] = {pars.qy.get_dimi()};
+			qx = pars.qx;
+			qy = pars.qy;
+			offset_qx = 0;
+			offset_qy = 0;
 			chunkDims[2] = {pars.qx.get_dimi()};
 			chunkDims[3] = {pars.qy.get_dimi()};
 			//std::cout << "Probe size: " << pars.psiProbeInit.get_dimi() << std::endl;
@@ -405,8 +431,8 @@ namespace Prismatic {
 
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
-			dim3.write(&pars.qx[0],H5::PredType::NATIVE_DOUBLE,dim3_mspace,dim3_fspace);
-			dim4.write(&pars.qy[0],H5::PredType::NATIVE_DOUBLE,dim4_mspace,dim4_fspace);
+			dim3.write(&qx[offset_qx],H5::PredType::NATIVE_DOUBLE,dim3_mspace,dim3_fspace);
+			dim4.write(&qy[offset_qy],H5::PredType::NATIVE_DOUBLE,dim4_mspace,dim4_fspace);
 			
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
