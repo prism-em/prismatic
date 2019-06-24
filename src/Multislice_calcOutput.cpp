@@ -241,39 +241,12 @@ namespace Prismatic{
 			}
 		}
 
-		//save 4D output if applicable
-		if (pars.meta.save4DOutput) {
-			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
-
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
-
-			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
-			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
-
-			CBED_data.close();
-			dataGroup.close();
-
-			//intOutput_small.toMRC_f(section4DFilename.c_str());
-		}
-
 		if (pars.meta.saveDPC_CoM){
-			long offset_x = psi.get_dimi() / 4;
-			long offset_y = psi.get_dimj() / 4;
-			long ndimy = (long) psi.get_dimj();
-			long ndimx = (long) psi.get_dimi();
-
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
-			for (long y = 0; y < psi.get_dimj() / 2; ++y){
-				for (long x = 0; x < psi.get_dimi() / 2; ++x){
-					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
-					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
+			for (long y = 0; y < psi.get_dimj(); ++y){
+				for (long x = 0; x < psi.get_dimi(); ++x){
+					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
 				}
 			}
 			//divide by sum of intensity
@@ -293,6 +266,26 @@ namespace Prismatic{
 			}
 			++idx;
 		};
+
+		//save 4D output if applicable
+		if (pars.meta.save4DOutput) {
+			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+
+			CBED_data.close();
+			dataGroup.close();
+
+			//intOutput_small.toMRC_f(section4DFilename.c_str());
+		}
 	}
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
@@ -325,6 +318,34 @@ namespace Prismatic{
 				}
 			}
 
+
+			if (pars.meta.saveDPC_CoM){
+				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
+				for (long y = 0; y < pars.psiProbeInit.get_dimj(); ++y){
+					for (long x = 0; x < pars.psiProbeInit.get_dimi(); ++x){
+						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
+					}
+				}
+
+				//divide by sum of intensity
+				PRISMATIC_FLOAT_PRECISION intensitySum = 0;
+				for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
+					intensitySum += *iter;
+				}
+				pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+				pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
+			}
+
+			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
+			auto idx = alphaInd.begin();
+			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
+				if (*idx <= pars.Ndet) {
+					pars.output.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
+				}
+				++idx;
+			};
+
 			//save 4D output if applicable
 			if (pars.meta.save4DOutput) {
 				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
@@ -344,38 +365,6 @@ namespace Prismatic{
 				//intOutput_small.toMRC_f(section4DFilename.c_str());
 			}
 
-			if (pars.meta.saveDPC_CoM){
-				long offset_x = pars.psiProbeInit.get_dimi() / 4;
-				long offset_y = pars.psiProbeInit.get_dimj() / 4;
-				long ndimy = (long) pars.psiProbeInit.get_dimj();
-				long ndimx = (long) pars.psiProbeInit.get_dimi();
-
-				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
-				for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y){
-					for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x){
-						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx); 
-						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx); 
-					}
-				}
-				//divide by sum of intensity
-				PRISMATIC_FLOAT_PRECISION intensitySum = 0;
-				for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
-					intensitySum += *iter;
-				}
-				pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
-				pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
-			}
-
-			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
-			auto idx = alphaInd.begin();
-			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
-				if (*idx <= pars.Ndet) {
-					pars.output.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
-				}
-				++idx;
-			};
 			++Nstart;
 			++probe_idx;
 		}
