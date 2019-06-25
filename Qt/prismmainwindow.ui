@@ -2144,10 +2144,69 @@
                            </item>
                           </layout>
                          </item>
+ 						<item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_49">
+                           <item>
+                            <widget class="QLabel" name="lbl_zStart">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>100</width>
+                               <height>60</height>
+                              </size>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <pointsize>10</pointsize>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>zStart Thickness (Angstroms)</string>
+                             </property>
+                             <property name="wordWrap">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QLineEdit" name="lineEdit_zStart">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="minimumSize">
+                              <size>
+                               <width>40</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>40</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>20</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout">
                            <item>
-                            <widget class="QLabel" name="label_alphaBeamMax">
+                            <widget class="QLabel" name="label_probeSemiangle">
                              <property name="sizePolicy">
                               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                                <horstretch>0</horstretch>
@@ -2548,6 +2607,68 @@
                            </item>
                           </layout>
                          </item>
+                        <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_48">
+                           <item>
+                            <widget class="QLabel" name="lbl_numNS">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="font">
+                              <font>
+                               <pointsize>10</pointsize>
+                              </font>
+                             </property>
+                             <property name="text">
+                              <string>Output each # Slices</string>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                             </property>
+                             <property name="wordWrap">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QSpinBox" name="spinBox_numNS">
+                             <property name="enabled">
+                              <bool>true</bool>
+                             </property>
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>40</width>
+                               <height>20</height>
+                              </size>
+                             </property>
+                             <property name="baseSize">
+                              <size>
+                               <width>0</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                             <property name="alignment">
+                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                             </property>
+                             <property name="minimum">
+                              <number>1</number>
+                             </property>
+                             <property name="maximum">
+                              <number>999999</number>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_9">
                            <item>
@@ -2570,8 +2691,7 @@
                               </font>
                              </property>
                              <property name="text">
-                              <string>Slice
-Thickness (A)</string>
+                              <string>Slice Thickness (A)</string>
                              </property>
                              <property name="alignment">
                               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -3197,6 +3317,28 @@ Thickness (A)</string>
                       </layout>
                      </item>
                      <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_46">
+                       <item>
+                        <widget class="QCheckBox" name="checkBox_DPC_CoM">
+                         <property name="text">
+                          <string>Save DPC CoM Output</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+					 <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_47">
+                       <item>
+                        <widget class="QCheckBox" name="checkBox_PS">
+                         <property name="text">
+                          <string>Save Potential Slices</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
                       <layout class="QHBoxLayout" name="horizontalLayout_47">
                        <item>
                         <widget class="QCheckBox" name="checkBox_thermalEffects">
@@ -3211,6 +3353,16 @@ Thickness (A)</string>
                       <widget class="QCheckBox" name="checkBox_occupancy">
                        <property name="text">
                         <string>Occupancy</string>
+                       </property>
+                       <property name="checked">
+                        <bool>false</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QCheckBox" name="checkBox_NQS">
+                       <property name="text">
+                        <string>Nyquist Probe Sampling</string>
                        </property>
                        <property name="checked">
                         <bool>false</bool>
@@ -3665,6 +3817,7 @@ Thickness (A)</string>
   <tabstop>lineEdit_E0</tabstop>
   <tabstop>lineEdit_potbound</tabstop>
   <tabstop>lineEdit_probeSemiangle</tabstop>
+  <tabstop>lineEdit_zStart</tabstop>
   <tabstop>lineEdit_probeDefocus</tabstop>
   <tabstop>lineEdit_C3</tabstop>
   <tabstop>lineEdit_C5</tabstop>
@@ -3682,6 +3835,9 @@ Thickness (A)</string>
   <tabstop>checkBox_saveProjectedPotential</tabstop>
   <tabstop>checkBox_3D</tabstop>
   <tabstop>checkBox_4D</tabstop>
+  <tabstop>checkBox_DPC_CoM</tabstop>
+  <tabstop>checkBox_PS</tabstop>
+  <tabstop>checkBox_NQS</tabstop>
   <tabstop>checkBox_thermalEffects</tabstop>
   <tabstop>checkBox_occupancy</tabstop>
   <tabstop>spinBox_numThreads</tabstop>

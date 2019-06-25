@@ -97,7 +97,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
-ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+	ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
                                       border-radius: 9px;\
                                       margin-top: 0.5em;\
@@ -290,8 +290,10 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numGPUs,                 SIGNAL(valueChanged(int)),        this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads,              SIGNAL(valueChanged(int)),        this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumFP(const int&)));
+    connect(this->ui->spinBox_numNS,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumNS(const int&)));
     connect(this->ui->spinBox_numStreams,              SIGNAL(valueChanged(int)),        this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
+    connect(this->ui->lineEdit_zSlices,                SIGNAL(textEdited(QString)),      this, SLOT(setzSlices_fromLineEdit()));
     connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
@@ -378,8 +380,11 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetLinks()));
     connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
+    connect(this->ui->checkBox_DPC_CoM,                SIGNAL(toggled(bool)),            this, SLOT(toggleDPC_CoM()));
+    connect(this->ui->checkBox_PS,                     SIGNAL(toggled(bool)),            this, SLOT(togglePotentialSlices()));
     connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
     connect(this->ui->checkBox_occupancy,              SIGNAL(toggled(bool)),            this, SLOT(toggleOccupancy()));
+    connect(this->ui->checkBox_NQS,                    SIGNAL(toggled(bool)),            this, SLOT(toggleNyquist()));
     connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
     connect(this->ui->checkBox_log,                    SIGNAL(toggled(bool)),            this, SLOT(updateProbeImages()));
     connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
@@ -499,11 +504,15 @@ void PRISMMainWindow::updateDisplay(){
     this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
     this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
     this->ui->spinBox_numFP->setValue(this->meta->numFP);
+    this->ui->spinBox_numNS->setValue(this->meta->numSlices);
     this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
     ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
+    ui->checkBox_NQS->setChecked(meta->nyquistSampling);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
+    ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
+    ui->checkBox_PS->setChecked(meta->savePotentialSlices);
 
     switch (this->meta->algorithm){
         case Prismatic::Algorithm::PRISM :
@@ -731,6 +740,15 @@ void PRISMMainWindow::setNumFP(const int& num){
     }
     resetCalculation();
 }
+
+void PRISMMainWindow::setNumNS(const int& num){
+    if (num > 0){
+        this->meta->numSlices = num;
+        std::cout << "Setting number of slices for intermediate output steps to " << num << std::endl;
+    }
+    resetCalculation();
+}
+
 
 
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
@@ -1997,6 +2015,14 @@ void PRISMMainWindow::toggle4DOutput(){
     meta->save4DOutput = ui->checkBox_4D->isChecked();
 }
 
+void PRISMMainWindow::toggleDPC_CoM(){
+    meta->saveDPC_CoM = ui->checkBox_DPC_CoM->isChecked();
+}
+
+void PRISMMainWindow::togglePotentialSlices(){
+    meta->savePotentialSlices = ui->checkBox_PS->isChecked();
+}
+
 void PRISMMainWindow::toggleThermalEffects(){
     meta->includeThermalEffects = ui->checkBox_thermalEffects->isChecked();
     resetCalculation();
@@ -2004,6 +2030,11 @@ void PRISMMainWindow::toggleThermalEffects(){
 
 void PRISMMainWindow::toggleOccupancy(){
     meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
+    resetCalculation();
+}
+
+void PRISMMainWindow::toggleNyquist(){
+    meta->nyquistSampling = ui->checkBox_NQS->isChecked();
     resetCalculation();
 }
 
@@ -2028,7 +2059,6 @@ void PRISMMainWindow::update_RReal(QString str){
 void PRISMMainWindow::update_RK(QString str){
     ui->lbl_R_k->setText(str);
 }
-
 
 void PRISMMainWindow::toggleSaveProjectedPotential(){
     this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;

@@ -77,6 +77,7 @@ public slots:
     void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
+    void setzStart_fromLineEdit();
     void setalphaBeamMax_fromLineEdit();
     void setSliceThickness_fromLineEdit();
     void setCellDimX_fromLineEdit();
@@ -127,8 +128,11 @@ public slots:
     void setprobe_Ytilt_fromLineEdit();
     void toggle3DOutput();
     void toggle4DOutput();
+	void toggleDPC_CoM();
+	void togglePotentialSlices();
     void toggleThermalEffects();
     void toggleOccupancy();
+	void toggleNyquist();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();
@@ -198,6 +202,7 @@ protected:
     void setRealspacePixelSize(const PRISMATIC_FLOAT_PRECISION& pixel_size);
     void setPotBound(const PRISMATIC_FLOAT_PRECISION& potBound);
     void setNumFP(const size_t& numFP);
+    void setNumNS(const size_t& numSlices);
     void setE0(const PRISMATIC_FLOAT_PRECISION& E0);
     void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION& alphaBeamMax);
     void setSliceThickness(const PRISMATIC_FLOAT_PRECISION& thickness);
