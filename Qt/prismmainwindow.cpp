@@ -293,7 +293,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->spinBox_numNS,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumNS(const int&)));
     connect(this->ui->spinBox_numStreams,              SIGNAL(valueChanged(int)),        this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
-    connect(this->ui->lineEdit_zSlices,                SIGNAL(textEdited(QString)),      this, SLOT(setzSlices_fromLineEdit()));
+    connect(this->ui->lineEdit_zStart,                 SIGNAL(textEdited(QString)),      this, SLOT(setzStart_fromLineEdit()));
     connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
@@ -420,6 +420,8 @@ void PRISMMainWindow::updateDisplay(){
     ss.str("");
     ss << (this->meta->probeSemiangle * 1e3);
     this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
+	ss << (this->meta->zStart);
+    this->ui->lineEdit_zStart->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->alphaBeamMax * 1e3);
     this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
@@ -749,8 +751,6 @@ void PRISMMainWindow::setNumNS(const int& num){
     resetCalculation();
 }
 
-
-
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val =(PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble(&flag);
@@ -796,6 +796,16 @@ void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
     if (flag){
         this->meta->probeSemiangle = val / 1000;
         std::cout << "Setting probe semiangle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setzStart_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_zStart->text().toDouble(&flag);
+    if (flag){
+        this->meta->zStart = val;
+        std::cout << "Setting intermediate output to begin after" << val << " Angstroms" << std::endl;
     }
     resetCalculation();
 }
