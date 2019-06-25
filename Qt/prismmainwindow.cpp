@@ -420,6 +420,7 @@ void PRISMMainWindow::updateDisplay(){
     ss.str("");
     ss << (this->meta->probeSemiangle * 1e3);
     this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
+    ss.str("");
 	ss << (this->meta->zStart);
     this->ui->lineEdit_zStart->setText(QString::fromStdString(ss.str()));
     ss.str("");

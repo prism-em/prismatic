@@ -2194,7 +2194,7 @@
                               </size>
                              </property>
                              <property name="text">
-                              <string>20</string>
+                              <string>0</string>
                              </property>
                              <property name="alignment">
                               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2660,7 +2660,7 @@
                               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                              </property>
                              <property name="minimum">
-                              <number>1</number>
+                              <number>0</number>
                              </property>
                              <property name="maximum">
                               <number>999999</number>
