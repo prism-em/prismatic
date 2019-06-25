@@ -248,8 +248,8 @@ namespace Prismatic {
 				hsize_t x_size[1] = {pars.imageSize[1]};
 				hsize_t y_size[1] = {pars.imageSize[0]};
 
-				PRISMATIC_FLOAT_PRECISION x_dim_data[pars.imageSize[1]];
-				PRISMATIC_FLOAT_PRECISION y_dim_data[pars.imageSize[0]];
+				Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({ {pars.imageSize[1]} });
+				Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({ {pars.imageSize[0]} });
 
 				for(auto i = 0; i < pars.imageSize[1]; i++) x_dim_data[i] = i * pars.pixelSize[1];
 
