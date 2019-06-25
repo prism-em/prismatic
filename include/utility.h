@@ -143,6 +143,11 @@ namespace Prismatic {
 	void writeDatacube4D(H5::DataSet dataset, double* buffer, const hsize_t* mdims, const hsize_t* offset, const double numFP);
 
 	std::string getDigitString(int digit);
+
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy);
+
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy);
+
 }
 
 #endif //PRISMATIC_UTILITY_H

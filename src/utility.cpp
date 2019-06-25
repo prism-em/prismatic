@@ -1087,6 +1087,355 @@ namespace Prismatic {
 		sprintf(buffer,"%04d",digit);
 		std::string output = buffer;
 		return output;
-	}
+	};
 
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy){
+		//set up group
+		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_experiment/metadata/metadata_0/original");
+		H5::Group sim_params = metadata.createGroup("simulation_parameters");
+
+		//write all parameters as attributes
+		
+		//create common dataspaces
+		H5::DataSpace str_name_ds(H5S_SCALAR); //string dataspaces and types
+		H5::StrType strdatatype(H5::PredType::C_S1,256);
+		H5::DataSpace scalar_attr(H5S_SCALAR);
+
+		//initialize string parameter data
+		H5std_string algorithm;
+		if(pars.meta.algorithm == Prismatic::Algorithm::Multislice){
+			algorithm = "m";
+		}else{
+			algorithm = "p";
+		}
+
+		const H5std_string filenameAtoms(pars.meta.filenameAtoms);
+
+		//create string attributes
+		H5::Attribute atoms_attr = sim_params.createAttribute("i",strdatatype,str_name_ds);
+		H5::Attribute alg_attr = sim_params.createAttribute("a",strdatatype,str_name_ds);
+		
+		//create scalar logical/integer attributes
+		H5::Attribute fx_attr = sim_params.createAttribute("fx",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute fy_attr = sim_params.createAttribute("fy",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute numFP_attr = sim_params.createAttribute("F",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute numSlices_attr = sim_params.createAttribute("ns",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute te_attr = sim_params.createAttribute("te",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute oc_attr = sim_params.createAttribute("oc",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute save3D_attr = sim_params.createAttribute("3D",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute save4D_attr = sim_params.createAttribute("4D",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute saveDPC_attr = sim_params.createAttribute("DPC",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute savePS_attr = sim_params.createAttribute("ps",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute nyquist_attr = sim_params.createAttribute("nqs",H5::PredType::NATIVE_INT,scalar_attr);
+
+		//create scalar float/double attributes (changes based on prismatic float precision)
+		H5::Attribute px_attr = sim_params.createAttribute("px",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute py_attr = sim_params.createAttribute("py",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute potBound_attr = sim_params.createAttribute("P",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute sliceThickness_attr = sim_params.createAttribute("s",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute zStart_attr = sim_params.createAttribute("zs",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute E0_attr = sim_params.createAttribute("E",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute alphaMax_attr = sim_params.createAttribute("A",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute rx_attr = sim_params.createAttribute("rx",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute ry_attr = sim_params.createAttribute("ry",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute df_attr = sim_params.createAttribute("df",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute C3_attr = sim_params.createAttribute("C3",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute C5_attr = sim_params.createAttribute("C5",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute semiangle_attr = sim_params.createAttribute("sa",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute detector_attr = sim_params.createAttribute("d",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute tx_attr = sim_params.createAttribute("tx",H5::PredType::NATIVE_FLOAT,scalar_attr);
+		H5::Attribute ty_attr = sim_params.createAttribute("ty",H5::PredType::NATIVE_FLOAT,scalar_attr);
+
+		//create vector spaces
+		hsize_t two[1] = {2};
+		hsize_t three[1] = {3};
+		H5::DataSpace v_two_dataspace(1,two);
+		H5::DataSpace v_three_dataspace(1,three);
+
+		H5::Attribute cell_dim_attr = sim_params.createAttribute("c",H5::PredType::NATIVE_FLOAT,v_three_dataspace);
+		H5::Attribute tile_attr = sim_params.createAttribute("t",H5::PredType::NATIVE_FLOAT,v_three_dataspace);
+		H5::Attribute scanWindow_x_attr = sim_params.createAttribute("wx",H5::PredType::NATIVE_FLOAT,v_two_dataspace);
+		H5::Attribute scanWindow_y_attr = sim_params.createAttribute("wy",H5::PredType::NATIVE_FLOAT,v_two_dataspace);
+
+		H5::Attribute scanWindow_x_r_attr;
+		H5::Attribute scanWindow_y_r_attr;
+		if(pars.meta.realSpaceWindow_x) scanWindow_x_r_attr = sim_params.createAttribute("wxr",H5::PredType::NATIVE_FLOAT,v_two_dataspace);
+		if(pars.meta.realSpaceWindow_y) scanWindow_y_r_attr = sim_params.createAttribute("wyr",H5::PredType::NATIVE_FLOAT,v_two_dataspace);
+
+		H5::Attribute save2D_attr;
+		if(pars.meta.save2DOutput){
+			save2D_attr = sim_params.createAttribute("2D",H5::PredType::NATIVE_FLOAT,v_two_dataspace);
+		}
+		
+		//write data
+		//strings
+		atoms_attr.write(strdatatype,filenameAtoms);
+		alg_attr.write(strdatatype,algorithm);
+
+		//scalar logical/integers
+		fx_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorX);
+		fy_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorY);
+		numFP_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numFP);
+		numSlices_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numSlices);
+
+		//logicals first need to be cast to ints
+		int tmp_te = {pars.meta.includeThermalEffects};
+		int tmp_oc = {pars.meta.includeOccupancy};
+		int tmp_3D = {pars.meta.save3DOutput};
+		int tmp_4D = {pars.meta.save4DOutput};
+		int tmp_DPC = {pars.meta.saveDPC_CoM};
+		int tmp_PS = {pars.meta.savePotentialSlices};
+		int tmp_nqs = {pars.meta.nyquistSampling};
+
+		te_attr.write(H5::PredType::NATIVE_INT, &tmp_te);
+		oc_attr.write(H5::PredType::NATIVE_INT, &tmp_oc);
+		save3D_attr.write(H5::PredType::NATIVE_INT, &tmp_3D);
+		save4D_attr.write(H5::PredType::NATIVE_INT, &tmp_4D);
+		saveDPC_attr.write(H5::PredType::NATIVE_INT, &tmp_DPC);
+		savePS_attr.write(H5::PredType::NATIVE_INT, &tmp_PS);
+		nyquist_attr.write(H5::PredType::NATIVE_INT, &tmp_nqs);
+
+		//scalar floats/doubles
+		px_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.realspacePixelSize[1]);
+		py_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.realspacePixelSize[0]);
+		potBound_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.potBound);
+		sliceThickness_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.sliceThickness);
+		zStart_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.zStart);
+		rx_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.probeStepX);
+		ry_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.probeStepY);
+		df_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.probeDefocus);
+		C3_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.C3);
+		C5_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.C5);
+
+		//scalars with unit adjustments
+		PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_ty[1] = {pars.meta.probeYtilt * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_E0[1] = {pars.meta.E0 / 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_alphaMax[1] = {pars.meta.alphaBeamMax * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_sa[1] = {pars.meta.probeSemiangle * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_d[1] = {pars.meta.detectorAngleStep * 1000};
+
+		tx_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_tx);
+		ty_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_ty);
+		E0_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_E0);
+		alphaMax_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_alphaMax);
+		semiangle_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_sa);
+		detector_attr.write(H5::PredType::NATIVE_FLOAT, &tmp_d);
+
+		//vector spaces
+		PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
+
+		if(pars.meta.save2DOutput){
+			tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
+			tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
+			save2D_attr.write(H5::PredType::NATIVE_FLOAT,tmp_buffer);
+		}
+
+		if(pars.meta.realSpaceWindow_x){
+			tmp_buffer[0] = pars.meta.scanWindowXMin_r;
+			tmp_buffer[1] = pars.meta.scanWindowXMax_r;
+			scanWindow_x_r_attr.write(H5::PredType::NATIVE_FLOAT,tmp_buffer);
+		}
+
+		if(pars.meta.realSpaceWindow_y){
+			tmp_buffer[0] = pars.meta.scanWindowYMin_r;
+			tmp_buffer[1] = pars.meta.scanWindowYMax_r;
+			scanWindow_y_r_attr.write(H5::PredType::NATIVE_FLOAT,tmp_buffer);
+		}
+		
+		tmp_buffer[0] = pars.meta.scanWindowXMin;
+		tmp_buffer[1] = pars.meta.scanWindowXMax;
+		scanWindow_x_attr.write(H5::PredType::NATIVE_FLOAT,tmp_buffer);
+
+		tmp_buffer[0] = pars.meta.scanWindowYMin;
+		tmp_buffer[1] = pars.meta.scanWindowYMax;
+		scanWindow_y_attr.write(H5::PredType::NATIVE_FLOAT,tmp_buffer);
+
+		int tile_buffer[3];
+		tile_buffer[0] = pars.meta.tileX;
+		tile_buffer[1] = pars.meta.tileY;
+		tile_buffer[2] = pars.meta.tileZ;
+		tile_attr.write(H5::PredType::NATIVE_INT,tile_buffer);
+
+		PRISMATIC_FLOAT_PRECISION cellBuffer[3];
+		cellBuffer[0] = pars.meta.cellDim[0];
+		cellBuffer[1] = pars.meta.cellDim[1];
+		cellBuffer[2] = pars.meta.cellDim[2];
+		cell_dim_attr.write(H5::PredType::NATIVE_FLOAT,cellBuffer);
+	};
+
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy){
+		//set up group
+		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_experiment/metadata/metadata_0/original");
+		H5::Group sim_params = metadata.createGroup("simulation_parameters");
+
+		//write all parameters as attributes
+		
+		//create common dataspaces
+		H5::DataSpace str_name_ds(H5S_SCALAR); //string dataspaces and types
+		H5::StrType strdatatype(H5::PredType::C_S1,256);
+		H5::DataSpace scalar_attr(H5S_SCALAR);
+
+		//initialize string parameter data
+		H5std_string algorithm;
+		if(pars.meta.algorithm == Prismatic::Algorithm::Multislice){
+			algorithm = "m";
+		}else{
+			algorithm = "p";
+		}
+
+		const H5std_string filenameAtoms(pars.meta.filenameAtoms);
+
+		//create string attributes
+		H5::Attribute atoms_attr = sim_params.createAttribute("i",strdatatype,str_name_ds);
+		H5::Attribute alg_attr = sim_params.createAttribute("a",strdatatype,str_name_ds);
+		
+		//create scalar logical/integer attributes
+		H5::Attribute fx_attr = sim_params.createAttribute("fx",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute fy_attr = sim_params.createAttribute("fy",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute numFP_attr = sim_params.createAttribute("F",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute numSlices_attr = sim_params.createAttribute("ns",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute te_attr = sim_params.createAttribute("te",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute oc_attr = sim_params.createAttribute("oc",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute save3D_attr = sim_params.createAttribute("3D",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute save4D_attr = sim_params.createAttribute("4D",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute saveDPC_attr = sim_params.createAttribute("DPC",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute savePS_attr = sim_params.createAttribute("ps",H5::PredType::NATIVE_INT,scalar_attr);
+		H5::Attribute nyquist_attr = sim_params.createAttribute("nqs",H5::PredType::NATIVE_INT,scalar_attr);
+
+		//create scalar float/double attributes (changes based on prismatic float precision)
+		H5::Attribute px_attr = sim_params.createAttribute("px",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute py_attr = sim_params.createAttribute("py",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute potBound_attr = sim_params.createAttribute("P",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute sliceThickness_attr = sim_params.createAttribute("s",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute zStart_attr = sim_params.createAttribute("zs",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute E0_attr = sim_params.createAttribute("E",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute alphaMax_attr = sim_params.createAttribute("A",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute rx_attr = sim_params.createAttribute("rx",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute ry_attr = sim_params.createAttribute("ry",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute df_attr = sim_params.createAttribute("df",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute C3_attr = sim_params.createAttribute("C3",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute C5_attr = sim_params.createAttribute("C5",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute semiangle_attr = sim_params.createAttribute("sa",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute detector_attr = sim_params.createAttribute("d",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute tx_attr = sim_params.createAttribute("tx",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+		H5::Attribute ty_attr = sim_params.createAttribute("ty",H5::PredType::NATIVE_DOUBLE,scalar_attr);
+
+		//create vector spaces
+		hsize_t two[1] = {2};
+		hsize_t three[1] = {3};
+		H5::DataSpace v_two_dataspace(1,two);
+		H5::DataSpace v_three_dataspace(1,three);
+
+		H5::Attribute cell_dim_attr = sim_params.createAttribute("c",H5::PredType::NATIVE_DOUBLE,v_three_dataspace);
+		H5::Attribute tile_attr = sim_params.createAttribute("t",H5::PredType::NATIVE_DOUBLE,v_three_dataspace);
+		H5::Attribute scanWindow_x_attr = sim_params.createAttribute("wx",H5::PredType::NATIVE_DOUBLE,v_two_dataspace);
+		H5::Attribute scanWindow_y_attr = sim_params.createAttribute("wy",H5::PredType::NATIVE_DOUBLE,v_two_dataspace);
+
+		H5::Attribute scanWindow_x_r_attr;
+		H5::Attribute scanWindow_y_r_attr;
+		if(pars.meta.realSpaceWindow_x) scanWindow_x_r_attr = sim_params.createAttribute("wxr",H5::PredType::NATIVE_DOUBLE,v_two_dataspace);
+		if(pars.meta.realSpaceWindow_y) scanWindow_y_r_attr = sim_params.createAttribute("wyr",H5::PredType::NATIVE_DOUBLE,v_two_dataspace);
+
+		H5::Attribute save2D_attr;
+		if(pars.meta.save2DOutput){
+			save2D_attr = sim_params.createAttribute("2D",H5::PredType::NATIVE_DOUBLE,v_two_dataspace);
+		}
+		
+		//write data
+		//strings
+		atoms_attr.write(strdatatype,filenameAtoms);
+		alg_attr.write(strdatatype,algorithm);
+
+		//scalar integers
+		fx_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorX);
+		fy_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorY);
+		numFP_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numFP);
+		numSlices_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numSlices);
+
+		//logicals first need to be cast to ints
+		int tmp_te = {pars.meta.includeThermalEffects};
+		int tmp_oc = {pars.meta.includeOccupancy};
+		int tmp_3D = {pars.meta.save3DOutput};
+		int tmp_4D = {pars.meta.save4DOutput};
+		int tmp_DPC = {pars.meta.saveDPC_CoM};
+		int tmp_PS = {pars.meta.savePotentialSlices};
+		int tmp_nqs = {pars.meta.nyquistSampling};
+
+		te_attr.write(H5::PredType::NATIVE_INT, &tmp_te);
+		oc_attr.write(H5::PredType::NATIVE_INT, &tmp_oc);
+		save3D_attr.write(H5::PredType::NATIVE_INT, &tmp_3D);
+		save4D_attr.write(H5::PredType::NATIVE_INT, &tmp_4D);
+		saveDPC_attr.write(H5::PredType::NATIVE_INT, &tmp_DPC);
+		savePS_attr.write(H5::PredType::NATIVE_INT, &tmp_PS);
+		nyquist_attr.write(H5::PredType::NATIVE_INT, &tmp_nqs);
+
+		//scalar floats/doubles
+		px_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.realspacePixelSize[1]);
+		py_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.realspacePixelSize[0]);
+		potBound_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.potBound);
+		sliceThickness_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.sliceThickness);
+		zStart_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.zStart);
+		rx_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.probeStepX);
+		ry_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.probeStepY);
+		df_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.probeDefocus);
+		C3_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C3);
+		C5_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C5);
+
+		//scalars with unit adjustments
+		PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_ty[1] = {pars.meta.probeYtilt * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_E0[1] = {pars.meta.E0 / 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_alphaMax[1] = {pars.meta.alphaBeamMax * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_sa[1] = {pars.meta.probeSemiangle * 1000};
+		PRISMATIC_FLOAT_PRECISION tmp_d[1] = {pars.meta.detectorAngleStep * 1000};
+
+		tx_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_tx);
+		ty_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_ty);
+		E0_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_E0);
+		alphaMax_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_alphaMax);
+		semiangle_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_sa);
+		detector_attr.write(H5::PredType::NATIVE_DOUBLE, &tmp_d);
+
+		//vector spaces
+		PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
+
+		if(pars.meta.save2DOutput){
+			tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
+			tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
+			save2D_attr.write(H5::PredType::NATIVE_DOUBLE,tmp_buffer);
+		}
+
+		if(pars.meta.realSpaceWindow_x){
+			tmp_buffer[0] = pars.meta.scanWindowXMin_r;
+			tmp_buffer[1] = pars.meta.scanWindowXMax_r;
+			scanWindow_x_r_attr.write(H5::PredType::NATIVE_DOUBLE,tmp_buffer);
+		}
+
+		if(pars.meta.realSpaceWindow_y){
+			tmp_buffer[0] = pars.meta.scanWindowYMin_r;
+			tmp_buffer[1] = pars.meta.scanWindowYMax_r;
+			scanWindow_y_r_attr.write(H5::PredType::NATIVE_DOUBLE,tmp_buffer);
+		}
+		
+		tmp_buffer[0] = pars.meta.scanWindowXMin;
+		tmp_buffer[1] = pars.meta.scanWindowXMax;
+		scanWindow_x_attr.write(H5::PredType::NATIVE_DOUBLE,tmp_buffer);
+
+		tmp_buffer[0] = pars.meta.scanWindowYMin;
+		tmp_buffer[1] = pars.meta.scanWindowYMax;
+		scanWindow_y_attr.write(H5::PredType::NATIVE_DOUBLE,tmp_buffer);
+
+		int tile_buffer[3];
+		tile_buffer[0] = pars.meta.tileX;
+		tile_buffer[1] = pars.meta.tileY;
+		tile_buffer[2] = pars.meta.tileZ;
+		tile_attr.write(H5::PredType::NATIVE_INT,tile_buffer);
+
+		PRISMATIC_FLOAT_PRECISION cellBuffer[3];
+		cellBuffer[0] = pars.meta.cellDim[0];
+		cellBuffer[1] = pars.meta.cellDim[1];
+		cellBuffer[2] = pars.meta.cellDim[2];
+		cell_dim_attr.write(H5::PredType::NATIVE_DOUBLE,cellBuffer);
+	};
 }

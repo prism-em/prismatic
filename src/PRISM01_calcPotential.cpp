@@ -245,8 +245,16 @@ namespace Prismatic {
 				H5::DataSpace str_name_ds(H5S_SCALAR);
 				H5::StrType strdatatype(H5::PredType::C_S1,256);
 
-				hsize_t x_size[1] = {xvec.size()};
-				hsize_t y_size[1] = {xvec.size()};
+				hsize_t x_size[1] = {pars.imageSize[1]};
+				hsize_t y_size[1] = {pars.imageSize[0]};
+
+				PRISMATIC_FLOAT_PRECISION x_dim_data[pars.imageSize[1]];
+				PRISMATIC_FLOAT_PRECISION y_dim_data[pars.imageSize[0]];
+
+				for(auto i = 0; i < pars.imageSize[1]; i++) x_dim_data[i] = i * pars.pixelSize[1];
+
+				for(auto i = 0; i < pars.imageSize[0]; i++) y_dim_data[i] = i * pars.pixelSize[0];
+
 				H5::DataSpace dim1_mspace(1,x_size);
 				H5::DataSpace dim2_mspace(1,y_size);
 
@@ -254,18 +262,14 @@ namespace Prismatic {
 				H5::DataSet dim2;
 				
 				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
-					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_LONG,dim1_mspace);
-					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_LONG,dim2_mspace);
+					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
 
 					H5::DataSpace dim1_fspace = dim1.getSpace();
 					H5::DataSpace dim2_fspace = dim2.getSpace();
 
-					std::cout << "xvec 0 val: " << xvec[0] << std::endl;
-					std::cout << "xvec 1 val: " << xvec[0] << std::endl;
-					std::cout << "xvec 2 val: " << xvec[0] << std::endl;
-
-					dim1.write(&xvec[0],H5::PredType::NATIVE_LONG,dim1_mspace,dim1_fspace);
-					dim2.write(&yvec[0],H5::PredType::NATIVE_LONG,dim2_mspace,dim2_fspace);
+					dim1.write(&x_dim_data[0],H5::PredType::NATIVE_LONG,dim1_mspace,dim1_fspace);
+					dim2.write(&y_dim_data[0],H5::PredType::NATIVE_LONG,dim2_mspace,dim2_fspace);
 				}else{
 					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
 					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
@@ -273,8 +277,8 @@ namespace Prismatic {
 					H5::DataSpace dim1_fspace = dim1.getSpace();
 					H5::DataSpace dim2_fspace = dim2.getSpace();
 
-					dim1.write(&xvec[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
-					dim2.write(&yvec[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
+					dim1.write(&x_dim_data[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
+					dim2.write(&y_dim_data[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
 				}
 				
 				//dimension attributes

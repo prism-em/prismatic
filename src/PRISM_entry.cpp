@@ -202,6 +202,8 @@ namespace Prismatic{
 			dataGroup.close();
 		}
 
+		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+		writeMetadata(prismatic_pars,dummy);
 		prismatic_pars.outputFile.close();
 
 #ifdef PRISMATIC_ENABLE_GPU

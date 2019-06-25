@@ -32,7 +32,7 @@ namespace Prismatic{
 			interpolationFactorY  = 4;
 			interpolationFactorX  = 4;
 			filenameAtoms         = "/path/to/atoms.txt";
-			filenameOutput        = "output.mrc";
+			filenameOutput        = "output.h5";
 			outputFolder          = "";
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
