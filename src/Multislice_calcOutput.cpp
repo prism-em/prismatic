@@ -42,20 +42,32 @@ namespace Prismatic{
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
-
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
+		PRISMATIC_FLOAT_PRECISION probeStepX;
+		PRISMATIC_FLOAT_PRECISION probeStepY;
+		if(pars.meta.nyquistSampling){
+			int numX = nyquistProbes(pars,2); //x is dim 2
+			int numY = nyquistProbes(pars,1); //y is dim 1
+			probeStepX = pars.tiledCellDim[2]/numX;
+			probeStepY = pars.tiledCellDim[1]/numY;
+		}else{
+			probeStepX = pars.meta.probeStepX;
+			probeStepY = pars.meta.probeStepY;
+		}
+		
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
 		
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
+		/*
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
 			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
 			std::string y_name = pars.meta.outputFolder + "real_space_y.mrc";
 			real_mesh.first.toMRC_f(x_name.c_str());
 			real_mesh.second.toMRC_f(y_name.c_str());
-		}
+		} */
 		
 		pars.xp = xp;
 		pars.yp = yp;
@@ -63,7 +75,9 @@ namespace Prismatic{
 		pars.imageSize[1] = pars.pot.get_dimi();
 		Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 		Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
-
+		pars.qx = qx;
+		pars.qy = qy;
+		
 		pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
 		pars.qya = mesh.first;
 		pars.qxa = mesh.second;
@@ -195,8 +209,11 @@ namespace Prismatic{
 		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
+		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars, numLayers, dummy);
+		//set up
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -224,25 +241,12 @@ namespace Prismatic{
 			}
 		}
 
-		//save 4D output if applicable
-		if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			intOutput_small.toMRC_f(section4DFilename.c_str());
-		}
-
 		if (pars.meta.saveDPC_CoM){
-			long offset_x = psi.get_dimi() / 4;
-			long offset_y = psi.get_dimj() / 4;
-			long ndimy = (long) psi.get_dimj();
-			long ndimx = (long) psi.get_dimi();
-
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
-			for (long y = 0; y < psi.get_dimj() / 2; ++y){
-				for (long x = 0; x < psi.get_dimi() / 2; ++x){
-					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
-					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx); 
+			for (long y = 0; y < psi.get_dimj(); ++y){
+				for (long x = 0; x < psi.get_dimi(); ++x){
+					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
 				}
 			}
 			//divide by sum of intensity
@@ -262,6 +266,26 @@ namespace Prismatic{
 			}
 			++idx;
 		};
+
+		//save 4D output if applicable
+		if (pars.meta.save4DOutput) {
+			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+
+			CBED_data.close();
+			dataGroup.close();
+
+			//intOutput_small.toMRC_f(section4DFilename.c_str());
+		}
 	}
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
@@ -294,27 +318,16 @@ namespace Prismatic{
 				}
 			}
 
-			//save 4D output if applicable
-			if (pars.meta.save4DOutput) {
-				std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-				intOutput_small.toMRC_f(section4DFilename.c_str());
-			}
 
 			if (pars.meta.saveDPC_CoM){
-				long offset_x = pars.psiProbeInit.get_dimi() / 4;
-				long offset_y = pars.psiProbeInit.get_dimj() / 4;
-				long ndimy = (long) pars.psiProbeInit.get_dimj();
-				long ndimx = (long) pars.psiProbeInit.get_dimi();
-
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
-				for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y){
-					for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x){
-						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx); 
-						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx); 
+				for (long y = 0; y < pars.psiProbeInit.get_dimj(); ++y){
+					for (long x = 0; x < pars.psiProbeInit.get_dimi(); ++x){
+						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
 					}
 				}
+
 				//divide by sum of intensity
 				PRISMATIC_FLOAT_PRECISION intensitySum = 0;
 				for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
@@ -332,6 +345,26 @@ namespace Prismatic{
 				}
 				++idx;
 			};
+
+			//save 4D output if applicable
+			if (pars.meta.save4DOutput) {
+				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+				std::stringstream nameString;
+				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+				hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+				PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+
+				CBED_data.close();
+				dataGroup.close();
+				//intOutput_small.toMRC_f(section4DFilename.c_str());
+			}
+
 			++Nstart;
 			++probe_idx;
 		}

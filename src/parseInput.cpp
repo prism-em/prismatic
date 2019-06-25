@@ -86,7 +86,8 @@ namespace Prismatic {
                 "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n" <<
                 "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n" <<
                 "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n" <<
-                "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n";
+                "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n" <<
+                "* --nyquist-sampling (-nqs) bool=false : Set number of probe positions at Nyquist sampling limit (default: Off)]\n";
     }
 
 
@@ -237,6 +238,11 @@ namespace Prismatic {
             f << "--occupancy:1\n";
         } else {
             f << "--occupancy:0\n";
+        }
+        if (meta.nyquistSampling) {
+            f << "--nyquist-sampling:1\n";
+        } else {
+            f << "--nqyuist-sampling:0\n";
         }
 
 #ifdef PRISMATIC_ENABLE_GPU
@@ -1098,6 +1104,18 @@ namespace Prismatic {
         return true;
     };
 
+    bool parse_nqs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
+                 int& argc, const char*** argv){
+        if (argc < 2){
+            cout << "No value provided for -nqs (syntax is -nqs bool)\n";
+            return false;
+        }
+        meta.nyquistSampling = std::string((*argv)[1]) == "0" ? false : true;
+        argc-=2;
+        argv[0]+=2;
+        return true;
+    };
+
     bool parse_rsc(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                  int& argc, const char*** argv){
         if (argc < 2){
@@ -1187,7 +1205,8 @@ namespace Prismatic {
             {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
             {"--save-DPC_CoM", parse_dpc}, {"-DPC", parse_dpc},
             {"--save-real-space-coords",parse_rsc}, {"-rsc",parse_rsc},
-            {"--save-potential-slices",parse_ps},{"-ps",parse_ps}
+            {"--save-potential-slices",parse_ps},{"-ps",parse_ps},
+            {"--nyquist-sampling",parse_nqs},{"-nqs",parse_nqs}
     };
     bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
                            int& argc, const char*** argv){

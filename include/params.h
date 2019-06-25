@@ -70,6 +70,8 @@ namespace Prismatic{
 	    Array2D<T> q1;
         Array1D<T> xp;
         Array1D<T> yp;
+		Array1D<T> qx;
+		Array1D<T> qy;
         std::vector<size_t> beamsIndex;
 	    Prismatic::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D<T> beams;
@@ -103,6 +105,7 @@ namespace Prismatic{
 		size_t zStartPlane;
 	    size_t numberBeams;
 		H5::H5File outputFile;
+		size_t fpFlag; //flag to prevent creation of new HDF5 files
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG

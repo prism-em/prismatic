@@ -69,6 +69,16 @@ namespace Prismatic {
 	};
 
 	template<class T>
+	Array1D <T> fftshift(Array1D<T> arr) {
+		Array1D<T> result(arr);
+		const long si = std::floor(arr.get_dimi() / 2);
+		for (auto i = 0; i < arr.get_dimi(); ++i) {
+			result.at((i + si) % arr.get_dimi()) = arr.at(i);
+		}
+		return result;
+	};
+
+	template<class T>
 	std::string generateFilename(const Parameters <T> &pars, const size_t currentSlice, const size_t ay, const size_t ax) {
 		std::string result = pars.meta.outputFolder + pars.meta.filenameOutput.substr(0, pars.meta.filenameOutput.find_last_of("."));
 		std::stringstream ss;
@@ -93,11 +103,51 @@ namespace Prismatic {
 	PRISMATIC_FLOAT_PRECISION computeRfactor(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > left,
 	                                     Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION> > right);
 
+	
+	int nyquistProbes(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION > pars, size_t dim);
+
 	std::string remove_extension(const std::string& filename);
 
 	bool testFilenameOutput(const std::string& filename);
 	int testWrite(const std::string& filename);
     int testExist(const std::string& filename);
+
+	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars);
+
+	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
+
+	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
+
+	void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
+
+	void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
+
+	void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
+
+	void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
+
+	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
+
+	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
+
+	void writeRealSlice(H5::DataSet dataset, const float* buffer, const hsize_t* mdims);
+
+	void writeRealSlice(H5::DataSet dataset, const double* buffer, const hsize_t* mdims);
+
+	void writeDatacube3D(H5::DataSet dataset, const float* buffer, const hsize_t* mdims);
+
+	void writeDatacube3D(H5::DataSet dataset, const double* buffer, const hsize_t* mdims);
+
+	void writeDatacube4D(H5::DataSet dataset, float* buffer, const hsize_t* mdims, const hsize_t* offset, const float numFP);
+	
+	void writeDatacube4D(H5::DataSet dataset, double* buffer, const hsize_t* mdims, const hsize_t* offset, const double numFP);
+
+	std::string getDigitString(int digit);
+
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy);
+
+	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy);
+
 }
 
 #endif //PRISMATIC_UTILITY_H

@@ -25,6 +25,7 @@
 #include "ArrayND.h"
 #include "projectedPotential.h"
 #include "WorkDispatcher.h"
+#include "utility.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -220,8 +221,148 @@ namespace Prismatic {
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
 
 		if(pars.meta.savePotentialSlices){
-			std::string file_name = pars.meta.outputFolder + "potential_slices.mrc";
-			pars.pot.toMRC_f(file_name.c_str());
+			//create new datacube group
+			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+			std::string groupName = "ppotential";
+			H5::Group ppotential;
+			if(pars.fpFlag == 0){
+				ppotential = realslices.createGroup(groupName);
+
+				int depth = pars.numPlanes;
+				H5::DataSpace attr_dataspace(H5S_SCALAR);
+				H5::Attribute depth_attr = ppotential.createAttribute("depth",H5::PredType::NATIVE_INT,attr_dataspace);
+				depth_attr.write(H5::PredType::NATIVE_INT, &depth);
+
+				int group_type = 1;
+				H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
+				emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+				H5::Attribute metadata_group = ppotential.createAttribute("metadata",H5::PredType::NATIVE_INT,attr_dataspace);
+				int mgroup = 0;
+				metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);	
+
+				//write dimensions
+				H5::DataSpace str_name_ds(H5S_SCALAR);
+				H5::StrType strdatatype(H5::PredType::C_S1,256);
+
+				hsize_t x_size[1] = {pars.imageSize[1]};
+				hsize_t y_size[1] = {pars.imageSize[0]};
+
+				Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({ {pars.imageSize[1]} });
+				Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({ {pars.imageSize[0]} });
+
+				for(auto i = 0; i < pars.imageSize[1]; i++) x_dim_data[i] = i * pars.pixelSize[1];
+
+				for(auto i = 0; i < pars.imageSize[0]; i++) y_dim_data[i] = i * pars.pixelSize[0];
+
+				H5::DataSpace dim1_mspace(1,x_size);
+				H5::DataSpace dim2_mspace(1,y_size);
+
+				H5::DataSet dim1;
+				H5::DataSet dim2;
+				
+				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
+					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+
+					H5::DataSpace dim1_fspace = dim1.getSpace();
+					H5::DataSpace dim2_fspace = dim2.getSpace();
+
+					dim1.write(&x_dim_data[0],H5::PredType::NATIVE_LONG,dim1_mspace,dim1_fspace);
+					dim2.write(&y_dim_data[0],H5::PredType::NATIVE_LONG,dim2_mspace,dim2_fspace);
+				}else{
+					dim1 = ppotential.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
+					dim2 = ppotential.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
+
+					H5::DataSpace dim1_fspace = dim1.getSpace();
+					H5::DataSpace dim2_fspace = dim2.getSpace();
+
+					dim1.write(&x_dim_data[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
+					dim2.write(&y_dim_data[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
+				}
+				
+				//dimension attributes
+				const H5std_string dim1_name_str("R_x");
+				const H5std_string dim2_name_str("R_y");
+
+				H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
+				H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+
+				dim1_name.write(strdatatype,dim1_name_str);
+				dim2_name.write(strdatatype,dim2_name_str);
+
+				const H5std_string dim1_unit_str("[n_m]");
+				const H5std_string dim2_unit_str("[n_m]");
+
+				H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
+				H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+
+				dim1_unit.write(strdatatype,dim1_unit_str);
+				dim2_unit.write(strdatatype,dim2_unit_str);
+			}else{
+				ppotential = realslices.openGroup(groupName);
+			}
+
+			for(auto Z = 0; Z < pars.numPlanes; Z++){
+				std::string slice_name = "slice_" + getDigitString(Z);
+
+				//read in potential array and stride; also, divide by number of FP to do averaging
+				Array2D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1],pars.imageSize[0]}});
+				for(auto x = 0; x < pars.imageSize[1]; x++){
+					for(auto y = 0; y < pars.imageSize[0]; y++){
+						writeBuffer.at(x,y) = pars.pot.at(Z,y,x)/pars.meta.numFP;
+					}
+				}
+
+				H5::DataSet potSliceData; //declare out here to avoid scoping
+				if(pars.fpFlag == 0){
+
+					//create dataset
+					//imageSize[1] is the x dimension
+					hsize_t dataDims[2] = {pars.imageSize[1], pars.imageSize[0]};
+					H5::DataSpace mspace(2,dataDims);
+
+					//switch between float and double, maybe not the best way to do so
+					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+						potSliceData = ppotential.createDataSet(slice_name,H5::PredType::NATIVE_FLOAT,mspace);
+					}else{
+						potSliceData = ppotential.createDataSet(slice_name,H5::PredType::NATIVE_DOUBLE,mspace);
+					}
+				}else{
+					potSliceData = ppotential.openDataSet(slice_name);
+
+					PRISMATIC_FLOAT_PRECISION* readBuffer = (PRISMATIC_FLOAT_PRECISION*) malloc(pars.imageSize[0]*pars.imageSize[1]*sizeof(PRISMATIC_FLOAT_PRECISION));
+					H5::DataSpace rfspace = potSliceData.getSpace();
+					hsize_t rmdims[2] = {pars.imageSize[1],pars.imageSize[0]};
+					H5::DataSpace rmspace(2,rmdims);
+
+					if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_FLOAT,rmspace,rfspace);
+					}else{
+						potSliceData.read(&readBuffer[0],H5::PredType::NATIVE_DOUBLE,rmspace,rfspace);
+					}
+					
+					for(auto i = 0; i < pars.imageSize[0]*pars.imageSize[1]; i++) writeBuffer[i] += readBuffer[i];
+
+					free(readBuffer);
+					rfspace.close();
+					rmspace.close();
+				}
+
+				hsize_t wmdims[2] = {pars.imageSize[1],pars.imageSize[0]};
+				H5::DataSpace wfspace = potSliceData.getSpace();
+				H5::DataSpace wmspace(2,wmdims);
+
+				if(sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float)){
+					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_FLOAT,wmspace,wfspace);
+				}else{
+					potSliceData.write(&writeBuffer[0],H5::PredType::NATIVE_DOUBLE,wmspace,wfspace);
+				}
+				potSliceData.close();
+					
+
+			}
+
 		}
 
 	}
