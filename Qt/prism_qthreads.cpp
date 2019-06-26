@@ -20,6 +20,7 @@
 #include "utility.h"
 #include <iostream>
 #include <string>
+#include "H5Cpp.h"
 
 PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
@@ -364,18 +365,24 @@ void FullPRISMCalcThread::run(){
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     Prismatic::configure(meta);
+    Prismatic::setupOutputFile(params);
+    params.outputFile =  H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
+    params.fpFlag = 0;
+    
         //  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
     if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
         this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
         Prismatic::PRISM01_calcPotential(params);
 
         //Output potential if box is check
+        /*
         if (this->parent->saveProjectedPotential){
           std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
           outfile += ("_potential.mrc");
           std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
           params.pot.toMRC_f(outfile.c_str());
         }
+        */
         
         std::cout <<"Potential Calculated" << std::endl;
     {
@@ -411,17 +418,25 @@ void FullPRISMCalcThread::run(){
     //    emit ScompactCalculated();
 
     Prismatic::PRISM03_calcOutput(params);
+    params.outputFile.close();
 
 
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
         Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+        if(params.meta.saveDPC_CoM) DPC_CoM_output = params.DPC_CoM;
+
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
-	    ++meta.fpNum;
-            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.randomSeed = rand() % 100000;
+            ++meta.fpNum;
+            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+
+            params.outputFile =  H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+            params.fpFlag = fp_num;
+            
             progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
             this->parent->potentialReceived(params.pot);
@@ -429,11 +444,17 @@ void FullPRISMCalcThread::run(){
             Prismatic::PRISM02_calcSMatrix(params);
             Prismatic::PRISM03_calcOutput(params);
             net_output += params.output;
+            if(meta.saveDPC_CoM) DPC_CoM_output += params.DPC_CoM;
+            params.outputFile.close();
         }
         // divide to take average
         for (auto&i:net_output) i/=params.meta.numFP;
-
         params.output = net_output;
+
+        if(params.meta.saveDPC_CoM){
+            for (auto&j:DPC_CoM_output) j/=params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+            params.DPC_CoM = DPC_CoM_output;
+        }
     }
 
 
@@ -453,19 +474,109 @@ void FullPRISMCalcThread::run(){
 
     //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput){
-        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimk(),params.output.get_dimj(),params.output.get_dimi()}});
 
-        for (auto y = 0; y < params.output.get_dimk(); ++y){
-            for (auto x = 0; x < params.output.get_dimj();++x){
-                for (auto b = 0; b < params.output.get_dimi(); ++b){
-                    output_image.at(y,x,b) = params.output.at(0,y,x,b);
+    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+
+    if (params.meta.save3DOutput){
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setupVDOutput(params, params.output.get_diml(),dummy);
+        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk()}});
+        
+        std::stringstream nameString;
+        nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(0);
+        H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+
+        for(auto b = 0; b < params.Ndet; b++){
+            std::string dataSetName = "bin" + Prismatic::getDigitString(b);
+            H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+
+            hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+
+            for (auto y = 0; y < params.output.get_dimk(); ++y){
+                for (auto x = 0; x < params.output.get_dimj();++x){
+                    output_image.at(x,y) = params.output.at(0,y,x,b);
+                }
+            }
+
+            Prismatic::writeRealSlice(VD_data,&output_image[0],mdims);
+            VD_data.close();
+        }
+
+        dataGroup.close();
+    }
+
+    if (params.meta.save2DOutput) {
+        size_t lower = std::max((size_t)0, (size_t)(params.meta.integrationAngleMin / params.meta.detectorAngleStep));
+        size_t upper = std::min((size_t)params.detectorAngles.size(), (size_t)(params.meta.integrationAngleMax / params.meta.detectorAngleStep));
+        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
+        prism_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+                {{params.output.get_dimj(), params.output.get_dimk()}});
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setup2DOutput(params, params.output.get_diml(),dummy);
+
+        for (auto y = 0; y < params.output.get_dimk(); ++y) {
+            for (auto x = 0; x < params.output.get_dimj(); ++x) {
+                for (auto b = lower; b < upper; ++b) {
+                    prism_image.at(x, y) += params.output.at(0, y, x, b);
                 }
             }
         }
-        std::string image_filename = params.meta.outputFolder + params.meta.filenameOutput;
-        output_image.toMRC_f(image_filename.c_str());  
+        std::stringstream nameString;
+        nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << Prismatic::getDigitString(0);
+        H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+        H5::DataSet AD_data = dataGroup.openDataSet("realslice");
+        hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+
+        Prismatic::writeRealSlice(AD_data,&prism_image[0],mdims);
+        AD_data.close();
+        dataGroup.close();
+
+        //std::string image_filename = params.meta.outputFolder + std::string("prism_2Doutput_") + params.meta.filenameOutput;
+        //prism_image.toMRC_f(image_filename.c_str());
     }
+
+    if (params.meta.saveDPC_CoM){
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setupDPCOutput(params,params.output.get_diml(), dummy);
+
+        //create dummy array to pass to
+        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
+
+        std::stringstream nameString;
+        nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(0);
+        H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+        hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+
+        for (auto b = 0; b < params.DPC_CoM.get_dimi(); ++b){
+            DPC_slice = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.DPC_CoM.get_dimj(),params.DPC_CoM.get_dimk()}});
+            std::string endName;
+            if(b == 0){
+                endName = "x";
+            }else{
+                endName = "y";
+            }
+            std::string dataSetName = "DPC_CoM_" + endName;
+
+            H5::DataSet DPC_data = dataGroup.openDataSet(dataSetName);
+
+            for (auto y = 0; y < params.DPC_CoM.get_dimk(); ++y){
+                for (auto x = 0; x < params.DPC_CoM.get_dimj();++x){
+                        DPC_slice.at(x,y) = params.DPC_CoM.at(0,y,x,b);
+                }
+            }
+            //if ( params.meta.numSlices != 0) slice_filename = params.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + params.meta.filenameOutput;
+            //slice_image.toMRC_f(slice_filename.c_str());
+            Prismatic::writeRealSlice(DPC_data,&DPC_slice[0],mdims);
+            DPC_data.close();
+        }
+
+        dataGroup.close();
+    }
+
+    PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+    Prismatic::writeMetadata(params,dummy);
+    params.outputFile.close();
+
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "PRISM calculation complete" << std::endl;
@@ -490,9 +601,16 @@ void FullMultisliceCalcThread::run(){
     std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
+
+    params.outputFIle = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
+    Prismatic::setupOutputFile(params);
+    params.fpFlag = 0;
+
         if ((!this->parent->potentialIsReady())  || !(params.meta == *(this->parent->getMetadata()))) {
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
             Prismatic::PRISM01_calcPotential(params);
+
+            /* 
             std::cout << "Potential Calculated" << std::endl;
             if (this->parent->saveProjectedPotential){
               std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
@@ -500,6 +618,7 @@ void FullMultisliceCalcThread::run(){
               std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
               params.pot.toMRC_f(outfile.c_str());
             }
+            */
             {
                 QMutexLocker gatekeeper(&this->parent->dataLock);
                 this->parent->pars = params;
@@ -517,28 +636,45 @@ void FullMultisliceCalcThread::run(){
     this->parent->potentialReceived(params.pot);
     emit potentialCalculated();
     std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
+
+    params.scale = 1.0;
     //Calls Multislice_calcOutput for first frozen phonon pass
     Prismatic::Multislice_calcOutput(params);
-
+    params.outputFile.close();
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
         Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+        if(params.meta.saveDPC_CoM) DPC_CoM_output = params.DPC_CoM;
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
-	    ++meta.fpNum;
-            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             params.meta.randomSeed = rand() % 100000;
+            ++meta.fpNum;
+            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
             progressbar->resetOutputs();
+				
+            params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+            params.fpFlag = fp_num;
+            params.scale = 1.0;
+
             Prismatic::PRISM01_calcPotential(params);
             this->parent->potentialReceived(params.pot);
             emit potentialCalculated();
             Prismatic::Multislice_calcOutput(params);
+
             net_output += params.output;
+            if(meta.saveDPC_CoM) DPC_CoM_output += params.DPC_CoM;
+            params.outputFile.close();
         }
         // divide to take average
         for (auto&i:net_output) i/=params.meta.numFP;
         params.output = net_output;
+
+        if(params.meta.saveDPC_CoM){
+            for (auto&j:DPC_CoM_output) j/=params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+            params.DPC_CoM = DPC_CoM_output;
+        }
     }
 
 
@@ -560,19 +696,125 @@ void FullMultisliceCalcThread::run(){
     //        reshaped_output.toMRC_f(params.meta.filenameOutput.c_str());
     //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
     }
-	if (params.meta.save3DOutput){
-        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimk(),params.output.get_dimj(),params.output.get_dimi()}});
 
-        for (auto y = 0; y < params.output.get_dimk(); ++y){
-            for (auto x = 0; x < params.output.get_dimj();++x){
-                for (auto b = 0; b < params.output.get_dimi(); ++b){
-                    output_image.at(y,x,b) = params.output.at(0,y,x,b);
+    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
+    
+    if (params.meta.save3DOutput){
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setupVDOutput(params, params.output.get_diml(),dummy);
+
+        //create dummy array to pass to
+        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> slice_image;
+        slice_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk()}});
+
+        for (auto j = 0; j < params.output.get_diml(); j++){
+            std::stringstream nameString;
+            nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(j);
+            H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+            hsize_t offset[2] = {0,0};
+            hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+
+            for (auto b = 0; b < params.output.get_dimi(); ++b){
+                std::string dataSetName = "bin" + Prismatic::getDigitString(b);
+                H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+
+                for (auto y = 0; y < params.output.get_dimk(); ++y){
+                    for (auto x = 0; x < params.output.get_dimj();++x){
+                        slice_image.at(x,y) = params.output.at(j,y,x,b);
+                    }
                 }
+                
+                Prismatic::writeRealSlice(VD_data,&slice_image[0],mdims);
+                VD_data.close();
             }
+            //if ( params.meta.numSlices != 0) slice_filename = params.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + params.meta.filenameOutput;
+            //slice_image.toMRC_f(slice_filename.c_str());
+            dataGroup.close();
         }
-        std::string image_filename = params.meta.outputFolder + params.meta.filenameOutput;
-        output_image.toMRC_f(image_filename.c_str());  
     }
+
+    if (params.meta.save2DOutput) {
+        size_t lower = std::max((size_t)0, (size_t)(params.meta.integrationAngleMin / params.meta.detectorAngleStep));
+        size_t upper = std::min(params.detectorAngles.size(), (size_t) (params.meta.integrationAngleMax / params.meta.detectorAngleStep));
+        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
+        //std::string image_filename = std::string("multislice_2Doutput")+params.meta.filenameOutput;
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setup2DOutput(params, params.output.get_diml(),dummy);
+
+            for (auto j = 0; j < params.output.get_diml(); j++){
+                //need to initiliaze output image at each slice to prevent overflow of value
+                prism_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+                    {{params.output.get_dimj(), params.output.get_dimk()}});
+
+                for (auto y = 0; y < params.output.get_dimk(); ++y) {
+                    for (auto x = 0; x < params.output.get_dimj(); ++x) {
+                        for (auto b = lower; b < upper; ++b) {
+                            prism_image.at(x, y) += params.output.at(j, y, x, b);
+                        }
+                    }
+                }
+                //if (params.meta.numSlices != 0){
+                //	image_filename = params.meta.outputFolder +  (std::string("multislice_2Doutput_slice") + std::to_string(j) + std::string("_")) + params.meta.filenameOutput;
+                //}
+                //prism_image.toMRC_f(image_filename.c_str());
+                std::stringstream nameString;
+                nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << Prismatic::getDigitString(j);
+                H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+                H5::DataSet AD_data = dataGroup.openDataSet("realslice");
+                hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+                
+                Prismatic::writeRealSlice(AD_data,&prism_image[0],mdims);
+                AD_data.close();
+                dataGroup.close();
+            }
+    }
+
+
+    if (params.meta.saveDPC_CoM){
+        PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+        Prismatic::setupDPCOutput(params,params.output.get_diml(), dummy);
+
+        //create dummy array to pass to
+       Prismatic:: Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
+        DPC_slice = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.DPC_CoM.get_dimj(),params.DPC_CoM.get_dimk()}});
+
+        for (auto j = 0; j < params.output.get_diml(); j++){
+            std::stringstream nameString;
+            nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(j);
+            H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
+            hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+            
+            for (auto b = 0; b < params.DPC_CoM.get_dimi(); ++b){
+                std::string endName;
+                if(b == 0){
+                    endName = "x";
+                }else{
+                    endName = "y";
+                }
+                std::string dataSetName = "DPC_CoM_" + endName;
+
+                H5::DataSet DPC_data = dataGroup.openDataSet(dataSetName);
+
+                for (auto y = 0; y < params.DPC_CoM.get_dimk(); ++y){
+                    for (auto x = 0; x < params.DPC_CoM.get_dimj();++x){
+                        DPC_slice.at(x,y) = params.DPC_CoM.at(j,y,x,b);
+                    }
+                }
+                //if ( params.meta.numSlices != 0) slice_filename = params.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + params.meta.filenameOutput;
+                //slice_image.toMRC_f(slice_filename.c_str());
+                Prismatic::writeRealSlice(DPC_data,&DPC_slice[0],mdims);
+                DPC_data.close();
+            }
+
+            dataGroup.close();
+        }
+    }
+
+    PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+    Prismatic::writeMetadata(params,dummy);
+    params.outputFile.close();
+
+
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;

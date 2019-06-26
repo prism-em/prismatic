@@ -1646,7 +1646,7 @@ void PRISMMainWindow::updateOutputFloatImage(){
         for (auto j = 0; j < output.get_dimk(); ++j){
             for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
-                    outputImage_float.at(j,i) += output.at(j, i, k);
+                    outputImage_float.at(j,i) += output.at(0, j, i, k);
                 }
             }
         }

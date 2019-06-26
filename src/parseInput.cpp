@@ -242,7 +242,7 @@ namespace Prismatic {
         if (meta.nyquistSampling) {
             f << "--nyquist-sampling:1\n";
         } else {
-            f << "--nqyuist-sampling:0\n";
+            f << "--nyquist-sampling:0\n";
         }
 
 #ifdef PRISMATIC_ENABLE_GPU

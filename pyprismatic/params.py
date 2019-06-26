@@ -68,7 +68,7 @@ class Metadata(object):
     "nyquistSampling": set number of probe positions at Nyquist sampling limit
     "integrationAngleMin" : (in rad)
     "integrationAngleMax" : (in rad)
-    "transferMode : memory model to use, either "streaming", "singlexfer", or "auto"
+    "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
     fields = ["interpolationFactorX",
