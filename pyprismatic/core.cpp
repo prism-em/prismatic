@@ -29,7 +29,7 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	int numFP, batchSizeTargetCPU, batchSizeTargetGPU, 
 	tileX, tileY, tileZ, 
 	numGPUs, numStreamsPerGPU, numThreads,includeThermalEffects, alsoDoCPUWork, save2DOutput,
-	save3DOutput, save4DOutput;
+	save3DOutput, save4DOutput,saveDPC_CoM,savePotentialSlices,nyquistSampling,numSlices;
 	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode;
 	double realspacePixelSizeX, realspacePixelSizeY, potBound,
 	sliceThickness, probeStepX, probeStepY,
@@ -38,13 +38,14 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	C5, probeSemiangle, probeXtilt,
 	probeYtilt, scanWindowXMin, scanWindowXMax,
 	scanWindowYMin, scanWindowYMax, 
-	integrationAngleMin, integrationAngleMax;
+	integrationAngleMin, integrationAngleMax,zStart,scanWindowXMin_r,scanWindowXMax_r,
+	scanWindowYMin_r,scanWindowYMax_r;
 	#ifdef PRISMATIC_ENABLE_GPU
 	std::cout <<"COMPILED FOR GPU" << std::endl;
 	#endif //PRISMATIC_ENABLE_GPU
 
 	if (!PyArg_ParseTuple(
-		args, "iissdddiddddiiiddiiiiiddddddddddddddispppppdds",
+		args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiiddddd",
 	    &interpolationFactorX,
 	    &interpolationFactorY,
 	    &filenameAtoms,
@@ -90,7 +91,15 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 		&save4DOutput,
 		&integrationAngleMin,
 		&integrationAngleMax,
-		&transferMode)){
+		&transferMode,
+		&saveDPC_CoM,
+		&savePotentialSlices,
+		&numSlices,
+		&zStart,
+		&scanWindowXMin_r,
+		&scanWindowXMax_r,
+		&scanWindowYMin_r,
+		&scanWindowYMax_r)){
 		return NULL;
 	} 
 	meta.interpolationFactorX 	 = interpolationFactorX;
@@ -102,6 +111,8 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.potBound       	 	 = potBound;
 	meta.numFP      			 = numFP;
 	meta.sliceThickness      	 = sliceThickness;
+	meta.numSlices				 = numSlices;
+	meta.zStart					 = zStart;
 	meta.cellDim[2] 		  	 = cellDimX;
 	meta.cellDim[1]  			 = cellDimY;
 	meta.cellDim[0]  			 = cellDimZ;
@@ -129,20 +140,26 @@ static PyObject* pyprismatic_core_go(PyObject *self, PyObject *args){
 	meta.scanWindowXMax 		 = scanWindowXMax;
 	meta.scanWindowYMin 	     = scanWindowYMin;
 	meta.scanWindowYMax 		 = scanWindowYMax;
+	meta.scanWindowXMin_r 		 = scanWindowXMin_r;
+	meta.scanWindowXMax_r 		 = scanWindowXMax_r;
+	meta.scanWindowYMin_r 	     = scanWindowYMin_r;
+	meta.scanWindowYMax_r 		 = scanWindowYMax_r;
 	meta.randomSeed 		     = randomSeed;
 	if (std::string(algorithm) == "multislice"){
 		meta.algorithm 			 = Prismatic::Algorithm::Multislice;
 	} else {
 		meta.algorithm 			 = Prismatic::Algorithm::PRISM;
 	}
-
 	meta.includeThermalEffects   = includeThermalEffects;
 	meta.alsoDoCPUWork           = alsoDoCPUWork;
 	meta.save2DOutput			 = save2DOutput;
 	meta.save3DOutput			 = save3DOutput;
 	meta.save4DOutput			 = save4DOutput;
+	meta.savePotentialSlices	 = savePotentialSlices;
+	meta.saveDPC_CoM			 = saveDPC_CoM;
 	meta.integrationAngleMin     = integrationAngleMin;
 	meta.integrationAngleMax     = integrationAngleMax;
+	meta.nyquistSampling 		 = nyquistSampling;
 	
 	if (std::string(transferMode) == "singlexfer"){
 		meta.transferMode 		 = Prismatic::StreamingMode::SingleXfer;
