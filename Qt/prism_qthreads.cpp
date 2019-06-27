@@ -52,14 +52,14 @@ void PotentialThread::run(){
     // indicate that the potential is ready
 
     // std::cout <<this->parent->saveProjectedPotential<<std::endl;
-
+    /*
     if (this->parent->saveProjectedPotential){
       std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
       outfile += ("_potential.mrc");
       std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
       params.pot.toMRC_f(outfile.c_str());
     }
-
+    */
 //    this->parent->potentialArrayExists = true;
 //    if (this->parent->saveProjectedPotential)params.pot.toMRC_f("potential.mrc");
     std::cout << "Projected potential calculation complete" << std::endl;
@@ -132,15 +132,17 @@ void ProbeThread::run(){
             this->parent->pars = params;
         }
 //            this->parent->potentialArrayExists = true;
-
+        
         this->parent->potentialReceived(params.pot);
         emit potentialCalculated();
+        /*
         if (this->parent->saveProjectedPotential){
           std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
           outfile += ("_potential.mrc");
           std::cout<<"Outputting potential with filename "<<outfile<<std::endl;
           params.pot.toMRC_f(outfile.c_str());
         }
+        */
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -365,8 +367,8 @@ void FullPRISMCalcThread::run(){
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     Prismatic::configure(meta);
-    Prismatic::setupOutputFile(params);
     params.outputFile =  H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
+    Prismatic::setupOutputFile(params);
     params.fpFlag = 0;
     
         //  //  Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params = Prismatic::execute_plan(meta);
@@ -417,15 +419,15 @@ void FullPRISMCalcThread::run(){
     }
     //    emit ScompactCalculated();
 
+    std::cout << "probeStep size in q threads: " << params.meta.probeStepX << std::endl; 
     Prismatic::PRISM03_calcOutput(params);
     params.outputFile.close();
-
 
 
     if (params.meta.numFP > 1) {
         // run the rest of the frozen phonons
         Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
-        Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
         if(params.meta.saveDPC_CoM) DPC_CoM_output = params.DPC_CoM;
 
         for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num){
@@ -548,7 +550,7 @@ void FullPRISMCalcThread::run(){
         hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
 
         for (auto b = 0; b < params.DPC_CoM.get_dimi(); ++b){
-            DPC_slice = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.DPC_CoM.get_dimj(),params.DPC_CoM.get_dimk()}});
+            DPC_slice = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.DPC_CoM.get_dimj(),params.DPC_CoM.get_dimk()}});
             std::string endName;
             if(b == 0){
                 endName = "x";
@@ -601,8 +603,8 @@ void FullMultisliceCalcThread::run(){
     std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
 	QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
-
-    params.outputFIle = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
+    
+    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_TRUNC);
     Prismatic::setupOutputFile(params);
     params.fpFlag = 0;
 

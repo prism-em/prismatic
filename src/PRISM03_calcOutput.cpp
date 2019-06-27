@@ -33,6 +33,7 @@
 
 namespace Prismatic {
 	extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+	extern std::mutex HDF5_lock;
 	using namespace std;
 	const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 	// this might seem a strange way to get pi, but it's slightly more future proof
@@ -57,6 +58,9 @@ namespace Prismatic {
 	void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
+		std::cout << "scanWindowXmin: " << pars.scanWindowXMin << std::endl;
+		std::cout << "scanWindowXmax: " << pars.scanWindowXMax << std::endl;
+		std::cout << "tiledCellDim: " << pars.tiledCellDim[2] << std::endl;
 		xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
@@ -74,14 +78,17 @@ namespace Prismatic {
 			probeStepY = pars.meta.probeStepY;
 		}
 		
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
+		std::cout << "Prism calc probestep: " << probeStepX << std::endl;
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
+		std::cout << "prism xrange size: " << xp_d.size() << std::endl;
 //		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probeStepX / 2, pars.meta.probeStepX, xR[1] - pars.meta.probeStepX / 2);
 //		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probeStepY / 2, pars.meta.probeStepY, yR[1] - pars.meta.probeStepY / 2);
 
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
+		/* 
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
 			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
@@ -89,6 +96,7 @@ namespace Prismatic {
 			real_mesh.first.toMRC_f(x_name.c_str());
 			real_mesh.second.toMRC_f(y_name.c_str());
 		}
+		*/
 
 		pars.xp = xp;
 		pars.yp = yp;
@@ -399,6 +407,7 @@ namespace Prismatic {
         //save 4D output if applicable
          if (pars.meta.save4DOutput) {
 			//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
+			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 			std::stringstream nameString;
 			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(0);
 
@@ -414,6 +423,7 @@ namespace Prismatic {
 
 			CBED_data.close();
 			dataGroup.close();
+			HDF5_gatekeeper.unlock();
 			//intOutput.toMRC_f(section4DFilename.c_str());
 		}
 	}

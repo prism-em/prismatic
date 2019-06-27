@@ -1978,7 +1978,6 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
 }
 
 
-
 void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)ui->lineEdit_pixelSizeY->text().toDouble(&flag);
@@ -1990,7 +1989,7 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
             QMutexLocker gatekeeper(&outputLock);
-        outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
+        //outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
 

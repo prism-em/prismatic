@@ -31,6 +31,7 @@ namespace Prismatic{
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+	mutex HDF5_lock;
 
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 
@@ -269,6 +270,7 @@ namespace Prismatic{
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
+			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 			std::stringstream nameString;
 			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
@@ -283,7 +285,7 @@ namespace Prismatic{
 
 			CBED_data.close();
 			dataGroup.close();
-
+			HDF5_gatekeeper.unlock();
 			//intOutput_small.toMRC_f(section4DFilename.c_str());
 		}
 	}
@@ -349,6 +351,7 @@ namespace Prismatic{
 			//save 4D output if applicable
 			if (pars.meta.save4DOutput) {
 				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+				unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 				std::stringstream nameString;
 				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
@@ -362,6 +365,7 @@ namespace Prismatic{
 
 				CBED_data.close();
 				dataGroup.close();
+				HDF5_gatekeeper.unlock();
 				//intOutput_small.toMRC_f(section4DFilename.c_str());
 			}
 
