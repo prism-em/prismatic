@@ -21,6 +21,8 @@
 #include <iostream>
 #include <string>
 #include "H5Cpp.h"
+#include "QMessageBox"
+#include <stdio.h>
 
 PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) :
 parent(_parent), progressbar(_progressbar){
@@ -340,30 +342,44 @@ FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progres
 
 
 void FullPRISMCalcThread::run(){
-    std::cout << "Full PRISM Calculation thread running" << std::endl;
+    //std::cout << "Full PRISM Calculation thread running" << std::endl;
 
-    progressbar->signalDescriptionMessage("Initiating PRISM simulation");
-    emit signalTitle("PRISM: Frozen Phonon #1");
-    bool error_reading = false;
-    QMutexLocker gatekeeper(&this->parent->dataLock);
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params;
+    //bool error_reading = false;
+    //QMutexLocker gatekeeper(&this->parent->dataLock);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
 
-
+    /*
     try {
         params = Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>(meta,progressbar);
     }catch (...){
         std::cout <<"An error occurred while attempting to read from file " << meta.filenameAtoms << std::endl;
         error_reading = true;
     }
-    gatekeeper.unlock();
+     */
+    //gatekeeper.unlock();
 
     if(! Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str())){
       std::cout<<"Aborting calculation, please choose an accessible output directory"<<std::endl;
       return;
     }
-    if (error_reading){
-        emit signalErrorReadingAtomsDialog();
-    } else {
+
+    if(Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2){
+        emit overwriteWarning();
+        if(this->parent->overwriteFile()){
+            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
+            remove(params.meta.filenameOutput.c_str());
+            this->thread()->sleep(1);
+            this->parent->flipOverwrite(); //flip the check back
+        }else{
+            return;
+        }
+    }
+
+    progressbar->signalDescriptionMessage("Initiating PRISM simulation");
+    //emit signalTitle("PRISM: Frozen Phonon #1");
+    //if (error_reading){
+    //  emit signalErrorReadingAtomsDialog();
+    // else {
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
     Prismatic::configure(meta);
@@ -387,12 +403,10 @@ void FullPRISMCalcThread::run(){
         */
         
         std::cout <<"Potential Calculated" << std::endl;
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        this->parent->pars = params;
-    }
-    this->parent->potentialReceived(params.pot);
-    emit potentialCalculated();
+        {
+            QMutexLocker gatekeeper(&this->parent->dataLock);
+            this->parent->pars = params;
+        }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
@@ -400,23 +414,28 @@ void FullPRISMCalcThread::run(){
         std::cout << "Potential already calculated. Using existing result." << std::endl;
     }
 
-    if ((!this->parent->SMatrixIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
+    this->parent->potentialReceived(params.pot);
+    emit potentialCalculated();
+
     Prismatic::PRISM02_calcSMatrix(params);
-    {
-    //        QMutexLocker gatekeeper(&this->parent->dataLock);
+    /*
+    if ((!this->parent->SMatrixIsReady())  || !(params.meta == *(this->parent->getMetadata()))){
+            {
+            //        QMutexLocker gatekeeper(&this->parent->dataLock);
 
-    //        // perform copy
-    //        this->parent->pars = params;
+            //        // perform copy
+            //        this->parent->pars = params;
 
-    //        // indicate that the potential is ready
-    //        this->parent->ScompactReady = true;
-    }
+            //        // indicate that the potential is ready
+            //        this->parent->ScompactReady = true;
+            }
     } else {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         params = this->parent->pars;
         params.progressbar = progressbar;
         std::cout << "S-Matrix already calculated. Using existing result." << std::endl;
     }
+    */
     //    emit ScompactCalculated();
 
     Prismatic::PRISM03_calcOutput(params);
@@ -434,11 +453,11 @@ void FullPRISMCalcThread::run(){
             ++meta.fpNum;
             Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
             emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+            progressbar->resetOutputs();
 
             params.outputFile =  H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
             params.fpFlag = fp_num;
             
-            progressbar->resetOutputs();
             Prismatic::PRISM01_calcPotential(params);
             this->parent->potentialReceived(params.pot);
             emit potentialCalculated();
@@ -460,10 +479,11 @@ void FullPRISMCalcThread::run(){
 
 
 
-    //    {
-    //        QMutexLocker gatekeeper(&this->parent->dataLock);
-    //        this->parent->pars = params;
-    //    }
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
+        gatekeeper.unlock();
+    }
 
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
@@ -474,6 +494,7 @@ void FullPRISMCalcThread::run(){
     //        this->parent->outputArrayExists = true;
 
     //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
+        gatekeeper.unlock();
     }
 
     params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
@@ -583,7 +604,6 @@ void FullPRISMCalcThread::run(){
     std::cout << "PRISM calculation complete" << std::endl;
 
     calculationLocker.unlock();
-    }
 }
 
 
@@ -599,6 +619,19 @@ void FullMultisliceCalcThread::run(){
       std::cout<<"Aborting calculation, please choose an accessible output directory"<<std::endl;
       return;
     }
+
+    if(Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2){
+        emit overwriteWarning();
+        if(this->parent->overwriteFile()){
+            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
+            remove(params.meta.filenameOutput.c_str());
+            this->thread()->sleep(1);
+            this->parent->flipOverwrite(); //flip the check back
+        }else{
+            return;
+        }
+    }
+
     progressbar->signalDescriptionMessage("Initiating Multislice simulation");
 
     std::cout<<"Also do CPU work: "<<params.meta.alsoDoCPUWork<<std::endl;
@@ -613,8 +646,8 @@ void FullMultisliceCalcThread::run(){
             this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
             Prismatic::PRISM01_calcPotential(params);
 
-            /* 
             std::cout << "Potential Calculated" << std::endl;
+            /* 
             if (this->parent->saveProjectedPotential){
               std::string outfile = Prismatic::remove_extension(params.meta.filenameOutput.c_str());
               outfile += ("_potential.mrc");
@@ -684,6 +717,7 @@ void FullMultisliceCalcThread::run(){
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
+        gatekeeper.unlock();
     }
     {
         QMutexLocker gatekeeper(&this->parent->outputLock);
@@ -698,6 +732,7 @@ void FullMultisliceCalcThread::run(){
     //        for (auto &i:params.output)*ptr++=i;
     //        reshaped_output.toMRC_f(params.meta.filenameOutput.c_str());
     //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
+        gatekeeper.unlock();
     }
 
     params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(),H5F_ACC_RDWR);
@@ -821,6 +856,8 @@ void FullMultisliceCalcThread::run(){
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;
+
+    calculationLocker.unlock();
 }
 
 PRISMThread::~PRISMThread(){}

@@ -52,6 +52,7 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
 	bool potentialIsReady();
+    bool overwriteFile();
 	bool SMatrixIsReady();
 	bool OutputIsReady();
     bool checkoutputArrayExists();
@@ -195,7 +196,8 @@ public slots:
     void saveAtomCoords(QString, QString);
     void changeColormap(QString);
     bool checkProbesCalculated();
-
+    void preventOverwrite();
+    void flipOverwrite();
 
 protected:
     void setFilenameAtoms(const std::string& filename);
@@ -244,6 +246,7 @@ private:
     bool probeTiltYSet;
     bool minWindowYSet;
     bool maxWindowYSet;
+    bool overwriteCheck = false;
 
     QImage potentialImage;
     QImage probeImage;

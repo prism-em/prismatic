@@ -115,17 +115,17 @@ namespace Prismatic {
       return filename.substr(0, lastdot);
 	}
 
-	bool testFilenameOutput(const std::string& filename){
-		bool exists = testExist(filename);
-		bool write_ok = testWrite(filename);
+	int testFilenameOutput(const std::string& filename){
+		bool exists = !testExist(filename);
+		bool write_ok = !testWrite(filename);
 		//Check if file already exists and if we can write to it
 		if(exists && write_ok){
 		std::cout<<"Warning "<<filename<<" already exists and will be overwritten"<<std::endl;
-			return true;
+			return 2;
 		}
 		else if(exists && !write_ok){
 			std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
-			return false;
+			return 0;
 		}
 		else{
 			//If the file does not exist, check to see if we can open a file of that name
@@ -134,11 +134,11 @@ namespace Prismatic {
 				//If we can open such a file, close the file and delete it.
 				f.close();
 				std::remove(filename.c_str());
-				return true;
+				return 1;
 			}
 			else{
 				std::cout<<filename<<" isn't an accessible write destination"<<std::endl;
-				return false;
+				return 0;
 			}
 		}
 
@@ -477,12 +477,14 @@ namespace Prismatic {
 		//shared properties 
 		std::string base_name = "virtual_detector_depth";
 		hsize_t attr_dims[1] = {1};
-		hsize_t data_dims[2];
+		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
 		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {pars.Ndet};
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t bin_dim[1] = {pars.Ndet};
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -502,18 +504,11 @@ namespace Prismatic {
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 			//write depth attribute
-			H5::DataSpace attr3_dataspace(H5S_SCALAR);
-			H5::Attribute depth_attr = VD_slice_n.createAttribute("depth",H5::PredType::NATIVE_INT,attr3_dataspace);
-			int depth = pars.Ndet;
-			depth_attr.write(H5::PredType::NATIVE_INT, &depth);	
 
 			//create datasets
-			H5::DataSpace mspace(2,data_dims); //rank is 2 for each realslice
-			for(auto idx = 0; idx < pars.Ndet; idx++){
-				std::string binName = "bin" + getDigitString(idx);
-				H5::DataSet binData = VD_slice_n.createDataSet(binName,H5::PredType::NATIVE_FLOAT,mspace);
-				binData.close();
-			}
+			H5::DataSpace mspace(3,data_dims); //rank is 2 for each realslice
+			H5::DataSet VD_data = VD_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
+			VD_data.close();
 			mspace.close();
 
 			//write dimensions
@@ -522,34 +517,44 @@ namespace Prismatic {
 
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,bin_dim);
 
 			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
 			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim2_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
 
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
-			
+			dim3.write(&pars.detectorAngles[0],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
+
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
 			const H5std_string dim2_name_str("R_y");
+			const H5std_string dim3_name_str("bin_outer_angle");
 
 			H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
 			H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim3_name = dim3.createAttribute("name",strdatatype,str_name_ds);
 
 			dim1_name.write(strdatatype,dim1_name_str);
 			dim2_name.write(strdatatype,dim2_name_str);
+			dim3_name.write(strdatatype,dim3_name_str);
 
 			const H5std_string dim1_unit_str("[n_m]");
 			const H5std_string dim2_unit_str("[n_m]");
+			const H5std_string dim3_unit_str("[mrad]");
 
 			H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
 			H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim3_unit = dim3.createAttribute("units",strdatatype,str_name_ds);
 
 			dim1_unit.write(strdatatype,dim1_unit_str);
 			dim2_unit.write(strdatatype,dim2_unit_str);
+			dim3_unit.write(strdatatype,dim3_unit_str);
 
 			VD_slice_n.close();
 		}
@@ -563,12 +568,14 @@ namespace Prismatic {
 		//shared properties 
 		std::string base_name = "virtual_detector_depth";
 		hsize_t attr_dims[1] = {1};
-		hsize_t data_dims[2];
+		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
 		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {pars.Ndet};
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t bin_dim[1] = {pars.Ndet};
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -588,18 +595,11 @@ namespace Prismatic {
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 			//write depth attribute
-			H5::DataSpace attr3_dataspace(H5S_SCALAR);
-			H5::Attribute depth_attr = VD_slice_n.createAttribute("depth",H5::PredType::NATIVE_INT,attr3_dataspace);
-			int depth = pars.Ndet;
-			depth_attr.write(H5::PredType::NATIVE_INT, &depth);	
 
 			//create datasets
-			H5::DataSpace mspace(2,data_dims); //rank is 2 for each realslice
-			for(auto idx = 0; idx < pars.Ndet; idx++){
-				std::string binName = "bin" + getDigitString(idx);
-				H5::DataSet binData = VD_slice_n.createDataSet(binName,H5::PredType::NATIVE_DOUBLE,mspace);
-				binData.close();
-			}
+			H5::DataSpace mspace(3,data_dims); //rank is 2 for each realslice
+			H5::DataSet VD_data = VD_slice_n.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);
+			VD_data.close();
 			mspace.close();
 
 			//write dimensions
@@ -608,34 +608,44 @@ namespace Prismatic {
 
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,bin_dim);
 
 			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
 			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
+			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
 
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
-			
+			dim3.write(&pars.detectorAngles[0],H5::PredType::NATIVE_DOUBLE,dim3_mspace,dim3_fspace);
+
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
 			const H5std_string dim2_name_str("R_y");
+			const H5std_string dim3_name_str("bin_outer_angle");
 
 			H5::Attribute dim1_name = dim1.createAttribute("name",strdatatype,str_name_ds);
 			H5::Attribute dim2_name = dim2.createAttribute("name",strdatatype,str_name_ds);
+			H5::Attribute dim3_name = dim3.createAttribute("name",strdatatype,str_name_ds);
 
 			dim1_name.write(strdatatype,dim1_name_str);
 			dim2_name.write(strdatatype,dim2_name_str);
+			dim3_name.write(strdatatype,dim3_name_str);
 
 			const H5std_string dim1_unit_str("[n_m]");
 			const H5std_string dim2_unit_str("[n_m]");
+			const H5std_string dim3_unit_str("[mrad]");
 
 			H5::Attribute dim1_unit = dim1.createAttribute("units",strdatatype,str_name_ds);
 			H5::Attribute dim2_unit = dim2.createAttribute("units",strdatatype,str_name_ds);
+			H5::Attribute dim3_unit = dim3.createAttribute("units",strdatatype,str_name_ds);
 
 			dim1_unit.write(strdatatype,dim1_unit_str);
 			dim2_unit.write(strdatatype,dim2_unit_str);
+			dim3_unit.write(strdatatype,dim3_unit_str);
 
 			VD_slice_n.close();
 		}

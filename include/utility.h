@@ -108,7 +108,7 @@ namespace Prismatic {
 
 	std::string remove_extension(const std::string& filename);
 
-	bool testFilenameOutput(const std::string& filename);
+	int testFilenameOutput(const std::string& filename);
 	int testWrite(const std::string& filename);
     int testExist(const std::string& filename);
 

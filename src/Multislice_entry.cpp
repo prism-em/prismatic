@@ -85,29 +85,27 @@ namespace Prismatic{
 			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(),dummy);
 
 			//create dummy array to pass to
-			Array2D<PRISMATIC_FLOAT_PRECISION> slice_image;
-			slice_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk()}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> slice_image;
+			slice_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimi()}});
 
 			for (auto j = 0; j < prismatic_pars.output.get_diml(); j++){
 				std::stringstream nameString;
 				nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << getDigitString(j);
 				H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-				hsize_t offset[2] = {0,0};
-				hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
+				hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),prismatic_pars.Ndet};
 
+				std::string dataSetName ="realslice";
+				H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
 				for (auto b = 0; b < prismatic_pars.output.get_dimi(); ++b){
-					std::string dataSetName = "bin" + getDigitString(b);
-					H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
-
 					for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
 						for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
-							slice_image.at(x,y) = prismatic_pars.output.at(j,y,x,b);
+							slice_image.at(x,y,b) = prismatic_pars.output.at(j,y,x,b);
 						}
 					}
-					
-					writeRealSlice(VD_data,&slice_image[0],mdims);
-					VD_data.close();
 				}
+
+				writeDatacube3D(VD_data,&slice_image[0],mdims);
+				VD_data.close();
 				//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
 				//slice_image.toMRC_f(slice_filename.c_str());
 				dataGroup.close();

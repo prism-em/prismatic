@@ -109,28 +109,26 @@ namespace Prismatic{
         if (prismatic_pars.meta.save3DOutput){
 			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(),dummy);
-			Array2D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk()}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimi()}});
 			
 			std::stringstream nameString;
 			nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 
+			std::string dataSetName = "realslice";
+			H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+			hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),prismatic_pars.Ndet};
+
 			for(auto b = 0; b < prismatic_pars.Ndet; b++){
-				std::string dataSetName = "bin" + getDigitString(b);
-				H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
-
-				hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
-
 				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y){
 					for (auto x = 0; x < prismatic_pars.output.get_dimj();++x){
-						output_image.at(x,y) = prismatic_pars.output.at(0,y,x,b);
+						output_image.at(x,y,b) = prismatic_pars.output.at(0,y,x,b);
 					}
 				}
-
-				writeRealSlice(VD_data,&output_image[0],mdims);
-				VD_data.close();
 			}
 
+			writeDatacube3D(VD_data,&output_image[0],mdims);
+			VD_data.close();
 			dataGroup.close();
 		}
 

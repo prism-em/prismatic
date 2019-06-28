@@ -281,14 +281,17 @@ namespace Prismatic {
 					 do {
 						 while (Nstart < Nstop) {
 							 if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-							 cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+							 cout << "Computing Probe Position5 #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							 }
 							 ay = Nstart / pars.xp.size();
 							 ax = Nstart % pars.xp.size();
+							 cout << "Beore build signal" << endl;
 							 buildSignal_CPU(pars, ay, ax, plan, psi);
+							 cout << "Signal built" << endl;
 #ifdef PRISMATIC_BUILDING_GUI
         pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
+							cout <<"Signal output updated" <<endl;
 							 ++Nstart;
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));

@@ -29,6 +29,8 @@
 #include "parseInput.h"
 #include "params.h"
 #include <cstdio>
+#include "QMessageBox"
+#include <stdio.h>
 //#include <unistd.h>
 
 bool validateFilename(const std::string str){
@@ -1175,19 +1177,21 @@ void PRISMMainWindow::saveAtomCoords(QString filename, QString comment){
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
+    this->setFilenameOutput_fromLineEdit();
 
     if (meta->algorithm == Prismatic::Algorithm::PRISM) {
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        std::cout <<"Starting Full PRISM Calculation" << std::endl;
+        worker->meta.toString();
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
+        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        std::cout <<"Starting Full PRISM Calculation" << std::endl;
-        worker->meta.toString();
         worker->start();
     } else{
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
@@ -1195,6 +1199,7 @@ void PRISMMainWindow::calculateAll(){
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
@@ -1204,6 +1209,27 @@ void PRISMMainWindow::calculateAll(){
         worker->start();
     }
     Prismatic::writeParamFile(*this->meta, get_default_parameter_filename());
+}
+
+void PRISMMainWindow::preventOverwrite(){
+    QMessageBox *msgBox = new QMessageBox(this);
+    QString msgTxt = "Output file already exists. Do you want to overwrite the file?";
+    msgBox->setText(msgTxt);
+    msgBox->setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+    msgBox->show();
+    int ret;
+    ret = msgBox->exec();
+    switch (ret) 
+    {
+        case QMessageBox::Yes:
+            //delete file and move on
+            //remove(params.meta.filenameOutput.c_str());
+            flipOverwrite();
+            break;
+        case QMessageBox::No:
+            //exit from thread
+            break;
+    }
 }
 
 void PRISMMainWindow::calculateProbe(){
@@ -2078,6 +2104,12 @@ bool PRISMMainWindow::potentialIsReady(){
     QMutexLocker gatekeeper(&dataLock);
     return potentialReady;
 }
+
+bool PRISMMainWindow::overwriteFile(){
+    QMutexLocker gatekeeper(&dataLock);
+    return overwriteCheck;
+}
+
 bool PRISMMainWindow::SMatrixIsReady(){
 //    return false;
     QMutexLocker gatekeeper(&dataLock);
@@ -2157,6 +2189,16 @@ void PRISMMainWindow::calculateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PR
     updateProbe_diffKDisplay();
 }
 
+void PRISMMainWindow::flipOverwrite(){
+    {
+        QMutexLocker gatekeeper(&dataLock);
+        if(overwriteCheck){
+            overwriteCheck = false;
+        }else{
+            overwriteCheck = true;
+        }
+    }
+}
 
 void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> _potential){
     {

@@ -35,6 +35,7 @@ signals:
     void potentialCalculated();
     void signalErrorReadingAtomsDialog();
     void outputCalculated();
+    void overwriteWarning();
 };
 
 class PotentialThread : public PRISMThread {
