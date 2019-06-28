@@ -58,9 +58,6 @@ namespace Prismatic {
 	void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars) {
 		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
-		std::cout << "scanWindowXmin: " << pars.scanWindowXMin << std::endl;
-		std::cout << "scanWindowXmax: " << pars.scanWindowXMax << std::endl;
-		std::cout << "tiledCellDim: " << pars.tiledCellDim[2] << std::endl;
 		xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
 		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
@@ -78,10 +75,8 @@ namespace Prismatic {
 			probeStepY = pars.meta.probeStepY;
 		}
 		
-		std::cout << "Prism calc probestep: " << probeStepX << std::endl;
 		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
-		std::cout << "prism xrange size: " << xp_d.size() << std::endl;
 //		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probeStepX / 2, pars.meta.probeStepX, xR[1] - pars.meta.probeStepX / 2);
 //		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probeStepY / 2, pars.meta.probeStepY, yR[1] - pars.meta.probeStepY / 2);
 
@@ -173,10 +168,6 @@ namespace Prismatic {
 		for(auto i = 0; i < pars.qxaReduce.get_dimi(); i++) qx[i] = pars.qxaReduce.at(0,i);
 		for(auto j = 0; j < pars.qyaReduce.get_dimj(); j++) qy[j] = pars.qyaReduce.at(j,0);
 
-		std::cout << "Reduce size: " << pars.qxaReduce.get_dimi() << std::endl;
-
-		std::cout << "qx 0: " << qx[1] << std::endl;
-		std::cout << "qy 0: " << qy[1] << std::endl;
 		pars.qx = qx;
 		pars.qy = qy;
 		

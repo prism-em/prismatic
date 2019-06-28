@@ -988,7 +988,9 @@ namespace Prismatic {
         }
         meta.scanWindowXMin_r = minval;
         meta.scanWindowXMax_r = maxval;
-        meta.realSpaceWindow_x = true;
+        if(maxval){
+            meta.realSpaceWindow_x = true;
+        }
 		argc-=3;
 		argv[0]+=3;
 		return true;
@@ -1018,7 +1020,9 @@ namespace Prismatic {
         }
         meta.scanWindowYMin_r = minval;
         meta.scanWindowYMax_r = maxval;
-        meta.realSpaceWindow_y = true;
+        if(maxval){
+            meta.realSpaceWindow_y = true;
+        }
 		argc-=3;
 		argv[0]+=3;
 		return true;

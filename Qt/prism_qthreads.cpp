@@ -419,7 +419,6 @@ void FullPRISMCalcThread::run(){
     }
     //    emit ScompactCalculated();
 
-    std::cout << "probeStep size in q threads: " << params.meta.probeStepX << std::endl; 
     Prismatic::PRISM03_calcOutput(params);
     params.outputFile.close();
 
@@ -582,6 +581,8 @@ void FullPRISMCalcThread::run(){
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "PRISM calculation complete" << std::endl;
+
+    calculationLocker.unlock();
     }
 }
 

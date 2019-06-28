@@ -1262,6 +1262,8 @@ namespace Prismatic {
 		cellBuffer[1] = pars.meta.cellDim[1];
 		cellBuffer[2] = pars.meta.cellDim[2];
 		cell_dim_attr.write(H5::PredType::NATIVE_FLOAT,cellBuffer);
+
+		metadata.close();
 	};
 
 	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy){
@@ -1437,5 +1439,7 @@ namespace Prismatic {
 		cellBuffer[1] = pars.meta.cellDim[1];
 		cellBuffer[2] = pars.meta.cellDim[2];
 		cell_dim_attr.write(H5::PredType::NATIVE_DOUBLE,cellBuffer);
+
+		metadata.close();
 	};
 }
