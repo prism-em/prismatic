@@ -502,28 +502,26 @@ void FullPRISMCalcThread::run(){
     if (params.meta.save3DOutput){
         PRISMATIC_FLOAT_PRECISION dummy = 1.0;
         Prismatic::setupVDOutput(params, params.output.get_diml(),dummy);
-        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk()}});
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk(),params.output.get_dimi()}});
         
         std::stringstream nameString;
-        nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(0);
+        nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(0);
         H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
 
+        std::string dataSetName = "realslice";
+        H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+        hsize_t mdims[3] = {params.xp.size(),params.yp.size(),params.Ndet};
+
         for(auto b = 0; b < params.Ndet; b++){
-            std::string dataSetName = "bin" + Prismatic::getDigitString(b);
-            H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
-
-            hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
-
             for (auto y = 0; y < params.output.get_dimk(); ++y){
                 for (auto x = 0; x < params.output.get_dimj();++x){
-                    output_image.at(x,y) = params.output.at(0,y,x,b);
+                    output_image.at(x,y,b) = params.output.at(0,y,x,b);
                 }
             }
-
-            Prismatic::writeRealSlice(VD_data,&output_image[0],mdims);
-            VD_data.close();
         }
 
+        Prismatic::writeDatacube3D(VD_data,&output_image[0],mdims);
+        VD_data.close();
         dataGroup.close();
     }
 
@@ -544,7 +542,7 @@ void FullPRISMCalcThread::run(){
             }
         }
         std::stringstream nameString;
-        nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << Prismatic::getDigitString(0);
+        nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << Prismatic::getDigitString(0);
         H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
         H5::DataSet AD_data = dataGroup.openDataSet("realslice");
         hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
@@ -565,7 +563,7 @@ void FullPRISMCalcThread::run(){
         Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
 
         std::stringstream nameString;
-        nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(0);
+        nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(0);
         H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
         hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
 
@@ -742,31 +740,27 @@ void FullMultisliceCalcThread::run(){
         Prismatic::setupVDOutput(params, params.output.get_diml(),dummy);
 
         //create dummy array to pass to
-        Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> slice_image;
-        slice_image = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk()}});
+        Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> slice_image;
+        slice_image = Prismatic::zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{params.output.get_dimj(),params.output.get_dimk(),params.output.get_dimi()}});
 
         for (auto j = 0; j < params.output.get_diml(); j++){
             std::stringstream nameString;
-            nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(j);
+            nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << Prismatic::getDigitString(j);
             H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
-            hsize_t offset[2] = {0,0};
-            hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
+            hsize_t mdims[3] = {params.xp.size(),params.yp.size(),params.Ndet};
 
+            std::string dataSetName = "realslice";
+            H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
             for (auto b = 0; b < params.output.get_dimi(); ++b){
-                std::string dataSetName = "bin" + Prismatic::getDigitString(b);
-                H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
-
                 for (auto y = 0; y < params.output.get_dimk(); ++y){
                     for (auto x = 0; x < params.output.get_dimj();++x){
-                        slice_image.at(x,y) = params.output.at(j,y,x,b);
+                        slice_image.at(x,y,b) = params.output.at(j,y,x,b);
                     }
                 }
                 
-                Prismatic::writeRealSlice(VD_data,&slice_image[0],mdims);
-                VD_data.close();
             }
-            //if ( params.meta.numSlices != 0) slice_filename = params.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + params.meta.filenameOutput;
-            //slice_image.toMRC_f(slice_filename.c_str());
+            Prismatic::writeDatacube3D(VD_data,&slice_image[0],mdims);
+            VD_data.close();
             dataGroup.close();
         }
     }
@@ -796,7 +790,7 @@ void FullMultisliceCalcThread::run(){
                 //}
                 //prism_image.toMRC_f(image_filename.c_str());
                 std::stringstream nameString;
-                nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << Prismatic::getDigitString(j);
+                nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << Prismatic::getDigitString(j);
                 H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
                 H5::DataSet AD_data = dataGroup.openDataSet("realslice");
                 hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
@@ -818,7 +812,7 @@ void FullMultisliceCalcThread::run(){
 
         for (auto j = 0; j < params.output.get_diml(); j++){
             std::stringstream nameString;
-            nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(j);
+            nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << Prismatic::getDigitString(j);
             H5::Group dataGroup = params.outputFile.openGroup(nameString.str());
             hsize_t mdims[2] = {params.xp.size(),params.yp.size()};
             

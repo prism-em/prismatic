@@ -273,7 +273,7 @@ namespace Prismatic{
 			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+			nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
@@ -353,7 +353,7 @@ namespace Prismatic{
 				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
 				unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 				std::stringstream nameString;
-				nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+				nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
 				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");

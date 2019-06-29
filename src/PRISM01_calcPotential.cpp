@@ -222,7 +222,7 @@ namespace Prismatic {
 
 		if(pars.meta.savePotentialSlices){
 			//create new datacube group
-			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+			H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 			std::string groupName = "ppotential";
 			H5::Group ppotential;
 			if(pars.fpFlag == 0){
@@ -230,7 +230,7 @@ namespace Prismatic {
 
 				H5::DataSpace attr_dataspace(H5S_SCALAR);
 
-				int group_type = 1;
+				int group_type = 2;
 				H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 				emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
 

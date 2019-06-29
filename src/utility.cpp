@@ -169,7 +169,7 @@ namespace Prismatic {
 		min_attr.write(H5::PredType::NATIVE_INT, &min_data);
 
 		//create main groups
-		H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_experiment"));
+		H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_simulation"));
 
 		//data groups
 		H5::Group data(simulation.createGroup("data"));
@@ -199,7 +199,7 @@ namespace Prismatic {
 
 	//use dummy variable to overload float/double dependence
 	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy){
-		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
+		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
 		//shared properties 
 		std::string base_name = "CBED_array_depth";
@@ -253,7 +253,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -337,7 +337,7 @@ namespace Prismatic {
 
 	//use dummy variable to overload float/double dependence
 	void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy){
-		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_experiment/data/datacubes");
+		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
 		//shared properties 
 		std::string base_name = "CBED_array_depth";
@@ -390,7 +390,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -472,7 +472,7 @@ namespace Prismatic {
 	};
 
 	void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "virtual_detector_depth";
@@ -494,7 +494,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -521,7 +521,7 @@ namespace Prismatic {
 
 			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
 			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
-			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim2_mspace);
+			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_FLOAT,dim3_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -530,7 +530,7 @@ namespace Prismatic {
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
 			dim3.write(&pars.detectorAngles[0],H5::PredType::NATIVE_FLOAT,dim3_mspace,dim3_fspace);
-
+			std::cout << "Dimension written" << std::endl;
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
 			const H5std_string dim2_name_str("R_y");
@@ -563,7 +563,7 @@ namespace Prismatic {
 	};
 
 	void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "virtual_detector_depth";
@@ -585,7 +585,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -612,7 +612,7 @@ namespace Prismatic {
 
 			H5::DataSet dim1 = VD_slice_n.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
 			H5::DataSet dim2 = VD_slice_n.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
-			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
+			H5::DataSet dim3 = VD_slice_n.createDataSet("dim3",H5::PredType::NATIVE_DOUBLE,dim3_mspace);
 
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
@@ -654,7 +654,7 @@ namespace Prismatic {
 	};
 
 	void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "annular_detector_depth";
@@ -675,7 +675,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -737,7 +737,7 @@ namespace Prismatic {
 	};
 
 	void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "annular_detector_depth";
@@ -758,7 +758,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -820,7 +820,7 @@ namespace Prismatic {
 	};
 
 	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "DPC_CoM_depth";
@@ -840,7 +840,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -905,7 +905,7 @@ namespace Prismatic {
 	};
 
 	void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy){
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_experiment/data/realslices");
+		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 		//shared properties 
 		std::string base_name = "DPC_CoM_depth";
@@ -925,7 +925,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 1;
+			int group_type = 2;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -1101,7 +1101,7 @@ namespace Prismatic {
 
 	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy){
 		//set up group
-		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_experiment/metadata/metadata_0/original");
+		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
 		H5::Group sim_params = metadata.createGroup("simulation_parameters");
 
 		//write all parameters as attributes
@@ -1278,7 +1278,7 @@ namespace Prismatic {
 
 	void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy){
 		//set up group
-		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_experiment/metadata/metadata_0/original");
+		H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
 		H5::Group sim_params = metadata.createGroup("simulation_parameters");
 
 		//write all parameters as attributes

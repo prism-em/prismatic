@@ -75,7 +75,7 @@ namespace Prismatic {
 			probeStepY = pars.meta.probeStepY;
 		}
 		
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
 		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
 //		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0] + pars.meta.probeStepX / 2, pars.meta.probeStepX, xR[1] - pars.meta.probeStepX / 2);
 //		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0] + pars.meta.probeStepY / 2, pars.meta.probeStepY, yR[1] - pars.meta.probeStepY / 2);
@@ -403,7 +403,7 @@ namespace Prismatic {
 			//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
 			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/datacubes/CBED_array_depth" << getDigitString(0);
+			nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(0);
 
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");

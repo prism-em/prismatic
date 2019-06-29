@@ -2014,7 +2014,15 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
 }
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
-            QMutexLocker gatekeeper(&outputLock);
+        QMutexLocker gatekeeper(&outputLock);
+        uint8_t * tmp_buffer = (uint8_t*) malloc(outputImage_float.size()*8);
+        PRISMATIC_FLOAT_PRECISION max_val = *std::max_element(outputImage_float.begin(),outputImage_float.end());
+        PRISMATIC_FLOAT_PRECISION min_val = *std::min_element(outputImage_float.begin(),outputImage_float.end());
+        for( auto i = 0; i < outputImage_float.size(); i++) tmp_buffer[i] = std::floor(255*(outputImage_float[i]-min_val)/(max_val-min_val));
+        uchar * buffer = (uchar*) &tmp_buffer[0];
+        QImage image(buffer,outputImage_float.get_dimi(),outputImage_float.get_dimj(),outputImage_float.get_dimi()*1,QImage::Format_Grayscale8);
+        image.save(ui->lineEdit_saveOutputImage->text().toStdString().c_str(),"PNG",100);
+        free(tmp_buffer);  
         //outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }

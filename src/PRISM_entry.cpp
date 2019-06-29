@@ -112,7 +112,7 @@ namespace Prismatic{
 			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(),prismatic_pars.output.get_dimk(),prismatic_pars.output.get_dimi()}});
 			
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/realslices/virtual_detector_depth" << getDigitString(0);
+			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 
 			std::string dataSetName = "realslice";
@@ -149,7 +149,7 @@ namespace Prismatic{
 				}
 			}
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/realslices/annular_detector_depth" << getDigitString(0);
+			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 			H5::DataSet AD_data = dataGroup.openDataSet("realslice");
 			hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
@@ -170,7 +170,7 @@ namespace Prismatic{
 			Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
 
 			std::stringstream nameString;
-			nameString << "4DSTEM_experiment/data/realslices/DPC_CoM_depth" << getDigitString(0);
+			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(0);
 			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 			hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
 
