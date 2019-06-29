@@ -64,7 +64,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     potentialReady(false),
     ScompactReady(false),
     outputReady(false),
-    saveProjectedPotential(false),
+    //saveProjectedPotential(false),
     probeSetupReady(false),
     potentialArrayExists(false),
     outputArrayExists(false),
@@ -297,6 +297,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineEdit_zStart,                 SIGNAL(textEdited(QString)),      this, SLOT(setzStart_fromLineEdit()));
     connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_inner,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_innerAngle_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_outer,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_outerAngle_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
     connect(this->ui->lineEdit_batchCPU,               SIGNAL(textEdited(QString)),      this, SLOT(setBatchCPU_fromLineEdit()));
@@ -376,10 +378,11 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),      this, SLOT(redrawImages()));
     connect(this->ui->btn_saveOutputImage,             SIGNAL(clicked(bool)),            this, SLOT(saveCurrentOutputImage()));
     connect(this->ui->comboBox_streamMode,             SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
-    connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
+    //connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
     connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe,              SIGNAL(clicked()),                this, SLOT(calculateProbe()));
     connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetLinks()));
+    connect(this->ui->checkBox_2D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle2DOutput()));
     connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
     connect(this->ui->checkBox_DPC_CoM,                SIGNAL(toggled(bool)),            this, SLOT(toggleDPC_CoM()));
@@ -428,6 +431,12 @@ void PRISMMainWindow::updateDisplay(){
     ss.str("");
     ss << (this->meta->alphaBeamMax * 1e3);
     this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->integrationAngleMin * 1e3);
+    this->ui->lineEdit_2D_inner->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->integrationAngleMax * 1e3);
+    this->ui->lineEdit_2D_outer->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << this->meta->sliceThickness;
     this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
@@ -514,6 +523,7 @@ void PRISMMainWindow::updateDisplay(){
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
     ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
     ui->checkBox_NQS->setChecked(meta->nyquistSampling);
+    ui->checkBox_2D->setChecked(meta->save2DOutput);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
     ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
@@ -819,6 +829,26 @@ void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
     if (flag){
         this->meta->alphaBeamMax = val / 1000;
         std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set2D_innerAngle_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_2D_inner->text().toDouble(&flag);
+    if (flag){
+        this->meta->integrationAngleMin = val /1000;
+        std::cout << "Setting annular detector inner angle to" << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set2D_outerAngle_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_2D_inner->text().toDouble(&flag);
+    if (flag){
+        this->meta->integrationAngleMax = val /1000;
+        std::cout << "Setting annular detector outer angle to" << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -2051,6 +2081,17 @@ void PRISMMainWindow::newRandomSeed(){
     meta->randomSeed = val;
 }
 
+void PRISMMainWindow::toggle2DOutput(){
+    meta->save2DOutput = ui->checkBox_2D->isChecked();
+    if(meta->save2DOutput){
+        ui->lineEdit_2D_inner->setEnabled(true);
+        ui->lineEdit_2D_outer->setEnabled(true);
+    }else{
+        ui->lineEdit_2D_inner->setDisabled(true);
+        ui->lineEdit_2D_outer->setDisabled(true);
+    }
+}
+
 void PRISMMainWindow::toggle3DOutput(){
     meta->save3DOutput = ui->checkBox_3D->isChecked();
 }
@@ -2079,6 +2120,13 @@ void PRISMMainWindow::toggleOccupancy(){
 
 void PRISMMainWindow::toggleNyquist(){
     meta->nyquistSampling = ui->checkBox_NQS->isChecked();
+    if(meta->nyquistSampling){
+        ui->lineEdit_probeStepX->setDisabled(true);
+        ui->lineEdit_probeStepY->setDisabled(true);
+    }else{
+        ui->lineEdit_probeStepX->setEnabled(true);
+        ui->lineEdit_probeStepY->setEnabled(true);
+    }
     resetCalculation();
 }
 
@@ -2104,9 +2152,9 @@ void PRISMMainWindow::update_RK(QString str){
     ui->lbl_R_k->setText(str);
 }
 
-void PRISMMainWindow::toggleSaveProjectedPotential(){
-    this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
-}
+//void PRISMMainWindow::toggleSaveProjectedPotential(){
+//    this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
+//}
 
 bool PRISMMainWindow::potentialIsReady(){
     QMutexLocker gatekeeper(&dataLock);

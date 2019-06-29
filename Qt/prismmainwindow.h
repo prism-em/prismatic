@@ -81,6 +81,8 @@ public slots:
     void setprobeSemiangle_fromLineEdit();
     void setzStart_fromLineEdit();
     void setalphaBeamMax_fromLineEdit();
+    void set2D_innerAngle_fromLineEdit();
+    void set2D_outerAngle_fromLineEdit();
     void setSliceThickness_fromLineEdit();
     void setCellDimX_fromLineEdit();
     void setCellDimY_fromLineEdit();
@@ -119,7 +121,7 @@ public slots:
     void redrawImages();
     void saveCurrentOutputImage();
     void setStreamingMode(int);
-    void toggleSaveProjectedPotential();
+    //void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
     void setRandomSeed_fromLineEdit();
@@ -128,6 +130,7 @@ public slots:
     void setdetectorAngleStep_fromLineEdit();
     void setprobe_Xtilt_fromLineEdit();
     void setprobe_Ytilt_fromLineEdit();
+    void toggle2DOutput();
     void toggle3DOutput();
     void toggle4DOutput();
 	void toggleDPC_CoM();
@@ -235,7 +238,7 @@ private:
     bool potentialReady;
     bool ScompactReady;
     bool outputReady;
-    bool saveProjectedPotential;
+    //bool saveProjectedPotential;
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;

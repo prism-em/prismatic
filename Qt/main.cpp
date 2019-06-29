@@ -8,6 +8,10 @@
 #include "prismmainwindow.h"
 int main(int argc, char *argv[])
 {
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    //QFont font("Comic Sans MS");
+    //font.setStyleHint(QFont::Monospace);
+    //QApplication::setFont(font);
     QApplication a(argc, argv);
     PRISMMainWindow w;
     w.show();
