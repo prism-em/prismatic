@@ -3,7 +3,8 @@
 
 #include <QDialog>
 
-namespace Ui {
+namespace Ui
+{
 class SaveAtomicCoordinatesDialog;
 }
 
@@ -20,6 +21,7 @@ public slots:
     void setCommentText(QString);
 signals:
     void signalSaveAtomCoords(QString, QString);
+
 private:
     Ui::SaveAtomicCoordinatesDialog *ui;
 };
