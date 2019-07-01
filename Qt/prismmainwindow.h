@@ -52,6 +52,7 @@ class PRISMMainWindow : public QMainWindow
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
 	bool potentialIsReady();
+    bool overwriteFile();
 	bool SMatrixIsReady();
 	bool OutputIsReady();
     bool checkoutputArrayExists();
@@ -72,12 +73,16 @@ public slots:
     void setNumGPUs(const int& numGPUs);
     void setNumThreads(const int& numThreads);
     void setNumFP(const int& numFP);
+    void setNumNS(const int& numSlices);
     void setNumStreams(const int& numFP);
     void setPixelSizeX_fromLineEdit();
     void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
+    void setzStart_fromLineEdit();
     void setalphaBeamMax_fromLineEdit();
+    void set2D_innerAngle_fromLineEdit();
+    void set2D_outerAngle_fromLineEdit();
     void setSliceThickness_fromLineEdit();
     void setCellDimX_fromLineEdit();
     void setCellDimY_fromLineEdit();
@@ -116,7 +121,7 @@ public slots:
     void redrawImages();
     void saveCurrentOutputImage();
     void setStreamingMode(int);
-    void toggleSaveProjectedPotential();
+    //void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
     void setRandomSeed_fromLineEdit();
@@ -125,10 +130,14 @@ public slots:
     void setdetectorAngleStep_fromLineEdit();
     void setprobe_Xtilt_fromLineEdit();
     void setprobe_Ytilt_fromLineEdit();
+    void toggle2DOutput();
     void toggle3DOutput();
     void toggle4DOutput();
+	void toggleDPC_CoM();
+	void togglePotentialSlices();
     void toggleThermalEffects();
     void toggleOccupancy();
+	void toggleNyquist();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();
@@ -159,7 +168,7 @@ public slots:
     void update_RReal(QString str);
     void update_RK(QString str);
     void potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
-    void outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
+    void outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION>);
     void displayErrorReadingParamsDialog();
     void displayErrorReadingAtomsDialog();
     void setscan_WindowYMin_edited();
@@ -190,7 +199,8 @@ public slots:
     void saveAtomCoords(QString, QString);
     void changeColormap(QString);
     bool checkProbesCalculated();
-
+    void preventOverwrite();
+    void flipOverwrite();
 
 protected:
     void setFilenameAtoms(const std::string& filename);
@@ -198,6 +208,7 @@ protected:
     void setRealspacePixelSize(const PRISMATIC_FLOAT_PRECISION& pixel_size);
     void setPotBound(const PRISMATIC_FLOAT_PRECISION& potBound);
     void setNumFP(const size_t& numFP);
+    void setNumNS(const size_t& numSlices);
     void setE0(const PRISMATIC_FLOAT_PRECISION& E0);
     void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION& alphaBeamMax);
     void setSliceThickness(const PRISMATIC_FLOAT_PRECISION& thickness);
@@ -214,7 +225,7 @@ private:
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>* getMetadata(){return this->meta;}
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
-    Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> output;
+    Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> output;
     Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
 
@@ -227,7 +238,7 @@ private:
     bool potentialReady;
     bool ScompactReady;
     bool outputReady;
-    bool saveProjectedPotential;
+    //bool saveProjectedPotential;
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
@@ -238,6 +249,7 @@ private:
     bool probeTiltYSet;
     bool minWindowYSet;
     bool maxWindowYSet;
+    bool overwriteCheck = false;
 
     QImage potentialImage;
     QImage probeImage;

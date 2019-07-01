@@ -25,11 +25,13 @@
 #include "fftw3.h"
 #include "WorkDispatcher.h"
 #include "Multislice_calcOutput.h"
+
 namespace Prismatic{
 	using namespace std;
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
+	mutex HDF5_lock;
 
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 
@@ -41,20 +43,32 @@ namespace Prismatic{
 		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
 		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
 
-
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], pars.meta.probeStepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], pars.meta.probeStepY, yR[1]);
+		PRISMATIC_FLOAT_PRECISION probeStepX;
+		PRISMATIC_FLOAT_PRECISION probeStepY;
+		if(pars.meta.nyquistSampling){
+			int numX = nyquistProbes(pars,2); //x is dim 2
+			int numY = nyquistProbes(pars,1); //y is dim 1
+			probeStepX = pars.tiledCellDim[2]/numX;
+			probeStepY = pars.tiledCellDim[1]/numY;
+		}else{
+			probeStepX = pars.meta.probeStepX;
+			probeStepY = pars.meta.probeStepY;
+		}
+		
+		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
+		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
 		
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
+		/*
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
 			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
 			std::string y_name = pars.meta.outputFolder + "real_space_y.mrc";
 			real_mesh.first.toMRC_f(x_name.c_str());
 			real_mesh.second.toMRC_f(y_name.c_str());
-		}
+		} */
 		
 		pars.xp = xp;
 		pars.yp = yp;
@@ -62,7 +76,9 @@ namespace Prismatic{
 		pars.imageSize[1] = pars.pot.get_dimi();
 		Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 		Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
-
+		pars.qx = qx;
+		pars.qy = qy;
+		
 		pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
 		pars.qya = mesh.first;
 		pars.qxa = mesh.second;
@@ -105,12 +121,12 @@ namespace Prismatic{
 			for (auto x = 0; x < pars.qMask.get_dimi(); ++x) {
 				if (pars.qMask.at(y,x)==1)
 				{
-//					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
-//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
-//					pars.propBack.at(y,x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
-//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+		//					pars.prop.at(y,x)     = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+		//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
+		//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+		//					pars.propBack.at(y,x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+		//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
+		//					                            complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 
 					pars.prop.at(y,x)     = exp(-i*pi*complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
 												complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
@@ -153,7 +169,7 @@ namespace Prismatic{
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.q2.begin(), pars.psiProbeInit.begin(),
 		          [&pars](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
-//			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
+			//			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
                       std::complex<PRISMATIC_FLOAT_PRECISION> chi{
                               (PRISMATIC_FLOAT_PRECISION) (pi   * pars.lambda        * pars.meta.probeDefocus * q2_t +
                                                            pi/2 * pow(pars.lambda,3) * pars.meta.C3           * pow(q2_t,2)+
@@ -194,6 +210,11 @@ namespace Prismatic{
 		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
+
+		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
+		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars, numLayers, dummy);
+		//set up
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -221,10 +242,21 @@ namespace Prismatic{
 			}
 		}
 
-		//save 4D output if applicable
-		if (pars.meta.save4DOutput) {
-			std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			intOutput_small.toMRC_f(section4DFilename.c_str());
+		if (pars.meta.saveDPC_CoM){
+			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
+			for (long y = 0; y < psi.get_dimj(); ++y){
+				for (long x = 0; x < psi.get_dimi(); ++x){
+					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
+				}
+			}
+			//divide by sum of intensity
+			PRISMATIC_FLOAT_PRECISION intensitySum = 0;
+			for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
+				intensitySum += *iter;
+			}
+			pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+			pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
 		}
 
 		//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
@@ -235,6 +267,27 @@ namespace Prismatic{
 			}
 			++idx;
 		};
+
+		//save 4D output if applicable
+		if (pars.meta.save4DOutput) {
+			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+
+			CBED_data.close();
+			dataGroup.close();
+			HDF5_gatekeeper.unlock();
+			//intOutput_small.toMRC_f(section4DFilename.c_str());
+		}
 	}
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      Array1D< complex<PRISMATIC_FLOAT_PRECISION> >& psi_stack,
@@ -267,10 +320,23 @@ namespace Prismatic{
 				}
 			}
 
-			//save 4D output if applicable
-			if (pars.meta.save4DOutput) {
-				std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-				intOutput_small.toMRC_f(section4DFilename.c_str());
+
+			if (pars.meta.saveDPC_CoM){
+				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
+				for (long y = 0; y < pars.psiProbeInit.get_dimj(); ++y){
+					for (long x = 0; x < pars.psiProbeInit.get_dimi(); ++x){
+						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
+						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
+					}
+				}
+
+				//divide by sum of intensity
+				PRISMATIC_FLOAT_PRECISION intensitySum = 0;
+				for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
+					intensitySum += *iter;
+				}
+				pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+				pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
 			}
 
 			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
@@ -281,6 +347,28 @@ namespace Prismatic{
 				}
 				++idx;
 			};
+
+			//save 4D output if applicable
+			if (pars.meta.save4DOutput) {
+				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+				unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+				std::stringstream nameString;
+				nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+				hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
+				PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+
+				CBED_data.close();
+				dataGroup.close();
+				HDF5_gatekeeper.unlock();
+				//intOutput_small.toMRC_f(section4DFilename.c_str());
+			}
+
 			++Nstart;
 			++probe_idx;
 		}
@@ -432,20 +520,20 @@ namespace Prismatic{
 
 		// populates the output stack for Multislice simulation using the CPU. The number of
 		// threads used is determined by pars.meta.numThreads
-//		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi(pars.psiProbeInit);
+		//		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi(pars.psiProbeInit);
         psi = pars.psiProbeInit;
 		// fftw_execute is the only thread-safe function in the library, so we need to synchronize access
 		// to the plan creation methods
-//		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-//		PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
-//		PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
-//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
-//		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
-//		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
+		//		unique_lock<mutex> gatekeeper(fftw_plan_lock);
+		//		PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		//		                                                      FFTW_FORWARD, FFTW_ESTIMATE);
+		//		PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
+		//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		//		                                                      reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
+		//		                                                      FFTW_BACKWARD, FFTW_ESTIMATE);
+		//		gatekeeper.unlock(); // unlock it so we only block as long as necessary to deal with plans
 		{
 			auto qxa_ptr = pars.qxa.begin();
 			auto qya_ptr = pars.qya.begin();
@@ -511,14 +599,14 @@ namespace Prismatic{
 					int *onembed      = n;
 					unique_lock<mutex> gatekeeper(fftw_plan_lock);
 
-//					PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
-//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  FFTW_FORWARD, FFTW_MEASURE);
-//					PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
-//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
-//																		  FFTW_BACKWARD, FFTW_MEASURE);
+			//					PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+			//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+			//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+			//																		  FFTW_FORWARD, FFTW_MEASURE);
+			//					PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(psi_stack.get_dimj(), psi_stack.get_dimi(),
+			//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+			//																		  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_stack[0]),
+			//																		  FFTW_BACKWARD, FFTW_MEASURE);
 
 
 					PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_BATCH(rank, n, howmany,
@@ -541,7 +629,7 @@ namespace Prismatic{
 							if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batchSizeCPU | Nstart == 100){
 								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
 							}
-//							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
+			//							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
 							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 #ifdef PRISMATIC_BUILDING_GUI
                             pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());

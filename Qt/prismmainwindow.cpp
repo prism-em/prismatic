@@ -27,6 +27,11 @@
 #include "utility.h"
 #include "atom.h"
 #include "parseInput.h"
+#include "params.h"
+#include <cstdio>
+#include "QMessageBox"
+#include <stdio.h>
+//#include <unistd.h>
 
 bool validateFilename(const std::string str){
     std::ifstream f(str);
@@ -59,7 +64,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     potentialReady(false),
     ScompactReady(false),
     outputReady(false),
-    saveProjectedPotential(false),
+    //saveProjectedPotential(false),
     probeSetupReady(false),
     potentialArrayExists(false),
     outputArrayExists(false),
@@ -94,7 +99,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
-ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+	ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
                                       border-radius: 9px;\
                                       margin-top: 0.5em;\
@@ -287,9 +292,13 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->spinBox_numGPUs,                 SIGNAL(valueChanged(int)),        this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads,              SIGNAL(valueChanged(int)),        this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumFP(const int&)));
+    connect(this->ui->spinBox_numNS,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumNS(const int&)));
     connect(this->ui->spinBox_numStreams,              SIGNAL(valueChanged(int)),        this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
+    connect(this->ui->lineEdit_zStart,                 SIGNAL(textEdited(QString)),      this, SLOT(setzStart_fromLineEdit()));
     connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_inner,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_innerAngle_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_outer,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_outerAngle_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
     connect(this->ui->lineEdit_batchCPU,               SIGNAL(textEdited(QString)),      this, SLOT(setBatchCPU_fromLineEdit()));
@@ -369,14 +378,18 @@ ui->box_calculationSettings->setStyleSheet("QGroupBox { \
     connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),      this, SLOT(redrawImages()));
     connect(this->ui->btn_saveOutputImage,             SIGNAL(clicked(bool)),            this, SLOT(saveCurrentOutputImage()));
     connect(this->ui->comboBox_streamMode,             SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
-    connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
+    //connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
     connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe,              SIGNAL(clicked()),                this, SLOT(calculateProbe()));
     connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetLinks()));
+    connect(this->ui->checkBox_2D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle2DOutput()));
     connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
+    connect(this->ui->checkBox_DPC_CoM,                SIGNAL(toggled(bool)),            this, SLOT(toggleDPC_CoM()));
+    connect(this->ui->checkBox_PS,                     SIGNAL(toggled(bool)),            this, SLOT(togglePotentialSlices()));
     connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
     connect(this->ui->checkBox_occupancy,              SIGNAL(toggled(bool)),            this, SLOT(toggleOccupancy()));
+    connect(this->ui->checkBox_NQS,                    SIGNAL(toggled(bool)),            this, SLOT(toggleNyquist()));
     connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
     connect(this->ui->checkBox_log,                    SIGNAL(toggled(bool)),            this, SLOT(updateProbeImages()));
     connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
@@ -413,8 +426,17 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->probeSemiangle * 1e3);
     this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
     ss.str("");
+	ss << (this->meta->zStart);
+    this->ui->lineEdit_zStart->setText(QString::fromStdString(ss.str()));
+    ss.str("");
     ss << (this->meta->alphaBeamMax * 1e3);
     this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->integrationAngleMin * 1e3);
+    this->ui->lineEdit_2D_inner->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->integrationAngleMax * 1e3);
+    this->ui->lineEdit_2D_outer->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << this->meta->sliceThickness;
     this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
@@ -455,10 +477,10 @@ void PRISMMainWindow::updateDisplay(){
 	ss << (this->meta->C5);
 	this->ui->lineEdit_C5->setText(QString::fromStdString(ss.str()));
 	ss.str("");
-    ss << (this->meta->probeXtilt);
+    ss << (this->meta->probeXtilt * 1e3);
     this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
     ss.str("");
-    ss << (this->meta->probeYtilt);
+    ss << (this->meta->probeYtilt * 1e3);
     this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->detectorAngleStep * 1e3);
@@ -496,11 +518,16 @@ void PRISMMainWindow::updateDisplay(){
     this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
     this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
     this->ui->spinBox_numFP->setValue(this->meta->numFP);
+    this->ui->spinBox_numNS->setValue(this->meta->numSlices);
     this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
     ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
+    ui->checkBox_NQS->setChecked(meta->nyquistSampling);
+    ui->checkBox_2D->setChecked(meta->save2DOutput);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
+    ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
+    ui->checkBox_PS->setChecked(meta->savePotentialSlices);
 
     switch (this->meta->algorithm){
         case Prismatic::Algorithm::PRISM :
@@ -695,12 +722,21 @@ void PRISMMainWindow::setNumGPUs(const int& num){
 }
 
 void PRISMMainWindow::setNumThreads(const int& num){
+    std::cout << "Also do CPU work " << pars.meta.alsoDoCPUWork << std::endl;
     if (num > 0){
         this->meta->numThreads = num;
         std::cout << "Setting number of CPU Threads to " << num << std::endl;
         QMutexLocker gatekeeper(&dataLock);
+        this->meta->alsoDoCPUWork=true;
         this->pars.meta.numThreads = num;
     }
+    else if(num==0){
+      this->meta->numThreads = 1;
+      std::cout << "Setting number of CPU threads to " << num <<" (GPU only calculation)"<< std::endl;
+      this->meta->alsoDoCPUWork=false;
+      this->pars.meta.numThreads = 1;
+    }
+    std::cout << "Also do CPU work " << pars.meta.alsoDoCPUWork << std::endl;
 }
 
 void PRISMMainWindow::setNumStreams(const int& num){
@@ -720,6 +756,13 @@ void PRISMMainWindow::setNumFP(const int& num){
     resetCalculation();
 }
 
+void PRISMMainWindow::setNumNS(const int& num){
+    if (num > 0){
+        this->meta->numSlices = num;
+        std::cout << "Setting number of slices for intermediate output steps to " << num << std::endl;
+    }
+    resetCalculation();
+}
 
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     bool flag = false;
@@ -770,12 +813,42 @@ void PRISMMainWindow::setprobeSemiangle_fromLineEdit(){
     resetCalculation();
 }
 
+void PRISMMainWindow::setzStart_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_zStart->text().toDouble(&flag);
+    if (flag){
+        this->meta->zStart = val;
+        std::cout << "Setting intermediate output to begin after" << val << " Angstroms" << std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
     if (flag){
         this->meta->alphaBeamMax = val / 1000;
         std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set2D_innerAngle_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_2D_inner->text().toDouble(&flag);
+    if (flag){
+        this->meta->integrationAngleMin = val /1000;
+        std::cout << "Setting annular detector inner angle to" << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set2D_outerAngle_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_2D_inner->text().toDouble(&flag);
+    if (flag){
+        this->meta->integrationAngleMax = val /1000;
+        std::cout << "Setting annular detector outer angle to" << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -1134,25 +1207,29 @@ void PRISMMainWindow::saveAtomCoords(QString filename, QString comment){
 void PRISMMainWindow::calculateAll(){
     prism_progressbar *progressbar = new prism_progressbar(this);
     progressbar->show();
+    this->setFilenameOutput_fromLineEdit();
 
     if (meta->algorithm == Prismatic::Algorithm::PRISM) {
 	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+        std::cout <<"Starting Full PRISM Calculation" << std::endl;
+        worker->meta.toString();
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
+        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
         connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
         connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
 	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        std::cout <<"Starting Full PRISM Calculation" << std::endl;
-        worker->meta.toString();
         worker->start();
     } else{
         FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
+        std::cout <<"Also do CPU work: "<<worker->meta.alsoDoCPUWork<<std::endl;
         std::cout <<"Starting Full Multislice Calculation" << std::endl;
         worker->meta.toString();
         connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
         connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
@@ -1162,6 +1239,27 @@ void PRISMMainWindow::calculateAll(){
         worker->start();
     }
     Prismatic::writeParamFile(*this->meta, get_default_parameter_filename());
+}
+
+void PRISMMainWindow::preventOverwrite(){
+    QMessageBox *msgBox = new QMessageBox(this);
+    QString msgTxt = "Output file already exists. Do you want to overwrite the file?";
+    msgBox->setText(msgTxt);
+    msgBox->setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+    msgBox->show();
+    int ret;
+    ret = msgBox->exec();
+    switch (ret) 
+    {
+        case QMessageBox::Yes:
+            //delete file and move on
+            //remove(params.meta.filenameOutput.c_str());
+            flipOverwrite();
+            break;
+        case QMessageBox::No:
+            //exit from thread
+            break;
+    }
 }
 
 void PRISMMainWindow::calculateProbe(){
@@ -1604,7 +1702,7 @@ void PRISMMainWindow::updateOutputFloatImage(){
         for (auto j = 0; j < output.get_dimk(); ++j){
             for (auto i = 0; i < output.get_dimj(); ++i){
                  for (auto k = min_layer; k <= max_layer; ++k){
-                    outputImage_float.at(j,i) += output.at(j, i, k);
+                    outputImage_float.at(j,i) += output.at(0, j, i, k);
                 }
             }
         }
@@ -1936,7 +2034,6 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeX(){
 }
 
 
-
 void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)ui->lineEdit_pixelSizeY->text().toDouble(&flag);
@@ -1947,8 +2044,16 @@ void PRISMMainWindow::checkInput_lineEdit_pixelSizeY(){
 }
 void PRISMMainWindow::saveCurrentOutputImage(){
     if (checkoutputArrayExists()){
-            QMutexLocker gatekeeper(&outputLock);
-        outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
+        QMutexLocker gatekeeper(&outputLock);
+        uint8_t * tmp_buffer = (uint8_t*) malloc(outputImage_float.size()*8);
+        PRISMATIC_FLOAT_PRECISION max_val = *std::max_element(outputImage_float.begin(),outputImage_float.end());
+        PRISMATIC_FLOAT_PRECISION min_val = *std::min_element(outputImage_float.begin(),outputImage_float.end());
+        for( auto i = 0; i < outputImage_float.size(); i++) tmp_buffer[i] = std::floor(255*(outputImage_float[i]-min_val)/(max_val-min_val));
+        uchar * buffer = (uchar*) &tmp_buffer[0];
+        QImage image(buffer,outputImage_float.get_dimi(),outputImage_float.get_dimj(),outputImage_float.get_dimi()*1,QImage::Format_Grayscale8);
+        image.save(ui->lineEdit_saveOutputImage->text().toStdString().c_str(),"PNG",100);
+        free(tmp_buffer);  
+        //outputImage_float.toMRC_f(ui->lineEdit_saveOutputImage->text().toStdString().c_str());
     }
 }
 
@@ -1976,12 +2081,31 @@ void PRISMMainWindow::newRandomSeed(){
     meta->randomSeed = val;
 }
 
+void PRISMMainWindow::toggle2DOutput(){
+    meta->save2DOutput = ui->checkBox_2D->isChecked();
+    if(meta->save2DOutput){
+        ui->lineEdit_2D_inner->setEnabled(true);
+        ui->lineEdit_2D_outer->setEnabled(true);
+    }else{
+        ui->lineEdit_2D_inner->setDisabled(true);
+        ui->lineEdit_2D_outer->setDisabled(true);
+    }
+}
+
 void PRISMMainWindow::toggle3DOutput(){
     meta->save3DOutput = ui->checkBox_3D->isChecked();
 }
 
 void PRISMMainWindow::toggle4DOutput(){
     meta->save4DOutput = ui->checkBox_4D->isChecked();
+}
+
+void PRISMMainWindow::toggleDPC_CoM(){
+    meta->saveDPC_CoM = ui->checkBox_DPC_CoM->isChecked();
+}
+
+void PRISMMainWindow::togglePotentialSlices(){
+    meta->savePotentialSlices = ui->checkBox_PS->isChecked();
 }
 
 void PRISMMainWindow::toggleThermalEffects(){
@@ -1991,6 +2115,18 @@ void PRISMMainWindow::toggleThermalEffects(){
 
 void PRISMMainWindow::toggleOccupancy(){
     meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
+    resetCalculation();
+}
+
+void PRISMMainWindow::toggleNyquist(){
+    meta->nyquistSampling = ui->checkBox_NQS->isChecked();
+    if(meta->nyquistSampling){
+        ui->lineEdit_probeStepX->setDisabled(true);
+        ui->lineEdit_probeStepY->setDisabled(true);
+    }else{
+        ui->lineEdit_probeStepX->setEnabled(true);
+        ui->lineEdit_probeStepY->setEnabled(true);
+    }
     resetCalculation();
 }
 
@@ -2016,15 +2152,20 @@ void PRISMMainWindow::update_RK(QString str){
     ui->lbl_R_k->setText(str);
 }
 
-
-void PRISMMainWindow::toggleSaveProjectedPotential(){
-    this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
-}
+//void PRISMMainWindow::toggleSaveProjectedPotential(){
+//    this->saveProjectedPotential = ui->checkBox_saveProjectedPotential->isChecked() ? true:false;
+//}
 
 bool PRISMMainWindow::potentialIsReady(){
     QMutexLocker gatekeeper(&dataLock);
     return potentialReady;
 }
+
+bool PRISMMainWindow::overwriteFile(){
+    QMutexLocker gatekeeper(&dataLock);
+    return overwriteCheck;
+}
+
 bool PRISMMainWindow::SMatrixIsReady(){
 //    return false;
     QMutexLocker gatekeeper(&dataLock);
@@ -2104,6 +2245,16 @@ void PRISMMainWindow::calculateProbe_diffK(Prismatic::Array2D<PRISMATIC_FLOAT_PR
     updateProbe_diffKDisplay();
 }
 
+void PRISMMainWindow::flipOverwrite(){
+    {
+        QMutexLocker gatekeeper(&dataLock);
+        if(overwriteCheck){
+            overwriteCheck = false;
+        }else{
+            overwriteCheck = true;
+        }
+    }
+}
 
 void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> _potential){
     {
@@ -2116,7 +2267,7 @@ void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECI
         potentialReady = true;
     }
 }
-void PRISMMainWindow::outputReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> _output){
+void PRISMMainWindow::outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> _output){
     {
         QMutexLocker gatekeeper(&outputLock);
         output = _output;

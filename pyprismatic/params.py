@@ -23,6 +23,8 @@ class Metadata(object):
     "potBound" : limiting radius within which to compute projected potentials from the center of each atom (in Angstroms)
     "numFP" : number of frozen phonon configurations to average over
     "sliceThickness" : thickness of potential slices (in Angstroms)
+    "numSlices" : number of slices between intermediate outputs
+    "zStart" : depth before intermediate output begins (in Angstroms)
     "cellDimX" : unit cell dimension X (in Angstroms)
     "cellDimY" : unit cell dimension Y (in Angstroms)
     "cellDimZ" : unit cell dimension Z (in Angstroms)
@@ -50,6 +52,10 @@ class Metadata(object):
     "scanWindowXMax" : upper X size of the window to scan the probe (in fractional coordinates)
     "scanWindowYMin" : lower Y size of the window to scan the probe (in fractional coordinates)
     "scanWindowYMax" : upper Y size of the window to scan the probe (in fractional coordinates)
+    "scanWindowXMin_r" : lower X size of the window to scan the probe (in Angstroms)
+    "scanWindowYMin_r" : lower Y size of the window to scan the probe (in Angstroms)
+    "scanWindowXMax_r" : upper X size of the window to scan the probe (in Angstroms)
+    "scanWindowYMax_r" : upper Y size of the window to scan the probe (in Angstroms)
     "randomSeed" : number to use for random seeding of thermal effects
     "algorithm" : simulation algorithm to use, "prism" or "multislice"
     "includeThermalEffects" : true/false to apply random thermal displacements (Debye-Waller effect)
@@ -57,9 +63,12 @@ class Metadata(object):
     "save2DOutput" : save the 2D STEM image integrated between integrationAngleMin and integrationAngleMax
     "save3DOutput" : true/false Also save the 3D output at the detector for each probe (3D output mode)
     "save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
+    "saveDPC_CoM"  : true/false Also save the DPC center of mass calculation for each probe
+    "savePotentialSlices" : true/false Also save the projected potential array
+    "nyquistSampling": set number of probe positions at Nyquist sampling limit
     "integrationAngleMin" : (in rad)
     "integrationAngleMax" : (in rad)
-    "transferMode : memory model to use, either "streaming", "singlexfer", or "auto"
+    "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
     fields = ["interpolationFactorX",
@@ -71,6 +80,8 @@ class Metadata(object):
               "potBound",
               "numFP",
               "sliceThickness",
+              "numSlices",
+              "zStart",
               "cellDimX",
               "cellDimY",
               "cellDimZ",
@@ -98,6 +109,10 @@ class Metadata(object):
               "scanWindowXMax",
               "scanWindowYMin",
               "scanWindowYMax",
+              "scanWindowXMin_r",
+              "scanWindowXMax_r",
+              "scanWindowYMin_r",
+              "scanWindowYMax_r",
               "randomSeed",
               "algorithm",
               "includeThermalEffects",
@@ -105,17 +120,21 @@ class Metadata(object):
               "save2DOutput",
               "save3DOutput",
               "save4DOutput",
+              "saveDPC_CoM",
+              "savePotentialSlices",
+              "nyquistSampling",
               "integrationAngleMin",
               "integrationAngleMax",
               "transferMode"]
 
-    str_fields = ['algorith', 'transferMode']
+    str_fields = ['algorithm', 'transferMode']
 
     int_fields = ['interpolationFactorX', 'interpolationFactorY',
                   'tileX', 'tileY', 'tileZ', 'numFP'
                   'numGPUs', 'numStreamsPerGPU', 'numThreads',
                   'batchSizeTargetCPU', 'batchSizeTargetGPU',
-                  'batchSizeCPU', 'batchSizeGPU']
+                  'batchSizeCPU', 'batchSizeGPU',
+                  'numSlices']
 
     float_fields = ['realspacePixelSizeX', 'realspacePixelSizeY',
                     'potBound', 'sliceThickness',
@@ -127,7 +146,10 @@ class Metadata(object):
                     'probeXtilt', 'probeYtilt',
                     'scanWindowXMin', 'scanWindowXMax',
                     'scanWindowYMin', 'scanWindowYMax',
-                    'integrationAngleMin', 'integrationAngleMax']
+                    'scanWindowXMin_r', 'scanWindowXMax_r',
+                    'scanWindowYMin_r', 'scanWindowYMax_r',
+                    'integrationAngleMin', 'integrationAngleMax',
+                    'zStart']
 
     def __init__(self, *args, **kwargs):
         """
@@ -142,12 +164,14 @@ class Metadata(object):
         self.interpolationFactorX = 4
         self.interpolationFactorY = 4
         self.filenameAtoms = ""
-        self.filenameOutput = "output.mrc"
+        self.filenameOutput = "output.h5"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
         self.potBound = 1.0
         self.numFP = 1
         self.sliceThickness = 2.0
+        self.numSlices = 0
+        self.zStart = 0.0
         self.cellDimX = 20.0
         self.cellDimY = 20.0
         self.cellDimZ = 20.0
@@ -174,9 +198,13 @@ class Metadata(object):
         self.probeXtilt = 0.0
         self.probeYtilt = 0.0
         self.scanWindowXMin = 0.0
-        self.scanWindowXMax = 1.0
+        self.scanWindowXMax = 0.99999
         self.scanWindowYMin = 0.0
-        self.scanWindowYMax = 1.0
+        self.scanWindowYMax = 0.99999
+        self.scanWindowXMin_r = 0.0
+        self.scanWindowXMax_r = 1.0
+        self.scanWindowYMin_r = 0.0
+        self.scanWindowYMax_r = 1.0
         self.randomSeed = np.random.randint(0, 999999)
         self.algorithm = "prism"
         self.includeThermalEffects = False
@@ -184,6 +212,9 @@ class Metadata(object):
         self.save2DOutput = False
         self.save3DOutput = True
         self.save4DOutput = False
+        self.saveDPC_COM = False
+        self.savePotentialSlices = False
+        self.nyquistSampling = False
         self.integrationAngleMin = 0
         self.integrationAngleMax = .001
         self.transferMode = "auto"

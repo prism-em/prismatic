@@ -32,7 +32,7 @@ namespace Prismatic{
 			interpolationFactorY  = 4;
 			interpolationFactorX  = 4;
 			filenameAtoms         = "/path/to/atoms.txt";
-			filenameOutput        = "output.mrc";
+			filenameOutput        = "output.h5";
 			outputFolder          = "";
 			realspacePixelSize[0] = 0.1;
 			realspacePixelSize[1] = 0.1;
@@ -82,6 +82,7 @@ namespace Prismatic{
 			save2DOutput          = false;
 			save3DOutput          = true;
 			save4DOutput          = false;
+			saveDPC_CoM           = false;
 			saveRealSpaceCoords   = false;
 			savePotentialSlices   = false;
 			userSpecifiedCelldims = false;
@@ -90,6 +91,7 @@ namespace Prismatic{
 			integrationAngleMin   = 0;
 			integrationAngleMax   = detectorAngleStep;
 			transferMode          = StreamingMode::Auto;
+			nyquistSampling		  = false;
 		}
 		size_t interpolationFactorY; // PRISM f_y parameter
 		size_t interpolationFactorX; // PRISM f_x parameter
@@ -142,11 +144,13 @@ namespace Prismatic{
 		T integrationAngleMax;
 		bool save3DOutput;
 		bool save4DOutput;
+		bool saveDPC_CoM;
 		bool saveRealSpaceCoords;
 		bool savePotentialSlices;
 		bool userSpecifiedCelldims;
 		bool realSpaceWindow_x;
 		bool realSpaceWindow_y;
+		bool nyquistSampling;
 		StreamingMode transferMode;
 
 	};
@@ -236,6 +240,11 @@ namespace Prismatic{
 		} else {
 			std::cout << "save4DOutput = false" << std::endl;
 		}
+		if (saveDPC_CoM) {
+			std::cout << "saveDPC_CoM = true" << std::endl;
+		} else {
+			std::cout << "saveDPC_CoM = false" << std::endl;
+		}
 		if (saveRealSpaceCoords) {
 			std::cout << "saveRealSpaceCoords = true" << std::endl;
 		} else {
@@ -245,6 +254,11 @@ namespace Prismatic{
 			std::cout << "savePotentialSlices = true" << std::endl;
 		} else {
 			std::cout << "savePotentialSlices= false" << std::endl;
+		}
+		if (nyquistSampling) {
+			std::cout << "nyquistSampling = true" << std::endl;
+		}else{
+			std::cout << "nyquistSampling = false" << std::endl;
 		}
 
 
@@ -309,11 +323,13 @@ namespace Prismatic{
 		if(save2DOutput != other.save2DOutput)return false;
 		if(save3DOutput != other.save3DOutput)return false;
 		if(save4DOutput != other.save4DOutput)return false;
+		if(saveDPC_CoM != other.saveDPC_CoM)return false;
 		if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
 		if(savePotentialSlices != other.savePotentialSlices)return false;
 		if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
 		if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
 		if(realSpaceWindow_y != other.realSpaceWindow_y)return false;
+		if(nyquistSampling != other.nyquistSampling)return false;
 		return true;
 	}
 
