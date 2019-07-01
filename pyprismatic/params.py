@@ -11,10 +11,11 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 #    Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+from typing import List, Any
 import pyprismatic.core
 
 
-class Metadata(object):
+class Metadata:
     """
     "interpolationFactorX" : PRISM interpolation factor in x-direction
     "interpolationFactorY" : PRISM interpolation factor in y-direction
@@ -73,7 +74,7 @@ class Metadata(object):
     "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
-    fields = [
+    fields: List[str] = [
         "interpolationFactorX",
         "interpolationFactorY",
         "filenameAtoms",
@@ -131,9 +132,9 @@ class Metadata(object):
         "transferMode",
     ]
 
-    str_fields = ["algorithm", "transferMode"]
+    str_fields: List[str] = ["algorithm", "transferMode"]
 
-    int_fields = [
+    int_fields: List[str] = [
         "interpolationFactorX",
         "interpolationFactorY",
         "tileX",
@@ -149,7 +150,7 @@ class Metadata(object):
         "numSlices",
     ]
 
-    float_fields = [
+    float_fields: List[str] = [
         "realspacePixelSizeX",
         "realspacePixelSizeY",
         "potBound",
@@ -252,11 +253,11 @@ class Metadata(object):
             else:
                 setattr(self, k, v)
 
-    def _setCellDims(self, Fname):
+    def _setCellDims(self, filename: str):
         try:
-            inf = open(Fname, "r")
+            inf = open(filename, "r")
         except IOError:
-            print("Could not set cell dimensions from file {}".format(Fname))
+            print("Could not set cell dimensions from file {}".format(filename))
             return
         inf.readline()
         self.cellDimX, self.cellDimY, self.cellDimZ = [
@@ -274,14 +275,14 @@ class Metadata(object):
             self._filenameAtoms = filenameAtoms
             self._setCellDims(filenameAtoms)
 
-    def readParameters(self, Fname):
-        """Read parameters from ``Fname`` previously stored by ``writeParameters()``.
+    def readParameters(self, filename: str):
+        """Read parameters from ``filename`` previously stored by ``writeParameters()``.
         No input verification is performed.
         """
         try:
-            inf = open(Fname, "r")
+            inf = open(filename, "r")
         except IOError:
-            print("Could not open parameter file {}".format(Fname))
+            print("Could not open parameter file {}".format(filename))
 
         line = inf.readline()
         while line:
@@ -297,15 +298,15 @@ class Metadata(object):
             line = inf.readline()
         inf.close()
 
-    def writeParameters(self, Fname):
-        """Write parameters to ``Fname`` but leave out parameters that define
+    def writeParameters(self, filename: str):
+        """Write parameters to ``filename`` but leave out parameters that define
         the input obtained from ``filenameAtoms`` (incuding cell dimensions
         and number of tiles) as well as the output specific settings.
         """
         try:
-            outf = open(Fname, "w")
+            outf = open(filename, "w")
         except IOError:
-            print("Could not open parameter file {}".format(Fname))
+            print("Could not open parameter file {}".format(filename))
 
         for field in Metadata.fields:
             if (
@@ -326,7 +327,7 @@ class Metadata(object):
             print("{} = {}".format(field, getattr(self, field)))
 
     def go(self):
-        self.algorithm = self.algorithm.lower()
-        self.transferMode = self.transferMode.lower()
-        l = [getattr(self, field) for field in Metadata.fields]
-        pyprismatic.core.go(*(l))
+        self.algorithm: str = self.algorithm.lower()
+        self.transferMode: str = self.transferMode.lower()
+        l: List[Any] = [getattr(self, field) for field in Metadata.fields]
+        pyprismatic.core.go(*l)

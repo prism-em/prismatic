@@ -11,8 +11,8 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 # 	 Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
-from . import core
-from . import fileio
+from . import core  # noqa
+from . import fileio  # noqa
 from pyprismatic.params import Metadata
 
 
@@ -45,4 +45,3 @@ def demo():
     plt.imshow(np.squeeze(np.sum(result, axis=2)))
     plt.show()
     os.remove("temp.XYZ")
-

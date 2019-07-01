@@ -12,7 +12,7 @@
 # 	 Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
 
-def readMRC(filename, dtype=float, order="C"):
+def readMRC(filename: str, dtype: type = float, order: str = "C"):
     """
     * readMRC *
 
