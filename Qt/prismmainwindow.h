@@ -14,7 +14,6 @@
 #ifndef PRISMMAINWINDOW_H
 #define PRISMMAINWINDOW_H
 
-
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QMutex>
@@ -28,8 +27,9 @@
 #include "ArrayND.h"
 #include "params.h"
 #include "prism_colormapper.h"
-namespace Ui {
-	class PRISMMainWindow;
+namespace Ui
+{
+class PRISMMainWindow;
 }
 
 // forward declare the thread classes that run the work
@@ -43,7 +43,7 @@ class PRISMMainWindow : public QMainWindow
     // access the protected mutex locks and arrays
     friend class PRISMThread;
     friend class PotentialThread;
-//    friend class SMatrixThread;
+    //    friend class SMatrixThread;
     friend class ProbeThread;
     friend class FullPRISMCalcThread;
     friend class FullMultisliceCalcThread;
@@ -51,13 +51,13 @@ class PRISMMainWindow : public QMainWindow
 
 public:
     explicit PRISMMainWindow(QWidget *parent = 0);
-	bool potentialIsReady();
+    bool potentialIsReady();
     bool overwriteFile();
-	bool SMatrixIsReady();
-	bool OutputIsReady();
+    bool SMatrixIsReady();
+    bool OutputIsReady();
     bool checkoutputArrayExists();
     bool checkpotentialArrayExists();
-    void updateUCdims(const std::string& filename);
+    void updateUCdims(const std::string &filename);
     ~PRISMMainWindow();
 
 public slots:
@@ -65,16 +65,16 @@ public slots:
     void selectParameterFile();
     void writeParameterFile();
     void readParams(const std::string param_filename);
-	void setInterpolationFactorX();
-	void setInterpolationFactorY();
-	void setFilenameAtoms_fromDialog();
-	void setFilenameOutput_fromLineEdit();
-	void setFilenameOutput_fromDialog();
-    void setNumGPUs(const int& numGPUs);
-    void setNumThreads(const int& numThreads);
-    void setNumFP(const int& numFP);
-    void setNumNS(const int& numSlices);
-    void setNumStreams(const int& numFP);
+    void setInterpolationFactorX();
+    void setInterpolationFactorY();
+    void setFilenameAtoms_fromDialog();
+    void setFilenameOutput_fromLineEdit();
+    void setFilenameOutput_fromDialog();
+    void setNumGPUs(const int &numGPUs);
+    void setNumThreads(const int &numThreads);
+    void setNumFP(const int &numFP);
+    void setNumNS(const int &numSlices);
+    void setNumStreams(const int &numFP);
     void setPixelSizeX_fromLineEdit();
     void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
@@ -95,8 +95,8 @@ public slots:
     void setE0_fromLineEdit();
     void setprobeStepX_fromLineEdit();
     void setprobeStepY_fromLineEdit();
-	void setAlgo_PRISM();
-	void setAlgo_Multislice();
+    void setAlgo_PRISM();
+    void setAlgo_Multislice();
     void calculatePotential();
     void calculateAll();
     void calculateProbe();
@@ -107,17 +107,17 @@ public slots:
     void updateOutputDisplay();
     void updateOutputFloatImage();
     void updateSliders_fromLineEdits();
-	void updateSliders_fromLineEdits_ang();
+    void updateSliders_fromLineEdits_ang();
     void updateContrastPotMin();
     void updateContrastPotMax();
     void updateContrastAngMin();
     void updateContrastAngMax();
     void updateSlider_lineEdits_min(int);
     void updateSlider_lineEdits_max(int);
-	void updateSlider_lineEdits_max_ang(int val);
-	void updateSlider_lineEdits_min_ang(int val);
+    void updateSlider_lineEdits_max_ang(int val);
+    void updateSlider_lineEdits_min_ang(int val);
     void updateAlphaMax();
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent *event);
     void redrawImages();
     void saveCurrentOutputImage();
     void setStreamingMode(int);
@@ -133,11 +133,11 @@ public slots:
     void toggle2DOutput();
     void toggle3DOutput();
     void toggle4DOutput();
-	void toggleDPC_CoM();
-	void togglePotentialSlices();
+    void toggleDPC_CoM();
+    void togglePotentialSlices();
     void toggleThermalEffects();
     void toggleOccupancy();
-	void toggleNyquist();
+    void toggleNyquist();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();
@@ -145,10 +145,10 @@ public slots:
     void resetCalculation();
     void newRandomSeed();
 
-//    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-//    void updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-//    void updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
-//    void updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    //    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    //    void updateProbeR_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    //    void updateProbeK_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
+    //    void updateProbeR_Multislice(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void probeK_PRISMReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void probeR_PRISMReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
     void probeK_MultisliceReceived(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
@@ -203,19 +203,19 @@ public slots:
     void flipOverwrite();
 
 protected:
-    void setFilenameAtoms(const std::string& filename);
-    void setFilenameOutput(const std::string& filename);
-    void setRealspacePixelSize(const PRISMATIC_FLOAT_PRECISION& pixel_size);
-    void setPotBound(const PRISMATIC_FLOAT_PRECISION& potBound);
-    void setNumFP(const size_t& numFP);
-    void setNumNS(const size_t& numSlices);
-    void setE0(const PRISMATIC_FLOAT_PRECISION& E0);
-    void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION& alphaBeamMax);
-    void setSliceThickness(const PRISMATIC_FLOAT_PRECISION& thickness);
-    void setCellDimX(const int& dimX);
-    void setCellDimY(const int& dimY);
-    void setCellDimZ(const int& dimZ);
-	void setAlgo(const Prismatic::Algorithm algo);
+    void setFilenameAtoms(const std::string &filename);
+    void setFilenameOutput(const std::string &filename);
+    void setRealspacePixelSize(const PRISMATIC_FLOAT_PRECISION &pixel_size);
+    void setPotBound(const PRISMATIC_FLOAT_PRECISION &potBound);
+    void setNumFP(const size_t &numFP);
+    void setNumNS(const size_t &numSlices);
+    void setE0(const PRISMATIC_FLOAT_PRECISION &E0);
+    void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION &alphaBeamMax);
+    void setSliceThickness(const PRISMATIC_FLOAT_PRECISION &thickness);
+    void setCellDimX(const int &dimX);
+    void setCellDimY(const int &dimY);
+    void setCellDimZ(const int &dimZ);
+    void setAlgo(const Prismatic::Algorithm algo);
 
 private:
     Ui::PRISMMainWindow *ui;
@@ -223,7 +223,7 @@ private:
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> *meta;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
-    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>* getMetadata(){return this->meta;}
+    Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> *getMetadata() { return this->meta; }
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
     Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> output;
     Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
@@ -276,7 +276,6 @@ private:
     PRISMATIC_FLOAT_PRECISION contrast_outputMax;
     PRISMATIC_FLOAT_PRECISION currently_calculated_X;
     PRISMATIC_FLOAT_PRECISION currently_calculated_Y;
-
 };
 
 unsigned char getUcharFromFloat(PRISMATIC_FLOAT_PRECISION val,

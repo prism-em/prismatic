@@ -16,15 +16,16 @@
 #include "defines.h"
 #include "meta.h"
 
-namespace Prismatic{
-    bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
-                            int& argc, const char*** argv);
-    bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
-                            int& argc, const char*** argv);
-    bool parseParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
-                            const std::string param_filename);
-    bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION>& meta,
-                            const std::string param_filename);
-    void printHelp();
-}
+namespace Prismatic
+{
+bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+                 int &argc, const char ***argv);
+bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+                int &argc, const char ***argv);
+bool parseParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+                    const std::string param_filename);
+bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+                    const std::string param_filename);
+void printHelp();
+} // namespace Prismatic
 #endif //PRISM_PARSEINPUT_H

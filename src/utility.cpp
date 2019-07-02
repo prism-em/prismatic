@@ -1542,5 +1542,4 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 
 	metadata.close();
 };
-
 } // namespace Prismatic

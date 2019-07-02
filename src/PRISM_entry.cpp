@@ -141,11 +141,13 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				}
 			}
 		}
-
 		writeDatacube3D(VD_data, &output_image[0], mdims);
 		VD_data.close();
 		dataGroup.close();
 	}
+
+
+
 
 	if (prismatic_pars.meta.save2DOutput)
 	{
@@ -157,6 +159,12 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
 
+		std::stringstream nameString;
+		nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
+		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+		H5::DataSet AD_data = dataGroup.openDataSet("realslice");
+		hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+
 		for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
 		{
 			for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
@@ -164,22 +172,15 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				for (auto b = lower; b < upper; ++b)
 				{
 					prism_image.at(x, y) += prismatic_pars.output.at(0, y, x, b);
-				}
-			}
-		}
-		std::stringstream nameString;
-		nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
-		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-		H5::DataSet AD_data = dataGroup.openDataSet("realslice");
-		hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+                }
+            }
+        }
 
 		writeRealSlice(AD_data, &prism_image[0], mdims);
 		AD_data.close();
 		dataGroup.close();
-
-		//std::string image_filename = prismatic_pars.meta.outputFolder + std::string("prism_2Doutput_") + prismatic_pars.meta.filenameOutput;
-		//prism_image.toMRC_f(image_filename.c_str());
 	}
+
 
 	if (prismatic_pars.meta.saveDPC_CoM)
 	{

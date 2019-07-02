@@ -11,8 +11,11 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 #    Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+from typing import List, Any
 import pyprismatic.core
-class Metadata(object):
+
+
+class Metadata:
     """
     "interpolationFactorX" : PRISM interpolation factor in x-direction
     "interpolationFactorY" : PRISM interpolation factor in y-direction
@@ -71,85 +74,110 @@ class Metadata(object):
     "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
-    fields = ["interpolationFactorX",
-              "interpolationFactorY",
-              "filenameAtoms",
-              "filenameOutput",
-              "realspacePixelSizeX",
-              "realspacePixelSizeY",
-              "potBound",
-              "numFP",
-              "sliceThickness",
-              "numSlices",
-              "zStart",
-              "cellDimX",
-              "cellDimY",
-              "cellDimZ",
-              "tileX",
-              "tileY",
-              "tileZ",
-              "E0",
-              "alphaBeamMax",
-              "numGPUs",
-              "numStreamsPerGPU",
-              "numThreads",
-              "batchSizeTargetCPU",
-              "batchSizeTargetGPU",
-              "earlyCPUStopCount",
-              "probeStepX",
-              "probeStepY",
-              "probeDefocus",
-              "C3",
-              "C5",
-              "probeSemiangle",
-              "detectorAngleStep",
-              "probeXtilt",
-              "probeYtilt",
-              "scanWindowXMin",
-              "scanWindowXMax",
-              "scanWindowYMin",
-              "scanWindowYMax",
-              "scanWindowXMin_r",
-              "scanWindowXMax_r",
-              "scanWindowYMin_r",
-              "scanWindowYMax_r",
-              "randomSeed",
-              "algorithm",
-              "includeThermalEffects",
-              "alsoDoCPUWork",
-              "save2DOutput",
-              "save3DOutput",
-              "save4DOutput",
-              "saveDPC_CoM",
-              "savePotentialSlices",
-              "nyquistSampling",
-              "integrationAngleMin",
-              "integrationAngleMax",
-              "transferMode"]
+    fields: List[str] = [
+        "interpolationFactorX",
+        "interpolationFactorY",
+        "filenameAtoms",
+        "filenameOutput",
+        "realspacePixelSizeX",
+        "realspacePixelSizeY",
+        "potBound",
+        "numFP",
+        "sliceThickness",
+        "numSlices",
+        "zStart",
+        "cellDimX",
+        "cellDimY",
+        "cellDimZ",
+        "tileX",
+        "tileY",
+        "tileZ",
+        "E0",
+        "alphaBeamMax",
+        "numGPUs",
+        "numStreamsPerGPU",
+        "numThreads",
+        "batchSizeTargetCPU",
+        "batchSizeTargetGPU",
+        "earlyCPUStopCount",
+        "probeStepX",
+        "probeStepY",
+        "probeDefocus",
+        "C3",
+        "C5",
+        "probeSemiangle",
+        "detectorAngleStep",
+        "probeXtilt",
+        "probeYtilt",
+        "scanWindowXMin",
+        "scanWindowXMax",
+        "scanWindowYMin",
+        "scanWindowYMax",
+        "scanWindowXMin_r",
+        "scanWindowXMax_r",
+        "scanWindowYMin_r",
+        "scanWindowYMax_r",
+        "randomSeed",
+        "algorithm",
+        "includeThermalEffects",
+        "alsoDoCPUWork",
+        "save2DOutput",
+        "save3DOutput",
+        "save4DOutput",
+        "saveDPC_CoM",
+        "savePotentialSlices",
+        "nyquistSampling",
+        "integrationAngleMin",
+        "integrationAngleMax",
+        "transferMode",
+    ]
 
-    str_fields = ['algorithm', 'transferMode']
+    str_fields: List[str] = ["algorithm", "transferMode"]
 
-    int_fields = ['interpolationFactorX', 'interpolationFactorY',
-                  'tileX', 'tileY', 'tileZ', 'numFP'
-                  'numGPUs', 'numStreamsPerGPU', 'numThreads',
-                  'batchSizeTargetCPU', 'batchSizeTargetGPU',
-                  'batchSizeCPU', 'batchSizeGPU',
-                  'numSlices']
+    int_fields: List[str] = [
+        "interpolationFactorX",
+        "interpolationFactorY",
+        "tileX",
+        "tileY",
+        "tileZ",
+        "numFP" "numGPUs",
+        "numStreamsPerGPU",
+        "numThreads",
+        "batchSizeTargetCPU",
+        "batchSizeTargetGPU",
+        "batchSizeCPU",
+        "batchSizeGPU",
+        "numSlices",
+    ]
 
-    float_fields = ['realspacePixelSizeX', 'realspacePixelSizeY',
-                    'potBound', 'sliceThickness',
-                    'E0', 'alphaBeamMax'
-                    'earlyCPUStopCount',
-                    'probeStepX', 'probeStepY',
-                    'probeDefocus', 'C3', 'C5',
-                    'probeSemiangle', 'detectorAngleStep',
-                    'probeXtilt', 'probeYtilt',
-                    'scanWindowXMin', 'scanWindowXMax',
-                    'scanWindowYMin', 'scanWindowYMax',
-                    'scanWindowXMin_r', 'scanWindowXMax_r',
-                    'scanWindowYMin_r', 'scanWindowYMax_r',
-                    'integrationAngleMin', 'integrationAngleMax',
-                    'zStart']
+    float_fields: List[str] = [
+        "realspacePixelSizeX",
+        "realspacePixelSizeY",
+        "potBound",
+        "sliceThickness",
+        "E0",
+        "alphaBeamMax" "earlyCPUStopCount",
+        "probeStepX",
+        "probeStepY",
+        "probeDefocus",
+        "C3",
+        "C5",
+        "probeSemiangle",
+        "detectorAngleStep",
+        "probeXtilt",
+        "probeYtilt",
+        "scanWindowXMin",
+        "scanWindowXMax",
+        "scanWindowYMin",
+        "scanWindowYMax",
+        "scanWindowXMin_r",
+        "scanWindowXMax_r",
+        "scanWindowYMin_r",
+        "scanWindowYMax_r",
+        "integrationAngleMin",
+        "integrationAngleMax",
+        "zStart",
+    ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -161,6 +189,7 @@ class Metadata(object):
         values 8 and "test.mrc"
         """
         import numpy as np
+
         self.interpolationFactorX = 4
         self.interpolationFactorY = 4
         self.filenameAtoms = ""
@@ -216,22 +245,24 @@ class Metadata(object):
         self.savePotentialSlices = False
         self.nyquistSampling = False
         self.integrationAngleMin = 0
-        self.integrationAngleMax = .001
+        self.integrationAngleMax = 0.001
         self.transferMode = "auto"
         for k, v in kwargs.items():
             if k not in Metadata.fields:
-                print("Invalid metaparameter \"{}\" provided".format(k))
+                print('Invalid metaparameter "{}" provided'.format(k))
             else:
                 setattr(self, k, v)
 
-    def _setCellDims(self, Fname):
+    def _setCellDims(self, filename: str):
         try:
-            inf = open(Fname, 'r')
+            inf = open(filename, "r")
         except IOError:
-            print('Could not set cell dimensions from file {}'.format(Fname))
+            print("Could not set cell dimensions from file {}".format(filename))
             return
         inf.readline()
-        self.cellDimX, self.cellDimY, self.cellDimZ = [float(i) for i in inf.readline().split()]
+        self.cellDimX, self.cellDimY, self.cellDimZ = [
+            float(i) for i in inf.readline().split()
+        ]
         inf.close()
 
     @property
@@ -240,23 +271,22 @@ class Metadata(object):
 
     @filenameAtoms.setter
     def filenameAtoms(self, filenameAtoms):
-        if filenameAtoms != "": # do not set cell dimensions for default empty string
+        if filenameAtoms != "":  # do not set cell dimensions for default empty string
             self._filenameAtoms = filenameAtoms
             self._setCellDims(filenameAtoms)
 
-
-    def readParameters(self, Fname):
-        """Read parameters from ``Fname`` previously stored by ``writeParameters()``.
+    def readParameters(self, filename: str):
+        """Read parameters from ``filename`` previously stored by ``writeParameters()``.
         No input verification is performed.
         """
         try:
-            inf = open(Fname, 'r')
+            inf = open(filename, "r")
         except IOError:
-            print('Could not open parameter file {}'.format(Fname))
+            print("Could not open parameter file {}".format(filename))
 
         line = inf.readline()
         while line:
-            field, value = line.split(' = ')
+            field, value = line.split(" = ")
             if field in Metadata.str_fields:
                 setattr(self, field, value)
             elif field in Metadata.int_fields:
@@ -268,18 +298,22 @@ class Metadata(object):
             line = inf.readline()
         inf.close()
 
-    def writeParameters(self, Fname):
-        """Write parameters to ``Fname`` but leave out parameters that define
+    def writeParameters(self, filename: str):
+        """Write parameters to ``filename`` but leave out parameters that define
         the input obtained from ``filenameAtoms`` (incuding cell dimensions
         and number of tiles) as well as the output specific settings.
         """
         try:
-            outf = open(Fname, 'w')
+            outf = open(filename, "w")
         except IOError:
-            print('Could not open parameter file {}'.format(Fname))
+            print("Could not open parameter file {}".format(filename))
 
         for field in Metadata.fields:
-            if ('save' not in field) and ('filename' not in field) and ('cellDim' not in field):
+            if (
+                ("save" not in field)
+                and ("filename" not in field)
+                and ("cellDim" not in field)
+            ):
                 #
                 # only save parameters that define a calculation but
                 # omit all related to specific input or to what kind of output is
@@ -293,7 +327,7 @@ class Metadata(object):
             print("{} = {}".format(field, getattr(self, field)))
 
     def go(self):
-        self.algorithm = self.algorithm.lower()
-        self.transferMode = self.transferMode.lower()
-        l = [getattr(self, field) for field in Metadata.fields]
-        pyprismatic.core.go(*(l))
+        self.algorithm: str = self.algorithm.lower()
+        self.transferMode: str = self.transferMode.lower()
+        l: List[Any] = [getattr(self, field) for field in Metadata.fields]
+        pyprismatic.core.go(*l)

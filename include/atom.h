@@ -18,14 +18,16 @@
 #include <array>
 #include <iostream>
 
-struct atom{
+struct atom
+{
     double x;
     double y;
     double z;
     size_t species;
     double sigma;
     double occ;
-    void to_string() const{
+    void to_string() const
+    {
         std::cout << "x = " << x << std::endl;
         std::cout << "y = " << y << std::endl;
         std::cout << "z = " << z << std::endl;
@@ -35,25 +37,26 @@ struct atom{
     }
 };
 
-namespace Prismatic {
+namespace Prismatic
+{
 
-    void to_xyz(const std::vector<atom> atoms, const std::string filename, const std::string comment, double a, double b, double c);
+void to_xyz(const std::vector<atom> atoms, const std::string filename, const std::string comment, double a, double b, double c);
 
-    std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms);
+std::vector<atom> tileAtoms(const size_t tileX, const size_t tileY, const size_t tileZ, std::vector<atom> atoms);
 
-	std::vector<atom> readAtoms(const std::string& filename);
+std::vector<atom> readAtoms(const std::string &filename);
 
 //	std::array<double, 3> peekDims(const std::string& filename);
 
-	std::array<double, 3> peekDims_xyz(const std::string& filename);
+std::array<double, 3> peekDims_xyz(const std::string &filename);
 
 //	std::vector<atom> readAtoms_csv(const std::string& filename);
 
-	std::vector<atom> readAtoms_xyz(const std::string& filename);
+std::vector<atom> readAtoms_xyz(const std::string &filename);
 
-    std::string getLowercaseExtension(const std::string filename);
+std::string getLowercaseExtension(const std::string filename);
 
-	std::vector<atom> defaultAtoms();
+std::vector<atom> defaultAtoms();
 
-}
+} // namespace Prismatic
 #endif //PRISM_ATOM_H

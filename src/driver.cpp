@@ -18,23 +18,25 @@
 #include "utility.h"
 
 using namespace std;
-int main(int argc, const char** argv) {
+int main(int argc, const char **argv)
+{
 	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
 
 	// parse command line options
-	if (!Prismatic::parseInputs(meta, argc, &argv))return 1;
+	if (!Prismatic::parseInputs(meta, argc, &argv))
+		return 1;
 
 	Prismatic::printHeader();
 
-//	Prismatic::printTime();
+	//	Prismatic::printTime();
 
 	// print metadata
-//	meta.toString();
+	//	meta.toString();
 
 	// execute simulation
 	Prismatic::go(meta);
 
-//	Prismatic::printTime();
+	//	Prismatic::printTime();
 
 	return 0;
 }

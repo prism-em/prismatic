@@ -21,4 +21,4 @@ cmake-build-debug/
 *.mexa*
 *.txt
 *.mrc
-
+**/.vscode/
