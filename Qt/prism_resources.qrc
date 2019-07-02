@@ -10,7 +10,7 @@
         <file>Cool.png</file>
         <file>Copper.png</file>
         <file>Dusk.png</file>
-	<file>Fire.png</file>
+        <file>Fire.png</file>
         <file>Greens.png</file>
         <file>HSV.png</file>
         <file>Hot.png</file>
@@ -26,5 +26,19 @@
         <file>Teals.png</file>
         <file>Violetfire.png</file>
         <file>Winter.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>Roboto-Black.ttf</file>
+        <file>Roboto-BlackItalic.ttf</file>
+        <file>Roboto-Bold.ttf</file>
+        <file>Roboto-BoldItalic.ttf</file>
+        <file>Roboto-Italic.ttf</file>
+        <file>Roboto-Light.ttf</file>
+        <file>Roboto-LightItalic.ttf</file>
+        <file>Roboto-Medium.ttf</file>
+        <file>Roboto-MediumItalic.ttf</file>
+        <file>Roboto-Regular.ttf</file>
+        <file>Roboto-Thin.ttf</file>
+        <file>Roboto-ThinItalic.ttf</file>
     </qresource>
 </RCC>

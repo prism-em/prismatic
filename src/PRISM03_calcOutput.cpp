@@ -285,13 +285,10 @@ namespace Prismatic {
 							 }
 							 ay = Nstart / pars.xp.size();
 							 ax = Nstart % pars.xp.size();
-							 cout << "Beore build signal" << endl;
 							 buildSignal_CPU(pars, ay, ax, plan, psi);
-							 cout << "Signal built" << endl;
 #ifdef PRISMATIC_BUILDING_GUI
         pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
-							cout <<"Signal output updated" <<endl;
 							 ++Nstart;
 						 }
 					 } while(dispatcher.getWork(Nstart, Nstop));
