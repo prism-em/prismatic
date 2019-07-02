@@ -157,6 +157,7 @@ namespace Prismatic {
 
 	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars){
 		//set version attributes
+		//TODO: change Min to 5; Move attributes under top group; add emd_group_type = 2 attr under top group
 		int maj_data = 0;
 		int min_data = 4;
 
@@ -253,7 +254,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -390,7 +391,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -494,7 +495,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -585,7 +586,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -675,7 +676,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -758,7 +759,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -826,6 +827,7 @@ namespace Prismatic {
 		std::string base_name = "DPC_CoM_depth";
 		hsize_t attr_dims[1] = {1};
 		hsize_t data_dims[2];
+		//TODO: 3D data set (xp,yp,2); change dim3 to vector of strings; single data set
 		data_dims[0] = {pars.xp.size()};
 		data_dims[1] = {pars.yp.size()};
 
@@ -840,7 +842,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute
@@ -925,7 +927,7 @@ namespace Prismatic {
 			//write group type attribute
 			H5::DataSpace attr1_dataspace(H5S_SCALAR);
 			H5::Attribute emd_group_type = DPC_CoM_slice_n.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr1_dataspace);
-			int group_type = 2;
+			int group_type = 1;
 			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);	
 
 			//write metadata attribute

@@ -230,7 +230,7 @@ namespace Prismatic {
 
 				H5::DataSpace attr_dataspace(H5S_SCALAR);
 
-				int group_type = 2;
+				int group_type = 1;
 				H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 				emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
 

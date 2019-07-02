@@ -162,6 +162,7 @@ namespace Prismatic{
 			//prism_image.toMRC_f(image_filename.c_str());
 		}
 
+		//TODO: Save DPC as 3D datacube instead
 		if (prismatic_pars.meta.saveDPC_CoM){
 			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 			setupDPCOutput(prismatic_pars,prismatic_pars.output.get_diml(), dummy);
