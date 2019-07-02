@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     QFontDatabase database;
+    //not all fonts need to be loaded, probably
     int id1 = database.addApplicationFont(":/fonts/Roboto-Regular.ttf");
     int id2 = database.addApplicationFont(":/fonts/Roboto-Black.ttf");
     int id3 = database.addApplicationFont(":/fonts/Roboto-Light.ttf");
     int id4 = database.addApplicationFont(":/fonts/Roboto-Medium.ttf");
-    //dumb comment times two threee
     QFont font = QFont("Roboto");
     a.setFont(font);
     PRISMMainWindow w;
