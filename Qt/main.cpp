@@ -23,6 +23,6 @@ int main(int argc, char *argv[])
     a.setFont(font);
     PRISMMainWindow w;
     w.show();
-    w.setGeometry(100,100,850,700);
+    w.setGeometry(100, 100, 850, 700);
     return a.exec();
 }

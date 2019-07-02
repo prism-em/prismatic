@@ -22,41 +22,46 @@
 // defines QThread derived classes for running work from the PRISM GUI
 //class PRISMMainWindow;
 
-class PotentialThread : public QThread {
+class PotentialThread : public QThread
+{
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
+
 public:
     explicit PotentialThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PotentialThread();
-//signals:
-//    void potentialCalculated();
+    //signals:
+    //    void potentialCalculated();
 private:
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
 
-
-class SMatrixThread : public QThread {
+class SMatrixThread : public QThread
+{
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
+
 public:
     explicit SMatrixThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~SMatrixThread();
-//signals:
-//    void ScompactCalculated();
+    //signals:
+    //    void ScompactCalculated();
 private:
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;
     prism_progressbar *progressbar;
 };
 
-class FullCalcThread : public QThread {
+class FullCalcThread : public QThread
+{
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
+
 public:
     explicit FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~FullCalcThread();
@@ -64,6 +69,7 @@ signals:
     void potentialCalculated();
     void ScompactCalculated();
     void stackCalculated();
+
 private:
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     PRISMMainWindow *parent;

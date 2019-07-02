@@ -18,15 +18,16 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && defined(BUILDING_CUPRISMATIC)
 #ifdef CUPRISMATIC_EXPORT
-        #define PRISMATIC_API __declspec(dllexport)
-    #else
-        #define PRISMATIC_API __declspec(dllimport)
-    #endif //CUPRISMATIC_BUILDING
+#define PRISMATIC_API __declspec(dllexport)
+#else
+#define PRISMATIC_API __declspec(dllimport)
+#endif //CUPRISMATIC_BUILDING
 #else
 #define PRISMATIC_API
 #endif
 
-namespace Prismatic{
-	PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta);
+namespace Prismatic
+{
+PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 }
 #endif //PRISM_GO_H
