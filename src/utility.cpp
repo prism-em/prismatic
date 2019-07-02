@@ -156,21 +156,23 @@ namespace Prismatic {
     }
 
 	void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars){
+		//create main groups
+		H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_simulation"));
+
 		//set version attributes
-		//TODO: change Min to 5; Move attributes under top group; add emd_group_type = 2 attr under top group
 		int maj_data = 0;
-		int min_data = 4;
+		int min_data = 5;
+        int group_type = 2;
 
 		H5::DataSpace attr_dataspace(H5S_SCALAR);
 
-		H5::Attribute maj_attr = pars.outputFile.createAttribute("version_major",H5::PredType::NATIVE_INT,attr_dataspace);
-		H5::Attribute min_attr = pars.outputFile.createAttribute("version_minor",H5::PredType::NATIVE_INT,attr_dataspace);
+		H5::Attribute maj_attr = simulation.createAttribute("version_major",H5::PredType::NATIVE_INT,attr_dataspace);
+		H5::Attribute min_attr = simulation.createAttribute("version_minor",H5::PredType::NATIVE_INT,attr_dataspace);
+		H5::Attribute emd_group_type_attr = simulation.createAttribute("emd_group_type",H5::PredType::NATIVE_INT,attr_dataspace);
 
 		maj_attr.write(H5::PredType::NATIVE_INT, &maj_data);
 		min_attr.write(H5::PredType::NATIVE_INT, &min_data);
-
-		//create main groups
-		H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_simulation"));
+		emd_group_type_attr.write(H5::PredType::NATIVE_INT, &group_type);
 
 		//data groups
 		H5::Group data(simulation.createGroup("data"));
@@ -273,8 +275,6 @@ namespace Prismatic {
 			mspace.close();
 
 			//write dimensions
-			//TODO: fftshift the dimensions so they are consistent with image; write the fftshift1 function to do so
-			//TODO: qx, qy truncate so that match antialiasing filter if using multislice
 			H5::DataSpace str_name_ds(H5S_SCALAR);
 			H5::StrType strdatatype(H5::PredType::C_S1,256);
 
@@ -410,8 +410,6 @@ namespace Prismatic {
 			mspace.close();
 
 			//write dimensions
-			//TODO: fftshift the dimensions so they are consistent with image; write the fftshift1 function to do so
-			//TODO: qx, qy truncate so that match antialiasing filter if using multislice
 			H5::DataSpace str_name_ds(H5S_SCALAR);
 			H5::StrType strdatatype(H5::PredType::C_S1,256);
 
@@ -504,8 +502,6 @@ namespace Prismatic {
 			int mgroup = 0;
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
-			//write depth attribute
-
 			//create datasets
 			H5::DataSpace mspace(3,data_dims); //rank is 2 for each realslice
 			H5::DataSet VD_data = VD_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
@@ -595,8 +591,6 @@ namespace Prismatic {
 			int mgroup = 0;
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
-			//write depth attribute
-
 			//create datasets
 			H5::DataSpace mspace(3,data_dims); //rank is 2 for each realslice
 			H5::DataSet VD_data = VD_slice_n.createDataSet("realslice",H5::PredType::NATIVE_DOUBLE,mspace);
@@ -666,7 +660,6 @@ namespace Prismatic {
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
-		//TODO: get data about detecor bin dimensions
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -749,7 +742,6 @@ namespace Prismatic {
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
-		//TODO: get data about detecor bin dimensions
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -826,13 +818,14 @@ namespace Prismatic {
 		//shared properties 
 		std::string base_name = "DPC_CoM_depth";
 		hsize_t attr_dims[1] = {1};
-		hsize_t data_dims[2];
-		//TODO: 3D data set (xp,yp,2); change dim3 to vector of strings; single data set
+		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
 		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {2};
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t str_dim[1] = {2};
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -851,17 +844,9 @@ namespace Prismatic {
 			int mgroup = 0;
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
-			//write depth attribute
-			H5::DataSpace attr3_dataspace(H5S_SCALAR);
-			H5::Attribute depth_attr = DPC_CoM_slice_n.createAttribute("depth",H5::PredType::NATIVE_INT,attr3_dataspace);
-			int depth = 2;
-			depth_attr.write(H5::PredType::NATIVE_INT, &depth);	
-
 			//create dataset
-			H5::DataSpace mspace(2, data_dims); //rank is 2
-			H5::DataSet DPC_x = DPC_CoM_slice_n.createDataSet("DPC_CoM_x",H5::PredType::NATIVE_FLOAT,mspace);
-			H5::DataSet DPC_y = DPC_CoM_slice_n.createDataSet("DPC_CoM_y",H5::PredType::NATIVE_FLOAT,mspace);
-
+			H5::DataSpace mspace(3, data_dims); //rank is 3
+			H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
 			mspace.close();
 
 			//write dimensions
@@ -870,6 +855,7 @@ namespace Prismatic {
 
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,str_dim);
 
 			H5::DataSet dim1 = DPC_CoM_slice_n.createDataSet("dim1",H5::PredType::NATIVE_FLOAT,dim1_mspace);
 			H5::DataSet dim2 = DPC_CoM_slice_n.createDataSet("dim2",H5::PredType::NATIVE_FLOAT,dim2_mspace);
@@ -877,10 +863,18 @@ namespace Prismatic {
 			H5::DataSpace dim1_fspace = dim1.getSpace();
 			H5::DataSpace dim2_fspace = dim2.getSpace();
 
-
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_FLOAT,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_FLOAT,dim2_mspace,dim2_fspace);
-			
+
+			H5::DataSet dim3 = DPC_CoM_slice_n.createDataSet("dim3",strdatatype,dim3_mspace);
+			H5std_string dpc_x("DPC_CoM_x");
+            H5std_string dpc_y("DPC_CoM_y");
+            H5std_string str_buffer_array[2];
+            str_buffer_array[0] = dpc_x;
+            str_buffer_array[1] = dpc_y;
+
+            writeStringArray(dim3,str_buffer_array,2);
+
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
 			const H5std_string dim2_name_str("R_y");
@@ -912,12 +906,15 @@ namespace Prismatic {
 		//shared properties 
 		std::string base_name = "DPC_CoM_depth";
 		hsize_t attr_dims[1] = {1};
-		hsize_t data_dims[2];
+		hsize_t data_dims[3];
 		data_dims[0] = {pars.xp.size()};
 		data_dims[1] = {pars.yp.size()};
+		data_dims[2] = {2};
 
 		hsize_t rx_dim[1] = {pars.xp.size()};
 		hsize_t ry_dim[1] = {pars.yp.size()};
+		hsize_t str_dim[1] = {2};
+
 
 		for(auto n = 0; n < numLayers; n++){
 			//create slice group
@@ -936,17 +933,9 @@ namespace Prismatic {
 			int mgroup = 0;
 			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
-			//write depth attribute
-			H5::DataSpace attr3_dataspace(H5S_SCALAR);
-			H5::Attribute depth_attr = DPC_CoM_slice_n.createAttribute("depth",H5::PredType::NATIVE_INT,attr3_dataspace);
-			int depth = 2;
-			depth_attr.write(H5::PredType::NATIVE_INT, &depth);	
-
 			//create dataset
-			H5::DataSpace mspace(2, data_dims); //rank is 2
-			H5::DataSet DPC_x = DPC_CoM_slice_n.createDataSet("DPC_CoM_x",H5::PredType::NATIVE_DOUBLE,mspace);
-			H5::DataSet DPC_y = DPC_CoM_slice_n.createDataSet("DPC_CoM_y",H5::PredType::NATIVE_DOUBLE,mspace);
-
+			H5::DataSpace mspace(3, data_dims); //rank is 3
+			H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice",H5::PredType::NATIVE_FLOAT,mspace);
 			mspace.close();
 
 			//write dimensions
@@ -955,6 +944,7 @@ namespace Prismatic {
 
 			H5::DataSpace dim1_mspace(1,rx_dim);
 			H5::DataSpace dim2_mspace(1,ry_dim);
+			H5::DataSpace dim3_mspace(1,str_dim);
 
 			H5::DataSet dim1 = DPC_CoM_slice_n.createDataSet("dim1",H5::PredType::NATIVE_DOUBLE,dim1_mspace);
 			H5::DataSet dim2 = DPC_CoM_slice_n.createDataSet("dim2",H5::PredType::NATIVE_DOUBLE,dim2_mspace);
@@ -965,6 +955,16 @@ namespace Prismatic {
 
 			dim1.write(&pars.xp[0],H5::PredType::NATIVE_DOUBLE,dim1_mspace,dim1_fspace);
 			dim2.write(&pars.yp[0],H5::PredType::NATIVE_DOUBLE,dim2_mspace,dim2_fspace);
+
+			H5::DataSet dim3 = DPC_CoM_slice_n.createDataSet("dim3",strdatatype,dim3_mspace);
+			H5std_string dpc_x("DPC_CoM_x");
+            H5std_string dpc_y("DPC_CoM_y");
+            H5std_string str_buffer_array[2];
+            str_buffer_array[0] = dpc_x;
+            str_buffer_array[1] = dpc_y;
+
+            writeStringArray(dim3,str_buffer_array,2);
+
 			
 			//dimension attributes
 			const H5std_string dim1_name_str("R_x");
@@ -1093,6 +1093,23 @@ namespace Prismatic {
 		fspace.close();
 		mspace.close();
 	};
+
+    void writeStringArray(H5::DataSet dataset,H5std_string * string_array, const hsize_t elements){
+        //assumes that we are writing a 1 dimensional array of strings- used pretty much only for DPC
+        H5::StrType strdatatype(H5::PredType::C_S1,256);
+        hsize_t offset[1] = {0};
+        H5::DataSpace fspace = dataset.getSpace();
+        hsize_t str_write_dim[1] = {1};
+        H5::DataSpace mspace(1,str_write_dim);
+
+        for(hsize_t i = 0; i < elements; i++){
+            offset[0] = {i};
+            fspace.selectHyperslab(H5S_SELECT_SET,str_write_dim,offset);
+            dataset.write(string_array[i],strdatatype,mspace,fspace);
+        }
+        fspace.close();
+        mspace.close();
+    }
 
 	std::string getDigitString(int digit){
 		char buffer[20];
@@ -1454,4 +1471,6 @@ namespace Prismatic {
 
 		metadata.close();
 	};
+
+
 }

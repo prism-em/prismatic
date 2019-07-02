@@ -148,43 +148,34 @@ namespace Prismatic{
 				}
 		}
 
-		//TODO: Save DPC as 3D datacube instead
 		if (prismatic_pars.meta.saveDPC_CoM){
 			PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 			setupDPCOutput(prismatic_pars,prismatic_pars.output.get_diml(), dummy);
 
 			//create dummy array to pass to
-			Array2D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
-			DPC_slice = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.DPC_CoM.get_dimj(),prismatic_pars.DPC_CoM.get_dimk()}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
+			DPC_slice = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.DPC_CoM.get_dimj(),prismatic_pars.DPC_CoM.get_dimk(),2}});
+            hsize_t mdims[3] = {prismatic_pars.xp.size(),prismatic_pars.yp.size(),2};
 
 			for (auto j = 0; j < prismatic_pars.output.get_diml(); j++){
 				std::stringstream nameString;
 				nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
 				H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-				hsize_t mdims[2] = {prismatic_pars.xp.size(),prismatic_pars.yp.size()};
 				
+                std::string dataSetName = "realslice";
+
+                H5::DataSet DPC_data = dataGroup.openDataSet(dataSetName);
+
 				for (auto b = 0; b < prismatic_pars.DPC_CoM.get_dimi(); ++b){
-					std::string endName;
-					if(b == 0){
-						endName = "x";
-					}else{
-						endName = "y";
-					}
-					std::string dataSetName = "DPC_CoM_" + endName;
-
-					H5::DataSet DPC_data = dataGroup.openDataSet(dataSetName);
-
 					for (auto y = 0; y < prismatic_pars.DPC_CoM.get_dimk(); ++y){
 						for (auto x = 0; x < prismatic_pars.DPC_CoM.get_dimj();++x){
-							DPC_slice.at(x,y) = prismatic_pars.DPC_CoM.at(j,y,x,b);
+							DPC_slice.at(x,y,b) = prismatic_pars.DPC_CoM.at(j,y,x,b);
 						}
 					}
-					//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
-					//slice_image.toMRC_f(slice_filename.c_str());
-					writeRealSlice(DPC_data,&DPC_slice[0],mdims);
-					DPC_data.close();
 				}
 
+                writeRealSlice(DPC_data,&DPC_slice[0],mdims);
+                DPC_data.close();
 				dataGroup.close();
 			}
 		}
