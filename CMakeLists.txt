@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
+message("CMake prefix path: " ${CMAKE_PREFIX_PATH})
 project(PRISM)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE RELEASE)
@@ -15,8 +16,10 @@ endif ( MSVC )
 set(PRISMATIC_ENABLE_GUI 0 CACHE BOOL PRISMATIC_ENABLE_GUI)
 set(PRISMATIC_ENABLE_GPU 0 CACHE BOOL PRISMATIC_ENABLE_GPU)
 set(PRISMATIC_ENABLE_CLI 1 CACHE BOOL PRISMATIC_ENABLE_GPU)
-set(PRISMATIC_ENABLE_PYTHON_GPU 0 CACHE BOOL PRISMATIC_ENABLE_PYTHON_GPU)
+#set(PRISMATIC_ENABLE_PYTHON_GPU 0 CACHE BOOL PRISMATIC_ENABLE_PYTHON_GPU)
 set(PRISMATIC_ENABLE_DOUBLE_PRECISION 0 CACHE BOOL PRISMATIC_ENABLE_DOUBLE_PRECISION)
+set(PRISMATIC_ENABLE_PYPRISMATIC 0 CACHE BOOL PRISMATIC_ENABLE_PYPRISMATIC)
+set(PRISMATIC_USE_HDF5_STATIC 0 CACHE BOOL PRISMATIC_USE_HDF5_STATIC)
 
 #set (CMAKE_BUILD_TYPE DEBUG)
 if (PRISMATIC_ENABLE_GPU)
@@ -68,16 +71,25 @@ endif (PRISMATIC_ENABLE_GPU)
 find_package (Threads REQUIRED)
 find_package (Boost REQUIRED)
 find_package (FFTW3 REQUIRED)
-find_package (HDF5 REQUIRED)
 
-find_library(HDF5_HL_LIBRARY hdf5_hl)
-find_library(HDF5_LIBRARY hdf5)
-find_library(HDF5_HL_CPP_LIBRARY hdf5_hl_cpp)
-find_library(HDF5_CPP_LIBRARY hdf5_cpp)
+if(PRISMATIC_ENABLE_PYPRISMATIC)
+    find_package (PythonInterp 3.5 REQUIRED)
+    find_package (PythonLibs 3.5 REQUIRED)
+endif(PRISMATIC_ENABLE_PYPRISMATIC)
 
-set(HDF5_LIBRARIES ${HDF5_HL_LIBRARY} ${HDF5_LIBRARY} ${HDF5_HL_CPP_LIBRARY} ${HDF5_CPP_LIBRARY})
-#set(HDF5_LIBRARIES ${HDF5_LIBRARIES})
+if (PRISMATIC_USE_HDF5_STATIC)
+   message("entered")
+   set(HDF5_USE_STATIC_LIBRARIES ON)
+endif (PRISMATIC_USE_HDF5_STATIC)
 
+set(HDF5_FIND_COMPONENTS "C" "HL" "CXX")
+find_package (HDF5 REQUIRED ${HDF5_FIND_COMPONENTS})
+find_library(HDF5_C_HL_LIBRARIES hdf5_hl)
+find_library(HDF5_C_LIBRARIES hdf5)
+find_library(HDF5_CXX_HL_LIBRARIES hdf5_hl_cpp)
+find_library(HDF5_CXX_LIBRARIES hdf5_cpp)
+
+set(HDF5_LIBRARIES ${HDF5_C_HL_LIBRARIES} ${HDF5_C_LIBRARIES} ${HDF5_CXX_HL_LIBRARIES} ${HDF5_CXX_LIBRARIES})
 
 message("Boost dir " ${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
@@ -233,16 +245,49 @@ if (PRISMATIC_ENABLE_CLI)
     install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif(PRISMATIC_ENABLE_CLI)
 
-if (PRISMATIC_ENABLE_PYTHON_GPU AND PRISMATIC_ENABLE_GPU)
-    cuda_add_library(cuprismatic SHARED
-	    	         ${SOURCE_FILES}
-                     ${CUDA_SOURCE_FILES})
-    cuda_add_cufft_to_target(cuprismatic)
-    target_link_libraries(cuprismatic
-                          ${FFTW_LIBRARIES}
-			  ${HDF5_LIBRARIES})
-    target_compile_definitions(cuprismatic PRIVATE PRISMATIC_ENABLE_GPU=1 BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
-    install(TARGETS cuprismatic
-	        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-	        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-endif(PRISMATIC_ENABLE_PYTHON_GPU AND PRISMATIC_ENABLE_GPU)
+# if (PRISMATIC_ENABLE_PYTHON_GPU AND PRISMATIC_ENABLE_GPU)
+#     cuda_add_library(cuprismatic SHARED
+# 	    	         ${SOURCE_FILES}
+#                      ${CUDA_SOURCE_FILES})
+#     cuda_add_cufft_to_target(cuprismatic)
+#     target_link_libraries(cuprismatic
+#                           ${FFTW_LIBRARIES}
+# 			  ${HDF5_LIBRARIES})
+#     target_compile_definitions(cuprismatic PRIVATE PRISMATIC_ENABLE_GPU=1 BUILDING_CUPRISMATIC=1 CUPRISMATIC_EXPORT=1)
+#     install(TARGETS cuprismatic
+# 	        ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+# 	        LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+# endif(PRISMATIC_ENABLE_PYTHON_GPU AND PRISMATIC_ENABLE_GPU)
+
+if(PRISMATIC_ENABLE_PYPRISMATIC)
+
+    include_directories(${PYTHON_INCLUDE_DIRS})
+    if (PRISMATIC_ENABLE_GPU)
+        cuda_add_library(pyprismatic_core SHARED pyprismatic/core.cpp ${SOURCE_FILES} ${CUDA_SOURCE_FILES})
+        cuda_add_cufft_to_target(pyprismatic_core)
+    else (PRISMATIC_ENABLE_GPU)
+        add_library(pyprismatic_core SHARED pyprismatic/core.cpp ${SOURCE_FILES})
+    endif(PRISMATIC_ENABLE_GPU)
+
+    target_link_libraries(pyprismatic_core
+                    ${CMAKE_THREAD_LIBS_INIT}
+                    ${FFTW_LIBRARIES}
+                    ${HDF5_LIBRARIES}
+                    ${PYTHON_LIBRARIES})
+
+    set_target_properties(
+    pyprismatic_core
+    PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "core"
+        LINKER_LANGUAGE CXX
+    )
+
+    if(NOT UNIX)
+    set_target_properties(
+        pyprismatic_core
+        PROPERTIES
+            SUFFIX ".pyd"
+    )
+    endif(NOT UNIX)
+endif(PRISMATIC_ENABLE_PYPRISMATIC)

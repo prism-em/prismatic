@@ -84,8 +84,6 @@ class Metadata:
         "potBound",
         "numFP",
         "sliceThickness",
-        "numSlices",
-        "zStart",
         "cellDimX",
         "cellDimY",
         "cellDimZ",
@@ -113,10 +111,6 @@ class Metadata:
         "scanWindowXMax",
         "scanWindowYMin",
         "scanWindowYMax",
-        "scanWindowXMin_r",
-        "scanWindowXMax_r",
-        "scanWindowYMin_r",
-        "scanWindowYMax_r",
         "randomSeed",
         "algorithm",
         "includeThermalEffects",
@@ -124,12 +118,18 @@ class Metadata:
         "save2DOutput",
         "save3DOutput",
         "save4DOutput",
-        "saveDPC_CoM",
-        "savePotentialSlices",
-        "nyquistSampling",
         "integrationAngleMin",
         "integrationAngleMax",
         "transferMode",
+        "saveDPC_CoM",
+        "savePotentialSlices",
+        "nyquistSampling",
+        "numSlices",
+        "zStart",
+        "scanWindowXMin_r",
+        "scanWindowXMax_r",
+        "scanWindowYMin_r",
+        "scanWindowYMax_r",
     ]
 
     str_fields: List[str] = ["algorithm", "transferMode"]
@@ -140,7 +140,8 @@ class Metadata:
         "tileX",
         "tileY",
         "tileZ",
-        "numFP" "numGPUs",
+        "numFP",
+        "numGPUs",
         "numStreamsPerGPU",
         "numThreads",
         "batchSizeTargetCPU",
@@ -241,7 +242,7 @@ class Metadata:
         self.save2DOutput = False
         self.save3DOutput = True
         self.save4DOutput = False
-        self.saveDPC_COM = False
+        self.saveDPC_CoM = False
         self.savePotentialSlices = False
         self.nyquistSampling = False
         self.integrationAngleMin = 0

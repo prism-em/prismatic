@@ -16,6 +16,8 @@
 #include "configure.h"
 #include "parseInput.h"
 #include "go.h"
+#include <iostream>
+#include <stdio.h>
 #ifdef PRISMATIC_ENABLE_GPU
 #include "cuprismatic.h"
 #endif //PRISMATIC_ENABLE_GPU
@@ -45,7 +47,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 #endif //PRISMATIC_ENABLE_GPU
 
 	if (!PyArg_ParseTuple(
-			args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiiddddd",
+			args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiiiddddd",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -94,6 +96,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&transferMode,
 			&saveDPC_CoM,
 			&savePotentialSlices,
+			&nyquistSampling,
 			&numSlices,
 			&zStart,
 			&scanWindowXMin_r,
@@ -120,8 +123,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.tileX = tileX;
 	meta.tileY = tileY;
 	meta.tileZ = tileZ;
-	meta.E0 = E0;
-	meta.alphaBeamMax = alphaBeamMax;
+	meta.E0 = E0 * 1000;
+	meta.alphaBeamMax = alphaBeamMax / 1000;
 	meta.numGPUs = numGPUs;
 	meta.numStreamsPerGPU = numStreamsPerGPU;
 	meta.numThreads = numThreads;
@@ -133,10 +136,10 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.probeDefocus = probeDefocus;
 	meta.C3 = C3;
 	meta.C5 = C5;
-	meta.probeSemiangle = probeSemiangle;
-	meta.detectorAngleStep = detectorAngleStep;
-	meta.probeXtilt = probeXtilt;
-	meta.probeYtilt = probeYtilt;
+	meta.probeSemiangle = probeSemiangle /1000;
+	meta.detectorAngleStep = detectorAngleStep /1000;
+	meta.probeXtilt = probeXtilt /1000;
+	meta.probeYtilt = probeYtilt /1000;
 	meta.scanWindowXMin = scanWindowXMin;
 	meta.scanWindowXMax = scanWindowXMax;
 	meta.scanWindowYMin = scanWindowYMin;
@@ -161,8 +164,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.save4DOutput = save4DOutput;
 	meta.savePotentialSlices = savePotentialSlices;
 	meta.saveDPC_CoM = saveDPC_CoM;
-	meta.integrationAngleMin = integrationAngleMin;
-	meta.integrationAngleMax = integrationAngleMax;
+	meta.integrationAngleMin = integrationAngleMin / 1000;
+	meta.integrationAngleMax = integrationAngleMax / 1000;
 	meta.nyquistSampling = nyquistSampling;
 
 	if (std::string(transferMode) == "singlexfer")
@@ -179,12 +182,19 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	}
 
 	// print metadata
-	meta.toString();
+	//meta.toString();
+	int scratch = Prismatic::writeParamFile(meta,"scratch_param.txt");
 
-	Prismatic::go(meta);
+	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> tmp_meta;
+	if(Prismatic::parseParamFile(tmp_meta,"scratch_param.txt")) 
+	{
+		Prismatic::go(meta);
+	}else{
+		std::cout << "Invalid parameters detected. Cancelling calculation, please check inputs." << std::endl;
+	}
 	// configure simulation behavior
 	//	Prismatic::configure(meta);
-
+	//std::remove("scratch_param.txt");
 	// execute simulation
 	//	Prismatic::execute_plan(meta);
 
