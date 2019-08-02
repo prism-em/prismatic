@@ -954,14 +954,21 @@ namespace Prismatic {
 		// setup some needed arrays
 		const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 		const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
+		std::cout << "Nbytes in float: " << sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
+		std::cout << "Nbytes in complex float: " << sizeof(complex<PRISMATIC_FLOAT_PRECISION>) << std::endl;
+		std::cout << "Number of beams: " << pars.numberBeams << std::endl;
+		std::cout << "Image size (qy/2,qx/2): " << pars.imageSize[0]/2 << " " << pars.imageSize[1]/2 << std::endl;	
 		pars.Scompact = zeros_ND<3, complex<PRISMATIC_FLOAT_PRECISION> >(
 				{{pars.numberBeams, pars.imageSize[0] / 2, pars.imageSize[1] / 2}});
+		std::cout << "Scompact created. " << std::endl;
+		std::cout << "Transmission array size: " << pars.pot.get_dimk() << ", " << pars.pot.get_dimj() << ", " << pars.pot.get_dimi() << std::endl;
 		pars.transmission = zeros_ND<3, complex<PRISMATIC_FLOAT_PRECISION> >(
 				{{pars.pot.get_dimk(), pars.pot.get_dimj(), pars.pot.get_dimi()}});
 		{
 			auto p = pars.pot.begin();
 			for (auto &j:pars.transmission)j = exp(i * pars.sigma * (*p++));
 		}
+		std::cout << "Transmission array created." << std::endl;
 	}
 
 	void fill_Scompact_GPU_singlexfer(Parameters <PRISMATIC_FLOAT_PRECISION> &pars) {
@@ -975,22 +982,27 @@ namespace Prismatic {
 
 		// determine the batch size to use
         pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
-
+		std::cout << "setup arrays." << std::endl;
 		// setup some arrays
 		setupArrays2(pars);
 
+		std::cout << "create streams and plans." << std::endl;
 		// create CUDA streams
 		createStreamsAndPlans2(pars, cuda_pars);
 
+		std::cout <<"Allocate pinned host memory." << std::endl;
 		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_singlexfer2(pars, cuda_pars);
 
+		std::cout << "Pinned memory copy." << std::endl;
 		// copy to pinned memory
 		copyToPinnedMemory_singlexfer2(pars, cuda_pars);
 
+		std::cout << "Device memory allocation." << std::endl;
 		// allocate memory on the GPUs
 		allocateDeviceMemory_singlexfer2(pars, cuda_pars);
 
+		std::cout << "Device memory copy." << std::endl;
 		// copy to GPUs
 		copyToDeviceMemory_singlexfer2(pars, cuda_pars);
 
@@ -1013,22 +1025,27 @@ namespace Prismatic {
 
 		// determine the batch size to use
 		pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
-
+		std::cout << "Setup arrays 2." << std::endl;
 		// setup some arrays
 		setupArrays2(pars);
-
+		
+		std::cout << "Stream and plans. " << std::endl;
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans2(pars, cuda_pars);
 
+		std::cout << "Allocating pinned memory." << std::endl;
 		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_streaming2(pars, cuda_pars);
 
+		std::cout << "Pinned memory copy. " << std::endl;
 		// copy to pinned memory
 		copyToPinnedMemory_streaming2(pars, cuda_pars);
 
+		std::cout << "GPU memory allocation. " << std::endl;
 		// allocate memory on the GPUs
 		allocateDeviceMemory_streaming2(pars, cuda_pars);
 
+		std::cout << "GPU memmory copy. " << std::endl;
 		// copy to GPUs
 		copyToDeviceMemory_streaming2(pars, cuda_pars);
 

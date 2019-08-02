@@ -204,6 +204,8 @@ namespace Prismatic{
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];
+            std::cout << "Actual pixel size y: " << pixelSize[0] << std::endl;
+            std::cout << "Actual pixel size x: " << pixelSize[1] << std::endl;
 
 			numSlices = meta.numSlices;
 			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);

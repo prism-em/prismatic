@@ -90,6 +90,8 @@ void printHelp()
               << "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n"
               << "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n"
               << "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n"
+              << "* --4D-crop (-4DC) bool=false : Crop the 4D output smaller than the anti-aliasing boundary (default: Off)\n"
+              << "* --4D-amax (-4DA) value: If --4D-crop, the maximum angle to which the output is cropped (in mrad) (default: 100)\n"
               << "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n"
               << "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
@@ -228,6 +230,7 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--scan-window-xr:" << meta.scanWindowXMin_r << ' ' << meta.scanWindowXMax_r << '\n';
     f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
     f << "--random-seed:" << meta.randomSeed << '\n';
+    f << "--4D-amax:" << meta.crop4Damax << '\n';
     if (meta.includeThermalEffects)
     {
         f << "--thermal-effects:1\n";
@@ -255,14 +258,22 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     else
     {
         f << "--save-4D-output:0\n";
-    }
-    if (meta.saveDPC_CoM)
+    }    
+    if (meta.crop4DOutput)
     {
-        f << "--save-4D-output:1\n";
+        f << "--4D-crop:1\n";
     }
     else
     {
-        f << "--save-4D-output:0\n";
+        f << "--4D-crop:0\n";
+    }
+    if (meta.saveDPC_CoM)
+    {
+        f << "--save-DPC-CoM:1\n";
+    }
+    else
+    {
+        f << "--save-DPC-CoM:0\n";
     }
     if (meta.savePotentialSlices)
     {
@@ -1301,6 +1312,38 @@ bool parse_4D(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_4DC(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -4DC (syntax is -4DC bool)\n";
+        return false;
+    }
+    meta.crop4DOutput = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_4DA(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No angle value provided for -4DA (syntax is -4DA amax)\n";
+        return false;
+    }
+    if (((meta.crop4Damax = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) == 0) & (std::string((*argv)[1]) != "0"))
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for -tx (syntax is -tx probe_tilt\n";
+        return false;
+    }
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parse_dpc(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                int &argc, const char ***argv)
 {
@@ -1376,7 +1419,60 @@ bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
 using parseFunction = bool (*)(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                                int &argc, const char ***argv);
 static std::map<std::string, parseFunction> parser{
-    {"--input-file", parse_i}, {"-i", parse_i}, {"--param-file", parse_pf}, {"-pf", parse_pf}, {"--interp-factor", parse_f}, {"-f", parse_f}, {"--interp-factor-x", parse_fx}, {"-fx", parse_fx}, {"--interp-factor-y", parse_fy}, {"-fy", parse_fy}, {"--output-file", parse_o}, {"-o", parse_o}, {"--output-folder", parse_of}, {"-of", parse_of}, {"--num-threads", parse_j}, {"-j", parse_j}, {"--num-streams", parse_S}, {"-S", parse_S}, {"--slice-thickness", parse_s}, {"-s", parse_s}, {"--num-slices", parse_ns}, {"-ns", parse_ns}, {"--zstart-slices", parse_zs}, {"-zs", parse_zs}, {"--num-gpus", parse_g}, {"-g", parse_g}, {"--batch-size", parse_b}, {"-b", parse_b}, {"--batch-size-cpu", parse_bc}, {"-bc", parse_bc}, {"--batch-size-gpu", parse_bg}, {"-bg", parse_bg}, {"--help", parse_h}, {"-h", parse_h}, {"--pixel-size", parse_p}, {"-p", parse_p}, {"--pixel-size-x", parse_px}, {"-px", parse_px}, {"--pixel-size-y", parse_py}, {"-py", parse_py}, {"--detector-angle-step", parse_d}, {"-d", parse_d}, {"--cell-dimension", parse_c}, {"-c", parse_c}, {"--algorithm", parse_a}, {"-a", parse_a}, {"--energy", parse_E}, {"-E", parse_E}, {"--alpha-max", parse_A}, {"-A", parse_A}, {"--potential-bound", parse_P}, {"-P", parse_P}, {"--also-do-cpu-work", parse_C}, {"-C", parse_C}, {"--streaming-mode", parse_streaming_mode}, {"--probe-step", parse_r}, {"-r", parse_r}, {"--probe-step-x", parse_rx}, {"-rx", parse_rx}, {"--probe-step-y", parse_ry}, {"-ry", parse_ry}, {"--random-seed", parse_rs}, {"-rs", parse_rs}, {"--probe-xtilt", parse_tx}, {"-tx", parse_tx}, {"--probe-ytilt", parse_ty}, {"-ty", parse_ty}, {"--probe-defocus", parse_df}, {"-df", parse_df}, {"-C3", parse_C3}, {"-C5", parse_C5}, {"--probe-semiangle", parse_sa}, {"-sa", parse_sa}, {"--scan-window-y", parse_wy}, {"-wy", parse_wy}, {"--scan-window-x", parse_wx}, {"-wx", parse_wx}, {"--scan-window-yr", parse_wyr}, {"-wyr", parse_wyr}, {"--scan-window-xr", parse_wxr}, {"-wxr", parse_wxr}, {"--tile-uc", parse_t}, {"-t", parse_t}, {"--num-FP", parse_F}, {"-F", parse_F}, {"--thermal-effects", parse_te}, {"-te", parse_te}, {"--occupancy", parse_oc}, {"-oc", parse_oc}, {"--save-2D-output", parse_2D}, {"-2D", parse_2D}, {"--save-3D-output", parse_3D}, {"-3D", parse_3D}, {"--save-4D-output", parse_4D}, {"-4D", parse_4D}, {"--save-DPC_CoM", parse_dpc}, {"-DPC", parse_dpc}, {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc}, {"--save-potential-slices", parse_ps}, {"-ps", parse_ps}, {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs}};
+    {"--input-file", parse_i}, {"-i", parse_i},
+    {"--param-file", parse_pf}, {"-pf", parse_pf},
+    {"--interp-factor", parse_f}, {"-f", parse_f},
+    {"--interp-factor-x", parse_fx}, {"-fx", parse_fx},
+    {"--interp-factor-y", parse_fy}, {"-fy", parse_fy},
+    {"--output-file", parse_o}, {"-o", parse_o},
+    {"--output-folder", parse_of}, {"-of", parse_of},
+    {"--num-threads", parse_j}, {"-j", parse_j},
+    {"--num-streams", parse_S}, {"-S", parse_S},
+    {"--slice-thickness", parse_s}, {"-s", parse_s},
+    {"--num-slices", parse_ns}, {"-ns", parse_ns},
+    {"--zstart-slices", parse_zs}, {"-zs", parse_zs},
+    {"--num-gpus", parse_g}, {"-g", parse_g},
+    {"--batch-size", parse_b}, {"-b", parse_b},
+    {"--batch-size-cpu", parse_bc}, {"-bc", parse_bc},
+    {"--batch-size-gpu", parse_bg}, {"-bg", parse_bg},
+    {"--help", parse_h}, {"-h", parse_h},
+    {"--pixel-size", parse_p}, {"-p", parse_p},
+    {"--pixel-size-x", parse_px}, {"-px", parse_px},
+    {"--pixel-size-y", parse_py}, {"-py", parse_py},
+    {"--detector-angle-step", parse_d}, {"-d", parse_d},
+    {"--cell-dimension", parse_c}, {"-c", parse_c},
+    {"--algorithm", parse_a}, {"-a", parse_a},
+    {"--energy", parse_E}, {"-E", parse_E},
+    {"--alpha-max", parse_A}, {"-A", parse_A},
+    {"--potential-bound", parse_P}, {"-P", parse_P},
+    {"--also-do-cpu-work", parse_C}, {"-C", parse_C},
+    {"--streaming-mode", parse_streaming_mode},
+    {"--probe-step", parse_r}, {"-r", parse_r},
+    {"--probe-step-x", parse_rx}, {"-rx", parse_rx},
+    {"--probe-step-y", parse_ry}, {"-ry", parse_ry},
+    {"--random-seed", parse_rs}, {"-rs", parse_rs},
+    {"--probe-xtilt", parse_tx}, {"-tx", parse_tx},
+    {"--probe-ytilt", parse_ty}, {"-ty", parse_ty},
+    {"--probe-defocus", parse_df}, {"-df", parse_df},
+    {"-C3", parse_C3}, {"-C5", parse_C5},
+    {"--probe-semiangle", parse_sa}, {"-sa", parse_sa},
+    {"--scan-window-y", parse_wy}, {"-wy", parse_wy},
+    {"--scan-window-x", parse_wx}, {"-wx", parse_wx},
+    {"--scan-window-yr", parse_wyr}, {"-wyr", parse_wyr},
+    {"--scan-window-xr", parse_wxr}, {"-wxr", parse_wxr},
+    {"--tile-uc", parse_t}, {"-t", parse_t},
+    {"--num-FP", parse_F}, {"-F", parse_F},
+    {"--thermal-effects", parse_te}, {"-te", parse_te},
+    {"--occupancy", parse_oc}, {"-oc", parse_oc},
+    {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
+    {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
+    {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
+    {"--4D-crop", parse_4DC}, {"-4DC", parse_4DC},
+    {"--4D-amax", parse_4DA}, {"-4DA", parse_4DA},
+    {"--save-DPC_CoM", parse_dpc}, {"-DPC", parse_dpc},
+    {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc},
+    {"--save-potential-slices", parse_ps}, {"-ps", parse_ps},
+    {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs}};
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {

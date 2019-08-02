@@ -441,11 +441,21 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
-		hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
 
-		intOutput = fftshift2(intOutput);
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-		writeDatacube4D(CBED_data, &intOutput[0], mdims, offset, numFP);
+
+        if(pars.meta.crop4DOutput)
+        {
+            Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput,pars);
+            hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
+            writeDatacube4D(CBED_data, &croppedOutput[0], mdims, offset, numFP);
+        }
+        else
+        {
+            hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
+            intOutput = fftshift2(intOutput);
+            writeDatacube4D(CBED_data, &intOutput[0], mdims, offset, numFP);
+        }
 
 		CBED_data.close();
 		dataGroup.close();

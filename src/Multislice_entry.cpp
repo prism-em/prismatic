@@ -177,6 +177,10 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
 		DPC_slice = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.DPC_CoM.get_dimj(), prismatic_pars.DPC_CoM.get_dimk(), 2}});
 		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), 2};
+        std::cout << "XP size: " << prismatic_pars.xp.size() << std::endl;
+        std::cout << "YP size: " << prismatic_pars.yp.size() << std::endl;
+        std::cout << "DPC_x size: " << prismatic_pars.DPC_CoM.get_dimj() << std::endl;
+        std::cout << "DPC_y size: " << prismatic_pars.DPC_CoM.get_dimk() << std::endl;
 
 		for (auto j = 0; j < prismatic_pars.output.get_diml(); j++)
 		{
@@ -199,7 +203,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 				}
 			}
 
-			writeRealSlice(DPC_data, &DPC_slice[0], mdims);
+			writeDatacube3D(DPC_data, &DPC_slice[0], mdims);
 			DPC_data.close();
 			dataGroup.close();
 		}

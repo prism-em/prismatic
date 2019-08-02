@@ -484,7 +484,8 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                                 const long& scale) {
 
 	//save 4D output if applicable
-	if (pars.meta.save4DOutput) {
+    if (pars.meta.save4DOutput)
+    {
 		// This section could be improved. It currently makes a new 2D array, copies to it, and
 		// then saves the image. This allocates arrays multiple times unneccessarily, and the allocated
 		// memory isn't pinned, so the memcpy is not asynchronous.
@@ -509,41 +510,48 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
-		
-		
-		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-		if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
-            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-            {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
-            {
-                long offset_x = pars.psiProbeInit.get_dimi() / 4;
-                long offset_y = pars.psiProbeInit.get_dimj() / 4;
-                long ndimy = (long) pars.psiProbeInit.get_dimj();
-                long ndimx = (long) pars.psiProbeInit.get_dimi();
-                for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
-                    for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-                        finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx);
-													
-                    }
-                }
-			}
+        PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+        
+        if(pars.meta.crop4DOutput)
+        {
+            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = cropOutput(currentImage,pars);
+            hsize_t mdims[4] = {1,1,finalImage.get_dimi(),finalImage.get_dimj()};
+            Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
+        }
+        else
+        {
 
-			//finalImage = fftshift2(finalImage);
-			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-			Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
-			//finalImage.toMRC_f(section4DFilename.c_str());
-        }else{                     
-			currentImage = fftshift2(currentImage);
-			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj(),pars.psiProbeInit.get_dimi()};
-			Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset,numFP);
-			//currentImage.toMRC_f(section4DFilename.c_str());
-		}
-		
-		CBED_data.close();
-		dataGroup.close();
-		HDF5_gatekeeper.unlock();
-	}
+            if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
+                Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+                    {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
+                    {
+                        long offset_x = pars.psiProbeInit.get_dimi() / 4;
+                        long offset_y = pars.psiProbeInit.get_dimj() / 4;
+                        long ndimy = (long) pars.psiProbeInit.get_dimj();
+                        long ndimx = (long) pars.psiProbeInit.get_dimi();
+                        for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+                            for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+                                finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                ((x - offset_x) % ndimx + ndimx) % ndimx);
+                            }
+                        }
+                    }
+                    
+                    //finalImage = fftshift2(finalImage);
+                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2};
+                    Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
+                    //finalImage.toMRC_f(section4DFilename.c_str());
+                }else{                     
+                    currentImage = fftshift2(currentImage);
+                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi(),pars.psiProbeInit.get_dimj()};
+                    Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset,numFP);
+                    //currentImage.toMRC_f(section4DFilename.c_str());
+                }
+        }
+        CBED_data.close();
+        dataGroup.close();
+        HDF5_gatekeeper.unlock();
+    }
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 
 
@@ -569,7 +577,8 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 			currentSlice * pars.output.get_dimk() * pars.output.get_dimj() * pars.output.get_dimi() + ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
 	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION));
 	
-	if(pars.meta.saveDPC_CoM){
+    if(pars.meta.saveDPC_CoM)
+    {
 		//device variables
 		PRISMATIC_FLOAT_PRECISION *num_qx_d;
 		PRISMATIC_FLOAT_PRECISION *num_qy_d;

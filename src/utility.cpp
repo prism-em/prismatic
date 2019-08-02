@@ -241,32 +241,83 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	long offset_qx;
 	long offset_qy;
 
+    long qxInd_max = 0;
+    long qyInd_max = 0;
+
+    if(pars.meta.crop4DOutput)
+    {
+
+        PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
+
+        for(auto i = 0; i < pars.qx.get_dimi(); i++)
+        {
+            if(pars.qx.at(i) < qMax)
+            {
+                qxInd_max++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        for(auto j = 0; j < pars.qy.get_dimi(); j++)
+        {
+            if(pars.qy.at(j) < qMax)
+            {
+                qyInd_max++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        qxInd_max *= 2;
+        qyInd_max *= 2;
+        //TODO: Figure out how to correctly sit the dimension offset for a cropped image
+        offset_qx = 0;
+        offset_qy = 0;
+    }
+    else
+    {
+        if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+        {
+            qxInd_max = pars.psiProbeInit.get_dimi() / 2;
+            qyInd_max = pars.psiProbeInit.get_dimj() / 2;
+            offset_qx = pars.psiProbeInit.get_dimi() / 4;
+            offset_qy = pars.psiProbeInit.get_dimj() / 4;
+        }
+        else
+        {
+            qxInd_max = pars.qx.get_dimi();
+            qyInd_max = pars.qy.get_dimi();
+            offset_qx = 0;
+            offset_qy = 0;
+        }
+    }
+
 	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
 	{
-		data_dims[2] = {pars.psiProbeInit.get_dimi() / 2};
-		data_dims[3] = {pars.psiProbeInit.get_dimj() / 2};
-		qx_dim[0] = {pars.psiProbeInit.get_dimi() / 2};
-		qy_dim[0] = {pars.psiProbeInit.get_dimj() / 2};
+		data_dims[2] = {qxInd_max};
+		data_dims[3] = {qyInd_max};
+		qx_dim[0] = {qxInd_max};
+		qy_dim[0] = {qyInd_max};
 		qx = fftshift(pars.qx);
 		qy = fftshift(pars.qy);
-		offset_qx = pars.psiProbeInit.get_dimi() / 4;
-		offset_qy = pars.psiProbeInit.get_dimj() / 4;
-		chunkDims[2] = {pars.psiProbeInit.get_dimi() / 2};
-		chunkDims[3] = {pars.psiProbeInit.get_dimj() / 2};
+		chunkDims[2] = {qxInd_max};
+		chunkDims[3] = {qyInd_max};
 	}
 	else
 	{
-		data_dims[2] = {pars.qx.get_dimi()};
-		data_dims[3] = {pars.qy.get_dimi()};
-		qx_dim[0] = {pars.qx.get_dimi()};
-		qy_dim[0] = {pars.qy.get_dimi()};
+		data_dims[2] = {qxInd_max};
+		data_dims[3] = {qyInd_max};
+		qx_dim[0] = {qxInd_max};
+		qy_dim[0] = {qyInd_max};
 		qx = pars.qx;
 		qy = pars.qy;
-		offset_qx = 0;
-		offset_qy = 0;
-		chunkDims[2] = {pars.qx.get_dimi()};
-		chunkDims[3] = {pars.qy.get_dimi()};
-		//std::cout << "Probe size: " << pars.psiProbeInit.get_dimi() << std::endl;
+		chunkDims[2] = {qxInd_max};
+		chunkDims[3] = {qyInd_max};
 	}
 
 	for (auto n = 0; n < numLayers; n++)
@@ -880,6 +931,10 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
+        std::cout << "DPC data dim 0:" << data_dims[0] << std::endl;
+        std::cout << "DPC data dim 1:" << data_dims[1] << std::endl;
+        std::cout << "DPC data dim 2:" << data_dims[2] << std::endl;
+		//create dataset
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
 		mspace.close();
@@ -970,6 +1025,10 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
+        std::cout << "DPC data dim 0:" << data_dims[0] << std::endl;
+        std::cout << "DPC data dim 1:" << data_dims[1] << std::endl;
+        std::cout << "DPC data dim 2:" << data_dims[2] << std::endl;
+
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
 		mspace.close();
@@ -1052,6 +1111,10 @@ void writeDatacube3D(H5::DataSet dataset, const float *buffer, const hsize_t *md
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace(); //all 3D cubes will write full buffer at once
 	H5::DataSpace mspace(3, mdims);			   //rank = 3
+    std::cout << "3D cube write." << std::endl;
+    std::cout << "mdims 0: "  << mdims[0] << std::endl;
+    std::cout << "mdims 1: " << mdims[1] << std::endl;
+    std::cout << "mdims 2: " << mdims[2] << std::endl;
 
 	dataset.write(buffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
 
@@ -1084,14 +1147,7 @@ void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, c
 	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
 		buffer[i] /= numFP;
 
-	//add frozen phonon set
-	float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-	dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] += readBuffer[i];
-	free(readBuffer);
-
-	//restride the dataset so that qx and qy are flipped
+    //restride the dataset so that qx and qy are flipped
 	float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
 	for (auto i = 0; i < mdims[2]; i++)
 	{
@@ -1100,6 +1156,14 @@ void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, c
 			finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
 		}
 	}
+
+	//add frozen phonon set
+	float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+	dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+		finalBuffer[i] += readBuffer[i];
+	free(readBuffer);
+
 
 	dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
 	free(finalBuffer);
@@ -1119,13 +1183,6 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
 		buffer[i] /= numFP;
 
-	//add frozen phonon set
-	double *readBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
-	dataset.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, mspace, fspace);
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] += readBuffer[i];
-	free(readBuffer);
-
 	//restride the dataset so that qx and qy are flipped
 	double *finalBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
 	for (auto i = 0; i < mdims[2]; i++)
@@ -1135,6 +1192,13 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 			finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
 		}
 	}
+
+	//add frozen phonon set
+	double *readBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
+	dataset.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, mspace, fspace);
+	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+		finalBuffer[i] += readBuffer[i];
+	free(readBuffer);
 
 	dataset.write(finalBuffer, H5::PredType::NATIVE_DOUBLE, mspace, fspace);
 	free(finalBuffer);
