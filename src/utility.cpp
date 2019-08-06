@@ -1138,11 +1138,13 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 };
 
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
 {
-	//double lock for safety?
-	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+	//lock the whole file access/writing procedure in only one location
+	std::lock_guard<std::mutex> writeGatekeeper(write4D_lock);
 
+	H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+	H5::DataSet dataset = dataGroup.openDataSet("datacube");
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace();
 	H5::DataSpace mspace(4, mdims); //rank = 4
@@ -1175,12 +1177,17 @@ void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, c
 	free(finalBuffer);
 	fspace.close();
 	mspace.close();
-	writeGatekeeper.unlock();
+	dataset.close();
+	dataGroup.close();
 };
 
-void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
 {
-	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+	//lock the whole file access/writing procedure in only one location
+	std::lock_guard<std::mutex> writeGatekeeper(write4D_lock);
+
+	H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+	H5::DataSet dataset = dataGroup.openDataSet("datacube");
 
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace();
@@ -1213,7 +1220,8 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 	free(finalBuffer);
 	fspace.close();
 	mspace.close();
-	writeGatekeeper.unlock();
+	dataset.close();
+	dataGroup.close();
 };
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)

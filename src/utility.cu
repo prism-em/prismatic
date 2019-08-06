@@ -500,14 +500,14 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 								   stream));
 								   
 		//Need to scale the output by the square of the PRISM interpolation factor 
-		std::unique_lock<std::mutex> HDF5_gatekeeper(Prismatic::HDF5_lock);
+		// std::unique_lock<std::mutex> HDF5_gatekeeper(Prismatic::HDF5_lock);
 
 		currentImage *= pars.scale;
 		std::stringstream nameString;
 		nameString << "/4DSTEM_simulation/data/datacubes/CBED_array_depth" << Prismatic::getDigitString(currentSlice);
 		
-		H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+		// H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+		// H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
         PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
@@ -516,7 +516,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
         {
             Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = cropOutput(currentImage,pars);
             hsize_t mdims[4] = {1,1,finalImage.get_dimi(),finalImage.get_dimj()};
-            Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
+            Prismatic::writeDatacube4D(pars, &finalImage[0],mdims,offset,numFP,nameString.str());
         }
         else
         {
@@ -539,18 +539,18 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                     
                     //finalImage = fftshift2(finalImage);
                     hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2};
-                    Prismatic::writeDatacube4D(CBED_data, &finalImage[0],mdims,offset,numFP);
+                    Prismatic::writeDatacube4D(pars, &finalImage[0],mdims,offset,numFP,nameString.str());
                     //finalImage.toMRC_f(section4DFilename.c_str());
                 }else{                     
                     currentImage = fftshift2(currentImage);
                     hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi(),pars.psiProbeInit.get_dimj()};
-                    Prismatic::writeDatacube4D(CBED_data, &currentImage[0],mdims,offset,numFP);
+                    Prismatic::writeDatacube4D(pars, &currentImage[0],mdims,offset,numFP,nameString.str());
                     //currentImage.toMRC_f(section4DFilename.c_str());
                 }
         }
-        CBED_data.close();
-        dataGroup.close();
-        HDF5_gatekeeper.unlock();
+        // CBED_data.close();
+        // dataGroup.close();
+        // HDF5_gatekeeper.unlock();
     }
 //		cudaSetDeviceFlags(cudaDeviceBlockingSync);
 

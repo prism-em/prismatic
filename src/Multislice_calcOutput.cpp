@@ -285,21 +285,21 @@ namespace Prismatic{
 
             mdims[2] = {intOutput_small.get_dimi()};
             mdims[3] = {intOutput_small.get_dimj()};
-            unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+            // unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
             //std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
             std::stringstream nameString;
             nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
-            H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-            H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+            // H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+            // H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
             hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
             PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-            writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+            writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
 
-            CBED_data.close();
-            dataGroup.close();
-            HDF5_gatekeeper.unlock();
+            // CBED_data.close();
+            // dataGroup.close();
+            // HDF5_gatekeeper.unlock();
             //intOutput_small.toMRC_f(section4DFilename.c_str());
 		}
 	}
@@ -378,20 +378,20 @@ namespace Prismatic{
                 mdims[2] = {intOutput_small.get_dimi()};
                 mdims[3] = {intOutput_small.get_dimj()};
                 //std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-                unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+                // unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
                 std::stringstream nameString;
                 nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
-                H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-                H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+                // H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+                // H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
                 hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
                 PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-                writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+                writeDatacube4D(pars, &intOutput_small[0],mdims,offset,numFP,nameString.str());
 
-                CBED_data.close();
-                dataGroup.close();
-                HDF5_gatekeeper.unlock();
+                // CBED_data.close();
+                // dataGroup.close();
+                // HDF5_gatekeeper.unlock();
                 //intOutput_small.toMRC_f(section4DFilename.c_str());
             }
 

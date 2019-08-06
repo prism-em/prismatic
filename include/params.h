@@ -40,7 +40,7 @@ namespace Prismatic{
 	static std::mutex memLock;
 
 	// for threadsafe HDF5 writing to 4D output
-	static std::mutex HDF5_lock;
+	// static std::mutex HDF5_lock;
 	
     template <class T>
     class Parameters {
