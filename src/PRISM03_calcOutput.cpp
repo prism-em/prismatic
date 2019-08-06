@@ -33,7 +33,7 @@
 namespace Prismatic
 {
 extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
-extern std::mutex HDF5_lock;
+// extern std::mutex HDF5_lock;
 using namespace std;
 const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 // this might seem a strange way to get pi, but it's slightly more future proof

@@ -31,7 +31,7 @@ namespace Prismatic{
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
-	mutex HDF5_lock;
+	// mutex HDF5_lock;
 
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 

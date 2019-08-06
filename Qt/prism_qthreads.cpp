@@ -615,7 +615,7 @@ void FullPRISMCalcThread::run()
             }
         }
 
-        Prismatic::writeRealSlice(DPC_data, &DPC_slice[0], mdims);
+        Prismatic::writeDatacube3D(DPC_data, &DPC_slice[0], mdims);
         DPC_data.close();
         dataGroup.close();
     }
@@ -878,7 +878,7 @@ void FullMultisliceCalcThread::run()
                 }
             }
 
-            Prismatic::writeRealSlice(DPC_data, &DPC_slice[0], mdims);
+            Prismatic::writeDatacube3D(DPC_data, &DPC_slice[0], mdims);
             DPC_data.close();
             dataGroup.close();
         }

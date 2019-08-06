@@ -327,7 +327,7 @@ namespace Prismatic{
         if(scanWindowYMin_r != other.scanWindowYMin_r)return false;
         if(scanWindowYMax_r != other.scanWindowYMax_r)return false;
         if(randomSeed != other.randomSeed)return false;
-        if(crop4Damax != other.crop4Doutput)return false;
+        if(crop4Damax != other.crop4Damax)return false;
         if(includeThermalEffects != other.includeThermalEffects)return false;
         if(includeOccupancy != other.includeOccupancy)return false;
         if(alsoDoCPUWork != other.alsoDoCPUWork)return false;

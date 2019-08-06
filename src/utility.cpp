@@ -24,9 +24,12 @@
 #else
 #include <unistd.h>
 #endif
+#include <mutex>
 
 namespace Prismatic
 {
+
+std::mutex write4D_lock;
 
 std::pair<Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>, Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>>
 upsamplePRISMProbe(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> probe,
@@ -241,8 +244,8 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	long offset_qx;
 	long offset_qy;
 
-    long qxInd_max = 0;
-    long qyInd_max = 0;
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
 
     if(pars.meta.crop4DOutput)
     {
@@ -1137,6 +1140,9 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
 void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP)
 {
+	//double lock for safety?
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace();
 	H5::DataSpace mspace(4, mdims); //rank = 4
@@ -1169,10 +1175,13 @@ void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, c
 	free(finalBuffer);
 	fspace.close();
 	mspace.close();
+	writeGatekeeper.unlock();
 };
 
 void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP)
 {
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace();
 	H5::DataSpace mspace(4, mdims); //rank = 4
@@ -1204,6 +1213,7 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 	free(finalBuffer);
 	fspace.close();
 	mspace.close();
+	writeGatekeeper.unlock();
 };
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)

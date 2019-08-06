@@ -104,8 +104,8 @@ Array2D<T> circShift(Array2D<T> &arr,const long sj, const long si)
 
 template <class T>
 Array2D<T> cropOutput(Array2D<T> &img, const Parameters<T> &pars){
-    long qxInd_max = 0;
-    long qyInd_max = 0;
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
     PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
 
     for(auto i = 0; i < pars.qx.get_dimi(); i++)

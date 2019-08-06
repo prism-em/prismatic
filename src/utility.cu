@@ -18,7 +18,7 @@
 #include <sstream>
 #include <mutex>
 
-std::mutex HDF5_lock;
+// std::mutex HDF5_lock;
 
 #define PI 3.14159265359
 // define some constants
@@ -500,7 +500,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 								   stream));
 								   
 		//Need to scale the output by the square of the PRISM interpolation factor 
-		std::unique_lock<std::mutex> HDF5_gatekeeper(HDF5_lock);
+		std::unique_lock<std::mutex> HDF5_gatekeeper(Prismatic::HDF5_lock);
 
 		currentImage *= pars.scale;
 		std::stringstream nameString;
