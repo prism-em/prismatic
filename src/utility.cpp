@@ -24,9 +24,13 @@
 #else
 #include <unistd.h>
 #endif
+#include <mutex>
+#include <thread>
 
 namespace Prismatic
 {
+
+std::mutex write4D_lock;
 
 std::pair<Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>, Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>>
 upsamplePRISMProbe(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> probe,
@@ -241,32 +245,83 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	long offset_qx;
 	long offset_qy;
 
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
+
+    if(pars.meta.crop4DOutput)
+    {
+
+        PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
+
+        for(auto i = 0; i < pars.qx.get_dimi(); i++)
+        {
+            if(pars.qx.at(i) < qMax)
+            {
+                qxInd_max++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        for(auto j = 0; j < pars.qy.get_dimi(); j++)
+        {
+            if(pars.qy.at(j) < qMax)
+            {
+                qyInd_max++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        qxInd_max *= 2;
+        qyInd_max *= 2;
+        //TODO: Figure out how to correctly sit the dimension offset for a cropped image
+        offset_qx = 0;
+        offset_qy = 0;
+    }
+    else
+    {
+        if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+        {
+            qxInd_max = pars.psiProbeInit.get_dimi() / 2;
+            qyInd_max = pars.psiProbeInit.get_dimj() / 2;
+            offset_qx = pars.psiProbeInit.get_dimi() / 4;
+            offset_qy = pars.psiProbeInit.get_dimj() / 4;
+        }
+        else
+        {
+            qxInd_max = pars.qx.get_dimi();
+            qyInd_max = pars.qy.get_dimi();
+            offset_qx = 0;
+            offset_qy = 0;
+        }
+    }
+
 	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
 	{
-		data_dims[2] = {pars.psiProbeInit.get_dimi() / 2};
-		data_dims[3] = {pars.psiProbeInit.get_dimj() / 2};
-		qx_dim[0] = {pars.psiProbeInit.get_dimi() / 2};
-		qy_dim[0] = {pars.psiProbeInit.get_dimj() / 2};
+		data_dims[2] = {qxInd_max};
+		data_dims[3] = {qyInd_max};
+		qx_dim[0] = {qxInd_max};
+		qy_dim[0] = {qyInd_max};
 		qx = fftshift(pars.qx);
 		qy = fftshift(pars.qy);
-		offset_qx = pars.psiProbeInit.get_dimi() / 4;
-		offset_qy = pars.psiProbeInit.get_dimj() / 4;
-		chunkDims[2] = {pars.psiProbeInit.get_dimi() / 2};
-		chunkDims[3] = {pars.psiProbeInit.get_dimj() / 2};
+		chunkDims[2] = {qxInd_max};
+		chunkDims[3] = {qyInd_max};
 	}
 	else
 	{
-		data_dims[2] = {pars.qx.get_dimi()};
-		data_dims[3] = {pars.qy.get_dimi()};
-		qx_dim[0] = {pars.qx.get_dimi()};
-		qy_dim[0] = {pars.qy.get_dimi()};
+		data_dims[2] = {qxInd_max};
+		data_dims[3] = {qyInd_max};
+		qx_dim[0] = {qxInd_max};
+		qy_dim[0] = {qyInd_max};
 		qx = pars.qx;
 		qy = pars.qy;
-		offset_qx = 0;
-		offset_qy = 0;
-		chunkDims[2] = {pars.qx.get_dimi()};
-		chunkDims[3] = {pars.qy.get_dimi()};
-		//std::cout << "Probe size: " << pars.psiProbeInit.get_dimi() << std::endl;
+		chunkDims[2] = {qxInd_max};
+		chunkDims[3] = {qyInd_max};
 	}
 
 	for (auto n = 0; n < numLayers; n++)
@@ -554,7 +609,6 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1.write(&pars.xp[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
 		dim2.write(&pars.yp[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
 		dim3.write(&pars.detectorAngles[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
-		std::cout << "Dimension written" << std::endl;
 		//dimension attributes
 		const H5std_string dim1_name_str("R_x");
 		const H5std_string dim2_name_str("R_y");
@@ -880,6 +934,7 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
+		//create dataset
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
 		mspace.close();
@@ -970,6 +1025,7 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
+
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
 		mspace.close();
@@ -1072,43 +1128,63 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 };
 
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
 {
-	//set up file and memory spaces
-	H5::DataSpace fspace = dataset.getSpace();
-	H5::DataSpace mspace(4, mdims); //rank = 4
+	//lock the whole file access/writing procedure in only one location
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
 
-	fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+    H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+    H5::DataSet dataset = dataGroup.openDataSet("datacube");
 
-	//divide by num FP
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] /= numFP;
+    //set up file and memory spaces
+    H5::DataSpace fspace = dataset.getSpace();
 
-	//add frozen phonon set
-	float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-	dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] += readBuffer[i];
-	free(readBuffer);
+    H5::DataSpace mspace(4, mdims); //rank = 4
 
-	//restride the dataset so that qx and qy are flipped
-	float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-	for (auto i = 0; i < mdims[2]; i++)
-	{
-		for (auto j = 0; j < mdims[3]; j++)
-		{
-			finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
-		}
-	}
+    fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
 
-	dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
-	free(finalBuffer);
-	fspace.close();
-	mspace.close();
+    //divide by num FP
+    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+        buffer[i] /= numFP;
+
+    //restride the dataset so that qx and qy are flipped
+    float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+    for (auto i = 0; i < mdims[2]; i++)
+    {
+        for (auto j = 0; j < mdims[3]; j++)
+        {
+            finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
+        }
+    }
+
+    //add frozen phonon set
+    float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+    dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+        finalBuffer[i] += readBuffer[i];
+    free(readBuffer);
+		
+    dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    free(finalBuffer);
+    fspace.close();
+    mspace.close();
+    dataset.flush(H5F_SCOPE_LOCAL);
+    dataset.close();
+    dataGroup.flush(H5F_SCOPE_LOCAL);
+    dataGroup.close();
+    pars.outputFile.flush(H5F_SCOPE_LOCAL);
+
+	writeGatekeeper.unlock();
 };
 
-void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
 {
+	//lock the whole file access/writing procedure in only one location
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+
+	H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+	H5::DataSet dataset = dataGroup.openDataSet("datacube");
+
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace();
 	H5::DataSpace mspace(4, mdims); //rank = 4
@@ -1118,13 +1194,6 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 	//divide by num FP
 	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
 		buffer[i] /= numFP;
-
-	//add frozen phonon set
-	double *readBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
-	dataset.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, mspace, fspace);
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] += readBuffer[i];
-	free(readBuffer);
 
 	//restride the dataset so that qx and qy are flipped
 	double *finalBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
@@ -1136,10 +1205,24 @@ void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, 
 		}
 	}
 
+	//add frozen phonon set
+	double *readBuffer = (double *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(double));
+	dataset.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, mspace, fspace);
+	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+		finalBuffer[i] += readBuffer[i];
+	free(readBuffer);
+
 	dataset.write(finalBuffer, H5::PredType::NATIVE_DOUBLE, mspace, fspace);
 	free(finalBuffer);
-	fspace.close();
-	mspace.close();
+    fspace.close();
+    mspace.close();
+    dataset.flush(H5F_SCOPE_LOCAL);
+    dataset.close();
+    dataGroup.flush(H5F_SCOPE_LOCAL);
+    dataGroup.close();
+    pars.outputFile.flush(H5F_SCOPE_LOCAL);
+    
+	writeGatekeeper.unlock();
 };
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)

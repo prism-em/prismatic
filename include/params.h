@@ -39,6 +39,9 @@ namespace Prismatic{
 	// for monitoring memory consumption on GPU
 	static std::mutex memLock;
 
+	// for threadsafe HDF5 writing to 4D output
+	// static std::mutex HDF5_lock;
+	
     template <class T>
     class Parameters {
 
@@ -106,6 +109,7 @@ namespace Prismatic{
 	    size_t numberBeams;
 		H5::H5File outputFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
+
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG
