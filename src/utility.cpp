@@ -609,7 +609,6 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1.write(&pars.xp[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
 		dim2.write(&pars.yp[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
 		dim3.write(&pars.detectorAngles[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
-		std::cout << "Dimension written" << std::endl;
 		//dimension attributes
 		const H5std_string dim1_name_str("R_x");
 		const H5std_string dim2_name_str("R_y");
@@ -935,9 +934,6 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
-        std::cout << "DPC data dim 0:" << data_dims[0] << std::endl;
-        std::cout << "DPC data dim 1:" << data_dims[1] << std::endl;
-        std::cout << "DPC data dim 2:" << data_dims[2] << std::endl;
 		//create dataset
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
@@ -1029,9 +1025,6 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
 		//create dataset
-        std::cout << "DPC data dim 0:" << data_dims[0] << std::endl;
-        std::cout << "DPC data dim 1:" << data_dims[1] << std::endl;
-        std::cout << "DPC data dim 2:" << data_dims[2] << std::endl;
 
 		H5::DataSpace mspace(3, data_dims); //rank is 3
 		H5::DataSet DPC_data = DPC_CoM_slice_n.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
@@ -1115,10 +1108,6 @@ void writeDatacube3D(H5::DataSet dataset, const float *buffer, const hsize_t *md
 	//set up file and memory spaces
 	H5::DataSpace fspace = dataset.getSpace(); //all 3D cubes will write full buffer at once
 	H5::DataSpace mspace(3, mdims);			   //rank = 3
-    std::cout << "3D cube write." << std::endl;
-    std::cout << "mdims 0: "  << mdims[0] << std::endl;
-    std::cout << "mdims 1: " << mdims[1] << std::endl;
-    std::cout << "mdims 2: " << mdims[2] << std::endl;
 
 	dataset.write(buffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
 
@@ -1143,79 +1132,49 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, floa
 {
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
-	std::cout << std::this_thread::get_id() << " is entering float write" << std::endl;
-	if(writeGatekeeper.owns_lock()) std::cout << std::this_thread::get_id() << " owns lock" << std::endl;
 
-	try
-	{
-		H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-		std::cout << std::this_thread::get_id() << " has opened the data group" << std::endl;
-		H5::DataSet dataset = dataGroup.openDataSet("datacube");
-		std::cout << std::this_thread::get_id() << " has opened the dataset" << std::endl;
+    H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+    H5::DataSet dataset = dataGroup.openDataSet("datacube");
 
-		//set up file and memory spaces
-		H5::DataSpace fspace = dataset.getSpace();
-		std::cout << std::this_thread::get_id() << " has set up the dataspace" << std::endl;
+    //set up file and memory spaces
+    H5::DataSpace fspace = dataset.getSpace();
 
-		H5::DataSpace mspace(4, mdims); //rank = 4
+    H5::DataSpace mspace(4, mdims); //rank = 4
 
-		fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+    fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
 
-		//divide by num FP
-		for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-			buffer[i] /= numFP;
+    //divide by num FP
+    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+        buffer[i] /= numFP;
 
-		//restride the dataset so that qx and qy are flipped
-		float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-		for (auto i = 0; i < mdims[2]; i++)
-		{
-			for (auto j = 0; j < mdims[3]; j++)
-			{
-				finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
-			}
-		}
+    //restride the dataset so that qx and qy are flipped
+    float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+    for (auto i = 0; i < mdims[2]; i++)
+    {
+        for (auto j = 0; j < mdims[3]; j++)
+        {
+            finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
+        }
+    }
 
-		//add frozen phonon set
-		float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-		dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
-		for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-			finalBuffer[i] += readBuffer[i];
-		free(readBuffer);
-		std::cout << std::this_thread::get_id() << " has read the old FP" << std::endl;
+    //add frozen phonon set
+    float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+    dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+        finalBuffer[i] += readBuffer[i];
+    free(readBuffer);
 		
-		dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
-		free(finalBuffer);
-		std::cout << std::this_thread::get_id() << " has written the new FP" << std::endl;
-		fspace.close();
-		mspace.close();
-		dataset.flush(H5F_SCOPE_LOCAL);
-		dataset.close();
-		dataGroup.flush(H5F_SCOPE_LOCAL);
-		dataGroup.close();
-		pars.outputFile.flush(H5F_SCOPE_LOCAL);
-	}catch( H5::FileIException error )
-   	{
-      error.printErrorStack();
-	}
-	// catch failure caused by the DataSet operations
-	catch( H5::DataSetIException error )
-	{
-		error.printErrorStack();
-	}
-	// catch failure caused by the DataSpace operations
-	catch( H5::DataSpaceIException error )
-	{
-		error.printErrorStack();
-	}
-	// catch failure caused by the DataSpace operations
-	catch( H5::DataTypeIException error )
-	{
-		error.printErrorStack();
-	}
-	std::cout << std::this_thread::get_id() << " has closed the HDF5 things" << std::endl;
-	writeGatekeeper.unlock();
+    dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    free(finalBuffer);
+    fspace.close();
+    mspace.close();
+    dataset.flush(H5F_SCOPE_LOCAL);
+    dataset.close();
+    dataGroup.flush(H5F_SCOPE_LOCAL);
+    dataGroup.close();
+    pars.outputFile.flush(H5F_SCOPE_LOCAL);
 
-	std::cout << std::this_thread::get_id() << " is leaving float write" << std::endl;
+	writeGatekeeper.unlock();
 };
 
 void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
@@ -1255,10 +1214,14 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, doub
 
 	dataset.write(finalBuffer, H5::PredType::NATIVE_DOUBLE, mspace, fspace);
 	free(finalBuffer);
-	fspace.close();
-	mspace.close();
-	dataset.close();
-	dataGroup.close();
+    fspace.close();
+    mspace.close();
+    dataset.flush(H5F_SCOPE_LOCAL);
+    dataset.close();
+    dataGroup.flush(H5F_SCOPE_LOCAL);
+    dataGroup.close();
+    pars.outputFile.flush(H5F_SCOPE_LOCAL);
+    
 	writeGatekeeper.unlock();
 };
 
