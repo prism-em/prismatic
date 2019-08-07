@@ -37,6 +37,8 @@ void PotentialThread::run()
 {
     // create parameters
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    //prevent it from trying to write to a non-existing H5 file
+    params.meta.savePotentialSlices = false;
     progressbar->signalDescriptionMessage("Computing projected potential");
 
     {
@@ -117,6 +119,9 @@ void ProbeThread::run()
     //    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta);
 
     //    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
+    params.meta.save4DOutput = false;
+    params.meta.savePotentialSlices = false;
+    params.meta.saveDPC_CoM = false;
 
     QMutexLocker calculationLocker(&this->parent->calculationLock);
 
@@ -176,6 +181,9 @@ void ProbeThread::run()
 
     std::pair<Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>, Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>>> prism_probes, multislice_probes;
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params_multi(params);
+    params_multi.meta.save4DOutput = false;
+    params_multi.meta.savePotentialSlices = false;
+    params_multi.meta.saveDPC_CoM = false;
 
     // setup and calculate PRISM probe
     Prismatic::setupCoordinates_2(params);

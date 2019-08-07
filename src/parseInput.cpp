@@ -1469,7 +1469,7 @@ static std::map<std::string, parseFunction> parser{
     {"--save-4D-output", parse_4D}, {"-4D", parse_4D},
     {"--4D-crop", parse_4DC}, {"-4DC", parse_4DC},
     {"--4D-amax", parse_4DA}, {"-4DA", parse_4DA},
-    {"--save-DPC_CoM", parse_dpc}, {"-DPC", parse_dpc},
+    {"--save-DPC-CoM", parse_dpc}, {"-DPC", parse_dpc},
     {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc},
     {"--save-potential-slices", parse_ps}, {"-ps", parse_ps},
     {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs}};
