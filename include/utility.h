@@ -213,9 +213,9 @@ void writeDatacube3D(H5::DataSet dataset, const float *buffer, const hsize_t *md
 
 void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *mdims);
 
-void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP);
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString);
 
-void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP);
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString);
 
 void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t elements);
 

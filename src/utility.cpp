@@ -25,6 +25,7 @@
 #include <unistd.h>
 #endif
 #include <mutex>
+#include <thread>
 
 namespace Prismatic
 {
@@ -1138,53 +1139,89 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 };
 
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
-	std::lock_guard<std::mutex> writeGatekeeper(write4D_lock);
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+	std::cout << std::this_thread::get_id() << " is entering float write" << std::endl;
+	if(writeGatekeeper.owns_lock()) std::cout << std::this_thread::get_id() << " owns lock" << std::endl;
 
-	H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-	H5::DataSet dataset = dataGroup.openDataSet("datacube");
-	//set up file and memory spaces
-	H5::DataSpace fspace = dataset.getSpace();
-	H5::DataSpace mspace(4, mdims); //rank = 4
-
-	fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-
-	//divide by num FP
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		buffer[i] /= numFP;
-
-    //restride the dataset so that qx and qy are flipped
-	float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-	for (auto i = 0; i < mdims[2]; i++)
+	try
 	{
-		for (auto j = 0; j < mdims[3]; j++)
+		H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+		std::cout << std::this_thread::get_id() << " has opened the data group" << std::endl;
+		H5::DataSet dataset = dataGroup.openDataSet("datacube");
+		std::cout << std::this_thread::get_id() << " has opened the dataset" << std::endl;
+
+		//set up file and memory spaces
+		H5::DataSpace fspace = dataset.getSpace();
+		std::cout << std::this_thread::get_id() << " has set up the dataspace" << std::endl;
+
+		H5::DataSpace mspace(4, mdims); //rank = 4
+
+		fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+
+		//divide by num FP
+		for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+			buffer[i] /= numFP;
+
+		//restride the dataset so that qx and qy are flipped
+		float *finalBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+		for (auto i = 0; i < mdims[2]; i++)
 		{
-			finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
+			for (auto j = 0; j < mdims[3]; j++)
+			{
+				finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
+			}
 		}
+
+		//add frozen phonon set
+		float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
+		dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+		for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+			finalBuffer[i] += readBuffer[i];
+		free(readBuffer);
+		std::cout << std::this_thread::get_id() << " has read the old FP" << std::endl;
+		
+		dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
+		free(finalBuffer);
+		std::cout << std::this_thread::get_id() << " has written the new FP" << std::endl;
+		fspace.close();
+		mspace.close();
+		dataset.flush(H5F_SCOPE_LOCAL);
+		dataset.close();
+		dataGroup.flush(H5F_SCOPE_LOCAL);
+		dataGroup.close();
+		pars.outputFile.flush(H5F_SCOPE_LOCAL);
+	}catch( H5::FileIException error )
+   	{
+      error.printErrorStack();
 	}
+	// catch failure caused by the DataSet operations
+	catch( H5::DataSetIException error )
+	{
+		error.printErrorStack();
+	}
+	// catch failure caused by the DataSpace operations
+	catch( H5::DataSpaceIException error )
+	{
+		error.printErrorStack();
+	}
+	// catch failure caused by the DataSpace operations
+	catch( H5::DataTypeIException error )
+	{
+		error.printErrorStack();
+	}
+	std::cout << std::this_thread::get_id() << " has closed the HDF5 things" << std::endl;
+	writeGatekeeper.unlock();
 
-	//add frozen phonon set
-	float *readBuffer = (float *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(float));
-	dataset.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
-	for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-		finalBuffer[i] += readBuffer[i];
-	free(readBuffer);
-
-
-	dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
-	free(finalBuffer);
-	fspace.close();
-	mspace.close();
-	dataset.close();
-	dataGroup.close();
+	std::cout << std::this_thread::get_id() << " is leaving float write" << std::endl;
 };
 
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
-	std::lock_guard<std::mutex> writeGatekeeper(write4D_lock);
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
 
 	H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 	H5::DataSet dataset = dataGroup.openDataSet("datacube");
@@ -1222,6 +1259,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars, dou
 	mspace.close();
 	dataset.close();
 	dataGroup.close();
+	writeGatekeeper.unlock();
 };
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)
