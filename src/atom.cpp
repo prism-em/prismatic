@@ -105,7 +105,7 @@ namespace Prismatic {
 						"Bad input data for unit cell dimension c.\n");
 		}
 			while (std::getline(f, line)) {
-                line = line.substr(line.find_first_not_of(" \n\t"), line.find_last_not_of(" \n\t"));
+                line = line.substr(line.find_first_not_of(" \n\t"), line.find_last_not_of(" \n\t"))+1;
 				if (line.size() <=3){
 					break;
 				}
