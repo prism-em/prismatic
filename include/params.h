@@ -21,6 +21,7 @@
 #include "ArrayND.h"
 #include "atom.h"
 #include "meta.h"
+#include "H5Cpp.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
@@ -38,6 +39,9 @@ namespace Prismatic{
 	// for monitoring memory consumption on GPU
 	static std::mutex memLock;
 
+	// for threadsafe HDF5 writing to 4D output
+	// static std::mutex HDF5_lock;
+	
     template <class T>
     class Parameters {
 
@@ -46,7 +50,8 @@ namespace Prismatic{
 	    void calculateLambda();
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
-	    Array3D<T> output;
+	    Array4D<T> output;
+		Array4D<T> DPC_CoM;
 		Array3D<T> pot;
 	    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION> > transmission;
 
@@ -68,6 +73,8 @@ namespace Prismatic{
 	    Array2D<T> q1;
         Array1D<T> xp;
         Array1D<T> yp;
+		Array1D<T> qx;
+		Array1D<T> qy;
         std::vector<size_t> beamsIndex;
 	    Prismatic::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D<T> beams;
@@ -91,9 +98,18 @@ namespace Prismatic{
 	    T sigma;
 	    T qMax;
 	    T alphaMax;
+		T scanWindowXMin;
+		T scanWindowXMax;
+		T scanWindowYMin;
+		T scanWindowYMax;
         size_t Ndet;
         size_t numPlanes;
+		size_t numSlices;
+		size_t zStartPlane;
 	    size_t numberBeams;
+		H5::H5File outputFile;
+		size_t fpFlag; //flag to prevent creation of new HDF5 files
+
 #ifdef PRISMATIC_ENABLE_GPU
 		cudaDeviceProp deviceProperties;
 //#ifndef NDEBUG
@@ -147,6 +163,23 @@ namespace Prismatic{
 		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
+
+			if(meta.realSpaceWindow_x){
+				scanWindowXMin = std::min(meta.scanWindowXMin_r, tiledCellDim[2]) / tiledCellDim[2]; //default to max size if dimension exceeds tiled cell
+				scanWindowXMax = std::min(meta.scanWindowXMax_r, tiledCellDim[2]) / tiledCellDim[2];
+			}else{
+				scanWindowXMin = meta.scanWindowXMin;
+				scanWindowXMax = meta.scanWindowXMax;
+			}
+
+			if(meta.realSpaceWindow_y){
+				scanWindowYMin = std::min(meta.scanWindowYMin_r, tiledCellDim[1]) / tiledCellDim[1]; //default to max size if dimension exceeds tiled cell
+				scanWindowYMax = std::min(meta.scanWindowYMax_r, tiledCellDim[1]) / tiledCellDim[1];
+			}else{
+				scanWindowYMin = meta.scanWindowYMin;
+				scanWindowYMax = meta.scanWindowYMax;
+			}
+
 			calculateLambda();
 //		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
@@ -175,6 +208,9 @@ namespace Prismatic{
 		    pixelSize = _pixelSize;
 		    pixelSize[0] /= (T)imageSize[0];
 		    pixelSize[1] /= (T)imageSize[1];
+
+			numSlices = meta.numSlices;
+			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);
 
 
 		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;

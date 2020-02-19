@@ -41,6 +41,7 @@ namespace Prismatic {
 	using format_output_func = void (*)( Parameters<PRISMATIC_FLOAT_PRECISION>&,
 	                                     Array2D< std::complex<PRISMATIC_FLOAT_PRECISION> >&,
 	                                     const Array2D<PRISMATIC_FLOAT_PRECISION>&,
+										 const size_t,
 	                                     const size_t,
 	                                     const size_t);
 	using fill_Scompact_func = void(*)(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
@@ -56,8 +57,11 @@ namespace Prismatic {
 	                                        const PRISMATIC_FLOAT_PRECISION *,
 	                                        PRISMATIC_FLOAT_PRECISION *,
 	                                        PRISMATIC_FLOAT_PRECISION*,
+	                                        const PRISMATIC_FLOAT_PRECISION *,
+	                                        const PRISMATIC_FLOAT_PRECISION *,
 	                                        const size_t,
 	                                        const size_t,
+											const size_t,
 	                                        const size_t&,
 	                                        const size_t&,
 	                                        const cudaStream_t&,

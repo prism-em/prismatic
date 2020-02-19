@@ -1679,7 +1679,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 
 		// output calculation result
 		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
-		                           integratedOutput_ds, ay, ax, pars.imageSizeReduce[0],
+		                           integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, ay, ax, pars.imageSizeReduce[0],
 		                           pars.imageSizeReduce[1], stream, pars.scale);
 	}
 
@@ -1933,7 +1933,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 
 		// output calculation result
 		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
-		                           integratedOutput_ds, ay, ax, pars.imageSizeReduce[0],
+		                           integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, ay, ax, pars.imageSizeReduce[0],
 		                           pars.imageSizeReduce[1], stream, pars.scale);
 	}
 }

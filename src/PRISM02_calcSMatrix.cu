@@ -975,7 +975,6 @@ namespace Prismatic {
 
 		// determine the batch size to use
         pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
-
 		// setup some arrays
 		setupArrays2(pars);
 
@@ -1013,10 +1012,9 @@ namespace Prismatic {
 
 		// determine the batch size to use
 		pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numberBeams / max((size_t)1,(pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
-
 		// setup some arrays
 		setupArrays2(pars);
-
+		
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans2(pars, cuda_pars);
 

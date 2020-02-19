@@ -23,21 +23,22 @@
 #include "go.h"
 #include "parseInput.h"
 
-namespace Prismatic{
-	void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta){
-		// configure simulation behavior
-		Prismatic::configure(meta);
+namespace Prismatic
+{
+void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta)
+{
+	// configure simulation behavior
+	Prismatic::configure(meta);
 
-		// execute simulation
-		Prismatic::execute_plan(meta);
+	// execute simulation
+	Prismatic::execute_plan(meta);
 
 #ifdef _WIN32
-		char* appdata = getenv("APPDATA");
-		Prismatic::writeParamFile(meta, std::string(appdata) + "\prismatic_gui_params.txt");
+	char *appdata = getenv("APPDATA");
+	Prismatic::writeParamFile(meta, std::string(appdata) + "\\prismatic_gui_params.txt");
 #else
-		char* appdata = getenv("HOME");
-		Prismatic::writeParamFile(meta, std::string(appdata) + "/prismatic_gui_params.txt");
+	char *appdata = getenv("HOME");
+	Prismatic::writeParamFile(meta, std::string(appdata) + "/prismatic_gui_params.txt");
 #endif //_WIN32
-
-	}
 }
+} // namespace Prismatic

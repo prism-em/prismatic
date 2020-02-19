@@ -168,6 +168,9 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                                 const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
                                 PRISMATIC_FLOAT_PRECISION *stack_ph,
                                 PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+                                const PRISMATIC_FLOAT_PRECISION* qya_d,
+                                const PRISMATIC_FLOAT_PRECISION* qxa_d,
+                                const size_t current_slice,
                                 const size_t ay,
                                 const size_t ax,
                                 const size_t& dimj,
@@ -190,6 +193,24 @@ __global__ void multiply_arr_scalar(double* arr,
 __global__ void multiply_arr_scalar(float* arr,
                                     const float val,
                                     const size_t N);
+
+__global__ void DPC_numerator_reduce(const float* psiIntensity_ds,
+                                     const float* q_coord,
+                                     float* numerator,
+                                     const size_t N);
+   
+__global__ void DPC_numerator_reduce(const double* psiIntensity_ds,
+                                     const double* q_coord,
+                                     double* numerator,
+                                     const size_t N);
+
+__global__ void DPC_denominator_reduce(const float* psiIntensity_ds,
+                                       float* denominator,
+                                       const size_t N);
+
+__global__ void DPC_denominator_reduce(const float* psiIntensity_ds,
+                                       double* denominator,
+                                       const size_t N);
 
 //size_t getNextPower2(const double& val);
 //size_t getNextPower2(const float& val);

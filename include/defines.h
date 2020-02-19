@@ -16,51 +16,67 @@
 
 #include <iostream>
 
-namespace Prismatic {
+namespace Prismatic
+{
 
-	enum class Algorithm {
-		PRISM, Multislice
-	};
+enum class Algorithm
+{
+	PRISM,
+	Multislice
+};
 
-    inline void printHeader(){
-        std::cout << "\n\n*********************************************************************" << std::endl;
-		std::cout << "    ____             _                                __     _        \n"
-                "   / __ \\   _____   (_)   _____   ____ ___   ____ _  / /_   (_)  _____\n"
-                "  / /_/ /  / ___/  / /   / ___/  / __ `__ \\ / __ `/ / __/  / /  / ___/\n"
-                " / ____/  / /     / /   (__  )  / / / / / // /_/ / / /_   / /  / /__  \n"
-                "/_/      /_/     /_/   /____/  /_/ /_/ /_/ \\__,_/  \\__/  /_/   \\___/\n\n";
-		std::cout << "*********************************************************************\n\n";
-        std::cout << "Author: Alan \"AJ\" Pryor (apryor6@gmail.com)\nbased on work by Colin Ophus (clophus@lbl.gov)\n" << std::endl;
-	}
+inline void printHeader()
+{
+	std::cout << "\n\n*********************************************************************" << std::endl;
+	std::cout << "    ____             _                                __     _        \n"
+				 "   / __ \\   _____   (_)   _____   ____ ___   ____ _  / /_   (_)  _____\n"
+				 "  / /_/ /  / ___/  / /   / ___/  / __ `__ \\ / __ `/ / __/  / /  / ___/\n"
+				 " / ____/  / /     / /   (__  )  / / / / / // /_/ / / /_   / /  / /__  \n"
+				 "/_/      /_/     /_/   /____/  /_/ /_/ /_/ \\__,_/  \\__/  /_/   \\___/\n\n";
+	std::cout << "*********************************************************************\n\n";
+	std::cout << "Author: Alan \"AJ\" Pryor (apryor6@gmail.com)\nbased on work by Colin Ophus (clophus@lbl.gov)\n"
+			  << std::endl;
 }
+} // namespace Prismatic
 #ifdef PRISMATIC_ENABLE_GPU
 #include "cuComplex.h"
 #include <cuda_runtime.h>
 #include <cstdio>
 #include <cstdlib>
 #include "cufft.h"
+#include "H5Cpp.h"
 
 //#define BLOCK_SIZE1D 1024
 #define BLOCK_SIZE1D 512
 #define PI 3.14159265359
 // helpful function for checking CUDA errors.
 // Source: http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
-#define cudaErrchk(ans) { GPUAssert((ans), __FILE__, __LINE__); }
-inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort=true){
+#define cudaErrchk(ans)                       \
+	{                                         \
+		GPUAssert((ans), __FILE__, __LINE__); \
+	}
+inline void GPUAssert(cudaError_t code, const char *file, int line, bool abort = true)
+{
 	if (code != cudaSuccess)
 	{
-		fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-		if (abort) exit(code);
+		fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+		if (abort)
+			exit(code);
 	}
 }
 
 // helpful function for checking cuFFT errors
-#define cufftErrchk(ans) { GPUAssert_cufft((ans), __FILE__, __LINE__); }
-inline void GPUAssert_cufft(int code, const char *file, int line, bool abort=true){
+#define cufftErrchk(ans)                            \
+	{                                               \
+		GPUAssert_cufft((ans), __FILE__, __LINE__); \
+	}
+inline void GPUAssert_cufft(int code, const char *file, int line, bool abort = true)
+{
 	if (code != CUFFT_SUCCESS)
 	{
-		fprintf(stderr,"GPUassert: %i %s %d\n", code, file, line);
-		if (abort) exit(code);
+		fprintf(stderr, "GPUassert: %i %s %d\n", code, file, line);
+		if (abort)
+			exit(code);
 	}
 }
 
@@ -80,12 +96,10 @@ typedef cuFloatComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
 
 #endif //PRISMATIC_ENABLE_GPU
 
-
-
 //#define PRISMATIC_ENABLE_DOUBLE_PRECISION
 #ifdef PRISMATIC_ENABLE_DOUBLE_PRECISION
 #define MESSAGE "DOUBLE PRECISION"
-	typedef double PRISMATIC_FLOAT_PRECISION;
+typedef double PRISMATIC_FLOAT_PRECISION;
 #define PRISMATIC_FFTW_PLAN fftw_plan
 #define PRISMATIC_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
 #define PRISMATIC_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
@@ -93,11 +107,11 @@ typedef cuFloatComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
 #define PRISMATIC_FFTW_DESTROY_PLAN fftw_destroy_plan
 #define PRISMATIC_FFTW_COMPLEX fftw_complex
 #define PRISMATIC_FFTW_INIT_THREADS fftw_init_threads
-#define	PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftw_plan_with_nthreads
+#define PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftw_plan_with_nthreads
 #define PRISMATIC_FFTW_CLEANUP_THREADS fftw_cleanup_threads
 
 #else
-	typedef float PRISMATIC_FLOAT_PRECISION;
+typedef float PRISMATIC_FLOAT_PRECISION;
 #define MESSAGE "FLOAT PRECISION"
 #define PRISMATIC_FFTW_PLAN fftwf_plan
 #define PRISMATIC_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
@@ -106,7 +120,7 @@ typedef cuFloatComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
 #define PRISMATIC_FFTW_DESTROY_PLAN fftwf_destroy_plan
 #define PRISMATIC_FFTW_COMPLEX fftwf_complex
 #define PRISMATIC_FFTW_INIT_THREADS fftwf_init_threads
-#define	PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
+#define PRISMATIC_FFTW_PLAN_WITH_NTHREADS fftwf_plan_with_nthreads
 #define PRISMATIC_FFTW_CLEANUP_THREADS fftwf_cleanup_threads
 #endif //PRISMATIC_ENABLE_DOUBLE_PRECISION
 
