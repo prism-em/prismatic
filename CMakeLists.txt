@@ -81,18 +81,18 @@ endif(PRISMATIC_ENABLE_PYPRISMATIC)
 if (PRISMATIC_USE_HDF5_STATIC)
    message("entered")
    set(HDF5_USE_STATIC_LIBRARIES ON)
+   set (SEARCH_TYPE static)
++else(NOT PRISMATIC_USE_HDF5_STATIC)
+   set (SEARCH_TYPE shared)
 endif (PRISMATIC_USE_HDF5_STATIC)
 
 set(HDF5_FIND_COMPONENTS "C" "HL" "CXX")
-find_package (HDF5 REQUIRED ${HDF5_FIND_COMPONENTS})
-find_library(HDF5_C_HL_LIBRARIES hdf5_hl)
-find_library(HDF5_C_LIBRARIES hdf5)
-find_library(HDF5_CXX_HL_LIBRARIES hdf5_hl_cpp)
-find_library(HDF5_CXX_LIBRARIES hdf5_cpp)
+find_package (HDF5 NAMES hdf5 ${HDF5_FIND_COMPONENTS} ${SEARCH_TYPE})
 
 set(HDF5_LIBRARIES ${HDF5_C_HL_LIBRARIES} ${HDF5_C_LIBRARIES} ${HDF5_CXX_HL_LIBRARIES} ${HDF5_CXX_LIBRARIES})
 
 message("Boost dir " ${Boost_INCLUDE_DIRS})
+message("FFTW dir " ${FFTW_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
                     ${Boost_INCLUDE_DIRS}
                     ${FFTW_INCLUDE_DIR}
@@ -106,8 +106,8 @@ endif(PRISMATIC_ENABLE_GPU)
 
 # find Qt modules, if building GUI
 if (PRISMATIC_ENABLE_GUI)
-find_package(Qt5Widgets REQUIRED)
-message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
+    find_package(Qt5Widgets REQUIRED)
+    message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
 endif (PRISMATIC_ENABLE_GUI)
 
 # add preprocessor directives based on configuration
