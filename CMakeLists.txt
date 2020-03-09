@@ -71,7 +71,27 @@ endif (PRISMATIC_ENABLE_GPU)
 # find core packages
 find_package (Threads REQUIRED)
 find_package (Boost REQUIRED)
-find_package (FFTW3 REQUIRED)
+
+if(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	if(UNIX)
+		set(FFTW_FIND_COMPONENTS "DOUBLE_LIB" "DOUBLE_THREADS_LIB")
+	else(UNIX)
+		set(FFTW_FIND_COMPONENTS "DOUBLE_LIB")
+	endif(UNIX)
+else(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	if(UNIX)
+		set(FFTW_FIND_COMPONENTS "FLOAT_LIB" "FLOAT_THREADS_LIB")
+	else(UNIX)
+		set(FFTW_FIND_COMPONENTS "FLOAT_LIB")
+	endif(UNIX)
+endif(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+find_package (FFTW REQUIRED COMPONENTS ${FFTW_FIND_COMPONENTS})
+
+if(FFTW_FOUND)
+	message("Found FFTW: ${FFTW_LIBRARIES}")
+else(FFTW_FOUND)
+    message("Could not find FFTW library")
+endif(FFTW_FOUND)
 
 if(PRISMATIC_ENABLE_PYPRISMATIC)
     find_package (PythonInterp 3.5 REQUIRED)
@@ -95,7 +115,7 @@ message("Boost dir " ${Boost_INCLUDE_DIRS})
 message("FFTW dir " ${FFTW_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
                     ${Boost_INCLUDE_DIRS}
-                    ${FFTW_INCLUDE_DIR}
+                    ${FFTW_INCLUDE_DIRS}
                     ${HDF5_INCLUDE_DIRS})
 # find CUDA package, if building for GPU
 if (PRISMATIC_ENABLE_GPU)
@@ -112,8 +132,11 @@ endif (PRISMATIC_ENABLE_GUI)
 
 # add preprocessor directives based on configuration
 if (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	message("Double precision enabled")
     add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
-endif (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+else (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	message("Single precision enabled")
+endif (PRISMATIC_ENABLE_DOUBLE_PRECISION) 
 
 if (PRISMATIC_ENABLE_GUI)
     add_definitions(-DPRISMATIC_ENABLE_GUI)
@@ -126,27 +149,6 @@ endif (PRISMATIC_ENABLE_GPU)
 if (PRISMATIC_ENABLE_CLI)
     add_definitions(-DPRISMATIC_ENABLE_CLI)
 endif (PRISMATIC_ENABLE_CLI)
-
-
-# setup FFTW based on desired precision
-if (NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-    message("Single precision enabled")
-    if (UNIX)
-	    message(UNIX)
-	    set(FFTW_LIBRARIES ${FFTW_EXECUTABLE_LIBRARIES})
-	    set(FFTW_LIBRARIES fftw3f fftw3f_threads)
-            set(FFTW_LIBRARY ${FFTW_EXECUTABLE_LIBRARIES})
-	    message("FFTW_EXECUTABLE_LIBRARIES = " ${FFTW_EXECUTABLE_LIBRARIES})
-	    message("FFTW_LIBRARY = " ${FFTW_LIBRARY})
-    endif (UNIX)
-else(NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-    message("Double precision enabled")
-    add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
-	if (FFTW_THREADS_LIBRARY)
-    		set(FFTW_LIBRARIES ${FFTW_LIBRARY} ${FFTW_THREADS_LIBRARY})
-    	endif(FFTW_THREADS_LIBRARY)
-endif(NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-
 
 
 if (PRISMATIC_ENABLE_CLI)
