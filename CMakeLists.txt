@@ -277,8 +277,7 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
     target_link_libraries(pyprismatic_core
                     ${CMAKE_THREAD_LIBS_INIT}
                     ${FFTW_LIBRARIES}
-                    ${HDF5_LIBRARIES}
-                    ${PYTHON_LIBRARIES})
+                    ${HDF5_LIBRARIES})
 
     set_target_properties(
     pyprismatic_core
@@ -288,11 +287,13 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
         LINKER_LANGUAGE CXX
     )
 
-    if(NOT UNIX)
-    set_target_properties(
-        pyprismatic_core
-        PROPERTIES
-            SUFFIX ".pyd"
-    )
-    endif(NOT UNIX)
+    if (WIN32)
+        target_link_libraries(pyprismatic_core ${PYTHON_LIBRARIES})
+        set_target_properties(pyprismatic_core PROPERTIES SUFFIX ".pyd")
+    elseif (APPLE)
+        set_target_properties(pyprismatic_core PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+        set_target_properties(pyprismatic_core PROPERTIES SUFFIX ".so")
+    endif ()
+    # else Linux: dont link
+
 endif(PRISMATIC_ENABLE_PYPRISMATIC)
