@@ -1,17 +1,21 @@
+{% set name = "prismatic" %}
 {% set version = environ.get('GIT_DESCRIBE_TAG', 'untagged')|string|replace('-','_') %}
-
+{% set build = environ.get('GIT_DESCRIBE_NUMBER', '0') %}
 
 {% set processor = "cpu" if cuda_compiler_version == "None" else "gpu" %}  # [linux64]
 {% set processor = "cpu" %}  # [not linux64]
 
 
 package:
-  name: prismatic
+  name: {{ name|lower }}
   version: {{ version }}
+
+source:
+  git_url: {{ environ.get('FEEDSTOCK_ROOT', '..') }}
 
 build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', '0') }}
-  string: {{ [build_number, ('h' + PKG_HASH), environ.get('GIT_DESCRIBE_HASH', '')]|join('_') }}
+  string: {{ [build, ('h' + PKG_HASH), environ.get('GIT_DESCRIBE_HASH', '')]|join('_') }}
 
 
 requirements:
