@@ -4,7 +4,6 @@ skip_render:
   - LICENSE.txt
   - .gitattributes
   - .gitignore
-  - build-locally.py
   - LICENSE
   - .github/CONTRIBUTING.md
   - .github/ISSUE_TEMPLATE.md
