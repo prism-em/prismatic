@@ -11,6 +11,8 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 #    Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+import os
+import time
 from typing import List, Any
 import pyprismatic.core
 
@@ -327,11 +329,30 @@ class Metadata:
         outf.close()
 
     def toString(self):
+        """
+        Display the simulation parameters.
+        """
         for field in Metadata.fields:
             print("{} = {}".format(field, getattr(self, field)))
 
-    def go(self):
+    def go(self, display_run_time=True, save_run_time=True):
+        """Run the simulation. To display and/or export the simulation run
+        time set the corresponding arguments ``display_run_time`` and
+        ``save_run_time`` to ``True`` or ``False`` (default is True).
+        """
         self.algorithm: str = self.algorithm.lower()
         self.transferMode: str = self.transferMode.lower()
         l: List[Any] = [getattr(self, field) for field in Metadata.fields]
+        start = time.time()
         pyprismatic.core.go(*l)
+        end = time.time()
+
+        # Display and save run time when requested
+        formatted_time = time.strftime("%H:%M:%S", time.gmtime(end-start))
+        total_time = f"The simulation time of {self.filenameOutput} was: {formatted_time} ({end-start:6g} s)"
+        if display_run_time:
+            print(total_time)
+        if save_run_time:
+            filename = f"{os.path.splitext(self.filenameOutput)[0]}-timing.txt"
+            with open(filename, 'w') as f:
+                f.write(total_time)
