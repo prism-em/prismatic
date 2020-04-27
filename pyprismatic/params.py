@@ -194,7 +194,7 @@ class Metadata:
         self.interpolationFactorX = 4
         self.interpolationFactorY = 4
         self.filenameAtoms = ""
-        self.filenameOutput = "output.h5"
+        self.filenameOutput = "output.emd"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
         self.potBound = 1.0

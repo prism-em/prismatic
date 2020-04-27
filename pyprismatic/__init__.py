@@ -46,7 +46,7 @@ def demo():
 14  4.0725  4.0725  4.0725  1.0  0.076\n\
 -1"
         )
-    meta = Metadata(filenameAtoms="temp.XYZ", filenameOutput="demo.h5")
+    meta = Metadata(filenameAtoms="temp.XYZ", filenameOutput="demo.emd")
     meta.algorithm = "multislice"
     meta.go()
     import numpy as np
@@ -54,8 +54,8 @@ def demo():
     import h5py
     #result = readMRC("output.mrc")
 
-    demoFile = h5py.File('demo.h5','r')
-    print('demo.h5 filestructure:')
+    demoFile = h5py.File('demo.emd','r')
+    print('demo.emd filestructure:')
     keySearch(demoFile,0)
 
     os.remove("temp.XYZ")

@@ -32,7 +32,7 @@ namespace Prismatic{
             interpolationFactorY  = 4;
             interpolationFactorX  = 4;
             filenameAtoms         = "/path/to/atoms.txt";
-            filenameOutput        = "output.h5";
+            filenameOutput        = "output.emd";
             outputFolder          = "";
             realspacePixelSize[0] = 0.1;
             realspacePixelSize[1] = 0.1;
@@ -40,7 +40,7 @@ namespace Prismatic{
             numFP                 = 1;
             fpNum                 = 1;
             sliceThickness        = 2.0;
-            numSlices             = 0; 
+            numSlices             = 0;
             zStart                = 0.0;
             cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
             tileX                 = 1;
