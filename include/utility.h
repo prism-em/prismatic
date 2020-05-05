@@ -89,6 +89,69 @@ Array1D<T> fftshift(Array1D<T> arr)
 };
 
 template <class T>
+Array2D<T> circShift(Array2D<T> &arr,const long sj, const long si)
+{
+    Array2D<T> result(arr);
+    for (auto j = 0; j < arr.get_dimj(); ++j)
+    {
+        for (auto i = 0; i < arr.get_dimi(); ++i)
+        {
+            result.at((j + sj) % arr.get_dimj(), (i + si) % arr.get_dimi()) = arr.at(j, i);
+        }
+    }
+    return result;
+};
+
+template <class T>
+Array2D<T> cropOutput(Array2D<T> &img, const Parameters<T> &pars){
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
+    PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
+
+    for(auto i = 0; i < pars.qx.get_dimi(); i++)
+    {
+        if(pars.qx.at(i) < qMax)
+        {
+            qxInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    for(auto j = 0; j < pars.qy.get_dimi(); j++)
+    {
+        if(pars.qy.at(j) < qMax)
+        {
+            qyInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //shift image so that desired region is in top left
+    Array2D<T> shifted = circShift(img,qyInd_max,qxInd_max);
+
+    //construct cropped return image
+    Array2D<T> cropped = zeros_ND<2, PRISMATIC_FLOAT_PRECISION >({{qyInd_max*2, qxInd_max*2}});
+
+    //copy data to return array
+    for(auto j = 0; j < cropped.get_dimj(); j++)
+    {
+        for(auto i = 0; i < cropped.get_dimi(); i++)
+        {
+            cropped.at(j,i) = shifted.at(j,i);
+        }
+    }
+    
+    return cropped;
+}
+
+
+template <class T>
 std::string generateFilename(const Parameters<T> &pars, const size_t currentSlice, const size_t ay, const size_t ax)
 {
 	std::string result = pars.meta.outputFolder + pars.meta.filenameOutput.substr(0, pars.meta.filenameOutput.find_last_of("."));
@@ -150,9 +213,9 @@ void writeDatacube3D(H5::DataSet dataset, const float *buffer, const hsize_t *md
 
 void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *mdims);
 
-void writeDatacube4D(H5::DataSet dataset, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP);
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString);
 
-void writeDatacube4D(H5::DataSet dataset, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP);
+void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString);
 
 void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t elements);
 

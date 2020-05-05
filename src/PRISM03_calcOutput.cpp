@@ -33,7 +33,7 @@
 namespace Prismatic
 {
 extern std::mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
-extern std::mutex HDF5_lock;
+// extern std::mutex HDF5_lock;
 using namespace std;
 const static std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 // this might seem a strange way to get pi, but it's slightly more future proof
@@ -433,23 +433,33 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	if (pars.meta.save4DOutput)
 	{
 		//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
-		unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+		// unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 		std::stringstream nameString;
 		nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(0);
 
-		H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-		H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+		// H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+		// H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
 
 		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
-		hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
 
-		intOutput = fftshift2(intOutput);
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-		writeDatacube4D(CBED_data, &intOutput[0], mdims, offset, numFP);
 
-		CBED_data.close();
-		dataGroup.close();
-		HDF5_gatekeeper.unlock();
+        if(pars.meta.crop4DOutput)
+        {
+            Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput,pars);
+            hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
+            writeDatacube4D(pars, &croppedOutput[0], mdims, offset, numFP, nameString.str());
+        }
+        else
+        {
+            hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
+            intOutput = fftshift2(intOutput);
+            writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP,nameString.str());
+        }
+
+		// CBED_data.close();
+		// dataGroup.close();
+		// HDF5_gatekeeper.unlock();
 		//intOutput.toMRC_f(section4DFilename.c_str());
 	}
 }

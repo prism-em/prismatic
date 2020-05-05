@@ -199,7 +199,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 				}
 			}
 
-			writeRealSlice(DPC_data, &DPC_slice[0], mdims);
+			writeDatacube3D(DPC_data, &DPC_slice[0], mdims);
 			DPC_data.close();
 			dataGroup.close();
 		}

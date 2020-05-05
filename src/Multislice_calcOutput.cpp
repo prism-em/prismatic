@@ -31,7 +31,7 @@ namespace Prismatic{
 	static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 	static const std::complex<PRISMATIC_FLOAT_PRECISION> i(0, 1);
 	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
-	mutex HDF5_lock;
+	// mutex HDF5_lock;
 
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 
@@ -227,20 +227,6 @@ namespace Prismatic{
 		auto psi_ptr = psi.begin();
 		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
 
-		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj()/2, psi.get_dimi()/2}});
-
-		{
-			long offset_x = psi.get_dimi() / 4;
-			long offset_y = psi.get_dimj() / 4;
-			long ndimy = (long) psi.get_dimj();
-			long ndimx = (long) psi.get_dimi();
-			for (long y = 0; y < psi.get_dimj() / 2; ++y) {
-				for (long x = 0; x < psi.get_dimi() / 2; ++x) {
-					intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-					                            ((x - offset_x) % ndimx + ndimx) % ndimx);
-				}
-			}
-		}
 
 		if (pars.meta.saveDPC_CoM){
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
@@ -270,23 +256,51 @@ namespace Prismatic{
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput) {
-			unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
-			//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-			H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+            
+            Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small;
+            hsize_t mdims[4];
+            mdims[0] = mdims[1] = {1};
+            
+            if(pars.meta.crop4DOutput)
+            {
+                intOutput_small = cropOutput(intOutput,pars);
+            }
+            else
+            {
+                intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj()/2, psi.get_dimi()/2}});
+                {
+                    long offset_x = psi.get_dimi() / 4;
+                    long offset_y = psi.get_dimj() / 4;
+                    long ndimy = (long) psi.get_dimj();
+                    long ndimx = (long) psi.get_dimi();
+                    for (long y = 0; y < psi.get_dimj() / 2; ++y) {
+                        for (long x = 0; x < psi.get_dimi() / 2; ++x) {
+                            intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                                        ((x - offset_x) % ndimx + ndimx) % ndimx);
+                        }
+                    }
+                }
+            }
 
-			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
-			hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-			writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+            mdims[2] = {intOutput_small.get_dimi()};
+            mdims[3] = {intOutput_small.get_dimj()};
+            // unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+            //std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+            std::stringstream nameString;
+            nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
 
-			CBED_data.close();
-			dataGroup.close();
-			HDF5_gatekeeper.unlock();
-			//intOutput_small.toMRC_f(section4DFilename.c_str());
+            // H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+            // H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+            hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+            PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+            writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+
+            // CBED_data.close();
+            // dataGroup.close();
+            // HDF5_gatekeeper.unlock();
+            //intOutput_small.toMRC_f(section4DFilename.c_str());
 		}
 	}
 	void formatOutput_CPU_integrate_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -303,23 +317,6 @@ namespace Prismatic{
 					{{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 			auto psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
 			for (auto &j:intOutput) j = pow(abs(*psi_ptr++), 2);
-
-			Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj()/2, pars.psiProbeInit.get_dimi()/2}});
-
-			{
-				long offset_x = pars.psiProbeInit.get_dimi() / 4;
-				long offset_y = pars.psiProbeInit.get_dimj() / 4;
-				long ndimy = (long) pars.psiProbeInit.get_dimj();
-				long ndimx = (long) pars.psiProbeInit.get_dimi();
-
-				for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
-					for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-						intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
-													((x - offset_x) % ndimx + ndimx) % ndimx);
-					}
-				}
-			}
-
 
 			if (pars.meta.saveDPC_CoM){
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
@@ -348,26 +345,55 @@ namespace Prismatic{
 				++idx;
 			};
 
-			//save 4D output if applicable
-			if (pars.meta.save4DOutput) {
-				//std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
-				unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
-				std::stringstream nameString;
-				nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+            //save 4D output if applicable
+            if (pars.meta.save4DOutput) {
 
-				H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-				H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+                Array2D<PRISMATIC_FLOAT_PRECISION> intOutput_small;
 
-				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
-				hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2};
-				PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
-				writeDatacube4D(CBED_data, &intOutput_small[0],mdims,offset,numFP);
+                hsize_t mdims[4];
+                mdims[0] = mdims[1] = {1};
+            
+                if(pars.meta.crop4DOutput)
+                {
+                    intOutput_small = cropOutput(intOutput,pars);
+                }
+                else
+                {
+                    intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj()/2, pars.psiProbeInit.get_dimi()/2}});
+                    {
+                        long offset_x = pars.psiProbeInit.get_dimi() / 4;
+                        long offset_y = pars.psiProbeInit.get_dimj() / 4;
+                        long ndimy = (long) pars.psiProbeInit.get_dimj();
+                        long ndimx = (long) pars.psiProbeInit.get_dimi();
+                        for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+                            for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+                                intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                                            ((x - offset_x) % ndimx + ndimx) % ndimx);
+                            }
+                        }
+                    }
+                }
 
-				CBED_data.close();
-				dataGroup.close();
-				HDF5_gatekeeper.unlock();
-				//intOutput_small.toMRC_f(section4DFilename.c_str());
-			}
+                
+                mdims[2] = {intOutput_small.get_dimi()};
+                mdims[3] = {intOutput_small.get_dimj()};
+                //std::string section4DFilename = generateFilename(pars, currentSlice, ay, ax);
+                // unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
+                std::stringstream nameString;
+                nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(currentSlice);
+
+                // H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+                // H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
+
+                hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
+                PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+                writeDatacube4D(pars, &intOutput_small[0],mdims,offset,numFP,nameString.str());
+
+                // CBED_data.close();
+                // dataGroup.close();
+                // HDF5_gatekeeper.unlock();
+                //intOutput_small.toMRC_f(section4DFilename.c_str());
+            }
 
 			++Nstart;
 			++probe_idx;
