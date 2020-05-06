@@ -34,6 +34,12 @@
 namespace Prismatic
 {
 using namespace std;
+
+PRISMATIC_FLOAT_PRECISION kirklandPotential3D(Array1D<PRISMATIC_FLOAT_PRECISION> , PRISMATIC_FLOAT_PRECISION radius){
+	PRISMATIC_FLOAT_PRECISION val = 1.0;
+	return val;
+}
+
 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const vector<size_t> &atomic_species,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,

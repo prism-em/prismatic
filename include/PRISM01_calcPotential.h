@@ -43,6 +43,8 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								 const Array1D<long> &yvec,
 								 const Array1D<PRISMATIC_FLOAT_PRECISION> &uLookup);
 
+PRISMATIC_FLOAT_PRECISION kirklandPotential3D(Array1D<PRISMATIC_FLOAT_PRECISION> factors, PRISMATIC_FLOAT_PRECISION radius);
+
 //#ifdef PRISMATIC_BUILDING_GUI
 //	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
 //#else
