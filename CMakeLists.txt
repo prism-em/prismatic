@@ -299,8 +299,18 @@ endif(PRISMATIC_ENABLE_PYPRISMATIC)
 
 if (PRISMATIC_TESTS)
     find_package (Boost REQUIRED COMPONENTS unit_test_framework)
-    add_executable(prismatic-tests
-                    ${TEST_SOURCE_FILES})
+
+    if (PRISMATIC_ENABLE_GPU)
+        cuda_add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${CUDA_SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+        cuda_add_cufft_to_target(prismatic-tests)
+    else(PRISMATIC_ENABLE_GPU)
+        add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+    endif (PRISMATIC_ENABLE_GPU)
 
     target_compile_definitions(prismatic-tests PRIVATE "BOOST_TEST_DYN_LINK=1")
 
@@ -312,4 +322,5 @@ if (PRISMATIC_TESTS)
 
     add_custom_target(PrismaticTestSuite ALL ./prismatic-tests
                         DEPENDS prismatic prismatic-tests)
+
 endif (PRISMATIC_TESTS)
