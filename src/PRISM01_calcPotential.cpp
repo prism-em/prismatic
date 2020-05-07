@@ -33,27 +33,7 @@
 
 namespace Prismatic
 {
-static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 using namespace std;
-
-Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(Array1D<PRISMATIC_FLOAT_PRECISION> &factors, Array3D<PRISMATIC_FLOAT_PRECISION> &radius){
-	PRISMATIC_FLOAT_PRECISION a0 = 0.529; //bohr radius
-	PRISMATIC_FLOAT_PRECISION e = 14.4; //electron charge in Volt-Angstoms
-	Array3D<PRISMATIC_FLOAT_PRECISION> cur_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{radius.get_dimk(),radius.get_dimj(),radius.get_dimi()}});
-	for(auto z = 0; z < radius.get_dimk(); z++){
-        for(auto y = 0; y < radius.get_dimj(); y++ ){
-            for(auto x = 0; x < radius.get_dimi(); x++){
-				for(auto i = 0; i<6; i+=2){
-					cur_pot.at(z,y,x) += 2*pi*pi*a0*e*(factors.at(i)/radius.at(z,y,x))*exp(-2*pi*radius.at(z,y,x)*sqrt(factors.at(i+1)));
-				}
-				for(auto i = 6; i<12; i+=2){
-					cur_pot.at(z,y,x) += 2*pow(pi,5.0/2.0)*a0*e*factors.at(i)*pow(factors.at(i+1),-3.0/2.0)*exp(-pi*pi*radius.at(z,y,x)*radius.at(z,y,x)/factors.at(i+1));
-				}
-            }
-        }
-    }
-	return cur_pot;
-}
 
 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const vector<size_t> &atomic_species,

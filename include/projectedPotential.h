@@ -31,5 +31,8 @@ namespace Prismatic {
 	                                       const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
 	                                       const Array1D<PRISMATIC_FLOAT_PRECISION> &yr);
 
+	Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(Array1D<PRISMATIC_FLOAT_PRECISION> &factors,
+														Array3D<PRISMATIC_FLOAT_PRECISION> &radius);
+
 }
 #endif //PRISM_PROJPOT_H

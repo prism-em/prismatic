@@ -1,5 +1,5 @@
 #include "potentialTests.h"
-#include "PRISM01_calcPotential.h"
+#include "projectedPotential.h"
 #include <boost/test/unit_test.hpp>
 #include "ArrayND.h"
 #include <iostream>
