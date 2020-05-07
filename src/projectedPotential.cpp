@@ -120,8 +120,7 @@ Array2D<PRISMATIC_FLOAT_PRECISION> projPot(const size_t &Z,
 		}
 	}
 
-	for (auto i = 0; i < r.size(); ++i)
-		r[i] = sqrt(r2[i]);
+	for (auto i = 0; i < r.size(); ++i) r[i] = sqrt(r2[i]);
 	// construct potential
 	ArrayND<2, std::vector<PRISMATIC_FLOAT_PRECISION>> potSS = ones_ND<2, PRISMATIC_FLOAT_PRECISION>({{r2.get_dimj(), r2.get_dimi()}});
 
@@ -170,24 +169,59 @@ Array2D<PRISMATIC_FLOAT_PRECISION> projPot(const size_t &Z,
 	return pot;
 }
 
-Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(Array1D<PRISMATIC_FLOAT_PRECISION> &factors, Array3D<PRISMATIC_FLOAT_PRECISION> &radius){
+Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z, 
+										Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
+										Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
+										Array1D<PRISMATIC_FLOAT_PRECISION> &zr)
+{
+	static const PRISMATIC_FLOAT_PRECISION pi = std::acos(-1);
 	PRISMATIC_FLOAT_PRECISION a0 = 0.529; //bohr radius
 	PRISMATIC_FLOAT_PRECISION e = 14.4; //electron charge in Volt-Angstoms
-	static const PRISMATIC_FLOAT_PRECISION pi = std::acos(-1);
+	PRISMATIC_FLOAT_PRECISION term1 =  2*pi*pi*a0*e;
+	PRISMATIC_FLOAT_PRECISION term2 = 2*pow(pi,5.0/2.0)*a0*e;
+	
+	// get the relevant table values
+	std::vector<PRISMATIC_FLOAT_PRECISION> ap;
+	ap.resize(NUM_PARAMETERS);
+	for (auto i = 0; i < NUM_PARAMETERS; ++i)
+	{
+		ap[i] = fparams[(Z - 1) * NUM_PARAMETERS + i];
+	}
 
-	Array3D<PRISMATIC_FLOAT_PRECISION> cur_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{radius.get_dimk(),radius.get_dimj(),radius.get_dimi()}});
-	for(auto z = 0; z < radius.get_dimk(); z++){
-        for(auto y = 0; y < radius.get_dimj(); y++ ){
-            for(auto x = 0; x < radius.get_dimi(); x++){
-				for(auto i = 0; i<6; i+=2){
-					cur_pot.at(z,y,x) += 2*pi*pi*a0*e*(factors.at(i)/radius.at(z,y,x))*exp(-2*pi*radius.at(z,y,x)*sqrt(factors.at(i+1)));
+	//construct arrays
+	std::tuple<Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>> meshxyz = meshgrid(zr, yr, xr);
+	Array3D<PRISMATIC_FLOAT_PRECISION> r2 = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zr.size(), yr.size(), xr.size()}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> r  = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zr.size(), yr.size(), xr.size()}});
+
+	{
+		auto t_y = r2.begin();
+		for (auto k = 0; k < std::get<0>(meshxyz).get_dimk(); k++)
+		{
+			for (auto j = 0; j < std::get<0>(meshxyz).get_dimj(); j++)
+			{
+				for (auto i = 0; i < std::get<0>(meshxyz).get_dimi(); i++)
+				{
+					*t_y++ = pow(std::get<0>(meshxyz).at(k, j, i), 2)
+							+ pow(std::get<1>(meshxyz).at(k, j, i), 2)
+							+ pow(std::get<2>(meshxyz).at(k, j, i), 2);
 				}
-				for(auto i = 6; i<12; i+=2){
-					cur_pot.at(z,y,x) += 2*pow(pi,5.0/2.0)*a0*e*factors.at(i)*pow(factors.at(i+1),-3.0/2.0)*exp(-pi*pi*radius.at(z,y,x)*radius.at(z,y,x)/factors.at(i+1));
-				}
-            }
-        }
-    }
+			}
+		}
+	}
+
+	for (auto i = 0; i < r.size(); ++i) r[i] = sqrt(r2[i]);
+	
+
+	Array3D<PRISMATIC_FLOAT_PRECISION> cur_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{r2.get_dimk(), r2.get_dimj(), r2.get_dimi()}});
+
+	std::transform(r2.begin(),r2.end(),r.begin(),cur_pot.begin(),[&ap,&term1,&term2](const PRISMATIC_FLOAT_PRECISION &r2, const PRISMATIC_FLOAT_PRECISION &r){
+		return term1*(ap[0]*exp(-2*pi*r*sqrt(ap[1]))/r
+						+ ap[2]*exp(-2*pi*r*sqrt(ap[3]))/r
+						+ ap[4]*exp(-2*pi*r*sqrt(ap[5]))/r)
+			+ term2*(ap[6]*pow(ap[7],-3.0/2.0)*exp(-pi*pi*r2/ap[7])
+					+ ap[8]*pow(ap[9],-3.0/2.0)*exp(-pi*pi*r2/ap[9])
+					+ ap[10]*pow(ap[11],-3.0/2.0)*exp(-pi*pi*r2/ap[11]));
+	});
 	return cur_pot;
 }
 
