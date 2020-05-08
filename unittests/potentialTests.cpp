@@ -1,5 +1,6 @@
 #include "potentialTests.h"
 #include "projectedPotential.h"
+#include "PRISM01_calcPotential.h"
 #include <boost/test/unit_test.hpp>
 #include "ArrayND.h"
 #include <iostream>
@@ -59,9 +60,64 @@ PRISMATIC_FLOAT_PRECISION checkFaces(Array3D<PRISMATIC_FLOAT_PRECISION> &pot)
     return errSum;
 };
 
+Array3D<PRISMATIC_FLOAT_PRECISION> generateInterpolationIdentity(size_t xSize,size_t ySize, size_t zSize,
+                                                                            PRISMATIC_FLOAT_PRECISION dx,
+                                                                            PRISMATIC_FLOAT_PRECISION dy,
+                                                                            PRISMATIC_FLOAT_PRECISION dz)
+{
+    Array3D<PRISMATIC_FLOAT_PRECISION> identity = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{xSize,ySize,zSize}});
+
+    std::vector<size_t> xind = (dx < 0) ? std::vector<size_t>{0, identity.get_dimi()-2} : std::vector<size_t>{1, identity.get_dimi()-1};
+    std::vector<size_t> yind = (dy < 0) ? std::vector<size_t>{0, identity.get_dimj()-2} : std::vector<size_t>{1, identity.get_dimj()-1};
+    std::vector<size_t> zind = (dz < 0) ? std::vector<size_t>{0, identity.get_dimk()-2} : std::vector<size_t>{1, identity.get_dimk()-1};
+
+    PRISMATIC_FLOAT_PRECISION dxm = (dx == 0) ? 1 : dx;
+    PRISMATIC_FLOAT_PRECISION dym = (dy == 0) ? 1 : dy;
+    PRISMATIC_FLOAT_PRECISION dzm = (dz == 0) ? 1 : dz;
+
+    for(auto k = zind[0]; k <= zind[1]; k++)
+    {
+        for(auto j = yind[0]; j <= yind[1]; j++)
+        {
+            for(auto i = xind[0]; i <= xind[1]; i++)
+            {
+                identity.at(k,j,i) = 1;
+                if(i == xind[0]) identity.at(k,j,i)*=std::abs(dxm);
+                if(i == xind[1]) identity.at(k,j,i)*=std::abs(dx);
+
+                if(j == yind[0]) identity.at(k,j,i)*=std::abs(dym);
+                if(j == yind[1]) identity.at(k,j,i)*=std::abs(dy);
+                
+                if(k == zind[0]) identity.at(k,j,i)*=std::abs(dzm);
+                if(k == zind[1]) identity.at(k,j,i)*=std::abs(dz);
+            }
+        }
+    }
+
+    return identity;
+};
+
+void printArray3D(Array3D<PRISMATIC_FLOAT_PRECISION> &arr)
+{
+    for(auto k = 0; k < arr.get_dimk(); k++)
+    {
+        for(auto j = 0; j < arr.get_dimj(); j++)
+        {
+            for(auto i = 0; i < arr.get_dimi(); i++)
+            {
+                std::cout<<arr.at(k,j,i) << " ";
+            }
+            std::cout<<std::endl;
+        }
+        std::cout << "---" << std::endl;
+    }
+    std::cout << "-----------------------" << std::endl;
+};
+
+
 BOOST_AUTO_TEST_SUITE(potentialTests);
 
-BOOST_AUTO_TEST_CASE(pot3D_function_test)
+BOOST_AUTO_TEST_CASE(pot3DFunction)
 {
     Array3D<PRISMATIC_FLOAT_PRECISION> radius = ones_ND<3,PRISMATIC_FLOAT_PRECISION>({{10,10,10}});
     Array1D<PRISMATIC_FLOAT_PRECISION> xr = ones_ND<1,PRISMATIC_FLOAT_PRECISION>({{10}});
@@ -109,6 +165,7 @@ BOOST_AUTO_TEST_CASE(pot3D_function_test)
     BOOST_TEST(error<tol);
 };
 
+/*
 BOOST_AUTO_TEST_CASE(potMin)
 {
     //after potMin correction, potential should be non-negative with all faces of 3D potential prism = 0; 
@@ -229,6 +286,96 @@ BOOST_AUTO_TEST_CASE(potMin)
     BOOST_TEST(errSum < tol);
     BOOST_TEST(minVal >= 0);
 };
+*/
+
+BOOST_AUTO_TEST_CASE(projPotGeneration)
+{
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
+
+    //preparing reference potential for single atom potential
+    PRISMATIC_FLOAT_PRECISION yleng = 20;
+	PRISMATIC_FLOAT_PRECISION xleng = 20;
+    PRISMATIC_FLOAT_PRECISION zleng = 20;
+
+	ArrayND<1, std::vector<long>> xvec(std::vector<long>(2 * (size_t)xleng + 1, 0), {{2 * (size_t)xleng + 1}});
+	ArrayND<1, std::vector<long>> yvec(std::vector<long>(2 * (size_t)yleng + 1, 0), {{2 * (size_t)yleng + 1}});
+	ArrayND<1, std::vector<long>> zvec(std::vector<long>(2 * (size_t)zleng + 1, 0), {{2 * (size_t)zleng + 1}});
+	{
+		PRISMATIC_FLOAT_PRECISION tmpx = -xleng;
+		PRISMATIC_FLOAT_PRECISION tmpy = -yleng;
+		PRISMATIC_FLOAT_PRECISION tmpz = -zleng;
+		for (auto &i : xvec)
+			i = tmpx++;
+		for (auto &j : yvec)
+			j = tmpy++;
+		for (auto &k : zvec)
+			k = tmpz++;
+	}
+
+    PRISMATIC_FLOAT_PRECISION xPixel = 0.1;
+    PRISMATIC_FLOAT_PRECISION yPixel = 0.1;
+    PRISMATIC_FLOAT_PRECISION zPixel = 0.1;
+
+    Array1D<PRISMATIC_FLOAT_PRECISION> xr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)xleng + 1, 0), {{2 * (size_t)xleng + 1}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> yr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)yleng + 1, 0), {{2 * (size_t)yleng + 1}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> zr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)zleng + 1, 0), {{2 * (size_t)zleng + 1}});
+
+	for (auto i = 0; i < xr.size(); ++i) xr[i] = (PRISMATIC_FLOAT_PRECISION)xvec[i] * xPixel;
+	for (auto j = 0; j < yr.size(); ++j) yr[j] = (PRISMATIC_FLOAT_PRECISION)yvec[j] * yPixel;
+	for (auto j = 0; j < zr.size(); ++j) zr[j] = (PRISMATIC_FLOAT_PRECISION)zvec[j] * zPixel;
+
+    const size_t Z = 1; //Hydrogen!
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPot = kirklandPotential3D(Z, xr, yr, zr);
+
+
+    //generate reference 
+    Array3D<PRISMATIC_FLOAT_PRECISION> interpID;
+    PRISMATIC_FLOAT_PRECISION dx, dy, dz;
+
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPot = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{refPot.get_dimi()+2,refPot.get_dimj()+2,refPot.get_dimk()+2}});
+    generateProjectedPotentials3D(testPot,refPot);
+    //for dx=dy=dz=0, all faces should be zero on potShift equivalent
+    PRISMATIC_FLOAT_PRECISION errSum = checkFaces(refPot);
+    dx = dy = dz = 0;
+    BOOST_TEST(errSum < tol);
+    PRISMATIC_FLOAT_PRECISION refPotSum = 0;
+    PRISMATIC_FLOAT_PRECISION testPotSum = 0;
+    for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
+    for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
+    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
+
+
+    // interpID = generateInterpolationIdentity(refPot.get_dimi(),refPot.get_dimj(),refPot.get_dimk(),dx,dy,dz);
+
+    //test max case
+    testPot*=0.0;
+    generateProjectedPotentials3D(testPot,refPot);
+    dx = dy = dz = 0.5;
+    refPotSum = 0;
+    testPotSum = 0;
+    for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
+    for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
+    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
+
+    //test min case
+    testPot*=0;
+    generateProjectedPotentials3D(testPot,refPot);
+    dx = dy = dz = -0.5;
+    refPotSum = 0;
+    testPotSum = 0;
+    for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
+    for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
+    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
+
+
+
+    //for dx=dy=dz= -0.5 (min bound), farthest faces should be zero; internal array should be 1 at center and *0.5 for each edge in each dir
+
+    //for dx=dy=dz= 0.5 (max bound), closest faces should be zero; internal array should be 1 at center and *0.5 for each edge in each dir
+
+
+};
+
 
 BOOST_AUTO_TEST_SUITE_END();
 

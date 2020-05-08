@@ -215,6 +215,68 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 #endif //PRISMATIC_BUILDING_GUI
 };
 
+void interpolatePotential(Array3D<PRISMATIC_FLOAT_PRECISION> &potShift,
+							const Array3D<PRISMATIC_FLOAT_PRECISION> &potCrop,
+							const PRISMATIC_FLOAT_PRECISION &wx,
+							const PRISMATIC_FLOAT_PRECISION &wy,
+							const PRISMATIC_FLOAT_PRECISION &wz,
+							const size_t &xind,
+							const size_t &yind,
+							const size_t &zind)
+{
+	for(auto k = 0; k < potCrop.get_dimk(); k++)
+	{
+		for(auto j = 0; j < potCrop.get_dimj(); j++)
+		{
+			for(auto i = 0; i < potCrop.get_dimj(); i++)
+			{
+				potShift.at(k+zind,j+yind,i+xind) += potCrop.at(k,j,i)*wx*wy*wz;
+			}
+		}
+	}
+};
+					
+
+void generateProjectedPotentials3D(Array3D<PRISMATIC_FLOAT_PRECISION> &pot,
+									const Array3D<PRISMATIC_FLOAT_PRECISION> &potLookup)
+{	
+	//calculate offset from ideal pixel
+	PRISMATIC_FLOAT_PRECISION dx, dy, dz;
+	dx = dy = dz = 0.0;
+
+
+	//calculate weighting coefficients and indices for interpolation
+	PRISMATIC_FLOAT_PRECISION wx1 = (dx < 0) ? -dx  : 1-dx;
+	PRISMATIC_FLOAT_PRECISION wx2 = (dx < 0) ? 1+dx : dx;
+	PRISMATIC_FLOAT_PRECISION wy1 = (dy < 0) ? -dy  : 1-dy;
+	PRISMATIC_FLOAT_PRECISION wy2 = (dy < 0) ? 1+dy : dy;
+	PRISMATIC_FLOAT_PRECISION wz1 = (dz < 0) ? -dz  : 1-dz;
+	PRISMATIC_FLOAT_PRECISION wz2 = (dz < 0) ? 1+dz : dz; 
+
+	const size_t x1 = (dx < 0) ? 0 : 1;
+	const size_t x2 = x1+1;
+    const size_t y1 = (dy < 0) ? 0 : 1;
+    const size_t y2 = y1+1;
+    const size_t z1 = (dz < 0) ? 0 : 1;
+    const size_t z2 = z1+1;
+
+	//this size needs to be calculated automatically and not passed in
+	//run thrugh all permutations of wx, wy, wz
+	interpolatePotential(pot,potLookup,wx1,wy1,wz1,x1,y1,z1);
+
+	interpolatePotential(pot,potLookup,wx2,wy1,wz1,x2,y1,z1);
+	interpolatePotential(pot,potLookup,wx1,wy2,wz1,x1,y2,z1);
+	interpolatePotential(pot,potLookup,wx1,wy1,wz2,x1,y1,z2);
+
+	interpolatePotential(pot,potLookup,wx2,wy2,wz1,x2,y2,z1);
+	interpolatePotential(pot,potLookup,wx2,wy1,wz2,x2,y1,z2);
+	interpolatePotential(pot,potLookup,wx1,wy2,wz2,x1,y2,z2);
+
+	interpolatePotential(pot,potLookup,wx2,wy2,wz2,x2,y2,z2);
+	
+	return;
+};
+
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//builds projected, sliced potential
