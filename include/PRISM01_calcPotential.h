@@ -52,8 +52,14 @@ void interpolatePotential(Array3D<PRISMATIC_FLOAT_PRECISION> &potShift,
 							const size_t &yind,
 							const size_t &zind);
 
-void generateProjectedPotentials3D(Array3D<PRISMATIC_FLOAT_PRECISION> &pot,
-								   const Array3D<PRISMATIC_FLOAT_PRECISION> &potLookup);
+void cropLookup(Array3D<PRISMATIC_FLOAT_PRECISION> &potCrop,
+				const Array3D<PRISMATIC_FLOAT_PRECISION> &potLookup);
+
+void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+								   const Array3D<PRISMATIC_FLOAT_PRECISION> &potLookup,
+								   const Array1D<long> &xvec,
+								   const Array1D<long> &yvec,
+								   const Array1D<long> &zvec);
 
 //#ifdef PRISMATIC_BUILDING_GUI
 //	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);

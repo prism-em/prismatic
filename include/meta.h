@@ -40,6 +40,7 @@ namespace Prismatic{
             numFP                 = 1;
             fpNum                 = 1;
             sliceThickness        = 2.0;
+            zSampling             = 4;
             numSlices             = 0; 
             zStart                = 0.0;
             cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
@@ -105,6 +106,7 @@ namespace Prismatic{
         size_t numFP; // number of frozen phonon configurations to compute
         size_t fpNum; // current frozen phonon number
         T sliceThickness; // thickness of slice in Z
+        size_t zSampling; //oversampling of potential in Z direction
         size_t numSlices; //number of slices to itereate through in multislice before giving an output
         T zStart; //Z coordinate of cell where multislice intermediate output will begin outputting
         T probeStepX;

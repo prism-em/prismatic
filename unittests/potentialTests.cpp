@@ -6,6 +6,8 @@
 #include <iostream>
 #include "kirkland_params.h"
 #include <vector>
+#include "params.h"
+#include "atom.h"
 
 namespace Prismatic{
 
@@ -65,7 +67,7 @@ Array3D<PRISMATIC_FLOAT_PRECISION> generateInterpolationIdentity(size_t xSize,si
                                                                             PRISMATIC_FLOAT_PRECISION dy,
                                                                             PRISMATIC_FLOAT_PRECISION dz)
 {
-    Array3D<PRISMATIC_FLOAT_PRECISION> identity = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{xSize,ySize,zSize}});
+    Array3D<PRISMATIC_FLOAT_PRECISION> identity = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{zSize,ySize,xSize}});
 
     std::vector<size_t> xind = (dx < 0) ? std::vector<size_t>{0, identity.get_dimi()-2} : std::vector<size_t>{1, identity.get_dimi()-1};
     std::vector<size_t> yind = (dy < 0) ? std::vector<size_t>{0, identity.get_dimj()-2} : std::vector<size_t>{1, identity.get_dimj()-1};
@@ -114,6 +116,29 @@ void printArray3D(Array3D<PRISMATIC_FLOAT_PRECISION> &arr)
     std::cout << "-----------------------" << std::endl;
 };
 
+void addMismatchedArray(Array3D<PRISMATIC_FLOAT_PRECISION> &big,
+                        Array3D<PRISMATIC_FLOAT_PRECISION> &small,
+                        const size_t &x_offset,
+                        const size_t &y_offset,
+                        const size_t &z_offset)
+{//adds a smaller array to a region of larger area
+
+    for(auto k = 0; k < small.get_dimk(); k++)
+    {
+        for(auto j = 0; j < small.get_dimj(); j++)
+        {
+            for(auto i = 0; i < small.get_dimi(); i++)
+            {
+                if(i+x_offset>= big.get_dimi()) std::cout <<"huhx" << std::endl;
+                if(j+y_offset>= big.get_dimj()) std::cout <<"huhy" << std::endl;
+                if(k+z_offset>= big.get_dimk()) std::cout <<"huhz" << std::endl;
+
+                big.at(k+z_offset,j+y_offset,i+x_offset) += small.at(k,j,i);
+            }
+        }
+    }
+
+};
 
 BOOST_AUTO_TEST_SUITE(potentialTests);
 
@@ -290,12 +315,28 @@ BOOST_AUTO_TEST_CASE(potMin)
 
 BOOST_AUTO_TEST_CASE(projPotGeneration)
 {
-    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
 
-    //preparing reference potential for single atom potential
-    PRISMATIC_FLOAT_PRECISION yleng = 20;
-	PRISMATIC_FLOAT_PRECISION xleng = 20;
-    PRISMATIC_FLOAT_PRECISION zleng = 20;
+    PRISMATIC_FLOAT_PRECISION cellDim = 20.0;
+    PRISMATIC_FLOAT_PRECISION potBound = 2.0;
+    PRISMATIC_FLOAT_PRECISION sliceThickness = 2.0;
+    PRISMATIC_FLOAT_PRECISION sliceThicknessFactor = 4;
+    PRISMATIC_FLOAT_PRECISION xPixel = 0.1;
+    PRISMATIC_FLOAT_PRECISION yPixel = 0.1;
+    
+    Array1D<size_t> imageSize = zeros_ND<1, size_t>({{2}});
+    imageSize[0] = (round(cellDim/(yPixel*16))*16);
+    imageSize[1] = (round(cellDim/(xPixel*16))*16);
+    PRISMATIC_FLOAT_PRECISION dzPot = sliceThickness/sliceThicknessFactor;
+    std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
+    pixelSize.push_back(cellDim/imageSize[0]);
+    pixelSize.push_back(cellDim/imageSize[1]);
+    pixelSize.push_back(dzPot);
+
+
+	PRISMATIC_FLOAT_PRECISION yleng = std::ceil(potBound/pixelSize[0]);
+	PRISMATIC_FLOAT_PRECISION xleng = std::ceil(potBound/pixelSize[1]);
+    PRISMATIC_FLOAT_PRECISION zleng = std::ceil(potBound/dzPot);
 
 	ArrayND<1, std::vector<long>> xvec(std::vector<long>(2 * (size_t)xleng + 1, 0), {{2 * (size_t)xleng + 1}});
 	ArrayND<1, std::vector<long>> yvec(std::vector<long>(2 * (size_t)yleng + 1, 0), {{2 * (size_t)yleng + 1}});
@@ -312,67 +353,97 @@ BOOST_AUTO_TEST_CASE(projPotGeneration)
 			k = tmpz++;
 	}
 
-    PRISMATIC_FLOAT_PRECISION xPixel = 0.1;
-    PRISMATIC_FLOAT_PRECISION yPixel = 0.1;
-    PRISMATIC_FLOAT_PRECISION zPixel = 0.1;
-
     Array1D<PRISMATIC_FLOAT_PRECISION> xr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)xleng + 1, 0), {{2 * (size_t)xleng + 1}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> yr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)yleng + 1, 0), {{2 * (size_t)yleng + 1}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> zr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)zleng + 1, 0), {{2 * (size_t)zleng + 1}});
 
-	for (auto i = 0; i < xr.size(); ++i) xr[i] = (PRISMATIC_FLOAT_PRECISION)xvec[i] * xPixel;
-	for (auto j = 0; j < yr.size(); ++j) yr[j] = (PRISMATIC_FLOAT_PRECISION)yvec[j] * yPixel;
-	for (auto j = 0; j < zr.size(); ++j) zr[j] = (PRISMATIC_FLOAT_PRECISION)zvec[j] * zPixel;
+	for (auto i = 0; i < xr.size(); ++i) xr[i] = (PRISMATIC_FLOAT_PRECISION)xvec[i] * pixelSize[1];
+	for (auto j = 0; j < yr.size(); ++j) yr[j] = (PRISMATIC_FLOAT_PRECISION)yvec[j] * pixelSize[0];
+	for (auto j = 0; j < zr.size(); ++j) zr[j] = (PRISMATIC_FLOAT_PRECISION)zvec[j] * dzPot;
 
-    const size_t Z = 1; //Hydrogen!
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPot = kirklandPotential3D(Z, xr, yr, zr);
+    //preparing reference potential for single atom potential
+    const size_t Z = 79; //Gold!
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{zr.size()*2,yr.size()*2,xr.size()*2}});
+    Array3D<PRISMATIC_FLOAT_PRECISION> oneH = kirklandPotential3D(Z, xr, yr, zr);
+    //loop through quadrants
+    size_t offset_x;
+    size_t offset_y;
+    size_t offset_z;
+    for(auto k = 0; k < 2; k++)
+    {
+        for(auto j = 0; j < 2; j++)
+        {
+            for(auto i = 0; i < 2; i++)
+            {
+                offset_x = i*oneH.get_dimi();
+                offset_y = j*oneH.get_dimj();
+                offset_z = k*oneH.get_dimk();
+                addMismatchedArray(refPot, oneH, offset_x, offset_y, offset_z);
+            }
+        }
+    }
+
+    // std::cout << xr.size() << std::endl;
+    // PRISMATIC_FLOAT_PRECISION testSum1 = 0.0;
+    // PRISMATIC_FLOAT_PRECISION testSum2 = 0.0;
+    // for (auto i = 0; i < refPot.size(); i++) testSum1 += refPot[i];
+    // for (auto i = 0; i < oneH.size(); i++) testSum2 += oneH[i];
+    // std::cout << testSum1 << " " << testSum2 << std::endl;
 
 
     //generate reference 
     Array3D<PRISMATIC_FLOAT_PRECISION> interpID;
     PRISMATIC_FLOAT_PRECISION dx, dy, dz;
+    Parameters<PRISMATIC_FLOAT_PRECISION> pars;
+    pars.meta.sliceThickness = sliceThickness;
+    pars.meta.zSampling = sliceThicknessFactor;
+    //create list of atoms
+    std::vector<atom> atoms;
+    atom new_atom;
+    std::vector<PRISMATIC_FLOAT_PRECISION> tiledCellDim;
+    tiledCellDim.push_back(cellDim);
+    tiledCellDim.push_back(cellDim);
+    tiledCellDim.push_back(cellDim);
+    pars.tiledCellDim = tiledCellDim;
 
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPot = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{refPot.get_dimi()+2,refPot.get_dimj()+2,refPot.get_dimk()+2}});
-    generateProjectedPotentials3D(testPot,refPot);
+    for(auto i = 0; i < 2; i++)
+    {
+        for(auto j = 0; j < 2; j++)
+        {
+            for(auto k = 0; k < 2; k++)
+            {
+                new_atom.x = (1.0+2.0*i)/4.0;
+                new_atom.y = (1.0+2.0*j)/4.0;
+                new_atom.z = (1.0+2.0*k)/4.0;
+                new_atom.sigma = 0.0800;
+                new_atom.species = 1;
+                atoms.push_back(new_atom);
+            }
+        }
+    }
+    
+    pars.atoms = atoms;
+    pars.meta.randomSeed = 11111;
+    pars.pixelSize = pixelSize;
+    pars.imageSize = imageSize;
+    generateProjectedPotentials3D(pars, oneH, xvec, yvec, zvec); //H is the only lookup
     //for dx=dy=dz=0, all faces should be zero on potShift equivalent
-    PRISMATIC_FLOAT_PRECISION errSum = checkFaces(refPot);
-    dx = dy = dz = 0;
-    BOOST_TEST(errSum < tol);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPot = pars.pot;
     PRISMATIC_FLOAT_PRECISION refPotSum = 0;
     PRISMATIC_FLOAT_PRECISION testPotSum = 0;
+    PRISMATIC_FLOAT_PRECISION refPotSum2 = 0;
     for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
+    for(auto i = 0; i < oneH.size(); i++) refPotSum2 += 8*oneH[i];
     for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
-    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
 
+    std::cout << "refPot dims: " << refPot.get_dimi() << " " << refPot.get_dimj() << " " << refPot.get_dimk() << std::endl;
+    std::cout << "testPot dims: " << testPot.get_dimi() << " " << testPot.get_dimj() << " " << testPot.get_dimk() << std::endl;
 
-    // interpID = generateInterpolationIdentity(refPot.get_dimi(),refPot.get_dimj(),refPot.get_dimk(),dx,dy,dz);
-
-    //test max case
-    testPot*=0.0;
-    generateProjectedPotentials3D(testPot,refPot);
-    dx = dy = dz = 0.5;
-    refPotSum = 0;
-    testPotSum = 0;
-    for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
-    for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
-    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
-
-    //test min case
-    testPot*=0;
-    generateProjectedPotentials3D(testPot,refPot);
-    dx = dy = dz = -0.5;
-    refPotSum = 0;
-    testPotSum = 0;
-    for(auto i = 0; i < refPot.size(); i++) refPotSum += refPot[i];
-    for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
-    BOOST_TEST(std::abs(refPotSum-testPotSum)<tol);
-
-
-
-    //for dx=dy=dz= -0.5 (min bound), farthest faces should be zero; internal array should be 1 at center and *0.5 for each edge in each dir
-
-    //for dx=dy=dz= 0.5 (max bound), closest faces should be zero; internal array should be 1 at center and *0.5 for each edge in each dir
-
+    std::cout << "\% error (test vs ref): " << 100*std::abs(refPotSum-testPotSum)/refPotSum << std::endl;
+    std::cout << "\% error (test vs ref2): " << 100*std::abs(refPotSum2-testPotSum)/refPotSum2 << std::endl;
+    std::cout << "\% error (ref vs ref2): " << 100*std::abs(refPotSum-refPotSum2)/refPotSum2 << std::endl;
+    BOOST_TEST(std::abs(refPotSum-testPotSum)/refPotSum<tol);
+    BOOST_TEST(std::abs(refPotSum2-testPotSum)/refPotSum2<tol);
 
 };
 
