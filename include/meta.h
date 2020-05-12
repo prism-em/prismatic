@@ -78,6 +78,7 @@ namespace Prismatic{
             randomSeed            = rand() % 100000;
             crop4Damax            = 100.0 /1000;
             algorithm             = Algorithm::PRISM;
+            potential3D           = true;
             includeThermalEffects = true;
             includeOccupancy      = true;
             alsoDoCPUWork         = true;
@@ -141,6 +142,7 @@ namespace Prismatic{
         size_t numGPUs; // number of GPUs to use
         size_t numStreamsPerGPU; // number of CUDA streams to use per GPU
         Algorithm algorithm;
+        bool potential3D;
         bool includeThermalEffects;
         bool includeOccupancy;
         bool alsoDoCPUWork; // what fraction of computation to do on the cpu vs gpu

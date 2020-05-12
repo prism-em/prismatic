@@ -196,9 +196,9 @@ Array2D<PRISMATIC_FLOAT_PRECISION> projPot(const size_t &Z,
 }
 
 Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z, 
-										Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
-										Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
-										Array1D<PRISMATIC_FLOAT_PRECISION> &zr)
+										const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
+										const Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
+										const Array1D<PRISMATIC_FLOAT_PRECISION> &zr)
 {
 	static const PRISMATIC_FLOAT_PRECISION pi = std::acos(-1);
 	PRISMATIC_FLOAT_PRECISION a0 = 0.529; //bohr radius

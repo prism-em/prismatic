@@ -320,7 +320,7 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
                         DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)
