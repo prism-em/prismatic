@@ -369,7 +369,8 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					//calculate offset from ideal pixel
 					PRISMATIC_FLOAT_PRECISION dx = (x[currentAtom] + perturbX) / pars.pixelSize[1] - X;
 					PRISMATIC_FLOAT_PRECISION dy = (y[currentAtom] + perturbY) / pars.pixelSize[0] - Y;
-					PRISMATIC_FLOAT_PRECISION dz = (z[currentAtom] + perturbZ) / pars.pixelSize[2] - Z;
+					PRISMATIC_FLOAT_PRECISION dz = (z[currentAtom] + perturbZ) / pars.dzPot - Z;
+					std::cout << "dx: " << dx << " dy: " << dy << " dz: " << dz << std::endl;
 
 					//calculate weighting coefficients and indices for interpolation
 					PRISMATIC_FLOAT_PRECISION wx1 = (dx < 0) ? -dx  : 1-dx;
@@ -495,6 +496,8 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 		//generate potential
 		generateProjectedPotentials3D(pars, potentialLookup, unique_species, xvec, yvec, zvec);
+		Array3D<PRISMATIC_FLOAT_PRECISION> extraPot = pars.pot;
+		extraPot.toMRC_f("test/si_3D_no_te.mrc");
 	}else{
 		// initialize the lookup table
 		Array3D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});
