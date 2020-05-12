@@ -287,6 +287,9 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								   const Array1D<long> &zvec)
 {		
 	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
+	//check if intermediate output was specified, if so, create index of output slices
+	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
+
 	pars.pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes, pars.imageSize[0], pars.imageSize[1]}});
 	Array3D<PRISMATIC_FLOAT_PRECISION> potFull = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes*pars.meta.zSampling, pars.imageSize[1], pars.imageSize[0]}});
 
