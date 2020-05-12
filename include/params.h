@@ -85,6 +85,7 @@ namespace Prismatic{
 	    std::vector<atom> atoms;
 	    std::vector<T> pixelSize;
 	    std::vector<T> pixelSizeOutput;
+		T dzPot;
 	    Array1D<size_t> imageSize;
 	    std::vector<size_t> imageSizeReduce;
 	    Array1D<size_t> imageSizeOutput;
@@ -110,23 +111,23 @@ namespace Prismatic{
 		H5::H5File outputFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
 
-#ifdef PRISMATIC_ENABLE_GPU
-		cudaDeviceProp deviceProperties;
-//#ifndef NDEBUG
-		// for monitoring memory consumption on GPU
-	    size_t maxGPUMem;
-	    size_t targetNumBlocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
-//#endif //NDEBUG
-#endif // PRISMATIC_ENABLE_GPU
-#ifdef PRISMATIC_BUILDING_GUI
-	    prism_progressbar *progressbar;
-#endif
+		#ifdef PRISMATIC_ENABLE_GPU
+				cudaDeviceProp deviceProperties;
+		//#ifndef NDEBUG
+				// for monitoring memory consumption on GPU
+				size_t maxGPUMem;
+				size_t targetNumBlocks; // estimate for a good number of blocks to launch on GPU so that enough are made to fill the device without incurring too much overhead unnecessarily
+		//#endif //NDEBUG
+		#endif // PRISMATIC_ENABLE_GPU
+		#ifdef PRISMATIC_BUILDING_GUI
+				prism_progressbar *progressbar;
+		#endif
 		Parameters(){};
-#ifdef PRISMATIC_BUILDING_GUI
-	    Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
-#else
+		#ifdef PRISMATIC_BUILDING_GUI
+		Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
+		#else
 	    Parameters(Metadata<T> _meta) : meta(_meta){
-#endif
+		#endif
 
 		    constexpr double m = 9.109383e-31;
 		    constexpr double e = 1.602177e-19;

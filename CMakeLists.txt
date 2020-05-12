@@ -70,7 +70,9 @@ endif (PRISMATIC_ENABLE_GPU)
 
 if (PRISMATIC_TESTS)
     set(TEST_SOURCE_FILES
-            unittests/testSuite.cpp)
+            unittests/testSuite.cpp
+            unittests/potentialTests.cpp
+            )
 endif (PRISMATIC_TESTS)
 
 # find core packages
@@ -99,6 +101,7 @@ set(HDF5_LIBRARIES ${HDF5_C_HL_LIBRARIES} ${HDF5_C_LIBRARIES} ${HDF5_CXX_HL_LIBR
 
 message("Boost dir " ${Boost_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
+                    ${CMAKE_SOURCE_DIR}/unittests/include
                     ${Boost_INCLUDE_DIRS}
                     ${FFTW_INCLUDE_DIR}
                     ${HDF5_INCLUDE_DIRS})
@@ -295,11 +298,29 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
 endif(PRISMATIC_ENABLE_PYPRISMATIC)
 
 if (PRISMATIC_TESTS)
-    add_executable(prismatic-tests
-                    ${TEST_SOURCE_FILES})
+    find_package (Boost REQUIRED COMPONENTS unit_test_framework)
+
+    if (PRISMATIC_ENABLE_GPU)
+        cuda_add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${CUDA_SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+        cuda_add_cufft_to_target(prismatic-tests)
+    else(PRISMATIC_ENABLE_GPU)
+        add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+    endif (PRISMATIC_ENABLE_GPU)
+
+    target_compile_definitions(prismatic-tests PRIVATE "BOOST_TEST_DYN_LINK=1")
+
     target_link_libraries(prismatic-tests
         ${CMAKE_THREAD_LIBS_INIT}
         ${FFTW_LIBRARIES}
-        ${HDF5_LIBRARIES})
+        ${HDF5_LIBRARIES}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+                        DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)

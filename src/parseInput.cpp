@@ -87,6 +87,7 @@ void printHelp()
               << "* --num-FP (-F) value : number of frozen phonon configurations to calculate (default: " << defaults.numFP << ")\n"
               << "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects) (default: True)\n"
               << "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n"
+              << "* --3Dpotential (-3DP) bool : whether or not to use 3D parameterization with subpixel shifting for calculating the atomic potentials (default: True)\n"
               << "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n"
               << "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n"
               << "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n"
@@ -1260,6 +1261,20 @@ bool parse_oc(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_3DP(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -3DP (syntax is -3DP bool)\n";
+        return false;
+    }
+    meta.potential3D = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parse_2D(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
               int &argc, const char ***argv)
 {
@@ -1464,6 +1479,7 @@ static std::map<std::string, parseFunction> parser{
     {"--num-FP", parse_F}, {"-F", parse_F},
     {"--thermal-effects", parse_te}, {"-te", parse_te},
     {"--occupancy", parse_oc}, {"-oc", parse_oc},
+    {"--3Dpotential", parse_3DP}, {"-3DP", parse_3DP},
     {"--save-2D-output", parse_2D}, {"-2D", parse_2D},
     {"--save-3D-output", parse_3D}, {"-3D", parse_3D},
     {"--save-4D-output", parse_4D}, {"-4D", parse_4D},

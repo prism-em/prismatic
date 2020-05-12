@@ -436,6 +436,32 @@ std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T> &Y, const Arra
 	return std::pair<Array2D_T<T>, Array2D_T<T>>(yy, xx);
 }
 
+template <class T>
+using Array3D_T = Prismatic::ArrayND<3, std::vector<T>>;
+template <class T>
+using Array1D_T = Prismatic::ArrayND<1, std::vector<T>>;
+template <class T>
+std::tuple<Array3D_T<T>, Array3D_T<T>, Array3D_T<T>> meshgrid(const Array1D_T<T> &Z, const Array1D_T<T> &Y, const Array1D_T<T> &X)
+{
+	Array3D_T<T> zz = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	Array3D_T<T> yy = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	Array3D_T<T> xx = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	for (auto k = 0; k < xx.get_dimk(); k++)
+	{
+		for (auto j = 0; j < xx.get_dimj(); ++j)
+		{
+			for (auto i = 0; i < xx.get_dimi(); ++i)
+			{
+				zz.at(k, j, i) = Z[k];
+				yy.at(k, j, i) = Y[j];
+				xx.at(k, j, i) = X[i];
+			}
+		}
+	}
+
+	return std::tuple<Array3D_T<T>, Array3D_T<T>, Array3D_T<T>>(zz, yy, xx);
+}
+
 template <>
 inline void ArrayND<3, std::vector<double>>::toMRC_f(const char *filename) const
 {

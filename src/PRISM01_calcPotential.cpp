@@ -34,6 +34,8 @@
 namespace Prismatic
 {
 using namespace std;
+mutex potentialWriteLock;
+
 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const vector<size_t> &atomic_species,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
@@ -48,6 +50,29 @@ void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 			for (auto i = 0; i < potentials.get_dimi(); ++i)
 			{
 				potentials.at(k, j, i) = cur_pot.at(j, i);
+			}
+		}
+	}
+}
+
+void fetch_potentials3D(Array4D<PRISMATIC_FLOAT_PRECISION> &potentials,
+					  const vector<size_t> &atomic_species,
+					  const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
+					  const Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
+					  const Array1D<PRISMATIC_FLOAT_PRECISION> &zr)
+{
+	Array3D<PRISMATIC_FLOAT_PRECISION> cur_pot;
+	for (auto l = 0; l < potentials.get_diml(); l++)
+	{
+		Array3D<PRISMATIC_FLOAT_PRECISION> cur_pot = kirklandPotential3D(atomic_species[l], xr, yr, zr);
+		for (auto k = 0; k < potentials.get_dimk(); k++)
+		{
+			for (auto j = 0; j < potentials.get_dimj(); j++)
+			{
+				for (auto i = 0; i < potentials.get_dimi(); i++)
+				{
+					potentials.at(l, k, j, i) = cur_pot.at(k, j, i);
+				}
 			}
 		}
 	}
@@ -129,7 +154,8 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	{
 		cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma, &occ,
-								  &zPlane, &yvec, &potentialLookup, &dispatcher]() {
+								  &zPlane, &yvec, &potentialLookup, &dispatcher]()
+		{
 			// create a random number generator to simulate thermal effects
 			// std::cout<<"random seed = " << pars.meta.randomSeed << std::endl;
 			// srand(pars.meta.randomSeed);
@@ -198,9 +224,9 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					}
 					// copy the result to the full array
 					copy(projectedPotential.begin(), projectedPotential.end(), &pars.pot.at(currentSlice, 0, 0));
-#ifdef PRISMATIC_BUILDING_GUI
+					#ifdef PRISMATIC_BUILDING_GUI
 					pars.progressbar->signalPotentialUpdate(currentSlice, pars.numPlanes);
-#endif //PRISMATIC_BUILDING_GUI
+					#endif //PRISMATIC_BUILDING_GUI
 					++currentSlice;
 				}
 			}
@@ -212,6 +238,214 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 #ifdef PRISMATIC_BUILDING_GUI
 	pars.progressbar->setProgress(100);
 #endif //PRISMATIC_BUILDING_GUI
+};
+
+void interpolatePotential(Array3D<PRISMATIC_FLOAT_PRECISION> &potShift,
+							const Array3D<PRISMATIC_FLOAT_PRECISION> &potCrop,
+							const PRISMATIC_FLOAT_PRECISION &wx,
+							const PRISMATIC_FLOAT_PRECISION &wy,
+							const PRISMATIC_FLOAT_PRECISION &wz,
+							const size_t &xind,
+							const size_t &yind,
+							const size_t &zind)
+{
+	for(auto k = 0; k < potCrop.get_dimk(); k++)
+	{
+		for(auto j = 0; j < potCrop.get_dimj(); j++)
+		{
+			for(auto i = 0; i < potCrop.get_dimj(); i++)
+			{
+				potShift.at(k+zind,j+yind,i+xind) += potCrop.at(k,j,i)*wx*wy*wz;
+			}
+		}
+	}
+};
+
+void cropLookup(Array3D<PRISMATIC_FLOAT_PRECISION> &potCrop,
+				const Array4D<PRISMATIC_FLOAT_PRECISION> &potLookup,
+				const size_t &cur_Z)
+{
+	//crops faces off of potLookup
+	for(auto k = 0; k < potCrop.get_dimk(); k++)
+	{
+		for(auto j = 0; j < potCrop.get_dimj(); j++)
+		{
+			for(auto i = 0; i < potCrop.get_dimi(); i++)
+			{
+				potCrop.at(k,j,i) = potLookup.at(cur_Z, k+1, j+1, i+1);
+			}
+		}
+	}
+
+};			
+
+void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+								   const Array4D<PRISMATIC_FLOAT_PRECISION> &potLookup,
+								   const vector<size_t> &unique_species,
+								   const Array1D<long> &xvec,
+								   const Array1D<long> &yvec,
+								   const Array1D<long> &zvec)
+{		
+	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
+	//check if intermediate output was specified, if so, create index of output slices
+	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
+
+	pars.pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes, pars.imageSize[0], pars.imageSize[1]}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> potFull = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes*pars.meta.zSampling, pars.imageSize[1], pars.imageSize[0]}});
+
+	// create arrays for the coordinates
+	Array1D<PRISMATIC_FLOAT_PRECISION> x = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> y = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> z = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> ID = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> sigma = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> occ = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
+
+
+	// populate arrays from the atoms structure
+	for (auto i = 0; i < pars.atoms.size(); ++i)
+	{
+		x[i] = pars.atoms[i].x * pars.tiledCellDim[2];
+		y[i] = pars.atoms[i].y * pars.tiledCellDim[1];
+		z[i] = pars.atoms[i].z * pars.tiledCellDim[0];
+		ID[i] = pars.atoms[i].species;
+		sigma[i] = pars.atoms[i].sigma;
+		occ[i] = pars.atoms[i].occ;
+	}
+
+	const long dim1 = (long) pars.pot.get_dimi();
+	const long dim0 = (long) pars.pot.get_dimj();
+
+	
+	// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
+	map<size_t, size_t> Z_lookup;
+	for (auto i = 0; i < unique_species.size(); ++i)
+		Z_lookup[unique_species[i]] = i;
+		
+	std::vector<std::thread> workers;
+	workers.reserve(pars.meta.numThreads);
+	WorkDispatcher dispatcher(0, pars.atoms.size());
+
+	std::cout << "Base random seed = " << pars.meta.randomSeed << std::endl;
+	for (long t = 0; t < pars.meta.numThreads; t++)
+	{
+		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
+		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ,
+								 &Z_lookup, &xvec, &yvec, &zvec, &dim0, &dim1,
+								 &numPlanes, &potLookup, &potFull, &dispatcher]()
+		{
+			size_t currentAtom, stop;
+			currentAtom = stop = 0;
+			while (dispatcher.getWork(currentAtom, stop))
+			{
+				while(currentAtom != stop)
+				{
+					// create a random number generator to simulate thermal effects
+					srand(pars.meta.randomSeed+currentAtom);
+					std::default_random_engine de(pars.meta.randomSeed+currentAtom);
+					normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0, 1);
+					
+					const size_t cur_Z = Z_lookup[ID[currentAtom]];
+					PRISMATIC_FLOAT_PRECISION X, Y, Z;
+					PRISMATIC_FLOAT_PRECISION perturbX, perturbY, perturbZ;
+					if (pars.meta.includeThermalEffects)
+					{ // apply random perturbations
+						perturbX = randn(de) * sigma[currentAtom];
+						perturbY = randn(de) * sigma[currentAtom];
+						perturbZ = randn(de) * sigma[currentAtom];
+						X = round((x[currentAtom] + perturbX) / pars.pixelSize[1]);
+						Y = round((y[currentAtom] + perturbY) / pars.pixelSize[0]);
+						Z = round((z[currentAtom] + perturbZ) / pars.dzPot);
+					}
+					else
+					{
+						perturbX = perturbY = perturbZ = 0;
+						X = round((x[currentAtom]) / pars.pixelSize[1]); // this line uses no thermal factor
+						Y = round((y[currentAtom]) / pars.pixelSize[0]); // this line uses no thermal factor
+						Z = round((z[currentAtom]) / pars.dzPot); // this line uses no thermal factor
+					}
+
+					//calculate offset from ideal pixel
+					PRISMATIC_FLOAT_PRECISION dx = (x[currentAtom] + perturbX) / pars.pixelSize[1] - X;
+					PRISMATIC_FLOAT_PRECISION dy = (y[currentAtom] + perturbY) / pars.pixelSize[0] - Y;
+					PRISMATIC_FLOAT_PRECISION dz = (z[currentAtom] + perturbZ) / pars.pixelSize[2] - Z;
+
+					//calculate weighting coefficients and indices for interpolation
+					PRISMATIC_FLOAT_PRECISION wx1 = (dx < 0) ? -dx  : 1-dx;
+					PRISMATIC_FLOAT_PRECISION wx2 = (dx < 0) ? 1+dx : dx;
+					PRISMATIC_FLOAT_PRECISION wy1 = (dy < 0) ? -dy  : 1-dy;
+					PRISMATIC_FLOAT_PRECISION wy2 = (dy < 0) ? 1+dy : dy;
+					PRISMATIC_FLOAT_PRECISION wz1 = (dz < 0) ? -dz  : 1-dz;
+					PRISMATIC_FLOAT_PRECISION wz2 = (dz < 0) ? 1+dz : dz; 
+
+					const size_t x1 = (dx < 0) ? 0 : 1;
+					const size_t x2 = x1+1;
+					const size_t y1 = (dy < 0) ? 0 : 1;
+					const size_t y2 = y1+1;
+					const size_t z1 = (dz < 0) ? 0 : 1;
+					const size_t z2 = z1+1;
+
+					//run thrugh all permutations of wx, wy, wz
+					Array3D<PRISMATIC_FLOAT_PRECISION> potShift = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{potLookup.get_dimk(),potLookup.get_dimj(),potLookup.get_dimi()}});
+
+					//potCrop should be 4D array and generated before this loop
+					Array3D<PRISMATIC_FLOAT_PRECISION> potCrop = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{potLookup.get_dimk()-2,potLookup.get_dimj()-2,potLookup.get_dimi()-2}});
+					cropLookup(potCrop,potLookup, cur_Z);
+					// potCrop *= (pars.meta.sliceThickness)/zSampling;
+					
+					interpolatePotential(potShift,potCrop,wx1,wy1,wz1,x1,y1,z1);
+
+					interpolatePotential(potShift,potCrop,wx2,wy1,wz1,x2,y1,z1);
+					interpolatePotential(potShift,potCrop,wx1,wy2,wz1,x1,y2,z1);
+					interpolatePotential(potShift,potCrop,wx1,wy1,wz2,x1,y1,z2);
+
+					interpolatePotential(potShift,potCrop,wx2,wy2,wz1,x2,y2,z1);
+					interpolatePotential(potShift,potCrop,wx2,wy1,wz2,x2,y1,z2);
+					interpolatePotential(potShift,potCrop,wx1,wy2,wz2,x1,y2,z2);
+
+					interpolatePotential(potShift,potCrop,wx2,wy2,wz2,x2,y2,z2);
+
+					Array1D<long> xp = xvec + (long) X;
+					Array1D<long> yp = yvec + (long) Y;
+					Array1D<long> zp = zvec + (long) Z;
+
+					for(auto &i : xp) i = (i % dim1 + dim1) % dim1;
+					for(auto &i : yp) i = (i % dim0 + dim0) % dim0;
+					for(auto &i : zp) i = (i < 0) ? 0 : i;
+					for(auto &i : zp) i = (i >= numPlanes*pars.meta.zSampling-1) ? numPlanes*pars.meta.zSampling-1 : i;
+
+					//put into a mutex lock to prevent race condition on potential writing when atoms overlap within potential bound
+					std::unique_lock<std::mutex> gatekeeper(potentialWriteLock);
+					for(auto kk = 0; kk < zp.size(); kk++)
+					{
+						for(auto jj = 0; jj < yp.size(); jj++)
+						{
+							for(auto ii = 0; ii < xp.size(); ii++)
+							{
+								potFull.at(zp[kk],yp[jj],xp[ii]) += potShift.at(kk,jj,ii);
+							}
+						}
+					}
+					gatekeeper.unlock();
+					++currentAtom;
+				}
+			}
+		}));
+	}
+	std::cout << "Waiting for threads...\n";
+	for (auto &t : workers)
+		t.join();
+
+	for(auto k = 0; k < numPlanes*pars.meta.zSampling; k++)
+	{	
+		for(auto j = 0; j < pars.pot.get_dimj(); j++)
+		{
+			for(auto i = 0; i < pars.pot.get_dimi(); i++)
+			{
+				pars.pot.at(k/pars.meta.zSampling,j,i) += potFull.at(k,j,i);
+			}
+		}
+	}
 };
 
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
@@ -241,14 +475,36 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	vector<size_t> unique_species = get_unique_atomic_species(pars);
 
-	// initialize the lookup table
-	Array3D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});
+	if(pars.meta.potential3D)
+	{	//set up Z coords
 
-	// precompute the unique potentials
-	fetch_potentials(potentialLookup, unique_species, xr, yr);
+		pars.dzPot = pars.meta.sliceThickness/pars.meta.zSampling;
+        PRISMATIC_FLOAT_PRECISION zleng = std::ceil(pars.meta.potBound/pars.dzPot);
+		ArrayND<1, std::vector<long>> zvec(std::vector<long>(2 * (size_t)zleng + 1, 0), {{2 * (size_t)zleng + 1}});
+		{
+			PRISMATIC_FLOAT_PRECISION tmpz = -zleng;
+			for (auto &k : zvec)
+				k = tmpz++;
+		}
+		Array1D<PRISMATIC_FLOAT_PRECISION> zr(std::vector<PRISMATIC_FLOAT_PRECISION>(2 * (size_t)zleng + 1, 0), {{2 * (size_t)zleng + 1}});
+        for (auto j = 0; j < zr.size(); ++j) zr[j] = (PRISMATIC_FLOAT_PRECISION)zvec[j] * pars.dzPot;
 
-	// populate the slices with the projected potentials
-	generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
+		// initialize the lookup table and precompute unique potentials
+		Array4D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)zleng + 1, 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});
+		fetch_potentials3D(potentialLookup, unique_species, xr, yr, zr);
+
+		//generate potential
+		generateProjectedPotentials3D(pars, potentialLookup, unique_species, xvec, yvec, zvec);
+	}else{
+		// initialize the lookup table
+		Array3D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});
+
+		// precompute the unique potentials
+		fetch_potentials(potentialLookup, unique_species, xr, yr);
+
+		// populate the slices with the projected potentials
+		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
+	}
 
 	if (pars.meta.savePotentialSlices)
 	{
