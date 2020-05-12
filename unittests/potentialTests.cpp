@@ -415,8 +415,9 @@ BOOST_AUTO_TEST_CASE(projPotGeneration)
                 new_atom.x = (1.0+2.0*i)/4.0;
                 new_atom.y = (1.0+2.0*j)/4.0;
                 new_atom.z = (1.0+2.0*k)/4.0;
-                new_atom.sigma = 0.0800;
+                new_atom.sigma = 0.1;
                 new_atom.species = 1;
+                new_atom.occ = 1;
                 atoms.push_back(new_atom);
             }
         }
@@ -424,6 +425,7 @@ BOOST_AUTO_TEST_CASE(projPotGeneration)
     
     pars.atoms = atoms;
     pars.meta.randomSeed = 11111;
+    pars.meta.numThreads = 8;
     pars.pixelSize = pixelSize;
     pars.imageSize = imageSize;
     generateProjectedPotentials3D(pars, oneH, xvec, yvec, zvec); //H is the only lookup
@@ -436,15 +438,20 @@ BOOST_AUTO_TEST_CASE(projPotGeneration)
     for(auto i = 0; i < oneH.size(); i++) refPotSum2 += 8*oneH[i];
     for(auto i = 0; i < testPot.size(); i++) testPotSum += testPot[i];
 
-    std::cout << "refPot dims: " << refPot.get_dimi() << " " << refPot.get_dimj() << " " << refPot.get_dimk() << std::endl;
-    std::cout << "testPot dims: " << testPot.get_dimi() << " " << testPot.get_dimj() << " " << testPot.get_dimk() << std::endl;
-
     std::cout << "\% error (test vs ref): " << 100*std::abs(refPotSum-testPotSum)/refPotSum << std::endl;
     std::cout << "\% error (test vs ref2): " << 100*std::abs(refPotSum2-testPotSum)/refPotSum2 << std::endl;
     std::cout << "\% error (ref vs ref2): " << 100*std::abs(refPotSum-refPotSum2)/refPotSum2 << std::endl;
     BOOST_TEST(std::abs(refPotSum-testPotSum)/refPotSum<tol);
     BOOST_TEST(std::abs(refPotSum2-testPotSum)/refPotSum2<tol);
 
+    //print min val in testPot
+    PRISMATIC_FLOAT_PRECISION minVal = pow(2,10); //check for nonnegativity
+    for(auto i = 0; i < testPot.size(); i++) minVal = (testPot[i] < minVal) ? testPot[i] : minVal;
+    std::cout << "minVal: " << minVal << std::endl;
+    BOOST_TEST(minVal >=0);
+    
+    testPot.toMRC_f("testPot.mrc");
+    refPot.toMRC_f("refPot.mrc");
 };
 
 
