@@ -288,6 +288,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 {		
 	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
 	//check if intermediate output was specified, if so, create index of output slices
+	pars.numPlanes = numPlanes;
 	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
 
 	pars.pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes, pars.imageSize[0], pars.imageSize[1]}});
@@ -387,7 +388,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 					//run thrugh all permutations of wx, wy, wz
 					Array3D<PRISMATIC_FLOAT_PRECISION> potShift = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{potLookup.get_dimk(),potLookup.get_dimj(),potLookup.get_dimi()}});
-
 					//potCrop should be 4D array and generated before this loop
 					Array3D<PRISMATIC_FLOAT_PRECISION> potCrop = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{potLookup.get_dimk()-2,potLookup.get_dimj()-2,potLookup.get_dimi()-2}});
 					cropLookup(potCrop,potLookup, cur_Z);
@@ -611,7 +611,6 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		{
 			ppotential = realslices.openGroup(groupName);
 		}
-
 		//read in potential array and stride; also, divide by number of FP to do averaging
 		Array3D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1], pars.imageSize[0], pars.numPlanes}});
 		for (auto x = 0; x < pars.imageSize[1]; x++)
