@@ -370,7 +370,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					PRISMATIC_FLOAT_PRECISION dx = (x[currentAtom] + perturbX) / pars.pixelSize[1] - X;
 					PRISMATIC_FLOAT_PRECISION dy = (y[currentAtom] + perturbY) / pars.pixelSize[0] - Y;
 					PRISMATIC_FLOAT_PRECISION dz = (z[currentAtom] + perturbZ) / pars.dzPot - Z;
-					std::cout << "dx: " << dx << " dy: " << dy << " dz: " << dz << std::endl;
 
 					//calculate weighting coefficients and indices for interpolation
 					PRISMATIC_FLOAT_PRECISION wx1 = (dx < 0) ? -dx  : 1-dx;
