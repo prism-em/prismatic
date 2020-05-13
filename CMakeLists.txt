@@ -47,7 +47,8 @@ set(SOURCE_FILES
         src/parseInput.cpp
         src/utility.cpp
         src/atom.cpp
-        src/go.cpp)
+        src/go.cpp
+        src/fileIO.cpp)
 
 if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
@@ -72,6 +73,7 @@ if (PRISMATIC_TESTS)
     set(TEST_SOURCE_FILES
             unittests/testSuite.cpp
             unittests/potentialTests.cpp
+            unittests/ioTests.cpp
             )
 endif (PRISMATIC_TESTS)
 
@@ -320,7 +322,7 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=ioTests
                         DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)

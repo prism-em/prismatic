@@ -25,6 +25,7 @@
 #include "utility.h"
 #include "WorkDispatcher.h"
 #include "ArrayND.h"
+#include "fileIO.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"

@@ -20,6 +20,7 @@
 #include "PRISM02_calcSMatrix.h"
 #include <algorithm>
 #include "utility.h"
+#include "fileIO.h"
 
 namespace Prismatic
 {

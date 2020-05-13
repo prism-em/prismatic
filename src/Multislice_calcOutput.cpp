@@ -25,6 +25,7 @@
 #include "fftw3.h"
 #include "WorkDispatcher.h"
 #include "Multislice_calcOutput.h"
+#include "fileIO.h"
 
 namespace Prismatic{
 	using namespace std;

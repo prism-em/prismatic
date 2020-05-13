@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 #include <mutex>
+#include "fileIO.h"
 
 // std::mutex HDF5_lock;
 

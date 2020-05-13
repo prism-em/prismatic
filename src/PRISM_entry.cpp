@@ -24,6 +24,7 @@
 #include "params.h"
 #include "H5Cpp.h"
 #include "utility.h"
+#include "fileIO.h"
 
 namespace Prismatic
 {
