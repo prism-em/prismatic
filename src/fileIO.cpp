@@ -8,7 +8,7 @@ namespace Prismatic{
 
 std::mutex write4D_lock;
 
-void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars)
+void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> pars)
 {
 	//create main groups
 	H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_simulation"));
@@ -54,7 +54,7 @@ void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars)
 }
 
 //use dummy variable to overload float/double dependence
-void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
@@ -71,8 +71,8 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	hsize_t qx_dim[1];
 	hsize_t qy_dim[1];
 
-	Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qx;
-	Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qy;
+	Array1D<PRISMATIC_FLOAT_PRECISION> qx;
+	Array1D<PRISMATIC_FLOAT_PRECISION> qy;
 	long offset_qx;
 	long offset_qy;
 
@@ -116,7 +116,7 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
     }
     else
     {
-        if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+        if (pars.meta.algorithm == Algorithm::Multislice)
         {
             qxInd_max = pars.psiProbeInit.get_dimi() / 2;
             qyInd_max = pars.psiProbeInit.get_dimj() / 2;
@@ -132,7 +132,7 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
         }
     }
 
-	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+	if (pars.meta.algorithm == Algorithm::Multislice)
 	{
 		data_dims[2] = {qxInd_max};
 		data_dims[3] = {qyInd_max};
@@ -244,7 +244,7 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 };
 
 //use dummy variable to overload float/double dependence
-void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
@@ -260,12 +260,12 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t qx_dim[1];
 	hsize_t qy_dim[1];
-	Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qx;
-	Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> qy;
+	Array1D<PRISMATIC_FLOAT_PRECISION> qx;
+	Array1D<PRISMATIC_FLOAT_PRECISION> qy;
 	long offset_qx;
 	long offset_qy;
 
-	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+	if (pars.meta.algorithm == Algorithm::Multislice)
 	{
 		data_dims[2] = {pars.psiProbeInit.get_dimi() / 2};
 		data_dims[3] = {pars.psiProbeInit.get_dimj() / 2};
@@ -381,7 +381,7 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	datacubes.close();
 };
 
-void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -471,7 +471,7 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	realslices.close();
 };
 
-void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -562,7 +562,7 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	realslices.close();
 };
 
-void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -646,7 +646,7 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	realslices.close();
 };
 
-void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -730,7 +730,7 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 	realslices.close();
 };
 
-void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -821,7 +821,7 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 	realslices.close();
 };
 
-void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -959,7 +959,7 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 };
 
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
@@ -1008,7 +1008,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, floa
 	writeGatekeeper.unlock();
 };
 
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
@@ -1083,7 +1083,7 @@ std::string getDigitString(int digit)
 	return output;
 };
 
-void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy)
+void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy)
 {
 	//set up group
 	H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
@@ -1098,7 +1098,7 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 
 	//initialize string parameter data
 	H5std_string algorithm;
-	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+	if (pars.meta.algorithm == Algorithm::Multislice)
 	{
 		algorithm = "m";
 	}
@@ -1270,7 +1270,7 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	metadata.close();
 };
 
-void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy)
+void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy)
 {
 	//set up group
 	H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
@@ -1285,7 +1285,7 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 
 	//initialize string parameter data
 	H5std_string algorithm;
-	if (pars.meta.algorithm == Prismatic::Algorithm::Multislice)
+	if (pars.meta.algorithm == Algorithm::Multislice)
 	{
 		algorithm = "m";
 	}
@@ -1457,4 +1457,103 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	metadata.close();
 };
 
-}
+Array2D<PRISMATIC_FLOAT_PRECISION> readDataset2D(const std::string &filename, const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[2];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(2,dims_out);
+
+	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]];
+	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+
+	mspace.close();
+	dataspace.close();
+	dataset.close();
+	input.close();
+
+	Array2D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{dims_out[1],dims_out[0]}});
+	for(auto j = 0; j < dims_out[1]; j++)
+	{
+		for(auto i = 0; i < dims_out[0]; i++)
+		{
+			data.at(j,i) = data_in[j*dims_out[0]+i];
+		}
+	}
+	return data;
+};
+
+Array3D<PRISMATIC_FLOAT_PRECISION> readDataset3D(const std::string &filename, const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[3];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(3,dims_out);
+
+	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]];
+	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+
+	mspace.close();
+	dataspace.close();
+	dataset.close();
+	input.close();
+
+	Array3D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{dims_out[2],dims_out[1],dims_out[0]}});
+	for(auto k = 0; k < dims_out[2]; k++)
+	{
+		for(auto j = 0; j < dims_out[1]; j++)
+		{
+			for(auto i = 0; i < dims_out[0]; i++)
+			{
+				data.at(k,j,i) = data_in[k*dims_out[0]*dims_out[1]+j*dims_out[0]+i];
+			}
+		}
+	}
+	return data;
+};
+
+Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[4];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(4,dims_out);
+
+	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]];
+	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+
+	mspace.close();
+	dataspace.close();
+	dataset.close();
+	input.close();
+
+
+	//mem dims are stored 0->3 kx, ky, qx, qy
+	//flipping x, y back for storage into 4D array
+	Array4D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{dims_out[1],dims_out[0],dims_out[3],dims_out[2]}});
+	for(auto k = 0; k < dims_out[0]; k++)
+	{
+		for(auto l = 0; l < dims_out[1]; l++)
+		{
+			for(auto i = 0; i < dims_out[2]; i++)
+			{
+				for(auto j = 0; j < dims_out[3]; j++)
+				{
+					data.at(l,k,j,i) = data_in[k*dims_out[1]*dims_out[2]*dims_out[3]+l*dims_out[2]*dims_out[3]+i*dims_out[3]+j];
+				}
+			}
+		}
+	}
+	return data;
+};
+
+} //namespace Prismatic
