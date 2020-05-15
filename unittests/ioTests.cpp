@@ -19,6 +19,9 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
+    std::string logPath = "ioTests.log";
+    int fd;
+    fpos_t pos;
 
     void setupSim()
     {
@@ -37,38 +40,117 @@ class basicSim{
 
 };
 
-BOOST_AUTO_TEST_SUITE(ioTests);
+class logFile{
+    public:
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    std::string logPath;
 
-/*
-BOOST_FIXTURE_TEST_CASE(operationReorganization, basicSim)
+    void setupLog()
+    {
+        logPath = "ioTests.log";
+        FILE *fp = fopen(logPath.c_str(),"w");
+        fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
+        fclose(fp);
+    }
+};
+
+void divertOutput(fpos_t &pos, int &fd, const std::string &file)
 {
-    //make sure nothing is broken by moving all file IO operations to their own source
-    std::cout << "Opening log file ioTests.log to capture simulation output." << std::endl;
-    std::string logFile = "ioTests.log";
-    fpos_t pos;
+    std::cout << "Opening log file " << file << " to capture simulation output." << std::endl;
     fgetpos(stdout, &pos);
-    int fd = dup(fileno(stdout));
-    freopen(logFile.c_str(),"w",stdout);
-    go(meta);
+    fd = dup(fileno(stdout));
+    freopen(file.c_str(),"a",stdout);
+};
 
-    std::cout << "\n--------------------------------------------\n";
-    meta.algorithm = Algorithm::Multislice;
-    go(meta);
+void revertOutput(const int &fd, fpos_t &pos)
+{
     //clean up files
     fflush(stdout);
     dup2(fd,fileno(stdout));
     close(fd);
     clearerr(stdout);
     fsetpos(stdout, &pos);
-
     std::cout << "Log file closed. Output returning to terminal." << std::endl;
-    if( remove( meta.filenameOutput.c_str() ) != 0 )
+};
+
+void removeFile(const std::string &filepath)
+{
+    if( remove( filepath.c_str() ) != 0 )
         perror( "Error deleting file" );
     else
         puts( "Test file successfully deleted" );
+};
+
+bool compareSize2D(Array2D<PRISMATIC_FLOAT_PRECISION> &ref, Array2D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    return  ref.size()==test.size() 
+            && ref.get_dimi() == test.get_dimi() 
+            && ref.get_dimj() == test.get_dimj();
+};
+
+bool compareSize3D(Array3D<PRISMATIC_FLOAT_PRECISION> &ref, Array3D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    return  ref.size()==test.size() 
+            && ref.get_dimi() == test.get_dimi() 
+            && ref.get_dimj() == test.get_dimj()
+            && ref.get_dimk() == test.get_dimk();
+};
+
+bool compareSize4D(Array4D<PRISMATIC_FLOAT_PRECISION> &ref, Array4D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    return  ref.size()==test.size() 
+            && ref.get_dimi() == test.get_dimi() 
+            && ref.get_dimj() == test.get_dimj()
+            && ref.get_dimk() == test.get_dimk()
+            && ref.get_diml() == test.get_diml();
+};
+
+//overload since method is the same; just want to enforece that equivalent rank arrays are compared
+PRISMATIC_FLOAT_PRECISION compareValues(Array2D<PRISMATIC_FLOAT_PRECISION> &ref, Array2D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
+    return errorSum;
+};
+
+PRISMATIC_FLOAT_PRECISION compareValues(Array3D<PRISMATIC_FLOAT_PRECISION> &ref, Array3D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
+    return errorSum;
+};
+
+PRISMATIC_FLOAT_PRECISION compareValues(Array4D<PRISMATIC_FLOAT_PRECISION> &ref, Array4D<PRISMATIC_FLOAT_PRECISION> &test)
+{
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
+    return errorSum;
+};
+
+BOOST_GLOBAL_FIXTURE(logFile);
+
+BOOST_AUTO_TEST_SUITE(ioTests);
+
+BOOST_FIXTURE_TEST_CASE(operationReorganization, basicSim)
+{
+    //make sure nothing is broken by moving all file IO operations to their own source
+    divertOutput(pos, fd, logPath);
+
+    std::cout << "\n## BEGIN TEST CASE: operationReorganization ###\n";
+
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+    meta.algorithm = Algorithm::Multislice;
+    go(meta);
+    std::cout << "### END TEST CASE: operationReorganization ####\n";
+
+    revertOutput(fd, pos);
+    
+    removeFile(meta.filenameOutput);
 
 };
-*/
 
 BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 {
@@ -196,47 +278,79 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     Array4D<PRISMATIC_FLOAT_PRECISION> read4D = readDataset4D(pars.meta.filenameOutput, dataPath4D);
 
     //check for array sizing equivalance
-    bool sizeCheck2D = read2D.size()==testArr2D.size() 
-                        && read2D.get_dimi() == testArr2D.get_dimi() 
-                        && read2D.get_dimj() == testArr2D.get_dimj();
-
-    BOOST_TEST(sizeCheck2D);
-            
-    bool sizeCheck3D = read3D.size()==testArr3D.size() 
-                        && read3D.get_dimi() == testArr3D.get_dimi() 
-                        && read3D.get_dimj() == testArr3D.get_dimj()
-                        && read3D.get_dimk() == testArr3D.get_dimk();
-
-    BOOST_TEST(sizeCheck3D);
-
-    bool sizeCheck4D = read4D.size()==testArr4D.size() 
-                        && read4D.get_dimi() == testArr4D.get_dimi() 
-                        && read4D.get_dimj() == testArr4D.get_dimj()
-                        && read4D.get_dimk() == testArr4D.get_dimk()
-                        && read4D.get_diml() == testArr4D.get_diml();
-
-    BOOST_TEST(sizeCheck4D);
+    BOOST_TEST(compareSize2D(read2D, testArr2D));
+    BOOST_TEST(compareSize3D(read3D, testArr3D));
+    BOOST_TEST(compareSize4D(read4D, testArr4D));
 
     //check value equivalence
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
-    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
-    for(auto i = 0; i < read2D.size(); i++) errorSum += std::abs(read2D[i]-testArr2D[i]);
-    BOOST_TEST(errorSum < tol);
+    BOOST_TEST(compareValues(read2D, testArr2D) < tol);
+    BOOST_TEST(compareValues(read3D, testArr3D) < tol);
+    BOOST_TEST(compareValues(read4D, testArr4D) < tol);
 
-    errorSum = 0.0;
-    for(auto i = 0; i < read3D.size(); i++) errorSum += std::abs(read3D[i]-testArr3D[i]);
-    BOOST_TEST(errorSum < tol);
-
-    errorSum = 0.0;
-    for(auto i = 0; i < read4D.size(); i++) errorSum += std::abs(read4D[i]-testArr4D[i]);
-    BOOST_TEST(errorSum < tol);
-
-    if( remove( pars.meta.filenameOutput.c_str() ) != 0 )
-        perror( "Error deleting file" );
-    else
-        puts( "Test file successfully deleted" );
+    removeFile(pars.meta.filenameOutput);
 
 };
+
+BOOST_FIXTURE_TEST_CASE(importPotential2D, basicSim)
+{
+    //run simulations
+
+    meta.potential3D = false;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n##### BEGIN TEST CASE: importPotential2D ######\n";
+
+    std::string importFile = "../test/potentialImport.h5";
+    meta.filenameOutput = "../test/potentialImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/potentialRerun.h5";
+    go(meta);
+    std::cout << "####### END TEST CASE: importPotential2D ######\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    BOOST_TEST(compareSize2D(refAnnular, testAnnular));
+    BOOST_TEST(compareSize3D(refVD, testVD));
+    BOOST_TEST(compareSize3D(refDPC, testDPC));
+    BOOST_TEST(compareSize4D(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
+};
+
+BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
+{
+
+};
+
 
 BOOST_AUTO_TEST_SUITE_END();
 
