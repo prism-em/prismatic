@@ -230,7 +230,7 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--scan-window-xr:" << meta.scanWindowXMin_r << ' ' << meta.scanWindowXMax_r << '\n';
     f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
     f << "--random-seed:" << meta.randomSeed << '\n';
-    f << "--4D-amax:" << meta.crop4Damax << '\n';
+    f << "--4D-amax:" << meta.crop4Damax * 1000 << '\n';
     if (meta.includeThermalEffects)
     {
         f << "--thermal-effects:1\n";
@@ -258,7 +258,7 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     else
     {
         f << "--save-4D-output:0\n";
-    }    
+    }
     if (meta.crop4DOutput)
     {
         f << "--4D-crop:1\n";

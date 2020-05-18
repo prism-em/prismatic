@@ -31,7 +31,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	int numFP, batchSizeTargetCPU, batchSizeTargetGPU,
 		tileX, tileY, tileZ,
 		numGPUs, numStreamsPerGPU, numThreads, includeThermalEffects, alsoDoCPUWork, save2DOutput,
-		save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, numSlices;
+		save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, numSlices, crop4DOutput;
 	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode;
 	double realspacePixelSizeX, realspacePixelSizeY, potBound,
 		sliceThickness, probeStepX, probeStepY,
@@ -40,14 +40,14 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 		C5, probeSemiangle, probeXtilt,
 		probeYtilt, scanWindowXMin, scanWindowXMax,
 		scanWindowYMin, scanWindowYMax,
-		integrationAngleMin, integrationAngleMax, zStart, scanWindowXMin_r, scanWindowXMax_r,
+		integrationAngleMin, integrationAngleMax, crop4Damax, zStart, scanWindowXMin_r, scanWindowXMax_r,
 		scanWindowYMin_r, scanWindowYMax_r;
 #ifdef PRISMATIC_ENABLE_GPU
 	std::cout << "COMPILED FOR GPU" << std::endl;
 #endif //PRISMATIC_ENABLE_GPU
 
 	if (!PyArg_ParseTuple(
-			args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiiiddddd",
+			args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiidiiddddd",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -96,6 +96,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&transferMode,
 			&saveDPC_CoM,
 			&savePotentialSlices,
+			&crop4DOutput,
+			&crop4Damax,
 			&nyquistSampling,
 			&numSlices,
 			&zStart,
@@ -164,6 +166,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.save4DOutput = save4DOutput;
 	meta.savePotentialSlices = savePotentialSlices;
 	meta.saveDPC_CoM = saveDPC_CoM;
+	meta.crop4DOutput = crop4DOutput;
+	meta.crop4Damax = crop4Damax;
 	meta.integrationAngleMin = integrationAngleMin / 1000;
 	meta.integrationAngleMax = integrationAngleMax / 1000;
 	meta.nyquistSampling = nyquistSampling;
@@ -186,7 +190,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	int scratch = Prismatic::writeParamFile(meta,"scratch_param.txt");
 
 	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> tmp_meta;
-	if(Prismatic::parseParamFile(tmp_meta,"scratch_param.txt")) 
+	if(Prismatic::parseParamFile(tmp_meta,"scratch_param.txt"))
 	{
 		Prismatic::go(meta);
 	}else{
