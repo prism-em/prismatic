@@ -49,13 +49,14 @@ def demo():
     meta = Metadata(filenameAtoms="temp.XYZ", filenameOutput="demo.h5")
     meta.algorithm = "multislice"
     meta.go()
-    import numpy as np
-    #from pyprismatic.fileio import readMRC
-    import h5py
-    #result = readMRC("output.mrc")
 
-    demoFile = h5py.File('demo.h5','r')
-    print('demo.h5 filestructure:')
-    keySearch(demoFile,0)
+    try:
+        import h5py
+
+        demoFile = h5py.File('demo.h5','r')
+        print('demo.h5 filestructure:')
+        keySearch(demoFile, 0)
+    except ImportError:
+        pass
 
     os.remove("temp.XYZ")
