@@ -391,10 +391,10 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim3_name.write(strdatatype, dim3_name_str);
 		dim4_name.write(strdatatype, dim4_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[n_m^-1]");
-		const H5std_string dim4_unit_str("[n_m^-1]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[Å^-1]");
+		const H5std_string dim4_unit_str("[Å^-1]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -529,10 +529,10 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim3_name.write(strdatatype, dim3_name_str);
 		dim4_name.write(strdatatype, dim4_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[n_m^-1]");
-		const H5std_string dim4_unit_str("[n_m^-1]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[Å^-1]");
+		const H5std_string dim4_unit_str("[Å^-1]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -622,9 +622,9 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim2_name.write(strdatatype, dim2_name_str);
 		dim3_name.write(strdatatype, dim3_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[mrad]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[rad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -713,9 +713,9 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim2_name.write(strdatatype, dim2_name_str);
 		dim3_name.write(strdatatype, dim3_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[mrad]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[rad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -800,8 +800,8 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -884,8 +884,8 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -975,8 +975,8 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -1066,8 +1066,8 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -1163,7 +1163,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, floa
     for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
         finalBuffer[i] += readBuffer[i];
     free(readBuffer);
-		
+
     dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
     free(finalBuffer);
     fspace.close();
@@ -1221,7 +1221,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, doub
     dataGroup.flush(H5F_SCOPE_LOCAL);
     dataGroup.close();
     pars.outputFile.flush(H5F_SCOPE_LOCAL);
-    
+
 	writeGatekeeper.unlock();
 };
 
