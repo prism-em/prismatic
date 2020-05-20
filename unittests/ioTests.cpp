@@ -424,23 +424,35 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
 
 BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)
 {
-    divertOutput(pos, fd, logPath);
     meta.probeStepX = 1.0;
     meta.probeStepY = 1.0;
     meta.realspacePixelSize[0] = 0.5;
     meta.realspacePixelSize[1] = 0.5;
+
+    divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: attributeTest ########\n";
-
     go(meta);
-
-    std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/'";
-    std::string attribute = "rx";
-
     std::cout << "######### END TEST CASE: attributeTest ########\n";
     revertOutput(fd, pos);
 
-    PRISMATIC_FLOAT_PRECISION val = readFloatAttribute(meta.filenameOutput, groupPath, attribute);
-    BOOST_TEST(val == meta.probeStepX);
+    std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
+    std::string attProbe = "rx";
+    std::string attFx = "fx";
+    std::string attInput = "i";
+
+    PRISMATIC_FLOAT_PRECISION probeStepCheck;
+    int fxCheck;
+    std::string inputCheck;
+
+    readAttribute(meta.filenameOutput, groupPath, attProbe, probeStepCheck);
+    readAttribute(meta.filenameOutput, groupPath, attFx, fxCheck);
+    readAttribute(meta.filenameOutput, groupPath, attInput, inputCheck);
+    
+    BOOST_TEST(probeStepCheck == meta.probeStepX);
+    BOOST_TEST(fxCheck == meta.interpolationFactorX);
+    BOOST_TEST(inputCheck == meta.filenameAtoms);
+
+    removeFile(meta.filenameOutput);
 };
 
 BOOST_AUTO_TEST_SUITE_END();

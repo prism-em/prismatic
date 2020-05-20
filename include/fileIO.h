@@ -51,7 +51,11 @@ Array3D<PRISMATIC_FLOAT_PRECISION> readDataset3D(const std::string &filename, co
 
 Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, const std::string &dataPath);
 
-PRISMATIC_FLOAT_PRECISION readFloatAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr);
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val);
+
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int &val);
+
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
 } //namespace Prismatic
 

@@ -1735,23 +1735,58 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, co
 	return data;
 };
 
-PRISMATIC_FLOAT_PRECISION readFloatAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr)
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val)
 {
-	//read an attribute from a group
+	//read an attribute from a group into val
+	//overloaded by expected value type
+
 	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
-	H5::Group group = input.openGroup("4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters");
+	H5::Group group = input.openGroup(groupPath);
 	H5::Attribute attribute = group.openAttribute(attr);
-	PRISMATIC_FLOAT_PRECISION val;
 	H5::DataType type =  attribute.getDataType();
 	attribute.read(type,&val);
-	std::cout << val << std::endl;
+
+	attribute.close();
+	group.close();
+	input.close();
+	
+}
+
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int &val)
+{
+	//read an attribute from a group into val
+	//overloaded by expected value type
+
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::Group group = input.openGroup(groupPath);
+	H5::Attribute attribute = group.openAttribute(attr);
+	H5::DataType type =  attribute.getDataType();
+	attribute.read(type,&val);
 
 	attribute.close();
 	group.close();
 	input.close();
 
-	return val;
 }
 
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val)
+{
+	//read an attribute from a group into val
+	//overloaded by expected value type
+
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::Group group = input.openGroup(groupPath);
+	H5::Attribute attribute = group.openAttribute(attr);
+	H5::DataType type =  attribute.getDataType();
+
+	H5std_string tmpVal;
+	attribute.read(type,tmpVal);
+	val = tmpVal;
+
+	attribute.close();
+	group.close();
+	input.close();
+
+}
 
 } //namespace Prismatic
