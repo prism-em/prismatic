@@ -49,7 +49,15 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	setupOutputFile(prismatic_pars);
 	// compute projected potentials
 	prismatic_pars.fpFlag = 0;
-	PRISM01_calcPotential(prismatic_pars);
+	if(prismatic_pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
+		PRISM01_importPotential(prismatic_pars);
+	}else
+	{
+		PRISM01_calcPotential(prismatic_pars);
+	}
+	
 
 	//		prismatic_pars.pot.toMRC_f("debug_potential.mrc");
 

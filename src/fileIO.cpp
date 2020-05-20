@@ -8,7 +8,7 @@ namespace Prismatic{
 
 std::mutex write4D_lock;
 
-void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> pars)
+void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//create main groups
 	H5::Group simulation(pars.outputFile.createGroup("/4DSTEM_simulation"));
@@ -54,7 +54,7 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> pars)
 }
 
 //use dummy variable to overload float/double dependence
-void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const float dummy)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
@@ -244,7 +244,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 };
 
 //use dummy variable to overload float/double dependence
-void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
@@ -381,7 +381,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 	datacubes.close();
 };
 
-void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -471,7 +471,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 	realslices.close();
 };
 
-void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -562,7 +562,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 	realslices.close();
 };
 
-void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -646,7 +646,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 	realslices.close();
 };
 
-void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -730,7 +730,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numL
 	realslices.close();
 };
 
-void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy)
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -821,7 +821,7 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t num
 	realslices.close();
 };
 
-void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy)
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -959,7 +959,7 @@ void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *m
 };
 
 //for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
@@ -1008,7 +1008,7 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, 
 	writeGatekeeper.unlock();
 };
 
-void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString)
 {
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
@@ -1075,6 +1075,185 @@ void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsi
 	mspace.close();
 }
 
+void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	// create new datacube group
+	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+	std::string groupName = "ppotential";
+	H5::Group ppotential;
+	if (pars.fpFlag == 0)
+	{
+		ppotential = realslices.createGroup(groupName);
+
+		H5::DataSpace attr_dataspace(H5S_SCALAR);
+
+		int group_type = 1;
+		H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr_dataspace);
+		emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+		H5::Attribute metadata_group = ppotential.createAttribute("metadata", H5::PredType::NATIVE_INT, attr_dataspace);
+		int mgroup = 0;
+		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+
+		//write dimensions
+		H5::DataSpace str_name_ds(H5S_SCALAR);
+		H5::StrType strdatatype(H5::PredType::C_S1, 256);
+
+		hsize_t x_size[1] = {pars.imageSize[1]};
+		hsize_t y_size[1] = {pars.imageSize[0]};
+		hsize_t z_size[1] = {pars.numPlanes};
+
+		Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1]}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0]}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> z_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.numPlanes}});
+
+		for (auto i = 0; i < pars.imageSize[1]; i++)
+			x_dim_data[i] = i * pars.pixelSize[1];
+		for (auto i = 0; i < pars.imageSize[0]; i++)
+			y_dim_data[i] = i * pars.pixelSize[0];
+		for (auto i = 0; i < pars.numPlanes; i++)
+			z_dim_data[i] = i * pars.meta.sliceThickness;
+
+		H5::DataSpace dim1_mspace(1, x_size);
+		H5::DataSpace dim2_mspace(1, y_size);
+		H5::DataSpace dim3_mspace(1, z_size);
+
+		H5::DataSet dim1;
+		H5::DataSet dim2;
+		H5::DataSet dim3;
+
+		if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
+		{
+			dim1 = ppotential.createDataSet("dim1", H5::PredType::NATIVE_FLOAT, dim1_mspace);
+			dim2 = ppotential.createDataSet("dim2", H5::PredType::NATIVE_FLOAT, dim2_mspace);
+			dim3 = ppotential.createDataSet("dim3", H5::PredType::NATIVE_FLOAT, dim3_mspace);
+
+			H5::DataSpace dim1_fspace = dim1.getSpace();
+			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
+
+			dim1.write(&x_dim_data[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
+			dim2.write(&y_dim_data[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
+			dim3.write(&z_dim_data[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
+		}
+		else
+		{
+			dim1 = ppotential.createDataSet("dim1", H5::PredType::NATIVE_DOUBLE, dim1_mspace);
+			dim2 = ppotential.createDataSet("dim2", H5::PredType::NATIVE_DOUBLE, dim2_mspace);
+			dim3 = ppotential.createDataSet("dim3", H5::PredType::NATIVE_DOUBLE, dim3_mspace);
+
+			H5::DataSpace dim1_fspace = dim1.getSpace();
+			H5::DataSpace dim2_fspace = dim2.getSpace();
+			H5::DataSpace dim3_fspace = dim3.getSpace();
+
+			dim1.write(&x_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim1_mspace, dim1_fspace);
+			dim2.write(&y_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim2_mspace, dim2_fspace);
+			dim3.write(&z_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim3_mspace, dim3_fspace);
+		}
+
+		//dimension attributes
+		const H5std_string dim1_name_str("R_x");
+		const H5std_string dim2_name_str("R_y");
+		const H5std_string dim3_name_str("R_z");
+
+		H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
+		H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
+		H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
+
+		dim1_name.write(strdatatype, dim1_name_str);
+		dim2_name.write(strdatatype, dim2_name_str);
+		dim3_name.write(strdatatype, dim3_name_str);
+
+		const H5std_string dim1_unit_str("[n_m]");
+		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim3_unit_str("[n_m]");
+
+		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
+		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
+		H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
+
+		dim1_unit.write(strdatatype, dim1_unit_str);
+		dim2_unit.write(strdatatype, dim2_unit_str);
+		dim3_unit.write(strdatatype, dim3_unit_str);
+	}
+	else
+	{
+		ppotential = realslices.openGroup(groupName);
+	}
+	//read in potential array and stride; also, divide by number of FP to do averaging
+	Array3D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1], pars.imageSize[0], pars.numPlanes}});
+	for (auto x = 0; x < pars.imageSize[1]; x++)
+	{
+		for (auto y = 0; y < pars.imageSize[0]; y++)
+		{
+			for (auto z = 0; z < pars.numPlanes; z++)
+			{
+				writeBuffer.at(x, y, z) = pars.pot.at(z, y, x) / pars.meta.numFP;
+			}
+		}
+	}
+
+	H5::DataSet potSliceData; //declare out here to avoid scoping
+	std::string slice_name = "realslice";
+	if (pars.fpFlag == 0)
+	{
+
+		//create dataset
+		//imageSize[1] is the x dimension
+		hsize_t dataDims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
+		H5::DataSpace mspace(3, dataDims);
+
+		//switch between float and double, maybe not the best way to do so
+		if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
+		{
+			potSliceData = ppotential.createDataSet(slice_name, H5::PredType::NATIVE_FLOAT, mspace);
+		}
+		else
+		{
+			potSliceData = ppotential.createDataSet(slice_name, H5::PredType::NATIVE_DOUBLE, mspace);
+		}
+	}
+	else
+	{
+		potSliceData = ppotential.openDataSet(slice_name);
+
+		PRISMATIC_FLOAT_PRECISION *readBuffer = (PRISMATIC_FLOAT_PRECISION *)malloc(pars.imageSize[0] * pars.imageSize[1] * pars.numPlanes * sizeof(PRISMATIC_FLOAT_PRECISION));
+		H5::DataSpace rfspace = potSliceData.getSpace();
+		hsize_t rmdims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
+		H5::DataSpace rmspace(3, rmdims);
+
+		if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
+		{
+			potSliceData.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, rmspace, rfspace);
+		}
+		else
+		{
+			potSliceData.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, rmspace, rfspace);
+		}
+
+		for (auto i = 0; i < pars.imageSize[0] * pars.imageSize[1] * pars.numPlanes; i++)
+			writeBuffer[i] += readBuffer[i];
+
+		free(readBuffer);
+		rfspace.close();
+		rmspace.close();
+	}
+
+	hsize_t wmdims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
+	H5::DataSpace wfspace = potSliceData.getSpace();
+	H5::DataSpace wmspace(3, wmdims);
+
+	if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
+	{
+		potSliceData.write(&writeBuffer[0], H5::PredType::NATIVE_FLOAT, wmspace, wfspace);
+	}
+	else
+	{
+		potSliceData.write(&writeBuffer[0], H5::PredType::NATIVE_DOUBLE, wmspace, wfspace);
+	}
+	potSliceData.close();
+}
+
 std::string getDigitString(int digit)
 {
 	char buffer[20];
@@ -1083,7 +1262,7 @@ std::string getDigitString(int digit)
 	return output;
 };
 
-void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy)
+void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, float dummy)
 {
 	//set up group
 	H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
@@ -1270,7 +1449,7 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy)
 	metadata.close();
 };
 
-void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy)
+void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, double dummy)
 {
 	//set up group
 	H5::Group metadata = pars.outputFile.openGroup("4DSTEM_simulation/metadata/metadata_0/original");
@@ -1555,5 +1734,24 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, co
 	}
 	return data;
 };
+
+PRISMATIC_FLOAT_PRECISION readFloatAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr)
+{
+	//read an attribute from a group
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::Group group = input.openGroup("4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters");
+	H5::Attribute attribute = group.openAttribute(attr);
+	PRISMATIC_FLOAT_PRECISION val;
+	H5::DataType type =  attribute.getDataType();
+	attribute.read(type,&val);
+	std::cout << val << std::endl;
+
+	attribute.close();
+	group.close();
+	input.close();
+
+	return val;
+}
+
 
 } //namespace Prismatic
