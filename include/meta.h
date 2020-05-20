@@ -40,7 +40,7 @@ namespace Prismatic{
             numFP                 = 1;
             fpNum                 = 1;
             sliceThickness        = 2.0;
-            numSlices             = 0; 
+            numSlices             = 0;
             zStart                = 0.0;
             cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format
             tileX                 = 1;
@@ -75,7 +75,7 @@ namespace Prismatic{
             scanWindowYMax_r      = 0.0;
             srand(time(0));
             randomSeed            = rand() % 100000;
-            crop4Damax            = 100.0 /1000;
+            crop4Damax            = 100.0 / 1000;
             algorithm             = Algorithm::PRISM;
             includeThermalEffects = true;
             includeOccupancy      = true;

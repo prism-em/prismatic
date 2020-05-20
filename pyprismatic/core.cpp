@@ -138,10 +138,10 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.probeDefocus = probeDefocus;
 	meta.C3 = C3;
 	meta.C5 = C5;
-	meta.probeSemiangle = probeSemiangle /1000;
-	meta.detectorAngleStep = detectorAngleStep /1000;
-	meta.probeXtilt = probeXtilt /1000;
-	meta.probeYtilt = probeYtilt /1000;
+	meta.probeSemiangle = probeSemiangle / 1000;
+	meta.detectorAngleStep = detectorAngleStep / 1000;
+	meta.probeXtilt = probeXtilt / 1000;
+	meta.probeYtilt = probeYtilt / 1000;
 	meta.scanWindowXMin = scanWindowXMin;
 	meta.scanWindowXMax = scanWindowXMax;
 	meta.scanWindowYMin = scanWindowYMin;
@@ -167,7 +167,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.savePotentialSlices = savePotentialSlices;
 	meta.saveDPC_CoM = saveDPC_CoM;
 	meta.crop4DOutput = crop4DOutput;
-	meta.crop4Damax = crop4Damax;
+	meta.crop4Damax = crop4Damax / 1000;
 	meta.integrationAngleMin = integrationAngleMin / 1000;
 	meta.integrationAngleMax = integrationAngleMax / 1000;
 	meta.nyquistSampling = nyquistSampling;
