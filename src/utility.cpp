@@ -624,7 +624,7 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 
 		const H5std_string dim1_unit_str("[Å]");
 		const H5std_string dim2_unit_str("[Å]");
-		const H5std_string dim3_unit_str("[rad]");
+		const H5std_string dim3_unit_str("[mrad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -715,7 +715,7 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 
 		const H5std_string dim1_unit_str("[Å]");
 		const H5std_string dim2_unit_str("[Å]");
-		const H5std_string dim3_unit_str("[rad]");
+		const H5std_string dim3_unit_str("[mrad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -1556,9 +1556,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	H5::Attribute detector_attr = sim_params.createAttribute("d", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 	H5::Attribute tx_attr = sim_params.createAttribute("tx", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 	H5::Attribute ty_attr = sim_params.createAttribute("ty", H5::PredType::NATIVE_DOUBLE, scalar_attr);
-	H5::Attribute earlyStop_attr = sim_params.createAttribute("earlyCPUStopCount", H5::PredType::NATIVE_FLOAT, scalar_attr);
-	H5::Attribute rseed_attr = sim_params.createAttribute("randomSeed", H5::PredType::NATIVE_FLOAT, scalar_attr);
-	H5::Attribute crop4Da_attr = sim_params.createAttribute("crop4Damax", H5::PredType::NATIVE_FLOAT, scalar_attr);
+	H5::Attribute earlyStop_attr = sim_params.createAttribute("earlyCPUStopCount", H5::PredType::NATIVE_DOUBLE, scalar_attr);
+	H5::Attribute rseed_attr = sim_params.createAttribute("randomSeed", H5::PredType::NATIVE_DOUBLE, scalar_attr);
+	H5::Attribute crop4Da_attr = sim_params.createAttribute("crop4Damax", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 
 	//create vector spaces
 	hsize_t two[1] = {2};
@@ -1633,9 +1633,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	df_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.probeDefocus);
 	C3_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C3);
 	C5_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C5);
-	earlyStop_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.earlyCPUStopCount);
-	rseed_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.randomSeed);
-	crop4Da_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.crop4Damax);
+	earlyStop_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.earlyCPUStopCount);
+	rseed_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.randomSeed);
+	crop4Da_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.crop4Damax);
 
 	//scalars with unit adjustments
 	PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};

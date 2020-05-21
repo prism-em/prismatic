@@ -91,7 +91,7 @@ void setupCoordinates_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
-	/* 
+	/*
 		if(pars.meta.saveRealSpaceCoords){
 			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
 			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
@@ -111,8 +111,9 @@ void setupDetector(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	pars.alphaMax = pars.qMax * pars.lambda;
 
-	vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep / 2, pars.meta.detectorAngleStep,
-																	  pars.alphaMax - pars.meta.detectorAngleStep / 2);
+	vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep * 1000 / 2,
+																	  pars.meta.detectorAngleStep * 1000,
+																	  (pars.alphaMax - pars.meta.detectorAngleStep / 2) * 1000);
 	Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 	pars.detectorAngles = detectorAngles;
 	PRISMATIC_FLOAT_PRECISION r_0 = pars.imageSizeOutput[0] / pars.meta.interpolationFactorY / 2;
@@ -488,8 +489,9 @@ void transformIndices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.alphaInd = pars.q1;
 	transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 			  pars.alphaInd.begin(),
+			  // pars.detectorAngles is in mrad
 			  [&pars](const PRISMATIC_FLOAT_PRECISION &a) {
-				  return 1 + round((a * pars.lambda - pars.detectorAngles[0]) / pars.meta.detectorAngleStep);
+				  return 1 + round((a * pars.lambda - pars.detectorAngles[0] / 1000) / pars.meta.detectorAngleStep);
 			  });
 	transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 			  pars.alphaInd.begin(),
