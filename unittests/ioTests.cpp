@@ -494,28 +494,48 @@ BOOST_AUTO_TEST_CASE(complexIO)
     srand(seed);
     std::default_random_engine de(seed);
 
-    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr2D = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7}});
-    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr3D = zeros_ND<3,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5}});
-    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr4D = zeros_ND<4,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5,3}});
-    assignRandomValues(testArr2D, de);
-    assignRandomValues(testArr3D, de);
-    assignRandomValues(testArr4D, de);
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr2D = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7}});
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr3D = zeros_ND<3,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5}});
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr4D = zeros_ND<4,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5,3}});
+    assignRandomValues(refArr2D, de);
+    assignRandomValues(refArr3D, de);
+    assignRandomValues(refArr4D, de);
 
     //create a test file
     std::string fname = "../test/testFile.h5";
     H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
     H5::Group testGroup(testFile.createGroup("/complex_data"));
 
-    hsize_t mdims_2D[2] = {testArr2D.get_dimi(), testArr2D.get_dimj()};
-    hsize_t mdims_3D[3] = {testArr3D.get_dimi(), testArr3D.get_dimj(), testArr3D.get_dimk()};
-    hsize_t mdims_4D[4] = {testArr4D.get_dimi(), testArr4D.get_dimj(), testArr4D.get_dimk(), testArr4D.get_diml()};
+    hsize_t mdims_2D[2] = {refArr2D.get_dimi(), refArr2D.get_dimj()};
+    hsize_t mdims_3D[3] = {refArr3D.get_dimi(), refArr3D.get_dimj(), refArr3D.get_dimk()};
+    hsize_t mdims_4D[4] = {refArr4D.get_dimi(), refArr4D.get_dimj(), refArr4D.get_dimk(), refArr4D.get_diml()};
 
-    writeComplexDataset(testGroup, "complex2D", &testArr2D[0], mdims_2D, 2);
-    writeComplexDataset(testGroup, "complex3D", &testArr3D[0], mdims_2D, 3);
-    writeComplexDataset(testGroup, "complex4D", &testArr4D[0], mdims_2D, 4);
+    writeComplexDataset(testGroup, "complex2D", &refArr2D[0], mdims_2D, 2);
+    writeComplexDataset(testGroup, "complex3D", &refArr3D[0], mdims_3D, 3);
+    writeComplexDataset(testGroup, "complex4D", &refArr4D[0], mdims_4D, 4);
 
     testGroup.close();
     testFile.close();
+
+    std::string datapath2D = "complex_data/complex2D";
+    std::string datapath3D = "complex_data/complex3D";
+    std::string datapath4D = "complex_data/complex4D";
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr2D; 
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr3D; 
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr4D; 
+    readComplexDataset(testArr2D, fname, datapath2D);
+    readComplexDataset(testArr3D, fname, datapath3D);
+    readComplexDataset(testArr4D, fname, datapath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
+    BOOST_TEST(compareSize(refArr2D, testArr2D));
+    BOOST_TEST(compareSize(refArr3D, testArr3D));
+    BOOST_TEST(compareSize(refArr4D, testArr4D));
+    BOOST_TEST(compareValues(refArr2D, testArr2D) < tol);
+    BOOST_TEST(compareValues(refArr3D, testArr3D) < tol);
+    BOOST_TEST(compareValues(refArr4D, testArr4D) < tol);
+
 
 
 }

@@ -4,12 +4,6 @@
 #include "utility.h"
 #include <mutex>
 
-struct complex_float_t
-{
-	PRISMATIC_FLOAT_PRECISION re;
-	PRISMATIC_FLOAT_PRECISION im;
-};
-
 namespace Prismatic{
 
 std::mutex write4D_lock;
@@ -1816,14 +1810,12 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 {
 	//input buffer is assumed to be float: real, float: im in striding order
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
-	const H5std_string re_str("re");
-	const H5std_string im_str("im");
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
 	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
 	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
 
 	//create dataset and write
-	size_t totalSize = 1;
-	for(auto i = 0; i < rank; i++) totalSize *= mdims[i];
 
 	H5::DataSpace mspace(rank, mdims);
 	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
@@ -1836,5 +1828,6 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 	complex_dset.close();
 
 }
+
 
 } //namespace Prismatic

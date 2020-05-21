@@ -3,6 +3,12 @@
 #include "H5Cpp.h"
 #include "params.h"
 
+struct complex_float_t
+{
+	PRISMATIC_FLOAT_PRECISION re;
+	PRISMATIC_FLOAT_PRECISION im;
+};
+
 namespace Prismatic{
 
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
@@ -60,6 +66,39 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
 void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank);
+
+template <size_t N>
+void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+    H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
+	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    std::array<size_t, N> data_dims;
+    size_t totalSize = 1;
+	for(auto i = 0; i < N; i++) totalSize *= dims_out[i];
+    for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
+
+    std::complex<PRISMATIC_FLOAT_PRECISION> data_in[totalSize];
+    dataset.read(data_in, complex_type, mspace, dataspace);
+
+    output = zeros_ND<N, std::complex<PRISMATIC_FLOAT_PRECISION>>(data_dims);
+    for(auto i = 0; i < output.size(); i++) output[i] = data_in[i];
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
 
 } //namespace Prismatic
 
