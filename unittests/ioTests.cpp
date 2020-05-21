@@ -377,6 +377,7 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     //make larger to have better test for resampling
     meta.realspacePixelSize[0] = 0.06; 
     meta.realspacePixelSize[1] = 0.06;
+    meta.numGPUs = 0;
     
     divertOutput(pos, fd, logPath);
     std::cout << "\n##### BEGIN TEST CASE: fourierResampling ######\n";
@@ -437,6 +438,11 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
 
     // removeFile(importFile);
     // removeFile(meta.filenameOutput);
+
+    unsigned long  seven = 7;
+    unsigned long eightfour = 84;
+    std::cout << -1 % seven << std::endl;
+    std::cout << -1 % eightfour << std::endl;
 };
 
 BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
@@ -535,8 +541,6 @@ BOOST_AUTO_TEST_CASE(complexIO)
     BOOST_TEST(compareValues(refArr2D, testArr2D) < tol);
     BOOST_TEST(compareValues(refArr3D, testArr3D) < tol);
     BOOST_TEST(compareValues(refArr4D, testArr4D) < tol);
-
-
 
 }
 

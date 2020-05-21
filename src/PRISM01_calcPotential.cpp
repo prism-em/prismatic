@@ -589,8 +589,8 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
-	size_t Ni = 0;
-	size_t Nj = 0;
+	int Ni = 0;
+	int Nj = 0;
 
 	//get highest multiple of 4*fx and 4*fy to ensure resampling to a smaller grid only
 	while(Ni < pars.pot.get_dimi()) Ni += pars.meta.interpolationFactorX*4;
@@ -603,30 +603,32 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//create storage variables to hold data from FFTs
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
-	Array2D<PRISMATIC_FLOAT_PRECISION> fpot = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimj(),pars.pot.get_dimi()}});
-	Array2D<PRISMATIC_FLOAT_PRECISION> bpot = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Nj, Ni}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(),pars.pot.get_dimi()}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
 	
 	//create FFT plans 
 	PRISMATIC_FFTW_INIT_THREADS();
 	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 	
 	unique_lock<mutex> gatekeeper(fftw_plan_lock);
-	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_R2C_2D(fstore.get_dimj(), fstore.get_dimi(),
-															&fpot[0],
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(fstore.get_dimj(), fstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fpot[0]),
 															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fstore[0]),
+															FFTW_FORWARD,
 															FFTW_ESTIMATE);
 
-	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_C2R_2D(bstore.get_dimj(), bstore.get_dimi(),
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(bstore.get_dimj(), bstore.get_dimi(),
 															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bstore[0]),
-															&bpot[0],
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bpot[0]),
+															FFTW_BACKWARD,
 															FFTW_ESTIMATE);
 	gatekeeper.unlock();
 
 	//calculate indices for downsampling in fourier space
-	size_t nyqi = std::floor(Ni/2) + 1;
-	size_t nyqj = std::floor(Nj/2) + 1;
-	const size_t start_index[] = {0,    0,    nyqi-Ni, nyqj-Nj}; //
-	const size_t end_index[]   = {nyqi, nyqj, 0,       0};
+	int nyqi = std::floor(Ni/2) + 1;
+	int nyqj = std::floor(Nj/2) + 1;
+	// const size_t start_index[] = {0,    0,    nyqi-Ni, nyqj-Nj}; //
+	// const size_t end_index[]   = {nyqi, nyqj, 0,       0};
 
 	for(auto k = 0; k < newPot.get_dimk(); k++)
 	{
@@ -635,34 +637,95 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		
 		//forward transform 
 		PRISMATIC_FFTW_EXECUTE(plan_forward);
+		if( k == 0)
+		{
+			H5::Group dataGroup = pars.outputFile.openGroup("4DSTEM_simulation/");
+			hsize_t mdims[2] = {fstore.get_dimj(), fstore.get_dimi()};
+			writeComplexDataset(dataGroup, "fstore", &fstore[0], mdims, 2);
+			writeComplexDataset(dataGroup, "fpot", &fpot[0], mdims, 2);
+
+			// H5::DataSpace mspace(2, mdims); 
+			// H5::DataSet fpot_dset = dataGroup.createDataSet("fpot", H5::PredType::NATIVE_FLOAT, mspace);
+			// writeRealSlice(fpot_dset, &fpot[0], mdims);
+			// fpot_dset.close();
+			// dataGroup.close();
+		}
 
 		//copy relevant quadrants to backward store
-		for(int q = 0; q < 4; q++)
+		// for(int q = 0; q < 4; q++)
+		// {
+		// 	for(int j = start_index[q/2 + 1]; j < end_index[q/2 + 1]; j++)
+		// 	{
+		// 		for(int i = start_index[q/2]; i < end_index[q/2]; i++)
+		// 		{
+		// 			//modulo to handle negative indices
+		// 			bstore.at(j % Nj, i % Ni) = fstore.at(j % fstore.get_dimj(), i % fstore.get_dimi()); 
+		// 		}
+		// 	}
+		// }
+
+		//manual looping
+		for(auto j = 0; j < nyqj; j++)
 		{
-			for(int j = start_index[q/2 + 1]; j < end_index[q/2 + 1]; j++)
+			for(auto i = 0; i < nyqi; i++)
 			{
-				for(int i = start_index[q/2]; i < end_index[q/2]; i++)
-				{
-					//modulo to handle negative indices
-					bstore.at(j % Nj, i % Ni) = fstore.at(j % fstore.get_dimj(), i % fstore.get_dimi()); 
-				}
+				bstore.at(j, i) = fstore.at(j, i);
 			}
 		}
 
-		//unrolled version
-		//copy 0:nyq 0:nyq
+		for(auto j = nyqj-Nj; j < 0; j++)
+		{
+			for(auto i = 0; i < nyqi; i++)
+			{
+				bstore.at(Nj + j, i) = fstore.at(fstore.get_dimj() + j, i);
+			}
+		}
 
-		//copy
+		for(auto j = 0; j < nyqj; j++)
+		{
+			for(auto i = nyqi-Ni; i < 0; i++)
+			{
+				bstore.at(j, Ni + i) = fstore.at(j, fstore.get_dimi() + i);
+			}
+		}
+
+		for(auto j = nyqj-Nj; j < 0; j++)
+		{
+			for(auto i = nyqi-Ni; i < 0; i++)
+			{
+				bstore.at(Nj + j, Ni + i) = fstore.at(fstore.get_dimj() + j, fstore.get_dimi() + i);
+			}
+		}
+
+		if( k == 0)
+		{
+			H5::Group dataGroup = pars.outputFile.openGroup("4DSTEM_simulation/");
+			hsize_t mdims[2] = {bstore.get_dimj(), bstore.get_dimi()};
+			writeComplexDataset(dataGroup, "bstore", &bstore[0], mdims, 2);
+			writeComplexDataset(dataGroup, "bpot", &bpot[0], mdims, 2);
+			std::cout << "entered" << std::endl;
+
+			// H5::DataSpace mspace(2, mdims); 
+			// H5::DataSet bpot_dset = dataGroup.createDataSet("bpot", H5::PredType::NATIVE_FLOAT, mspace);
+			// writeRealSlice(bpot_dset, &bpot[0], mdims);
+			// bpot_dset.close();
+			// dataGroup.close();
+		}
 
 		//inverse transform
 		PRISMATIC_FFTW_EXECUTE(plan_inverse);
 
 		//store slice in potential
-		for(auto i = 0; i < bpot.size(); i++) newPot[k*newPot.get_dimj()*newPot.get_dimi()+i] = bpot[i];
+		for(auto i = 0; i < bpot.size(); i++) newPot[k*newPot.get_dimj()*newPot.get_dimi()+i] = bpot[i].real();
 	}
 
-	//store final resort
-	newPot *= (PRISMATIC_FLOAT_PRECISION) (Ni/pars.pot.get_dimi())*(Nj/pars.pot.get_dimj());
+	//store final resort after rescaling from transform
+	PRISMATIC_FLOAT_PRECISION orig_x = pars.pot.get_dimi();
+	PRISMATIC_FLOAT_PRECISION orig_y = pars.pot.get_dimj();
+	PRISMATIC_FLOAT_PRECISION new_x = Ni;
+	PRISMATIC_FLOAT_PRECISION new_y = Nj;
+	std::cout << "ratio: " << (new_x/orig_x)*(new_y/orig_y) << std::endl;
+	newPot *= (new_x/orig_x)*(new_y/orig_y);
 	pars.pot = newPot;
 };
 
