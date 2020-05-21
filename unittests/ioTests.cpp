@@ -378,6 +378,8 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     meta.realspacePixelSize[0] = 0.06; 
     meta.realspacePixelSize[1] = 0.06;
     meta.numGPUs = 0;
+    meta.algorithm = Algorithm::Multislice;
+    meta.E0 = 200e3;
     
     divertOutput(pos, fd, logPath);
     std::cout << "\n##### BEGIN TEST CASE: fourierResampling ######\n";
@@ -388,7 +390,7 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
 
     std::cout << "\n--------------------------------------------\n";
 
-    //force 
+    meta.algorithm = Algorithm::PRISM;
     meta.interpolationFactorX = 5;
     meta.interpolationFactorY = 7;
     meta.filenameOutput = "../test/potentialRerun.h5";
@@ -401,48 +403,34 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-
-    std::cout << refPS.get_dimi() << " " << refPS.get_dimj() << " " << refPS.get_dimk() << std::endl; 
-
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
-    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+    //double because mean is not precise enough within single float
+    double tol = 0.00001;
+    double ref_mean = 0.0;
+    double test_mean = 0.0;
 
-    //only compare subset of outputs
-    BOOST_TEST(compareSize(refAnnular, testAnnular));
-    BOOST_TEST(compareSize(refVD, testVD));
-    BOOST_TEST(compareSize(refDPC, testDPC));
+    //only valid numerical test is to compare means of potential arrays, since change in qx, qy alter binning in other outputs
+    for(auto i = 0; i < refPS.size(); i++) ref_mean += refPS[i];
+    for(auto i = 0; i < testPS.size(); i++) test_mean += testPS[i];
 
-    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
-    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
-    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    std::cout << ref_mean << " " << test_mean << std::endl;    
+    ref_mean /= refPS.size();
+    test_mean /= testPS.size();
+    std::cout << ref_mean << " " << test_mean << std::endl;
+    BOOST_TEST(std::abs(ref_mean-test_mean) < tol);
 
     //resampled potential slices should have 80 x 84 x 3 dims do align with fx = 5, fy = 7
     //rewrite to auto check multiples of 4x(fx, fy)
-    std::cout << testPS.get_dimi() << " " << testPS.get_dimj() << " " << std::endl;
     bool sizeCheck = testPS.get_dimi() == 80 && testPS.get_dimj() == 84 && testPS.get_dimk() == 3;
     BOOST_TEST(sizeCheck);
 
     // removeFile(importFile);
     // removeFile(meta.filenameOutput);
 
-    unsigned long  seven = 7;
-    unsigned long eightfour = 84;
-    std::cout << -1 % seven << std::endl;
-    std::cout << -1 % eightfour << std::endl;
 };
 
 BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)

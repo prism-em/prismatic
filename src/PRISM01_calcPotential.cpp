@@ -627,8 +627,6 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//calculate indices for downsampling in fourier space
 	int nyqi = std::floor(Ni/2) + 1;
 	int nyqj = std::floor(Nj/2) + 1;
-	// const size_t start_index[] = {0,    0,    nyqi-Ni, nyqj-Nj}; //
-	// const size_t end_index[]   = {nyqi, nyqj, 0,       0};
 
 	for(auto k = 0; k < newPot.get_dimk(); k++)
 	{
@@ -637,34 +635,9 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		
 		//forward transform 
 		PRISMATIC_FFTW_EXECUTE(plan_forward);
-		if( k == 0)
-		{
-			H5::Group dataGroup = pars.outputFile.openGroup("4DSTEM_simulation/");
-			hsize_t mdims[2] = {fstore.get_dimj(), fstore.get_dimi()};
-			writeComplexDataset(dataGroup, "fstore", &fstore[0], mdims, 2);
-			writeComplexDataset(dataGroup, "fpot", &fpot[0], mdims, 2);
-
-			// H5::DataSpace mspace(2, mdims); 
-			// H5::DataSet fpot_dset = dataGroup.createDataSet("fpot", H5::PredType::NATIVE_FLOAT, mspace);
-			// writeRealSlice(fpot_dset, &fpot[0], mdims);
-			// fpot_dset.close();
-			// dataGroup.close();
-		}
 
 		//copy relevant quadrants to backward store
-		// for(int q = 0; q < 4; q++)
-		// {
-		// 	for(int j = start_index[q/2 + 1]; j < end_index[q/2 + 1]; j++)
-		// 	{
-		// 		for(int i = start_index[q/2]; i < end_index[q/2]; i++)
-		// 		{
-		// 			//modulo to handle negative indices
-		// 			bstore.at(j % Nj, i % Ni) = fstore.at(j % fstore.get_dimj(), i % fstore.get_dimi()); 
-		// 		}
-		// 	}
-		// }
-
-		//manual looping
+		//manual looping through quadrants
 		for(auto j = 0; j < nyqj; j++)
 		{
 			for(auto i = 0; i < nyqi; i++)
@@ -697,21 +670,6 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			}
 		}
 
-		if( k == 0)
-		{
-			H5::Group dataGroup = pars.outputFile.openGroup("4DSTEM_simulation/");
-			hsize_t mdims[2] = {bstore.get_dimj(), bstore.get_dimi()};
-			writeComplexDataset(dataGroup, "bstore", &bstore[0], mdims, 2);
-			writeComplexDataset(dataGroup, "bpot", &bpot[0], mdims, 2);
-			std::cout << "entered" << std::endl;
-
-			// H5::DataSpace mspace(2, mdims); 
-			// H5::DataSet bpot_dset = dataGroup.createDataSet("bpot", H5::PredType::NATIVE_FLOAT, mspace);
-			// writeRealSlice(bpot_dset, &bpot[0], mdims);
-			// bpot_dset.close();
-			// dataGroup.close();
-		}
-
 		//inverse transform
 		PRISMATIC_FFTW_EXECUTE(plan_inverse);
 
@@ -719,13 +677,14 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		for(auto i = 0; i < bpot.size(); i++) newPot[k*newPot.get_dimj()*newPot.get_dimi()+i] = bpot[i].real();
 	}
 
-	//store final resort after rescaling from transform
+	//store final resort after normalizing FFT, rescaling from transform, and removing negative values
 	PRISMATIC_FLOAT_PRECISION orig_x = pars.pot.get_dimi();
 	PRISMATIC_FLOAT_PRECISION orig_y = pars.pot.get_dimj();
 	PRISMATIC_FLOAT_PRECISION new_x = Ni;
 	PRISMATIC_FLOAT_PRECISION new_y = Nj;
-	std::cout << "ratio: " << (new_x/orig_x)*(new_y/orig_y) << std::endl;
+	newPot /= Ni*Nj;
 	newPot *= (new_x/orig_x)*(new_y/orig_y);
+
 	pars.pot = newPot;
 };
 
