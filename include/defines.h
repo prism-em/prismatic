@@ -102,6 +102,8 @@ typedef cuFloatComplex PRISMATIC_CUDA_COMPLEX_FLOAT;
 typedef double PRISMATIC_FLOAT_PRECISION;
 #define PRISMATIC_FFTW_PLAN fftw_plan
 #define PRISMATIC_FFTW_PLAN_DFT_2D fftw_plan_dft_2d
+#define PRISMATIC_FFTW_PLAN_DFT_R2C_2D fftw_plan_dft_2d_r2c
+#define PRISMATIC_FFTW_PLAN_DFT_C2R_2D fftw_plan_dft_2d_c2r
 #define PRISMATIC_FFTW_PLAN_DFT_BATCH fftw_plan_many_dft
 #define PRISMATIC_FFTW_EXECUTE fftw_execute
 #define PRISMATIC_FFTW_DESTROY_PLAN fftw_destroy_plan
@@ -115,6 +117,8 @@ typedef float PRISMATIC_FLOAT_PRECISION;
 #define MESSAGE "FLOAT PRECISION"
 #define PRISMATIC_FFTW_PLAN fftwf_plan
 #define PRISMATIC_FFTW_PLAN_DFT_2D fftwf_plan_dft_2d
+#define PRISMATIC_FFTW_PLAN_DFT_R2C_2D fftwf_plan_dft_r2c_2d
+#define PRISMATIC_FFTW_PLAN_DFT_C2R_2D fftwf_plan_dft_c2r_2d
 #define PRISMATIC_FFTW_PLAN_DFT_BATCH fftwf_plan_many_dft
 #define PRISMATIC_FFTW_EXECUTE fftwf_execute
 #define PRISMATIC_FFTW_DESTROY_PLAN fftwf_destroy_plan

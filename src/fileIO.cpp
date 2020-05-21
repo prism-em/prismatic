@@ -4,6 +4,12 @@
 #include "utility.h"
 #include <mutex>
 
+struct complex_float_t
+{
+	PRISMATIC_FLOAT_PRECISION re;
+	PRISMATIC_FLOAT_PRECISION im;
+};
+
 namespace Prismatic{
 
 std::mutex write4D_lock;
@@ -1752,6 +1758,23 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 	
 }
 
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION *val)
+{
+	//read an attribute from a group into val
+	//overloaded by expected value type
+
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::Group group = input.openGroup(groupPath);
+	H5::Attribute attribute = group.openAttribute(attr);
+	H5::DataType type =  attribute.getDataType();
+	attribute.read(type,&val[0]);
+
+	attribute.close();
+	group.close();
+	input.close();
+	
+}
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int &val)
 {
 	//read an attribute from a group into val
@@ -1786,6 +1809,31 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 	attribute.close();
 	group.close();
 	input.close();
+
+}
+
+void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank)
+{
+	//input buffer is assumed to be float: real, float: im in striding order
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("re");
+	const H5std_string im_str("im");
+	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
+	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
+
+	//create dataset and write
+	size_t totalSize = 1;
+	for(auto i = 0; i < rank; i++) totalSize *= mdims[i];
+
+	H5::DataSpace mspace(rank, mdims);
+	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	H5::DataSpace fspace = complex_dset.getSpace();
+	complex_dset.write(buffer, complex_type, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	complex_dset.close();
 
 }
 

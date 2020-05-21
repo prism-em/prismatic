@@ -53,9 +53,13 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, co
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val);
 
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION *val);
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int &val);
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
+
+void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank);
 
 } //namespace Prismatic
 

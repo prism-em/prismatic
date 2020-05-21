@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <random>
 #include "fileIO.h"
+#include "H5Cpp.h"
 
 namespace Prismatic{
 
@@ -82,56 +83,10 @@ void removeFile(const std::string &filepath)
         puts( "Test file successfully deleted" );
 };
 
-bool compareSize2D(Array2D<PRISMATIC_FLOAT_PRECISION> &ref, Array2D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    return  ref.size()==test.size() 
-            && ref.get_dimi() == test.get_dimi() 
-            && ref.get_dimj() == test.get_dimj();
-};
-
-bool compareSize3D(Array3D<PRISMATIC_FLOAT_PRECISION> &ref, Array3D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    return  ref.size()==test.size() 
-            && ref.get_dimi() == test.get_dimi() 
-            && ref.get_dimj() == test.get_dimj()
-            && ref.get_dimk() == test.get_dimk();
-};
-
-bool compareSize4D(Array4D<PRISMATIC_FLOAT_PRECISION> &ref, Array4D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    return  ref.size()==test.size() 
-            && ref.get_dimi() == test.get_dimi() 
-            && ref.get_dimj() == test.get_dimj()
-            && ref.get_dimk() == test.get_dimk()
-            && ref.get_diml() == test.get_diml();
-};
-
-//overload since method is the same; just want to enforece that equivalent rank arrays are compared
-PRISMATIC_FLOAT_PRECISION compareValues(Array2D<PRISMATIC_FLOAT_PRECISION> &ref, Array2D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
-    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
-    return errorSum;
-};
-
-PRISMATIC_FLOAT_PRECISION compareValues(Array3D<PRISMATIC_FLOAT_PRECISION> &ref, Array3D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
-    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
-    return errorSum;
-};
-
-PRISMATIC_FLOAT_PRECISION compareValues(Array4D<PRISMATIC_FLOAT_PRECISION> &ref, Array4D<PRISMATIC_FLOAT_PRECISION> &test)
-{
-    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
-    for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
-    return errorSum;
-};
-
 BOOST_GLOBAL_FIXTURE(logFile);
 
 BOOST_AUTO_TEST_SUITE(ioTests);
-/*
+
 BOOST_FIXTURE_TEST_CASE(operationReorganization, basicSim)
 {
     //make sure nothing is broken by moving all file IO operations to their own source
@@ -278,9 +233,9 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     Array4D<PRISMATIC_FLOAT_PRECISION> read4D = readDataset4D(pars.meta.filenameOutput, dataPath4D);
 
     //check for array sizing equivalance
-    BOOST_TEST(compareSize2D(read2D, testArr2D));
-    BOOST_TEST(compareSize3D(read3D, testArr3D));
-    BOOST_TEST(compareSize4D(read4D, testArr4D));
+    BOOST_TEST(compareSize(read2D, testArr2D));
+    BOOST_TEST(compareSize(read3D, testArr3D));
+    BOOST_TEST(compareSize(read4D, testArr4D));
 
     //check value equivalence
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
@@ -338,11 +293,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D, basicSim)
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
-    BOOST_TEST(compareSize2D(refAnnular, testAnnular));
-    BOOST_TEST(compareSize3D(refPS, testPS));
-    BOOST_TEST(compareSize3D(refVD, testVD));
-    BOOST_TEST(compareSize3D(refDPC, testDPC));
-    BOOST_TEST(compareSize4D(refCBED, testCBED));
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refPS, testPS));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
 
     BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
     BOOST_TEST(compareValues(refPS, testPS) < tol);
@@ -400,11 +355,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D, basicSim)
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
-    BOOST_TEST(compareSize2D(refAnnular, testAnnular));
-    BOOST_TEST(compareSize3D(refPS, testPS));
-    BOOST_TEST(compareSize3D(refVD, testVD));
-    BOOST_TEST(compareSize3D(refDPC, testDPC));
-    BOOST_TEST(compareSize4D(refCBED, testCBED));
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refPS, testPS));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
 
     BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
     BOOST_TEST(compareValues(refPS, testPS) < tol);
@@ -416,11 +371,78 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D, basicSim)
     removeFile(meta.filenameOutput);
 };
 
+BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
+{   
+    meta.potential3D = false;
+    //make larger to have better test for resampling
+    meta.realspacePixelSize[0] = 0.06; 
+    meta.realspacePixelSize[1] = 0.06;
+    
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n##### BEGIN TEST CASE: fourierResampling ######\n";
+
+    std::string importFile = "../test/potentialImport.h5";
+    meta.filenameOutput = "../test/potentialImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    //force 
+    meta.interpolationFactorX = 5;
+    meta.interpolationFactorY = 7;
+    meta.filenameOutput = "../test/potentialRerun.h5";
+    meta.importFile     = "../test/potentialImport.h5";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+    meta.importPotential = true;
+    go(meta);
+    std::cout << "####### END TEST CASE: fourierResampling ######\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+
+    std::cout << refPS.get_dimi() << " " << refPS.get_dimj() << " " << refPS.get_dimk() << std::endl; 
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    //only compare subset of outputs
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+
+    //resampled potential slices should have 80 x 84 x 3 dims do align with fx = 5, fy = 7
+    //rewrite to auto check multiples of 4x(fx, fy)
+    std::cout << testPS.get_dimi() << " " << testPS.get_dimj() << " " << std::endl;
+    bool sizeCheck = testPS.get_dimi() == 80 && testPS.get_dimj() == 84 && testPS.get_dimk() == 3;
+    BOOST_TEST(sizeCheck);
+
+    // removeFile(importFile);
+    // removeFile(meta.filenameOutput);
+};
+
 BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
 {
 
 };
-*/
 
 BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)
 {
@@ -428,6 +450,7 @@ BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)
     meta.probeStepY = 1.0;
     meta.realspacePixelSize[0] = 0.5;
     meta.realspacePixelSize[1] = 0.5;
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: attributeTest ########\n";
@@ -437,14 +460,17 @@ BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)
 
     std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
     std::string attProbe = "rx";
+    std::string attCellDim = "c";
     std::string attFx = "fx";
     std::string attInput = "i";
 
     PRISMATIC_FLOAT_PRECISION probeStepCheck;
+    PRISMATIC_FLOAT_PRECISION cellDimCheck[3];
     int fxCheck;
     std::string inputCheck;
 
     readAttribute(meta.filenameOutput, groupPath, attProbe, probeStepCheck);
+    readAttribute(meta.filenameOutput, groupPath, attCellDim, cellDimCheck);
     readAttribute(meta.filenameOutput, groupPath, attFx, fxCheck);
     readAttribute(meta.filenameOutput, groupPath, attInput, inputCheck);
     
@@ -452,8 +478,47 @@ BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)
     BOOST_TEST(fxCheck == meta.interpolationFactorX);
     BOOST_TEST(inputCheck == meta.filenameAtoms);
 
+    //meta is not updated in place consistnetly through a full sim; compare against known value
+    int errCheck = 0;
+    for(auto i = 0; i < 3; i ++) errCheck += (std::abs(cellDimCheck[i]-5.43) < tol) ? 0 : 1;
+    BOOST_TEST(errCheck < 1);
+
     removeFile(meta.filenameOutput);
 };
+
+BOOST_AUTO_TEST_CASE(complexIO)
+{
+    //testing IO operations on complex datasets
+    PRISMATIC_FLOAT_PRECISION dummy = 1.0; //dummy float for IO overlaoding
+    int seed = 10101;
+    srand(seed);
+    std::default_random_engine de(seed);
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr2D = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7}});
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr3D = zeros_ND<3,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5}});
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr4D = zeros_ND<4,std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5,3}});
+    assignRandomValues(testArr2D, de);
+    assignRandomValues(testArr3D, de);
+    assignRandomValues(testArr4D, de);
+
+    //create a test file
+    std::string fname = "../test/testFile.h5";
+    H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
+    H5::Group testGroup(testFile.createGroup("/complex_data"));
+
+    hsize_t mdims_2D[2] = {testArr2D.get_dimi(), testArr2D.get_dimj()};
+    hsize_t mdims_3D[3] = {testArr3D.get_dimi(), testArr3D.get_dimj(), testArr3D.get_dimk()};
+    hsize_t mdims_4D[4] = {testArr4D.get_dimi(), testArr4D.get_dimj(), testArr4D.get_dimk(), testArr4D.get_diml()};
+
+    writeComplexDataset(testGroup, "complex2D", &testArr2D[0], mdims_2D, 2);
+    writeComplexDataset(testGroup, "complex3D", &testArr3D[0], mdims_2D, 3);
+    writeComplexDataset(testGroup, "complex4D", &testArr4D[0], mdims_2D, 4);
+
+    testGroup.close();
+    testFile.close();
+
+
+}
 
 BOOST_AUTO_TEST_SUITE_END();
 

@@ -27,6 +27,7 @@
 #include "WorkDispatcher.h"
 #include "utility.h"
 #include "fileIO.h"
+#include "fftw3.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -34,8 +35,10 @@
 
 namespace Prismatic
 {
+
 using namespace std;
 mutex potentialWriteLock;
+extern mutex fftw_plan_lock;
 
 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const vector<size_t> &atomic_species,
@@ -551,10 +554,25 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		pars.numSlices = pars.numPlanes;
 	}
-	//TODO: tiledCellDim should come from metadata in file
-	std::cout << inPot.get_dimk() << " " << inPot.get_dimj() << " " << inPot.get_dimi() << " " << std::endl;
-	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
+
 	pars.pot = inPot;
+	//resample coordinates if PRISM algorithm and size of PS array in not a multiple of 4*fx or 4*fy
+	if(pars.meta.algorithm == Algorithm::PRISM)
+	{
+		if ( (inPot.get_dimi() % 4*pars.meta.interpolationFactorX) || (inPot.get_dimj() % pars.meta.interpolationFactorY))
+		{
+			std::cout << "Resampling imported potential to align grid size with requested interpolation factors fx = " 
+					  << pars.meta.interpolationFactorX << " and fy = " << pars.meta.interpolationFactorY << std::endl;
+			fourierResampling(pars);
+		}
+	}
+
+	//TODO: metadata from non-prismatic sources?
+    std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
+	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
+	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
 	pars.imageSize[0] = pars.pot.get_dimj();
 	pars.imageSize[1] = pars.pot.get_dimi();
 	pixelSize[0] /= pars.imageSize[0];
@@ -567,6 +585,85 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		savePotentialSlices(pars);
 	}
 
+};
+
+void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	size_t Ni = 0;
+	size_t Nj = 0;
+
+	//get highest multiple of 4*fx and 4*fy to ensure resampling to a smaller grid only
+	while(Ni < pars.pot.get_dimi()) Ni += pars.meta.interpolationFactorX*4;
+	while(Nj < pars.pot.get_dimj()) Nj += pars.meta.interpolationFactorY*4;
+	Ni -= pars.meta.interpolationFactorX*4;
+ 	Nj -= pars.meta.interpolationFactorY*4;
+ 	
+	Array3D<PRISMATIC_FLOAT_PRECISION> newPot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimk(), Nj, Ni}});
+
+	//create storage variables to hold data from FFTs
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	Array2D<PRISMATIC_FLOAT_PRECISION> fpot = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimj(),pars.pot.get_dimi()}});
+	Array2D<PRISMATIC_FLOAT_PRECISION> bpot = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Nj, Ni}});
+	
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
+	
+	unique_lock<mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_R2C_2D(fstore.get_dimj(), fstore.get_dimi(),
+															&fpot[0],
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fstore[0]),
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_C2R_2D(bstore.get_dimj(), bstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bstore[0]),
+															&bpot[0],
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+	//calculate indices for downsampling in fourier space
+	size_t nyqi = std::floor(Ni/2) + 1;
+	size_t nyqj = std::floor(Nj/2) + 1;
+	const size_t start_index[] = {0,    0,    nyqi-Ni, nyqj-Nj}; //
+	const size_t end_index[]   = {nyqi, nyqj, 0,       0};
+
+	for(auto k = 0; k < newPot.get_dimk(); k++)
+	{
+		//copy current slice to forward transform
+		for(auto i = 0; i < fpot.size(); i++) fpot[i] = pars.pot[k*pars.pot.get_dimj()*pars.pot.get_dimi()+i];
+		
+		//forward transform 
+		PRISMATIC_FFTW_EXECUTE(plan_forward);
+
+		//copy relevant quadrants to backward store
+		for(int q = 0; q < 4; q++)
+		{
+			for(int j = start_index[q/2 + 1]; j < end_index[q/2 + 1]; j++)
+			{
+				for(int i = start_index[q/2]; i < end_index[q/2]; i++)
+				{
+					//modulo to handle negative indices
+					bstore.at(j % Nj, i % Ni) = fstore.at(j % fstore.get_dimj(), i % fstore.get_dimi()); 
+				}
+			}
+		}
+
+		//unrolled version
+		//copy 0:nyq 0:nyq
+
+		//copy
+
+		//inverse transform
+		PRISMATIC_FFTW_EXECUTE(plan_inverse);
+
+		//store slice in potential
+		for(auto i = 0; i < bpot.size(); i++) newPot[k*newPot.get_dimj()*newPot.get_dimi()+i] = bpot[i];
+	}
+
+	//store final resort
+	newPot *= (PRISMATIC_FLOAT_PRECISION) (Ni/pars.pot.get_dimi())*(Nj/pars.pot.get_dimj());
+	pars.pot = newPot;
 };
 
 } // namespace Prismatic
