@@ -527,9 +527,9 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		inPot = readDataset3D(pars.meta.importFile, pars.meta.importPath);
 		
 		
-	}else //read default path
+	}
+	else //read default path
 	{
-		std::cout << "here" << std::endl;
 		inPot = readDataset3D(pars.meta.importFile, "4DSTEM_simulation/data/realslices/ppotential/realslice");
 	}
 
@@ -571,7 +571,10 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
     std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
 	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
-
+	pars.tiledCellDim[0] = meta_cellDims[0];
+	pars.tiledCellDim[1] = meta_cellDims[1];
+	pars.tiledCellDim[2] = meta_cellDims[2];
+	
 	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
 	pars.imageSize[0] = pars.pot.get_dimj();
 	pars.imageSize[1] = pars.pot.get_dimi();

@@ -49,20 +49,31 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	setupOutputFile(prismatic_pars);
 	// compute projected potentials
 	prismatic_pars.fpFlag = 0;
-	if(prismatic_pars.meta.importPotential)
+	if(prismatic_pars.meta.importSMatrix)
+	{
+		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << prismatic_pars.meta.importFile << std::endl;
+	}
+	else if(prismatic_pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
 		PRISM01_importPotential(prismatic_pars);
-	}else
+	}
+	else
 	{
 		PRISM01_calcPotential(prismatic_pars);
 	}
 	
 
-	//		prismatic_pars.pot.toMRC_f("debug_potential.mrc");
-
 	// compute compact S-matrix
-	PRISM02_calcSMatrix(prismatic_pars);
+	if(prismatic_pars.meta.importSMatrix)
+	{
+		PRISM02_importSMatrix(prismatic_pars);
+	}
+	else
+	{
+		PRISM02_calcSMatrix(prismatic_pars);
+	}
+	
 
 	//		Array3D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimk(),prismatic_pars.Scompact.get_dimj(),prismatic_pars.Scompact.get_dimi()}});
 	//		Array3D<PRISMATIC_FLOAT_PRECISION> tmp_r = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimk(),prismatic_pars.Scompact.get_dimj(),prismatic_pars.Scompact.get_dimi()}});

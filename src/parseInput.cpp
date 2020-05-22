@@ -96,7 +96,12 @@ void printHelp()
               << "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n"
               << "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
-              << "* --nyquist-sampling (-nqs) bool=false : Set number of probe positions at Nyquist sampling limit (default: Off)]\n";
+              << "* --save-smatrix (-sm) bool=false : Also save the compact smatrix (warning: can be very large) (default: Off)\n"
+              << "* --nyquist-sampling (-nqs) bool=false : Set number of probe positions at Nyquist sampling limit (default: Off)]\n"
+              << "* --import-potential (-ips) bool=false : Use precalculated projected potential from import HDF5 file. Must specify -if and -idp (default: Off)]\n"
+              << "* --import-smatrix (-ism) bool=false : Use precalculated scattering matrix from import HDF5 file -if and -idp (default: Off)]\n"
+              << "* --import-file (-if) filename : File from where to import precalculated potential or smatrix(default: Off)]\n"
+              << "* --import-data-path (-idp) string : Datapath from where precalcualted values are retrieved within HDF5 import file (default: none, uses Prismatic save path)\n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -813,7 +818,6 @@ bool parse_o(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         return false;
     }
     meta.filenameOutput = std::string((*argv)[1]);
-    //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
     argc -= 2;
     argv[0] += 2;
     return true;
@@ -829,7 +833,36 @@ bool parse_of(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         return false;
     }
     meta.outputFolder = std::string((*argv)[1]);
-    //cout <<"meta.filenameAtoms = " << meta.filenameAtoms << endl;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_if(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+
+    if (argc < 2)
+    {
+        cout << "No filename provided for -if (syntax is -if filename)\n";
+        return false;
+    }
+    meta.importFile = std::string((*argv)[1]);
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_idp(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+
+    if (argc < 2)
+    {
+        cout << "No datapath provided for -idp (syntax is -idp /path/)\n";
+        return false;
+    }
+    meta.importPath = std::string((*argv)[1]);
     argc -= 2;
     argv[0] += 2;
     return true;
@@ -1410,6 +1443,48 @@ bool parse_ps(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         return false;
     }
     meta.savePotentialSlices = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_sm(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -sm (syntax is -sm bool)\n";
+        return false;
+    }
+    meta.saveSMatrix = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_ips(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -ips (syntax is -ips bool)\n";
+        return false;
+    }
+    meta.importPotential = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_ism(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -ism (syntax is -ism bool)\n";
+        return false;
+    }
+    meta.importSMatrix = std::string((*argv)[1]) == "0" ? false : true;
     argc -= 2;
     argv[0] += 2;
     return true;

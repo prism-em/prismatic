@@ -247,14 +247,14 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
 };
 
-BOOST_FIXTURE_TEST_CASE(importPotential2D, basicSim)
+BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
 {
     //run simulations
 
     meta.potential3D = false;
 
     divertOutput(pos, fd, logPath);
-    std::cout << "\n##### BEGIN TEST CASE: importPotential2D ######\n";
+    std::cout << "\n#### BEGIN TEST CASE: importPotential2D_P #####\n";
 
     std::string importFile = "../test/potentialImport.h5";
     meta.filenameOutput = "../test/potentialImport.h5";
@@ -267,7 +267,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D, basicSim)
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential/realslice";
     meta.importPotential = true;
     go(meta);
-    std::cout << "####### END TEST CASE: importPotential2D ######\n";
+    std::cout << "###### END TEST CASE: importPotential2D_P #####\n";
 
     revertOutput(fd, pos);
 
@@ -309,14 +309,14 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D, basicSim)
     removeFile(meta.filenameOutput);
 };
 
-BOOST_FIXTURE_TEST_CASE(importPotential3D, basicSim)
+BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
 {
     //run simulations
 
     meta.potential3D = true;
 
     divertOutput(pos, fd, logPath);
-    std::cout << "\n##### BEGIN TEST CASE: importPotential3D ######\n";
+    std::cout << "\n#### BEGIN TEST CASE: importPotential3D_P #####\n";
 
     std::string importFile = "../test/potentialImport.h5";
     meta.filenameOutput = "../test/potentialImport.h5";
@@ -329,7 +329,132 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D, basicSim)
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential/realslice";
     meta.importPotential = true;
     go(meta);
-    std::cout << "####### END TEST CASE: importPotential3D ######\n";
+    std::cout << "###### END TEST CASE: importPotential3D_P #####\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refPS, testPS));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refPS, testPS) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
+};
+
+BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
+{
+    //run simulations
+    meta.potential3D = false;
+    meta.algorithm = Algorithm::Multislice;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
+
+    std::string importFile = "../test/potentialImport.h5";
+    meta.filenameOutput = "../test/potentialImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/potentialRerun.h5";
+    meta.importFile     = "../test/potentialImport.h5";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+    meta.importPotential = true;
+    go(meta);
+    std::cout << "###### END TEST CASE: importPotential2D_M #####\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refPS, testPS));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refPS, testPS) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
+};
+
+BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
+{
+    //run simulations
+
+    meta.potential3D = true;
+    meta.algorithm = Algorithm::Multislice;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n#### BEGIN TEST CASE: importPotential3D_M #####\n";
+
+    std::string importFile = "../test/potentialImport.h5";
+    meta.filenameOutput = "../test/potentialImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/potentialRerun.h5";
+    meta.importFile     = "../test/potentialImport.h5";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+    meta.importPotential = true;
+    go(meta);
+    std::cout << "###### END TEST CASE: importPotential3D_M #####\n";
 
     revertOutput(fd, pos);
 
@@ -428,14 +553,73 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     bool sizeCheck = testPS.get_dimi() == 80 && testPS.get_dimj() == 84 && testPS.get_dimk() == 3;
     BOOST_TEST(sizeCheck);
 
-    // removeFile(importFile);
-    // removeFile(meta.filenameOutput);
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
 
 };
 
 BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
 {
+    //run simulations
 
+    meta.potential3D = false;
+    meta.saveSMatrix = true;
+    meta.numGPUs = 0;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n####### BEGIN TEST CASE: importSMatrix ########\n";
+
+    std::string importFile = "../test/smatrixImport.h5";
+    meta.filenameOutput = "../test/smatrixImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/smatrixRerun.h5";
+    meta.importFile     = "../test/smatrixImport.h5";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/smatrix/realslice";
+    meta.importSMatrix = true;
+    go(meta);
+    std::cout << "######### END TEST CASE: importSMatrix ########\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refPS, testPS));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refPS, testPS) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
 };
 
 BOOST_FIXTURE_TEST_CASE(attributeTest, basicSim)

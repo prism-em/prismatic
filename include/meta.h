@@ -89,6 +89,7 @@ namespace Prismatic{
             saveDPC_CoM           = false;
             saveRealSpaceCoords   = false;
             savePotentialSlices   = false;
+            saveSMatrix           = false;
             userSpecifiedCelldims = false;
             realSpaceWindow_x     = false;
             realSpaceWindow_y     = false;
@@ -97,6 +98,7 @@ namespace Prismatic{
             transferMode          = StreamingMode::Auto;
             nyquistSampling		  = false;
             importPotential       = false;
+            importSMatrix         = false;
             importFile            = "";
             importPath            = "";
         }
@@ -160,11 +162,13 @@ namespace Prismatic{
         bool saveDPC_CoM;
         bool saveRealSpaceCoords;
         bool savePotentialSlices;
+        bool saveSMatrix;
         bool userSpecifiedCelldims;
         bool realSpaceWindow_x;
         bool realSpaceWindow_y;
         bool nyquistSampling;
         bool importPotential;
+        bool importSMatrix;
         StreamingMode transferMode;
 
     };

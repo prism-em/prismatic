@@ -1992,11 +1992,17 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
 
 	//create dataset and write
-
 	H5::DataSpace mspace(rank, mdims);
 
-	//TODO: if dataset exists, use that space, don't create
-	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	H5::DataSet complex_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		complex_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	}		
 	H5::DataSpace fspace = complex_dset.getSpace();
 	complex_dset.write(buffer, complex_type, mspace, fspace);
 
@@ -2017,11 +2023,18 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_DOUBLE);
 
 	//create dataset and write
-
 	H5::DataSpace mspace(rank, mdims);
 
-	//TODO: if dataset exists, use that space, don't create
-	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	H5::DataSet complex_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		complex_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	}
+		
 	H5::DataSpace fspace = complex_dset.getSpace();
 	complex_dset.write(buffer, complex_type, mspace, fspace);
 
