@@ -36,8 +36,8 @@ class Metadata:
     "tileX" : number of unit cells to tile in X direction
     "tileY" : number of unit cells to tile in Y direction
     "tileZ" : number of unit cells to tile in Z direction
-    "E0" : electron beam energy (in eV)
-    "alphaBeamMax" : the maximum probe angle to consider (in rad)
+    "E0" : electron beam energy (in keV)
+    "alphaBeamMax" : the maximum probe angle to consider (in mrad)
     "numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.
     "numStreamsPerGPU" : number of CUDA streams to use per GPU
     "numThreads" : number of CPU worker threads to use
@@ -49,10 +49,10 @@ class Metadata:
     "probeDefocus" : probe defocus (in Angstroms)
     "C3" : microscope C3 (in Angstroms)
     "C5" : microscope C5 (in Angstroms)
-    "probeSemiangle" : probe convergence semi-angle (in rad)
-    "detectorAngleStep" : angular step size for detector integration bins (in rad)
-    "probeXtilt" : (in Angstroms)
-    "probeYtilt" : (in Angstroms)
+    "probeSemiangle" : probe convergence semi-angle (in mrad)
+    "detectorAngleStep" : angular step size for detector integration bins (in mrad)
+    "probeXtilt" : (in mrad)
+    "probeYtilt" : (in mrad)
     "scanWindowXMin" : lower X size of the window to scan the probe (in fractional coordinates)
     "scanWindowXMax" : upper X size of the window to scan the probe (in fractional coordinates)
     "scanWindowYMin" : lower Y size of the window to scan the probe (in fractional coordinates)
@@ -74,8 +74,8 @@ class Metadata:
     "crop4DOutput" : true/false Crop the 4D output smaller than the anti-aliasing boundary (default: False)
     "crop4Damax" : float If crop4D, the maximum angle to which the output is cropped (in mrad) (default: 100)
     "nyquistSampling": set number of probe positions at Nyquist sampling limit
-    "integrationAngleMin" : (in rad)
-    "integrationAngleMax" : (in rad)
+    "integrationAngleMin" : (in mrad)
+    "integrationAngleMax" : (in mrad)
     "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
@@ -165,7 +165,8 @@ class Metadata:
         "potBound",
         "sliceThickness",
         "E0",
-        "alphaBeamMax" "earlyCPUStopCount",
+        "alphaBeamMax",
+        "earlyCPUStopCount",
         "probeStepX",
         "probeStepY",
         "probeDefocus",
@@ -217,8 +218,8 @@ class Metadata:
         self.tileX = 3
         self.tileY = 3
         self.tileZ = 1
-        self.E0 = 80e3
-        self.alphaBeamMax = 0.024
+        self.E0 = 80
+        self.alphaBeamMax = 24
         self.numGPUs = 4
         self.numStreamsPerGPU = 3
         self.numThreads = 12
@@ -232,8 +233,8 @@ class Metadata:
         self.probeDefocus = 0.0
         self.C3 = 0.0
         self.C5 = 0.0
-        self.probeSemiangle = 0.02
-        self.detectorAngleStep = 0.001
+        self.probeSemiangle = 20.0
+        self.detectorAngleStep = 1.0
         self.probeXtilt = 0.0
         self.probeYtilt = 0.0
         self.scanWindowXMin = 0.0
@@ -258,7 +259,7 @@ class Metadata:
         self.savePotentialSlices = False
         self.nyquistSampling = False
         self.integrationAngleMin = 0
-        self.integrationAngleMax = 0.001
+        self.integrationAngleMax = 1.0
         self.transferMode = "auto"
         for k, v in kwargs.items():
             if k not in Metadata.fields:
