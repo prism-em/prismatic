@@ -29,6 +29,10 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 
 void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy);
 
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const float dummy);
+
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const double dummy);
+
 void writeRealSlice(H5::DataSet dataset, const float *buffer, const hsize_t *mdims);
 
 void writeRealSlice(H5::DataSet dataset, const double *buffer, const hsize_t *mdims);
@@ -67,6 +71,8 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank);
 
+void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank);
+
 template <size_t N>
 void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
 {
@@ -76,8 +82,17 @@ void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
     H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
 	const H5std_string re_str("r"); //using h5py default configuration
 	const H5std_string im_str("i");
-	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
-	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
+
+	if(sizeof(PRISMATIC_FLOAT_PRECISION) == 4)
+	{
+		complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
+		complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
+	}
+	else{
+		complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_DOUBLE);
+		complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_DOUBLE);
+	}
+	
 
 	hsize_t dims_out[N];
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);

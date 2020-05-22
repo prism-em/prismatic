@@ -912,6 +912,182 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 	realslices.close();
 };
 
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const float dummy)
+{
+	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+
+	std::string base_name = "smatrix";
+	hsize_t attr_dims[1] = {1};
+	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+
+	hsize_t rx_dim[1] = {pars.xp.size()}; //TODO: clarify 
+	hsize_t ry_dim[1] = {pars.yp.size()};
+	hsize_t beams[1] = {pars.numberBeams};
+
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_FLOAT);
+	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_FLOAT);
+
+	H5::Group smatrix_group(realslices.createGroup(base_name.c_str()));
+
+	//write group type attribute
+	H5::DataSpace attr1_dataspace(H5S_SCALAR);
+	H5::Attribute emd_group_type = smatrix_group.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
+	int group_type = 1;
+	emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+	//write metadata attribute
+	H5::DataSpace attr2_dataspace(H5S_SCALAR);
+	H5::Attribute metadata_group = smatrix_group.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
+	int mgroup = 0;
+	metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+
+	//create datasets
+	H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
+	H5::DataSet smatrix_data = smatrix_group.createDataSet("realslice", complex_type, mspace);
+	smatrix_data.close();
+	mspace.close();
+
+	//write dimensions
+	H5::DataSpace str_name_ds(H5S_SCALAR);
+	H5::StrType strdatatype(H5::PredType::C_S1, 256);
+
+	H5::DataSpace dim1_mspace(1, rx_dim);
+	H5::DataSpace dim2_mspace(1, ry_dim);
+	H5::DataSpace dim3_mspace(1, beams);
+
+	H5::DataSet dim1 = smatrix_group.createDataSet("dim1", H5::PredType::NATIVE_FLOAT, dim1_mspace);
+	H5::DataSet dim2 = smatrix_group.createDataSet("dim2", H5::PredType::NATIVE_FLOAT, dim2_mspace);
+	H5::DataSet dim3 = smatrix_group.createDataSet("dim3", H5::PredType::NATIVE_FLOAT, dim3_mspace);
+
+	H5::DataSpace dim1_fspace = dim1.getSpace();
+	H5::DataSpace dim2_fspace = dim2.getSpace();
+	H5::DataSpace dim3_fspace = dim3.getSpace();
+
+	// dim1.write(&pars.xp[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
+	// dim2.write(&pars.yp[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
+	// dim3.write(&pars.detectorAngles[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
+
+	//dimension attributes
+	const H5std_string dim1_name_str("R_x");
+	const H5std_string dim2_name_str("R_y");
+	const H5std_string dim3_name_str("beam_number");
+
+	H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
+	H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
+	H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
+
+	dim1_name.write(strdatatype, dim1_name_str);
+	dim2_name.write(strdatatype, dim2_name_str);
+	dim3_name.write(strdatatype, dim3_name_str);
+
+	const H5std_string dim1_unit_str("[Å]");
+	const H5std_string dim2_unit_str("[Å]");
+	const H5std_string dim3_unit_str("[none]");
+
+	H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
+	H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
+	H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
+
+	dim1_unit.write(strdatatype, dim1_unit_str);
+	dim2_unit.write(strdatatype, dim2_unit_str);
+	dim3_unit.write(strdatatype, dim3_unit_str);
+
+	smatrix_group.close();
+	realslices.close();
+
+};
+
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const double dummy)
+{
+	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+
+	std::string base_name = "smatrix";
+	hsize_t attr_dims[1] = {1};
+	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+
+	hsize_t rx_dim[1] = {pars.xp.size()}; //TODO: clarify 
+	hsize_t ry_dim[1] = {pars.yp.size()};
+	hsize_t beams[1] = {pars.numberBeams};
+
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_DOUBLE);
+	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_DOUBLE);
+
+	H5::Group smatrix_group(realslices.createGroup(base_name.c_str()));
+
+	//write group type attribute
+	H5::DataSpace attr1_dataspace(H5S_SCALAR);
+	H5::Attribute emd_group_type = smatrix_group.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
+	int group_type = 1;
+	emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+	//write metadata attribute
+	H5::DataSpace attr2_dataspace(H5S_SCALAR);
+	H5::Attribute metadata_group = smatrix_group.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
+	int mgroup = 0;
+	metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+
+	//create datasets
+	H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
+	H5::DataSet smatrix_data = smatrix_group.createDataSet("realslice", complex_type, mspace);
+	smatrix_data.close();
+	mspace.close();
+
+	//write dimensions
+	H5::DataSpace str_name_ds(H5S_SCALAR);
+	H5::StrType strdatatype(H5::PredType::C_S1, 256);
+
+	H5::DataSpace dim1_mspace(1, rx_dim);
+	H5::DataSpace dim2_mspace(1, ry_dim);
+	H5::DataSpace dim3_mspace(1, beams);
+
+	H5::DataSet dim1 = smatrix_group.createDataSet("dim1", H5::PredType::NATIVE_DOUBLE, dim1_mspace);
+	H5::DataSet dim2 = smatrix_group.createDataSet("dim2", H5::PredType::NATIVE_DOUBLE, dim2_mspace);
+	H5::DataSet dim3 = smatrix_group.createDataSet("dim3", H5::PredType::NATIVE_DOUBLE, dim3_mspace);
+
+	H5::DataSpace dim1_fspace = dim1.getSpace();
+	H5::DataSpace dim2_fspace = dim2.getSpace();
+	H5::DataSpace dim3_fspace = dim3.getSpace();
+
+	// dim1.write(&pars.xp[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
+	// dim2.write(&pars.yp[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
+	// dim3.write(&pars.detectorAngles[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
+
+	//dimension attributes
+	const H5std_string dim1_name_str("R_x");
+	const H5std_string dim2_name_str("R_y");
+	const H5std_string dim3_name_str("beam_number");
+
+	H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
+	H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
+	H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
+
+	dim1_name.write(strdatatype, dim1_name_str);
+	dim2_name.write(strdatatype, dim2_name_str);
+	dim3_name.write(strdatatype, dim3_name_str);
+
+	const H5std_string dim1_unit_str("[Å]");
+	const H5std_string dim2_unit_str("[Å]");
+	const H5std_string dim3_unit_str("[none]");
+
+	H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
+	H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
+	H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
+
+	dim1_unit.write(strdatatype, dim1_unit_str);
+	dim2_unit.write(strdatatype, dim2_unit_str);
+	dim3_unit.write(strdatatype, dim3_unit_str);
+
+	smatrix_group.close();
+	realslices.close();
+
+};
+
 void writeRealSlice(H5::DataSet dataset, const float *buffer, const hsize_t *mdims)
 {
 	H5::DataSpace fspace = dataset.getSpace(); //all realslices have data written all at once
@@ -1818,6 +1994,33 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 	//create dataset and write
 
 	H5::DataSpace mspace(rank, mdims);
+
+	//TODO: if dataset exists, use that space, don't create
+	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	H5::DataSpace fspace = complex_dset.getSpace();
+	complex_dset.write(buffer, complex_type, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	complex_dset.close();
+
+}
+
+void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank)
+{
+	//input buffer is assumed to be float: real, float: im in striding order
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, H5::PredType::NATIVE_DOUBLE);
+	complex_type.insertMember(im_str, 4, H5::PredType::NATIVE_DOUBLE);
+
+	//create dataset and write
+
+	H5::DataSpace mspace(rank, mdims);
+
+	//TODO: if dataset exists, use that space, don't create
 	H5::DataSet complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
 	H5::DataSpace fspace = complex_dset.getSpace();
 	complex_dset.write(buffer, complex_type, mspace, fspace);
