@@ -71,6 +71,8 @@ class Metadata:
     "save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
     "saveDPC_CoM"  : true/false Also save the DPC center of mass calculation for each probe
     "savePotentialSlices" : true/false Also save the projected potential array
+    "crop4DOutput" : true/false Crop the 4D output smaller than the anti-aliasing boundary (default: False)
+    "crop4Damax" : float If crop4D, the maximum angle to which the output is cropped (in mrad) (default: 100)
     "nyquistSampling": set number of probe positions at Nyquist sampling limit
     "integrationAngleMin" : (in rad)
     "integrationAngleMax" : (in rad)
@@ -127,6 +129,8 @@ class Metadata:
         "transferMode",
         "saveDPC_CoM",
         "savePotentialSlices",
+        "crop4DOutput",
+        "crop4Damax",
         "nyquistSampling",
         "numSlices",
         "zStart",
@@ -182,6 +186,7 @@ class Metadata:
         "integrationAngleMin",
         "integrationAngleMax",
         "zStart",
+        "crop4Damax",
     ]
 
     def __init__(self, *args, **kwargs):
@@ -248,6 +253,8 @@ class Metadata:
         self.save3DOutput = True
         self.save4DOutput = False
         self.saveDPC_CoM = False
+        self.crop4DOutput = False
+        self.crop4Damax = 0.1
         self.savePotentialSlices = False
         self.nyquistSampling = False
         self.integrationAngleMin = 0
