@@ -391,10 +391,10 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim3_name.write(strdatatype, dim3_name_str);
 		dim4_name.write(strdatatype, dim4_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[n_m^-1]");
-		const H5std_string dim4_unit_str("[n_m^-1]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[Å^-1]");
+		const H5std_string dim4_unit_str("[Å^-1]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -529,10 +529,10 @@ void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim3_name.write(strdatatype, dim3_name_str);
 		dim4_name.write(strdatatype, dim4_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[n_m^-1]");
-		const H5std_string dim4_unit_str("[n_m^-1]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
+		const H5std_string dim3_unit_str("[Å^-1]");
+		const H5std_string dim4_unit_str("[Å^-1]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -622,8 +622,8 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim2_name.write(strdatatype, dim2_name_str);
 		dim3_name.write(strdatatype, dim3_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 		const H5std_string dim3_unit_str("[mrad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
@@ -713,8 +713,8 @@ void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim2_name.write(strdatatype, dim2_name_str);
 		dim3_name.write(strdatatype, dim3_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 		const H5std_string dim3_unit_str("[mrad]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
@@ -800,8 +800,8 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -884,8 +884,8 @@ void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const 
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -975,8 +975,8 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -1066,8 +1066,8 @@ void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const
 		dim1_name.write(strdatatype, dim1_name_str);
 		dim2_name.write(strdatatype, dim2_name_str);
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
+		const H5std_string dim1_unit_str("[Å]");
+		const H5std_string dim2_unit_str("[Å]");
 
 		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
 		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
@@ -1163,7 +1163,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, floa
     for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
         finalBuffer[i] += readBuffer[i];
     free(readBuffer);
-		
+
     dataset.write(finalBuffer, H5::PredType::NATIVE_FLOAT, mspace, fspace);
     free(finalBuffer);
     fspace.close();
@@ -1221,7 +1221,7 @@ void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, doub
     dataGroup.flush(H5F_SCOPE_LOCAL);
     dataGroup.close();
     pars.outputFile.flush(H5F_SCOPE_LOCAL);
-    
+
 	writeGatekeeper.unlock();
 };
 
@@ -1275,12 +1275,25 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	{
 		algorithm = "p";
 	}
-
+	H5std_string transferMode;
+	if (pars.meta.transferMode == Prismatic::StreamingMode::Auto)
+	{
+		transferMode = "auto";
+	}
+	else if (pars.meta.transferMode == Prismatic::StreamingMode::SingleXfer)
+	{
+		transferMode = "singlexfer";
+	}
+	else
+	{
+		transferMode = "streaming";
+	}
 	const H5std_string filenameAtoms(pars.meta.filenameAtoms);
 
 	//create string attributes
 	H5::Attribute atoms_attr = sim_params.createAttribute("i", strdatatype, str_name_ds);
 	H5::Attribute alg_attr = sim_params.createAttribute("a", strdatatype, str_name_ds);
+	H5::Attribute tr_attr = sim_params.createAttribute("transferMode", strdatatype, str_name_ds);
 
 	//create scalar logical/integer attributes
 	H5::Attribute fx_attr = sim_params.createAttribute("fx", H5::PredType::NATIVE_INT, scalar_attr);
@@ -1294,6 +1307,13 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	H5::Attribute saveDPC_attr = sim_params.createAttribute("DPC", H5::PredType::NATIVE_INT, scalar_attr);
 	H5::Attribute savePS_attr = sim_params.createAttribute("ps", H5::PredType::NATIVE_INT, scalar_attr);
 	H5::Attribute nyquist_attr = sim_params.createAttribute("nqs", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nGPU_attr = sim_params.createAttribute("numGPUs", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nSGPU_attr = sim_params.createAttribute("numStreamsPerGPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nT_attr = sim_params.createAttribute("numThreads", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute bSCPU_attr = sim_params.createAttribute("batchSizeTargetCPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute bSGPU_attr = sim_params.createAttribute("batchSizeTargetGPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute alsoCPU_attr = sim_params.createAttribute("alsoDoCPUWork", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute crop4D_attr = sim_params.createAttribute("crop4DOutput", H5::PredType::NATIVE_INT, scalar_attr);
 
 	//create scalar float/double attributes (changes based on prismatic float precision)
 	H5::Attribute px_attr = sim_params.createAttribute("px", H5::PredType::NATIVE_FLOAT, scalar_attr);
@@ -1312,6 +1332,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	H5::Attribute detector_attr = sim_params.createAttribute("d", H5::PredType::NATIVE_FLOAT, scalar_attr);
 	H5::Attribute tx_attr = sim_params.createAttribute("tx", H5::PredType::NATIVE_FLOAT, scalar_attr);
 	H5::Attribute ty_attr = sim_params.createAttribute("ty", H5::PredType::NATIVE_FLOAT, scalar_attr);
+	H5::Attribute earlyStop_attr = sim_params.createAttribute("earlyCPUStopCount", H5::PredType::NATIVE_FLOAT, scalar_attr);
+	H5::Attribute rseed_attr = sim_params.createAttribute("randomSeed", H5::PredType::NATIVE_FLOAT, scalar_attr);
+	H5::Attribute crop4Da_attr = sim_params.createAttribute("crop4Damax", H5::PredType::NATIVE_FLOAT, scalar_attr);
 
 	//create vector spaces
 	hsize_t two[1] = {2};
@@ -1341,12 +1364,18 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	//strings
 	atoms_attr.write(strdatatype, filenameAtoms);
 	alg_attr.write(strdatatype, algorithm);
+	tr_attr.write(strdatatype, transferMode);
 
-	//scalar logical/integers
+	//scalar integers
 	fx_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorX);
 	fy_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorY);
 	numFP_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numFP);
 	numSlices_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numSlices);
+	nGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numGPUs);
+	nSGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numStreamsPerGPU);
+	nT_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numThreads);
+	bSCPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.batchSizeTargetCPU);
+	bSGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.batchSizeTargetGPU);
 
 	//logicals first need to be cast to ints
 	int tmp_te = {pars.meta.includeThermalEffects};
@@ -1356,6 +1385,8 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	int tmp_DPC = {pars.meta.saveDPC_CoM};
 	int tmp_PS = {pars.meta.savePotentialSlices};
 	int tmp_nqs = {pars.meta.nyquistSampling};
+	int tmp_alsoCPU = {pars.meta.alsoDoCPUWork};
+	int tmp_crop = {pars.meta.crop4DOutput};
 
 	te_attr.write(H5::PredType::NATIVE_INT, &tmp_te);
 	oc_attr.write(H5::PredType::NATIVE_INT, &tmp_oc);
@@ -1364,6 +1395,8 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	saveDPC_attr.write(H5::PredType::NATIVE_INT, &tmp_DPC);
 	savePS_attr.write(H5::PredType::NATIVE_INT, &tmp_PS);
 	nyquist_attr.write(H5::PredType::NATIVE_INT, &tmp_nqs);
+	alsoCPU_attr.write(H5::PredType::NATIVE_INT, &tmp_alsoCPU);
+	crop4D_attr.write(H5::PredType::NATIVE_INT, &tmp_crop);
 
 	//scalar floats/doubles
 	px_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.realspacePixelSize[1]);
@@ -1376,6 +1409,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float 
 	df_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.probeDefocus);
 	C3_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.C3);
 	C5_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.C5);
+	earlyStop_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.earlyCPUStopCount);
+	rseed_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.randomSeed);
+	crop4Da_attr.write(H5::PredType::NATIVE_FLOAT, &pars.meta.crop4Damax);
 
 	//scalars with unit adjustments
 	PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};
@@ -1462,12 +1498,26 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	{
 		algorithm = "p";
 	}
+	H5std_string transferMode;
+	if (pars.meta.transferMode == Prismatic::StreamingMode::Auto)
+	{
+		transferMode = "auto";
+	}
+	else if (pars.meta.transferMode == Prismatic::StreamingMode::SingleXfer)
+	{
+		transferMode = "singlexfer";
+	}
+	else
+	{
+		transferMode = "streaming";
+	}
 
 	const H5std_string filenameAtoms(pars.meta.filenameAtoms);
 
 	//create string attributes
 	H5::Attribute atoms_attr = sim_params.createAttribute("i", strdatatype, str_name_ds);
 	H5::Attribute alg_attr = sim_params.createAttribute("a", strdatatype, str_name_ds);
+	H5::Attribute tr_attr = sim_params.createAttribute("transferMode", strdatatype, str_name_ds);
 
 	//create scalar logical/integer attributes
 	H5::Attribute fx_attr = sim_params.createAttribute("fx", H5::PredType::NATIVE_INT, scalar_attr);
@@ -1481,6 +1531,13 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	H5::Attribute saveDPC_attr = sim_params.createAttribute("DPC", H5::PredType::NATIVE_INT, scalar_attr);
 	H5::Attribute savePS_attr = sim_params.createAttribute("ps", H5::PredType::NATIVE_INT, scalar_attr);
 	H5::Attribute nyquist_attr = sim_params.createAttribute("nqs", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nGPU_attr = sim_params.createAttribute("numGPUs", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nSGPU_attr = sim_params.createAttribute("numStreamsPerGPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute nT_attr = sim_params.createAttribute("numThreads", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute bSCPU_attr = sim_params.createAttribute("batchSizeTargetCPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute bSGPU_attr = sim_params.createAttribute("batchSizeTargetGPU", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute alsoCPU_attr = sim_params.createAttribute("alsoDoCPUWork", H5::PredType::NATIVE_INT, scalar_attr);
+	H5::Attribute crop4D_attr = sim_params.createAttribute("crop4DOutput", H5::PredType::NATIVE_INT, scalar_attr);
 
 	//create scalar float/double attributes (changes based on prismatic float precision)
 	H5::Attribute px_attr = sim_params.createAttribute("px", H5::PredType::NATIVE_DOUBLE, scalar_attr);
@@ -1499,6 +1556,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	H5::Attribute detector_attr = sim_params.createAttribute("d", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 	H5::Attribute tx_attr = sim_params.createAttribute("tx", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 	H5::Attribute ty_attr = sim_params.createAttribute("ty", H5::PredType::NATIVE_DOUBLE, scalar_attr);
+	H5::Attribute earlyStop_attr = sim_params.createAttribute("earlyCPUStopCount", H5::PredType::NATIVE_DOUBLE, scalar_attr);
+	H5::Attribute rseed_attr = sim_params.createAttribute("randomSeed", H5::PredType::NATIVE_DOUBLE, scalar_attr);
+	H5::Attribute crop4Da_attr = sim_params.createAttribute("crop4Damax", H5::PredType::NATIVE_DOUBLE, scalar_attr);
 
 	//create vector spaces
 	hsize_t two[1] = {2};
@@ -1528,12 +1588,18 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	//strings
 	atoms_attr.write(strdatatype, filenameAtoms);
 	alg_attr.write(strdatatype, algorithm);
+	tr_attr.write(strdatatype, transferMode);
 
 	//scalar integers
 	fx_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorX);
 	fy_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorY);
 	numFP_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numFP);
 	numSlices_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numSlices);
+	nGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numGPUs);
+	nSGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numStreamsPerGPU);
+	nT_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numThreads);
+	bSCPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.batchSizeTargetCPU);
+	bSGPU_attr.write(H5::PredType::NATIVE_INT, &pars.meta.batchSizeTargetGPU);
 
 	//logicals first need to be cast to ints
 	int tmp_te = {pars.meta.includeThermalEffects};
@@ -1543,6 +1609,8 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	int tmp_DPC = {pars.meta.saveDPC_CoM};
 	int tmp_PS = {pars.meta.savePotentialSlices};
 	int tmp_nqs = {pars.meta.nyquistSampling};
+	int tmp_alsoCPU = {pars.meta.alsoDoCPUWork};
+	int tmp_crop = {pars.meta.crop4DOutput};
 
 	te_attr.write(H5::PredType::NATIVE_INT, &tmp_te);
 	oc_attr.write(H5::PredType::NATIVE_INT, &tmp_oc);
@@ -1551,6 +1619,8 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	saveDPC_attr.write(H5::PredType::NATIVE_INT, &tmp_DPC);
 	savePS_attr.write(H5::PredType::NATIVE_INT, &tmp_PS);
 	nyquist_attr.write(H5::PredType::NATIVE_INT, &tmp_nqs);
+	alsoCPU_attr.write(H5::PredType::NATIVE_INT, &tmp_alsoCPU);
+	crop4D_attr.write(H5::PredType::NATIVE_INT, &tmp_crop);
 
 	//scalar floats/doubles
 	px_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.realspacePixelSize[1]);
@@ -1563,6 +1633,9 @@ void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double
 	df_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.probeDefocus);
 	C3_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C3);
 	C5_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.C5);
+	earlyStop_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.earlyCPUStopCount);
+	rseed_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.randomSeed);
+	crop4Da_attr.write(H5::PredType::NATIVE_DOUBLE, &pars.meta.crop4Damax);
 
 	//scalars with unit adjustments
 	PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};
