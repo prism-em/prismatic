@@ -181,14 +181,11 @@ inline void downsampleFourierComponents(Parameters<PRISMATIC_FLOAT_PRECISION> &p
 	pars.pixelSizeOutput[0] *= 2;
 	pars.pixelSizeOutput[1] *= 2;
 
-	std::cout << "here 6b" << std::endl;
 
 	pars.qxaOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
 	pars.qyaOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
 	pars.beamsOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
-	std::cout << "here 6c" << std::endl;
-	std::cout << pars.qyInd.size() << " " << pars.qxInd.size() <<  std::endl;
-
+	
 	for (auto y = 0; y < pars.qyInd.size(); ++y)
 	{
 		for (auto x = 0; x < pars.qxInd.size(); ++x)
@@ -198,7 +195,6 @@ inline void downsampleFourierComponents(Parameters<PRISMATIC_FLOAT_PRECISION> &p
 			pars.beamsOutput.at(y, x) = pars.beams.at(pars.qyInd[y], pars.qxInd[x]);
 		}
 	}
-	std::cout << "here 6d" << std::endl;
 }
 
 void propagatePlaneWave_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
@@ -531,7 +527,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 
 		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
-		std::cout << "here" << std::endl;
 		{
 			Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_sm(inSMatrix);
 			for(auto i = 0; i < inSMatrix.get_dimi(); i++)
@@ -550,7 +545,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		pars.Scompact = inSMatrix;
 	}
 
-	std::cout << "here 2" << std::endl;
 	//acquire necessary metadata to create auxillary variables
 	std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
@@ -567,7 +561,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	readAttribute(pars.meta.importFile, groupPath, "px", tmp_rpixel);
 	meta_rpixel[1] = tmp_rpixel;
 
-	std::cout << "here 3" << std::endl;
 	pars.tiledCellDim[0] = meta_cellDims[0];
 	pars.tiledCellDim[1] = meta_cellDims[1];
 	pars.tiledCellDim[2] = meta_cellDims[2];
@@ -583,8 +576,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pixelSize[0] /= pars.imageSize[0];
 	pixelSize[1] /= pars.imageSize[1];
 
-	std::cout << "here 4" << std::endl;
-
 	Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
 	Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 	pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> mesh = meshgrid(qy, qx);
@@ -596,6 +587,7 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				  return a * a + b * b;
 			  });
 	pars.q2 = q2;
+	
 	// get qMax
 	long long ncx = (long long)floor((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] / 2);
 	PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspacePixelSize[1]);
@@ -620,12 +612,10 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 	}
 
-	std::cout << "here 5" << std::endl;
+	setupBeams(pars);
 	setupSMatrixCoordinates(pars);
-	std::cout << "here 6" << std::endl;
 	downsampleFourierComponents(pars);
 
-	std::cout << "here 7" << std::endl;
 	if(pars.meta.saveSMatrix)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
@@ -633,7 +623,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, dummy);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix");
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		std::cout << "here 8" << std::endl;
 		writeComplexDataset(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
 	}
 

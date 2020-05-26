@@ -564,7 +564,7 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
 
     meta.potential3D = false;
     meta.saveSMatrix = true;
-    meta.numGPUs = 0;
+    meta.numGPUs = 1;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: importSMatrix ########\n";
@@ -589,34 +589,36 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential/realslice";
+    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix/realslice";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
     Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refSMatrix;
+    readComplexDataset(refSMatrix, importFile, dataPathSM);
 
     Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
     Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
+    readComplexDataset(testSMatrix, importFile, dataPathSM);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
-    BOOST_TEST(compareSize(refPS, testPS));
     BOOST_TEST(compareSize(refVD, testVD));
     BOOST_TEST(compareSize(refDPC, testDPC));
     BOOST_TEST(compareSize(refCBED, testCBED));
+    BOOST_TEST(compareSize(refSMatrix, testSMatrix));
 
     BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
-    BOOST_TEST(compareValues(refPS, testPS) < tol);
     BOOST_TEST(compareValues(refDPC, testDPC) < tol);
     BOOST_TEST(compareValues(refVD, testVD) < tol);
     BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+    BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
 
     removeFile(importFile);
     removeFile(meta.filenameOutput);
