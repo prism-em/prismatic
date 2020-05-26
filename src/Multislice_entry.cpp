@@ -79,7 +79,16 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 			prismatic_pars.fpFlag = fp_num;
 			prismatic_pars.scale = 1.0;
 
-			PRISM01_calcPotential(prismatic_pars);
+			if(prismatic_pars.meta.importPotential)
+			{
+				std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
+				PRISM01_importPotential(prismatic_pars);
+			}
+			else
+			{
+				PRISM01_calcPotential(prismatic_pars);
+			}
+			
 			Multislice_calcOutput(prismatic_pars);
 			net_output += prismatic_pars.output;
 			if (meta.saveDPC_CoM)

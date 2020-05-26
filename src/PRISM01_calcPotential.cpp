@@ -522,15 +522,15 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	std::cout << "Setting up PRISM01 auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
 	Array3D<PRISMATIC_FLOAT_PRECISION> inPot;
-	if(pars.meta.importPath.c_str() != "")
+
+	if(pars.meta.importPath.size() > 0)
 	{
 		inPot = readDataset3D(pars.meta.importFile, pars.meta.importPath);
-		
-		
 	}
 	else //read default path
 	{
-		inPot = readDataset3D(pars.meta.importFile, "4DSTEM_simulation/data/realslices/ppotential/realslice");
+		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/realslice";
+		inPot = readDataset3D(pars.meta.importFile, groupPath);
 	}
 
 	//restriding potential

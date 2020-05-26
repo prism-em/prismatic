@@ -114,8 +114,30 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 			prismatic_pars.fpFlag = fp_num;
 
-			PRISM01_calcPotential(prismatic_pars);
-			PRISM02_calcSMatrix(prismatic_pars);
+			if(prismatic_pars.meta.importSMatrix)
+			{
+				std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << prismatic_pars.meta.importFile << std::endl;
+			}
+			else if(prismatic_pars.meta.importPotential)
+			{
+				std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
+				PRISM01_importPotential(prismatic_pars);
+			}
+			else
+			{
+				PRISM01_calcPotential(prismatic_pars);
+			}
+
+			// compute compact S-matrix
+			if(prismatic_pars.meta.importSMatrix)
+			{
+				PRISM02_importSMatrix(prismatic_pars);
+			}
+			else
+			{
+				PRISM02_calcSMatrix(prismatic_pars);
+			}
+
 			PRISM03_calcOutput(prismatic_pars);
 			net_output += prismatic_pars.output;
 			if (meta.saveDPC_CoM)
