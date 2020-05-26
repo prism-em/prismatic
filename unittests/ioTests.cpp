@@ -577,7 +577,6 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
 
     meta.filenameOutput = "../test/smatrixRerun.h5";
     meta.importFile     = "../test/smatrixImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/smatrix/realslice";
     meta.importSMatrix = true;
     go(meta);
     std::cout << "######### END TEST CASE: importSMatrix ########\n";
@@ -589,7 +588,7 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix/realslice";
+    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/realslice";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
@@ -619,6 +618,77 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     BOOST_TEST(compareValues(refVD, testVD) < tol);
     BOOST_TEST(compareValues(refCBED, testCBED) < tol);
     BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
+};
+
+BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
+{
+    //run simulations
+
+    meta.potential3D = false;
+    meta.saveSMatrix = true;
+    meta.numFP = 4;
+    meta.numGPUs = 1;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n###### BEGIN TEST CASE: importSM_multFP #######\n";
+
+    std::string importFile = "../test/smatrixImport.h5";
+    meta.filenameOutput = "../test/smatrixImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/smatrixRerun.h5";
+    meta.importFile     = "../test/smatrixImport.h5";
+    meta.importSMatrix = true;
+    go(meta);
+    std::cout << "######## END TEST CASE: importSM_multFP #######\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refSMatrix;
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
+
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    for(auto i = 0; i < 4; i++)
+    {
+        std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(i) + "/realslice";
+        std::cout << "Checking frozen phonon configuration: " << i << std::endl;
+        readComplexDataset(refSMatrix, importFile, dataPathSM);
+        readComplexDataset(testSMatrix, importFile, dataPathSM);
+        BOOST_TEST(compareSize(refSMatrix, testSMatrix));
+        BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
+    }
 
     removeFile(importFile);
     removeFile(meta.filenameOutput);

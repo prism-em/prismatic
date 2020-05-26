@@ -503,8 +503,8 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
 		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupSMatrixOutput(pars, dummy);
-		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix");
+		setupSMatrixOutput(pars, pars.fpFlag, dummy);
+		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		writeComplexDataset(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
 	}
@@ -517,13 +517,14 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> inSMatrix;
 
-		if(pars.meta.importPath.c_str() != "")
+		if(pars.meta.importPath.size() > 0)
 		{
 			readComplexDataset(inSMatrix, pars.meta.importFile, pars.meta.importPath);
 		}
 		else //read default path
 		{
-			readComplexDataset(inSMatrix, pars.meta.importFile, "4DSTEM_simulation/data/realslices/smatrix/realslice");
+			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/realslice";
+			readComplexDataset(inSMatrix, pars.meta.importFile, groupPath);
 		}
 
 		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
@@ -620,8 +621,8 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
 		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupSMatrixOutput(pars, dummy);
-		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix");
+		setupSMatrixOutput(pars, pars.fpFlag, dummy);
+		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		writeComplexDataset(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
 	}

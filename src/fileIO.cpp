@@ -912,11 +912,11 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 	realslices.close();
 };
 
-void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const float dummy)
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP, const float dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
-	std::string base_name = "smatrix";
+	std::string base_name = "smatrix_fp" + getDigitString(FP);
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
 
@@ -1000,11 +1000,11 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const float
 
 };
 
-void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const double dummy)
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP, const double dummy)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
-	std::string base_name = "smatrix";
+	std::string base_name = "smatrix_fp" + getDigitString(FP);
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
 

@@ -29,9 +29,9 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 
 void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers, const double dummy);
 
-void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const float dummy);
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP, const float dummy);
 
-void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const double dummy);
+void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP, const double dummy);
 
 void writeRealSlice(H5::DataSet dataset, const float *buffer, const hsize_t *mdims);
 
