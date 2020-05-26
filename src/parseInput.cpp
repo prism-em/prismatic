@@ -669,6 +669,8 @@ bool parse_F(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         cout << "Invalid value \"" << (*argv)[1] << "\" provided for number of frozen phonon configurations (syntax is -F #)\n";
         return false;
     }
+    //set a flag for when dealing with import files
+    meta.userSpecifiedNumFP = true;
     argc -= 2;
     argv[0] += 2;
     return true;
@@ -850,6 +852,7 @@ bool parse_if(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     meta.importFile = std::string((*argv)[1]);
     argc -= 2;
     argv[0] += 2;
+
     return true;
 };
 

@@ -99,6 +99,7 @@ namespace Prismatic{
             nyquistSampling		  = false;
             importPotential       = false;
             importSMatrix         = false;
+            userSpecifiedNumFP    = false;
             importFile            = "";
             importPath            = "";
         }
@@ -169,6 +170,7 @@ namespace Prismatic{
         bool nyquistSampling;
         bool importPotential;
         bool importSMatrix;
+        bool userSpecifiedNumFP;
         StreamingMode transferMode;
 
     };

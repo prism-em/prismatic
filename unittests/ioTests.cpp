@@ -805,6 +805,78 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     removeFile(meta.filenameOutput);
 }
 
+BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
+{
+    //run simulations
+
+    meta.potential3D = false;
+    meta.numFP = 4;
+    meta.includeThermalEffects = 1;
+    // meta.algorithm = Algorithm::Multislice;
+    
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n#### BEGIN TEST CASE: importPot_fpMismatch ####\n";
+
+    std::string importFile = "../test/potentialImport.h5";
+    meta.filenameOutput = "../test/potentialImport.h5";
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/potentialRerun.h5";
+    meta.importFile     = "../test/potentialImport.h5";
+    meta.numFP = 1;
+    meta.importPotential = true;
+    go(meta);
+    std::cout << "##### END TEST CASE: importPot_fpMismatch #####\n";
+
+    revertOutput(fd, pos);
+
+    //read in output arrays and compare
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION errorSum;
+    PRISMATIC_FLOAT_PRECISION maxCBED = 0.0;
+
+    BOOST_TEST(compareSize(refAnnular, testAnnular));
+    BOOST_TEST(compareSize(refVD, testVD));
+    BOOST_TEST(compareSize(refDPC, testDPC));
+    BOOST_TEST(compareSize(refCBED, testCBED));
+
+    BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
+    BOOST_TEST(compareValues(refDPC, testDPC) < tol);
+    BOOST_TEST(compareValues(refVD, testVD) < tol);
+    BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+
+    int slices = (meta.numFP < 4) ? meta.numFP : 4;
+    for(auto i = 0; i < slices; i++)
+    {
+        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
+        std::cout << "Checking frozen phonon configuration: " << i << std::endl;
+        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+        BOOST_TEST(compareSize(refPS, testPS));
+        BOOST_TEST(compareValues(refPS, testPS) < tol);
+    }
+
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
+}
+
 BOOST_AUTO_TEST_CASE(complexIO)
 {
     //testing IO operations on complex datasets
@@ -855,6 +927,32 @@ BOOST_AUTO_TEST_CASE(complexIO)
     BOOST_TEST(compareValues(refArr3D, testArr3D) < tol);
     BOOST_TEST(compareValues(refArr4D, testArr4D) < tol);
 
+    removeFile(fname);
+}
+
+BOOST_AUTO_TEST_CASE(dataGroupCount)
+{
+    //create a test file
+    std::string fname = "../test/testFile.h5";
+    H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
+    H5::Group testGroup(testFile.createGroup("/complex_data"));
+
+    int numgroups = 10;
+    std::string basename = "testName_";
+    for(auto i = 0; i < numgroups; i++)
+    {
+        H5::Group newGroup(testGroup.createGroup(basename+getDigitString(i)));
+        newGroup.close();
+    }
+
+    int counted = countDataGroups(testGroup, basename);
+
+    testGroup.close();
+    testFile.close();
+
+    BOOST_TEST(numgroups == counted);
+
+    removeFile(fname);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

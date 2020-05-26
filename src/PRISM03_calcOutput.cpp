@@ -455,7 +455,7 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
         {
             hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
             intOutput = fftshift2(intOutput);
-            writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP,nameString.str());
+            writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP, nameString.str());
         }
 
 		// CBED_data.close();

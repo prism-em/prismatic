@@ -2012,5 +2012,21 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 
 }
 
+int countDataGroups(H5::Group group, const std::string &basename)
+{
+	//count number of subgroups in specified group with desired basename + "####"
+	//used to determine number of FP configurations in an import file
+	int count = 0;
+	std::string currentName = basename + getDigitString(count);
+	while(group.nameExists(currentName.c_str()))
+	{
+		count += 1;
+		currentName = basename + getDigitString(count);
+	}
+
+	return count;
+
+};
+
 
 } //namespace Prismatic

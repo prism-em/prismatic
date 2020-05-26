@@ -115,6 +115,8 @@ void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
     input.close();
 };
 
+int countDataGroups(H5::Group group, const std::string &basename);
+
 } //namespace Prismatic
 
 #endif //PRISMATIC_FILEIO_H
