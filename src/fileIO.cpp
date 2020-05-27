@@ -35,6 +35,7 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::Group rslices(data.createGroup("realslices"));
 	H5::Group pointlists(data.createGroup("pointlists"));	//point lists and point list arrays are not used in prismatic
 	H5::Group plarrays(data.createGroup("pointlistarrays")); //included here to maintain consistency with format
+	H5::Group supergroups(data.createGroup("supergroups"));
 
 	//log group
 	H5::Group log(simulation.createGroup("log"));
@@ -2028,5 +2029,104 @@ int countDataGroups(H5::Group group, const std::string &basename)
 
 };
 
+void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+						const std::string &sgName,
+						const std::vector<std::string> &dsetPaths,
+						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &dims,
+						const std::vector<std::string> &dims_name,
+						const std::vector<std::string> &dims_units,
+						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &sgdims,
+						const std::vector<std::string> &sgdims_name,
+						const std::vector<std::string> &sgdims_units)
+{
+	H5::Group supergroups = pars.outputFile.openGRoup("4DSTEM_simulation/data/supergroups");
+
+	H5::Group new_sg(supergroups.createGroup(sgName.c_str()));
+
+	//write group type attribute
+	H5::DataSpace attr1_dataspace(H5S_SCALAR);
+	H5::Attribute emd_group_type = new_sg.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
+	int group_type = 3;
+	emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
+
+	//write metadata attribute
+	H5::DataSpace attr2_dataspace(H5S_SCALAR);
+	H5::Attribute metadata_group = new_sg.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
+	int mgroup = 0;
+	metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+
+	H5::DataSpace str_name_ds(H5S_SCALAR);
+	H5::StrType strdatatype(H5::PredType::C_S1, 256);
+
+	//write common dimensions
+	for(auto i = 0; i < dims.size(); i++)
+	{
+		hsize_t dim_size = dims[i].size();
+		H5::DataSpace dim_mspace(1, dim_size);
+		H5::DataSet dim = new_sg.createDataSet("dim"+std::to_string(i), H5::PredType::NATIVE_FLOAT, dim_mspace);
+		H5::DataSpace dim_fspace = dim.getSpace();
+		dim.write(&dims[i][0], H5::PredType::NATIVE_FLOAT, dim_mspace, dim_fspace);
+
+		//dimension attributes
+		const H5std_string dim_name_str(dims_name[i]);
+		const H5std_string dim_unit_str(dims_units[i]);
+		H5::Attribute dim_name = dim.createAttribute("name", strdatatype, str_name_ds);
+		H5::Attribute dim_unit = dim.createAttribute("units", strdatatype, str_name_ds);
+		dim_name.write(strdatatype, dim_name_str);
+		dim_unit.write(strdatatype, dim_unit_str);
+	}
+
+	//write supergroup dimensions
+	for(auto i = 0; i < sgdims.size(); i++)
+	{
+		hsize_t dim_size = sgdims[i].size();
+		H5::DataSpace dim_mspace(1, dim_size);
+		H5::DataSet dim = new_sg.createDataSet("sgdim"+std::to_string(i), H5::PredType::NATIVE_FLOAT, dim_mspace);
+		H5::DataSpace dim_fspace = dim.getSpace();
+		dim.write(&sgdims[i][0], H5::PredType::NATIVE_FLOAT, dim_mspace, dim_fspace);
+
+		//dimension attributes
+		const H5std_string dim_name_str(sgdims_name[i]);
+		const H5std_string dim_unit_str(sgdims_units[i]);
+		H5::Attribute dim_name = dim.createAttribute("name", strdatatype, str_name_ds);
+		H5::Attribute dim_unit = dim.createAttribute("units", strdatatype, str_name_ds);
+		dim_name.write(strdatatype, dim_name_str);
+		dim_unit.write(strdatatype, dim_unit_str);
+	}
+
+	//configure virtual dataset
+	size_t rank = dims.size() + sgdims.size();
+	hsize_t data_dims[rank];
+	for(auto i = 0; i < rank; i++)
+	{
+		if(i < dims.size())
+		{
+			data_dims[i] = dims[i].size();
+		}
+		else
+		{
+			data_dims[i] = sgdims[i - dims.size()].size();
+		}
+	}
+
+	//create compound datatype for writting mapping dataset
+	size_t map_type_size = 2*strdatatype.getSize() + sgdims.size()*H5::PredType::NATIVE_INT.getSize();
+	H5::CompType map_type = H5::CompType(map_type_size);
+	const H5std_string fp_str("sourceFile");
+	const H5std_string gp_str("sourceGroup");
+	map_type.insertMember(fp_str, 0, strdatatype);
+	map_type.insertMember(gp_str, strdatatype.getSize(), strdatatype);
+	for(auto i = 0; i < sgdims.size(); i++)
+	{
+		const H5std_string sgdim_str(sgdims_name[i]);
+		size_t offset = 2*strdatatype.getSize() + i*H5::PredType::NATIVE_INT.getSize();
+		map_type.insertMember(sgdim_str, offset, H5::PredType::NATIVE_INT);
+	}
+
+
+
+	new_sg.close();
+	supergroups.close();
+};
 
 } //namespace Prismatic

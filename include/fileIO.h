@@ -9,6 +9,8 @@ struct complex_float_t
 	PRISMATIC_FLOAT_PRECISION im;
 };
 
+struct 
+
 namespace Prismatic{
 
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
@@ -116,6 +118,16 @@ void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
 };
 
 int countDataGroups(H5::Group group, const std::string &basename);
+
+void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
+						const std::string &sgName,
+						const std::vector<std::string> &dsetPaths,
+						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &dims,
+						const std::vector<std::string> &dims_name,
+						const std::vector<std::string> &dims_units,
+						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &sgdims,
+						const std::vector<std::string> &sgdims_name,
+						const std::vector<std::string> &sgdims_units);
 
 } //namespace Prismatic
 

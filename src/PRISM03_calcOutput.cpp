@@ -267,6 +267,7 @@ getSinglePRISMProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const PRISM
 	gatekeeper.unlock();
 	return std::make_pair(realspace_probe, kspace_probe);
 }
+
 void buildPRISMOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 
@@ -447,7 +448,7 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
         if(pars.meta.crop4DOutput)
         {
-            Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput,pars);
+            Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput, pars);
             hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
             writeDatacube4D(pars, &croppedOutput[0], mdims, offset, numFP, nameString.str());
         }
