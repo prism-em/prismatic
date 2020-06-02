@@ -2031,7 +2031,6 @@ int countDataGroups(H5::Group group, const std::string &basename)
 
 void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						const std::string &sgName,
-						const std::vector<std::string> &dsetPaths,
 						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &dims,
 						const std::vector<std::string> &dims_name,
 						const std::vector<std::string> &dims_units,
@@ -2094,40 +2093,12 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		dim_unit.write(strdatatype, dim_unit_str);
 	}
 
-	//configure virtual dataset
-	size_t rank = dims.size() + sgdims.size();
-	hsize_t data_dims[rank];
-	for(auto i = 0; i < rank; i++)
-	{
-		if(i < dims.size())
-		{
-			data_dims[i] = dims[i].size();
-		}
-		else
-		{
-			data_dims[i] = sgdims[i - dims.size()].size();
-		}
-	}
-
-	//create compound datatype for writting mapping dataset
-	size_t map_type_size = 2*strdatatype.getSize() + sgdims.size()*H5::PredType::NATIVE_INT.getSize();
-	H5::CompType map_type = H5::CompType(map_type_size);
-	const H5std_string fp_str("sourceFile");
-	const H5std_string gp_str("sourceGroup");
-	map_type.insertMember(fp_str, 0, strdatatype);
-	map_type.insertMember(gp_str, strdatatype.getSize(), strdatatype);
-	for(auto i = 0; i < sgdims.size(); i++)
-	{
-		const H5std_string sgdim_str(sgdims_name[i]);
-		size_t offset = 2*strdatatype.getSize() + i*H5::PredType::NATIVE_INT.getSize();
-		map_type.insertMember(sgdim_str, offset, H5::PredType::NATIVE_INT);
-	}
-
 	new_sg.close();
 	supergroups.close();
 };
 
-void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
+void writeVirtualDataSet(H5::Group group,
+						const std::string &dsetName,
 						std::vector<H5::DataSet> &datasets,
 						std::vector<std::vector<size_t>> indices)
 {
@@ -2164,6 +2135,7 @@ void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
 	}
 
 	sampleSpace.close();
+
 	//create virtual dataspace and plist mapping
 	H5::DataSpace vds_mspace(rank+new_rank, mdims);
 	H5::DataSpace src_mspace;
@@ -2191,6 +2163,37 @@ void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
 	vds.close();
 
 };
+
+void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//TODO: cycle through various outputs
+	std::string basename = "virtual_detector_depth";
+	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+
+	//gather datasets and create mapping
+	int numDatasets = countDataGroups(realslices, basename);
+	std::vector<H5::DataSet> datasets;
+	std::vector<std::vector<size_t>> indices;
+
+	for(auto i = 0; i < numDatasets; i++)
+	{
+		std::string tmp_name = basename+getDigitString(i);
+		H5::DataSet tmp_group = realslices.openGroup(tmp_name.c_str());
+		H5::DataSet tmp_dataset = tmp_group.openDataset("realslice");
+		datasets.push_back(tmp_dataset);
+		indices.push_back(std::vector<size_t>{i});
+	}
+
+	//gather dim properties from first datagroup
+	//TODO: write a helper function to copy a dim dataset from one group to another
+	//it should go into configure supergroup, and thus, reduce imputs on that function
+	//configure supergroup
+
+	//collect datasets and generate mapping
+
+	//write dataset
+
+}
 
 std::string getDatasetName(H5::DataSet &dataset)
 {

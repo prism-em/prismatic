@@ -120,7 +120,6 @@ int countDataGroups(H5::Group group, const std::string &basename);
 
 void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						const std::string &sgName,
-						const std::vector<std::string> &dsetPaths,
 						const std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> &dims,
 						const std::vector<std::string> &dims_name,
 						const std::vector<std::string> &dims_units,
@@ -128,9 +127,12 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						const std::vector<std::string> &sgdims_name,
 						const std::vector<std::string> &sgdims_units);
 
-void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
+void writeVirtualDataSet(H5::Group group,
+						const std::string &dsetName,
 						std::vector<H5::DataSet> &datasets,
 						std::vector<std::vector<size_t>> indices);
+
+void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 std::string getDatasetName(H5::DataSet &dataset);
 						
