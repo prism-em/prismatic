@@ -38,5 +38,24 @@ PRISMATIC_FLOAT_PRECISION compareValues(ArrayND<N, T> &ref, ArrayND<N, T> &test)
     return errorSum;
 };
 
+template <size_t N, class T>
+ArrayND<N-1, T> subspace(ArrayND<N, T> &orig,  const size_t &index)
+{
+    //returns a reduced array of all values in array at index along slowest dimension
+    std::array<size_t, N> inDims = orig.get_dimarr();
+    std::array<size_t, N-1> outDims;
+    size_t strides = 1;
+    for(auto i = 1; i < N; i++)
+    {
+        strides *= inDims[i];
+        outDims[i-1] = inDims[i];
+    }
+
+    ArrayND<N-1, T> output = zeros_ND<N-1, typename T::value_type>(outDims);
+    std::copy(&orig[index*strides], &orig[(index+1)*strides], output.begin());
+
+    return output;
+};
+
 } //namespace Prismatic
 #endif

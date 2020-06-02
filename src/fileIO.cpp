@@ -2039,7 +2039,7 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						const std::vector<std::string> &sgdims_name,
 						const std::vector<std::string> &sgdims_units)
 {
-	H5::Group supergroups = pars.outputFile.openGRoup("4DSTEM_simulation/data/supergroups");
+	H5::Group supergroups = pars.outputFile.openGroup("4DSTEM_simulation/data/supergroups");
 
 	H5::Group new_sg(supergroups.createGroup(sgName.c_str()));
 
@@ -2061,7 +2061,7 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	//write common dimensions
 	for(auto i = 0; i < dims.size(); i++)
 	{
-		hsize_t dim_size = dims[i].size();
+		hsize_t dim_size[1] = {dims[i].size()};
 		H5::DataSpace dim_mspace(1, dim_size);
 		H5::DataSet dim = new_sg.createDataSet("dim"+std::to_string(i), H5::PredType::NATIVE_FLOAT, dim_mspace);
 		H5::DataSpace dim_fspace = dim.getSpace();
@@ -2079,7 +2079,7 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	//write supergroup dimensions
 	for(auto i = 0; i < sgdims.size(); i++)
 	{
-		hsize_t dim_size = sgdims[i].size();
+		hsize_t dim_size[1] = {sgdims[i].size()};
 		H5::DataSpace dim_mspace(1, dim_size);
 		H5::DataSet dim = new_sg.createDataSet("sgdim"+std::to_string(i), H5::PredType::NATIVE_FLOAT, dim_mspace);
 		H5::DataSpace dim_fspace = dim.getSpace();
@@ -2123,10 +2123,84 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		map_type.insertMember(sgdim_str, offset, H5::PredType::NATIVE_INT);
 	}
 
-
-
 	new_sg.close();
 	supergroups.close();
+};
+
+void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
+						std::vector<H5::DataSet> &datasets,
+						std::vector<std::vector<size_t>> indices)
+{
+	//determine new dimensionality of VDS and get extent along each dim
+	size_t new_rank = indices[0].size();
+	size_t max_dims[new_rank] = {0};
+	for(auto i = 0; i < indices.size(); i++)
+	{
+		for(auto j = 0; j < new_rank; j++)
+		{
+			max_dims[j] = (max_dims[j] < indices[i][j]) ? indices[i][j] : max_dims[j];
+		}
+	}
+
+	//organize dimensions and create mem space for virtual dataset
+	H5::DataSpace sampleSpace = datasets[0].getSpace();
+	int rank = sampleSpace.getSimpleExtentNdims();
+	hsize_t dims_out[rank];
+	int ndims = sampleSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
+	
+	hsize_t mdims[rank+new_rank] = {0};
+	hsize_t mdims_ind[rank+new_rank] = {0};
+
+	for(auto i = 0; i < rank; i++)
+	{
+		mdims[i] = dims_out[i];
+		mdims_ind[i] = dims_out[i];
+	}
+
+	for(auto i = rank; i < rank+new_rank; i++)
+	{
+		mdims[i] = max_dims[i-rank]+1;
+		mdims_ind[i] = 1;
+	}
+
+	sampleSpace.close();
+	//create virtual dataspace and plist mapping
+	H5::DataSpace vds_mspace(rank+new_rank, mdims);
+	H5::DataSpace src_mspace;
+	H5::DSetCreatPropList plist;
+    std::string path;
+	hsize_t offset[rank+new_rank] = {0};
+	
+	for(auto i = 0; i < datasets.size(); i++)
+	{
+		path = getDatasetName(datasets[i]);
+		src_mspace = datasets[i].getSpace();
+
+		for(auto j = rank; j < rank+new_rank; j++) offset[j] = indices[i][j-rank];
+		
+		vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims_ind, offset);
+		plist.setVirtual(vds_mspace, datasets[i].getFileName(), path, src_mspace);
+	}
+	//reset offset
+	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
+
+	vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+	H5::DataSet vds = group.createDataSet(dsetName, H5::PredType::NATIVE_FLOAT, vds_mspace, plist);
+
+	src_mspace.close();
+	vds.close();
+
+};
+
+std::string getDatasetName(H5::DataSet &dataset)
+{
+	//from Mark Lakata
+	//https://stackoverflow.com/questions/22798731/how-can-one-get-the-name-of-an-hdf5-dataset-through-the-c-or-c-api
+	size_t len = H5Iget_name(dataset.getId(),NULL,0);
+    char buffer[len];
+    H5Iget_name(dataset.getId(),buffer,len+1);
+	std::string n = buffer;
+	return n;
 };
 
 } //namespace Prismatic

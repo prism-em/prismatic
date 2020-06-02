@@ -9,7 +9,6 @@ struct complex_float_t
 	PRISMATIC_FLOAT_PRECISION im;
 };
 
-struct 
 
 namespace Prismatic{
 
@@ -129,6 +128,12 @@ void configureSupergroup(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						const std::vector<std::string> &sgdims_name,
 						const std::vector<std::string> &sgdims_units);
 
+void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
+						std::vector<H5::DataSet> &datasets,
+						std::vector<std::vector<size_t>> indices);
+
+std::string getDatasetName(H5::DataSet &dataset);
+						
 } //namespace Prismatic
 
 #endif //PRISMATIC_FILEIO_H

@@ -1025,6 +1025,102 @@ BOOST_AUTO_TEST_CASE(dataGroupCount)
     removeFile(fname);
 }
 
+
+BOOST_AUTO_TEST_CASE(virtualDataSet)
+{
+    //create test file
+    std::string fname = "../test/testFile.h5";
+    Parameters<PRISMATIC_FLOAT_PRECISION> pars;
+    pars.outputFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);;
+    setupOutputFile(pars);
+
+    //create component datasets
+    size_t ydim = 10;
+    size_t xdim = 10;
+    Array2D<PRISMATIC_FLOAT_PRECISION> one = ones_ND<2,PRISMATIC_FLOAT_PRECISION>({{ydim, xdim}});
+    Array2D<PRISMATIC_FLOAT_PRECISION> two = one*2;
+    Array2D<PRISMATIC_FLOAT_PRECISION> three = one*3;
+    Array2D<PRISMATIC_FLOAT_PRECISION> four = one*4;
+
+    //write to file
+    H5::Group dataHold(pars.outputFile.createGroup("/4DSTEM_simulation/dataHold"));
+    hsize_t msize[2] = {ydim, xdim};
+    H5::DataSpace mspace(2, msize);
+    H5::DataSpace fspace;
+
+    H5::DataSet one_dset = dataHold.createDataSet("one", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSet two_dset = dataHold.createDataSet("two", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSet three_dset = dataHold.createDataSet("three", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSet four_dset = dataHold.createDataSet("four", H5::PredType::NATIVE_FLOAT, mspace);
+
+    fspace = one_dset.getSpace();
+    one_dset.write(&one[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);    
+    fspace = two_dset.getSpace();
+    two_dset.write(&two[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    fspace = three_dset.getSpace();
+    three_dset.write(&three[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    fspace = four_dset.getSpace();
+    four_dset.write(&four[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+
+
+    std::string sgName = "testSG";
+    std::vector<H5::DataSet> datasets{one_dset, two_dset, three_dset, four_dset};
+
+    //wrtie virtual dataset as 4x10x10
+    std::vector<std::vector<size_t>> indices_3D;
+    indices_3D.push_back(std::vector<size_t>{0});
+    indices_3D.push_back(std::vector<size_t>{1});
+    indices_3D.push_back(std::vector<size_t>{2});
+    indices_3D.push_back(std::vector<size_t>{3});
+
+    writeVirtualDataSet(dataHold, "testVDS", datasets, indices_3D);
+
+
+    //write virtual dataset as 2x2x10x10
+    std::vector<std::vector<size_t>> indices_4D;
+    indices_4D.push_back(std::vector<size_t>{0,0});
+    indices_4D.push_back(std::vector<size_t>{0,1});
+    indices_4D.push_back(std::vector<size_t>{1,0});
+    indices_4D.push_back(std::vector<size_t>{1,1});
+
+    writeVirtualDataSet(dataHold, "testVD", datasets, indices_4D);
+    pars.outputFile.close();
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
+
+    Array3D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataset3D(fname, "/4DSTEM_simulation/dataHold/testVDS");
+    { //restride
+        Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp(vds_read);
+        for(auto i = 0; i < vds_read.get_dimi(); i++)
+		{
+			for(auto j = 0; j < vds_read.get_dimj(); j++)
+			{
+				for(auto k = 0; k < vds_read.get_dimk(); k++)
+				{
+					vds_read[k*vds_read.get_dimi()*vds_read.get_dimj()+j*vds_read.get_dimi()+i] = vds_tmp[i*vds_read.get_dimk()*vds_read.get_dimj()+j*vds_read.get_dimk()+k];
+				}
+			}
+		}
+    }
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> one_read = subspace(vds_read, 0);
+    Array2D<PRISMATIC_FLOAT_PRECISION> two_read = subspace(vds_read, 1);
+    Array2D<PRISMATIC_FLOAT_PRECISION> three_read = subspace(vds_read, 2);
+    Array2D<PRISMATIC_FLOAT_PRECISION> four_read = subspace(vds_read, 3);
+
+    BOOST_TEST(compareSize(one, one_read));
+    BOOST_TEST(compareValues(one, one_read) < tol);
+    BOOST_TEST(compareSize(two, two_read));
+    BOOST_TEST(compareValues(two, two_read) < tol);
+    BOOST_TEST(compareSize(three, three_read));
+    BOOST_TEST(compareValues(three, three_read) < tol);
+    BOOST_TEST(compareSize(four, four_read));
+    BOOST_TEST(compareValues(four, four_read) < tol);
+
+    removeFile(fname);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
 
