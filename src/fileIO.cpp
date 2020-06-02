@@ -2185,7 +2185,7 @@ void writeVirtualDataSet(H5::Group group, const std::string &dsetName,
 	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
 
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-	H5::DataSet vds = group.createDataSet(dsetName, H5::PredType::NATIVE_FLOAT, vds_mspace, plist);
+	H5::DataSet vds = group.createDataSet(dsetName, datasets[0].getDataType(), vds_mspace, plist);
 
 	src_mspace.close();
 	vds.close();
