@@ -1137,7 +1137,7 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
     H5::Group sourceGroup(testFile.createGroup("/source"));
     H5::Group targetGroup(testFile.createGroup("/target"));
 
-    //create datasets in source group
+    //create datasets with attributes in source group
     hsize_t mdims_4D[4] = {refArr.get_dimi(), refArr.get_dimj(), refArr.get_dimk(), refArr.get_diml()};
     H5::DataSpace mspace(4, mdims_4D);
     
@@ -1146,9 +1146,18 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
 
     refDS.write(&refArr[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
 
+    H5::DataSpace str_name_ds(H5S_SCALAR);
+    H5::StrType strdatatype(H5::PredType::C_S1, 256);
+    H5::Attribute ref_ds_name = refDS.createAttribute("name", strdatatype, str_name_ds);
+    H5::Attribute ref_ds_unit = refDS.createAttribute("units", strdatatype, str_name_ds);
+
+    const H5std_string ref_ds_name_str("i'm_the_name");
+    const H5std_string ref_ds_unit_str("i'm_the_units");
+    ref_ds_name.write(strdatatype, ref_ds_name_str);
+    ref_ds_unit.write(strdatatype, ref_ds_unit_str);
+
     writeComplexDataSet(sourceGroup, "ref_ds_complex", &refArr_complex[0], mdims_4D, 4);
     H5::DataSet refDS_complex = sourceGroup.openDataSet("ref_ds_complex");
-
 
     //copy datasets then close all open objects
     copyDataSet(targetGroup, refDS);
@@ -1160,7 +1169,7 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
     targetGroup.close();
     testFile.close();
 
-    //read datasets and compare
+    //read dataset values and compare
     Array4D<PRISMATIC_FLOAT_PRECISION> refArr_read = readDataSet4D(fname, "/source/ref_ds");
     Array4D<PRISMATIC_FLOAT_PRECISION> testArr_read = readDataSet4D(fname, "/target/ref_ds");
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr_complex_read;
@@ -1173,6 +1182,34 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
     BOOST_TEST(compareSize(refArr_complex_read, testArr_complex_read));
     BOOST_TEST(compareValues(refArr_read, testArr_read) < tol);
     BOOST_TEST(compareValues(refArr_complex_read, testArr_complex_read) < tol);
+
+    //reopen real datasets and compare attributes
+    H5::H5File reOpen = H5::H5File(fname.c_str(), H5F_ACC_RDONLY);
+    H5::DataSet src_read = reOpen.openDataSet("/source/ref_ds");
+    H5::DataSet tar_read = reOpen.openDataSet("/target/ref_ds");
+
+    for(auto i = 0; i < src_read.getNumAttrs(); i++)
+    {
+        H5::Attribute src_attr = src_read.openAttribute(i);
+        BOOST_TEST(tar_read.attrExists(src_attr.getName()));
+        if(tar_read.attrExists(src_attr.getName()))
+        {
+            //if exists, check data equivalence
+            H5::Attribute tar_attr = tar_read.openAttribute(src_attr.getName());
+
+            char src_buffer[src_attr.getInMemDataSize()];
+            src_attr.read(src_attr.getDataType(), src_buffer);
+
+            char tar_buffer[tar_attr.getInMemDataSize()];
+            tar_attr.read(tar_attr.getDataType(), tar_buffer);
+            std::string src_str = src_buffer;
+            std::string tar_str = tar_buffer;
+            bool val_check = src_str == tar_str;
+            BOOST_TEST(val_check);
+        }
+
+    }
+
 
     removeFile(fname);
 }

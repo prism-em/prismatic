@@ -2223,7 +2223,6 @@ void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 	hsize_t dims_out[rank];
 	int ndims = sourceSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
 
-
 	//create buffer array and read data from source
 	H5::DataSpace mspace(rank, dims_out);
 	size_t bufferSize = source.getInMemDataSize(); //size in bytes
@@ -2234,6 +2233,24 @@ void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 	H5::DataSet target = targetGroup.createDataSet(dsName.c_str(), source.getDataType(), mspace);
 	H5::DataSpace fspace = target.getSpace();
 	target.write(&buffer[0], source.getDataType(), mspace, fspace);
+
+	//look for attributes in source and copy
+	for(auto i = 0; i < source.getNumAttrs(); i++)
+	{
+		H5::Attribute tmp_attr = source.openAttribute(i);
+		H5::DataSpace attr_space = tmp_attr.getSpace();
+		int attr_rank = attr_space.getSimpleExtentNdims();
+		hsize_t attr_dims_out[attr_rank];
+		int ndims = attr_space.getSimpleExtentDims(attr_dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
+		
+		H5::DataSpace t_attr_space(attr_rank, attr_dims_out);
+		H5::Attribute t_attr = target.createAttribute(tmp_attr.getName(), tmp_attr.getDataType(), t_attr_space);
+		
+		unsigned char attr_buffer[tmp_attr.getInMemDataSize()];
+		tmp_attr.read(tmp_attr.getDataType(), attr_buffer);
+		t_attr.write(tmp_attr.getDataType(), &attr_buffer[0]);
+	}
+
 	target.close();
 
 
