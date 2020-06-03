@@ -56,11 +56,11 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, float dummy);
 
 void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, double dummy);
 
-Array2D<PRISMATIC_FLOAT_PRECISION> readDataset2D(const std::string &filename, const std::string &dataPath);
+Array2D<PRISMATIC_FLOAT_PRECISION> readDataSet2D(const std::string &filename, const std::string &dataPath);
 
-Array3D<PRISMATIC_FLOAT_PRECISION> readDataset3D(const std::string &filename, const std::string &dataPath);
+Array3D<PRISMATIC_FLOAT_PRECISION> readDataSet3D(const std::string &filename, const std::string &dataPath);
 
-Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, const std::string &dataPath);
+Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, const std::string &dataPath);
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val);
 
@@ -70,12 +70,12 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
-void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank);
+void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank);
 
-void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank);
+void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank);
 
 template <size_t N>
-void readComplexDataset(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
+void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
 {
 	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
@@ -134,7 +134,11 @@ void writeVirtualDataSet(H5::Group group,
 
 void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-std::string getDatasetName(H5::DataSet &dataset);
+std::string getDataSetName(H5::DataSet &dataset);
+
+std::string reducedDataSetName(std::string &fullPath);
+
+void copyDataSet(H5::Group &targetGroup, H5::DataSet &source);
 						
 } //namespace Prismatic
 

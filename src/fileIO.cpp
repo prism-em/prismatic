@@ -1780,7 +1780,7 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const double dum
 	metadata.close();
 };
 
-Array2D<PRISMATIC_FLOAT_PRECISION> readDataset2D(const std::string &filename, const std::string &dataPath)
+Array2D<PRISMATIC_FLOAT_PRECISION> readDataSet2D(const std::string &filename, const std::string &dataPath)
 {
 	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
@@ -1809,7 +1809,7 @@ Array2D<PRISMATIC_FLOAT_PRECISION> readDataset2D(const std::string &filename, co
 	return data;
 };
 
-Array3D<PRISMATIC_FLOAT_PRECISION> readDataset3D(const std::string &filename, const std::string &dataPath)
+Array3D<PRISMATIC_FLOAT_PRECISION> readDataSet3D(const std::string &filename, const std::string &dataPath)
 {
 	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
@@ -1841,7 +1841,7 @@ Array3D<PRISMATIC_FLOAT_PRECISION> readDataset3D(const std::string &filename, co
 	return data;
 };
 
-Array4D<PRISMATIC_FLOAT_PRECISION> readDataset4D(const std::string &filename, const std::string &dataPath)
+Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, const std::string &dataPath)
 {
 	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
@@ -1950,7 +1950,7 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 }
 
-void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank)
+void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<float> *buffer, const hsize_t *mdims, const size_t &rank)
 {
 	//input buffer is assumed to be float: real, float: im in striding order
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
@@ -1981,7 +1981,7 @@ void writeComplexDataset(H5::Group group, const std::string &dsetname, const std
 
 }
 
-void writeComplexDataset(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank)
+void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<double> *buffer, const hsize_t *mdims, const size_t &rank)
 {
 	//input buffer is assumed to be float: real, float: im in striding order
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
@@ -2145,7 +2145,7 @@ void writeVirtualDataSet(H5::Group group,
 	
 	for(auto i = 0; i < datasets.size(); i++)
 	{
-		path = getDatasetName(datasets[i]);
+		path = getDataSetName(datasets[i]);
 		src_mspace = datasets[i].getSpace();
 
 		for(auto j = rank; j < rank+new_rank; j++) offset[j] = indices[i][j-rank];
@@ -2171,15 +2171,15 @@ void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
 	//gather datasets and create mapping
-	int numDatasets = countDataGroups(realslices, basename);
+	int numDataSets = countDataGroups(realslices, basename);
 	std::vector<H5::DataSet> datasets;
 	std::vector<std::vector<size_t>> indices;
 
-	for(auto i = 0; i < numDatasets; i++)
+	for(auto i = 0; i < numDataSets; i++)
 	{
 		std::string tmp_name = basename+getDigitString(i);
-		H5::DataSet tmp_group = realslices.openGroup(tmp_name.c_str());
-		H5::DataSet tmp_dataset = tmp_group.openDataset("realslice");
+		H5::Group tmp_group = realslices.openGroup(tmp_name.c_str());
+		H5::DataSet tmp_dataset = tmp_group.openDataSet("realslice");
 		datasets.push_back(tmp_dataset);
 		indices.push_back(std::vector<size_t>{i});
 	}
@@ -2195,7 +2195,7 @@ void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 }
 
-std::string getDatasetName(H5::DataSet &dataset)
+std::string getDataSetName(H5::DataSet &dataset)
 {
 	//from Mark Lakata
 	//https://stackoverflow.com/questions/22798731/how-can-one-get-the-name-of-an-hdf5-dataset-through-the-c-or-c-api
@@ -2204,6 +2204,39 @@ std::string getDatasetName(H5::DataSet &dataset)
     H5Iget_name(dataset.getId(),buffer,len+1);
 	std::string n = buffer;
 	return n;
+};
+
+std::string reducedDataSetName(std::string &fullPath)
+{
+	size_t index = fullPath.find_last_of("/");
+	return fullPath.substr(index+1);
+}
+
+void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
+{
+	//grab properties from source dataset
+	std::string dsName = getDataSetName(source);
+	dsName = reducedDataSetName(dsName);
+
+	H5::DataSpace sourceSpace = source.getSpace();
+	int rank = sourceSpace.getSimpleExtentNdims();
+	hsize_t dims_out[rank];
+	int ndims = sourceSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
+
+
+	//create buffer array and read data from source
+	H5::DataSpace mspace(rank, dims_out);
+	size_t bufferSize = source.getInMemDataSize(); //size in bytes
+	unsigned char buffer[bufferSize]; //unsigned char is always byte sized, let's us be agnostic to storage type of array
+	source.read(buffer, source.getDataType(), mspace, sourceSpace);	
+
+	//create new 
+	H5::DataSet target = targetGroup.createDataSet(dsName.c_str(), source.getDataType(), mspace);
+	H5::DataSpace fspace = target.getSpace();
+	target.write(&buffer[0], source.getDataType(), mspace, fspace);
+	target.close();
+
+
 };
 
 } //namespace Prismatic

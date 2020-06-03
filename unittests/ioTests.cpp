@@ -228,9 +228,9 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/test3Darray/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/test4Darray/datacube";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> read2D = readDataset2D(pars.meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> read3D = readDataset3D(pars.meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> read4D = readDataset4D(pars.meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> read2D = readDataSet2D(pars.meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> read3D = readDataSet3D(pars.meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> read4D = readDataSet4D(pars.meta.filenameOutput, dataPath4D);
 
     //check for array sizing equivalance
     BOOST_TEST(compareSize(read2D, testArr2D));
@@ -278,17 +278,17 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -340,17 +340,17 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -402,17 +402,17 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -465,17 +465,17 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -530,8 +530,8 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     //read in output arrays and compare
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
 
-    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
 
     //double because mean is not precise enough within single float
     double tol = 0.00001;
@@ -590,19 +590,19 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/realslice";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refSMatrix;
-    readComplexDataset(refSMatrix, importFile, dataPathSM);
+    readComplexDataSet(refSMatrix, importFile, dataPathSM);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
-    readComplexDataset(testSMatrix, importFile, dataPathSM);
+    readComplexDataSet(testSMatrix, importFile, dataPathSM);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -655,16 +655,16 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refSMatrix;
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
@@ -684,8 +684,8 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
     {
         std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(i) + "/realslice";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
-        readComplexDataset(refSMatrix, importFile, dataPathSM);
-        readComplexDataset(testSMatrix, importFile, dataPathSM);
+        readComplexDataSet(refSMatrix, importFile, dataPathSM);
+        readComplexDataSet(testSMatrix, importFile, dataPathSM);
         BOOST_TEST(compareSize(refSMatrix, testSMatrix));
         BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
     }
@@ -767,15 +767,15 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -795,8 +795,8 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     {
         std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
-        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
         BOOST_TEST(compareSize(refPS, testPS));
         BOOST_TEST(compareValues(refPS, testPS) < tol);
     }
@@ -837,15 +837,15 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
@@ -865,8 +865,8 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     {
         std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
-        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
         BOOST_TEST(compareSize(refPS, testPS));
         BOOST_TEST(compareValues(refPS, testPS) < tol);
     }
@@ -908,15 +908,15 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataset2D(importFile, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataset3D(importFile, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataset3D(importFile, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataset4D(importFile, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(importFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D(importFile, dataPath4D);
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataset2D(meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataset3D(meta.filenameOutput, dataPathDPC);
-    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataset3D(meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataset4D(meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnular = readDataSet2D(meta.filenameOutput, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testDPC = readDataSet3D(meta.filenameOutput, dataPathDPC);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
     PRISMATIC_FLOAT_PRECISION errorSum;
@@ -937,8 +937,8 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     {
         std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
-        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataset3D(importFile, dataPathPS);
-        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataset3D(meta.filenameOutput, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
+        Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
         BOOST_TEST(compareSize(refPS, testPS));
         BOOST_TEST(compareValues(refPS, testPS) < tol);
     }
@@ -971,9 +971,9 @@ BOOST_AUTO_TEST_CASE(complexIO)
     hsize_t mdims_3D[3] = {refArr3D.get_dimi(), refArr3D.get_dimj(), refArr3D.get_dimk()};
     hsize_t mdims_4D[4] = {refArr4D.get_dimi(), refArr4D.get_dimj(), refArr4D.get_dimk(), refArr4D.get_diml()};
 
-    writeComplexDataset(testGroup, "complex2D", &refArr2D[0], mdims_2D, 2);
-    writeComplexDataset(testGroup, "complex3D", &refArr3D[0], mdims_3D, 3);
-    writeComplexDataset(testGroup, "complex4D", &refArr4D[0], mdims_4D, 4);
+    writeComplexDataSet(testGroup, "complex2D", &refArr2D[0], mdims_2D, 2);
+    writeComplexDataSet(testGroup, "complex3D", &refArr3D[0], mdims_3D, 3);
+    writeComplexDataSet(testGroup, "complex4D", &refArr4D[0], mdims_4D, 4);
 
     testGroup.close();
     testFile.close();
@@ -985,9 +985,9 @@ BOOST_AUTO_TEST_CASE(complexIO)
     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr2D; 
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr3D; 
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr4D; 
-    readComplexDataset(testArr2D, fname, datapath2D);
-    readComplexDataset(testArr3D, fname, datapath3D);
-    readComplexDataset(testArr4D, fname, datapath4D);
+    readComplexDataSet(testArr2D, fname, datapath2D);
+    readComplexDataSet(testArr3D, fname, datapath3D);
+    readComplexDataSet(testArr4D, fname, datapath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     BOOST_TEST(compareSize(refArr2D, testArr2D));
@@ -1024,7 +1024,6 @@ BOOST_AUTO_TEST_CASE(dataGroupCount)
 
     removeFile(fname);
 }
-
 
 BOOST_AUTO_TEST_CASE(virtualDataSet)
 {
@@ -1088,7 +1087,7 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
 
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
 
-    Array3D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataset3D(fname, "/4DSTEM_simulation/dataHold/testVDS");
+    Array3D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataSet3D(fname, "/4DSTEM_simulation/dataHold/testVDS");
     { //restride
         Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp(vds_read);
         for(auto i = 0; i < vds_read.get_dimi(); i++)
@@ -1119,6 +1118,63 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
 
     removeFile(fname);
 
+}
+
+BOOST_AUTO_TEST_CASE(datasetCopy)
+{
+    //make a random dataset, multidimensonal to test striding
+    int seed = 23;
+    srand(seed);
+    std::default_random_engine de(seed);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refArr = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{2,7,5,3}});
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr_complex = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{2,7,5,3}});
+    assignRandomValues(refArr, de);
+    assignRandomValues(refArr_complex, de);
+
+    //create a test file
+    std::string fname = "../test/testFile.h5";
+    H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
+    H5::Group sourceGroup(testFile.createGroup("/source"));
+    H5::Group targetGroup(testFile.createGroup("/target"));
+
+    //create datasets in source group
+    hsize_t mdims_4D[4] = {refArr.get_dimi(), refArr.get_dimj(), refArr.get_dimk(), refArr.get_diml()};
+    H5::DataSpace mspace(4, mdims_4D);
+    
+    H5::DataSet refDS = sourceGroup.createDataSet("ref_ds", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSpace fspace = refDS.getSpace();
+
+    refDS.write(&refArr[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+
+    writeComplexDataSet(sourceGroup, "ref_ds_complex", &refArr_complex[0], mdims_4D, 4);
+    H5::DataSet refDS_complex = sourceGroup.openDataSet("ref_ds_complex");
+
+
+    //copy datasets then close all open objects
+    copyDataSet(targetGroup, refDS);
+    copyDataSet(targetGroup, refDS_complex);
+
+    refDS.close();
+    mspace.close();
+    sourceGroup.close();
+    targetGroup.close();
+    testFile.close();
+
+    //read datasets and compare
+    Array4D<PRISMATIC_FLOAT_PRECISION> refArr_read = readDataSet4D(fname, "/source/ref_ds");
+    Array4D<PRISMATIC_FLOAT_PRECISION> testArr_read = readDataSet4D(fname, "/target/ref_ds");
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refArr_complex_read;
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr_complex_read;
+    readComplexDataSet(refArr_complex_read, fname, "/source/ref_ds_complex");
+    readComplexDataSet(testArr_complex_read, fname, "/target/ref_ds_complex");
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
+    BOOST_TEST(compareSize(refArr_read, testArr_read));
+    BOOST_TEST(compareSize(refArr_complex_read, testArr_complex_read));
+    BOOST_TEST(compareValues(refArr_read, testArr_read) < tol);
+    BOOST_TEST(compareValues(refArr_complex_read, testArr_complex_read) < tol);
+
+    removeFile(fname);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

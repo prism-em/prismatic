@@ -525,12 +525,12 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	if(pars.meta.importPath.size() > 0)
 	{
-		inPot = readDataset3D(pars.meta.importFile, pars.meta.importPath);
+		inPot = readDataSet3D(pars.meta.importFile, pars.meta.importPath);
 	}
 	else //read default path
 	{
 		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/realslice";
-		inPot = readDataset3D(pars.meta.importFile, groupPath);
+		inPot = readDataSet3D(pars.meta.importFile, groupPath);
 	}
 
 	//restriding potential
