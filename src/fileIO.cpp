@@ -1879,6 +1879,45 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, co
 	return data;
 };
 
+Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D_keepOrder(const std::string &filename, const std::string &dataPath)
+{
+	//copy of above, but does not move any dimensions around
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[4];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(4,dims_out);
+
+	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]];
+	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+
+	mspace.close();
+	dataspace.close();
+	dataset.close();
+	input.close();
+
+
+	//mem dims are stored 0->3 kx, ky, qx, qy
+	//flipping x, y back for storage into 4D array
+	Array4D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{dims_out[3],dims_out[2],dims_out[1],dims_out[0]}});
+	for(auto l = 0; l < dims_out[3]; l++)
+	{
+		for(auto k = 0; k < dims_out[2]; k++)
+		{
+			for(auto j = 0; j < dims_out[1]; j++)
+			{
+				for(auto i = 0; i < dims_out[0]; i++)
+				{
+					data.at(l,k,j,i) = data_in[l*dims_out[0]*dims_out[1]*dims_out[2]+k*dims_out[0]*dims_out[1]+j*dims_out[0]+i];
+				}
+			}
+		}
+	}
+	return data;
+};
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val)
 {
 	//read an attribute from a group into val
@@ -2164,11 +2203,13 @@ void writeVirtualDataSet(H5::Group group,
 
 };
 
-void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+void depthSeriesSG(H5::H5File &file)
 {
 	//TODO: cycle through various outputs
 	std::string basename = "virtual_detector_depth";
-	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+	H5::Group realslices = file.openGroup("4DSTEM_simulation/data/realslices");
+	H5::Group supergroups = file.openGroup("4DSTEM_simulation/data/supergroups");
+	H5::Group depthSeries = supergroups.createGroup("vd_depth_series");
 
 	//gather datasets and create mapping
 	int numDataSets = countDataGroups(realslices, basename);
@@ -2192,6 +2233,7 @@ void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//collect datasets and generate mapping
 
 	//write dataset
+	writeVirtualDataSet(depthSeries, "supergroup", datasets, indices);
 
 }
 

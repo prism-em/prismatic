@@ -62,6 +62,8 @@ Array3D<PRISMATIC_FLOAT_PRECISION> readDataSet3D(const std::string &filename, co
 
 Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, const std::string &dataPath);
 
+Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D_keepOrder(const std::string &filename, const std::string &dataPath);
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION &val);
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, PRISMATIC_FLOAT_PRECISION *val);
@@ -132,7 +134,7 @@ void writeVirtualDataSet(H5::Group group,
 						std::vector<H5::DataSet> &datasets,
 						std::vector<std::vector<size_t>> indices);
 
-void depthSeriesSG(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+void depthSeriesSG(H5::H5File &file);
 
 std::string getDataSetName(H5::DataSet &dataset);
 

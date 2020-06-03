@@ -377,7 +377,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
 
-    divertOutput(pos, fd, logPath);
+    // divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
 
     std::string importFile = "../test/potentialImport.h5";
@@ -393,7 +393,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     go(meta);
     std::cout << "###### END TEST CASE: importPotential2D_M #####\n";
 
-    revertOutput(fd, pos);
+    // revertOutput(fd, pos);
 
     //read in output arrays and compare
     std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
@@ -1210,10 +1210,59 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
 
     }
 
-
     removeFile(fname);
 }
 
+BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
+{
+    //generate virtual detector depth series
+    std::string fname = "../test/supergroup.h5";
+    meta.potential3D = false;
+    meta.save2DOutput = false;
+    meta.save4DOutput = false;
+    meta.saveDPC_CoM = false;
+    meta.numSlices = 1;
+    meta.algorithm = Algorithm::Multislice;
+    meta.filenameOutput = fname;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n######### BEGIN TEST CASE: supergroup #########\n";
+    go(meta);
+    std::cout << "########### END TEST CASE: supergroup #########\n";
+    revertOutput(fd, pos);
+
+    //create supergroup of depth series
+    H5::H5File output = H5::H5File(fname.c_str(), H5F_ACC_RDWR);
+    depthSeriesSG(output);
+
+    //check equivalance of indvidual datasets to component datasets in VDS
+    Array4D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataSet4D_keepOrder(fname, "/4DSTEM_simulation/data/supergroups/vd_depth_series/supergroup");
+    Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp = readDataSet3D(fname, "/4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice");
+    Array4D<PRISMATIC_FLOAT_PRECISION> ref_array = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{3, vds_tmp.get_dimk(), vds_tmp.get_dimj(), vds_tmp.get_dimi()}});
+    
+    size_t strides = vds_tmp.get_dimk()*vds_tmp.get_dimj()*vds_tmp.get_dimi();
+    for(auto i = 0; i < 3; i++)
+    {   //read each vd and add to 4D array
+        std::string path = "/4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(i) + "/realslice";
+        Array3D<PRISMATIC_FLOAT_PRECISION> vds_depth_i = readDataSet3D(fname, path);
+        std::copy(vds_depth_i.begin(), vds_depth_i.end(), &ref_array[i*strides]);
+    }
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
+    std::array<size_t, 4> vds_read_dims = vds_read.get_dimarr();
+    std::array<size_t, 4> ref_array_dims = ref_array.get_dimarr();
+    for(auto i = 0; i < 4; i++)
+    {
+        std::cout << vds_read_dims[i] << " " << ref_array_dims[i] << std::endl;
+    }
+    BOOST_TEST(compareSize(vds_read, ref_array));
+    BOOST_TEST(compareValues(vds_read, ref_array) < tol);
+    //check source dims vs dims in supergroup
+
+    //check total number of dims in group correspond to comparable ranks in datasets
+
+    //check to make sure that source datasets have new attribute tags
+}
 BOOST_AUTO_TEST_SUITE_END();
 
 
