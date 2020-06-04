@@ -165,6 +165,10 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	size_t numLayers = 1;
 	if (pars.meta.saveDPC_CoM)
 		pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), 2}});
+	
+	std::vector<PRISMATIC_FLOAT_PRECISION> depths(0);
+	depths[0] = pars.numPlanes*pars.meta.sliceThickness;
+	pars.depths = depths;
 	if (pars.meta.save4DOutput && (pars.fpFlag == 0))
 		setup4DOutput(pars, numLayers);
 }

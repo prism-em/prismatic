@@ -1251,64 +1251,41 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
     }
 
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
-    std::array<size_t, 4> dims_in;// = {vds_read.get_dimi(), vds_read.get_dimj(), vds_read.get_dimk(), vds_read.get_diml()};
-    std::array<size_t, 4> order;// = {3, 2, 1, 0};
-    std::array<size_t, 4> dims_hold = {vds_read.get_dimarr()};
-    for(auto i = 0; i < 4; i++) std::cout << dims_hold[i] << std::endl;
-
-    std::vector<std::array<size_t,4>> orders;
-    Array4D<PRISMATIC_FLOAT_PRECISION> vds_read_tmp;
-    orders.push_back(std::array<size_t, 4>{0,1,2,3});
-    orders.push_back(std::array<size_t, 4>{0,1,3,2});
-    orders.push_back(std::array<size_t, 4>{0,2,1,3});
-    orders.push_back(std::array<size_t, 4>{0,2,3,1});
-    orders.push_back(std::array<size_t, 4>{0,3,1,2});
-    orders.push_back(std::array<size_t, 4>{0,3,2,1});
-
-    orders.push_back(std::array<size_t, 4>{1,0,2,3});
-    orders.push_back(std::array<size_t, 4>{1,0,3,2});
-    orders.push_back(std::array<size_t, 4>{1,2,0,3});
-    orders.push_back(std::array<size_t, 4>{1,2,3,0});
-    orders.push_back(std::array<size_t, 4>{1,3,0,2});
-    orders.push_back(std::array<size_t, 4>{1,3,2,0});
-
-    orders.push_back(std::array<size_t, 4>{2,0,1,3});
-    orders.push_back(std::array<size_t, 4>{2,0,3,1});
-    orders.push_back(std::array<size_t, 4>{2,1,0,3});
-    orders.push_back(std::array<size_t, 4>{2,1,3,0});
-    orders.push_back(std::array<size_t, 4>{2,3,0,1});
-    orders.push_back(std::array<size_t, 4>{2,3,1,0});
-
-    orders.push_back(std::array<size_t, 4>{3,0,1,2});
-    orders.push_back(std::array<size_t, 4>{3,0,2,1});
-    orders.push_back(std::array<size_t, 4>{3,1,0,2});
-    orders.push_back(std::array<size_t, 4>{3,1,2,0});
-    orders.push_back(std::array<size_t, 4>{3,2,0,1});
-    orders.push_back(std::array<size_t, 4>{3,2,1,0});
-    for(auto i = 0; i < 24; i++)
-    {
-        for(auto j = 0; j < 24; j++)
-        {
-            order = orders[i];
-            dims_in = {dims_hold[orders[j][0]],dims_hold[orders[j][1]], dims_hold[orders[j][2]], dims_hold[orders[j][3]]};
-            vds_read_tmp = restride(vds_read, dims_in, order);
-            if(compareValues(vds_read_tmp, ref_array) < tol)
-            {
-                // std::cout << "i: " << i << " j: " << j << std::endl;
-            }
-        }
-    }
+    std::array<size_t, 4> dims_in = {vds_read.get_dimarr()}; //as long as last dim is first, this should be good
+    std::array<size_t, 4> order = {1, 2, 3, 0};
     vds_read = restride(vds_read, dims_in, order);
+
     BOOST_TEST(compareSize(vds_read, ref_array));
     BOOST_TEST(compareValues(vds_read, ref_array) < tol);
     
     //check source dims vs dims in supergroup
-    std::cout << sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
     //check total number of dims in group correspond to comparable ranks in datasets
+    H5::Group testSG = output.openGroup("/4DSTEM_simulation/data/supergroups/vd_depth_series/");
+    size_t dim_rank = 0;
+    dim_rank += countDimensions(testSG, "dim");
+    dim_rank += countDimensions(testSG, "sgdim");
+    BOOST_TEST(dim_rank == vds_read.get_rank());
+
+    std::vector<PRISMATIC_FLOAT_PRECISION> depth_check({2.0, 4.0, 6.0});
+    std::vector<PRISMATIC_FLOAT_PRECISION> depth_read(3);
+    H5::DataSet sgdim = testSG.openDataSet("sgdim1");
+
+    hsize_t msize[1] = {3};
+    H5::DataSpace depth_mspace(1, msize);
+    H5::DataSpace depth_fspace = sgdim.getSpace();
+
+	int rank = depth_fspace.getSimpleExtentNdims();
+	hsize_t dims_out[rank];
+	int ndims = depth_fspace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are
+
+    sgdim.read(&depth_read[0], PFP_TYPE, depth_mspace, depth_fspace);
+    PRISMATIC_FLOAT_PRECISION errSum = std::abs(depth_check[0]-depth_read[0]);
+    errSum += std::abs(depth_check[1]-depth_read[1]);
+    errSum += std::abs(depth_check[2]-depth_read[2]);
+    BOOST_TEST(errSum < tol);
 
     //check to make sure that source datasets have new attribute tags
 }
+
 BOOST_AUTO_TEST_SUITE_END();
-
-
 }

@@ -209,6 +209,11 @@ namespace Prismatic{
 
 		cout << "Number of layers: " << numLayers << endl;
 		cout << "First output depth is at " << firstLayer * pars.meta.sliceThickness * pars.numSlices << " angstroms with steps of " << pars.numSlices * pars.meta.sliceThickness << " angstroms" << endl;
+		//store depths in vector
+		std::vector<PRISMATIC_FLOAT_PRECISION> depths(numLayers);
+		depths[0] = firstLayer * pars.meta.sliceThickness * pars.numSlices;
+		for(auto i = 1; i < numLayers; i++) depths[i] = depths[i-1]+pars.numSlices*pars.meta.sliceThickness;
+		pars.depths = depths;
 
 		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 

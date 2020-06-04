@@ -173,6 +173,11 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		int mgroup = 0;
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
+		//write output depth attribute
+		H5::DataSpace attr3_dataspace(H5S_SCALAR);
+		H5::Attribute output_depth = CBED_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
+		output_depth.write(PFP_TYPE, &pars.depths[n]);
+		
 		//setup data set chunking properties
 		H5::DSetCreatPropList plist;
 		plist.setChunk(4, chunkDims);
@@ -277,6 +282,11 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		int mgroup = 0;
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
+		//write output depth attribute
+		H5::DataSpace attr3_dataspace(H5S_SCALAR);
+		H5::Attribute output_depth = VD_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
+		output_depth.write(PFP_TYPE, &pars.depths[n]);
+
 		//create datasets
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
 		H5::DataSet VD_data = VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
@@ -365,11 +375,16 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		int mgroup = 0;
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
 
-		//write depth attribute
+		//write realslice depth attribute
 		int depth = 1;
 		H5::DataSpace attr3_dataspace(H5S_SCALAR);
 		H5::Attribute depth_attr = annular_slice_n.createAttribute("depth", H5::PredType::NATIVE_INT, attr3_dataspace);
 		depth_attr.write(H5::PredType::NATIVE_INT, &depth);
+
+		//write output depth attribute
+		H5::DataSpace attr4_dataspace(H5S_SCALAR);
+		H5::Attribute output_depth = annular_slice_n.createAttribute("output_depth", PFP_TYPE, attr4_dataspace);
+		output_depth.write(PFP_TYPE, &pars.depths[n]);
 
 		//create dataset
 		H5::DataSpace mspace(2, data_dims); //rank is 2
@@ -450,6 +465,11 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 		H5::Attribute metadata_group = DPC_CoM_slice_n.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
 		int mgroup = 0;
 		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+
+		//write output depth attribute
+		H5::DataSpace attr3_dataspace(H5S_SCALAR);
+		H5::Attribute output_depth = DPC_CoM_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
+		output_depth.write(PFP_TYPE, &pars.depths[n]);
 
 		//create dataset
 		H5::DataSpace mspace(3, data_dims); //rank is 3
@@ -1275,7 +1295,7 @@ void configureSupergroup(H5::Group &new_sg,
 	{
 		hsize_t dim_size[1] = {sgdims[i].size()};
 		H5::DataSpace dim_mspace(1, dim_size);
-		H5::DataSet dim = new_sg.createDataSet("sgdim"+std::to_string(i), PFP_TYPE, dim_mspace);
+		H5::DataSet dim = new_sg.createDataSet("sgdim"+std::to_string(i+1), PFP_TYPE, dim_mspace);
 		H5::DataSpace dim_fspace = dim.getSpace();
 		dim.write(&sgdims[i][0], PFP_TYPE, dim_mspace, dim_fspace);
 
@@ -1338,7 +1358,7 @@ void writeVirtualDataSet(H5::Group group,
 	
 	for(auto i = 0; i < datasets.size(); i++)
 	{
-		path = getDataSetName(datasets[i]);
+		path = datasets[i].getObjName();
 		src_mspace = datasets[i].getSpace();
 
 		for(auto j = rank; j < rank+new_rank; j++) offset[j] = indices[i][j-rank];
@@ -1370,6 +1390,8 @@ void depthSeriesSG(H5::H5File &file)
 	std::vector<H5::DataSet> datasets;
 	std::vector<std::vector<size_t>> indices;
 
+	std::vector<PRISMATIC_FLOAT_PRECISION> depths;
+	PRISMATIC_FLOAT_PRECISION tmp_depth;
 	for(auto i = 0; i < numDataSets; i++)
 	{
 		std::string tmp_name = basename+getDigitString(i);
@@ -1377,33 +1399,28 @@ void depthSeriesSG(H5::H5File &file)
 		H5::DataSet tmp_dataset = tmp_group.openDataSet("realslice");
 		datasets.push_back(tmp_dataset);
 		indices.push_back(std::vector<size_t>{i});
+		readAttribute(tmp_group.getFileName(), tmp_group.getObjName(), "output_depth", tmp_depth);
+		depths.push_back(tmp_depth);
 	}
 
 	//write dataset
 	writeVirtualDataSet(depthSeries, "supergroup", datasets, indices);
-	
+
 	//configure supergroup
-	//gather dim properties from first datagroup
+	//gather dim properties from first datagroup and write sgdims
 	H5::Group firstGroup = realslices.openGroup(basename+getDigitString(0));
-	std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> sgdims(0);
-	std::vector<std::string> sgdims_name(0);
-	std::vector<std::string> sgdims_units(0);
+	std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> sgdims;
+	sgdims.push_back(depths);
+	
+	std::vector<std::string> sgdims_name;
+	sgdims_name.push_back("Depth");
+
+	std::vector<std::string> sgdims_units;
+	sgdims_units.push_back("[Å]");
+
 	configureSupergroup(depthSeries, firstGroup, sgdims, sgdims_name, sgdims_units);
 
-
-
 }
-
-std::string getDataSetName(H5::DataSet &dataset)
-{
-	//from Mark Lakata
-	//https://stackoverflow.com/questions/22798731/how-can-one-get-the-name-of-an-hdf5-dataset-through-the-c-or-c-api
-	size_t len = H5Iget_name(dataset.getId(),NULL,0);
-    char buffer[len];
-    H5Iget_name(dataset.getId(),buffer,len+1);
-	std::string n = buffer;
-	return n;
-};
 
 std::string reducedDataSetName(std::string &fullPath)
 {
@@ -1414,7 +1431,7 @@ std::string reducedDataSetName(std::string &fullPath)
 void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 {
 	//grab properties from source dataset
-	std::string dsName = getDataSetName(source);
+	std::string dsName = source.getObjName();
 	dsName = reducedDataSetName(dsName);
 
 	H5::DataSpace sourceSpace = source.getSpace();
