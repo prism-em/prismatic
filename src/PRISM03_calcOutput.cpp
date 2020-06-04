@@ -163,11 +163,10 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	size_t numLayers = 1;
-	PRISMATIC_FLOAT_PRECISION dummy = 1.0;
 	if (pars.meta.saveDPC_CoM)
 		pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), 2}});
 	if (pars.meta.save4DOutput && (pars.fpFlag == 0))
-		setup4DOutput(pars, numLayers, dummy);
+		setup4DOutput(pars, numLayers);
 }
 
 void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)

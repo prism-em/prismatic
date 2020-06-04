@@ -502,8 +502,7 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	if(pars.meta.saveSMatrix)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupSMatrixOutput(pars, pars.fpFlag, dummy);
+		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
@@ -609,8 +608,7 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	if(pars.meta.saveSMatrix)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupSMatrixOutput(pars, pars.fpFlag, dummy);
+		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);

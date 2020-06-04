@@ -137,8 +137,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	if (prismatic_pars.meta.save3DOutput)
 	{
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
 		//create dummy array to pass to
 		Array3D<PRISMATIC_FLOAT_PRECISION> slice_image;
@@ -178,8 +177,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 		Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 		//std::string image_filename = std::string("multislice_2Doutput")+prismatic_pars.meta.filenameOutput;
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
 		for (auto j = 0; j < prismatic_pars.output.get_diml(); j++)
 		{
@@ -215,8 +213,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 	if (prismatic_pars.meta.saveDPC_CoM)
 	{
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
 		//create dummy array to pass to
 		Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
@@ -250,8 +247,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		}
 	}
 
-	PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-	writeMetadata(prismatic_pars, dummy);
+	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
 
 #ifdef PRISMATIC_ENABLE_GPU

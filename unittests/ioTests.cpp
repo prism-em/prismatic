@@ -110,7 +110,6 @@ BOOST_FIXTURE_TEST_CASE(operationReorganization, basicSim)
 BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 {
     //setting up test arrays
-    PRISMATIC_FLOAT_PRECISION dummy = 1.0; //dummy float for IO overlaoding
     int seed = 10101;
     srand(seed);
     std::default_random_engine de(seed);
@@ -142,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(4, data_dims); //rank is 4
-        H5::DataSet test4D_data = test4D_group.createDataSet("datacube", H5::PredType::NATIVE_FLOAT, mspace);
+        H5::DataSet test4D_data = test4D_group.createDataSet("datacube", PFP_TYPE, mspace);
         mspace.close();
         test4D_group.close();
     }
@@ -183,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(3, data_dims);
-        H5::DataSet test3D_data = test3D_group.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
+        H5::DataSet test3D_data = test3D_group.createDataSet("realslice", PFP_TYPE, mspace);
         mspace.close();
         test3D_group.close();
     }
@@ -197,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(2, data_dims);
-        H5::DataSet test2D_data = test2D_group.createDataSet("realslice", H5::PredType::NATIVE_FLOAT, mspace);
+        H5::DataSet test2D_data = test2D_group.createDataSet("realslice", PFP_TYPE, mspace);
         mspace.close();
         test2D_group.close();
     }
@@ -950,7 +949,6 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
 BOOST_AUTO_TEST_CASE(complexIO)
 {
     //testing IO operations on complex datasets
-    PRISMATIC_FLOAT_PRECISION dummy = 1.0; //dummy float for IO overlaoding
     int seed = 10101;
     srand(seed);
     std::default_random_engine de(seed);
@@ -1047,19 +1045,19 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     H5::DataSpace mspace(2, msize);
     H5::DataSpace fspace;
 
-    H5::DataSet one_dset = dataHold.createDataSet("one", H5::PredType::NATIVE_FLOAT, mspace);
-    H5::DataSet two_dset = dataHold.createDataSet("two", H5::PredType::NATIVE_FLOAT, mspace);
-    H5::DataSet three_dset = dataHold.createDataSet("three", H5::PredType::NATIVE_FLOAT, mspace);
-    H5::DataSet four_dset = dataHold.createDataSet("four", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSet one_dset = dataHold.createDataSet("one", PFP_TYPE, mspace);
+    H5::DataSet two_dset = dataHold.createDataSet("two", PFP_TYPE, mspace);
+    H5::DataSet three_dset = dataHold.createDataSet("three", PFP_TYPE, mspace);
+    H5::DataSet four_dset = dataHold.createDataSet("four", PFP_TYPE, mspace);
 
     fspace = one_dset.getSpace();
-    one_dset.write(&one[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);    
+    one_dset.write(&one[0], PFP_TYPE, mspace, fspace);    
     fspace = two_dset.getSpace();
-    two_dset.write(&two[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    two_dset.write(&two[0], PFP_TYPE, mspace, fspace);
     fspace = three_dset.getSpace();
-    three_dset.write(&three[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    three_dset.write(&three[0], PFP_TYPE, mspace, fspace);
     fspace = four_dset.getSpace();
-    four_dset.write(&four[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    four_dset.write(&four[0], PFP_TYPE, mspace, fspace);
 
 
     std::string sgName = "testSG";
@@ -1141,10 +1139,10 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
     hsize_t mdims_4D[4] = {refArr.get_dimi(), refArr.get_dimj(), refArr.get_dimk(), refArr.get_diml()};
     H5::DataSpace mspace(4, mdims_4D);
     
-    H5::DataSet refDS = sourceGroup.createDataSet("ref_ds", H5::PredType::NATIVE_FLOAT, mspace);
+    H5::DataSet refDS = sourceGroup.createDataSet("ref_ds", PFP_TYPE, mspace);
     H5::DataSpace fspace = refDS.getSpace();
 
-    refDS.write(&refArr[0], H5::PredType::NATIVE_FLOAT, mspace, fspace);
+    refDS.write(&refArr[0], PFP_TYPE, mspace, fspace);
 
     H5::DataSpace str_name_ds(H5S_SCALAR);
     H5::StrType strdatatype(H5::PredType::C_S1, 256);
@@ -1224,6 +1222,10 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
     meta.numSlices = 1;
     meta.algorithm = Algorithm::Multislice;
     meta.filenameOutput = fname;
+    meta.probeStepX = 0.4;
+    meta.probeStepY = 0.3;
+    meta.realspacePixelSize[0] = 0.25;
+    meta.realspacePixelSize[1] = 0.1;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n######### BEGIN TEST CASE: supergroup #########\n";
@@ -1249,16 +1251,59 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
     }
 
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
-    std::array<size_t, 4> vds_read_dims = vds_read.get_dimarr();
-    std::array<size_t, 4> ref_array_dims = ref_array.get_dimarr();
-    for(auto i = 0; i < 4; i++)
+    std::array<size_t, 4> dims_in;// = {vds_read.get_dimi(), vds_read.get_dimj(), vds_read.get_dimk(), vds_read.get_diml()};
+    std::array<size_t, 4> order;// = {3, 2, 1, 0};
+    std::array<size_t, 4> dims_hold = {vds_read.get_dimarr()};
+    for(auto i = 0; i < 4; i++) std::cout << dims_hold[i] << std::endl;
+
+    std::vector<std::array<size_t,4>> orders;
+    Array4D<PRISMATIC_FLOAT_PRECISION> vds_read_tmp;
+    orders.push_back(std::array<size_t, 4>{0,1,2,3});
+    orders.push_back(std::array<size_t, 4>{0,1,3,2});
+    orders.push_back(std::array<size_t, 4>{0,2,1,3});
+    orders.push_back(std::array<size_t, 4>{0,2,3,1});
+    orders.push_back(std::array<size_t, 4>{0,3,1,2});
+    orders.push_back(std::array<size_t, 4>{0,3,2,1});
+
+    orders.push_back(std::array<size_t, 4>{1,0,2,3});
+    orders.push_back(std::array<size_t, 4>{1,0,3,2});
+    orders.push_back(std::array<size_t, 4>{1,2,0,3});
+    orders.push_back(std::array<size_t, 4>{1,2,3,0});
+    orders.push_back(std::array<size_t, 4>{1,3,0,2});
+    orders.push_back(std::array<size_t, 4>{1,3,2,0});
+
+    orders.push_back(std::array<size_t, 4>{2,0,1,3});
+    orders.push_back(std::array<size_t, 4>{2,0,3,1});
+    orders.push_back(std::array<size_t, 4>{2,1,0,3});
+    orders.push_back(std::array<size_t, 4>{2,1,3,0});
+    orders.push_back(std::array<size_t, 4>{2,3,0,1});
+    orders.push_back(std::array<size_t, 4>{2,3,1,0});
+
+    orders.push_back(std::array<size_t, 4>{3,0,1,2});
+    orders.push_back(std::array<size_t, 4>{3,0,2,1});
+    orders.push_back(std::array<size_t, 4>{3,1,0,2});
+    orders.push_back(std::array<size_t, 4>{3,1,2,0});
+    orders.push_back(std::array<size_t, 4>{3,2,0,1});
+    orders.push_back(std::array<size_t, 4>{3,2,1,0});
+    for(auto i = 0; i < 24; i++)
     {
-        std::cout << vds_read_dims[i] << " " << ref_array_dims[i] << std::endl;
+        for(auto j = 0; j < 24; j++)
+        {
+            order = orders[i];
+            dims_in = {dims_hold[orders[j][0]],dims_hold[orders[j][1]], dims_hold[orders[j][2]], dims_hold[orders[j][3]]};
+            vds_read_tmp = restride(vds_read, dims_in, order);
+            if(compareValues(vds_read_tmp, ref_array) < tol)
+            {
+                // std::cout << "i: " << i << " j: " << j << std::endl;
+            }
+        }
     }
+    vds_read = restride(vds_read, dims_in, order);
     BOOST_TEST(compareSize(vds_read, ref_array));
     BOOST_TEST(compareValues(vds_read, ref_array) < tol);
+    
     //check source dims vs dims in supergroup
-
+    std::cout << sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
     //check total number of dims in group correspond to comparable ranks in datasets
 
     //check to make sure that source datasets have new attribute tags

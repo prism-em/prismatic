@@ -478,6 +478,11 @@ Prismatic::ArrayND<N, T> restride(const ArrayND<N, T> &input,
 
 	std::array<size_t, N> dims_out;
 	for(auto i = 0; i < N; i++) dims_out[i] = dims_in[order[i]];
+	// for(auto i = 0; i < N; i++) std::cout << dims_in[i] << " ";
+	// std::cout << std::endl;
+	// for(auto i = 0; i < N; i++) std::cout << dims_out[i] << " ";
+	// std::cout << std::endl;
+	
 
 	//set up indexing calculation arrays
 	std::array<size_t, N> divisors_in;
@@ -490,6 +495,10 @@ Prismatic::ArrayND<N, T> restride(const ArrayND<N, T> &input,
 		divisors_in[i] = divisors_in[i-1] / dims_in[i];
 		divisors_out[i] = divisors_out[i-1] / dims_out[i];
 	}
+	// for(auto i = 0; i < N; i++) std::cout << divisors_in[i] << " ";
+	// std::cout << std::endl;
+	// for(auto i = 0; i < N; i++) std::cout << divisors_out[i] << " ";
+	// std::cout << std::endl;
 
 	std::array<size_t, N> indices = {0};
 	std::array<size_t, N> indices_out = {0};

@@ -214,8 +214,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 	if (prismatic_pars.meta.save3DOutput)
 	{
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
 		Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimi()}});
 
 		std::stringstream nameString;
@@ -251,8 +250,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 		prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 			{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
 		std::stringstream nameString;
 		nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
@@ -279,8 +277,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 	if (prismatic_pars.meta.saveDPC_CoM)
 	{
-		PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml(), dummy);
+		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
 		//create dummy array to pass to
 		Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;
@@ -310,8 +307,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		dataGroup.close();
 	}
 
-	PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-	writeMetadata(prismatic_pars, dummy);
+	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
 
 #ifdef PRISMATIC_ENABLE_GPU
