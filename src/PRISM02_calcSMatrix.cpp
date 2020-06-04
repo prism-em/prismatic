@@ -528,20 +528,9 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 
 		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
-		{
-			Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_sm(inSMatrix);
-			for(auto i = 0; i < inSMatrix.get_dimi(); i++)
-			{
-				for(auto j = 0; j < inSMatrix.get_dimj(); j++)
-				{
-					for(auto k = 0; k < inSMatrix.get_dimk(); k++)
-					{
-						inSMatrix[k*inSMatrix.get_dimi()*inSMatrix.get_dimj()+j*inSMatrix.get_dimi()+i] = tmp_sm[i*inSMatrix.get_dimk()*inSMatrix.get_dimj()+j*inSMatrix.get_dimk()+k];
-					}
-				}
-			}
-
-		}
+		std::array<size_t, 3> dims_in = {inSMatrix.get_dimk(), inSMatrix.get_dimj(), inSMatrix.get_dimi()};
+		std::array<size_t, 3> order = {2, 1, 0};
+		inSMatrix = restride(inSMatrix, dims_in, order);
 
 		pars.Scompact = inSMatrix;
 	}

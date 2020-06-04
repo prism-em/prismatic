@@ -1790,22 +1790,16 @@ Array2D<PRISMATIC_FLOAT_PRECISION> readDataSet2D(const std::string &filename, co
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(2,dims_out);
 
-	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]];
-	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+	std::vector<PRISMATIC_FLOAT_PRECISION> data_in(dims_out[0]*dims_out[1]);
+	dataset.read(&data_in[0], H5::PredType::NATIVE_FLOAT, mspace, dataspace);
 
 	mspace.close();
 	dataspace.close();
 	dataset.close();
 	input.close();
 
-	Array2D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{dims_out[1],dims_out[0]}});
-	for(auto j = 0; j < dims_out[1]; j++)
-	{
-		for(auto i = 0; i < dims_out[0]; i++)
-		{
-			data.at(j,i) = data_in[j*dims_out[0]+i];
-		}
-	}
+	Array2D<PRISMATIC_FLOAT_PRECISION> data = ArrayND<2, std::vector<PRISMATIC_FLOAT_PRECISION>>(data_in, {{dims_out[1], dims_out[0]}});
+
 	return data;
 };
 
@@ -1819,25 +1813,16 @@ Array3D<PRISMATIC_FLOAT_PRECISION> readDataSet3D(const std::string &filename, co
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(3,dims_out);
 
-	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]];
-	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+	std::vector<PRISMATIC_FLOAT_PRECISION> data_in(dims_out[0]*dims_out[1]*dims_out[2]);
+	dataset.read(&data_in[0], H5::PredType::NATIVE_FLOAT, mspace, dataspace);
 
 	mspace.close();
 	dataspace.close();
 	dataset.close();
 	input.close();
 
-	Array3D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{dims_out[2],dims_out[1],dims_out[0]}});
-	for(auto k = 0; k < dims_out[2]; k++)
-	{
-		for(auto j = 0; j < dims_out[1]; j++)
-		{
-			for(auto i = 0; i < dims_out[0]; i++)
-			{
-				data.at(k,j,i) = data_in[k*dims_out[0]*dims_out[1]+j*dims_out[0]+i];
-			}
-		}
-	}
+	Array3D<PRISMATIC_FLOAT_PRECISION> data = ArrayND<3, std::vector<PRISMATIC_FLOAT_PRECISION>>(data_in, {{dims_out[2], dims_out[1], dims_out[0]}});
+
 	return data;
 };
 
@@ -1851,8 +1836,8 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, co
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(4,dims_out);
 
-	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]];
-	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+	std::vector<PRISMATIC_FLOAT_PRECISION> data_in(dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]);
+	dataset.read(&data_in[0], H5::PredType::NATIVE_FLOAT, mspace, dataspace);
 
 	mspace.close();
 	dataspace.close();
@@ -1862,20 +1847,11 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D(const std::string &filename, co
 
 	//mem dims are stored 0->3 kx, ky, qx, qy
 	//flipping x, y back for storage into 4D array
-	Array4D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{dims_out[1],dims_out[0],dims_out[3],dims_out[2]}});
-	for(auto k = 0; k < dims_out[0]; k++)
-	{
-		for(auto l = 0; l < dims_out[1]; l++)
-		{
-			for(auto i = 0; i < dims_out[2]; i++)
-			{
-				for(auto j = 0; j < dims_out[3]; j++)
-				{
-					data.at(l,k,j,i) = data_in[k*dims_out[1]*dims_out[2]*dims_out[3]+l*dims_out[2]*dims_out[3]+i*dims_out[3]+j];
-				}
-			}
-		}
-	}
+	Array4D<PRISMATIC_FLOAT_PRECISION> data = ArrayND<4, std::vector<PRISMATIC_FLOAT_PRECISION>>(data_in, {{dims_out[1], dims_out[0], dims_out[3], dims_out[2]}});
+	std::array<size_t, 4> dims_in = {dims_out[1], dims_out[0], dims_out[3], dims_out[2]};
+	std::array<size_t, 4> order = {1, 0, 3, 2};
+	data = restride(data, dims_in, order);
+
 	return data;
 };
 
@@ -1890,31 +1866,15 @@ Array4D<PRISMATIC_FLOAT_PRECISION> readDataSet4D_keepOrder(const std::string &fi
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(4,dims_out);
 
-	PRISMATIC_FLOAT_PRECISION data_in[dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]];
-	dataset.read(data_in, H5::PredType::NATIVE_FLOAT, mspace, dataspace);
+	std::vector<PRISMATIC_FLOAT_PRECISION> data_in(dims_out[0]*dims_out[1]*dims_out[2]*dims_out[3]);
+	dataset.read(&data_in[0], H5::PredType::NATIVE_FLOAT, mspace, dataspace);
 
 	mspace.close();
 	dataspace.close();
 	dataset.close();
 	input.close();
 
-
-	//mem dims are stored 0->3 kx, ky, qx, qy
-	//flipping x, y back for storage into 4D array
-	Array4D<PRISMATIC_FLOAT_PRECISION> data = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{dims_out[3],dims_out[2],dims_out[1],dims_out[0]}});
-	for(auto l = 0; l < dims_out[3]; l++)
-	{
-		for(auto k = 0; k < dims_out[2]; k++)
-		{
-			for(auto j = 0; j < dims_out[1]; j++)
-			{
-				for(auto i = 0; i < dims_out[0]; i++)
-				{
-					data.at(l,k,j,i) = data_in[l*dims_out[0]*dims_out[1]*dims_out[2]+k*dims_out[0]*dims_out[1]+j*dims_out[0]+i];
-				}
-			}
-		}
-	}
+	Array4D<PRISMATIC_FLOAT_PRECISION> data = ArrayND<4, std::vector<PRISMATIC_FLOAT_PRECISION>>(data_in, {{dims_out[3], dims_out[2], dims_out[1], dims_out[0]}});
 	return data;
 };
 

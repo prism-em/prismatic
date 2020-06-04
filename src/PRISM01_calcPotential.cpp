@@ -537,20 +537,6 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::array<size_t, 3> dims_in = {inPot.get_dimk(), inPot.get_dimj(), inPot.get_dimi()};
 	std::array<size_t, 3> order = {2, 1, 0};
 	inPot = restride(inPot, dims_in, order);
-	// {
-	// 	Array3D<PRISMATIC_FLOAT_PRECISION> tmp_pot(inPot);
-	// 	for(auto i = 0; i < inPot.get_dimi(); i++)
-	// 	{
-	// 		for(auto j = 0; j < inPot.get_dimj(); j++)
-	// 		{
-	// 			for(auto k = 0; k < inPot.get_dimk(); k++)
-	// 			{
-	// 				inPot[k*inPot.get_dimi()*inPot.get_dimj()+j*inPot.get_dimi()+i] = tmp_pot[i*inPot.get_dimk()*inPot.get_dimj()+j*inPot.get_dimk()+k];
-	// 			}
-	// 		}
-	// 	}
-
-	// }
 
 	pars.numPlanes = inPot.get_dimk();
 	if (pars.meta.numSlices == 0)

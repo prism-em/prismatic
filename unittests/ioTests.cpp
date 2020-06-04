@@ -377,7 +377,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
 
-    // divertOutput(pos, fd, logPath);
+    divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
 
     std::string importFile = "../test/potentialImport.h5";
@@ -393,7 +393,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     go(meta);
     std::cout << "###### END TEST CASE: importPotential2D_M #####\n";
 
-    // revertOutput(fd, pos);
+    revertOutput(fd, pos);
 
     //read in output arrays and compare
     std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
