@@ -1284,7 +1284,6 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
     errSum += std::abs(depth_check[2]-depth_read[2]);
     BOOST_TEST(errSum < tol);
 
-    //check to make sure that source datasets have new attribute tags
 }
 
 BOOST_AUTO_TEST_SUITE_END();

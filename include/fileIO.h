@@ -9,7 +9,6 @@ struct complex_float_t
 	PRISMATIC_FLOAT_PRECISION im;
 };
 
-
 namespace Prismatic{
 
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
@@ -58,6 +57,14 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
 void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims, const size_t &rank);
+
+void writeRealDataSet(H5::Group group, const std::string &dsetname, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const size_t &rank);
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data);
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data);
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const std::string &data);
 
 template <size_t N>
 void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)

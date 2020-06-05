@@ -110,7 +110,6 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 
         qxInd_max *= 2;
         qyInd_max *= 2;
-        //TODO: Figure out how to correctly sit the dimension offset for a cropped image
         offset_qx = 0;
         offset_qy = 0;
     }
@@ -161,22 +160,10 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		std::string nth_name = base_name + getDigitString(n);
 		H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
 
-		//write group type attribute
-		H5::DataSpace attr1_dataspace(H5S_SCALAR);
-		H5::Attribute emd_group_type = CBED_slice_n.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
-		int group_type = 1;
-		emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-		//write metadata attribute
-		H5::DataSpace attr2_dataspace(H5S_SCALAR);
-		H5::Attribute metadata_group = CBED_slice_n.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
-		int mgroup = 0;
-		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
-
-		//write output depth attribute
-		H5::DataSpace attr3_dataspace(H5S_SCALAR);
-		H5::Attribute output_depth = CBED_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
-		output_depth.write(PFP_TYPE, &pars.depths[n]);
+		//write attributes
+		writeScalarAttribute(CBED_slice_n, "emd_group_type", 1);
+		writeScalarAttribute(CBED_slice_n, "metadata", 0);
+		writeScalarAttribute(CBED_slice_n, "output_depth", pars.depths[n]);
 		
 		//setup data set chunking properties
 		H5::DSetCreatPropList plist;
@@ -191,57 +178,31 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		H5::DataSpace str_name_ds(H5S_SCALAR);
 		H5::StrType strdatatype(H5::PredType::C_S1, 256);
 
-		H5::DataSpace dim1_mspace(1, rx_dim);
-		H5::DataSpace dim2_mspace(1, ry_dim);
-		H5::DataSpace dim3_mspace(1, qx_dim);
-		H5::DataSpace dim4_mspace(1, qy_dim);
-
-		H5::DataSet dim1 = CBED_slice_n.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-		H5::DataSet dim2 = CBED_slice_n.createDataSet("dim2", PFP_TYPE, dim2_mspace);
-		H5::DataSet dim3 = CBED_slice_n.createDataSet("dim3", PFP_TYPE, dim3_mspace);
-		H5::DataSet dim4 = CBED_slice_n.createDataSet("dim4", PFP_TYPE, dim4_mspace);
-
-		H5::DataSpace dim1_fspace = dim1.getSpace();
-		H5::DataSpace dim2_fspace = dim2.getSpace();
-		H5::DataSpace dim3_fspace = dim3.getSpace();
-		H5::DataSpace dim4_fspace = dim4.getSpace();
-
-		dim1.write(&pars.xp[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-		dim2.write(&pars.yp[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-		dim3.write(&qx[offset_qx], PFP_TYPE, dim3_mspace, dim3_fspace);
-		dim4.write(&qy[offset_qy], PFP_TYPE, dim4_mspace, dim4_fspace);
+		writeRealDataSet(CBED_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet(CBED_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
+		writeRealDataSet(CBED_slice_n, "dim3", &qx[offset_qx], qx_dim, 1);
+		writeRealDataSet(CBED_slice_n, "dim4", &qy[offset_qy], qy_dim, 1);
 
 		//dimension attributes
-		const H5std_string dim1_name_str("R_x");
-		const H5std_string dim2_name_str("R_y");
-		const H5std_string dim3_name_str("Q_x");
-		const H5std_string dim4_name_str("Q_y");
+		H5::DataSet dim1 = CBED_slice_n.openDataSet("dim1");
+		H5::DataSet dim2 = CBED_slice_n.openDataSet("dim2");
+		H5::DataSet dim3 = CBED_slice_n.openDataSet("dim3");
+		H5::DataSet dim4 = CBED_slice_n.openDataSet("dim4");
 
-		H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim4_name = dim4.createAttribute("name", strdatatype, str_name_ds);
+		writeScalarAttribute(dim1, "name", "R_x");
+		writeScalarAttribute(dim2, "name", "R_y");
+		writeScalarAttribute(dim3, "name", "Q_x");
+		writeScalarAttribute(dim4, "name", "Q_y");
 
-		dim1_name.write(strdatatype, dim1_name_str);
-		dim2_name.write(strdatatype, dim2_name_str);
-		dim3_name.write(strdatatype, dim3_name_str);
-		dim4_name.write(strdatatype, dim4_name_str);
+		writeScalarAttribute(dim1, "units", "[Å]");
+		writeScalarAttribute(dim2, "units", "[Å]");
+		writeScalarAttribute(dim3, "units", "[Å^-1]");
+		writeScalarAttribute(dim4, "units", "[Å^-1]");
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[n_m^-1]");
-		const H5std_string dim4_unit_str("[n_m^-1]");
-
-		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim4_unit = dim4.createAttribute("units", strdatatype, str_name_ds);
-
-		dim1_unit.write(strdatatype, dim1_unit_str);
-		dim2_unit.write(strdatatype, dim2_unit_str);
-		dim3_unit.write(strdatatype, dim3_unit_str);
-		dim4_unit.write(strdatatype, dim4_unit_str);
-
+		dim1.close();
+		dim2.close();
+		dim3.close();
+		dim4.close();
 		CBED_slice_n.close();
 	}
 
@@ -270,22 +231,10 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		std::string nth_name = base_name + getDigitString(n);
 		H5::Group VD_slice_n(realslices.createGroup(nth_name.c_str()));
 
-		//write group type attribute
-		H5::DataSpace attr1_dataspace(H5S_SCALAR);
-		H5::Attribute emd_group_type = VD_slice_n.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
-		int group_type = 1;
-		emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-		//write metadata attribute
-		H5::DataSpace attr2_dataspace(H5S_SCALAR);
-		H5::Attribute metadata_group = VD_slice_n.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
-		int mgroup = 0;
-		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
-
-		//write output depth attribute
-		H5::DataSpace attr3_dataspace(H5S_SCALAR);
-		H5::Attribute output_depth = VD_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
-		output_depth.write(PFP_TYPE, &pars.depths[n]);
+		//write attributes
+		writeScalarAttribute(VD_slice_n, "emd_group_type", 1);
+		writeScalarAttribute(VD_slice_n, "metadata", 0);
+		writeScalarAttribute(VD_slice_n, "output_depth", pars.depths[n]);
 
 		//create datasets
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
@@ -294,49 +243,26 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		mspace.close();
 
 		//write dimensions
-		H5::DataSpace str_name_ds(H5S_SCALAR);
-		H5::StrType strdatatype(H5::PredType::C_S1, 256);
+		writeRealDataSet(VD_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet(VD_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
+		writeRealDataSet(VD_slice_n, "dim3", &pars.detectorAngles[0], bin_dim, 1);
 
-		H5::DataSpace dim1_mspace(1, rx_dim);
-		H5::DataSpace dim2_mspace(1, ry_dim);
-		H5::DataSpace dim3_mspace(1, bin_dim);
+		//dimension attribute
+		H5::DataSet dim1 = VD_slice_n.openDataSet("dim1");
+		H5::DataSet dim2 = VD_slice_n.openDataSet("dim2");
+		H5::DataSet dim3 = VD_slice_n.openDataSet("dim3");
 
-		H5::DataSet dim1 = VD_slice_n.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-		H5::DataSet dim2 = VD_slice_n.createDataSet("dim2", PFP_TYPE, dim2_mspace);
-		H5::DataSet dim3 = VD_slice_n.createDataSet("dim3", PFP_TYPE, dim3_mspace);
+		writeScalarAttribute(dim1, "name", "R_x");
+		writeScalarAttribute(dim2, "name", "R_y");
+		writeScalarAttribute(dim3, "name", "bin_outer_angle");
 
-		H5::DataSpace dim1_fspace = dim1.getSpace();
-		H5::DataSpace dim2_fspace = dim2.getSpace();
-		H5::DataSpace dim3_fspace = dim3.getSpace();
+		writeScalarAttribute(dim1, "units", "[Å]");
+		writeScalarAttribute(dim2, "units", "[Å]");
+		writeScalarAttribute(dim3, "units", "[mrad]");
 
-		dim1.write(&pars.xp[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-		dim2.write(&pars.yp[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-		dim3.write(&pars.detectorAngles[0], PFP_TYPE, dim3_mspace, dim3_fspace);
-		//dimension attributes
-		const H5std_string dim1_name_str("R_x");
-		const H5std_string dim2_name_str("R_y");
-		const H5std_string dim3_name_str("bin_outer_angle");
-
-		H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
-
-		dim1_name.write(strdatatype, dim1_name_str);
-		dim2_name.write(strdatatype, dim2_name_str);
-		dim3_name.write(strdatatype, dim3_name_str);
-
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-		const H5std_string dim3_unit_str("[mrad]");
-
-		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
-
-		dim1_unit.write(strdatatype, dim1_unit_str);
-		dim2_unit.write(strdatatype, dim2_unit_str);
-		dim3_unit.write(strdatatype, dim3_unit_str);
-
+		dim1.close();
+		dim2.close();
+		dim3.close();
 		VD_slice_n.close();
 	}
 
@@ -363,28 +289,11 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		std::string nth_name = base_name + getDigitString(n);
 		H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 
-		//write group type attribute
-		H5::DataSpace attr1_dataspace(H5S_SCALAR);
-		H5::Attribute emd_group_type = annular_slice_n.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
-		int group_type = 1;
-		emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-		//write metadata attribute
-		H5::DataSpace attr2_dataspace(H5S_SCALAR);
-		H5::Attribute metadata_group = annular_slice_n.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
-		int mgroup = 0;
-		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
-
-		//write realslice depth attribute
-		int depth = 1;
-		H5::DataSpace attr3_dataspace(H5S_SCALAR);
-		H5::Attribute depth_attr = annular_slice_n.createAttribute("depth", H5::PredType::NATIVE_INT, attr3_dataspace);
-		depth_attr.write(H5::PredType::NATIVE_INT, &depth);
-
-		//write output depth attribute
-		H5::DataSpace attr4_dataspace(H5S_SCALAR);
-		H5::Attribute output_depth = annular_slice_n.createAttribute("output_depth", PFP_TYPE, attr4_dataspace);
-		output_depth.write(PFP_TYPE, &pars.depths[n]);
+		//write attributes
+		writeScalarAttribute(annular_slice_n, "emd_group_type", 1);
+		writeScalarAttribute(annular_slice_n, "metadata", 0);
+		writeScalarAttribute(annular_slice_n, "output_depth", pars.depths[n]);
+		writeScalarAttribute(annular_slice_n, "depth", 1);
 
 		//create dataset
 		H5::DataSpace mspace(2, data_dims); //rank is 2
@@ -392,39 +301,21 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		mspace.close();
 
 		//write dimensions
-		H5::DataSpace str_name_ds(H5S_SCALAR);
-		H5::StrType strdatatype(H5::PredType::C_S1, 256);
+		writeRealDataSet(annular_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet(annular_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
 
-		H5::DataSpace dim1_mspace(1, rx_dim);
-		H5::DataSpace dim2_mspace(1, ry_dim);
+		//dimension attribute
+		H5::DataSet dim1 = annular_slice_n.openDataSet("dim1");
+		H5::DataSet dim2 = annular_slice_n.openDataSet("dim2");
 
-		H5::DataSet dim1 = annular_slice_n.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-		H5::DataSet dim2 = annular_slice_n.createDataSet("dim2", PFP_TYPE, dim2_mspace);
+		writeScalarAttribute(dim1, "name", "R_x");
+		writeScalarAttribute(dim2, "name", "R_y");
 
-		H5::DataSpace dim1_fspace = dim1.getSpace();
-		H5::DataSpace dim2_fspace = dim2.getSpace();
+		writeScalarAttribute(dim1, "units", "[Å]");
+		writeScalarAttribute(dim2, "units", "[Å]");
 
-		dim1.write(&pars.xp[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-		dim2.write(&pars.yp[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-
-		//dimension attributes
-		const H5std_string dim1_name_str("R_x");
-		const H5std_string dim2_name_str("R_y");
-
-		H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-
-		dim1_name.write(strdatatype, dim1_name_str);
-		dim2_name.write(strdatatype, dim2_name_str);
-
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-
-		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-
-		dim1_unit.write(strdatatype, dim1_unit_str);
-		dim2_unit.write(strdatatype, dim2_unit_str);
+		dim1.close();
+		dim2.close();
 
 		annular_slice_n.close();
 	}
@@ -454,22 +345,10 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 		std::string nth_name = base_name + getDigitString(n);
 		H5::Group DPC_CoM_slice_n(realslices.createGroup(nth_name.c_str()));
 
-		//write group type attribute
-		H5::DataSpace attr1_dataspace(H5S_SCALAR);
-		H5::Attribute emd_group_type = DPC_CoM_slice_n.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
-		int group_type = 1;
-		emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-		//write metadata attribute
-		H5::DataSpace attr2_dataspace(H5S_SCALAR);
-		H5::Attribute metadata_group = DPC_CoM_slice_n.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
-		int mgroup = 0;
-		metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
-
-		//write output depth attribute
-		H5::DataSpace attr3_dataspace(H5S_SCALAR);
-		H5::Attribute output_depth = DPC_CoM_slice_n.createAttribute("output_depth", PFP_TYPE, attr3_dataspace);
-		output_depth.write(PFP_TYPE, &pars.depths[n]);
+		//write attributes
+		writeScalarAttribute(DPC_CoM_slice_n, "emd_group_type", 1);
+		writeScalarAttribute(DPC_CoM_slice_n, "metadata", 0);
+		writeScalarAttribute(DPC_CoM_slice_n, "output_depth", pars.depths[n]);
 
 		//create dataset
 		H5::DataSpace mspace(3, data_dims); //rank is 3
@@ -477,50 +356,32 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 		mspace.close();
 
 		//write dimensions
-		H5::DataSpace str_name_ds(H5S_SCALAR);
+		writeRealDataSet(DPC_CoM_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet(DPC_CoM_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
+
 		H5::StrType strdatatype(H5::PredType::C_S1, 256);
-
-		H5::DataSpace dim1_mspace(1, rx_dim);
-		H5::DataSpace dim2_mspace(1, ry_dim);
 		H5::DataSpace dim3_mspace(1, str_dim);
-
-		H5::DataSet dim1 = DPC_CoM_slice_n.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-		H5::DataSet dim2 = DPC_CoM_slice_n.createDataSet("dim2", PFP_TYPE, dim2_mspace);
-
-		H5::DataSpace dim1_fspace = dim1.getSpace();
-		H5::DataSpace dim2_fspace = dim2.getSpace();
-
-		dim1.write(&pars.xp[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-		dim2.write(&pars.yp[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-
 		H5::DataSet dim3 = DPC_CoM_slice_n.createDataSet("dim3", strdatatype, dim3_mspace);
 		H5std_string dpc_x("DPC_CoM_x");
 		H5std_string dpc_y("DPC_CoM_y");
-		H5std_string str_buffer_array[2];
-		str_buffer_array[0] = dpc_x;
-		str_buffer_array[1] = dpc_y;
-
+		H5std_string str_buffer_array[2] = {dpc_x, dpc_y};
 		writeStringArray(dim3, str_buffer_array, 2);
 
-		//dimension attributes
-		const H5std_string dim1_name_str("R_x");
-		const H5std_string dim2_name_str("R_y");
+		//dimension attribute
+		H5::DataSet dim1 = DPC_CoM_slice_n.openDataSet("dim1");
+		H5::DataSet dim2 = DPC_CoM_slice_n.openDataSet("dim2");
 
-		H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-		H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
+		writeScalarAttribute(dim1, "name", "R_x");
+		writeScalarAttribute(dim2, "name", "R_y");
+		writeScalarAttribute(dim3, "name", "X/Y");
 
-		dim1_name.write(strdatatype, dim1_name_str);
-		dim2_name.write(strdatatype, dim2_name_str);
+		writeScalarAttribute(dim1, "units", "[Å]");
+		writeScalarAttribute(dim2, "units", "[Å]");
+		writeScalarAttribute(dim3, "units", "[none]");
 
-		const H5std_string dim1_unit_str("[n_m]");
-		const H5std_string dim2_unit_str("[n_m]");
-
-		H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-		H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-
-		dim1_unit.write(strdatatype, dim1_unit_str);
-		dim2_unit.write(strdatatype, dim2_unit_str);
-
+		dim1.close();
+		dim2.close();
+		dim3.close();
 		DPC_CoM_slice_n.close();
 	}
 
@@ -535,8 +396,8 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
 
-	hsize_t rx_dim[1] = {pars.xp.size()}; //TODO: clarify 
-	hsize_t ry_dim[1] = {pars.yp.size()};
+	hsize_t x_size[1] = {pars.imageSize[1] / 2};
+	hsize_t y_size[1] = {pars.imageSize[0] / 2};
 	hsize_t beams[1] = {pars.numberBeams};
 
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
@@ -547,17 +408,9 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 
 	H5::Group smatrix_group(realslices.createGroup(base_name.c_str()));
 
-	//write group type attribute
-	H5::DataSpace attr1_dataspace(H5S_SCALAR);
-	H5::Attribute emd_group_type = smatrix_group.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
-	int group_type = 1;
-	emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-	//write metadata attribute
-	H5::DataSpace attr2_dataspace(H5S_SCALAR);
-	H5::Attribute metadata_group = smatrix_group.createAttribute("metadata", H5::PredType::NATIVE_INT, attr2_dataspace);
-	int mgroup = 0;
-	metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+	//write attributes
+	writeScalarAttribute(smatrix_group, "emd_group_type", 1);
+	writeScalarAttribute(smatrix_group, "metadata", 0);
 
 	//create datasets
 	H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
@@ -566,49 +419,30 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 	mspace.close();
 
 	//write dimensions
-	H5::DataSpace str_name_ds(H5S_SCALAR);
-	H5::StrType strdatatype(H5::PredType::C_S1, 256);
+	Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1] / 2}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0] / 2}});
+	for (auto i = 0; i < pars.imageSize[1] / 2; i++) x_dim_data[i] = i * pars.pixelSize[1]*2;
+	for (auto i = 0; i < pars.imageSize[0] / 2; i++) y_dim_data[i] = i * pars.pixelSize[0]*2;
 
-	H5::DataSpace dim1_mspace(1, rx_dim);
-	H5::DataSpace dim2_mspace(1, ry_dim);
-	H5::DataSpace dim3_mspace(1, beams);
+	std::vector<PRISMATIC_FLOAT_PRECISION> beamsIndex(pars.numberBeams); //convert to float
+	for(auto i = 0; i < pars.numberBeams; i++) beamsIndex.push_back(pars.beamsIndex[i]);
 
-	H5::DataSet dim1 = smatrix_group.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-	H5::DataSet dim2 = smatrix_group.createDataSet("dim2", PFP_TYPE, dim2_mspace);
-	H5::DataSet dim3 = smatrix_group.createDataSet("dim3", PFP_TYPE, dim3_mspace);
-
-	H5::DataSpace dim1_fspace = dim1.getSpace();
-	H5::DataSpace dim2_fspace = dim2.getSpace();
-	H5::DataSpace dim3_fspace = dim3.getSpace();
-
-	// dim1.write(&pars.xp[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-	// dim2.write(&pars.yp[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-	// dim3.write(&pars.detectorAngles[0], PFP_TYPE, dim3_mspace, dim3_fspace);
+	writeRealDataSet(smatrix_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet(smatrix_group, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet(smatrix_group, "dim3", &beamsIndex[0], beams, 1);
 
 	//dimension attributes
-	const H5std_string dim1_name_str("R_x");
-	const H5std_string dim2_name_str("R_y");
-	const H5std_string dim3_name_str("beam_number");
+	H5::DataSet dim1 = smatrix_group.openDataSet("dim1");
+	H5::DataSet dim2 = smatrix_group.openDataSet("dim2");
+	H5::DataSet dim3 = smatrix_group.openDataSet("dim3");
 
-	H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-	H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-	H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
+	writeScalarAttribute(dim1, "name", "R_x");
+	writeScalarAttribute(dim2, "name", "R_y");
+	writeScalarAttribute(dim3, "name", "beam_number");
 
-	dim1_name.write(strdatatype, dim1_name_str);
-	dim2_name.write(strdatatype, dim2_name_str);
-	dim3_name.write(strdatatype, dim3_name_str);
-
-	const H5std_string dim1_unit_str("[Å]");
-	const H5std_string dim2_unit_str("[Å]");
-	const H5std_string dim3_unit_str("[none]");
-
-	H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-	H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-	H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
-
-	dim1_unit.write(strdatatype, dim1_unit_str);
-	dim2_unit.write(strdatatype, dim2_unit_str);
-	dim3_unit.write(strdatatype, dim3_unit_str);
+	writeScalarAttribute(dim1, "units", "[Å]");
+	writeScalarAttribute(dim2, "units", "[Å]");
+	writeScalarAttribute(dim3, "units", "[none]");
 
 	smatrix_group.close();
 	realslices.close();
@@ -638,9 +472,9 @@ void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffe
 	mspace.close();
 };
 
-//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
 void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
 {
+	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
 
@@ -690,7 +524,7 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOA
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)
 {
-	//assumes that we are writing a 1 dimensional array of strings- used pretty much only for DPC
+	//assumes that we are writing a 1 dimensional array of strings- used only for DPC
 	H5::StrType strdatatype(H5::PredType::C_S1, 256);
 	hsize_t offset[1] = {0};
 	H5::DataSpace fspace = dataset.getSpace();
@@ -718,20 +552,11 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	ppotential = realslices.createGroup(groupName);
 
-	H5::DataSpace attr_dataspace(H5S_SCALAR);
-
-	int group_type = 1;
-	H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr_dataspace);
-	emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-	H5::Attribute metadata_group = ppotential.createAttribute("metadata", H5::PredType::NATIVE_INT, attr_dataspace);
-	int mgroup = 0;
-	metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
+	//write attributes
+	writeScalarAttribute(ppotential, "emd_group_type", 1);
+	writeScalarAttribute(ppotential, "metadata", 0);
 
 	//write dimensions
-	H5::DataSpace str_name_ds(H5S_SCALAR);
-	H5::StrType strdatatype(H5::PredType::C_S1, 256);
-
 	hsize_t x_size[1] = {pars.imageSize[1]};
 	hsize_t y_size[1] = {pars.imageSize[0]};
 	hsize_t z_size[1] = {pars.numPlanes};
@@ -740,93 +565,40 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0]}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> z_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.numPlanes}});
 
-	for (auto i = 0; i < pars.imageSize[1]; i++)
-		x_dim_data[i] = i * pars.pixelSize[1];
-	for (auto i = 0; i < pars.imageSize[0]; i++)
-		y_dim_data[i] = i * pars.pixelSize[0];
-	for (auto i = 0; i < pars.numPlanes; i++)
-		z_dim_data[i] = i * pars.meta.sliceThickness;
+	for (auto i = 0; i < pars.imageSize[1]; i++) x_dim_data[i] = i * pars.pixelSize[1];
+	for (auto i = 0; i < pars.imageSize[0]; i++) y_dim_data[i] = i * pars.pixelSize[0];
+	for (auto i = 0; i < pars.numPlanes; i++) z_dim_data[i] = i * pars.meta.sliceThickness;
 
-	H5::DataSpace dim1_mspace(1, x_size);
-	H5::DataSpace dim2_mspace(1, y_size);
-	H5::DataSpace dim3_mspace(1, z_size);
-
-	H5::DataSet dim1;
-	H5::DataSet dim2;
-	H5::DataSet dim3;
-
-	dim1 = ppotential.createDataSet("dim1", PFP_TYPE, dim1_mspace);
-	dim2 = ppotential.createDataSet("dim2", PFP_TYPE, dim2_mspace);
-	dim3 = ppotential.createDataSet("dim3", PFP_TYPE, dim3_mspace);
-
-	H5::DataSpace dim1_fspace = dim1.getSpace();
-	H5::DataSpace dim2_fspace = dim2.getSpace();
-	H5::DataSpace dim3_fspace = dim3.getSpace();
-
-	dim1.write(&x_dim_data[0], PFP_TYPE, dim1_mspace, dim1_fspace);
-	dim2.write(&y_dim_data[0], PFP_TYPE, dim2_mspace, dim2_fspace);
-	dim3.write(&z_dim_data[0], PFP_TYPE, dim3_mspace, dim3_fspace);
+	writeRealDataSet(ppotential, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet(ppotential, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet(ppotential, "dim3", &z_dim_data[0], z_size, 1);
 
 	//dimension attributes
-	const H5std_string dim1_name_str("R_x");
-	const H5std_string dim2_name_str("R_y");
-	const H5std_string dim3_name_str("R_z");
+	H5::DataSet dim1 = ppotential.openDataSet("dim1");
+	H5::DataSet dim2 = ppotential.openDataSet("dim2");
+	H5::DataSet dim3 = ppotential.openDataSet("dim3");
 
-	H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-	H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-	H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
+	writeScalarAttribute(dim1, "name", "R_x");
+	writeScalarAttribute(dim2, "name", "R_y");
+	writeScalarAttribute(dim3, "name", "R_z");
 
-	dim1_name.write(strdatatype, dim1_name_str);
-	dim2_name.write(strdatatype, dim2_name_str);
-	dim3_name.write(strdatatype, dim3_name_str);
+	writeScalarAttribute(dim1, "units", "[Å]");
+	writeScalarAttribute(dim2, "units", "[Å]");
+	writeScalarAttribute(dim3, "units", "[Å]");
 
-	const H5std_string dim1_unit_str("[n_m]");
-	const H5std_string dim2_unit_str("[n_m]");
-	const H5std_string dim3_unit_str("[n_m]");
-
-	H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-	H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-	H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
-
-	dim1_unit.write(strdatatype, dim1_unit_str);
-	dim2_unit.write(strdatatype, dim2_unit_str);
-	dim3_unit.write(strdatatype, dim3_unit_str);
-
-	//read in potential array and re-stride
-	//TODO: use restride
+	//create dataset
+	//first, in potential array and re-stride
 	std::array<size_t, 3> dims_in = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
 	std::array<size_t, 3> order = {2, 1, 0};
-
 	Array3D<PRISMATIC_FLOAT_PRECISION> writeBuffer = restride(pars.pot, dims_in, order);
 	
-	//  zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1], pars.imageSize[0], pars.numPlanes}});
-	// for (auto x = 0; x < pars.imageSize[1]; x++)
-	// {
-	// 	for (auto y = 0; y < pars.imageSize[0]; y++)
-	// 	{
-	// 		for (auto z = 0; z < pars.numPlanes; z++)
-	// 		{
-	// 			writeBuffer.at(x, y, z) = pars.pot.at(z, y, x);
-	// 		}
-	// 	}
-	// }
-
-	H5::DataSet potSliceData; //declare out here to avoid scoping
-	std::string slice_name = "realslice";
-	//create dataset
 	hsize_t dataDims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-	H5::DataSpace mspace(3, dataDims);
+	writeRealDataSet(ppotential, "realslice", &writeBuffer[0], dataDims, 3);
 
-	//switch between float and double, maybe not the best way to do so
-	potSliceData = ppotential.createDataSet(slice_name, PFP_TYPE, mspace);
-
-	hsize_t wmdims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-	H5::DataSpace wfspace = potSliceData.getSpace();
-	H5::DataSpace wmspace(3, wmdims);
-
-	potSliceData.write(&writeBuffer[0], PFP_TYPE, wmspace, wfspace);
-
-	potSliceData.close();
+	dim1.close();
+	dim2.close();
+	dim3.close();
+	ppotential.close();
 }
 
 std::string getDigitString(int digit)
@@ -850,53 +622,42 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::StrType strdatatype(H5::PredType::C_S1, 256);
 	H5::DataSpace scalar_attr(H5S_SCALAR);
 
-	//initialize string parameter data
-	H5std_string algorithm;
-	if (pars.meta.algorithm == Algorithm::Multislice)
-	{
-		algorithm = "m";
-	}
-	else
-	{
-		algorithm = "p";
-	}
-
-	const H5std_string filenameAtoms(pars.meta.filenameAtoms);
-
 	//create string attributes
-	H5::Attribute atoms_attr = sim_params.createAttribute("i", strdatatype, str_name_ds);
-	H5::Attribute alg_attr = sim_params.createAttribute("a", strdatatype, str_name_ds);
+	H5std_string algorithm = (pars.meta.algorithm == Algorithm::Multislice) ? "m" : "p";
+
+	writeScalarAttribute(sim_params, "i", pars.meta.filenameAtoms);
+	writeScalarAttribute(sim_params, "a", algorithm);
 
 	//create scalar logical/integer attributes
-	H5::Attribute fx_attr = sim_params.createAttribute("fx", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute fy_attr = sim_params.createAttribute("fy", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute numFP_attr = sim_params.createAttribute("F", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute numSlices_attr = sim_params.createAttribute("ns", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute te_attr = sim_params.createAttribute("te", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute oc_attr = sim_params.createAttribute("oc", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute save3D_attr = sim_params.createAttribute("3D", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute save4D_attr = sim_params.createAttribute("4D", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute saveDPC_attr = sim_params.createAttribute("DPC", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute savePS_attr = sim_params.createAttribute("ps", H5::PredType::NATIVE_INT, scalar_attr);
-	H5::Attribute nyquist_attr = sim_params.createAttribute("nqs", H5::PredType::NATIVE_INT, scalar_attr);
+	writeScalarAttribute(sim_params, "fx", (int) pars.meta.interpolationFactorX);
+	writeScalarAttribute(sim_params, "fy", (int) pars.meta.interpolationFactorY);
+	writeScalarAttribute(sim_params, "F", (int) pars.meta.numFP);
+	writeScalarAttribute(sim_params, "ns", (int) pars.meta.numSlices);
+	writeScalarAttribute(sim_params, "te", (int) pars.meta.includeThermalEffects);
+	writeScalarAttribute(sim_params, "oc", (int) pars.meta.includeOccupancy);
+	writeScalarAttribute(sim_params, "3D", (int) pars.meta.save3DOutput);
+	writeScalarAttribute(sim_params, "4D", (int) pars.meta.save4DOutput);
+	writeScalarAttribute(sim_params, "DPC", (int) pars.meta.saveDPC_CoM);
+	writeScalarAttribute(sim_params, "ps", (int) pars.meta.savePotentialSlices);
+	writeScalarAttribute(sim_params, "nqs", (int) pars.meta.nyquistSampling);
 
-	//create scalar float/double attributes (changes based on prismatic float precision)
-	H5::Attribute px_attr = sim_params.createAttribute("px", PFP_TYPE, scalar_attr);
-	H5::Attribute py_attr = sim_params.createAttribute("py", PFP_TYPE, scalar_attr);
-	H5::Attribute potBound_attr = sim_params.createAttribute("P", PFP_TYPE, scalar_attr);
-	H5::Attribute sliceThickness_attr = sim_params.createAttribute("s", PFP_TYPE, scalar_attr);
-	H5::Attribute zStart_attr = sim_params.createAttribute("zs", PFP_TYPE, scalar_attr);
-	H5::Attribute E0_attr = sim_params.createAttribute("E", PFP_TYPE, scalar_attr);
-	H5::Attribute alphaMax_attr = sim_params.createAttribute("A", PFP_TYPE, scalar_attr);
-	H5::Attribute rx_attr = sim_params.createAttribute("rx", PFP_TYPE, scalar_attr);
-	H5::Attribute ry_attr = sim_params.createAttribute("ry", PFP_TYPE, scalar_attr);
-	H5::Attribute df_attr = sim_params.createAttribute("df", PFP_TYPE, scalar_attr);
-	H5::Attribute C3_attr = sim_params.createAttribute("C3", PFP_TYPE, scalar_attr);
-	H5::Attribute C5_attr = sim_params.createAttribute("C5", PFP_TYPE, scalar_attr);
-	H5::Attribute semiangle_attr = sim_params.createAttribute("sa", PFP_TYPE, scalar_attr);
-	H5::Attribute detector_attr = sim_params.createAttribute("d", PFP_TYPE, scalar_attr);
-	H5::Attribute tx_attr = sim_params.createAttribute("tx", PFP_TYPE, scalar_attr);
-	H5::Attribute ty_attr = sim_params.createAttribute("ty", PFP_TYPE, scalar_attr);
+	//create scalar float attributes
+	writeScalarAttribute(sim_params, "px", pars.meta.realspacePixelSize[1]);
+	writeScalarAttribute(sim_params, "py", pars.meta.realspacePixelSize[0]);
+	writeScalarAttribute(sim_params, "P", pars.meta.potBound);
+	writeScalarAttribute(sim_params, "s", pars.meta.sliceThickness);
+	writeScalarAttribute(sim_params, "zs", pars.meta.zStart);
+	writeScalarAttribute(sim_params, "E", pars.meta.E0 / 1000);
+	writeScalarAttribute(sim_params, "A", pars.meta.alphaBeamMax * 1000);
+	writeScalarAttribute(sim_params, "rx", pars.meta.probeStepX);
+	writeScalarAttribute(sim_params, "ry", pars.meta.probeStepY);
+	writeScalarAttribute(sim_params, "df", pars.meta.probeDefocus);
+	writeScalarAttribute(sim_params, "C3", pars.meta.C3);
+	writeScalarAttribute(sim_params, "C5", pars.meta.C5);
+	writeScalarAttribute(sim_params, "sa", pars.meta.probeSemiangle * 1000);
+	writeScalarAttribute(sim_params, "d", pars.meta.detectorAngleStep * 1000);
+	writeScalarAttribute(sim_params, "tx", pars.meta.probeXtilt * 1000);
+	writeScalarAttribute(sim_params, "ty", pars.meta.probeYtilt * 1000);
 
 	//create vector spaces
 	hsize_t two[1] = {2};
@@ -911,81 +672,13 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	H5::Attribute scanWindow_x_r_attr;
 	H5::Attribute scanWindow_y_r_attr;
-	if (pars.meta.realSpaceWindow_x)
-		scanWindow_x_r_attr = sim_params.createAttribute("wxr", PFP_TYPE, v_two_dataspace);
-	if (pars.meta.realSpaceWindow_y)
-		scanWindow_y_r_attr = sim_params.createAttribute("wyr", PFP_TYPE, v_two_dataspace);
+	if (pars.meta.realSpaceWindow_x) scanWindow_x_r_attr = sim_params.createAttribute("wxr", PFP_TYPE, v_two_dataspace);
+	if (pars.meta.realSpaceWindow_y) scanWindow_y_r_attr = sim_params.createAttribute("wyr", PFP_TYPE, v_two_dataspace);
 
 	H5::Attribute save2D_attr;
-	if (pars.meta.save2DOutput)
-	{
-		save2D_attr = sim_params.createAttribute("2D", PFP_TYPE, v_two_dataspace);
-	}
-
-	//write data
-	//strings
-	atoms_attr.write(strdatatype, filenameAtoms);
-	alg_attr.write(strdatatype, algorithm);
-
-	//scalar logical/integers
-	fx_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorX);
-	fy_attr.write(H5::PredType::NATIVE_INT, &pars.meta.interpolationFactorY);
-	numFP_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numFP);
-	numSlices_attr.write(H5::PredType::NATIVE_INT, &pars.meta.numSlices);
-
-	//logicals first need to be cast to ints
-	int tmp_te = {pars.meta.includeThermalEffects};
-	int tmp_oc = {pars.meta.includeOccupancy};
-	int tmp_3D = {pars.meta.save3DOutput};
-	int tmp_4D = {pars.meta.save4DOutput};
-	int tmp_DPC = {pars.meta.saveDPC_CoM};
-	int tmp_PS = {pars.meta.savePotentialSlices};
-	int tmp_nqs = {pars.meta.nyquistSampling};
-
-	te_attr.write(H5::PredType::NATIVE_INT, &tmp_te);
-	oc_attr.write(H5::PredType::NATIVE_INT, &tmp_oc);
-	save3D_attr.write(H5::PredType::NATIVE_INT, &tmp_3D);
-	save4D_attr.write(H5::PredType::NATIVE_INT, &tmp_4D);
-	saveDPC_attr.write(H5::PredType::NATIVE_INT, &tmp_DPC);
-	savePS_attr.write(H5::PredType::NATIVE_INT, &tmp_PS);
-	nyquist_attr.write(H5::PredType::NATIVE_INT, &tmp_nqs);
-
-	//scalar floats/doubles
-	px_attr.write(PFP_TYPE, &pars.meta.realspacePixelSize[1]);
-	py_attr.write(PFP_TYPE, &pars.meta.realspacePixelSize[0]);
-	potBound_attr.write(PFP_TYPE, &pars.meta.potBound);
-	sliceThickness_attr.write(PFP_TYPE, &pars.meta.sliceThickness);
-	zStart_attr.write(PFP_TYPE, &pars.meta.zStart);
-	rx_attr.write(PFP_TYPE, &pars.meta.probeStepX);
-	ry_attr.write(PFP_TYPE, &pars.meta.probeStepY);
-	df_attr.write(PFP_TYPE, &pars.meta.probeDefocus);
-	C3_attr.write(PFP_TYPE, &pars.meta.C3);
-	C5_attr.write(PFP_TYPE, &pars.meta.C5);
-
-	//scalars with unit adjustments
-	PRISMATIC_FLOAT_PRECISION tmp_tx[1] = {pars.meta.probeXtilt * 1000};
-	PRISMATIC_FLOAT_PRECISION tmp_ty[1] = {pars.meta.probeYtilt * 1000};
-	PRISMATIC_FLOAT_PRECISION tmp_E0[1] = {pars.meta.E0 / 1000};
-	PRISMATIC_FLOAT_PRECISION tmp_alphaMax[1] = {pars.meta.alphaBeamMax * 1000};
-	PRISMATIC_FLOAT_PRECISION tmp_sa[1] = {pars.meta.probeSemiangle * 1000};
-	PRISMATIC_FLOAT_PRECISION tmp_d[1] = {pars.meta.detectorAngleStep * 1000};
-
-	tx_attr.write(PFP_TYPE, &tmp_tx);
-	ty_attr.write(PFP_TYPE, &tmp_ty);
-	E0_attr.write(PFP_TYPE, &tmp_E0);
-	alphaMax_attr.write(PFP_TYPE, &tmp_alphaMax);
-	semiangle_attr.write(PFP_TYPE, &tmp_sa);
-	detector_attr.write(PFP_TYPE, &tmp_d);
-
-	//vector spaces
+	if (pars.meta.save2DOutput) save2D_attr = sim_params.createAttribute("2D", PFP_TYPE, v_two_dataspace);
+	
 	PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
-
-	if (pars.meta.save2DOutput)
-	{
-		tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
-		tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
-		save2D_attr.write(PFP_TYPE, tmp_buffer);
-	}
 
 	if (pars.meta.realSpaceWindow_x)
 	{
@@ -1001,6 +694,13 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		scanWindow_y_r_attr.write(PFP_TYPE, tmp_buffer);
 	}
 
+	if (pars.meta.save2DOutput)
+	{
+		tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
+		tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
+		save2D_attr.write(PFP_TYPE, tmp_buffer);
+	}
+
 	tmp_buffer[0] = pars.meta.scanWindowXMin;
 	tmp_buffer[1] = pars.meta.scanWindowXMax;
 	scanWindow_x_attr.write(PFP_TYPE, tmp_buffer);
@@ -1009,16 +709,10 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	tmp_buffer[1] = pars.meta.scanWindowYMax;
 	scanWindow_y_attr.write(PFP_TYPE, tmp_buffer);
 
-	int tile_buffer[3];
-	tile_buffer[0] = pars.meta.tileX;
-	tile_buffer[1] = pars.meta.tileY;
-	tile_buffer[2] = pars.meta.tileZ;
+	int tile_buffer[3] = {pars.meta.tileX, pars.meta.tileY, pars.meta.tileZ};
 	tile_attr.write(H5::PredType::NATIVE_INT, tile_buffer);
 
-	PRISMATIC_FLOAT_PRECISION cellBuffer[3];
-	cellBuffer[0] = pars.meta.cellDim[0];
-	cellBuffer[1] = pars.meta.cellDim[1];
-	cellBuffer[2] = pars.meta.cellDim[2];
+	PRISMATIC_FLOAT_PRECISION cellBuffer[3] = {pars.meta.cellDim[0], pars.meta.cellDim[1], pars.meta.cellDim[2]};
 	cell_dim_attr.write(PFP_TYPE, cellBuffer);
 
 	metadata.close();
@@ -1229,6 +923,54 @@ void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std
 	complex_dset.close();
 
 }
+
+void writeRealDataSet(H5::Group group, const std::string &dsetname, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const size_t &rank)
+{
+	//create dataset and write
+	H5::DataSpace mspace(rank, mdims);
+
+	H5::DataSet real_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		real_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		real_dset = group.createDataSet(dsetname.c_str(), PFP_TYPE, mspace);
+	}		
+	
+	H5::DataSpace fspace = real_dset.getSpace();
+	real_dset.write(buffer, PFP_TYPE, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	real_dset.close();
+
+}
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data)
+{
+	H5::DataSpace attr_dataspace(H5S_SCALAR);
+	H5::Attribute attr = object.createAttribute(name.c_str(), H5::PredType::NATIVE_INT, attr_dataspace);
+	attr.write(H5::PredType::NATIVE_INT, &data);
+};
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data)
+{
+	H5::DataSpace attr_dataspace(H5S_SCALAR);
+	H5::Attribute attr = object.createAttribute(name.c_str(), PFP_TYPE, attr_dataspace);
+	attr.write(PFP_TYPE, &data);
+};
+
+void writeScalarAttribute(H5::H5Object &object, const std::string &name, const std::string &data)
+{
+	H5::StrType strdatatype(H5::PredType::C_S1, 256);
+	const H5std_string h5_str(data);
+	H5::DataSpace attr_dataspace(H5S_SCALAR);
+	H5::Attribute attr = object.createAttribute(name.c_str(), strdatatype, attr_dataspace);
+	attr.write(strdatatype, h5_str);
+};
 
 int countDataGroups(H5::Group group, const std::string &basename)
 {
