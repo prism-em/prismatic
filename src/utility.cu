@@ -515,7 +515,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
         
         if(pars.meta.crop4DOutput)
         {
-            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = cropOutput(currentImage,pars);
+            Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = cropOutput(currentImage, pars);
             hsize_t mdims[4] = {1,1,finalImage.get_dimi(),finalImage.get_dimj()};
             Prismatic::writeDatacube4D(pars, &finalImage[0],mdims,offset,numFP,nameString.str());
         }

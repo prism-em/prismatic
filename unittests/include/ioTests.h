@@ -57,5 +57,17 @@ ArrayND<N-1, T> subspace(ArrayND<N, T> &orig,  const size_t &index)
     return output;
 };
 
+template <size_t N>
+ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> getAmplitude(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &input)
+{
+    ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(input.get_dimarr());
+
+    auto in_ptr = input.begin();
+    for(auto& i : output) i = pow(std::abs(*in_ptr++), 2);
+
+    return output;
+};
+
+
 } //namespace Prismatic
 #endif

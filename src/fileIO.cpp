@@ -6,8 +6,6 @@
 
 namespace Prismatic{
 
-std::mutex write4D_lock;
-
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//create main groups
@@ -154,6 +152,12 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		chunkDims[3] = {qyInd_max};
 	}
 
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
 	for (auto n = 0; n < numLayers; n++)
 	{
 		//create slice group
@@ -171,7 +175,15 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 
 		//create dataset
 		H5::DataSpace mspace(4, data_dims); //rank is 4
-		H5::DataSet CBED_data = CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
+		H5::DataSet CBED_data;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			CBED_data= CBED_slice_n.createDataSet("datacube", complex_type, mspace, plist);
+		}
+		else
+		{
+			CBED_data= CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
+		}
 		mspace.close();
 
 		//write dimensions
@@ -225,6 +237,13 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t bin_dim[1] = {pars.Ndet};
 
+	//
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
 	for (auto n = 0; n < numLayers; n++)
 	{
 		//create slice group
@@ -238,7 +257,17 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 
 		//create datasets
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
-		H5::DataSet VD_data = VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
+
+		H5::DataSet VD_data;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			VD_slice_n.createDataSet("realslice", complex_type, mspace);
+		}
+		else
+		{
+			VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
+		}
+
 		VD_data.close();
 		mspace.close();
 
@@ -472,54 +501,16 @@ void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffe
 	mspace.close();
 };
 
-void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
+void writeDatacube3D(H5::DataSet dataset, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims)
 {
-	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-	//lock the whole file access/writing procedure in only one location
-	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+	//set up file and memory spaces
+	H5::DataSpace fspace = dataset.getSpace(); //all 3D cubes will write full buffer at once
+	H5::DataSpace mspace(3, mdims);			   //rank = 3
 
-    H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-    H5::DataSet dataset = dataGroup.openDataSet("datacube");
+	dataset.write(buffer, dataset.getDataType(), mspace, fspace);
 
-    //set up file and memory spaces
-    H5::DataSpace fspace = dataset.getSpace();
-
-    H5::DataSpace mspace(4, mdims); //rank = 4
-
-    fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-
-    //divide by num FP
-    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-        buffer[i] /= numFP;
-
-    //restride the dataset so that qx and qy are flipped
-    PRISMATIC_FLOAT_PRECISION *finalBuffer = (PRISMATIC_FLOAT_PRECISION *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(PRISMATIC_FLOAT_PRECISION));
-    for (auto i = 0; i < mdims[2]; i++)
-    {
-        for (auto j = 0; j < mdims[3]; j++)
-        {
-            finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
-        }
-    }
-
-    //add frozen phonon set
-    PRISMATIC_FLOAT_PRECISION *readBuffer = (PRISMATIC_FLOAT_PRECISION *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(PRISMATIC_FLOAT_PRECISION));
-    dataset.read(&readBuffer[0], PFP_TYPE, mspace, fspace);
-    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-        finalBuffer[i] += readBuffer[i];
-    free(readBuffer);
-		
-    dataset.write(finalBuffer, PFP_TYPE, mspace, fspace);
-    free(finalBuffer);
-    fspace.close();
-    mspace.close();
-    dataset.flush(H5F_SCOPE_LOCAL);
-    dataset.close();
-    dataGroup.flush(H5F_SCOPE_LOCAL);
-    dataGroup.close();
-    pars.outputFile.flush(H5F_SCOPE_LOCAL);
-
-	writeGatekeeper.unlock();
+	fspace.close();
+	mspace.close();
 };
 
 void writeStringArray(H5::DataSet dataset, H5std_string *string_array, const hsize_t elements)
@@ -894,7 +885,6 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims, const size_t &rank)
 {
-	//input buffer is assumed to be float: real, float: im in striding order
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
 	const H5std_string re_str("r"); //using h5py default configuration
 	const H5std_string im_str("i");

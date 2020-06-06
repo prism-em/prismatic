@@ -136,7 +136,55 @@ Array2D<T> cropOutput(Array2D<T> &img, const Parameters<T> &pars){
     Array2D<T> shifted = circShift(img,qyInd_max,qxInd_max);
 
     //construct cropped return image
-    Array2D<T> cropped = zeros_ND<2, PRISMATIC_FLOAT_PRECISION >({{qyInd_max*2, qxInd_max*2}});
+    Array2D<T> cropped = zeros_ND<2, T>({{qyInd_max*2, qxInd_max*2}});
+
+    //copy data to return array
+    for(auto j = 0; j < cropped.get_dimj(); j++)
+    {
+        for(auto i = 0; i < cropped.get_dimi(); i++)
+        {
+            cropped.at(j,i) = shifted.at(j,i);
+        }
+    }
+    
+    return cropped;
+}
+
+template <class T>
+Array2D<std::complex<T>> cropOutput(Array2D<std::complex<T>> &img, const Parameters<T> &pars){
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
+    PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
+
+    for(auto i = 0; i < pars.qx.get_dimi(); i++)
+    {
+        if(pars.qx.at(i) < qMax)
+        {
+            qxInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    for(auto j = 0; j < pars.qy.get_dimi(); j++)
+    {
+        if(pars.qy.at(j) < qMax)
+        {
+            qyInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //shift image so that desired region is in top left
+    Array2D<std::complex<T>> shifted = circShift(img,qyInd_max,qxInd_max);
+
+    //construct cropped return image
+    Array2D<std::complex<T>> cropped = zeros_ND<2, std::complex<T>>({{qyInd_max*2, qxInd_max*2}});
 
     //copy data to return array
     for(auto j = 0; j < cropped.get_dimj(); j++)
