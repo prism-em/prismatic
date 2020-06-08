@@ -33,6 +33,7 @@ namespace Prismatic {
 		long						 **y_ds;
 		long 						 **x_ds;
 		PRISMATIC_FLOAT_PRECISION    **integratedOutput_ds;
+		PRISMATIC_CUDA_COMPLEX_FLOAT **integratedOutput_c_ds;
 		cufftHandle 			     *cufftPlans;
 		cufftHandle					 *cufftPlansSmall;
 		cudaStream_t 				 *streams;
@@ -48,6 +49,7 @@ namespace Prismatic {
 
 		// pinned memory buffers on host
 		PRISMATIC_FLOAT_PRECISION               **output_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> **output_c_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *permutedScompact_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *PsiProbeInit_ph;
 		PRISMATIC_FLOAT_PRECISION               *qxaReduce_ph;

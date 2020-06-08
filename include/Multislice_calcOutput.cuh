@@ -60,6 +60,23 @@ namespace Prismatic {
 	                                             const size_t dimi,
 	                                             const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
 	                                             const cufftHandle& plan,
+												 cudaStream_t& stream);
+												 
+	 void getMultisliceProbe_c_GPU_singlexfer_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* psi_ds,
+	                                             std::complex<PRISMATIC_FLOAT_PRECISION>* output_c_ph,
+	                                             PRISMATIC_CUDA_COMPLEX_FLOAT* integratedOutput_c_ds,
+	                                             const PRISMATIC_FLOAT_PRECISION* qya_d,
+	                                             const PRISMATIC_FLOAT_PRECISION* qxa_d,
+	                                             const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
+	                                             const size_t Nstart,
+	                                             const size_t Nstop,
+	                                             const size_t dimj,
+	                                             const size_t dimi,
+	                                             const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
+	                                             const cufftHandle& plan,
 	                                             cudaStream_t& stream);
 
 	 void getMultisliceProbe_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -99,5 +116,24 @@ namespace Prismatic {
 	                                            const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
 	                                            const cufftHandle& plan,
 	                                            cudaStream_t& stream);
+
+	 void getMultisliceProbe_c_GPU_streaming_batch(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
+	                                            const std::complex<PRISMATIC_FLOAT_PRECISION>* trans_ph,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* PsiProbeInit_d,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* psi_ds,
+	                                            std::complex<PRISMATIC_FLOAT_PRECISION>* output_c_ph,
+	                                            PRISMATIC_CUDA_COMPLEX_FLOAT* integratedOutput_c_ds,
+	                                            const PRISMATIC_FLOAT_PRECISION* qya_d,
+	                                            const PRISMATIC_FLOAT_PRECISION* qxa_d,
+	                                            const PRISMATIC_CUDA_COMPLEX_FLOAT* prop_d,
+	                                            const size_t Nstart,
+	                                            const size_t Nstop,
+	                                            const size_t dimj,
+	                                            const size_t dimi,
+	                                            const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
+	                                            const cufftHandle& plan,
+												cudaStream_t& stream);
+												
 }
 #endif //PRISMATIC_MULTISLICE_CUH

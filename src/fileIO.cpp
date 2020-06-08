@@ -312,6 +312,12 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
 
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
 	for (auto n = 0; n < numLayers; n++)
 	{
 		//create slice group
@@ -326,7 +332,15 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 
 		//create dataset
 		H5::DataSpace mspace(2, data_dims); //rank is 2
-		H5::DataSet CBED_data = annular_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
+		H5::DataSet annular_data;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			annular_data = annular_slice_n.createDataSet("realslice", complex_type, mspace);
+		}
+		else
+		{
+			annular_data = annular_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
+		}
 		mspace.close();
 
 		//write dimensions

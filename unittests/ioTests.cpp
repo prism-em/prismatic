@@ -1288,19 +1288,18 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
 
 }
 
-BOOST_FIXTURE_TEST_CASE(complexOutputWave, basicSim)
+BOOST_FIXTURE_TEST_CASE(complexOutputWave_M, basicSim)
 {
     
     //run a complex output sim
 
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
-    meta.numGPUs = 0; //change later, test CPU first
+    meta.numGPUs = 1; //change later, test CPU first
     meta.filenameOutput = "../test/complexOutputWave_amplitude.h5";
     meta.savePotentialSlices = false;
-    meta.save2DOutput = false;
     divertOutput(pos, fd, logPath);
-    std::cout << "\n##### BEGIN TEST CASE: complexOutputWave ######\n";
+    std::cout << "\n#### BEGIN TEST CASE: complexOutputWave_M #####\n";
 
     go(meta);
 
@@ -1309,7 +1308,7 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave, basicSim)
     meta.filenameOutput = "../test/complexOutputWave.h5";
     meta.saveComplexOutputWave = true;
     go(meta);
-    std::cout << "####### END TEST CASE: complexOutputWave ######\n";
+    std::cout << "###### END TEST CASE: complexOutputWave_M #####\n";
 
     revertOutput(fd, pos);
     
@@ -1317,36 +1316,96 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave, basicSim)
     std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
 
     //read in output arrays
-    // std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
 
-    // Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(amplitudeFile, dataPath2D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(amplitudeFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(amplitudeFile, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D_keepOrder(amplitudeFile, dataPath4D);
 
-    // Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testAnnular;
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testAnnular;
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testVD;
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testCBED;
 
-    // readComplexDataSet(testAnnular, complexFile, dataPath2D);
+    readComplexDataSet(testAnnular, complexFile, dataPath2D);
     readComplexDataSet(testVD, complexFile, dataPath3D);
     readComplexDataSet(testCBED, complexFile, dataPath4D);
 
     //test that magnitude of values is equivalent
-    // Array2D<PRISMATIC_FLOAT_PRECISION> testAnnularAmp = getAmplitude(testAnnular);
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnularAmp = getAmplitude(testAnnular);
     Array3D<PRISMATIC_FLOAT_PRECISION> testVDAmp = getAmplitude(testVD);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBEDAmp = getAmplitude(testCBED);
 
-    // BOOST_TEST(compareSize(refAnnular, testAnnularAmp));
+    BOOST_TEST(compareSize(refAnnular, testAnnularAmp));
     BOOST_TEST(compareSize(refVD, testVDAmp));
     BOOST_TEST(compareSize(refCBED, testCBEDAmp));
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.00001; //maybe too low cause of FP error
-    // BOOST_TEST(compareValues(refAnnular, testAnnularAmp) < tol);
-    BOOST_TEST(compareValues(refVD, testVDAmp) < tol);
-    BOOST_TEST(compareValues(refCBED, testCBEDAmp) < tol);
+    PRISMATIC_FLOAT_PRECISION tol = 0.01; //high because we are using total error; error seems to propagate with num streams 
+    BOOST_TEST(compareValues(refCBED, testCBEDAmp) < tol); //phase information is lost in 2D/3D, so can't compare directly w/o accounting for off diagonal errors
 
+    removeFile(complexFile);
+    removeFile(amplitudeFile);
+}
+
+BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
+{
+    
+    //run a complex output sim
+
+    meta.potential3D = false;
+    meta.algorithm = Algorithm::PRISM;
+    meta.numGPUs = 1; //change later, test CPU first
+    meta.filenameOutput = "../test/complexOutputWave_amplitude.h5";
+    meta.savePotentialSlices = false;
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n#### BEGIN TEST CASE: complexOutputWave_P #####\n";
+
+    go(meta);
+
+    std::cout << "\n--------------------------------------------\n";
+
+    meta.filenameOutput = "../test/complexOutputWave.h5";
+    meta.saveComplexOutputWave = true;
+    go(meta);
+    std::cout << "###### END TEST CASE: complexOutputWave_P #####\n";
+
+    revertOutput(fd, pos);
+    
+    std::string complexFile = "../test/complexOutputWave.h5";
+    std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
+
+    //read in output arrays
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(amplitudeFile, dataPath2D);
+    Array3D<PRISMATIC_FLOAT_PRECISION> refVD = readDataSet3D(amplitudeFile, dataPath3D);
+    Array4D<PRISMATIC_FLOAT_PRECISION> refCBED = readDataSet4D_keepOrder(amplitudeFile, dataPath4D);
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> testAnnular;
+    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testVD;
+    Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testCBED;
+
+    readComplexDataSet(testAnnular, complexFile, dataPath2D);
+    readComplexDataSet(testVD, complexFile, dataPath3D);
+    readComplexDataSet(testCBED, complexFile, dataPath4D);
+
+    //test that magnitude of values is equivalent
+    Array2D<PRISMATIC_FLOAT_PRECISION> testAnnularAmp = getAmplitude(testAnnular);
+    Array3D<PRISMATIC_FLOAT_PRECISION> testVDAmp = getAmplitude(testVD);
+    Array4D<PRISMATIC_FLOAT_PRECISION> testCBEDAmp = getAmplitude(testCBED);
+
+    BOOST_TEST(compareSize(refAnnular, testAnnularAmp));
+    BOOST_TEST(compareSize(refVD, testVDAmp));
+    BOOST_TEST(compareSize(refCBED, testCBEDAmp));
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.01; //high because we are using total error; error seems to propagate with num streams 
+    BOOST_TEST(compareValues(refCBED, testCBEDAmp) < tol); //phase information is lost in 2D/3D, so can't compare directly w/o accounting for off diagonal errors
+
+    removeFile(complexFile);
+    removeFile(amplitudeFile);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
