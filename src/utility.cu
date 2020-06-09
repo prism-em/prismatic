@@ -703,7 +703,7 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
 									stream));
 									
 		// Need to scale the output by the square of the PRISM interpolation factor 
-		currentImage *= pars.scale;
+		currentImage *= sqrt(pars.scale);
 		std::stringstream nameString;
 		nameString << "/4DSTEM_simulation/data/datacubes/CBED_array_depth" << Prismatic::getDigitString(currentSlice);
 		
@@ -762,7 +762,7 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
 																						  dimi, num_integration_bins);
 	
 	multiply_cxarr_scalar <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
-																					(integratedOutput_c_ds, make_float2(scale, 0.0), num_integration_bins);
+																					(integratedOutput_c_ds, make_float2(sqrt(scale), 0.0), num_integration_bins);
 	
 	cudaErrchk(cudaMemcpyAsync(output_c_ph, integratedOutput_c_ds,
 	                           num_integration_bins * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>),

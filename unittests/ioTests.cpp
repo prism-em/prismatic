@@ -1357,9 +1357,9 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
 
     meta.potential3D = false;
     meta.algorithm = Algorithm::PRISM;
-    meta.numGPUs = 0; //change later, test CPU first
     meta.filenameOutput = "../test/complexOutputWave_amplitude.h5";
     meta.savePotentialSlices = false;
+    meta.transferMode = StreamingMode::Stream;
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: complexOutputWave_P #####\n";
 
@@ -1404,6 +1404,7 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
     BOOST_TEST(compareSize(refCBED, testCBEDAmp));
 
     PRISMATIC_FLOAT_PRECISION tol = 0.01; //high because we are using total error; error seems to propagate with num streams 
+    std::cout << compareValues(refCBED, testCBEDAmp) / refCBED.size() << std::endl;
     BOOST_TEST(compareValues(refCBED, testCBEDAmp) < tol); //phase information is lost in 2D/3D, so can't compare directly w/o accounting for off diagonal errors
 
     removeFile(complexFile);

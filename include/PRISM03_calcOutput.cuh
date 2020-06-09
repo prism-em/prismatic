@@ -40,6 +40,26 @@ namespace Prismatic {
 	                                PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
 	                                const cufftHandle &cufft_plan,
 	                                const cudaStream_t& stream,
+									CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
+									
+	 void buildSignal_c_GPU_singlexfer(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
+	                                const size_t& ay,
+	                                const size_t& ax,
+	                                const PRISMATIC_CUDA_COMPLEX_FLOAT *permutedScompact_d,
+	                                const PRISMATIC_CUDA_COMPLEX_FLOAT *PsiProbeInit_d,
+	                                const PRISMATIC_FLOAT_PRECISION *qxaReduce_d,
+	                                const PRISMATIC_FLOAT_PRECISION *qyaReduce_d,
+	                                const size_t *yBeams_d,
+	                                const size_t *xBeams_d,
+	                                const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
+	                                PRISMATIC_CUDA_COMPLEX_FLOAT *psi_ds,
+	                                PRISMATIC_CUDA_COMPLEX_FLOAT *phaseCoeffs_ds,
+	                                long  *y_ds,
+	                                long  *x_ds,
+	                                std::complex<PRISMATIC_FLOAT_PRECISION> *output_ph,
+	                                PRISMATIC_CUDA_COMPLEX_FLOAT *integratedOutput_ds,
+	                                const cufftHandle &cufft_plan,
+	                                const cudaStream_t& stream,
 	                                CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
 
 	 void buildSignal_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
