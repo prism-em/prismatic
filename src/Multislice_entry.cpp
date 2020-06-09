@@ -169,11 +169,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 					}
 				}
 
-				// writeDatacube3D(VD_data, &slice_image[0], mdims);
 				writeComplexDataSet(dataGroup, "realslice", &slice_image[0], mdims, 3);
-				// VD_data.close();
-				//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
-				//slice_image.toMRC_f(slice_filename.c_str());
 				dataGroup.close();
 			}
 		}
@@ -206,8 +202,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 				writeDatacube3D(VD_data, &slice_image[0], mdims);
 				VD_data.close();
-				//if ( prismatic_pars.meta.numSlices != 0) slice_filename = prismatic_pars.meta.outputFolder + std::string("slice")+std::to_string(j)+std::string("_") + prismatic_pars.meta.filenameOutput;
-				//slice_image.toMRC_f(slice_filename.c_str());
 				dataGroup.close();
 			}
 		}

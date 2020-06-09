@@ -126,23 +126,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		PRISM02_calcSMatrix(prismatic_pars);
 	}
-	
-
-	//		Array3D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimk(),prismatic_pars.Scompact.get_dimj(),prismatic_pars.Scompact.get_dimi()}});
-	//		Array3D<PRISMATIC_FLOAT_PRECISION> tmp_r = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimk(),prismatic_pars.Scompact.get_dimj(),prismatic_pars.Scompact.get_dimi()}});
-	//		Array3D<PRISMATIC_FLOAT_PRECISION> tmp_i = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimk(),prismatic_pars.Scompact.get_dimj(),prismatic_pars.Scompact.get_dimi()}});
-	//		auto tmp_ptr = tmp.begin();
-	//		auto tmp_r_ptr = tmp_r.begin();
-	//		auto tmp_i_ptr = tmp_i.begin();
-	//		for (auto&i : prismatic_pars.Scompact)*tmp_ptr++ = abs(i);
-	//		for (auto&i : prismatic_pars.Scompact)*tmp_r_ptr++ = i.real();
-	//		for (auto&i : prismatic_pars.Scompact)*tmp_i_ptr++ = i.imag();
-	//		std::complex<PRISMATIC_FLOAT_PRECISION> ssum{0,0};
-	//		for (auto& i:prismatic_pars.Scompact)ssum+=i;
-	//		cout <<"S compact sum = " << ssum << endl;
-	//		tmp.toMRC_f("debug_scompact.mrc");
-	//		tmp_r.toMRC_f("debug_scompact_r.mrc");
-	//		tmp_i.toMRC_f("debug_scompact_i.mrc");
 
 	// compute final output
 	PRISM03_calcOutput(prismatic_pars);
@@ -153,6 +136,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		// run the rest of the frozen phonons
 		Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
+		Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> net_output_c(prismatic_pars.output_c);
 		Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
 		if (prismatic_pars.meta.saveDPC_CoM)
 			DPC_CoM_output = prismatic_pars.DPC_CoM;
@@ -193,6 +177,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 			PRISM03_calcOutput(prismatic_pars);
 			net_output += prismatic_pars.output;
+			net_output_c += prismatic_pars.output_c;
 			if (meta.saveDPC_CoM)
 				DPC_CoM_output += prismatic_pars.DPC_CoM;
 			prismatic_pars.outputFile.close();
@@ -200,7 +185,10 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		// divide to take average
 		for (auto &i : net_output)
 			i /= prismatic_pars.meta.numFP;
+		for (auto &i : net_output_c)
+			i /= prismatic_pars.meta.numFP;
 		prismatic_pars.output = net_output;
+		prismatic_pars.output_c = net_output_c;
 
 		if (prismatic_pars.meta.saveDPC_CoM)
 		{
@@ -212,70 +200,130 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 
+	std::cout << "here" << std::endl;
 	if (prismatic_pars.meta.save3DOutput)
 	{
-		setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
-		Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimi()}});
-
-		std::stringstream nameString;
-		nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(0);
-		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-
-		std::string dataSetName = "realslice";
-		H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
-		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), prismatic_pars.Ndet};
-
-		for (auto b = 0; b < prismatic_pars.Ndet; b++)
+		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
-			for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
+			setupVDOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
+			Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_image = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+				{{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk(), prismatic_pars.output_c.get_dimi()}});
+
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(0);
+			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+
+			hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), prismatic_pars.Ndet};
+
+			for (auto b = 0; b < prismatic_pars.Ndet; b++)
 			{
-				for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
+				for (auto y = 0; y < prismatic_pars.output_c.get_dimk(); ++y)
 				{
-					output_image.at(x, y, b) = prismatic_pars.output.at(0, y, x, b);
+					for (auto x = 0; x < prismatic_pars.output_c.get_dimj(); ++x)
+					{
+						output_image.at(x, y, b) = prismatic_pars.output_c.at(0, y, x, b);
+					}
 				}
 			}
+
+			writeComplexDataSet(dataGroup, "realslice", &output_image[0], mdims, 3);
+			dataGroup.close();
 		}
-		writeDatacube3D(VD_data, &output_image[0], mdims);
-		VD_data.close();
-		dataGroup.close();
+		else
+		{
+			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
+			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimi()}});
+
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(0);
+			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+
+			std::string dataSetName = "realslice";
+			H5::DataSet VD_data = dataGroup.openDataSet(dataSetName);
+			hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), prismatic_pars.Ndet};
+
+			for (auto b = 0; b < prismatic_pars.Ndet; b++)
+			{
+				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
+				{
+					for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
+					{
+						output_image.at(x, y, b) = prismatic_pars.output.at(0, y, x, b);
+					}
+				}
+			}
+			writeDatacube3D(VD_data, &output_image[0], mdims);
+			VD_data.close();
+			dataGroup.close();
+		}
 	}
 
-
-
+	std::cout << "here2" << std::endl;
 
 	if (prismatic_pars.meta.save2DOutput)
 	{
 		size_t lower = std::max((size_t)0, (size_t)(prismatic_pars.meta.integrationAngleMin / prismatic_pars.meta.detectorAngleStep));
 		size_t upper = std::min((size_t)prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
-		Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
-		prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-			{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
-		setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
-
-		std::stringstream nameString;
-		nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
-		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-		H5::DataSet AD_data = dataGroup.openDataSet("realslice");
-		hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
-
-		for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
+		
+		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
-			for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
-			{
-				for (auto b = lower; b < upper; ++b)
-				{
-					prism_image.at(x, y) += prismatic_pars.output.at(0, y, x, b);
-                }
-            }
-        }
+			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
+			prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+				{{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk()}});
+			setup2DOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
 
-		writeRealSlice(AD_data, &prism_image[0], mdims);
-		AD_data.close();
-		dataGroup.close();
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
+			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+			hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+
+			for (auto y = 0; y < prismatic_pars.output_c.get_dimk(); ++y)
+			{
+				for (auto x = 0; x < prismatic_pars.output_c.get_dimj(); ++x)
+				{
+					for (auto b = lower; b < upper; ++b)
+					{
+						prism_image.at(x, y) += prismatic_pars.output_c.at(0, y, x, b);
+					}
+				}
+			}
+
+			writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2);
+			dataGroup.close();
+		}
+		else
+		{
+			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
+			prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+				{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
+			setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
+
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
+			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
+			H5::DataSet AD_data = dataGroup.openDataSet("realslice");
+			hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+
+			for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
+			{
+				for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
+				{
+					for (auto b = lower; b < upper; ++b)
+					{
+						prism_image.at(x, y) += prismatic_pars.output.at(0, y, x, b);
+					}
+				}
+			}
+
+			writeRealSlice(AD_data, &prism_image[0], mdims);
+			AD_data.close();
+			dataGroup.close();
+		}
 	}
 
+	std::cout << "here3" << std::endl;
 
-	if (prismatic_pars.meta.saveDPC_CoM)
+	if (prismatic_pars.meta.saveDPC_CoM and not prismatic_pars.meta.saveComplexOutputWave)
 	{
 		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml());
 
