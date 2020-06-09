@@ -414,10 +414,6 @@ __global__ void computePhaseCoeffs(cuDoubleComplex* phaseCoeffs,
 	}
 }
 
-
-
-
-
 // integrate computed intensities radially
 __global__ void integrateDetector(const float* psiIntensity_ds,
                                   const float* alphaInd_d,
@@ -445,7 +441,7 @@ __global__ void integrateDetector(const double* psiIntensity_ds,
 	}
 }
 
-__global__ void integrateDetector(const cuFloatComplex* psi_ds,
+__global__ void integrateDetector_real(const cuFloatComplex* psi_ds,
                                   const float* alphaInd_d,
                                   cuFloatComplex* integratedOutput,
                                   const size_t N,
@@ -454,12 +450,24 @@ __global__ void integrateDetector(const cuFloatComplex* psi_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			atomicAdd(&integratedOutput[alpha-1].x, psi_ds[idx].x);
-			atomicAdd(&integratedOutput[alpha-1].y, psi_ds[idx].y);
+			atomicAdd(&integratedOutput[alpha-1].x, cuCrealf(psi_ds[idx]));
 	}
 }
 
-__global__ void integrateDetector(const cuDoubleComplex* psi_ds,
+__global__ void integrateDetector_imag(const cuFloatComplex* psi_ds,
+                                  const float* alphaInd_d,
+                                  cuFloatComplex* integratedOutput,
+                                  const size_t N,
+                                  const size_t num_integration_bins) {
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N) {
+		size_t alpha = (size_t)alphaInd_d[idx];
+		if (alpha <= num_integration_bins)
+			atomicAdd(&integratedOutput[alpha-1].y, cuCimagf(psi_ds[idx]));
+	}
+}
+
+__global__ void integrateDetector_real(const cuDoubleComplex* psi_ds,
                                   const double* alphaInd_d,
                                   cuDoubleComplex* integratedOutput,
                                   const size_t N,
@@ -468,8 +476,20 @@ __global__ void integrateDetector(const cuDoubleComplex* psi_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			atomicAdd_double(&integratedOutput[alpha-1].x, psi_ds[idx].x);
-			atomicAdd_double(&integratedOutput[alpha-1].y, psi_ds[idx].y);
+			atomicAdd_double(&integratedOutput[alpha-1].x, cuCreal(psi_ds[idx]));
+	}
+}
+
+__global__ void integrateDetector_imag(const cuDoubleComplex* psi_ds,
+                                  const double* alphaInd_d,
+                                  cuDoubleComplex* integratedOutput,
+                                  const size_t N,
+                                  const size_t num_integration_bins) {
+	int idx = threadIdx.x + blockDim.x * blockIdx.x;
+	if (idx < N) {
+		size_t alpha = (size_t)alphaInd_d[idx];
+		if (alpha <= num_integration_bins)
+			atomicAdd_double(&integratedOutput[alpha-1].y, cuCimag(psi_ds[idx]));
 	}
 }
 
@@ -751,12 +771,16 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
         // dataGroup.close();
         // HDF5_gatekeeper.unlock();
 	}
-	
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll <<< (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
 	                                                                            (integratedOutput_c_ds, make_float2(0.0,0.0), num_integration_bins);
 
-	integrateDetector <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+	integrateDetector_real <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+	                                                                              (psi, alphaInd_d, integratedOutput_c_ds,
+			                                                                              dimj *
+																						  dimi, num_integration_bins);
+	
+	integrateDetector_imag <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
 	                                                                              (psi, alphaInd_d, integratedOutput_c_ds,
 			                                                                              dimj *
 																						  dimi, num_integration_bins);

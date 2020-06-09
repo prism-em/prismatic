@@ -664,7 +664,6 @@ namespace Prismatic{
 	                           CudaParameters<PRISMATIC_FLOAT_PRECISION> &cuda_pars){
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 		// synchronize GPUs and cleanup data
-		std::cout << "here?" << std::endl;
 		for (auto j = 0; j < pars.meta.numGPUs; ++j){
 			cudaErrchk(cudaSetDevice(j));
 			cudaErrchk(cudaFree(cuda_pars.PsiProbeInit_d[j]));
@@ -674,7 +673,6 @@ namespace Prismatic{
 			cudaErrchk(cudaFree(cuda_pars.prop_d[j]));
 			cudaErrchk(cudaFree(cuda_pars.alphaInd_d[j]));
 		}
-		std::cout << "here 1" << std::endl;
 
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaSetDevice(s % pars.meta.numGPUs));

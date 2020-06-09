@@ -174,13 +174,25 @@ __global__ void integrateDetector(const double* psiIntensity_ds,
                        const size_t N,
                        const size_t num_integration_bins);
 
-__global__ void integrateDetector(const cuFloatComplex* psi_ds,
+__global__ void integrateDetector_real(const cuFloatComplex* psi_ds,
+                       const float* alphaInd_d,
+                       cuFloatComplex* integratedOutput,
+                       const size_t N,
+                       const size_t num_integration_bins);
+
+__global__ void integrateDetector_imag(const cuFloatComplex* psi_ds,
                        const float* alphaInd_d,
                        cuFloatComplex* integratedOutput,
                        const size_t N,
                        const size_t num_integration_bins);
                        
-__global__ void integrateDetector(const cuDoubleComplex* psi_ds,
+__global__ void integrateDetector_real(const cuDoubleComplex* psi_ds,
+                       const double* alphaInd_d,
+                       cuDoubleComplex* integratedOutput,
+                       const size_t N,
+                       const size_t num_integration_bins);
+
+__global__ void integrateDetector_imag(const cuDoubleComplex* psi_ds,
                        const double* alphaInd_d,
                        cuDoubleComplex* integratedOutput,
                        const size_t N,
