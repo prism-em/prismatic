@@ -471,6 +471,77 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 #endif //PRISMATIC_BUILDING_GUI
 }
 
+void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	extern mutex fftw_plan_lock;  // lock for protecting FFTW plans
+
+	//calculate relative defocus
+	PRISMATIC_FLOAT_PRECISION rel_defocus = -pars.meta.probeDefocus;
+
+	//create a new propagator
+	pars.propRefocus = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.qyInd.size(), pars.qxInd.size()}});
+	Array2D<PRISMATIC_FLOAT_PRECISION> q2(pars.qxaOutput);
+	transform(pars.qxaOutput.begin(), pars.qxaOutput.end(),
+			  pars.qyaOutput.begin(), q2.begin(), [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) {
+				  return a * a + b * b;
+			  });
+
+	for(auto y = 0; y < pars.qyInd.size(); y++)
+	{
+		for(auto x = 0; x < pars.qxInd.size(); x++)
+		{
+			pars.propRefocus.at(y, x) = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
+										 complex<PRISMATIC_FLOAT_PRECISION>(q2.at(y, x), 0) * 
+										 complex<PRISMATIC_FLOAT_PRECISION>(rel_defocus, 0));
+		}
+	}
+	
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> beamHold = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+				{{pars.Scompact.get_dimj(), pars.Scompact.get_dimi()}});
+
+	//create FFT plans
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
+	
+	unique_lock<mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(beamHold.get_dimj(), beamHold.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(beamHold.get_dimj(), beamHold.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+
+	//apply propagator to all s-matrix beams
+	for(auto idx = 0; idx < pars.Scompact.get_dimk(); idx++)
+	{
+		//copy data into beamHold
+		copy(&pars.Scompact.at(idx,0,0), &pars.Scompact.at(idx+1,0,0), beamHold.begin());
+
+		//apply propagator
+		for(auto y = 0; y < pars.qyInd.size(); y++)
+		{
+			for(auto x = 0; x < pars.qxInd.size(); x++)
+			{
+				beamHold.at(y,x) *=  pars.propRefocus.at(y,x);
+			}
+		}
+
+		PRISMATIC_FFTW_EXECUTE(plan_forward);
+		PRISMATIC_FFTW_EXECUTE(plan_inverse);
+
+		// copy back into smatrix
+		copy(beamHold.begin(), beamHold.end(), &pars.Scompact.at(idx,0,0));
+	}
+
+}
+
 void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// propagate plane waves to construct compact S-matrix
@@ -498,6 +569,11 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	// only keep the relevant/nonzero Fourier components
 	downsampleFourierComponents(pars);
+
+	if(pars.meta.matrixRefocus)
+	{
+		refocus(pars);
+	}
 
 	if(pars.meta.saveSMatrix)
 	{

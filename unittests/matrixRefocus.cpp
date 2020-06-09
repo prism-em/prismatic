@@ -68,6 +68,9 @@ BOOST_FIXTURE_TEST_CASE(refocus_test, basicSim)
 {   
 
     std::string fname = "../test/matrixRefocus.h5";
+    meta.filenameOutput = fname;
+    // meta.matrixRefocus = false;
+    meta.numGPUs = 1;
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: refocus_test #########\n";
 

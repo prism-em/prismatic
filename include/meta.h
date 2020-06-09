@@ -101,6 +101,7 @@ namespace Prismatic{
             importSMatrix         = false;
             userSpecifiedNumFP    = false;
             saveComplexOutputWave = false;
+            matrixRefocus         = true; //true by default since it improves accuracy
             importFile            = "";
             importPath            = "";
         }
@@ -173,6 +174,7 @@ namespace Prismatic{
         bool importSMatrix;
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
+        bool matrixRefocus; //whether or not to refocus the comapct s-matrix in a PRISM sim
         StreamingMode transferMode;
 
     };

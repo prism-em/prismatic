@@ -47,5 +47,7 @@ namespace Prismatic {
 
 	void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 
+	void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 }
 #endif //PRISMATIC_PRISM02_H

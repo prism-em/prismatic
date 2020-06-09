@@ -940,6 +940,7 @@ void writeRealDataSet(H5::Group group, const std::string &dsetname, const PRISMA
 	}
 	else
 	{
+		std::cout << dsetname << std::endl;
 		real_dset = group.createDataSet(dsetname.c_str(), PFP_TYPE, mspace);
 	}		
 	

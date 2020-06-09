@@ -304,6 +304,7 @@ void buildPRISMOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			{ // synchronously get work assignment
 				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> psi = Prismatic::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
 					{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
 				PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 																	  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
@@ -322,7 +323,7 @@ void buildPRISMOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 						}
 						ay = Nstart / pars.xp.size();
 						ax = Nstart % pars.xp.size();
-						buildSignal_CPU(pars, ay, ax, plan, psi);
+ 						buildSignal_CPU(pars, ay, ax, plan, psi);
 #ifdef PRISMATIC_BUILDING_GUI
 						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
 #endif
@@ -593,26 +594,32 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// compute final image
 
 	cout << "Entering PRISM03_calcOutput" << endl;
-
+	cout << "1" << endl;
 	// setup necessary coordinates
 	setupCoordinates_2(pars);
 
+	cout << "2" << endl;
 	// setup angles of detector and image sizes
 	setupDetector(pars);
 
+	cout << "3" << endl;
 	// setup coordinates and indices for the beams
 	setupBeams_2(pars);
 
+	cout << "4" << endl;
 	// setup Fourier coordinates for the S-matrix
 	setupFourierCoordinates(pars);
 
+	cout << "5" << endl;
 	// initialize the output to the correct size for the output mode
 	createStack_integrate(pars);
 
 	// perform some necessary setup transformations of the data
+	cout << "6" << endl;
 	transformIndices(pars);
 
 	// initialize/compute the probes
+	cout << "7" << endl;
 	initializeProbes(pars);
 
 #ifdef PRISMATIC_BUILDING_GUI
@@ -620,6 +627,7 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.progressbar->signalOutputUpdate(0, pars.xp.size() * pars.yp.size());
 #endif
 
+	cout << "8" << endl;
 	// compute the final PRISM output
 	buildPRISMOutput(pars);
 }
