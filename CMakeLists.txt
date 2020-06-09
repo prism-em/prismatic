@@ -47,7 +47,8 @@ set(SOURCE_FILES
         src/parseInput.cpp
         src/utility.cpp
         src/atom.cpp
-        src/go.cpp)
+        src/go.cpp
+        src/fileIO.cpp)
 
 if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
@@ -65,13 +66,15 @@ if (PRISMATIC_ENABLE_GPU)
             src/Multislice_calcOutput.cu
             src/PRISM02_calcSMatrix.cu
             src/PRISM03_calcOutput.cu
-            src/utility.cu)
+            src/utility.cu
+            src/fileIO.cu)
 endif (PRISMATIC_ENABLE_GPU)
 
 if (PRISMATIC_TESTS)
     set(TEST_SOURCE_FILES
             unittests/testSuite.cpp
             unittests/potentialTests.cpp
+            unittests/ioTests.cpp
             )
 endif (PRISMATIC_TESTS)
 

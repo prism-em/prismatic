@@ -89,6 +89,7 @@ namespace Prismatic{
             saveDPC_CoM           = false;
             saveRealSpaceCoords   = false;
             savePotentialSlices   = false;
+            saveSMatrix           = false;
             userSpecifiedCelldims = false;
             realSpaceWindow_x     = false;
             realSpaceWindow_y     = false;
@@ -96,12 +97,20 @@ namespace Prismatic{
             integrationAngleMax   = detectorAngleStep;
             transferMode          = StreamingMode::Auto;
             nyquistSampling		  = false;
+            importPotential       = false;
+            importSMatrix         = false;
+            userSpecifiedNumFP    = false;
+            saveComplexOutputWave = false;
+            importFile            = "";
+            importPath            = "";
         }
         size_t interpolationFactorY; // PRISM f_y parameter
         size_t interpolationFactorX; // PRISM f_x parameter
         std::string filenameAtoms; // filename of txt file containing atoms (x,y,z,Z CSV format -- one atom per line)
         std::string filenameOutput;// filename of output image
         std::string outputFolder; // folder of output images
+        std::string importFile; //HDF5 file from where potential or S-matrix is imported
+        std::string importPath; //path to dataset in HDF5 file
         T realspacePixelSize[2]; // pixel size
         T potBound; // bounding integration radius for potential calculation
         size_t numFP; // number of frozen phonon configurations to compute
@@ -155,10 +164,15 @@ namespace Prismatic{
         bool saveDPC_CoM;
         bool saveRealSpaceCoords;
         bool savePotentialSlices;
+        bool saveSMatrix;
         bool userSpecifiedCelldims;
         bool realSpaceWindow_x;
         bool realSpaceWindow_y;
         bool nyquistSampling;
+        bool importPotential;
+        bool importSMatrix;
+        bool userSpecifiedNumFP;
+        bool saveComplexOutputWave;
         StreamingMode transferMode;
 
     };

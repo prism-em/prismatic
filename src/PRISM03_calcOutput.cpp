@@ -25,6 +25,7 @@
 #include "utility.h"
 #include "WorkDispatcher.h"
 #include "ArrayND.h"
+#include "fileIO.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -159,14 +160,23 @@ void setupBeams_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// create output of a size corresponding to 3D mode (integration)
-
-	pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
 	size_t numLayers = 1;
-	PRISMATIC_FLOAT_PRECISION dummy = 1.0;
-	if (pars.meta.saveDPC_CoM)
-		pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), 2}});
+	if(pars.meta.saveComplexOutputWave)
+	{
+		pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+	}
+	else
+	{
+		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+		if (pars.meta.saveDPC_CoM)
+			pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.yp.size(), pars.xp.size(), 2}});
+	}
+	
+	std::vector<PRISMATIC_FLOAT_PRECISION> depths(1);
+	depths[0] = pars.numPlanes*pars.meta.sliceThickness;
+	pars.depths = depths;
 	if (pars.meta.save4DOutput && (pars.fpFlag == 0))
-		setup4DOutput(pars, numLayers, dummy);
+			setup4DOutput(pars, numLayers);
 }
 
 void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
@@ -266,6 +276,7 @@ getSinglePRISMProbe_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const PRISM
 	gatekeeper.unlock();
 	return std::make_pair(realspace_probe, kspace_probe);
 }
+
 void buildPRISMOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 
@@ -389,15 +400,19 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 
 	PRISMATIC_FFTW_EXECUTE(plan);
-	for (auto jj = 0; jj < intOutput.get_dimj(); ++jj)
+
+	if(not pars.meta.saveComplexOutputWave)
 	{
-		for (auto ii = 0; ii < intOutput.get_dimi(); ++ii)
+		for (auto jj = 0; jj < intOutput.get_dimj(); ++jj)
 		{
-			intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2) * pars.scale;
+			for (auto ii = 0; ii < intOutput.get_dimi(); ++ii)
+			{
+				intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2) * pars.scale;
+			}
 		}
 	}
 
-	if (pars.meta.saveDPC_CoM)
+	if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave)
 	{
 		//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 		for (long y = 0; y < intOutput.get_dimj(); ++y)
@@ -420,47 +435,74 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 	auto idx = pars.alphaInd.begin();
-	for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts)
+	if(pars.meta.saveComplexOutputWave)
 	{
-		if (*idx <= pars.Ndet)
+		for (auto counts = psi.begin(); counts != psi.end(); ++counts)
 		{
-			pars.output.at(0, ay, ax, (*idx) - 1) += *counts;
+			if (*idx <= pars.Ndet)
+			{
+				pars.output_c.at(0, ay, ax, (*idx) - 1) += *counts*sqrt(pars.scale);
+			}
+			++idx;
 		}
-		++idx;
-	};
+
+	}
+	else
+	{
+		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts)
+		{
+			if (*idx <= pars.Ndet)
+			{
+				pars.output.at(0, ay, ax, (*idx) - 1) += *counts;
+			}
+			++idx;
+		};
+	}
 
 	//save 4D output if applicable
 	if (pars.meta.save4DOutput)
 	{
-		//std::string section4DFilename = generateFilename(pars, 0, ay, ax);
-		// unique_lock<mutex> HDF5_gatekeeper(HDF5_lock);
 		std::stringstream nameString;
 		nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(0);
 
-		// H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-		// H5::DataSet CBED_data = dataGroup.openDataSet("datacube");
-
-		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
 
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
+		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
 
-        if(pars.meta.crop4DOutput)
-        {
-            Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput,pars);
-            hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
-            writeDatacube4D(pars, &croppedOutput[0], mdims, offset, numFP, nameString.str());
-        }
-        else
-        {
-            hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
-            intOutput = fftshift2(intOutput);
-            writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP,nameString.str());
-        }
+		if(pars.meta.saveComplexOutputWave)
+		{
+			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalOutput;
+			if(pars.meta.crop4DOutput)
+			{
+				finalOutput = cropOutput(psi, pars);
+				finalOutput *= sqrt(pars.scale);
+				hsize_t mdims[4] = {1, 1, finalOutput.get_dimi(), finalOutput.get_dimj()};
+				writeDatacube4D(pars, &finalOutput[0], mdims, offset, numFP, nameString.str());
+			}
+			else
+			{
+				hsize_t mdims[4] = {1, 1, psi.get_dimi(), psi.get_dimj()};
+				finalOutput = fftshift2(psi);
+				finalOutput *= sqrt(pars.scale);
+				writeDatacube4D(pars, &finalOutput[0], mdims, offset, numFP, nameString.str());
+			}
+		}
+		else
+		{
+			if(pars.meta.crop4DOutput)
+			{
+				Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput, pars);
+				hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
+				writeDatacube4D(pars, &croppedOutput[0], mdims, offset, numFP, nameString.str());
+			}
+			else
+			{
+				hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
+				intOutput = fftshift2(intOutput);
+				writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP, nameString.str());
+			}
+		}
 
-		// CBED_data.close();
-		// dataGroup.close();
-		// HDF5_gatekeeper.unlock();
-		//intOutput.toMRC_f(section4DFilename.c_str());
 	}
 }
 

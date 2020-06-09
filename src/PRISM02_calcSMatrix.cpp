@@ -23,6 +23,7 @@
 #include "utility.h"
 #include "configure.h"
 #include "WorkDispatcher.h"
+#include "fileIO.h"
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
 #endif
@@ -180,9 +181,11 @@ inline void downsampleFourierComponents(Parameters<PRISMATIC_FLOAT_PRECISION> &p
 	pars.pixelSizeOutput[0] *= 2;
 	pars.pixelSizeOutput[1] *= 2;
 
+
 	pars.qxaOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
 	pars.qyaOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
 	pars.beamsOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.qyInd.size(), pars.qxInd.size()}});
+	
 	for (auto y = 0; y < pars.qyInd.size(); ++y)
 	{
 		for (auto x = 0; x < pars.qxInd.size(); ++x)
@@ -495,5 +498,122 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	// only keep the relevant/nonzero Fourier components
 	downsampleFourierComponents(pars);
+
+	if(pars.meta.saveSMatrix)
+	{
+		std::cout << "Writing scattering matrix to output file." << std::endl;
+		setupSMatrixOutput(pars, pars.fpFlag);
+		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
+		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
+	}
 }
+
+void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	std::cout << "Setting up auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
+	//scope out imported smatrix as soon as possible
+	{
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> inSMatrix;
+
+		if(pars.meta.importPath.size() > 0)
+		{
+			readComplexDataSet(inSMatrix, pars.meta.importFile, pars.meta.importPath);
+		}
+		else //read default path
+		{
+			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/realslice";
+			readComplexDataSet(inSMatrix, pars.meta.importFile, groupPath);
+		}
+
+		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
+		std::array<size_t, 3> dims_in = {inSMatrix.get_dimk(), inSMatrix.get_dimj(), inSMatrix.get_dimi()};
+		std::array<size_t, 3> order = {2, 1, 0};
+		inSMatrix = restride(inSMatrix, dims_in, order);
+
+		pars.Scompact = inSMatrix;
+	}
+
+	//acquire necessary metadata to create auxillary variables
+	std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
+	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
+	int meta_fx;
+	int meta_fy;
+	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
+	readAttribute(pars.meta.importFile, groupPath, "fx", meta_fx);
+	readAttribute(pars.meta.importFile, groupPath, "fy", meta_fy);
+
+	PRISMATIC_FLOAT_PRECISION meta_rpixel[2];
+	PRISMATIC_FLOAT_PRECISION tmp_rpixel;
+	readAttribute(pars.meta.importFile, groupPath, "py", tmp_rpixel);
+	meta_rpixel[0] = tmp_rpixel;
+	readAttribute(pars.meta.importFile, groupPath, "px", tmp_rpixel);
+	meta_rpixel[1] = tmp_rpixel;
+
+	pars.tiledCellDim[0] = meta_cellDims[0];
+	pars.tiledCellDim[1] = meta_cellDims[1];
+	pars.tiledCellDim[2] = meta_cellDims[2];
+	pars.meta.realspacePixelSize[0] = meta_rpixel[0];
+	pars.meta.realspacePixelSize[1] = meta_rpixel[1];
+	pars.meta.interpolationFactorX = meta_fx;
+	pars.meta.interpolationFactorY = meta_fy;
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
+
+	pars.imageSize[0] = pars.Scompact.get_dimj()*2;
+	pars.imageSize[1] = pars.Scompact.get_dimi()*2;
+	pixelSize[0] /= pars.imageSize[0];
+	pixelSize[1] /= pars.imageSize[1];
+
+	Array1D<PRISMATIC_FLOAT_PRECISION> qx = makeFourierCoords(pars.imageSize[1], pars.pixelSize[1]);
+	Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
+	pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> mesh = meshgrid(qy, qx);
+	pars.qya = mesh.first;
+	pars.qxa = mesh.second;
+	Array2D<PRISMATIC_FLOAT_PRECISION> q2(pars.qya);
+	transform(pars.qxa.begin(), pars.qxa.end(),
+			  pars.qya.begin(), q2.begin(), [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) {
+				  return a * a + b * b;
+			  });
+	pars.q2 = q2;
+	
+	// get qMax
+	long long ncx = (long long)floor((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] / 2);
+	PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[1] * pars.meta.realspacePixelSize[1]);
+	long long ncy = (long long)floor((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] / 2);
+	PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspacePixelSize[0]);
+	pars.qMax = std::min(dpx * (ncx), dpy * (ncy)) / 2;
+
+	// construct anti-aliasing mask
+	pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
+	{
+		long offset_x = pars.qMask.get_dimi() / 4;
+		long offset_y = pars.qMask.get_dimj() / 4;
+		long ndimy = (long)pars.qMask.get_dimj();
+		long ndimx = (long)pars.qMask.get_dimi();
+		for (long y = 0; y < pars.qMask.get_dimj() / 2; ++y)
+		{
+			for (long x = 0; x < pars.qMask.get_dimi() / 2; ++x)
+			{
+				pars.qMask.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+							  ((x - offset_x) % ndimx + ndimx) % ndimx) = 1;
+			}
+		}
+	}
+
+	setupBeams(pars);
+	setupSMatrixCoordinates(pars);
+	downsampleFourierComponents(pars);
+
+	if(pars.meta.saveSMatrix)
+	{
+		std::cout << "Writing scattering matrix to output file." << std::endl;
+		setupSMatrixOutput(pars, pars.fpFlag);
+		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
+		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
+	}
+
+}
+
 } // namespace Prismatic

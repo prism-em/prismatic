@@ -73,6 +73,11 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 //	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);
 //#else
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 //#endif //PRISMATIC_ENABLE_GPU
 } // namespace Prismatic
 #endif //PRISMATIC_PRISM01_H

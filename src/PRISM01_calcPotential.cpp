@@ -26,6 +26,8 @@
 #include "projectedPotential.h"
 #include "WorkDispatcher.h"
 #include "utility.h"
+#include "fileIO.h"
+#include "fftw3.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -33,8 +35,10 @@
 
 namespace Prismatic
 {
+
 using namespace std;
 mutex potentialWriteLock;
+extern mutex fftw_plan_lock;
 
 void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const vector<size_t> &atomic_species,
@@ -451,7 +455,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//builds projected, sliced potential
-
+	
 	// setup some coordinates
 	cout << "Entering PRISM01_calcPotential" << endl;
 	PRISMATIC_FLOAT_PRECISION yleng = std::ceil(pars.meta.potBound / pars.pixelSize[0]);
@@ -507,183 +511,173 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		generateProjectedPotentials(pars, potentialLookup, unique_species, xvec, yvec);
 	}
 
-	if (pars.meta.savePotentialSlices)
+	if (pars.meta.savePotentialSlices) 
 	{
-		//create new datacube group
-		H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
-		std::string groupName = "ppotential";
-		H5::Group ppotential;
-		if (pars.fpFlag == 0)
-		{
-			ppotential = realslices.createGroup(groupName);
-
-			H5::DataSpace attr_dataspace(H5S_SCALAR);
-
-			int group_type = 1;
-			H5::Attribute emd_group_type = ppotential.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr_dataspace);
-			emd_group_type.write(H5::PredType::NATIVE_INT, &group_type);
-
-			H5::Attribute metadata_group = ppotential.createAttribute("metadata", H5::PredType::NATIVE_INT, attr_dataspace);
-			int mgroup = 0;
-			metadata_group.write(H5::PredType::NATIVE_INT, &mgroup);
-
-			//write dimensions
-			H5::DataSpace str_name_ds(H5S_SCALAR);
-			H5::StrType strdatatype(H5::PredType::C_S1, 256);
-
-			hsize_t x_size[1] = {pars.imageSize[1]};
-			hsize_t y_size[1] = {pars.imageSize[0]};
-			hsize_t z_size[1] = {pars.numPlanes};
-
-			Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1]}});
-			Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0]}});
-			Array1D<PRISMATIC_FLOAT_PRECISION> z_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.numPlanes}});
-
-			for (auto i = 0; i < pars.imageSize[1]; i++)
-				x_dim_data[i] = i * pars.pixelSize[1];
-			for (auto i = 0; i < pars.imageSize[0]; i++)
-				y_dim_data[i] = i * pars.pixelSize[0];
-			for (auto i = 0; i < pars.numPlanes; i++)
-				z_dim_data[i] = i * pars.meta.sliceThickness;
-
-			H5::DataSpace dim1_mspace(1, x_size);
-			H5::DataSpace dim2_mspace(1, y_size);
-			H5::DataSpace dim3_mspace(1, z_size);
-
-			H5::DataSet dim1;
-			H5::DataSet dim2;
-			H5::DataSet dim3;
-
-			if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
-			{
-				dim1 = ppotential.createDataSet("dim1", H5::PredType::NATIVE_FLOAT, dim1_mspace);
-				dim2 = ppotential.createDataSet("dim2", H5::PredType::NATIVE_FLOAT, dim2_mspace);
-				dim3 = ppotential.createDataSet("dim3", H5::PredType::NATIVE_FLOAT, dim3_mspace);
-
-				H5::DataSpace dim1_fspace = dim1.getSpace();
-				H5::DataSpace dim2_fspace = dim2.getSpace();
-				H5::DataSpace dim3_fspace = dim3.getSpace();
-
-				dim1.write(&x_dim_data[0], H5::PredType::NATIVE_FLOAT, dim1_mspace, dim1_fspace);
-				dim2.write(&y_dim_data[0], H5::PredType::NATIVE_FLOAT, dim2_mspace, dim2_fspace);
-				dim3.write(&z_dim_data[0], H5::PredType::NATIVE_FLOAT, dim3_mspace, dim3_fspace);
-			}
-			else
-			{
-				dim1 = ppotential.createDataSet("dim1", H5::PredType::NATIVE_DOUBLE, dim1_mspace);
-				dim2 = ppotential.createDataSet("dim2", H5::PredType::NATIVE_DOUBLE, dim2_mspace);
-				dim3 = ppotential.createDataSet("dim3", H5::PredType::NATIVE_DOUBLE, dim3_mspace);
-
-				H5::DataSpace dim1_fspace = dim1.getSpace();
-				H5::DataSpace dim2_fspace = dim2.getSpace();
-				H5::DataSpace dim3_fspace = dim3.getSpace();
-
-				dim1.write(&x_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim1_mspace, dim1_fspace);
-				dim2.write(&y_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim2_mspace, dim2_fspace);
-				dim3.write(&z_dim_data[0], H5::PredType::NATIVE_DOUBLE, dim3_mspace, dim3_fspace);
-			}
-
-			//dimension attributes
-			const H5std_string dim1_name_str("R_x");
-			const H5std_string dim2_name_str("R_y");
-			const H5std_string dim3_name_str("R_z");
-
-			H5::Attribute dim1_name = dim1.createAttribute("name", strdatatype, str_name_ds);
-			H5::Attribute dim2_name = dim2.createAttribute("name", strdatatype, str_name_ds);
-			H5::Attribute dim3_name = dim3.createAttribute("name", strdatatype, str_name_ds);
-
-			dim1_name.write(strdatatype, dim1_name_str);
-			dim2_name.write(strdatatype, dim2_name_str);
-			dim3_name.write(strdatatype, dim3_name_str);
-
-			const H5std_string dim1_unit_str("[n_m]");
-			const H5std_string dim2_unit_str("[n_m]");
-			const H5std_string dim3_unit_str("[n_m]");
-
-			H5::Attribute dim1_unit = dim1.createAttribute("units", strdatatype, str_name_ds);
-			H5::Attribute dim2_unit = dim2.createAttribute("units", strdatatype, str_name_ds);
-			H5::Attribute dim3_unit = dim3.createAttribute("units", strdatatype, str_name_ds);
-
-			dim1_unit.write(strdatatype, dim1_unit_str);
-			dim2_unit.write(strdatatype, dim2_unit_str);
-			dim3_unit.write(strdatatype, dim3_unit_str);
-		}
-		else
-		{
-			ppotential = realslices.openGroup(groupName);
-		}
-		//read in potential array and stride; also, divide by number of FP to do averaging
-		Array3D<PRISMATIC_FLOAT_PRECISION> writeBuffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1], pars.imageSize[0], pars.numPlanes}});
-		for (auto x = 0; x < pars.imageSize[1]; x++)
-		{
-			for (auto y = 0; y < pars.imageSize[0]; y++)
-			{
-				for (auto z = 0; z < pars.numPlanes; z++)
-				{
-					writeBuffer.at(x, y, z) = pars.pot.at(z, y, x) / pars.meta.numFP;
-				}
-			}
-		}
-
-		H5::DataSet potSliceData; //declare out here to avoid scoping
-		std::string slice_name = "realslice";
-		if (pars.fpFlag == 0)
-		{
-
-			//create dataset
-			//imageSize[1] is the x dimension
-			hsize_t dataDims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-			H5::DataSpace mspace(3, dataDims);
-
-			//switch between float and double, maybe not the best way to do so
-			if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
-			{
-				potSliceData = ppotential.createDataSet(slice_name, H5::PredType::NATIVE_FLOAT, mspace);
-			}
-			else
-			{
-				potSliceData = ppotential.createDataSet(slice_name, H5::PredType::NATIVE_DOUBLE, mspace);
-			}
-		}
-		else
-		{
-			potSliceData = ppotential.openDataSet(slice_name);
-
-			PRISMATIC_FLOAT_PRECISION *readBuffer = (PRISMATIC_FLOAT_PRECISION *)malloc(pars.imageSize[0] * pars.imageSize[1] * pars.numPlanes * sizeof(PRISMATIC_FLOAT_PRECISION));
-			H5::DataSpace rfspace = potSliceData.getSpace();
-			hsize_t rmdims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-			H5::DataSpace rmspace(3, rmdims);
-
-			if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
-			{
-				potSliceData.read(&readBuffer[0], H5::PredType::NATIVE_FLOAT, rmspace, rfspace);
-			}
-			else
-			{
-				potSliceData.read(&readBuffer[0], H5::PredType::NATIVE_DOUBLE, rmspace, rfspace);
-			}
-
-			for (auto i = 0; i < pars.imageSize[0] * pars.imageSize[1] * pars.numPlanes; i++)
-				writeBuffer[i] += readBuffer[i];
-
-			free(readBuffer);
-			rfspace.close();
-			rmspace.close();
-		}
-
-		hsize_t wmdims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-		H5::DataSpace wfspace = potSliceData.getSpace();
-		H5::DataSpace wmspace(3, wmdims);
-
-		if (sizeof(PRISMATIC_FLOAT_PRECISION) == sizeof(float))
-		{
-			potSliceData.write(&writeBuffer[0], H5::PredType::NATIVE_FLOAT, wmspace, wfspace);
-		}
-		else
-		{
-			potSliceData.write(&writeBuffer[0], H5::PredType::NATIVE_DOUBLE, wmspace, wfspace);
-		}
-		potSliceData.close();
+		std::cout << "Writing potential slices to output file." << std::endl;
+		savePotentialSlices(pars);
 	}
 }
+
+void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	std::cout << "Setting up PRISM01 auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
+	Array3D<PRISMATIC_FLOAT_PRECISION> inPot;
+
+	if(pars.meta.importPath.size() > 0)
+	{
+		inPot = readDataSet3D(pars.meta.importFile, pars.meta.importPath);
+	}
+	else //read default path
+	{
+		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/realslice";
+		inPot = readDataSet3D(pars.meta.importFile, groupPath);
+	}
+
+	//restriding potential
+	std::array<size_t, 3> dims_in = {inPot.get_dimk(), inPot.get_dimj(), inPot.get_dimi()};
+	std::array<size_t, 3> order = {2, 1, 0};
+	inPot = restride(inPot, dims_in, order);
+
+	pars.numPlanes = inPot.get_dimk();
+	if (pars.meta.numSlices == 0)
+	{
+		pars.numSlices = pars.numPlanes;
+	}
+
+	pars.pot = inPot;
+	//resample coordinates if PRISM algorithm and size of PS array in not a multiple of 4*fx or 4*fy
+	if(pars.meta.algorithm == Algorithm::PRISM)
+	{
+		if ( (inPot.get_dimi() % 4*pars.meta.interpolationFactorX) || (inPot.get_dimj() % pars.meta.interpolationFactorY))
+		{
+			std::cout << "Resampling imported potential to align grid size with requested interpolation factors fx = " 
+					  << pars.meta.interpolationFactorX << " and fy = " << pars.meta.interpolationFactorY << std::endl;
+			fourierResampling(pars);
+		}
+	}
+
+	//TODO: metadata from non-prismatic sources?
+    std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
+	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
+	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
+	pars.tiledCellDim[0] = meta_cellDims[0];
+	pars.tiledCellDim[1] = meta_cellDims[1];
+	pars.tiledCellDim[2] = meta_cellDims[2];
+	
+	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
+	pars.imageSize[0] = pars.pot.get_dimj();
+	pars.imageSize[1] = pars.pot.get_dimi();
+	pixelSize[0] /= pars.imageSize[0];
+	pixelSize[1] /= pars.imageSize[1];
+	pars.pixelSize = pixelSize;
+
+	if (pars.meta.savePotentialSlices) 
+	{
+		std::cout << "Writing potential slices to output file." << std::endl;
+		savePotentialSlices(pars);
+	}
+
+};
+
+void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	int Ni = 0;
+	int Nj = 0;
+
+	//get highest multiple of 4*fx and 4*fy to ensure resampling to a smaller grid only
+	while(Ni < pars.pot.get_dimi()) Ni += pars.meta.interpolationFactorX*4;
+	while(Nj < pars.pot.get_dimj()) Nj += pars.meta.interpolationFactorY*4;
+	Ni -= pars.meta.interpolationFactorX*4;
+ 	Nj -= pars.meta.interpolationFactorY*4;
+ 	
+	Array3D<PRISMATIC_FLOAT_PRECISION> newPot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimk(), Nj, Ni}});
+
+	//create storage variables to hold data from FFTs
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(),pars.pot.get_dimi()}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
+	
+	unique_lock<mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(fstore.get_dimj(), fstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fpot[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fstore[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(bstore.get_dimj(), bstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bstore[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bpot[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+	//calculate indices for downsampling in fourier space
+	int nyqi = std::floor(Ni/2) + 1;
+	int nyqj = std::floor(Nj/2) + 1;
+
+	for(auto k = 0; k < newPot.get_dimk(); k++)
+	{
+		//copy current slice to forward transform
+		for(auto i = 0; i < fpot.size(); i++) fpot[i] = pars.pot[k*pars.pot.get_dimj()*pars.pot.get_dimi()+i];
+		
+		//forward transform 
+		PRISMATIC_FFTW_EXECUTE(plan_forward);
+
+		//copy relevant quadrants to backward store
+		//manual looping through quadrants
+		for(auto j = 0; j < nyqj; j++)
+		{
+			for(auto i = 0; i < nyqi; i++)
+			{
+				bstore.at(j, i) = fstore.at(j, i);
+			}
+		}
+
+		for(auto j = nyqj-Nj; j < 0; j++)
+		{
+			for(auto i = 0; i < nyqi; i++)
+			{
+				bstore.at(Nj + j, i) = fstore.at(fstore.get_dimj() + j, i);
+			}
+		}
+
+		for(auto j = 0; j < nyqj; j++)
+		{
+			for(auto i = nyqi-Ni; i < 0; i++)
+			{
+				bstore.at(j, Ni + i) = fstore.at(j, fstore.get_dimi() + i);
+			}
+		}
+
+		for(auto j = nyqj-Nj; j < 0; j++)
+		{
+			for(auto i = nyqi-Ni; i < 0; i++)
+			{
+				bstore.at(Nj + j, Ni + i) = fstore.at(fstore.get_dimj() + j, fstore.get_dimi() + i);
+			}
+		}
+
+		//inverse transform
+		PRISMATIC_FFTW_EXECUTE(plan_inverse);
+
+		//store slice in potential
+		for(auto i = 0; i < bpot.size(); i++) newPot[k*newPot.get_dimj()*newPot.get_dimi()+i] = bpot[i].real();
+	}
+
+	//store final resort after normalizing FFT, rescaling from transform, and removing negative values
+	PRISMATIC_FLOAT_PRECISION orig_x = pars.pot.get_dimi();
+	PRISMATIC_FLOAT_PRECISION orig_y = pars.pot.get_dimj();
+	PRISMATIC_FLOAT_PRECISION new_x = Ni;
+	PRISMATIC_FLOAT_PRECISION new_y = Nj;
+	newPot /= Ni*Nj;
+	newPot *= (new_x/orig_x)*(new_y/orig_y);
+
+	pars.pot = newPot;
+};
+
 } // namespace Prismatic

@@ -26,7 +26,9 @@
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
 #endif
+
 namespace Prismatic{
+
 	template <class T>
 	using Array1D = Prismatic::ArrayND<1, std::vector<T> >;
 	template <class T>
@@ -51,9 +53,10 @@ namespace Prismatic{
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> output;
+		Array4D<std::complex<T>> output_c;
 		Array4D<T> DPC_CoM;
 		Array3D<T> pot;
-	    Array3D<std::complex<PRISMATIC_FLOAT_PRECISION> > transmission;
+	    Array3D<std::complex<T> > transmission;
 
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
@@ -107,6 +110,7 @@ namespace Prismatic{
         size_t numPlanes;
 		size_t numSlices;
 		size_t zStartPlane;
+		std::vector<T> depths;
 	    size_t numberBeams;
 		H5::H5File outputFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
@@ -160,7 +164,7 @@ namespace Prismatic{
 		    tiledCellDim[2] *= meta.tileX;
 		    tiledCellDim[1] *= meta.tileY;
 		    tiledCellDim[0] *= meta.tileZ;
-		//	std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
+			//	std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
 		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
@@ -182,7 +186,6 @@ namespace Prismatic{
 			}
 
 			calculateLambda();
-//		    lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 		    sigma = (T)((2 * pi / lambda / meta.E0) * (m * c * c + e * meta.E0) /
 		                       (2 * m * c * c + e * meta.E0));
 
@@ -199,10 +202,10 @@ namespace Prismatic{
 		    // std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)) << std::endl;
 		    // std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
 		    // std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
-//		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
-//		                   [&f, this](size_t &a) {
-//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspacePixelSize / f)));
-//		                   });
+			//		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
+			//		                   [&f, this](size_t &a) {
+			//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspacePixelSize / f)));
+			//		                   });
 		    this->imageSize = _imageSize;
 
 		    std::vector<T> _pixelSize{(T) tiledCellDim[1], (T) tiledCellDim[2]};
@@ -217,11 +220,11 @@ namespace Prismatic{
 		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
 		    // std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
 
-#ifdef PRISMATIC_ENABLE_GPU
-#ifndef NDEBUG
-		// for monitoring memory consumption on GPU
-	    maxGPUMem = 0;
-#endif //NDEBUG
+			#ifdef PRISMATIC_ENABLE_GPU
+			#ifndef NDEBUG
+					// for monitoring memory consumption on GPU
+					maxGPUMem = 0;
+			#endif //NDEBUG
 			// query GPU properties
 		    int nDevices;
 		    cudaGetDeviceCount(&nDevices);
@@ -248,7 +251,7 @@ namespace Prismatic{
 		    std::cout << "deviceProperties.maxThreadsPerBlock = " << deviceProperties.maxThreadsPerBlock << std::endl;
 		    std::cout << "targetNumBlocks = " << targetNumBlocks << std::endl;
 
-#endif //PRISMATIC_ENABLE_GPU
+			#endif //PRISMATIC_ENABLE_GPU
 	    };
 
     };
@@ -261,6 +264,13 @@ namespace Prismatic{
 		constexpr double h = 6.62607e-34;
 		lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 	}
+
+	template <class T>
+	class Parameters_C : Parameters<T> {
+	
+	public:
+		Array4D<std::complex<T>> output;
+	};
 
 }
 #endif //PRISM_PARAMS_H

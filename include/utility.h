@@ -136,7 +136,55 @@ Array2D<T> cropOutput(Array2D<T> &img, const Parameters<T> &pars){
     Array2D<T> shifted = circShift(img,qyInd_max,qxInd_max);
 
     //construct cropped return image
-    Array2D<T> cropped = zeros_ND<2, PRISMATIC_FLOAT_PRECISION >({{qyInd_max*2, qxInd_max*2}});
+    Array2D<T> cropped = zeros_ND<2, T>({{qyInd_max*2, qxInd_max*2}});
+
+    //copy data to return array
+    for(auto j = 0; j < cropped.get_dimj(); j++)
+    {
+        for(auto i = 0; i < cropped.get_dimi(); i++)
+        {
+            cropped.at(j,i) = shifted.at(j,i);
+        }
+    }
+    
+    return cropped;
+}
+
+template <class T>
+Array2D<std::complex<T>> cropOutput(Array2D<std::complex<T>> &img, const Parameters<T> &pars){
+    size_t qxInd_max = 0;
+    size_t qyInd_max = 0;
+    PRISMATIC_FLOAT_PRECISION qMax = pars.meta.crop4Damax / pars.lambda;
+
+    for(auto i = 0; i < pars.qx.get_dimi(); i++)
+    {
+        if(pars.qx.at(i) < qMax)
+        {
+            qxInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    for(auto j = 0; j < pars.qy.get_dimi(); j++)
+    {
+        if(pars.qy.at(j) < qMax)
+        {
+            qyInd_max++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //shift image so that desired region is in top left
+    Array2D<std::complex<T>> shifted = circShift(img,qyInd_max,qxInd_max);
+
+    //construct cropped return image
+    Array2D<std::complex<T>> cropped = zeros_ND<2, std::complex<T>>({{qyInd_max*2, qxInd_max*2}});
 
     //copy data to return array
     for(auto j = 0; j < cropped.get_dimj(); j++)
@@ -186,45 +234,6 @@ std::string remove_extension(const std::string &filename);
 int testFilenameOutput(const std::string &filename);
 int testWrite(const std::string &filename);
 int testExist(const std::string &filename);
-
-void setupOutputFile(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars);
-
-void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
-
-void setup4DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
-
-void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
-
-void setupVDOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
-
-void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
-
-void setup2DOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
-
-void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const float dummy);
-
-void setupDPCOutput(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, const size_t numLayers, const double dummy);
-
-void writeRealSlice(H5::DataSet dataset, const float *buffer, const hsize_t *mdims);
-
-void writeRealSlice(H5::DataSet dataset, const double *buffer, const hsize_t *mdims);
-
-void writeDatacube3D(H5::DataSet dataset, const float *buffer, const hsize_t *mdims);
-
-void writeDatacube3D(H5::DataSet dataset, const double *buffer, const hsize_t *mdims);
-
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float *buffer, const hsize_t *mdims, const hsize_t *offset, const float numFP, const std::string nameString);
-
-void writeDatacube4D(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double *buffer, const hsize_t *mdims, const hsize_t *offset, const double numFP, const std::string nameString);
-
-void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t elements);
-
-std::string getDigitString(int digit);
-
-void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, float dummy);
-
-void writeMetadata(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars, double dummy);
-
 } // namespace Prismatic
 
 #endif //PRISMATIC_UTILITY_H

@@ -24,6 +24,7 @@
 #include "PRISM02_calcSMatrix.cuh"
 #include "PRISM03_calcOutput.cuh"
 #include "utility.cuh"
+#include "fileIO.cuh"
 #include "Multislice_entry.h"
 #endif //PRISMATIC_ENABLE_GPU
 namespace Prismatic
