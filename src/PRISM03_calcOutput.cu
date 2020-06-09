@@ -21,6 +21,7 @@
 #include "PRISM03_calcOutput.cuh"
 #include "PRISM03_calcOutput.h"
 #include "utility.cuh"
+#include "fileIO.cuh"
 
 namespace Prismatic {
 	extern std::mutex fftw_plan_lock;

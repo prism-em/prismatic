@@ -66,7 +66,8 @@ if (PRISMATIC_ENABLE_GPU)
             src/Multislice_calcOutput.cu
             src/PRISM02_calcSMatrix.cu
             src/PRISM03_calcOutput.cu
-            src/utility.cu)
+            src/utility.cu
+            src/fileIO.cu)
 endif (PRISMATIC_ENABLE_GPU)
 
 if (PRISMATIC_TESTS)

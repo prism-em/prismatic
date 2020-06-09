@@ -198,36 +198,6 @@ __global__ void integrateDetector_imag(const cuDoubleComplex* psi_ds,
                        const size_t N,
                        const size_t num_integration_bins);
 
-void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-                                PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
-                                const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
-                                PRISMATIC_FLOAT_PRECISION *output_ph,
-                                PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
-                                const PRISMATIC_FLOAT_PRECISION* qya_d,
-                                const PRISMATIC_FLOAT_PRECISION* qxa_d,
-                                const size_t current_slice,
-                                const size_t ay,
-                                const size_t ax,
-                                const size_t& dimj,
-                                const size_t& dimi,
-                                const cudaStream_t& stream,
-                                const long& scale = 1);
-
-void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-                                    PRISMATIC_CUDA_COMPLEX_FLOAT *psi_ds,
-                                    const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
-                                    std::complex<PRISMATIC_FLOAT_PRECISION> *output_c_ph,
-                                    PRISMATIC_CUDA_COMPLEX_FLOAT *integratedOutput_c_ds,
-                                    const PRISMATIC_FLOAT_PRECISION* qya_d,
-                                    const PRISMATIC_FLOAT_PRECISION* qxa_d,
-                                    const size_t current_slice,
-                                    const size_t ay,
-                                    const size_t ax,
-                                    const size_t& dimj,
-                                    const size_t& dimi,
-                                    const cudaStream_t& stream,
-                                    const long& scale = 1);
-
 __global__ void multiply_cxarr_scalar(cuDoubleComplex* arr,
                                       const cuDoubleComplex val,
                                       const size_t N);

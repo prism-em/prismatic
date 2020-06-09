@@ -24,6 +24,7 @@
 #include "cuComplex.h"
 #include "cufft.h"
 #include "utility.cuh"
+#include "fileIO.cuh"
 #include "params.cuh"
 
 namespace Prismatic{
