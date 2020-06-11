@@ -258,20 +258,24 @@ void configure(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 		execute_plan = HRTEM_entry;
 #ifdef PRISMATIC_ENABLE_GPU
 		std::cout << "Using GPU codes" << '\n';
-		// if (meta.transferMode == Prismatic::StreamingMode::Auto)
-		// {
-		// 	meta.transferMode = transferMethodAutoChooser(meta);
-		// }
-		// if (meta.transferMode == Prismatic::StreamingMode::Stream)
-		// {
-		// 	cout << "Using streaming method\n";
-		// }
-		// else
-		// {
-		// 	cout << "Using single transfer method\n";
-		// }
+		if (meta.transferMode == Prismatic::StreamingMode::Auto)
+		{
+			meta.transferMode = transferMethodAutoChooser(meta);
+		}
+		if (meta.transferMode == Prismatic::StreamingMode::Stream)
+		{
+			cout << "Using streaming method\n";
+			fill_Scompact = fill_Scompact_GPU_streaming;
+		}
+		else
+		{
+			cout << "Using single transfer method\n";
+			fill_Scompact = fill_Scompact_GPU_singlexfer;
+		}
 #else
 		std::cout << "Using CPU codes" << '\n';
+		fill_Scompact = fill_Scompact_CPUOnly;
+
 #endif //PRISMATIC_ENABLE_GPU
 	}
 

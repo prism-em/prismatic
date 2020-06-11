@@ -28,6 +28,6 @@
 
 namespace Prismatic
 {
-PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> &meta);
+PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 }
 #endif //PRISM_GO_H

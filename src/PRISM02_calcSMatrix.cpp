@@ -147,6 +147,59 @@ inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	}
 }
 
+inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	// determine which beams (AKA plane waves, or Fourier components) are relevant for the calculation
+
+	Array1D<PRISMATIC_FLOAT_PRECISION> xv = makeFourierCoords(pars.imageSize[1],
+															  (PRISMATIC_FLOAT_PRECISION)1 / pars.imageSize[1]);
+	Array1D<PRISMATIC_FLOAT_PRECISION> yv = makeFourierCoords(pars.imageSize[0],
+															  (PRISMATIC_FLOAT_PRECISION)1 / pars.imageSize[0]);
+	pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> mesh_a = meshgrid(yv, xv);
+
+	// create beam mask and count beams
+	Prismatic::Array2D<unsigned int> mask;
+	mask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.numberBeams = 0;
+	long interp_fx = (long)pars.meta.interpolationFactorX;
+	long interp_fy = (long)pars.meta.interpolationFactorY;
+
+	PRISMATIC_FLOAT_PRECISION dqx = pars.q2.at(0,1)-pars.q2.at(0,0);
+	PRISMATIC_FLOAT_PRECISION dqy = pars.q2.at(1,0)-pars.q2.at(0,0);
+	PRISMATIC_FLOAT_PRECISION min_dq = std::min(dqx, dqy);
+	
+	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
+	{
+		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
+		{	//only get one beam
+			if (pars.q2.at(y, x) < min_dq &&
+				pars.qMask.at(y, x) == 1)
+			{
+				mask.at(y, x) = 1;
+				++pars.numberBeams;
+			}
+		}
+	}
+
+	std::cout << pars.numberBeams << std::endl;
+	// number the beams
+	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	{
+		int beam_count = 1;
+		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
+		{
+			for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
+			{
+				if (mask.at(y, x) == 1)
+				{
+					pars.beamsIndex.push_back((size_t)y * pars.qMask.get_dimi() + (size_t)x);
+					pars.beams.at(y, x) = beam_count++;
+				}
+			}
+		}
+	}
+}
+
 inline void setupSMatrixCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 
@@ -351,6 +404,7 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// populates the compact S-matrix using CPU resources
 
+	std::cout << "here 0" << std::endl;
 	extern mutex fftw_plan_lock; // lock for protecting FFTW plans
 
 	// initialize arrays
@@ -364,6 +418,7 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			j = exp(i * pars.sigma * (*p++));
 	}
 
+	std::cout << "here 1" << std::endl;
 	// prepare to launch the calculation
 	vector<thread> workers;
 	workers.reserve(pars.meta.numThreads);												  // prevents multiple reallocations
@@ -371,6 +426,7 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	WorkDispatcher dispatcher(0, pars.numberBeams);
 	pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numberBeams / pars.meta.numThreads));
 
+	std::cout << "here 2" << std::endl;
 	// initialize FFTW threads
 	PRISMATIC_FFTW_INIT_THREADS();
 	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
@@ -480,9 +536,20 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// setup some coordinates
 	setupCoordinates(pars);
 
-	// setup the beams and their indices
-	setupBeams(pars);
+	std::cout << "beams not set up" << std::endl;
 
+	// setup the beams and their indices
+	if(pars.meta.algorithm == Algorithm::PRISM)
+	{
+		setupBeams(pars);
+	}
+	else if(pars.meta.algorithm == Algorithm::HRTEM)
+	{
+		std::cout << "here" << std::endl;
+		setupBeams_HRTEM(pars);
+	}
+
+	std::cout << "beams set up" << std::endl;
 	// setup coordinates for nonzero values of compact S-matrix
 	setupSMatrixCoordinates(pars);
 
@@ -494,8 +561,10 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 #endif //PRISMATIC_BUILDING_GUI
 
 	// populate compact S-matrix
+	std::cout << "here A" << std::endl;
 	fill_Scompact(pars);
 
+	std::cout << "here" << std::endl;
 	// only keep the relevant/nonzero Fourier components
 	downsampleFourierComponents(pars);
 

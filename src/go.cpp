@@ -26,7 +26,7 @@
 
 namespace Prismatic
 {
-void go(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
+void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta)
 {
 	// configure simulation behavior
 	Prismatic::configure(meta);
