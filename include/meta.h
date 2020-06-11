@@ -101,6 +101,7 @@ namespace Prismatic{
             importSMatrix         = false;
             userSpecifiedNumFP    = false;
             saveComplexOutputWave = false;
+            enterCheck            = false;
             importFile            = "";
             importPath            = "";
         }
@@ -173,6 +174,7 @@ namespace Prismatic{
         bool importSMatrix;
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
+        bool enterCheck; 
         StreamingMode transferMode;
 
     };

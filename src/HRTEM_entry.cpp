@@ -11,23 +11,22 @@
 //    Implementation of Image Simulation Algorithms for Scanning
 //	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
-#ifndef PRISM_GO_H
-#define PRISM_GO_H
-#include "configure.h"
+
+#include "meta.h"
 #include "params.h"
+#include "ArrayND.h"
+#include "configure.h"
+#include <algorithm>
+#include "HRTEM_entry.h"
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && defined(BUILDING_CUPRISMATIC)
-#ifdef CUPRISMATIC_EXPORT
-#define PRISMATIC_API __declspec(dllexport)
-#else
-#define PRISMATIC_API __declspec(dllimport)
-#endif //CUPRISMATIC_BUILDING
-#else
-#define PRISMATIC_API
-#endif
+namespace Prismatic{
 
-namespace Prismatic
-{
-PRISMATIC_API void go(Metadata<PRISMATIC_FLOAT_PRECISION> &meta);
+	Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta)
+    {
+        Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars;
+        meta.enterCheck = true;
+        std::cout << "Calculation complete.\n" << std::endl;
+        return prismatic_pars;
+    };
+    
 }
-#endif //PRISM_GO_H

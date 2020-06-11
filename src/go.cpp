@@ -17,6 +17,7 @@
 //#include <vector>
 #include "PRISM_entry.h"
 #include "Multislice_entry.h"
+#include "HRTEM_entry.h"
 //#include "configure.h"
 //#include "ArrayND.h"
 #include "params.h"
@@ -25,7 +26,7 @@
 
 namespace Prismatic
 {
-void go(Metadata<PRISMATIC_FLOAT_PRECISION> meta)
+void go(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 {
 	// configure simulation behavior
 	Prismatic::configure(meta);

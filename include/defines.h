@@ -22,7 +22,8 @@ namespace Prismatic
 enum class Algorithm
 {
 	PRISM,
-	Multislice
+	Multislice,
+	HRTEM
 };
 
 inline void printHeader()
