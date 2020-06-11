@@ -75,7 +75,7 @@ if (PRISMATIC_TESTS)
             unittests/testSuite.cpp
             unittests/potentialTests.cpp
             unittests/ioTests.cpp
-            unittests/matrixRefocus.cpp
+            unittests/refocusTests.cpp
             )
 endif (PRISMATIC_TESTS)
 
@@ -324,7 +324,7 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=matrixRefocus/
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=refocusTests
                         DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)

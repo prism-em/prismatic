@@ -594,32 +594,25 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// compute final image
 
 	cout << "Entering PRISM03_calcOutput" << endl;
-	cout << "1" << endl;
 	// setup necessary coordinates
 	setupCoordinates_2(pars);
 
-	cout << "2" << endl;
 	// setup angles of detector and image sizes
 	setupDetector(pars);
 
-	cout << "3" << endl;
 	// setup coordinates and indices for the beams
 	setupBeams_2(pars);
 
-	cout << "4" << endl;
 	// setup Fourier coordinates for the S-matrix
 	setupFourierCoordinates(pars);
 
-	cout << "5" << endl;
 	// initialize the output to the correct size for the output mode
 	createStack_integrate(pars);
 
 	// perform some necessary setup transformations of the data
-	cout << "6" << endl;
 	transformIndices(pars);
 
 	// initialize/compute the probes
-	cout << "7" << endl;
 	initializeProbes(pars);
 
 #ifdef PRISMATIC_BUILDING_GUI
@@ -627,7 +620,6 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.progressbar->signalOutputUpdate(0, pars.xp.size() * pars.yp.size());
 #endif
 
-	cout << "8" << endl;
 	// compute the final PRISM output
 	buildPRISMOutput(pars);
 }

@@ -1566,7 +1566,8 @@ static std::map<std::string, parseFunction> parser{
     {"--save-DPC-CoM", parse_dpc}, {"-DPC", parse_dpc},
     {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc},
     {"--save-potential-slices", parse_ps}, {"-ps", parse_ps},
-    {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs}};
+    {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs},
+    {"--save-smatrix", parse_sm}, {"-sm", parse_sm}};
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {
