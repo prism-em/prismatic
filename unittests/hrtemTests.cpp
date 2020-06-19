@@ -75,7 +75,7 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
     meta.realspacePixelSize[0] = 0.1;
     meta.realspacePixelSize[1] = 0.1;
     meta.potential3D = false;
-    meta.numGPUs = 1;
+    meta.numGPUs = 0;
     go(meta);
 
     H5::H5File testFile = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
