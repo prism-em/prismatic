@@ -67,10 +67,15 @@ BOOST_AUTO_TEST_SUITE(hrtemTests);
 BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
-    meta.saveSMatrix = true;
+    meta.saveSMatrix = false;
+    meta.savePotentialSlices = false;
     meta.filenameOutput = "../test/planeWave.h5";
     meta.filenameAtoms = "../test/au_np.xyz";
     meta.saveComplexOutputWave = false;
+    meta.realspacePixelSize[0] = 0.1;
+    meta.realspacePixelSize[1] = 0.1;
+    meta.potential3D = false;
+    meta.numGPUs = 1;
     go(meta);
 
     H5::H5File testFile = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
@@ -78,6 +83,24 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
     bool dataCheck = realslices.nameExists("HRTEM");
     BOOST_TEST(dataCheck);
 
+    // check to see scaling is right
+    PRISMATIC_FLOAT_PRECISION errSum = 0.0;
+    PRISMATIC_FLOAT_PRECISION tol = 0.05; //5 % tolerance since can lose some electrons
+    if(meta.saveComplexOutputWave)
+    {
+        Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        for(auto &i : output) errSum += pow(std::abs(i), 2.0);
+        errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
+    }
+    else
+    {
+        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        for(auto &i : output) errSum += i;
+        errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
+    }
+    std::cout << errSum << std::endl;
+    BOOST_TEST(std::abs(1-errSum) < tol);
     // removeFile(meta.filenameOutput);
 }
 

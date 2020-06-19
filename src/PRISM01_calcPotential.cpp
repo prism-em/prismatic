@@ -321,7 +321,11 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	const long dim1 = (long) pars.pot.get_dimi();
 	const long dim0 = (long) pars.pot.get_dimj();
 
-	
+	// correct z orientation
+	auto max_z = std::max_element(z.begin(), z.end());
+	std::transform(z.begin(), z.end(), z.begin(), [&max_z](PRISMATIC_FLOAT_PRECISION &t_z) {
+		return (-t_z + *max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+	});
 	// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
 	map<size_t, size_t> Z_lookup;
 	for (auto i = 0; i < unique_species.size(); ++i)

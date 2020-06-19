@@ -94,6 +94,10 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	setupHRTEMOutput(prismatic_pars);
 	H5::Group hrtem_group = prismatic_pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/HRTEM");
 	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.numberBeams};
+	
+	//first scale the Smatrix back
+	prismatic_pars.Scompact *= prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
+	
 	if(prismatic_pars.meta.saveComplexOutputWave)
 	{
 		//save S matrix as is

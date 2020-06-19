@@ -90,8 +90,10 @@ void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				pars.prop.at(y, x) = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
 										 complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
 										 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+				
+				//propBack is only used to center defocus of HRTEM at center of cell
 				pars.propBack.at(y, x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-											 complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
+											 complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0] / 2, 0) *
 											 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 			}
 		}
@@ -366,6 +368,21 @@ void propagatePlaneWave_CPU_batch(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	PRISMATIC_FFTW_EXECUTE(plan_forward);
 
 	// only keep the necessary plane waves
+
+	if(pars.meta.algorithm == Algorithm::HRTEM) // center defocus at middle of cell if running HRTEM
+	{
+		// back propagate each of the probes in the batch
+		for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, stopBeam - currentBeam); ++batch_idx)
+		{
+			auto p_ptr = pars.propBack.begin();
+			auto psi_ptr = &psi_stack[batch_idx * slice_size];
+			for (auto jj = 0; jj < slice_size; ++jj)
+			{
+				*psi_ptr++ *= (*p_ptr++); // propagate
+			}
+		}
+	}
+
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> psi_small = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION>>(
 		{{pars.qyInd.size(), pars.qxInd.size()}});
 	const PRISMATIC_FLOAT_PRECISION N_small = (PRISMATIC_FLOAT_PRECISION)psi_small.size();
