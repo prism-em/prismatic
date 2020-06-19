@@ -178,11 +178,11 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 		H5::DataSet CBED_data;
 		if(pars.meta.saveComplexOutputWave)
 		{
-			CBED_data= CBED_slice_n.createDataSet("datacube", complex_type, mspace, plist);
+			CBED_data = CBED_slice_n.createDataSet("datacube", complex_type, mspace, plist);
 		}
 		else
 		{
-			CBED_data= CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
+			CBED_data = CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
 		}
 		mspace.close();
 
@@ -488,6 +488,75 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 	writeScalarAttribute(dim3, "units", "[none]");
 
 	smatrix_group.close();
+	realslices.close();
+
+};
+
+void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+
+	hsize_t attr_dims[1] = {1};
+	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+
+	hsize_t x_size[1] = {pars.imageSize[1] / 2};
+	hsize_t y_size[1] = {pars.imageSize[0] / 2};
+	hsize_t beams[1] = {pars.numberBeams};
+
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
+	H5::Group hrtem_group(realslices.createGroup("HRTEM"));
+
+	//write attributes
+	writeScalarAttribute(hrtem_group, "emd_group_type", 1);
+	writeScalarAttribute(hrtem_group, "metadata", 0);
+
+	//create datasets
+	H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
+	H5::DataSet hrtem_data;
+	if(pars.meta.saveComplexOutputWave)
+	{
+		hrtem_data = hrtem_group.createDataSet("realslice", complex_type, mspace);
+	}
+	else
+	{
+		hrtem_data = hrtem_group.createDataSet("realslice", PFP_TYPE, mspace);
+	}
+	
+	hrtem_data.close();
+	mspace.close();
+
+	//write dimensions
+	Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1] / 2}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0] / 2}});
+	for (auto i = 0; i < pars.imageSize[1] / 2; i++) x_dim_data[i] = i * pars.pixelSize[1]*2;
+	for (auto i = 0; i < pars.imageSize[0] / 2; i++) y_dim_data[i] = i * pars.pixelSize[0]*2;
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> beamsIndex(pars.numberBeams); //convert to float
+	for(auto i = 0; i < pars.numberBeams; i++) beamsIndex.push_back(pars.beamsIndex[i]);
+
+	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet(hrtem_group, "dim3", &beamsIndex[0], beams, 1);
+
+	//dimension attributes
+	H5::DataSet dim1 = hrtem_group.openDataSet("dim1");
+	H5::DataSet dim2 = hrtem_group.openDataSet("dim2");
+	H5::DataSet dim3 = hrtem_group.openDataSet("dim3");
+
+	writeScalarAttribute(dim1, "name", "R_x");
+	writeScalarAttribute(dim2, "name", "R_y");
+	writeScalarAttribute(dim3, "name", "tilt_index");
+
+	writeScalarAttribute(dim1, "units", "[Å]");
+	writeScalarAttribute(dim2, "units", "[Å]");
+	writeScalarAttribute(dim3, "units", "[none]");
+
+	hrtem_group.close();
 	realslices.close();
 
 };

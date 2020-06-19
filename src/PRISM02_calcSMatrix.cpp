@@ -181,7 +181,6 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 	}
 
-	std::cout << pars.numberBeams << std::endl;
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 	{
@@ -404,7 +403,6 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// populates the compact S-matrix using CPU resources
 
-	std::cout << "here 0" << std::endl;
 	extern mutex fftw_plan_lock; // lock for protecting FFTW plans
 
 	// initialize arrays
@@ -418,7 +416,6 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			j = exp(i * pars.sigma * (*p++));
 	}
 
-	std::cout << "here 1" << std::endl;
 	// prepare to launch the calculation
 	vector<thread> workers;
 	workers.reserve(pars.meta.numThreads);												  // prevents multiple reallocations
@@ -426,7 +423,6 @@ void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	WorkDispatcher dispatcher(0, pars.numberBeams);
 	pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numberBeams / pars.meta.numThreads));
 
-	std::cout << "here 2" << std::endl;
 	// initialize FFTW threads
 	PRISMATIC_FFTW_INIT_THREADS();
 	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
@@ -536,8 +532,6 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// setup some coordinates
 	setupCoordinates(pars);
 
-	std::cout << "beams not set up" << std::endl;
-
 	// setup the beams and their indices
 	if(pars.meta.algorithm == Algorithm::PRISM)
 	{
@@ -545,11 +539,9 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	}
 	else if(pars.meta.algorithm == Algorithm::HRTEM)
 	{
-		std::cout << "here" << std::endl;
 		setupBeams_HRTEM(pars);
 	}
 
-	std::cout << "beams set up" << std::endl;
 	// setup coordinates for nonzero values of compact S-matrix
 	setupSMatrixCoordinates(pars);
 
@@ -561,10 +553,8 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 #endif //PRISMATIC_BUILDING_GUI
 
 	// populate compact S-matrix
-	std::cout << "here A" << std::endl;
 	fill_Scompact(pars);
 
-	std::cout << "here" << std::endl;
 	// only keep the relevant/nonzero Fourier components
 	downsampleFourierComponents(pars);
 

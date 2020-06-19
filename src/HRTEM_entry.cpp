@@ -86,7 +86,29 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
     PRISM02_calcSMatrix(prismatic_pars);
     prismatic_pars.outputFile.close();
 
-    meta.enterCheck = true;
+	//run multiple frozen phonons
+
+	//save data
+	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	std::cout << "Writing HRTEM data to output file." << std::endl;
+	setupHRTEMOutput(prismatic_pars);
+	H5::Group hrtem_group = prismatic_pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/HRTEM");
+	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.numberBeams};
+	if(prismatic_pars.meta.saveComplexOutputWave)
+	{
+		//save S matrix as is
+		writeComplexDataSet(hrtem_group, "realslice", &prismatic_pars.Scompact[0], mdims, 3);
+	}
+	else
+	{
+		//calculate intensity
+		Array3D<PRISMATIC_FLOAT_PRECISION> intOutput = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>(prismatic_pars.Scompact.get_dimarr());
+		auto psi_ptr = prismatic_pars.Scompact.begin();
+		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
+		writeRealDataSet(hrtem_group, "realslice", &intOutput[0], mdims, 3);
+	}
+	
+
     std::cout << "Calculation complete.\n" << std::endl;
     return prismatic_pars;
 };

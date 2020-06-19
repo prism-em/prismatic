@@ -25,6 +25,8 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 
 void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP);
 
+void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);
 
 void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);

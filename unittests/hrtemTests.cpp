@@ -11,19 +11,6 @@
 #include "fileIO.h"
 #include "H5Cpp.h"
 
-#include "ioTests.h"
-#include <boost/test/unit_test.hpp>
-#include "ArrayND.h"
-#include <iostream>
-#include <vector>
-#include "go.h"
-#include "meta.h"
-#include "params.h"
-#include <stdio.h>
-#include <random>
-#include "fileIO.h"
-#include "H5Cpp.h"
-
 namespace Prismatic{
 
 class basicSim{
@@ -69,6 +56,10 @@ class logFile{
     }
 };
 
+void divertOutput(fpos_t &pos, int &fd, const std::string &file);
+void revertOutput(const int &fd, fpos_t &pos);
+void removeFile(const std::string &filepath);
+
 BOOST_GLOBAL_FIXTURE(logFile);
 
 BOOST_AUTO_TEST_SUITE(hrtemTests);
@@ -76,8 +67,18 @@ BOOST_AUTO_TEST_SUITE(hrtemTests);
 BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
+    meta.saveSMatrix = true;
+    meta.filenameOutput = "../test/planeWave.h5";
+    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.saveComplexOutputWave = false;
     go(meta);
-    BOOST_TEST(meta.enterCheck);
+
+    H5::H5File testFile = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
+    H5::Group realslices = testFile.openGroup("4DSTEM_simulation/data/realslices");
+    bool dataCheck = realslices.nameExists("HRTEM");
+    BOOST_TEST(dataCheck);
+
+    // removeFile(meta.filenameOutput);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
