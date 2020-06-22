@@ -175,8 +175,8 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
 		{	//only get one beam
-			if (std::abs(pars.qxa.at(y, x))*pars.lambda < pars.meta.maxXtilt &&
-				std::abs(pars.qya.at(y, x))*pars.lambda < pars.meta.maxYtilt &&
+			if (std::abs(pars.qxa.at(y, x)*pars.lambda - pars.meta.xTiltOffset) < pars.meta.maxXtilt &&
+				std::abs(pars.qya.at(y, x)*pars.lambda - pars.meta.yTiltOffset) < pars.meta.maxYtilt &&
 				pars.qMask.at(y, x) == 1)
 			{
 				mask.at(y, x) = 1;
@@ -584,7 +584,10 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
+		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+		std::array<size_t, 3> order = {2, 1, 0};
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_restride = restride(pars.Scompact, dims_in, order);
+		writeComplexDataSet(smatrix_group, "realslice", &smatrix_restride[0], mdims, 3);
 	}
 }
 

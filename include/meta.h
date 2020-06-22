@@ -68,6 +68,8 @@ namespace Prismatic{
             probeYtilt            = 0;
             maxXtilt              = 5.0 / 1000; //mrads, for HRTEM only
             maxYtilt              = 5.0 / 1000;
+            xTiltOffset           = 0.0 / 1000;
+            yTiltOffset           = 0.0 / 1000;
             scanWindowXMin        = 0.0;
             scanWindowXMax        = 0.99999;
             scanWindowYMin        = 0.0;
@@ -142,6 +144,8 @@ namespace Prismatic{
         T probeYtilt;
         T maxXtilt;
         T maxYtilt;
+        T xTiltOffset;
+        T yTiltOffset;
         T scanWindowXMin;
         T scanWindowXMax;
         T scanWindowYMin;
