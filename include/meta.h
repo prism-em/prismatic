@@ -66,9 +66,11 @@ namespace Prismatic{
             detectorAngleStep     = 1.0 / 1000;
             probeXtilt            = 0;
             probeYtilt            = 0;
+            minXtilt              = 0.0 / 1000; //mrads, for HRTEM only
+            minYtilt              = 0.0 / 1000;
             maxXtilt              = 5.0 / 1000; //mrads, for HRTEM only
             maxYtilt              = 5.0 / 1000;
-            xTiltOffset           = 0.0 / 1000;
+            xTiltOffset           = 0.0 / 1000; //mrads, for HRTEM only
             yTiltOffset           = 0.0 / 1000;
             scanWindowXMin        = 0.0;
             scanWindowXMax        = 0.99999;
@@ -142,6 +144,8 @@ namespace Prismatic{
         T probeSemiangle;
         T probeXtilt;
         T probeYtilt;
+        T minXtilt;
+        T minYtilt;
         T maxXtilt;
         T maxYtilt;
         T xTiltOffset;

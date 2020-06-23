@@ -165,21 +165,22 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.numberBeams = 0;
 	long interp_fx = (long)pars.meta.interpolationFactorX;
 	long interp_fy = (long)pars.meta.interpolationFactorY;
-
-	PRISMATIC_FLOAT_PRECISION dqx = pars.q2.at(0,1)-pars.q2.at(0,0);
-	PRISMATIC_FLOAT_PRECISION dqy = pars.q2.at(1,0)-pars.q2.at(0,0);
-	PRISMATIC_FLOAT_PRECISION min_dq = std::min(dqx, dqy);
 	
-	
+	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
+	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
 	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
 	{
 		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
 		{	//only get one beam
-			if (std::abs(pars.qxa.at(y, x)*pars.lambda - pars.meta.xTiltOffset) < pars.meta.maxXtilt &&
-				std::abs(pars.qya.at(y, x)*pars.lambda - pars.meta.yTiltOffset) < pars.meta.maxYtilt &&
+			relTiltX = std::abs(pars.qxa.at(y, x)*pars.lambda - pars.xTiltOffset_tem);
+			relTiltY = std::abs(pars.qya.at(y, x)*pars.lambda - pars.yTiltOffset_tem);
+			if (((relTiltX < pars.maxXtilt_tem and relTiltY < pars.maxYtilt_tem) and 
+				 (relTiltX >= pars.minXtilt_tem or relTiltY >= pars.minYtilt_tem )) and 
 				pars.qMask.at(y, x) == 1)
 			{
 				mask.at(y, x) = 1;
+				pars.xTilts_tem.push_back(pars.qxa.at(y, x)*pars.lambda);
+				pars.yTilts_tem.push_back(pars.qya.at(y, x)*pars.lambda);
 				++pars.numberBeams;
 			}
 		}

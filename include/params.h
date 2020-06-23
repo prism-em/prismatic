@@ -65,6 +65,14 @@ namespace Prismatic{
 	    T zTotal;
 	    T xTiltShift;
 	    T yTiltShift;
+		T minXtilt_tem;
+		T minYtilt_tem;
+		T maxXtilt_tem;
+		T maxYtilt_tem;
+		T xTiltOffset_tem;
+		T yTiltOffset_tem;
+		std::vector<T> xTilts_tem;
+		std::vector<T> yTilts_tem;
 	    Array2D<T> qxa;
 	    Array2D<T> qya;
 	    Array2D<T> qxaOutput;
@@ -216,9 +224,43 @@ namespace Prismatic{
 			numSlices = meta.numSlices;
 			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);
 
+			//set tilt properties to prevent out of bound access
+			if(meta.algorithm == Algorithm::HRTEM)
+			{
+				T maxXtilt = lambda / (4.0 * pixelSize[1]);
+				T maxYtilt = lambda / (4.0 * pixelSize[0]);
+				minXtilt_tem = std::min(meta.minXtilt, maxXtilt);
+				maxXtilt_tem = std::min(meta.maxXtilt, maxXtilt);
+				minYtilt_tem = std::min(meta.minYtilt, maxYtilt);
+				maxYtilt_tem = std::min(meta.maxYtilt, maxYtilt);
+				xTiltOffset_tem = meta.xTiltOffset;
+				yTiltOffset_tem = meta.yTiltOffset;
 
-		    // std::cout << " prism_pars.pixelSize[1] = " << pixelSize[1] << std::endl;
-		    // std::cout << " prism_pars.pixelSize[0] = " << pixelSize[0] << std::endl;
+				if(maxXtilt_tem + meta.xTiltOffset > maxXtilt)
+				{
+					std::cout << "Requested tilt series lies outside of antialiasing aperture in X" << std::endl;
+					std::cout << "Resetting X offset to 0.0 mrad" << std::endl;
+					xTiltOffset_tem = 0.0;
+				}
+
+				if(maxYtilt_tem + meta.yTiltOffset > maxYtilt)
+				{
+					std::cout << "Requested tilt series lies outside of antialiasing aperture in Y" << std::endl;
+					std::cout << "Resetting Y offset to 0.0 mrad" << std::endl;
+					yTiltOffset_tem = 0.0;
+				}
+
+				std::cout << "tilt settings" << std::endl;
+				std::cout << "min tilt step x: " << lambda / (imageSize[1] * pixelSize[1]) << std::endl;
+				std::cout << "min tilt step y: " << lambda / (imageSize[0] * pixelSize[0]) << std::endl;
+				std::cout << "minXtilt: " << minXtilt_tem << std::endl;
+				std::cout << "maxXtilt: " << maxXtilt_tem << std::endl;
+				std::cout << "xTiltOffset: " << xTiltOffset_tem << std::endl;
+				std::cout << "minYtilt: " << minYtilt_tem << std::endl;
+				std::cout << "maxYtilt: " << maxYtilt_tem << std::endl;
+				std::cout << "yTiltOffset: " << yTiltOffset_tem << std::endl;
+
+			}
 
 			#ifdef PRISMATIC_ENABLE_GPU
 			#ifndef NDEBUG

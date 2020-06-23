@@ -115,6 +115,12 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		writeRealDataSet(hrtem_group, "realslice", &intOutput[0], mdims, 3);
 	}
 	
+	hsize_t xTiltDim[1] = {prismatic_pars.xTilts_tem.size()};
+	hsize_t yTiltDim[1] = {prismatic_pars.yTilts_tem.size()};
+	writeRealDataSet(hrtem_group, "xTilts", &prismatic_pars.xTilts_tem[0], xTiltDim, 1);
+	writeRealDataSet(hrtem_group, "yTilts", &prismatic_pars.yTilts_tem[0], yTiltDim, 1);
+	hrtem_group.close();
+	prismatic_pars.outputFile.close();
 
     std::cout << "Calculation complete.\n" << std::endl;
     return prismatic_pars;
