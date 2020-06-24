@@ -163,9 +163,13 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	Prismatic::Array2D<unsigned int> mask;
 	mask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 	pars.numberBeams = 0;
-	long interp_fx = (long)pars.meta.interpolationFactorX;
-	long interp_fy = (long)pars.meta.interpolationFactorY;
 	
+	PRISMATIC_FLOAT_PRECISION minXstep = pars.lambda / pars.tiledCellDim[2];
+	PRISMATIC_FLOAT_PRECISION minYstep = pars.lambda / pars.tiledCellDim[1];
+
+	long interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
+	long interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+
 	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
 	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
 	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
@@ -175,7 +179,9 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			relTiltX = std::abs(pars.qxa.at(y, x)*pars.lambda - pars.xTiltOffset_tem);
 			relTiltY = std::abs(pars.qya.at(y, x)*pars.lambda - pars.yTiltOffset_tem);
 			if (((relTiltX < pars.maxXtilt_tem and relTiltY < pars.maxYtilt_tem) and 
-				 (relTiltX >= pars.minXtilt_tem or relTiltY >= pars.minYtilt_tem )) and 
+				 (relTiltX >= pars.minXtilt_tem or relTiltY >= pars.minYtilt_tem )) and
+				(long)round(mesh_a.first.at(y, x)) % interp_fx == 0 and
+				(long)round(mesh_a.second.at(y, x)) % interp_fy == 0 and 
 				pars.qMask.at(y, x) == 1)
 			{
 				mask.at(y, x) = 1;

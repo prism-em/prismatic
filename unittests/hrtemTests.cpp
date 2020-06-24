@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
     meta.filenameAtoms = "../test/au_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
-    meta.saveComplexOutputWave = false;
+    meta.saveComplexOutputWave = true;
     meta.potential3D = false;
     meta.numGPUs = 1;
     meta.batchSizeCPU = 1;
@@ -129,8 +129,10 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
 
     meta.minXtilt = 0 / 1000.0;
     meta.minYtilt = 0 / 1000.0;
-    meta.maxXtilt = 20 / 1000.0; //mrads
-    meta.maxYtilt = 20 / 1000.0;
+    meta.maxXtilt = 0.9 / 1000.0; //mrads
+    meta.maxYtilt = 0.9 / 1000.0;
+    meta.xTiltStep = 20 / 1000.0;
+    meta.yTiltStep = 20 / 1000.0;
     meta.xTiltOffset = 0.0 / 1000.0;
     meta.yTiltOffset = 0.0 / 1000.0;
 

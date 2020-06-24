@@ -112,8 +112,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	
 	//first scale the Smatrix back to mean intensity
 	prismatic_pars.Scompact *= prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
-
-	
 	
 	//open group and write tilt images incrementally in loop
 	//this avoids restriding S-matrix array all at once, which is memory intensive
@@ -124,11 +122,15 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	size_t strides = prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
 	hsize_t offset[3] = {0,0,0};
 	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), 1};
+
+	for(auto i = 0; i < N; i++) std::cout << indices[i] << std::endl;
 	H5::DataSpace mspace(3, mdims);
 	for(auto i = 0; i < N; i++)
 	{
+		offset[2] = i;
 		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_output = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj()}});
-		std::copy(&prismatic_pars.Scompact[N*strides], &prismatic_pars.Scompact[(N+1)*strides], tmp_output.begin());
+		std::copy(&prismatic_pars.Scompact[indices[i]*strides], &prismatic_pars.Scompact[(indices[i]+1)*strides], tmp_output.begin());
+		// std::copy(&prismatic_pars.Scompact[i*strides], &prismatic_pars.Scompact[(i+1)*strides], tmp_output.begin());
 		tmp_output = restride(tmp_output, dims_in, rorder);
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
@@ -139,7 +141,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		else
 		{
 			Array2D<PRISMATIC_FLOAT_PRECISION> tmp_output_int = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj()}});
-			for(auto i = 0; i < tmp_output.size(); i++) tmp_output_int[i] = pow(std::abs(tmp_output[i]), 2.0);
+			for(auto j = 0; j < tmp_output.size(); j++) tmp_output_int[j] = pow(std::abs(tmp_output[j]), 2.0);
 			H5::DataSpace fspace = hrtem_ds.getSpace();
 			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
 			hrtem_ds.write(&tmp_output_int[0], hrtem_ds.getDataType(), mspace, fspace);

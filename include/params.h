@@ -71,6 +71,8 @@ namespace Prismatic{
 		T maxYtilt_tem;
 		T xTiltOffset_tem;
 		T yTiltOffset_tem;
+		T xTiltStep_tem;
+		T yTiltStep_tem;
 		std::vector<T> xTilts_tem;
 		std::vector<T> yTilts_tem;
 	    Array2D<T> qxa;
@@ -235,6 +237,9 @@ namespace Prismatic{
 				maxYtilt_tem = std::min(meta.maxYtilt, maxYtilt);
 				xTiltOffset_tem = meta.xTiltOffset;
 				yTiltOffset_tem = meta.yTiltOffset;
+				xTiltStep_tem = std::min(meta.xTiltStep, maxXtilt_tem);
+				yTiltStep_tem = std::min(meta.yTiltStep, maxYtilt_tem);
+				
 
 				if(maxXtilt_tem + meta.xTiltOffset > maxXtilt)
 				{
@@ -252,14 +257,15 @@ namespace Prismatic{
 
 				std::cout << "tilt settings" << std::endl;
 				std::cout << "min tilt step x: " << lambda / (imageSize[1] * pixelSize[1]) << std::endl;
+				std::cout << "min tilt step x: " << lambda / (tiledCellDim[2]) << std::endl;
 				std::cout << "min tilt step y: " << lambda / (imageSize[0] * pixelSize[0]) << std::endl;
+				std::cout << "min tilt step y: " << lambda / (tiledCellDim[1]) << std::endl;
 				std::cout << "minXtilt: " << minXtilt_tem << std::endl;
 				std::cout << "maxXtilt: " << maxXtilt_tem << std::endl;
 				std::cout << "xTiltOffset: " << xTiltOffset_tem << std::endl;
 				std::cout << "minYtilt: " << minYtilt_tem << std::endl;
 				std::cout << "maxYtilt: " << maxYtilt_tem << std::endl;
 				std::cout << "yTiltOffset: " << yTiltOffset_tem << std::endl;
-
 			}
 
 			#ifdef PRISMATIC_ENABLE_GPU
