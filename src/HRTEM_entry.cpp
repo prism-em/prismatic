@@ -88,40 +88,64 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 	//run multiple frozen phonons
 
+	//convert beam indices into qx, qy indices by sorted tilts
+	size_t N = prismatic_pars.numberBeams;
+	std::vector<std::pair<PRISMATIC_FLOAT_PRECISION, PRISMATIC_FLOAT_PRECISION>> tilts(N);
+	for(auto i = 0; i < N; i++) tilts[i] = std::make_pair(prismatic_pars.xTilts_tem[i], prismatic_pars.yTilts_tem[i]);
+	std::vector<size_t> indices(N);
+	for(auto i = 0; i < N; i++) indices[i] = i;
+    std::sort(indices.begin(), indices.end(), [&](int i, int j){return tilts[i]<tilts[j];} );
+	
+	//sort tilt arrays to keep the same order in dim writing
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_tmp(prismatic_pars.xTilts_tem);
+	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_tmp(prismatic_pars.yTilts_tem);
+	for(auto i = 0; i < N; i++)
+	{
+		prismatic_pars.xTilts_tem[i] = xTilts_tmp[indices[i]];
+		prismatic_pars.yTilts_tem[i] = yTilts_tmp[indices[i]];
+	}
+
 	//save data
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	std::cout << "Writing HRTEM data to output file." << std::endl;
 	setupHRTEMOutput(prismatic_pars);
-	H5::Group hrtem_group = prismatic_pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/HRTEM");
-	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.numberBeams};
 	
-	//first scale the Smatrix back and restride
+	//first scale the Smatrix back to mean intensity
 	prismatic_pars.Scompact *= prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
-	std::array<size_t, 3> dims_in = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()};
-	std::array<size_t, 3> order = {2, 1, 0};
-	prismatic_pars.Scompact = restride(prismatic_pars.Scompact,dims_in, order);
-	
-	if(prismatic_pars.meta.saveComplexOutputWave)
-	{
-		//save S matrix as is
-		writeComplexDataSet(hrtem_group, "realslice", &prismatic_pars.Scompact[0], mdims, 3);
-	}
-	else
-	{
-		//calculate intensity
-		Array3D<PRISMATIC_FLOAT_PRECISION> intOutput = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>(prismatic_pars.Scompact.get_dimarr());
-		auto psi_ptr = prismatic_pars.Scompact.begin();
-		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-		writeRealDataSet(hrtem_group, "realslice", &intOutput[0], mdims, 3);
-	}
-	
-	hsize_t xTiltDim[1] = {prismatic_pars.xTilts_tem.size()};
-	hsize_t yTiltDim[1] = {prismatic_pars.yTilts_tem.size()};
-	writeRealDataSet(hrtem_group, "xTilts", &prismatic_pars.xTilts_tem[0], xTiltDim, 1);
-	writeRealDataSet(hrtem_group, "yTilts", &prismatic_pars.yTilts_tem[0], yTiltDim, 1);
-	hrtem_group.close();
-	prismatic_pars.outputFile.close();
 
+	
+	
+	//open group and write tilt images incrementally in loop
+	//this avoids restriding S-matrix array all at once, which is memory intensive
+	H5::DataSet hrtem_ds = prismatic_pars.outputFile.openDataSet("4DSTEM_simulation/data/realslices/HRTEM/realslice");
+
+	std::array<size_t, 2> dims_in = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj()};
+	std::array<size_t, 2> rorder = {1, 0};
+	size_t strides = prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
+	hsize_t offset[3] = {0,0,0};
+	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), 1};
+	H5::DataSpace mspace(3, mdims);
+	for(auto i = 0; i < N; i++)
+	{
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_output = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj()}});
+		std::copy(&prismatic_pars.Scompact[N*strides], &prismatic_pars.Scompact[(N+1)*strides], tmp_output.begin());
+		tmp_output = restride(tmp_output, dims_in, rorder);
+		if(prismatic_pars.meta.saveComplexOutputWave)
+		{
+			H5::DataSpace fspace = hrtem_ds.getSpace();
+			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+			hrtem_ds.write(&tmp_output[0], hrtem_ds.getDataType(), mspace, fspace);
+		}
+		else
+		{
+			Array2D<PRISMATIC_FLOAT_PRECISION> tmp_output_int = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj()}});
+			for(auto i = 0; i < tmp_output.size(); i++) tmp_output_int[i] = pow(std::abs(tmp_output[i]), 2.0);
+			H5::DataSpace fspace = hrtem_ds.getSpace();
+			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+			hrtem_ds.write(&tmp_output_int[0], hrtem_ds.getDataType(), mspace, fspace);
+		}
+	}
+	
     std::cout << "Calculation complete.\n" << std::endl;
     return prismatic_pars;
 };

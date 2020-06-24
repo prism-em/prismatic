@@ -127,10 +127,10 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
     meta.realspacePixelSize[1] = 0.1;
     meta.realspacePixelSize[0] = 0.1;
 
-    meta.minXtilt = 104.8 / 1000.0;
-    meta.minYtilt = 104.8 / 1000.0;
-    meta.maxXtilt = 106 / 1000.0; //mrads
-    meta.maxYtilt = 106 / 1000.0;
+    meta.minXtilt = 0 / 1000.0;
+    meta.minYtilt = 0 / 1000.0;
+    meta.maxXtilt = 20 / 1000.0; //mrads
+    meta.maxYtilt = 20 / 1000.0;
     meta.xTiltOffset = 0.0 / 1000.0;
     meta.yTiltOffset = 0.0 / 1000.0;
 
@@ -159,9 +159,96 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
         std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
     }
     BOOST_TEST(std::abs(1-errSum) < tol);
-    // removeFile(meta.filenameOutput);
+    removeFile(meta.filenameOutput);
 }
 
+BOOST_FIXTURE_TEST_CASE(datacube, basicSim)
+{
+    meta.algorithm = Algorithm::HRTEM;
+    meta.filenameOutput = "../test/hrtem_datacube.h5";
+    meta.saveSMatrix = true;
+    meta.savePotentialSlices = false;
+    meta.saveComplexOutputWave = false;
+    meta.potential3D = false;
+    meta.maxXtilt = 2 / 1000.0; //mrads
+    meta.maxYtilt = 2 / 1000.0;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n########## BEGIN TEST CASE: datacube ##########\n";
+    go(meta);
+    std::cout << "############ END TEST CASE: datacube ##########\n";
+    revertOutput(fd, pos);
+
+    // check to see that data exists in datacube location
+    H5::H5File output = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
+    H5::Group datacubes = output.openGroup("4DSTEM_simulation/data/datacubes");
+    BOOST_TEST(datacubes.nameExists("HRTEM"));
+
+    // check to see that dim3 and dim4 are created properly; i.e., x and y are monotonically increasing
+    std::array<size_t, 4> dim3 = {0,1,2,3};
+    std::array<size_t, 4> dim4 = {0,2,1,3};
+    bool dim3_check = true;
+    bool dim4_check = true;
+    for(auto i = 1; i < dim3.size(); i++)
+    {
+        if(dim3[i] < dim3[i-1]) dim3_check = false;
+    }
+    for(auto i = 1; i < dim4.size(); i++)
+    {
+        if(dim4[i] < dim4[i-1]) dim4_check = false;
+    }
+    
+    BOOST_TEST(dim3_check);
+    BOOST_TEST(dim4_check);
+    //check to see N_dim3 x N_dim4 = N_beams in smatrix
+    removeFile(meta.filenameOutput);
+}
+
+BOOST_AUTO_TEST_CASE(sortTest)
+{
+    //tests sorting along two dimensions for the purpose of ordering beams 
+    int seed = 12345;
+    srand(seed);
+    std::default_random_engine de(seed);
+    size_t N = 6;
+    Array1D<PRISMATIC_FLOAT_PRECISION> xdata = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{N}});
+    Array1D<PRISMATIC_FLOAT_PRECISION> ydata = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{N}});
+    assignRandomValues(xdata,de);
+    assignRandomValues(ydata,de);
+
+    //we'll be working with vectors in the core code so copy data over into final pair form
+    std::vector<std::pair<PRISMATIC_FLOAT_PRECISION, PRISMATIC_FLOAT_PRECISION>> tilts(N);
+    for(auto i = 0; i < N; i++) tilts[i] = std::make_pair(xdata[i], ydata[i]);
+    tilts[4].first = tilts[3].first;
+
+    for(auto i = 0; i < N; i++) std::cout << tilts[i].first << " " << tilts[i].second << std::endl;
+    std::cout << "---------------------------" << std::endl;
+
+    //populate indices vector
+    std::vector<size_t> indices(N);
+    for(auto i = 0; i < N; i++) indices[i] = i;
+
+    //sort the indices using tilt pairs as compartor
+    std::sort(indices.begin(), indices.end(), [&](int i, int j){return tilts[i]<tilts[j];} );
+    for(auto i = 0; i < N; i++) std::cout << tilts[i].first << " " << tilts[i].second << std::endl;
+
+    std::cout << "---------------------------" << std::endl;
+    for(auto i = 0; i < N; i++) std::cout << indices[i] << std::endl;
+
+}
+
+BOOST_AUTO_TEST_CASE(hdfEmpty)
+{
+    std::array<size_t, 4> test1 = {0,1,2,3};
+    std::array<size_t, 4> test2 = {0,0,0,0};
+    std::cout << &test1[1] << std::endl;
+    std::cout << &test1[2] << std::endl;
+    std::cout << &test1[3] << std::endl;
+    std::cout << &test1[4] << std::endl;
+    std::copy(&test1[0], &test1[4], &test2[0]);
+
+    // removeFile(fname);
+}
 BOOST_AUTO_TEST_SUITE_END();
 
 }

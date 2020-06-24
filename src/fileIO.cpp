@@ -494,14 +494,15 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 
 void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
-	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
+	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
 	hsize_t attr_dims[1] = {1};
-	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+	hsize_t data_dims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(),
+						    pars.Scompact.get_dimk()};
 
 	hsize_t x_size[1] = {pars.imageSize[1] / 2};
 	hsize_t y_size[1] = {pars.imageSize[0] / 2};
-	hsize_t beams[1] = {pars.numberBeams};
+	hsize_t tilt_size[2] = {pars.Scompact.get_dimk(), 2};
 
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
 	const H5std_string re_str("r"); //using h5py default configuration
@@ -509,22 +510,22 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
-	H5::Group hrtem_group(realslices.createGroup("HRTEM"));
+	H5::Group hrtem_group(datacubes.createGroup("HRTEM"));
 
 	//write attributes
 	writeScalarAttribute(hrtem_group, "emd_group_type", 1);
 	writeScalarAttribute(hrtem_group, "metadata", 0);
 
 	//create datasets
-	H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
+	H5::DataSpace mspace(3, data_dims); //rank is 2 for each datacube
 	H5::DataSet hrtem_data;
 	if(pars.meta.saveComplexOutputWave)
 	{
-		hrtem_data = hrtem_group.createDataSet("realslice", complex_type, mspace);
+		hrtem_data = hrtem_group.createDataSet("datacube", complex_type, mspace);
 	}
 	else
 	{
-		hrtem_data = hrtem_group.createDataSet("realslice", PFP_TYPE, mspace);
+		hrtem_data = hrtem_group.createDataSet("datacube", PFP_TYPE, mspace);
 	}
 	
 	hrtem_data.close();
@@ -536,12 +537,20 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto i = 0; i < pars.imageSize[1] / 2; i++) x_dim_data[i] = i * pars.pixelSize[1]*2;
 	for (auto i = 0; i < pars.imageSize[0] / 2; i++) y_dim_data[i] = i * pars.pixelSize[0]*2;
 
-	std::vector<PRISMATIC_FLOAT_PRECISION> beamsIndex(pars.numberBeams); //convert to float
-	for(auto i = 0; i < pars.numberBeams; i++) beamsIndex.push_back(pars.beamsIndex[i]);
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_write(pars.xTilts_tem);
+	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_write(pars.yTilts_tem);
 
+	for(auto i = 0; i < xTilts_write.size(); i++) xTilts_write[i] *= 1000; //convert to mrad for writing
+	for(auto i = 0; i < yTilts_write.size(); i++) yTilts_write[i] *= 1000; //convert to mrad for writing
+	Array2D<PRISMATIC_FLOAT_PRECISION> dim_tilts = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{tilt_size[0], tilt_size[1]}});
+	for(auto i = 0; i < xTilts_write.size(); i++)
+	{
+		dim_tilts.at(i,0) = xTilts_write[i];
+		dim_tilts.at(i,1) = yTilts_write[i];
+	}
 	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
 	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
-	writeRealDataSet(hrtem_group, "dim3", &beamsIndex[0], beams, 1);
+	writeRealDataSet(hrtem_group, "dim3", &dim_tilts[0], tilt_size, 2);
 
 	//dimension attributes
 	H5::DataSet dim1 = hrtem_group.openDataSet("dim1");
@@ -550,14 +559,14 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	writeScalarAttribute(dim1, "name", "R_x");
 	writeScalarAttribute(dim2, "name", "R_y");
-	writeScalarAttribute(dim3, "name", "tilt_index");
+	writeScalarAttribute(dim3, "name", "Tilts");
 
 	writeScalarAttribute(dim1, "units", "[Å]");
 	writeScalarAttribute(dim2, "units", "[Å]");
-	writeScalarAttribute(dim3, "units", "[none]");
+	writeScalarAttribute(dim3, "units", "[mrad]");
 
 	hrtem_group.close();
-	realslices.close();
+	datacubes.close();
 
 };
 
