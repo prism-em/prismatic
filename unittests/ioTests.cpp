@@ -1415,5 +1415,79 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
     removeFile(amplitudeFile);
 }
 
+
+BOOST_AUTO_TEST_CASE(hdfStride)
+{
+
+    //set up a prime dimensioned dataset to test striding
+    const size_t Nz = 2; const size_t Ny = 3; const size_t Nx = 5;
+    Array3D<PRISMATIC_FLOAT_PRECISION> refData = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{Nz, Ny, Nx}});
+    for(auto i = 0; i < refData.size(); i++) refData[i] = i;
+
+    std::cout << "ref array: "<< std::endl;
+    for(auto z = 0; z < Nz; z++)
+    {
+        for(auto y = 0; y < Ny; y++)
+        {
+            for(auto x = 0; x < Nx; x++)
+            {
+                std::cout << refData.at(z,y,x) << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "-------------" << std::endl;
+    }
+
+    //create a test file and write to test dataset
+    std::string fname = "../test/hdfStride.h5";
+    H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
+    hsize_t mdims[3] = {Nx, Ny, Nz};
+    H5::DataSpace mspace(3,mdims);
+    H5::DataSet testds = testFile.createDataSet("testds", PFP_TYPE, mspace);
+    H5::DataSpace fspace = testds.getSpace();
+
+    //only ever select a contiguous block of two dimensions at once; iterate thru N>=3 dimensions to minimize coord array size
+    hsize_t coords[Nx*Ny][3];
+    for(auto i = 0; i < Nz; i++)
+    {
+        for(auto j = 0; j < Ny; j++)
+        {
+            for(auto k = 0; k < Nx; k++)
+            {
+                coords[j*Nx+k][0] = k;
+                coords[j*Nx+k][1] = j;
+                coords[j*Nx+k][2] = i;
+            }
+        }
+        fspace.selectElements(H5S_SELECT_APPEND, Nx*Ny, &coords[0][0]);
+    }
+
+    testds.write(&refData[0], PFP_TYPE, mspace, fspace);
+
+    //read from test dataset
+    Array3D<PRISMATIC_FLOAT_PRECISION> testData = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{Nz, Ny, Nx}});
+    testds.read(&testData[0], PFP_TYPE, mspace, fspace);
+    testds.close();
+    testFile.close();
+
+    //compare values
+    std::cout << "test array: "<< std::endl;
+    for(auto z = 0; z < Nz; z++)
+    {
+        for(auto y = 0; y < Ny; y++)
+        {
+            for(auto x = 0; x < Nx; x++)
+            {
+                std::cout << testData.at(z,y,x) << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "-------------" << std::endl;
+    }
+    BOOST_TEST(compareValues(refData,testData) < 0.001);
+
+    // removeFile(fname);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 }
