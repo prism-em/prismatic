@@ -180,13 +180,15 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			relTiltY = std::abs(pars.qya.at(y, x)*pars.lambda - pars.yTiltOffset_tem);
 			if (((relTiltX < pars.maxXtilt_tem and relTiltY < pars.maxYtilt_tem) and 
 				 (relTiltX >= pars.minXtilt_tem or relTiltY >= pars.minYtilt_tem )) and
-				(long)round(mesh_a.first.at(y, x)) % interp_fx == 0 and
-				(long)round(mesh_a.second.at(y, x)) % interp_fy == 0 and 
+				(long)round(mesh_a.first.at(y, x)) % interp_fy == 0 and
+				(long)round(mesh_a.second.at(y, x)) % interp_fx == 0 and 
 				pars.qMask.at(y, x) == 1)
 			{
 				mask.at(y, x) = 1;
 				pars.xTilts_tem.push_back(pars.qxa.at(y, x)*pars.lambda);
 				pars.yTilts_tem.push_back(pars.qya.at(y, x)*pars.lambda);
+				pars.xTiltsInd_tem.push_back((int) round(mesh_a.second.at(y, x)) / interp_fx);
+				pars.yTiltsInd_tem.push_back((int) round(mesh_a.first.at(y, x)) / interp_fy);
 				++pars.numberBeams;
 			}
 		}

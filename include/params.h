@@ -75,6 +75,8 @@ namespace Prismatic{
 		T yTiltStep_tem;
 		std::vector<T> xTilts_tem;
 		std::vector<T> yTilts_tem;
+		std::vector<int> xTiltsInd_tem;
+		std::vector<int> yTiltsInd_tem;
 	    Array2D<T> qxa;
 	    Array2D<T> qya;
 	    Array2D<T> qxaOutput;

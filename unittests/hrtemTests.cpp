@@ -10,6 +10,7 @@
 #include <random>
 #include "fileIO.h"
 #include "H5Cpp.h"
+#include "utility.h"
 
 namespace Prismatic{
 
@@ -206,51 +207,59 @@ BOOST_FIXTURE_TEST_CASE(datacube, basicSim)
     removeFile(meta.filenameOutput);
 }
 
-BOOST_AUTO_TEST_CASE(sortTest)
+BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 {
-    //tests sorting along two dimensions for the purpose of ordering beams 
-    int seed = 12345;
-    srand(seed);
-    std::default_random_engine de(seed);
-    size_t N = 6;
-    Array1D<PRISMATIC_FLOAT_PRECISION> xdata = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{N}});
-    Array1D<PRISMATIC_FLOAT_PRECISION> ydata = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{N}});
-    assignRandomValues(xdata,de);
-    assignRandomValues(ydata,de);
 
-    //we'll be working with vectors in the core code so copy data over into final pair form
-    std::vector<std::pair<PRISMATIC_FLOAT_PRECISION, PRISMATIC_FLOAT_PRECISION>> tilts(N);
-    for(auto i = 0; i < N; i++) tilts[i] = std::make_pair(xdata[i], ydata[i]);
-    tilts[4].first = tilts[3].first;
 
-    for(auto i = 0; i < N; i++) std::cout << tilts[i].first << " " << tilts[i].second << std::endl;
-    std::cout << "---------------------------" << std::endl;
+    meta.algorithm = Algorithm::HRTEM;
+    meta.filenameOutput = "../test/virtualHRTEM.h5";
+    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.saveSMatrix = false;
+    meta.savePotentialSlices = false;
+    meta.saveComplexOutputWave = true;
+    meta.potential3D = false;
+    meta.numGPUs = 1;
+    meta.batchSizeCPU = 1;
+    meta.realspacePixelSize[1] = 0.1;
+    meta.realspacePixelSize[0] = 0.1;
 
-    //populate indices vector
-    std::vector<size_t> indices(N);
-    for(auto i = 0; i < N; i++) indices[i] = i;
+    meta.minXtilt = 0 / 1000.0;
+    meta.minYtilt = 0 / 1000.0;
+    meta.maxXtilt = 0.5 / 1000.0; //mrads
+    meta.maxYtilt = 0.5 / 1000.0;
+    meta.xTiltStep = 0.42 / 1000.0;
+    meta.yTiltStep = 0.42 / 1000.0;
+    meta.xTiltOffset = 0.0 / 1000.0;
+    meta.yTiltOffset = 0.0 / 1000.0;
 
-    //sort the indices using tilt pairs as compartor
-    std::sort(indices.begin(), indices.end(), [&](int i, int j){return tilts[i]<tilts[j];} );
-    for(auto i = 0; i < N; i++) std::cout << tilts[i].first << " " << tilts[i].second << std::endl;
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n####### BEGIN TEST CASE: virtualDataset #######\n";
+    go(meta);
+    std::cout << "######### END TEST CASE: virtualDataset #######\n";
+    revertOutput(fd, pos);
 
-    std::cout << "---------------------------" << std::endl;
-    for(auto i = 0; i < N; i++) std::cout << indices[i] << std::endl;
+    // check to see scaling is right
+    double errSum = 0.0;
+    double tol = 0.05; //5 % tolerance since can lose some electrons
+    if(meta.saveComplexOutputWave)
+    {
+        Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        for(auto &i : output) errSum += pow(std::abs(i), 2.0);
+        errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
+        std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
+    }
+    else
+    {
+        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        for(auto &i : output) errSum += i;
+        errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
+        std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
+    }
+    BOOST_TEST(std::abs(1-errSum) < tol);
+    // removeFile(meta.filenameOutput);
 
-}
-
-BOOST_AUTO_TEST_CASE(hdfEmpty)
-{
-    std::array<size_t, 4> test1 = {0,1,2,3};
-    std::array<size_t, 4> test2 = {0,0,0,0};
-    std::cout << &test1[1] << std::endl;
-    std::cout << &test1[2] << std::endl;
-    std::cout << &test1[3] << std::endl;
-    std::cout << &test1[4] << std::endl;
-    std::copy(&test1[0], &test1[4], &test2[0]);
-
-    // removeFile(fname);
-}
+ }
 BOOST_AUTO_TEST_SUITE_END();
 
 }

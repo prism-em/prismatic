@@ -96,19 +96,32 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	for(auto i = 0; i < N; i++) indices[i] = i;
     std::sort(indices.begin(), indices.end(), [&](int i, int j){return tilts[i]<tilts[j];} );
 	
+	int minXtiltInd = *std::min_element(prismatic_pars.xTiltsInd_tem.begin(), prismatic_pars.xTiltsInd_tem.end());
+	int minYtiltInd = *std::min_element(prismatic_pars.yTiltsInd_tem.begin(), prismatic_pars.yTiltsInd_tem.end());
+	for(auto i = 0; i < prismatic_pars.xTiltsInd_tem.size(); i++)
+	{
+		std::cout << prismatic_pars.xTiltsInd_tem[indices[i]] -minXtiltInd << " " << prismatic_pars.yTiltsInd_tem[indices[i]] - minYtiltInd << std::endl;
+		std::cout << prismatic_pars.xTilts_tem[indices[i]] * 1000 << " " << prismatic_pars.yTilts_tem[indices[i]] * 1000 <<  std::endl;
+	}
+
 	//sort tilt arrays to keep the same order in dim writing
 	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_tmp(prismatic_pars.xTilts_tem);
 	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_tmp(prismatic_pars.yTilts_tem);
+	std::vector<int> xTiltsInd_tmp(prismatic_pars.xTiltsInd_tem);
+	std::vector<int> yTiltsInd_tmp(prismatic_pars.yTiltsInd_tem);
 	for(auto i = 0; i < N; i++)
 	{
 		prismatic_pars.xTilts_tem[i] = xTilts_tmp[indices[i]];
 		prismatic_pars.yTilts_tem[i] = yTilts_tmp[indices[i]];
+		prismatic_pars.xTiltsInd_tem[i] = xTiltsInd_tmp[indices[i]]-minXtiltInd;
+		prismatic_pars.yTiltsInd_tem[i] = yTiltsInd_tmp[indices[i]]-minYtiltInd;
 	}
 
 	//save data
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	std::cout << "Writing HRTEM data to output file." << std::endl;
 	setupHRTEMOutput(prismatic_pars);
+	setupHRTEMOutput_virtual(prismatic_pars);
 	
 	//first scale the Smatrix back to mean intensity
 	prismatic_pars.Scompact *= prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
@@ -123,7 +136,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	hsize_t offset[3] = {0,0,0};
 	hsize_t mdims[3] = {prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), 1};
 
-	for(auto i = 0; i < N; i++) std::cout << indices[i] << std::endl;
 	H5::DataSpace mspace(3, mdims);
 	for(auto i = 0; i < N; i++)
 	{

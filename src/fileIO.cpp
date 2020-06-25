@@ -570,6 +570,105 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 };
 
+void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
+
+	//get unique vectors for qx and qy first; assumes sorting before set up
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_unique = getUnique(pars.xTilts_tem);
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_unique(pars.yTilts_tem);
+	std::sort(yTilts_unique.begin(), yTilts_unique.end());
+	yTilts_unique = getUnique(pars.yTilts_tem);
+
+	hsize_t attr_dims[1] = {1};
+	hsize_t data_dims[4] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(),
+						    xTilts_unique.size(), yTilts_unique.size()};
+
+	hsize_t x_size[1] = {pars.imageSize[1] / 2};
+	hsize_t y_size[1] = {pars.imageSize[0] / 2};
+	hsize_t tiltX_size[1] = {xTilts_unique.size()};
+	hsize_t tiltY_size[1] = {yTilts_unique.size()};
+
+	H5::Group hrtem_group(datacubes.createGroup("HRTEM_virtual"));
+
+	//write attributes
+	writeScalarAttribute(hrtem_group, "emd_group_type", 1);
+	writeScalarAttribute(hrtem_group, "metadata", 0);
+
+	//create virtual dataset
+	H5::DataSet src_data = pars.outputFile.openDataSet("4DSTEM_simulation/data/realslices/HRTEM/realslice");
+	std::string src_path = src_data.getObjName();
+	H5::DataSpace src_mspace = src_data.getSpace();
+
+	H5::DataSpace vds_mspace(4, data_dims);
+	H5::DSetCreatPropList plist;
+	hsize_t dest_offset[4] = {0,0,0,0};
+	hsize_t dest_mdims[4] = {data_dims[0], data_dims[1], 1, 1};
+	hsize_t src_offset[3] = {0,0,0};
+	hsize_t src_mdims[3] = {data_dims[0], data_dims[1], 1};
+
+	for(auto i = 0; i < pars.xTiltsInd_tem.size(); i++)
+	{
+		src_offset[2] = i; //since the dimensions are alerady sorted, this does not need to be calculated
+		src_mspace.selectHyperslab(H5S_SELECT_SET, src_mdims, src_offset);
+
+		dest_offset[2] = pars.xTiltsInd_tem[i];
+		dest_offset[3] = pars.yTiltsInd_tem[i];
+		vds_mspace.selectHyperslab(H5S_SELECT_SET, dest_mdims, dest_offset);
+
+		plist.setVirtual(vds_mspace, src_data.getFileName(), src_path, src_mspace);
+	}
+
+	dest_offset[2] = 0;
+	dest_offset[3] = 0;
+	vds_mspace.selectHyperslab(H5S_SELECT_SET, data_dims, dest_offset);
+	H5::DataSet hrtem_data = hrtem_group.createDataSet("datacube", src_data.getDataType(), vds_mspace, plist);
+	
+	src_data.close();
+	src_mspace.close();
+	hrtem_data.close();
+	vds_mspace.close();
+
+	//write dimensions
+	Array1D<PRISMATIC_FLOAT_PRECISION> x_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[1] / 2}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> y_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0] / 2}});
+	for (auto i = 0; i < pars.imageSize[1] / 2; i++) x_dim_data[i] = i * pars.pixelSize[1]*2;
+	for (auto i = 0; i < pars.imageSize[0] / 2; i++) y_dim_data[i] = i * pars.pixelSize[0]*2;
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_write(xTilts_unique);
+	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_write(yTilts_unique);
+
+	for(auto i = 0; i < xTilts_write.size(); i++) xTilts_write[i] *= 1000; //convert to mrad for writing
+	for(auto i = 0; i < yTilts_write.size(); i++) yTilts_write[i] *= 1000; //convert to mrad for writing
+	
+	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
+
+	writeRealDataSet(hrtem_group, "dim3", &xTilts_write[0], tiltX_size, 1);
+	writeRealDataSet(hrtem_group, "dim4", &yTilts_write[0], tiltY_size, 1);
+
+	//dimension attributes
+	H5::DataSet dim1 = hrtem_group.openDataSet("dim1");
+	H5::DataSet dim2 = hrtem_group.openDataSet("dim2");
+	H5::DataSet dim3 = hrtem_group.openDataSet("dim3");
+	H5::DataSet dim4 = hrtem_group.openDataSet("dim4");
+
+	writeScalarAttribute(dim1, "name", "R_x");
+	writeScalarAttribute(dim2, "name", "R_y");
+	writeScalarAttribute(dim3, "name", "Tilt_x");
+	writeScalarAttribute(dim4, "name", "Tilt_y");
+
+	writeScalarAttribute(dim1, "units", "[Å]");
+	writeScalarAttribute(dim2, "units", "[Å]");
+	writeScalarAttribute(dim3, "units", "[mrad]");
+	writeScalarAttribute(dim4, "units", "[mrad]");
+
+	hrtem_group.close();
+	datacubes.close();
+};
+
+
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims)
 {
 	H5::DataSpace fspace = dataset.getSpace(); //all realslices have data written all at once
