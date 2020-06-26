@@ -678,6 +678,36 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	datacubes.close();
 };
 
+void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//convert beam indices into qx, qy indices by sorted tilts
+	size_t N = pars.numberBeams;
+	std::vector<std::pair<PRISMATIC_FLOAT_PRECISION, PRISMATIC_FLOAT_PRECISION>> tilts(N);
+	for(auto i = 0; i < N; i++) tilts[i] = std::make_pair(pars.xTilts_tem[i], pars.yTilts_tem[i]);
+	std::vector<size_t> indices(N);
+	for(auto i = 0; i < N; i++) indices[i] = i;
+    std::sort(indices.begin(), indices.end(), [&](int i, int j){return tilts[i]<tilts[j];} );
+
+	pars.HRTEMbeamOrder = indices;
+	
+	int minXtiltInd = *std::min_element(pars.xTiltsInd_tem.begin(), pars.xTiltsInd_tem.end());
+	int minYtiltInd = *std::min_element(pars.yTiltsInd_tem.begin(), pars.yTiltsInd_tem.end());
+
+	//sort tilt arrays and generate 2D array coords for each beam
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_tmp(pars.xTilts_tem);
+	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_tmp(pars.yTilts_tem);
+	std::vector<int> xTiltsInd_tmp(pars.xTiltsInd_tem);
+	std::vector<int> yTiltsInd_tmp(pars.yTiltsInd_tem);
+	for(auto i = 0; i < N; i++)
+	{
+		pars.xTilts_tem[i] = xTilts_tmp[indices[i]];
+		pars.yTilts_tem[i] = yTilts_tmp[indices[i]];
+		pars.xTiltsInd_tem[i] = xTiltsInd_tmp[indices[i]]-minXtiltInd;
+		pars.yTiltsInd_tem[i] = yTiltsInd_tmp[indices[i]]-minYtiltInd;
+	}
+}
+
+
 
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims)
 {
@@ -791,6 +821,45 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	dim2.close();
 	dim3.close();
 	ppotential.close();
+}
+
+void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, 
+				Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> &net_output_c, 
+				Array3D<PRISMATIC_FLOAT_PRECISION> &net_output)
+{
+	//open group and write tilt images incrementally in loop
+	//this avoids restriding S-matrix array all at once, which is memory intensive
+	H5::DataSet hrtem_ds = pars.outputFile.openDataSet("4DSTEM_simulation/data/realslices/HRTEM/realslice");
+	std::array<size_t, 2> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj()};
+	std::array<size_t, 2> rorder = {1, 0};
+	size_t strides = pars.Scompact.get_dimi()*pars.Scompact.get_dimj();
+	hsize_t offset[3] = {0,0,0};
+	hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), 1};
+
+	H5::DataSpace mspace(3, mdims);
+	
+	for(auto i = 0; i < pars.numberBeams; i++)
+	{
+		offset[2] = i;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_output = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj()}});
+			std::copy(&net_output_c[pars.HRTEMbeamOrder[i]*strides], &net_output_c[(pars.HRTEMbeamOrder[i]+1)*strides], tmp_output.begin());
+			tmp_output = restride(tmp_output, dims_in, rorder);
+			H5::DataSpace fspace = hrtem_ds.getSpace();
+			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+			hrtem_ds.write(&tmp_output[0], hrtem_ds.getDataType(), mspace, fspace);
+		}
+		else
+		{
+			Array2D<PRISMATIC_FLOAT_PRECISION> tmp_output_int = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj()}});
+			std::copy(&net_output[pars.HRTEMbeamOrder[i]*strides], &net_output[(pars.HRTEMbeamOrder[i]+1)*strides], tmp_output_int.begin());
+			tmp_output_int = restride(tmp_output_int, dims_in, rorder);
+			H5::DataSpace fspace = hrtem_ds.getSpace();
+			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+			hrtem_ds.write(&tmp_output_int[0], hrtem_ds.getDataType(), mspace, fspace);
+		}
+	}
 }
 
 std::string getDigitString(int digit)

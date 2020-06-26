@@ -91,6 +91,7 @@ namespace Prismatic{
 		Array1D<T> qx;
 		Array1D<T> qy;
         std::vector<size_t> beamsIndex;
+		std::vector<size_t> HRTEMbeamOrder;
 	    Prismatic::ArrayND<2, std::vector<long> > xyBeams;
 		Array2D<T> beams;
 	    Array2D<T> beamsOutput;

@@ -257,6 +257,7 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
     meta.batchSizeCPU = 1;
     meta.realspacePixelSize[1] = 0.1;
     meta.realspacePixelSize[0] = 0.1;
+    meta.numFP = 2;
 
     meta.tiltMode = TiltSelection::Radial;
     meta.minRtilt = 0.0 / 1000;
@@ -280,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
     BOOST_TEST(output.get_diml() == 11);
     std::cout << output.at(0,0,0,0).real() << std::endl;
     std::cout << output.at(0,0,0,0).imag() << std::endl;
-    // removeFile(meta.filenameOutput);
+    removeFile(meta.filenameOutput);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
