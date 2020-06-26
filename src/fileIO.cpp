@@ -655,7 +655,6 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	
 	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
 	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
-
 	writeRealDataSet(hrtem_group, "dim3", &xTilts_write[0], tiltX_size, 1);
 	writeRealDataSet(hrtem_group, "dim4", &yTilts_write[0], tiltY_size, 1);
 
