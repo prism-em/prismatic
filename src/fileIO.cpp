@@ -579,7 +579,8 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_unique(pars.yTilts_tem);
 	std::sort(yTilts_unique.begin(), yTilts_unique.end());
-	yTilts_unique = getUnique(pars.yTilts_tem);
+	yTilts_unique = getUnique(yTilts_unique);
+	std::cout << "yTilts_unique size: " << yTilts_unique.size() << std::endl;
 
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[4] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(),
@@ -623,6 +624,16 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	dest_offset[2] = 0;
 	dest_offset[3] = 0;
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, data_dims, dest_offset);
+	if(pars.meta.saveComplexOutputWave)
+	{
+		std::complex<PRISMATIC_FLOAT_PRECISION> fillVal = {nan(""), nan("")};
+		plist.setFillValue(src_data.getDataType(), &fillVal);
+	}
+	else
+	{
+		PRISMATIC_FLOAT_PRECISION fillVal = nan("");
+		plist.setFillValue(src_data.getDataType(), &fillVal);
+	}
 	H5::DataSet hrtem_data = hrtem_group.createDataSet("datacube", src_data.getDataType(), vds_mspace, plist);
 	
 	src_data.close();
@@ -1289,9 +1300,8 @@ void writeVirtualDataSet(H5::Group group,
 		vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims_ind, offset);
 		plist.setVirtual(vds_mspace, datasets[i].getFileName(), path, src_mspace);
 	}
-	//reset offset
-	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
 
+	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
 	H5::DataSet vds = group.createDataSet(dsetName, datasets[0].getDataType(), vds_mspace, plist);
 

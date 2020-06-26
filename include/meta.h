@@ -22,6 +22,7 @@
 namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
+    enum class TiltSelection{Rectangular, Radial};
     template <class T>
     class Metadata{
     public:
@@ -70,6 +71,9 @@ namespace Prismatic{
             minYtilt              = 0.0 / 1000;
             maxXtilt              = 5.0 / 1000; //mrads, for HRTEM only
             maxYtilt              = 5.0 / 1000;
+            minRtilt              = 0.0 / 1000; //radial option
+            maxRtilt              = 5.0 / 1000; 
+            tiltMode              = TiltSelection::Rectangular;
             xTiltOffset           = 0.0 / 1000; //mrads, for HRTEM only
             yTiltOffset           = 0.0 / 1000;
             xTiltStep             = 1.0 / 1000; 
@@ -146,10 +150,13 @@ namespace Prismatic{
         T probeSemiangle;
         T probeXtilt;
         T probeYtilt;
+
         T minXtilt;
         T minYtilt;
         T maxXtilt;
         T maxYtilt;
+        T minRtilt;
+        T maxRtilt;
         T xTiltOffset;
         T yTiltOffset;
         T xTiltStep;
@@ -192,6 +199,7 @@ namespace Prismatic{
         bool saveComplexOutputWave;
         bool enterCheck; 
         StreamingMode transferMode;
+        TiltSelection tiltMode;
 
     };
 

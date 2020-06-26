@@ -98,11 +98,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	
 	int minXtiltInd = *std::min_element(prismatic_pars.xTiltsInd_tem.begin(), prismatic_pars.xTiltsInd_tem.end());
 	int minYtiltInd = *std::min_element(prismatic_pars.yTiltsInd_tem.begin(), prismatic_pars.yTiltsInd_tem.end());
-	for(auto i = 0; i < prismatic_pars.xTiltsInd_tem.size(); i++)
-	{
-		std::cout << prismatic_pars.xTiltsInd_tem[indices[i]] -minXtiltInd << " " << prismatic_pars.yTiltsInd_tem[indices[i]] - minYtiltInd << std::endl;
-		std::cout << prismatic_pars.xTilts_tem[indices[i]] * 1000 << " " << prismatic_pars.yTilts_tem[indices[i]] * 1000 <<  std::endl;
-	}
 
 	//sort tilt arrays to keep the same order in dim writing
 	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_tmp(prismatic_pars.xTilts_tem);
