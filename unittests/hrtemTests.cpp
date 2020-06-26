@@ -165,48 +165,6 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
     removeFile(meta.filenameOutput);
 }
 
-BOOST_FIXTURE_TEST_CASE(datacube, basicSim)
-{
-    meta.algorithm = Algorithm::HRTEM;
-    meta.filenameOutput = "../test/hrtem_datacube.h5";
-    meta.saveSMatrix = true;
-    meta.savePotentialSlices = false;
-    meta.saveComplexOutputWave = false;
-    meta.potential3D = false;
-    meta.maxXtilt = 2 / 1000.0; //mrads
-    meta.maxYtilt = 2 / 1000.0;
-
-    divertOutput(pos, fd, logPath);
-    std::cout << "\n########## BEGIN TEST CASE: datacube ##########\n";
-    go(meta);
-    std::cout << "############ END TEST CASE: datacube ##########\n";
-    revertOutput(fd, pos);
-
-    // check to see that data exists in datacube location
-    H5::H5File output = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
-    H5::Group datacubes = output.openGroup("4DSTEM_simulation/data/datacubes");
-    BOOST_TEST(datacubes.nameExists("HRTEM"));
-
-    // check to see that dim3 and dim4 are created properly; i.e., x and y are monotonically increasing
-    std::array<size_t, 4> dim3 = {0,1,2,3};
-    std::array<size_t, 4> dim4 = {0,2,1,3};
-    bool dim3_check = true;
-    bool dim4_check = true;
-    for(auto i = 1; i < dim3.size(); i++)
-    {
-        if(dim3[i] < dim3[i-1]) dim3_check = false;
-    }
-    for(auto i = 1; i < dim4.size(); i++)
-    {
-        if(dim4[i] < dim4[i-1]) dim4_check = false;
-    }
-    
-    BOOST_TEST(dim3_check);
-    BOOST_TEST(dim4_check);
-    //check to see N_dim3 x N_dim4 = N_beams in smatrix
-    removeFile(meta.filenameOutput);
-}
-
 BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
