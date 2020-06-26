@@ -234,6 +234,17 @@ std::string remove_extension(const std::string &filename);
 int testFilenameOutput(const std::string &filename);
 int testWrite(const std::string &filename);
 int testExist(const std::string &filename);
+
+template <typename T>
+std::vector<T> getUnique(std::vector<T> input)
+{
+    //assumes input is a sorted vector
+    typename std::vector<T>::iterator ip;
+    ip = std::unique(input.begin(), input.end());
+    input.resize(std::distance(input.begin(), ip));
+
+    return input;
+}
 } // namespace Prismatic
 
 #endif //PRISMATIC_UTILITY_H

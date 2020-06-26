@@ -43,6 +43,7 @@ set(SOURCE_FILES
         src/PRISM03_calcOutput.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
+        src/HRTEM_entry.cpp
         src/projectedPotential.cpp
         src/parseInput.cpp
         src/utility.cpp
@@ -75,6 +76,7 @@ if (PRISMATIC_TESTS)
             unittests/testSuite.cpp
             unittests/potentialTests.cpp
             unittests/ioTests.cpp
+            unittests/hrtemTests.cpp
             )
 endif (PRISMATIC_TESTS)
 

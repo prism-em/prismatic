@@ -25,6 +25,12 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 
 void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP);
 
+void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars); 
+
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);
 
 void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);
@@ -86,6 +92,8 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, con
 void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t elements);
 
 void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> &net_output_c, Array3D<PRISMATIC_FLOAT_PRECISION> &net_output);
 
 std::string getDigitString(int digit);
 

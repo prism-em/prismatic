@@ -90,8 +90,10 @@ void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				pars.prop.at(y, x) = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
 										 complex<PRISMATIC_FLOAT_PRECISION>(pars.meta.sliceThickness, 0) *
 										 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+				
+				//propBack is only used to center defocus of HRTEM at center of cell
 				pars.propBack.at(y, x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-											 complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0], 0) *
+											 complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0] / 2, 0) *
 											 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
 			}
 		}
@@ -129,6 +131,85 @@ inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 	}
 
+	// number the beams
+	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	{
+		int beam_count = 1;
+		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
+		{
+			for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
+			{
+				if (mask.at(y, x) == 1)
+				{
+					pars.beamsIndex.push_back((size_t)y * pars.qMask.get_dimi() + (size_t)x);
+					pars.beams.at(y, x) = beam_count++;
+				}
+			}
+		}
+	}
+}
+
+inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	// determine which beams (AKA plane waves, or Fourier components) are relevant for the calculation
+
+	Array1D<PRISMATIC_FLOAT_PRECISION> xv = makeFourierCoords(pars.imageSize[1],
+															  (PRISMATIC_FLOAT_PRECISION)1 / pars.imageSize[1]);
+	Array1D<PRISMATIC_FLOAT_PRECISION> yv = makeFourierCoords(pars.imageSize[0],
+															  (PRISMATIC_FLOAT_PRECISION)1 / pars.imageSize[0]);
+	pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> mesh_a = meshgrid(yv, xv);
+
+	// create beam mask and count beams
+	Prismatic::Array2D<unsigned int> mask;
+	mask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.numberBeams = 0;
+	
+	PRISMATIC_FLOAT_PRECISION minXstep = pars.lambda / pars.tiledCellDim[2];
+	PRISMATIC_FLOAT_PRECISION minYstep = pars.lambda / pars.tiledCellDim[1];
+
+	long interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
+	long interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+
+	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
+	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
+	
+	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
+	{
+		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
+		{	//only get one beam
+			relTiltX = std::abs(pars.qxa.at(y, x)*pars.lambda - pars.xTiltOffset_tem);
+			relTiltY = std::abs(pars.qya.at(y, x)*pars.lambda - pars.yTiltOffset_tem);
+			bool beamCheck;
+			if(pars.meta.tiltMode == TiltSelection::Rectangular)
+			{
+				beamCheck = ((relTiltX <= pars.maxXtilt_tem and relTiltY <= pars.maxYtilt_tem) and 
+							(relTiltX >= pars.minXtilt_tem or relTiltY >= pars.minYtilt_tem )) and
+							(long)round(mesh_a.first.at(y, x)) % interp_fy == 0 and
+							(long)round(mesh_a.second.at(y, x)) % interp_fx == 0 and 
+							pars.qMask.at(y, x) == 1;
+			}
+			else
+			{
+				PRISMATIC_FLOAT_PRECISION cur_qr = sqrt(pow(relTiltX, 2) + pow(relTiltY,2));
+				beamCheck = (cur_qr <= pars.meta.maxRtilt and cur_qr >= pars.meta.minRtilt) and
+							(long)round(mesh_a.first.at(y, x)) % interp_fy == 0 and
+							(long)round(mesh_a.second.at(y, x)) % interp_fx == 0 and 
+							pars.qMask.at(y, x) == 1;
+			}
+
+			if (beamCheck)
+			{
+				mask.at(y, x) = 1;
+				pars.xTilts_tem.push_back(pars.qxa.at(y, x)*pars.lambda);
+				pars.yTilts_tem.push_back(pars.qya.at(y, x)*pars.lambda);
+				pars.xTiltsInd_tem.push_back((int) round(mesh_a.second.at(y, x)) / interp_fx);
+				pars.yTiltsInd_tem.push_back((int) round(mesh_a.first.at(y, x)) / interp_fy);
+				++pars.numberBeams;
+			}
+		}
+	}
+
+	std::cout << "Number of total tilts: " << pars.numberBeams << std::endl;
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
 	{
@@ -314,6 +395,21 @@ void propagatePlaneWave_CPU_batch(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	PRISMATIC_FFTW_EXECUTE(plan_forward);
 
 	// only keep the necessary plane waves
+
+	if(pars.meta.algorithm == Algorithm::HRTEM) // center defocus at middle of cell if running HRTEM
+	{
+		// back propagate each of the probes in the batch
+		for (auto batch_idx = 0; batch_idx < min(pars.meta.batchSizeCPU, stopBeam - currentBeam); ++batch_idx)
+		{
+			auto p_ptr = pars.propBack.begin();
+			auto psi_ptr = &psi_stack[batch_idx * slice_size];
+			for (auto jj = 0; jj < slice_size; ++jj)
+			{
+				*psi_ptr++ *= (*p_ptr++); // propagate
+			}
+		}
+	}
+
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> psi_small = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION>>(
 		{{pars.qyInd.size(), pars.qxInd.size()}});
 	const PRISMATIC_FLOAT_PRECISION N_small = (PRISMATIC_FLOAT_PRECISION)psi_small.size();
@@ -481,7 +577,14 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	setupCoordinates(pars);
 
 	// setup the beams and their indices
-	setupBeams(pars);
+	if(pars.meta.algorithm == Algorithm::PRISM)
+	{
+		setupBeams(pars);
+	}
+	else if(pars.meta.algorithm == Algorithm::HRTEM)
+	{
+		setupBeams_HRTEM(pars);
+	}
 
 	// setup coordinates for nonzero values of compact S-matrix
 	setupSMatrixCoordinates(pars);
@@ -505,7 +608,10 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
+		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+		std::array<size_t, 3> order = {2, 1, 0};
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_restride = restride(pars.Scompact, dims_in, order);
+		writeComplexDataSet(smatrix_group, "realslice", &smatrix_restride[0], mdims, 3);
 	}
 }
 
@@ -611,7 +717,11 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3);
+
+		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
+		std::array<size_t, 3> order = {2, 1, 0};
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_tmp = restride(pars.Scompact, dims_in, order);
+		writeComplexDataSet(smatrix_group, "realslice", &smatrix_tmp[0], mdims, 3);
 	}
 
 }
