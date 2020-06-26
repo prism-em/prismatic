@@ -23,6 +23,7 @@
 namespace Prismatic {
 	inline void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+	inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupSMatrixCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void downsampleFourierComponents(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 

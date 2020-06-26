@@ -22,6 +22,7 @@
 namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
+    enum class TiltSelection{Rectangular, Radial};
     template <class T>
     class Metadata{
     public:
@@ -66,6 +67,17 @@ namespace Prismatic{
             detectorAngleStep     = 1.0 / 1000;
             probeXtilt            = 0;
             probeYtilt            = 0;
+            minXtilt              = 0.0 / 1000; //mrads, for HRTEM only
+            minYtilt              = 0.0 / 1000;
+            maxXtilt              = 5.0 / 1000; //mrads, for HRTEM only
+            maxYtilt              = 5.0 / 1000;
+            minRtilt              = 0.0 / 1000; //radial option
+            maxRtilt              = 5.0 / 1000; 
+            tiltMode              = TiltSelection::Rectangular;
+            xTiltOffset           = 0.0 / 1000; //mrads, for HRTEM only
+            yTiltOffset           = 0.0 / 1000;
+            xTiltStep             = 1.0 / 1000; 
+            yTiltStep             = 1.0 / 1000; 
             scanWindowXMin        = 0.0;
             scanWindowXMax        = 0.99999;
             scanWindowYMin        = 0.0;
@@ -101,6 +113,7 @@ namespace Prismatic{
             importSMatrix         = false;
             userSpecifiedNumFP    = false;
             saveComplexOutputWave = false;
+            enterCheck            = false;
             importFile            = "";
             importPath            = "";
         }
@@ -137,6 +150,17 @@ namespace Prismatic{
         T probeSemiangle;
         T probeXtilt;
         T probeYtilt;
+
+        T minXtilt;
+        T minYtilt;
+        T maxXtilt;
+        T maxYtilt;
+        T minRtilt;
+        T maxRtilt;
+        T xTiltOffset;
+        T yTiltOffset;
+        T xTiltStep;
+        T yTiltStep;
         T scanWindowXMin;
         T scanWindowXMax;
         T scanWindowYMin;
@@ -173,7 +197,9 @@ namespace Prismatic{
         bool importSMatrix;
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
+        bool enterCheck; 
         StreamingMode transferMode;
+        TiltSelection tiltMode;
 
     };
 

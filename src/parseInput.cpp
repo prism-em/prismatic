@@ -101,7 +101,11 @@ void printHelp()
               << "* --import-potential (-ips) bool=false : Use precalculated projected potential from import HDF5 file. Must specify -if and -idp (default: Off)]\n"
               << "* --import-smatrix (-ism) bool=false : Use precalculated scattering matrix from import HDF5 file -if and -idp (default: Off)]\n"
               << "* --import-file (-if) filename : File from where to import precalculated potential or smatrix(default: Off)]\n"
-              << "* --import-data-path (-idp) string : Datapath from where precalcualted values are retrieved within HDF5 import file (default: none, uses Prismatic save path)\n";
+              << "* --import-data-path (-idp) string : Datapath from where precalcualted values are retrieved within HDF5 import file (default: none, uses Prismatic save path)\n"
+              << "* --xtilt-tem (-xtt) min max step : plane wave tilt selection for HRTEM in x (in mrad) (default: " << defaults.minXtilt * 1000 << " " << defaults.maxXtilt * 1000 << " " << defaults.xTiltStep * 1000 << ")\n"
+              << "* --ytilt-tem (-ytt) min max step : plane wave tilt selection for HRTEM in y (in mrad) (default: " << defaults.minYtilt * 1000 << " " << defaults.maxYtilt * 1000 << " " << defaults.yTiltStep * 1000 << ")\n"
+              << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
+              << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -1493,6 +1497,107 @@ bool parse_ism(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_xtt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+             int &argc, const char ***argv)
+{
+    if (argc < 4)
+    {
+        cout << "Insufficient parameters provided for HRTEM x tilts (syntax is -xtt min max step)\n";
+        return false;
+    }
+
+    // the indexing in PRISM stores the cell dimensions as Z, Y, X so we must rearrange the
+    // order of the inputs which are X, Y, Z
+    if ((meta.minXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) < 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for X tilt min (syntax is -xtt min max step)\n";
+        return false;
+    }
+    if ((meta.maxXtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) <= 0)
+    {
+        cout << "Invalid value \"" << (*argv)[2] << "\" provided for X tilt max (syntax is -xtt min max step)\n";
+        return false;
+    }
+    if ((meta.xTiltStep = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[3]) / 1000) <= 0)
+    {
+        cout << "Invalid value \"" << (*argv)[3] << "\" provided for X tilt step (syntax is -xtt min max step)\n";
+        return false;
+    }
+    argc -= 4;
+    argv[0] += 4;
+    return true;
+};
+
+bool parse_ytt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+             int &argc, const char ***argv)
+{
+    if (argc < 4)
+    {
+        cout << "Insufficient parameters provided for HRTEM y tilts (syntax is -ytt min max step)\n";
+        return false;
+    }
+
+    // the indexing in PRISM stores the cell dimensions as Z, Y, X so we must rearrange the
+    // order of the inputs which are X, Y, Z
+    if ((meta.minYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) < 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for Y tilt min (syntax is -ytt min max step)\n";
+        return false;
+    }
+    if ((meta.maxYtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) <= 0)
+    {
+        cout << "Invalid value \"" << (*argv)[2] << "\" provided for Y tilt max (syntax is -ytt min max step)\n";
+        return false;
+    }
+    if ((meta.yTiltStep = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[3]) / 1000) <= 0)
+    {
+        cout << "Invalid value \"" << (*argv)[3] << "\" provided for Y tilt step (syntax is -ytt min max step)\n";
+        return false;
+    }
+    argc -= 4;
+    argv[0] += 4;
+    return true;
+};
+
+bool parse_tot(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 3)
+    {
+        cout << "Invalid number of parameters provided for -tot (syntax is -tot xOffset yOffset (in mrad))\n";
+        return false;
+    }
+    meta.xTiltOffset = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000;
+    meta.yTiltOffset = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000;
+    argc -= 3;
+    argv[0] += 3;
+    return true;
+};
+
+bool parse_rtt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 3)
+    {
+        cout << "Invalid number of parameters provided for -rtt (syntax is -rtt min max (in mrad))\n";
+        return false;
+    }
+    if ((meta.minRtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]) / 1000) < 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for R tilt min (syntax is -rtt min max)\n";
+        return false;
+    }
+    if ((meta.maxRtilt = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]) / 1000) <= 0)
+    {
+        cout << "Invalid value \"" << (*argv)[2] << "\" provided for R tilt max (syntax is -rtt min max)\n";
+        return false;
+    }
+    meta.tiltMode = Prismatic::TiltSelection::Radial;
+    argc -= 3;
+    argv[0] += 3;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1566,7 +1671,11 @@ static std::map<std::string, parseFunction> parser{
     {"--save-DPC-CoM", parse_dpc}, {"-DPC", parse_dpc},
     {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc},
     {"--save-potential-slices", parse_ps}, {"-ps", parse_ps},
-    {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs}};
+    {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs},
+    {"--xtilt-tem", parse_xtt}, {"-xtt", parse_xtt},
+    {"--ytilt-tem", parse_ytt}, {"-ytt", parse_ytt},
+    {"--rtilt-tem", parse_rtt}, {"-rtt", parse_rtt},
+    {"--tilt-offset-tem", parse_tot}, {"-tot", parse_tot}};
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {
