@@ -15,13 +15,13 @@ static std::mutex write4D_lock;
 
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP);
 

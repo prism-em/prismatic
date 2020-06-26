@@ -144,7 +144,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	{
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
-			setupVDOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
+			setupVDOutput(prismatic_pars);
 			//create dummy array to pass to
 			Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> slice_image;
 			slice_image = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk(), prismatic_pars.output_c.get_dimi()}});
@@ -175,7 +175,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		}
 		else
 		{
-			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
+			setupVDOutput(prismatic_pars);
 			//create dummy array to pass to
 			Array3D<PRISMATIC_FLOAT_PRECISION> slice_image;
 			slice_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimi()}});
@@ -213,7 +213,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
-			setup2DOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
+			setup2DOutput(prismatic_pars);
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
 			for (auto j = 0; j < prismatic_pars.output_c.get_diml(); j++)
 			{
@@ -243,7 +243,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		}
 		else
 		{
-			setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
+			setup2DOutput(prismatic_pars);
 			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 			for (auto j = 0; j < prismatic_pars.output.get_diml(); j++)
 			{
@@ -280,7 +280,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 	if (prismatic_pars.meta.saveDPC_CoM and not prismatic_pars.meta.saveComplexOutputWave)
 	{
-		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml());
+		setupDPCOutput(prismatic_pars);
 
 		//create dummy array to pass to
 		Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;

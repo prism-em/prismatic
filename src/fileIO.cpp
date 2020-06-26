@@ -52,7 +52,7 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::Group comments(metadata_0.createGroup("comments"));
 }
 
-void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers)
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
 
@@ -158,7 +158,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
-	for (auto n = 0; n < numLayers; n++)
+	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n);
@@ -221,7 +221,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	datacubes.close();
 };
 
-void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers)
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -244,7 +244,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
-	for (auto n = 0; n < numLayers; n++)
+	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n);
@@ -298,7 +298,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	realslices.close();
 };
 
-void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers)
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -318,7 +318,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
-	for (auto n = 0; n < numLayers; n++)
+	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n);
@@ -366,7 +366,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t num
 	realslices.close();
 };
 
-void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers)
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
 
@@ -382,7 +382,7 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t nu
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t str_dim[1] = {2};
 
-	for (auto n = 0; n < numLayers; n++)
+	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n);

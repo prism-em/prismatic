@@ -214,7 +214,8 @@ namespace Prismatic{
 		depths[0] = firstLayer * pars.meta.sliceThickness * pars.numSlices;
 		for(auto i = 1; i < numLayers; i++) depths[i] = depths[i-1]+pars.numSlices*pars.meta.sliceThickness;
 		pars.depths = depths;
-
+		pars.numLayers = numLayers;
+		
 		if(pars.meta.saveComplexOutputWave)
 		{
 			pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
@@ -225,7 +226,7 @@ namespace Prismatic{
 		}
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
-		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars, numLayers);
+		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars);
 		//set up
 	}
 

@@ -205,7 +205,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{
-			setupVDOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
+			setupVDOutput(prismatic_pars);
 			Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_image = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>(
 				{{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk(), prismatic_pars.output_c.get_dimi()}});
 
@@ -231,7 +231,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		}
 		else
 		{
-			setupVDOutput(prismatic_pars, prismatic_pars.output.get_diml());
+			setupVDOutput(prismatic_pars);
 			Array3D<PRISMATIC_FLOAT_PRECISION> output_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk(), prismatic_pars.output.get_dimi()}});
 
 			std::stringstream nameString;
@@ -270,7 +270,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
 			prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
 				{{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk()}});
-			setup2DOutput(prismatic_pars, prismatic_pars.output_c.get_diml());
+			setup2DOutput(prismatic_pars);
 
 			std::stringstream nameString;
 			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
@@ -296,7 +296,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 			prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 				{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
-			setup2DOutput(prismatic_pars, prismatic_pars.output.get_diml());
+			setup2DOutput(prismatic_pars);
 
 			std::stringstream nameString;
 			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
@@ -325,7 +325,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 	if (prismatic_pars.meta.saveDPC_CoM and not prismatic_pars.meta.saveComplexOutputWave)
 	{
-		setupDPCOutput(prismatic_pars, prismatic_pars.output.get_diml());
+		setupDPCOutput(prismatic_pars);
 
 		//create dummy array to pass to
 		Array3D<PRISMATIC_FLOAT_PRECISION> DPC_slice;

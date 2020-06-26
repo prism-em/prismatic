@@ -160,7 +160,7 @@ void setupBeams_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// create output of a size corresponding to 3D mode (integration)
-	size_t numLayers = 1;
+	pars.numLayers = 1;
 	if(pars.meta.saveComplexOutputWave)
 	{
 		pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
@@ -176,7 +176,7 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	depths[0] = pars.numPlanes*pars.meta.sliceThickness;
 	pars.depths = depths;
 	if (pars.meta.save4DOutput && (pars.fpFlag == 0))
-			setup4DOutput(pars, numLayers);
+			setup4DOutput(pars);
 }
 
 void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
