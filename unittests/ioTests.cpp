@@ -1446,22 +1446,9 @@ BOOST_AUTO_TEST_CASE(hdfStride)
     H5::DataSet testds = testFile.createDataSet("testds", PFP_TYPE, mspace);
     H5::DataSpace fspace = testds.getSpace();
 
-    //only ever select a contiguous block of two dimensions at once; iterate thru N>=3 dimensions to minimize coord array size
-    hsize_t coords[Nx*Ny][3];
-    for(auto i = 0; i < Nz; i++)
-    {
-        for(auto j = 0; j < Ny; j++)
-        {
-            for(auto k = 0; k < Nx; k++)
-            {
-                coords[j*Nx+k][0] = k;
-                coords[j*Nx+k][1] = j;
-                coords[j*Nx+k][2] = i;
-            }
-        }
-        fspace.selectElements(H5S_SELECT_APPEND, Nx*Ny, &coords[0][0]);
-    }
-
+    std::vector<size_t> vdims = {Nx,Ny,Nz};
+    std::vector<size_t> vorder = {0,1,2};
+    restrideElements(fspace, vdims, vorder);
     testds.write(&refData[0], PFP_TYPE, mspace, fspace);
 
     //read from test dataset
@@ -1486,7 +1473,7 @@ BOOST_AUTO_TEST_CASE(hdfStride)
     }
     BOOST_TEST(compareValues(refData,testData) < 0.001);
 
-    removeFile(fname);
+    // removeFile(fname);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

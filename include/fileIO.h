@@ -175,6 +175,8 @@ void depthSeriesSG(H5::H5File &file);
 std::string reducedDataSetName(std::string &fullPath);
 
 void copyDataSet(H5::Group &targetGroup, H5::DataSet &source);
+
+void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order);
 						
 } //namespace Prismatic
 
