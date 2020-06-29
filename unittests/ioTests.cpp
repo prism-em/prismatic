@@ -1473,7 +1473,7 @@ BOOST_AUTO_TEST_CASE(hdfStride)
     }
     BOOST_TEST(compareValues(refData,testData) < 0.001);
 
-    // removeFile(fname);
+    removeFile(fname);
 }
 
 BOOST_AUTO_TEST_SUITE_END();

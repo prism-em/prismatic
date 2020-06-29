@@ -140,14 +140,33 @@ void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
 	H5::DataSpace mspace(N,dims_out);
 
     std::array<size_t, N> data_dims;
-    size_t totalSize = 1;
-	for(auto i = 0; i < N; i++) totalSize *= dims_out[i];
     for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
 
-    std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>> data_in(totalSize);
-    dataset.read(&data_in[0], dataset.getDataType(), mspace, dataspace);
+	output = zeros_ND<N, std::complex<PRISMATIC_FLOAT_PRECISION>>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
 
-	output = ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>>(data_in, data_dims);
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
+
+template <size_t N>
+void readRealDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
+
+	output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
 
     mspace.close();
     dataspace.close();
