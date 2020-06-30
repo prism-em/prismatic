@@ -837,37 +837,20 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 {
 	//open group and write tilt images incrementally in loop
 	//this avoids restriding S-matrix array all at once, which is memory intensive
-	H5::DataSet hrtem_ds = pars.outputFile.openDataSet("4DSTEM_simulation/data/realslices/HRTEM/realslice");
-	std::array<size_t, 2> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj()};
-	std::array<size_t, 2> rorder = {1, 0};
-	size_t strides = pars.Scompact.get_dimi()*pars.Scompact.get_dimj();
-	hsize_t offset[3] = {0,0,0};
-	hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), 1};
-
-	H5::DataSpace mspace(3, mdims);
+	H5::Group hrtem_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/HRTEM");
+	hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
+	std::vector<size_t> order = {0,1,2};
 	
-	for(auto i = 0; i < pars.numberBeams; i++)
+	if(pars.meta.saveComplexOutputWave)
 	{
-		offset[2] = i;
-		if(pars.meta.saveComplexOutputWave)
-		{
-			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_output = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj()}});
-			std::copy(&net_output_c[pars.HRTEMbeamOrder[i]*strides], &net_output_c[(pars.HRTEMbeamOrder[i]+1)*strides], tmp_output.begin());
-			tmp_output = restride(tmp_output, dims_in, rorder);
-			H5::DataSpace fspace = hrtem_ds.getSpace();
-			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-			hrtem_ds.write(&tmp_output[0], hrtem_ds.getDataType(), mspace, fspace);
-		}
-		else
-		{
-			Array2D<PRISMATIC_FLOAT_PRECISION> tmp_output_int = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj()}});
-			std::copy(&net_output[pars.HRTEMbeamOrder[i]*strides], &net_output[(pars.HRTEMbeamOrder[i]+1)*strides], tmp_output_int.begin());
-			tmp_output_int = restride(tmp_output_int, dims_in, rorder);
-			H5::DataSpace fspace = hrtem_ds.getSpace();
-			fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-			hrtem_ds.write(&tmp_output_int[0], hrtem_ds.getDataType(), mspace, fspace);
-		}
+		writeComplexDataSet(hrtem_group, "realslice", &net_output_c[0], mdims, 3, order);
 	}
+	else
+	{
+		writeRealDataSet(hrtem_group, "realslice", &net_output[0], mdims, 3, order);
+	}
+
+	hrtem_group.close();
 }
 
 std::string getDigitString(int digit)

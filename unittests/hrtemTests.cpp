@@ -178,8 +178,8 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
     meta.potential3D = false;
     meta.numGPUs = 1;
     meta.batchSizeCPU = 1;
-    meta.realspacePixelSize[1] = 0.1;
-    meta.realspacePixelSize[0] = 0.1;
+    meta.realspacePixelSize[1] = 0.5;
+    meta.realspacePixelSize[0] = 0.5;
 
     meta.minXtilt = 0 / 1000.0;
     meta.minYtilt = 0 / 1000.0;
@@ -196,7 +196,6 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
     std::cout << "######### END TEST CASE: virtualDataset #######\n";
     revertOutput(fd, pos);
 
-    // check to see scaling is right
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
     std::vector<size_t> order_4D = {0,1,2,3}; 
     readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube",order_4D);
