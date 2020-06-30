@@ -175,10 +175,14 @@ void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(N,dims_out);
 
+    H5::DSetCreatPropList plist = dataset.getCreatePlist();
+    H5D_layout_t layout = plist.getLayout();
+    bool virtualCheck = layout == H5D_VIRTUAL;
+
     std::array<size_t, N> data_dims;
     for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
 
-    if(N > 1)
+    if(N > 1 and not virtualCheck)
     {
         std::vector<size_t> rdims;
         for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
@@ -208,10 +212,14 @@ void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
 	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
 	H5::DataSpace mspace(N,dims_out);
 
+    H5::DSetCreatPropList plist = dataset.getCreatePlist();
+    H5D_layout_t layout = plist.getLayout();
+    bool virtualCheck = layout == H5D_VIRTUAL;
+
     std::array<size_t, N> data_dims;
     for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
 
-    if(N > 1)
+    if(N > 1 and not virtualCheck)
     {
         std::vector<size_t> rdims;
         for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
