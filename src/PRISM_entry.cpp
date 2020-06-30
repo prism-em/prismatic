@@ -95,7 +95,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	if(prismatic_pars.meta.importSMatrix)
 	{
 		std::string groupName = "4DSTEM_simulation/data/realslices/";
-		std::string baseName = "ppotential_fp";
+		std::string baseName = "smatrix_fp";
 		H5::H5File inFile = H5::H5File(prismatic_pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
 		H5::Group realslices = inFile.openGroup(groupName.c_str());
 		int configurations = countDataGroups(realslices, baseName);
@@ -225,8 +225,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 					}
 				}
 			}
-
-			writeComplexDataSet(dataGroup, "realslice", &output_image[0], mdims, 3);
+			std::vector<size_t> order = {0,1,2};
+			writeComplexDataSet(dataGroup, "realslice", &output_image[0], mdims, 3, order);
 			dataGroup.close();
 		}
 		else
@@ -288,7 +288,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				}
 			}
 
-			writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2);
+			std::vector<size_t> order = {0,1};
+			writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
 			dataGroup.close();
 		}
 		else

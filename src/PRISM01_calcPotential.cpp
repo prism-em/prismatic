@@ -525,34 +525,28 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	std::cout << "Setting up PRISM01 auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
-	Array3D<PRISMATIC_FLOAT_PRECISION> inPot;
-
+	std::vector<size_t> order = {0,1,2};
+	
 	if(pars.meta.importPath.size() > 0)
 	{
-		inPot = readDataSet3D(pars.meta.importFile, pars.meta.importPath);
+		readRealDataSet(pars.pot, pars.meta.importFile, pars.meta.importPath, order);
 	}
 	else //read default path
 	{
 		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/realslice";
-		inPot = readDataSet3D(pars.meta.importFile, groupPath);
+		readRealDataSet(pars.pot, pars.meta.importFile, groupPath, order);
 	}
 
-	//restriding potential
-	std::array<size_t, 3> dims_in = {inPot.get_dimk(), inPot.get_dimj(), inPot.get_dimi()};
-	std::array<size_t, 3> order = {2, 1, 0};
-	inPot = restride(inPot, dims_in, order);
-
-	pars.numPlanes = inPot.get_dimk();
+	pars.numPlanes = pars.pot.get_dimk();
 	if (pars.meta.numSlices == 0)
 	{
 		pars.numSlices = pars.numPlanes;
 	}
 
-	pars.pot = inPot;
 	//resample coordinates if PRISM algorithm and size of PS array in not a multiple of 4*fx or 4*fy
 	if(pars.meta.algorithm == Algorithm::PRISM)
 	{
-		if ( (inPot.get_dimi() % 4*pars.meta.interpolationFactorX) || (inPot.get_dimj() % pars.meta.interpolationFactorY))
+		if ( (pars.pot.get_dimi() % 4*pars.meta.interpolationFactorX) || (pars.pot.get_dimj() % pars.meta.interpolationFactorY))
 		{
 			std::cout << "Resampling imported potential to align grid size with requested interpolation factors fx = " 
 					  << pars.meta.interpolationFactorX << " and fy = " << pars.meta.interpolationFactorY << std::endl;

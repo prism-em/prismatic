@@ -468,7 +468,6 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
-
 		if(pars.meta.saveComplexOutputWave)
 		{
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalOutput;

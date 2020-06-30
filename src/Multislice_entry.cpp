@@ -169,7 +169,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 					}
 				}
 
-				writeComplexDataSet(dataGroup, "realslice", &slice_image[0], mdims, 3);
+				std::vector<size_t> order = {0,1,2};
+				writeComplexDataSet(dataGroup, "realslice", &slice_image[0], mdims, 3, order);
 				dataGroup.close();
 			}
 		}
@@ -237,7 +238,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 				H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 				hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
 
-				writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2);
+				std::vector<size_t> order = {0,1};
+				writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
 				dataGroup.close();
 			}
 		}

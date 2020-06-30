@@ -75,7 +75,7 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, con
     for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
         finalBuffer[i] += readBuffer[i];
     free(readBuffer);
-		
+
     dataset.write(finalBuffer, dataset.getDataType(), mspace, fspace);
     free(finalBuffer);
     fspace.close();
@@ -118,61 +118,25 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
-void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims, const size_t &rank);
+void writeComplexDataSet(H5::Group group,
+                        const std::string &dsetname,
+                        const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank,
+                        std::vector<size_t> &order);
 
-void writeRealDataSet(H5::Group group, const std::string &dsetname, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const size_t &rank);
+void writeRealDataSet(H5::Group group,
+                        const std::string &dsetname,
+                        const PRISMATIC_FLOAT_PRECISION *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank,
+                        std::vector<size_t> &order);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const std::string &data);
-
-template <size_t N>
-void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
-{
-	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
-	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
-	H5::DataSpace dataspace = dataset.getSpace();
-
-	hsize_t dims_out[N];
-	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
-	H5::DataSpace mspace(N,dims_out);
-
-    std::array<size_t, N> data_dims;
-    for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
-
-	output = zeros_ND<N, std::complex<PRISMATIC_FLOAT_PRECISION>>(data_dims);
-    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
-
-    mspace.close();
-    dataspace.close();
-    dataset.close();
-    input.close();
-};
-
-template <size_t N>
-void readRealDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
-{
-	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
-	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
-	H5::DataSpace dataspace = dataset.getSpace();
-
-	hsize_t dims_out[N];
-	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
-	H5::DataSpace mspace(N,dims_out);
-
-    std::array<size_t, N> data_dims;
-    for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
-
-	output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(data_dims);
-    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
-
-    mspace.close();
-    dataspace.close();
-    dataset.close();
-    input.close();
-};
 
 int countDataGroups(H5::Group group, const std::string &basename);
 
@@ -196,6 +160,72 @@ std::string reducedDataSetName(std::string &fullPath);
 void copyDataSet(H5::Group &targetGroup, H5::DataSet &source);
 
 void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order);
+
+template <size_t N>
+void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output,
+                            const std::string &filename, 
+                            const std::string &dataPath,
+                            std::vector<size_t> &order)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
+
+    if(N > 1)
+    {
+        std::vector<size_t> rdims;
+        for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
+        restrideElements(dataspace, rdims, order);
+    }
+
+	output = zeros_ND<N, std::complex<PRISMATIC_FLOAT_PRECISION>>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
+
+template <size_t N>
+void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
+                        const std::string &filename,
+                        const std::string &dataPath,
+                        std::vector<size_t> &order)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
+
+    if(N > 1)
+    {
+        std::vector<size_t> rdims;
+        for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
+        restrideElements(dataspace, rdims, order);
+    }
+
+	output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
 						
 } //namespace Prismatic
 
