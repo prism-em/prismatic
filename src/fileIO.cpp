@@ -718,7 +718,7 @@ void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 }
 
 
-
+//these write functions will soon be deprecated
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims)
 {
 	H5::DataSpace fspace = dataset.getSpace(); //all realslices have data written all at once
