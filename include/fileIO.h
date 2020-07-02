@@ -191,13 +191,12 @@ void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
 
 // void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString);
 template<class T>
-void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, T *readBuffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
 {
 	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
 	//lock the whole file access/writing procedure in only one location
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
 
-    std::cout << "Thread " << std::this_thread::get_id() << " acquired lock." << std::endl;
     H5::Group dataGroup = pars.outputFile.openGroup(nameString);
     H5::DataSet dataset = dataGroup.openDataSet("datacube");
 
@@ -212,14 +211,13 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, con
     std::vector<size_t> roffset = {offset[0], offset[1], offset[2], offset[3]};
     restrideElements_subset(fspace, rdims, rorder, roffset);
 
-    T *readBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
+    // T *readBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
     dataset.read(&readBuffer[0], dataset.getDataType(), mspace, fspace);
-    
     for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
         readBuffer[i] += buffer[i]/numFP;
-
-    dataset.write(readBuffer, dataset.getDataType(), mspace, fspace);
-    free(readBuffer);
+        
+    dataset.write(&readBuffer[0], dataset.getDataType(), mspace, fspace);
+    // free(readBuffer);
 
     fspace.close();
     mspace.close();
@@ -229,7 +227,6 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, con
     dataGroup.close();
     pars.outputFile.flush(H5F_SCOPE_LOCAL);
 
-    std::cout << "Thread " << std::this_thread::get_id() << " releasing lock." << std::endl;
 	writeGatekeeper.unlock();
 };
 						

@@ -147,6 +147,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     Array2D<PRISMATIC_FLOAT_PRECISION> testArr2D = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{2,7}});
     Array3D<PRISMATIC_FLOAT_PRECISION> testArr3D = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{2,7,5}});
     Array4D<PRISMATIC_FLOAT_PRECISION> testArr4D = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{2,7,5,3}});
+    Array2D<PRISMATIC_FLOAT_PRECISION> readBuffer = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{5,3}});
     assignRandomValues(testArr2D, de);
     assignRandomValues(testArr3D, de);
     assignRandomValues(testArr4D, de);
@@ -195,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
                 offset[0] = k;
                 offset[1] = l;
                 size_t arrayStart = l*testArr4D.get_dimk()*testArr4D.get_dimj()*testArr4D.get_dimi()+k*testArr4D.get_dimj()*testArr4D.get_dimi();
-                writeDatacube4D(pars,&testArr4D[arrayStart],mdims,offset,numFP,nameString.c_str());
+                writeDatacube4D(pars,&testArr4D[arrayStart],&readBuffer[0],mdims,offset,numFP,nameString.c_str());
 
             }
         }
@@ -405,6 +406,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     //run simulations
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
+    meta.numGPUs =0;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
