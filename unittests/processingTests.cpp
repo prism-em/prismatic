@@ -6,6 +6,7 @@
 #include <random>
 #include "utility.h"
 #include "fileIO.h"
+#include "pprocess.h"
 
 namespace Prismatic{
 
