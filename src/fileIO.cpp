@@ -1538,4 +1538,70 @@ void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vec
 	
 };
 
+hsize_t* restrideElements_subset(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order, std::vector<size_t> &offset)
+{
+	//get rank
+	size_t rank = dims.size();
+	
+	//block indicates which dimensions are kept contiguous in selects
+	size_t block0 = dims[order[0]];
+	size_t block1 = dims[order[1]];
+
+	//setup divisors and modulos
+	//not generalized since will only deal with at most 4 dimension restrides
+	std::vector<size_t> divs(rank);
+	std::vector<size_t> mods(rank);
+	divs[0] = 1; 
+	mods[0] = block0;
+	
+	divs[1] = block0;
+	mods[1] = block0*block1;
+
+	//fill coordinates and make element selections
+	hsize_t coords[block0*block1][rank];
+	for(auto m = 0; m < block0*block1; m++)
+	{
+		for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
+		for(auto j = 2; j < rank; j++)	coords[m][order[j]] =  offset[order[j]];
+	}
+
+	return coords;	
+};
+void restrideElements_subset(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order, std::vector<size_t> &offset)
+{
+	//for large arrays; restrides a subset and adds offset to non-continguous dims
+	//clear selection
+	fspace.selectNone();
+
+	//get rank
+	size_t rank = dims.size();
+	
+	//block indicates which dimensions are kept contiguous in selects
+	size_t block0 = dims[order[0]];
+	size_t block1 = dims[order[1]];
+	size_t Nblocks = 1;
+	std::vector<size_t> Nblock_order;
+	for(auto i = 2; i < rank; i++)	Nblocks *= dims[order[i]];
+
+	//setup divisors and modulos
+	//not generalized since will only deal with at most 4 dimension restrides
+	std::vector<size_t> divs(rank);
+	std::vector<size_t> mods(rank);
+	divs[0] = 1; 
+	mods[0] = block0;
+	
+	divs[1] = block0;
+	mods[1] = block0*block1;
+
+	//fill coordinates and make element selections
+	hsize_t coords[block0*block1][rank];
+	for(auto m = 0; m < block0*block1; m++)
+	{
+		for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
+		for(auto j = 2; j < rank; j++)	coords[m][order[j]] =  offset[order[j]];
+	}
+	fspace.selectElements(H5S_SELECT_APPEND, block0*block1, &coords[0][0]);
+	
+};
+
 } //namespace Prismatic

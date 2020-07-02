@@ -10,6 +10,7 @@
 #include <random>
 #include "fileIO.h"
 #include "H5Cpp.h"
+#include <thread>
 
 namespace Prismatic{
 
@@ -82,6 +83,35 @@ void removeFile(const std::string &filepath)
     else
         puts( "Test file successfully deleted" );
 };
+
+void testFunc(void *elem)
+{
+    int* ip = (int *) elem;
+    *ip += *ip;
+};
+
+void intFunc(int x, int y)
+{
+    std::cout << x+y << std::endl;
+};
+
+herr_t CBED_process(void *elem, hid_t type_id, unsigned ndim, const hsize_t *point, void *operator_data)
+{
+    try
+    {
+        PRISMATIC_FLOAT_PRECISION* tmp_elem = (PRISMATIC_FLOAT_PRECISION *) elem;
+        PRISMATIC_FLOAT_PRECISION* tmp_data = (PRISMATIC_FLOAT_PRECISION *) operator_data;
+        *tmp_elem += *tmp_data;
+        operator_data++;
+        return 0;
+    }
+    catch(...)
+    {
+        //if fails
+        return -1;
+    }
+
+}
 
 BOOST_GLOBAL_FIXTURE(logFile);
 
@@ -1437,7 +1467,6 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
     removeFile(amplitudeFile);
 }
 
-
 BOOST_AUTO_TEST_CASE(hdfStride)
 {
 
@@ -1470,6 +1499,78 @@ BOOST_AUTO_TEST_CASE(hdfStride)
     BOOST_TEST(compareValues(refData,testData) < 0.001);
 
     removeFile(fname);
+}
+
+BOOST_AUTO_TEST_CASE(CBEDoperator)
+{
+    //testing an operator to average the CBED arrays in place rather than stride, read-stride, add, write process
+    
+    //create function pointer for operator
+    herr_t (*foo)(void*, hid_t, unsigned, const hsize_t*, void*);
+    foo = &CBED_process;
+
+    //set up test data
+    int seed = 10101;
+    srand(seed);
+    std::default_random_engine de(seed);
+    
+    size_t Ny = 2; size_t Nx = 5;
+    Array2D<PRISMATIC_FLOAT_PRECISION> testArr = ones_ND<2,PRISMATIC_FLOAT_PRECISION>({{Ny,Nx}});
+    for(auto i = 0; i < Nx*Ny; i++) testArr[i] = i;
+
+    for(auto i = 0; i < Ny; i++)
+    {
+        for(auto j =0; j < Nx; j++)
+        {
+            std::cout << testArr.at(i,j) << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> opData = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Ny,Nx}});
+    assignRandomValues(opData, de);
+    opData/=10;
+
+    //create output file and store 'initial' configuration
+    std::string fname = "../test/CBEDoperator.h5";
+    H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
+
+    hsize_t mdims[2] = {Nx,Ny};
+    H5::DataSpace mspace(2, mdims);
+    H5::DataSet testds = testFile.createDataSet("testds", PFP_TYPE, mspace);
+    
+    H5::DataSpace fspace = testds.getSpace();
+    std::vector<size_t> vdims = {Nx, Ny};
+    std::vector<size_t> vorder = {0,1};
+    restrideElements(fspace, vdims, vorder);
+    testds.write(&testArr[0], PFP_TYPE, mspace, fspace);
+
+    // actual procedure with averaging FP
+    Array2D<PRISMATIC_FLOAT_PRECISION> readArr = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Ny,Nx}});
+    testds.read(&readArr[0], PFP_TYPE, mspace, fspace);
+    for(auto i =0; i < Nx*Ny; i++) readArr[i] += opData[i];
+    testds.write(&readArr[0], PFP_TYPE, mspace, fspace);
+
+    //read from disk for final output check
+    testds.read(&readArr[0], PFP_TYPE, mspace, fspace);
+    PRISMATIC_FLOAT_PRECISION errSum = 0;
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
+    for(auto i =0; i < Nx*Ny; i++) errSum += std::abs(opData[i] - (readArr[i]-testArr[i]));
+    BOOST_TEST((errSum/(Ny*Nx)) < tol);
+    for(auto i = 0; i < Nx*Ny; i++)
+    {
+        std::cout << testArr[i] << " " << opData[i] << " " << readArr[i] << std::endl;
+    }
+
+    for(auto i = 0; i < Ny; i++)
+    {
+        for(auto j =0; j < Nx; j++)
+        {
+            std::cout << readArr.at(i,j) << " ";
+        }
+        std::cout << std::endl;
+    }
+
 }
 
 BOOST_AUTO_TEST_SUITE_END();
