@@ -22,10 +22,14 @@
 #include "fftw3.h"
 #include "ArrayND.h"
 #include "utility.h"
+#include <boost/random/poisson_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
+#include <boost/random/mersenne_twister.hpp>
 
 namespace Prismatic
 {
 
+boost::random::mt19937 urng(std::time(0)); //uniform random number generator
 static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 
 PRISMATIC_FLOAT_PRECISION gaussian_sample(const PRISMATIC_FLOAT_PRECISION mu, 
@@ -66,6 +70,20 @@ Array2D<PRISMATIC_FLOAT_PRECISION> gaussian2D(const PRISMATIC_FLOAT_PRECISION mu
     return output;
 };
 
+PRISMATIC_FLOAT_PRECISION poisson_sample(const PRISMATIC_FLOAT_PRECISION lambda)
+{
+    //get distribution
+    boost::random::poisson_distribution<int, PRISMATIC_FLOAT_PRECISION> pd(lambda);
+    return (PRISMATIC_FLOAT_PRECISION) pd(urng);
+}
+
+template <size_t N>
+void applyPoisson(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr)
+{
+    //assume that arr is scaled to array of scalar lambdas
+    for (auto i = 0; i < arr.size(); i++) arr[i] = poisson_sample(arr[i]);
+        
+};
 
 
 } //namespace Prismatic
