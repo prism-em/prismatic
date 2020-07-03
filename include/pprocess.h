@@ -32,6 +32,15 @@ namespace Prismatic
 boost::random::mt19937 urng(std::time(0)); //uniform random number generator
 static const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 
+//array utilities
+template <size_t N, class T>
+void scaleArray(ArrayND<N, std::vector<T>> &arr, PRISMATIC_FLOAT_PRECISION &scale)
+{
+    arr *= scale;
+};
+
+//dstribution sampling
+
 PRISMATIC_FLOAT_PRECISION gaussian_sample(const PRISMATIC_FLOAT_PRECISION mu, 
                                     const PRISMATIC_FLOAT_PRECISION sigma, 
                                     const PRISMATIC_FLOAT_PRECISION sample)
@@ -78,11 +87,25 @@ PRISMATIC_FLOAT_PRECISION poisson_sample(const PRISMATIC_FLOAT_PRECISION lambda)
 }
 
 template <size_t N>
-void applyPoisson(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr)
+void poisson_array(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr)
 {
     //assume that arr is scaled to array of scalar lambdas
     for (auto i = 0; i < arr.size(); i++) arr[i] = poisson_sample(arr[i]);
-        
+};
+
+template <size_t N>
+void applyPoisson(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr, PRISMATIC_FLOAT_PRECISION &scale)
+{
+    scaleArray(arr,scale);
+    poisson_array(arr);
+};
+
+template <size_t N>
+void applyPoisson_norm(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr, PRISMATIC_FLOAT_PRECISION &scale)
+{
+    scaleArray(arr,scale);
+    poisson_array(arr);
+    scaleArray(arr, 1.0/scale);
 };
 
 
