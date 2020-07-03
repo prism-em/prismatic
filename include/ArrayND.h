@@ -42,6 +42,7 @@ public:
 	size_t get_dimm() const { return this->dims[N - 5]; }
 	size_t get_rank() const { return this->dims.size();}
 	std::array<size_t, N> get_dimarr() const { return this->dims;}
+	std::array<size_t, N> get_strides() const { return this->strides;}
 	size_t size() const { return this->arr_size; }
 	typename T::iterator begin();
 	typename T::iterator end();

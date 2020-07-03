@@ -108,6 +108,52 @@ void applyPoisson_norm(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr, 
     scaleArray(arr, 1.0/scale);
 };
 
+template <size_t N, class T>
+ArrayND<N, T> subarray(ArrayND<N, T> &arr, std::array<size_t, N> starts, std::array<size_t, N> stops)
+{
+    //return an array of same dimension but cropped
+    std::array<size_t, N-1> strides = arr.get_strides();
+    std::array<int, N> dims;
+    std::array<int, N> pdims;
+    for(auto i = 0; i < N; i++) dims[i] = stops[i]-starts[i];
+    pdims[N-1] = dims[N-1];
+    for(auto i = N-2; i >= 0; i--) pdims[i] = pdims[i+1]*dims[i];
+
+    int num = 1;
+    for(auto i = 0; i < N; i++) num*=dims[i];
+
+    ArrayND<N, T> sub = zeros_ND<N, typename T::value_type>(dims);
+
+    int idx;
+    std::array<int, N> out_idx;
+    std::array<int, N> in_idx;
+    for(auto i = 0; i < num; i++)
+    {
+        //calculate relative indices
+        out_idx[N-1] = i % dims[N-1];
+        in_idx[N-1] = (i % dims[N-1])+dims[N-1];
+        for(auto j = N-2; j >=0; j--)
+        {
+            out_idx[j] = i / pdims[j];
+            in_idx[j] = out_idx[j] + dims[j];
+        }
+
+        //use rel indices and offset to calcualte spot in 1D array
+        idx = 0;
+        for(auto j = 0; j < N-1; j++) idx += in_idx[j]*strides[j];
+        idx += in_idx[N-1];
+        sub[i] = arr[idx];
+    }
+
+    return sub;
+};
+
+template <size_t N, class T>
+ArrayND<N, T> subslice(ArrayND<N, T> &arr)
+{
+    //return an array of N-1 dimensions
+    return arr;
+};
 
 } //namespace Prismatic
 
