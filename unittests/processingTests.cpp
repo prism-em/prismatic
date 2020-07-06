@@ -127,8 +127,73 @@ BOOST_AUTO_TEST_CASE(subindexing)
     }
     BOOST_TEST(err < tol);
     err = 0.0;
+}
 
+BOOST_AUTO_TEST_CASE(binning)
+{
+    //prepare test arrays
+    int seed = 10101;
+    srand(seed);
+    std::default_random_engine de(seed);
 
+    //square case
+    size_t Rx = 16; size_t Ry = 16; size_t Qx = 64; size_t Qy = 64;
+    Array2D<PRISMATIC_FLOAT_PRECISION> testArr2D = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry}});
+    Array3D<PRISMATIC_FLOAT_PRECISION> testArr3D = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry,Qx}});
+    Array4D<PRISMATIC_FLOAT_PRECISION> testArr4D = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry,Qx,Qy}});
+    assignRandomValues(testArr2D, de);
+    assignRandomValues(testArr3D, de);
+
+    assignRandomValues(testArr4D, de);
+    Array2D<PRISMATIC_FLOAT_PRECISION> bin2D = bin(testArr2D, 4, 4);
+    Array3D<PRISMATIC_FLOAT_PRECISION> bin3D = bin(testArr3D, 8, 4, 4);
+    Array4D<PRISMATIC_FLOAT_PRECISION> bin4D = bin(testArr4D, 8, 8, 4, 4);
+
+    //check for arr size
+    std::array<size_t, 2> bin_dims2D = {Rx/4, Ry/4};
+    std::array<size_t, 3> bin_dims3D = {Rx/4, Ry/4, Qx/8};
+    std::array<size_t, 4> bin_dims4D = {Rx/4, Ry/4, Qx/8, Qy/8};
+    BOOST_TEST(bin_dims2D == bin2D.get_dimarr());
+    BOOST_TEST(bin_dims3D == bin3D.get_dimarr());
+    BOOST_TEST(bin_dims4D == bin4D.get_dimarr());
+
+    //check for loss 
+    PRISMATIC_FLOAT_PRECISION test2D_sum = 0.0;
+    PRISMATIC_FLOAT_PRECISION test3D_sum = 0.0;
+    PRISMATIC_FLOAT_PRECISION test4D_sum = 0.0;
+    for(auto i = 0; i < Rx*Ry; i++) test2D_sum += testArr2D[i];
+    for(auto i = 0; i < Rx*Ry*Qx; i++) test3D_sum += testArr3D[i];
+    for(auto i = 0; i < Rx*Ry*Qx*Qy; i++) test4D_sum += testArr4D[i];
+
+    PRISMATIC_FLOAT_PRECISION bin2D_sum = 0.0;
+    PRISMATIC_FLOAT_PRECISION bin3D_sum = 0.0;
+    PRISMATIC_FLOAT_PRECISION bin4D_sum = 0.0;
+    for(auto i = 0; i < (Rx/4)*(Ry/4); i++) bin2D_sum += bin2D[i];
+    for(auto i = 0; i < (Rx/4)*(Ry/4)*(Qx/8); i++) bin3D_sum += bin3D[i];
+    for(auto i = 0; i < (Rx/4)*(Ry/4)*(Qx/8)*(Qy/8); i++) bin4D_sum += bin4D[i];
+    
+    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    BOOST_TEST(std::abs(test2D_sum-bin2D_sum) < tol);
+    BOOST_TEST(std::abs(test3D_sum-bin3D_sum) < tol);
+    BOOST_TEST(std::abs(test4D_sum-bin4D_sum) < tol);
+
+    //uneven rectangle
+    Rx = 17; Ry = 19; Qx = 65; Qy = 67;
+    testArr2D = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry}});
+    testArr3D = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry,Qx}});
+    testArr4D = zeros_ND<4,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry,Qx,Qy}});
+    assignRandomValues(testArr2D, de);
+    assignRandomValues(testArr3D, de);
+    assignRandomValues(testArr4D, de);
+
+    bin2D = bin(testArr2D, 4, 4);
+    bin3D = bin(testArr3D, 8, 4, 4);
+    bin4D = bin(testArr4D, 8, 8, 4, 4);
+
+    //only check size
+    BOOST_TEST(bin_dims2D == bin2D.get_dimarr());
+    BOOST_TEST(bin_dims3D == bin3D.get_dimarr());
+    BOOST_TEST(bin_dims4D == bin4D.get_dimarr());
 
 }
 

@@ -306,6 +306,76 @@ Array3D<T> subslice(Array4D<T> &arr, size_t dim, size_t idx)
     return output;
 };
 
+template<typename T>
+Array2D<T> bin(Array2D<T> &arr, size_t fi, size_t fj)
+{
+    //check for divisibility
+    size_t extent_i = (arr.get_dimi() % fi) ? arr.get_dimi() - arr.get_dimi() % fi : arr.get_dimi();
+    size_t extent_j = (arr.get_dimj() % fj) ? arr.get_dimj() - arr.get_dimj() % fj : arr.get_dimj();
+
+    Array2D<T> output = zeros_ND<2, T>({{extent_j / fj, extent_i / fi}});
+    for(auto j = 0; j < extent_j; j++)
+    {
+        for(auto i =0; i < extent_i; i++)
+        {
+            output.at(j/fj, i/fi) += arr.at(j,i);
+        }
+    }
+
+    return output;
+};
+
+template<typename T>
+Array3D<T> bin(Array3D<T> &arr, size_t fi, size_t fj, size_t fk)
+{
+    //check for divisibility
+    size_t extent_i = (arr.get_dimi() % fi) ? arr.get_dimi() - arr.get_dimi() % fi : arr.get_dimi();
+    size_t extent_j = (arr.get_dimj() % fj) ? arr.get_dimj() - arr.get_dimj() % fj : arr.get_dimj();
+    size_t extent_k = (arr.get_dimk() % fk) ? arr.get_dimk() - arr.get_dimk() % fk : arr.get_dimk();
+
+    Array3D<T> output = zeros_ND<3, T>({{extent_k / fk, extent_j / fj, extent_i / fi}});
+    for(auto k = 0; k < extent_k; k++)
+    {
+        for(auto j = 0; j < extent_j; j++)
+        {
+            for(auto i =0; i < extent_i; i++)
+            {
+                output.at(k/fk, j/fj, i/fi) += arr.at(k,j,i);
+            }
+        }
+    }
+
+    return output;
+};
+
+template<typename T>
+Array4D<T> bin(Array4D<T> &arr, size_t fi, size_t fj, size_t fk, size_t fl)
+{
+    //check for divisibility
+    size_t extent_i = (arr.get_dimi() % fi) ? arr.get_dimi() - arr.get_dimi() % fi : arr.get_dimi();
+    size_t extent_j = (arr.get_dimj() % fj) ? arr.get_dimj() - arr.get_dimj() % fj : arr.get_dimj();
+    size_t extent_k = (arr.get_dimk() % fk) ? arr.get_dimk() - arr.get_dimk() % fk : arr.get_dimk();
+    size_t extent_l = (arr.get_diml() % fl) ? arr.get_diml() - arr.get_diml() % fl : arr.get_diml();
+
+    Array4D<T> output = zeros_ND<4, T>({{extent_l / fl, extent_k / fk, extent_j / fj, extent_i / fi}});
+    for(auto l = 0; l < extent_l; l++)
+    {
+        for(auto k = 0; k < extent_k; k++)
+        {
+            for(auto j = 0; j < extent_j; j++)
+            {
+                for(auto i =0; i < extent_i; i++)
+                {
+                    output.at(l/fl, k/fk, j/fj, i/fi) += arr.at(l,k,j,i);
+                }
+            }
+        }
+    }
+
+    return output;
+};
+
+
 } //namespace Prismatic
 
 #endif //PRISMATIC_PPROCESS_H
