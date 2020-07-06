@@ -25,6 +25,7 @@
 #include <boost/random/poisson_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#include <mutex>
 
 namespace Prismatic
 {
@@ -393,6 +394,94 @@ ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> getPhase(ArrayND<N, std::vect
     for(auto i = 0; i < arr.size(); i++) output[i] = std::arg(arr[i]);
     return output;
 };
+
+Array2D<PRISMATIC_FLOAT_PRECISION> fourierDownsample(Array2D<PRISMATIC_FLOAT_PRECISION> &arr, int Ni, int Nj)
+{
+    extern std::mutex fftw_plan_lock;
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> fstore = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{arr.get_dimj(), arr.get_dimi()}});
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> farr = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{arr.get_dimj(),arr.get_dimi()}});
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> barr = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+    Array2D<PRISMATIC_FLOAT_PRECISION> result = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{Nj, Ni}});
+
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(1);
+	
+	std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(fstore.get_dimj(), fstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&farr[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&fstore[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(bstore.get_dimj(), bstore.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&bstore[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&barr[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+    //calculate indices for downsampling in fourier space
+	int nyqi = std::floor(Ni/2) + 1;
+	int nyqj = std::floor(Nj/2) + 1;
+
+    //copy data to forward transform
+    for(auto i = 0; i < farr.size(); i++) farr[i] = arr[i];
+    
+    //forward transform 
+    PRISMATIC_FFTW_EXECUTE(plan_forward);
+
+    //copy relevant quadrants to backward store
+    //manual looping through quadrants
+    for(auto j = 0; j < nyqj; j++)
+    {
+        for(auto i = 0; i < nyqi; i++)
+        {
+            bstore.at(j, i) = fstore.at(j, i);
+        }
+    }
+
+    for(auto j = nyqj-Nj; j < 0; j++)
+    {
+        for(auto i = 0; i < nyqi; i++)
+        {
+            bstore.at(Nj + j, i) = fstore.at(fstore.get_dimj() + j, i);
+        }
+    }
+
+    for(auto j = 0; j < nyqj; j++)
+    {
+        for(auto i = nyqi-Ni; i < 0; i++)
+        {
+            bstore.at(j, Ni + i) = fstore.at(j, fstore.get_dimi() + i);
+        }
+    }
+
+    for(auto j = nyqj-Nj; j < 0; j++)
+    {
+        for(auto i = nyqi-Ni; i < 0; i++)
+        {
+            bstore.at(Nj + j, Ni + i) = fstore.at(fstore.get_dimj() + j, fstore.get_dimi() + i);
+        }
+    }
+
+    //inverse transform
+    PRISMATIC_FFTW_EXECUTE(plan_inverse);
+
+    //store slice in potential
+    for(auto i = 0; i < barr.size(); i++) result[i] = barr[i].real();
+
+	PRISMATIC_FLOAT_PRECISION orig_x = arr.get_dimi();
+	PRISMATIC_FLOAT_PRECISION orig_y = arr.get_dimj();
+	PRISMATIC_FLOAT_PRECISION new_x = Ni;
+	PRISMATIC_FLOAT_PRECISION new_y = Nj;
+	result /= Ni*Nj;
+	result *= (new_x/orig_x)*(new_y/orig_y);
+
+    return result;
+}
 
 
 } //namespace Prismatic

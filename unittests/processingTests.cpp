@@ -222,6 +222,18 @@ BOOST_AUTO_TEST_CASE(complexDisplay)
 
 }
 
+BOOST_AUTO_TEST_CASE(downsample)
+{
+    //only need to test that the downsampling runs; method is a direct lift from tested potential downsampling
+    size_t Rx = 100; size_t Ry = 100;
+    size_t Tx = 80; size_t Ty = 90;
+    Array2D<PRISMATIC_FLOAT_PRECISION> testArr2D = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{Rx,Ry}});
+
+    Array2D<PRISMATIC_FLOAT_PRECISION> smallArr = fourierDownsample(testArr2D, Tx, Ty);
+    BOOST_TEST(smallArr.get_dimi() == Tx);
+    BOOST_TEST(smallArr.get_dimj() == Ty);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
 } //namespace Prismatic
