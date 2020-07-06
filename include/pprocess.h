@@ -108,51 +108,202 @@ void applyPoisson_norm(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &arr, 
     scaleArray(arr, 1.0/scale);
 };
 
-template <size_t N, class T>
-ArrayND<N, T> subarray(ArrayND<N, T> &arr, std::array<size_t, N> starts, std::array<size_t, N> stops)
+template<typename T>
+Array1D<T> subarray(Array1D<T> &arr, size_t start, size_t stop)
 {
-    //return an array of same dimension but cropped
-    std::array<size_t, N-1> strides = arr.get_strides();
-    std::array<int, N> dims;
-    std::array<int, N> pdims;
-    for(auto i = 0; i < N; i++) dims[i] = stops[i]-starts[i];
-    pdims[N-1] = dims[N-1];
-    for(auto i = N-2; i >= 0; i--) pdims[i] = pdims[i+1]*dims[i];
-
-    int num = 1;
-    for(auto i = 0; i < N; i++) num*=dims[i];
-
-    ArrayND<N, T> sub = zeros_ND<N, typename T::value_type>(dims);
-
-    int idx;
-    std::array<int, N> out_idx;
-    std::array<int, N> in_idx;
-    for(auto i = 0; i < num; i++)
+    Array1D<T> output = zeros_ND<1, T>({{stop-start}});
+    for(auto i = start; i < stop; i++)
     {
-        //calculate relative indices
-        out_idx[N-1] = i % dims[N-1];
-        in_idx[N-1] = (i % dims[N-1])+dims[N-1];
-        for(auto j = N-2; j >=0; j--)
-        {
-            out_idx[j] = i / pdims[j];
-            in_idx[j] = out_idx[j] + dims[j];
-        }
-
-        //use rel indices and offset to calcualte spot in 1D array
-        idx = 0;
-        for(auto j = 0; j < N-1; j++) idx += in_idx[j]*strides[j];
-        idx += in_idx[N-1];
-        sub[i] = arr[idx];
+        output.at(i-start) = arr.at(i);
     }
-
-    return sub;
+    return output;
 };
 
-template <size_t N, class T>
-ArrayND<N, T> subslice(ArrayND<N, T> &arr)
+template<typename T>
+Array2D<T> subarray(Array2D<T> &arr, std::array<size_t, 2> start, std::array<size_t, 2> stop)
 {
-    //return an array of N-1 dimensions
-    return arr;
+    std::array<size_t, 2> dims;
+    for(auto i = 0; i < 2; i++) dims[i] = stop[i] - start[i];
+
+    Array2D<T> output = zeros_ND<2, T>(dims);
+    for(auto j = start[0]; j < stop[0]; j++)
+    {
+        for(auto i = start[1]; i < stop[1]; i++)
+        {
+            output.at(j-start[0], i-start[1]) = arr.at(j, i);
+        }
+    }
+    return output;
+};
+
+template<typename T>
+Array3D<T> subarray(Array3D<T> &arr, std::array<size_t, 3> start, std::array<size_t, 3> stop)
+{
+    std::array<size_t, 3> dims;
+    for(auto i = 0; i < 3; i++) dims[i] = stop[i] - start[i];
+
+    Array3D<T> output = zeros_ND<3, T>(dims);
+    for(auto k = start[0]; k < stop[0]; k++)
+    {
+        for(auto j = start[1]; j < stop[1]; j++)
+        {
+            for(auto i = start[2]; i < stop[2]; i++)
+            {
+                output.at(k-start[0], j-start[1], i-start[2]) = arr.at(k, j, i);
+            }
+        }
+    }
+    return output;
+};
+
+template<typename T>
+Array4D<T> subarray(Array4D<T> &arr, std::array<size_t, 4> start, std::array<size_t, 4> stop)
+{
+    std::array<size_t, 4> dims;
+    for(auto i = 0; i < 4; i++) dims[i] = stop[i] - start[i];
+
+    Array4D<T> output = zeros_ND<4, T>(dims);
+    for(auto l = start[0]; l < stop[0]; l++)
+    {
+        for(auto k = start[1]; k < stop[1]; k++)
+        {
+            for(auto j = start[2]; j < stop[2]; j++)
+            {
+                for(auto i = start[3]; i < stop[3]; i++)
+                {
+                    output.at(l-start[0], k-start[1], j-start[2], i-start[3]) = arr.at(l, k, j, i);
+                }
+            }
+        }
+    }
+    return output;
+};
+
+template<typename T>
+Array1D<T> subslice(Array2D<T> &arr, size_t dim, size_t idx)
+{
+    //return an array of N-1 dimensions where arr is indexed along a single dimension
+    Array1D<T> output;
+    switch (dim)
+    {
+        case 1: //freeze dim j
+            output = zeros_ND<1, T>({arr.get_dimi()});
+            for(auto i = 0; i < arr.get_dimi(); i++)
+                output.at(i) = arr.at(idx, i);
+            break;
+        case 0: //freeze dim i
+            output = zeros_ND<1, T>({arr.get_dimj()});
+            for(auto i = 0; i < arr.get_dimj(); i++)
+                output.at(i) = arr.at(i, idx);
+            break;
+    }
+    return output;
+};
+
+template<typename T>
+Array2D<T> subslice(Array3D<T> &arr, size_t dim, size_t idx)
+{
+    //return an array of N-1 dimensions where arr is indexed along a single dimension
+    //maintain order of dimensions otherwise
+    Array2D<T> output;
+    switch (dim)
+    {
+        case 2: //freeze dim k
+            output = zeros_ND<2, T>({arr.get_dimj(), arr.get_dimi()});
+            for(auto j = 0; j < arr.get_dimj(); j++)
+            {
+                for(auto i = 0; i < arr.get_dimi(); i++)
+                {
+                    output.at(j, i) = arr.at(idx, j, i);
+                }
+            }
+            break;
+        case 1: //freeze dim j
+            output = zeros_ND<2, T>({arr.get_dimk(), arr.get_dimi()});
+            for(auto j = 0; j < arr.get_dimk(); j++)
+            {
+                for(auto i = 0; i < arr.get_dimi(); i++)
+                {
+                    output.at(j, i) = arr.at(j, idx, i);
+                }
+            }
+            break;
+        case 0: //freeze dim i
+            output = zeros_ND<2, T>({arr.get_dimk(), arr.get_dimj()});
+            for(auto j = 0; j < arr.get_dimk(); j++)
+            {
+                for(auto i = 0; i < arr.get_dimj(); i++)
+                {
+                    output.at(j, i) = arr.at(j, i, idx);
+                }
+            }
+            break;
+    }
+    return output;
+};
+
+template<typename T>
+Array3D<T> subslice(Array4D<T> &arr, size_t dim, size_t idx)
+{
+    //return an array of N-1 dimensions where arr is indexed along a single dimension
+    //maintain order of dimensions otherwise
+    Array3D<T> output;
+    switch (dim)
+    {
+        case 3: //freeze dim l
+            output = zeros_ND<3, T>({arr.get_dimk(), arr.get_dimj(), arr.get_dimi()});
+            for(auto k = 0; k < arr.get_dimk(); k++)
+            {
+                for(auto j = 0; j < arr.get_dimj(); j++)
+                {
+                    for(auto i = 0; i < arr.get_dimi(); i++)
+                    {
+                        output.at(k, j, i) = arr.at(idx, k, j, i);
+                    }
+                }
+            }
+            break;
+        case 2: //freeze dim k
+            output = zeros_ND<3, T>({arr.get_diml(), arr.get_dimj(), arr.get_dimi()});
+            for(auto k = 0; k < arr.get_diml(); k++)
+            {
+                for(auto j = 0; j < arr.get_dimj(); j++)
+                {
+                    for(auto i = 0; i < arr.get_dimi(); i++)
+                    {
+                        output.at(k, j, i) = arr.at(k, idx, j, i);
+                    }
+                }
+            }
+            break;
+        case 1: //freeze dim j
+            output = zeros_ND<3, T>({arr.get_diml(), arr.get_dimk(), arr.get_dimi()});
+            for(auto k = 0; k < arr.get_diml(); k++)
+            {
+                for(auto j = 0; j < arr.get_dimk(); j++)
+                {
+                    for(auto i = 0; i < arr.get_dimi(); i++)
+                    {
+                        output.at(k, j, i) = arr.at(k, j, idx, i);
+                    }
+                }
+            }
+            break;
+        case 0: //freeze dim i
+            output = zeros_ND<3, T>({arr.get_diml(), arr.get_dimk(), arr.get_dimj()});
+            for(auto k = 0; k < arr.get_diml(); k++)
+            {
+                for(auto j = 0; j < arr.get_dimk(); j++)
+                {
+                    for(auto i = 0; i < arr.get_dimj(); i++)
+                    {
+                        output.at(k, j, i) = arr.at(k, j, i, idx);
+                    }
+                }
+            }
+            break;
+    }
+    return output;
 };
 
 } //namespace Prismatic
