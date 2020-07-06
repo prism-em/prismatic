@@ -375,6 +375,25 @@ Array4D<T> bin(Array4D<T> &arr, size_t fi, size_t fj, size_t fk, size_t fl)
     return output;
 };
 
+template<size_t N>
+ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> getAmp(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &arr)
+{
+    ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(arr.get_dimarr());
+
+    for(auto i = 0; i < arr.size(); i++) output[i] = pow(std::abs(arr[i]), 2.0);
+
+    return output;
+};
+
+template<size_t N>
+ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> getPhase(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &arr)
+{
+    ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(arr.get_dimarr());
+
+    for(auto i = 0; i < arr.size(); i++) output[i] = std::arg(arr[i]);
+    return output;
+};
+
 
 } //namespace Prismatic
 

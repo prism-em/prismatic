@@ -197,6 +197,31 @@ BOOST_AUTO_TEST_CASE(binning)
 
 }
 
+BOOST_AUTO_TEST_CASE(complexDisplay)
+{
+    Array1D<std::complex<PRISMATIC_FLOAT_PRECISION>> testArr = zeros_ND<1,std::complex<PRISMATIC_FLOAT_PRECISION>>({5});
+    testArr[0] = {1.0, 0.0};
+    testArr[1] = {0.0, 1.0};
+    testArr[2] = {-1.0, 0.0};
+    testArr[3] = {0.0, -1.0};
+    testArr[4] = {1.0, 1.0};
+
+    Array1D<PRISMATIC_FLOAT_PRECISION> testArr_amp = getAmp(testArr);
+    Array1D<PRISMATIC_FLOAT_PRECISION> testArr_phase = getPhase(testArr);
+
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
+    BOOST_TEST(std::abs(testArr_amp[0] - 1.0) < tol);
+    BOOST_TEST(std::abs(testArr_amp[4] - 2.0) < tol);
+
+    PRISMATIC_FLOAT_PRECISION pi = acos(-1);
+    BOOST_TEST(testArr_phase[0] == 0.0);
+    BOOST_TEST(testArr_phase[1] == pi/2);
+    BOOST_TEST(testArr_phase[2] == pi);
+    BOOST_TEST(testArr_phase[3] == -pi/2);
+    BOOST_TEST(testArr_phase[4] == pi/4);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 
 } //namespace Prismatic
