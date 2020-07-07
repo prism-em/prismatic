@@ -230,8 +230,8 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "virtual_detector_depth";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3];
-	data_dims[0] = {pars.xp.size()};
-	data_dims[1] = {pars.yp.size()};
+	data_dims[0] = {pars.numXprobes};
+	data_dims[1] = {pars.numYprobes};
 	data_dims[2] = {pars.Ndet};
 
 	hsize_t rx_dim[1] = {pars.xp.size()};

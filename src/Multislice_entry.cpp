@@ -143,7 +143,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	if (prismatic_pars.meta.save3DOutput)
 	{
 		setupVDOutput(prismatic_pars);
-		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), prismatic_pars.Ndet};
+		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, prismatic_pars.Ndet};
 		size_t strides = mdims[0]*mdims[1]*mdims[2];
 		std::vector<size_t> order = {0,1,2};
 		for (auto j = 0; j < prismatic_pars.numLayers; j++)
@@ -169,7 +169,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
 		setup2DOutput(prismatic_pars);
 		std::vector<size_t> order = {0,1};
-		hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+		hsize_t mdims[2] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes};
 		for (auto j = 0; j < prismatic_pars.numLayers; j++)
 		{
 			std::stringstream nameString;
@@ -221,7 +221,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	if (prismatic_pars.meta.saveDPC_CoM and not prismatic_pars.meta.saveComplexOutputWave)
 	{
 		setupDPCOutput(prismatic_pars);
-		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), 2};
+		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, 2};
 		size_t strides = mdims[0]*mdims[1]*mdims[2];
 		std::vector<size_t> order = {2,0,1};
 		for (auto j = 0; j < prismatic_pars.numLayers; j++)

@@ -127,6 +127,9 @@ namespace Prismatic{
 		size_t numSlices;
 		size_t zStartPlane;
 		size_t numLayers;
+		size_t numXprobes;
+		size_t numYprobes;
+		size_t numProbes;
 		std::vector<T> depths;
 	    size_t numberBeams;
 		H5::H5File outputFile;
