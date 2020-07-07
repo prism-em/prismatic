@@ -77,6 +77,7 @@ if (PRISMATIC_TESTS)
             unittests/potentialTests.cpp
             unittests/ioTests.cpp
             unittests/hrtemTests.cpp
+            unittests/probeTests.cpp
             )
 endif (PRISMATIC_TESTS)
 
@@ -325,7 +326,7 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=probeTests/*
                         DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)
