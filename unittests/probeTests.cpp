@@ -10,6 +10,7 @@
 #include <random>
 #include "fileIO.h"
 #include "H5Cpp.h"
+#include "utility.h"
 
 namespace Prismatic{
 
@@ -66,16 +67,28 @@ BOOST_AUTO_TEST_SUITE(probeTests);
 
 BOOST_FIXTURE_TEST_CASE(rectGrid, basicSim)
 {
-    // divertOutput(pos, fd, logPath);
-    // std::cout << "\n######### BEGIN TEST CASE: planeWave ##########\n";
-    // go(meta);
-    // std::cout << "########### END TEST CASE: planeWave ##########\n";
-    // revertOutput(fd, pos);
+    std::string refname = "../test/rectGridRef.h5";
+    std::string testname = "../test/rectGridTest.h5";
+    meta.filenameOutout = refname;
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n######### BEGIN TEST CASE: planeWave ##########\n";
+    go(meta);
+    std::cout << "--------------------------------------------------\n";
 
 
+    meta.probes_x = vecFromRange((PRISMATIC_FLOAT_PRECISION) 0.0, meta.probeStepX, (PRISMATIC_FLOAT_PRECISION) 0.99999*meta.cellDim[2]);
+    meta.probes_y = vecFromRange((PRISMATIC_FLOAT_PRECISION) 0.0, meta.probeStepY, (PRISMATIC_FLOAT_PRECISION) 0.99999*meta.cellDim[1]);
+    meta.filenameOutout = testname;
+    meta.arbitraryProbes = true;
+    go(meta);
+    std::cout << "########### END TEST CASE: planeWave ##########\n";
+    revertOutput(fd, pos);
+
+    
     BOOST_TEST(1 == 0);
 
-    // removeFile(meta.filenameOutput);
+    removeFile(refname);
+    removeFile(testname);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
