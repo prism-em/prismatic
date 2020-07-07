@@ -481,8 +481,115 @@ Array2D<PRISMATIC_FLOAT_PRECISION> fourierDownsample(Array2D<PRISMATIC_FLOAT_PRE
 	result *= (new_x/orig_x)*(new_y/orig_y);
 
     return result;
-}
+};
 
+
+void convolve2D(Array2D<PRISMATIC_FLOAT_PRECISION> &arr, Array2D<PRISMATIC_FLOAT_PRECISION> &kernel)
+{   
+    //convolve two arrays using fourier transform method
+    //result is stored in arr
+    //enforce size equivalence
+    if(arr.get_dimi() != kernel.get_dimi() || arr.get_dimj() != kernel.get_dimj()) return;
+
+    //prepare FFT calls
+    extern std::mutex fftw_plan_lock;
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> karr = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{arr.get_dimj(), arr.get_dimi()}});
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> kkern = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{kernel.get_dimj(),kernel.get_dimi()}});
+
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(1);
+	
+	std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward_arr = PRISMATIC_FFTW_PLAN_DFT_2D(karr.get_dimj(), karr.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inv_arr = PRISMATIC_FFTW_PLAN_DFT_2D(karr.get_dimj(), karr.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_forward_kern = PRISMATIC_FFTW_PLAN_DFT_2D(kkern.get_dimj(), kkern.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&kkern[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&kkern[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+    //copy data to transform
+    for(auto i = 0; i < arr.size(); i++){
+         karr[i] = arr[i];
+         kkern[i] = kernel[i];
+    }
+    
+    //transform, multiply, transform
+    PRISMATIC_FFTW_EXECUTE(plan_forward_arr);
+    PRISMATIC_FFTW_EXECUTE(plan_forward_kern);
+
+    for(auto i = 0; i < karr.size(); i++) karr[i] *= kkern[i];
+
+    PRISMATIC_FFTW_EXECUTE(plan_inv_arr);
+
+    //copy data back and scale
+    for(auto i = 0; i < arr.size(); i++) arr[i] = karr[i].real();
+
+    arr/=arr.get_dimi()*arr.get_dimj();
+};
+
+void convolve2D(Array2D<PRISMATIC_FLOAT_PRECISION> &arr, Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> &kkernel)
+{   
+    //convolve two arrays using fourier transform method
+    //assumes input kernel has already been transformed
+    //result is stored in arr
+    //enforce size equivalence
+    if(arr.get_dimi() != kkernel.get_dimi() || arr.get_dimj() != kkernel.get_dimj()) return;
+
+    //prepare FFT calls
+    extern std::mutex fftw_plan_lock;
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> karr = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{arr.get_dimj(), arr.get_dimi()}});
+
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(1);
+	
+	std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward_arr = PRISMATIC_FFTW_PLAN_DFT_2D(karr.get_dimj(), karr.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inv_arr = PRISMATIC_FFTW_PLAN_DFT_2D(karr.get_dimj(), karr.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&karr[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+
+	gatekeeper.unlock();
+
+    //copy data to transform
+    for(auto i = 0; i < arr.size(); i++){
+         karr[i] = arr[i];
+    }
+    
+    //transform, multiply, transform
+    PRISMATIC_FFTW_EXECUTE(plan_forward_arr);
+
+    for(auto i = 0; i < karr.size(); i++) karr[i] *= kkernel[i];
+
+    PRISMATIC_FFTW_EXECUTE(plan_inv_arr);
+
+    //copy data back and scale
+    for(auto i = 0; i < arr.size(); i++) arr[i] = karr[i].real();
+
+    arr/=arr.get_dimi()*arr.get_dimj();
+};
 
 } //namespace Prismatic
 
