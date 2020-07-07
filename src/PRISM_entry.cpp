@@ -206,7 +206,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		std::stringstream nameString;
 		nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(0);
 		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), prismatic_pars.Ndet};
+		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, prismatic_pars.Ndet};
 		std::vector<size_t> order = {0,1,2};
 
 		if(prismatic_pars.meta.saveComplexOutputWave)
@@ -233,7 +233,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		std::stringstream nameString;
 		nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(0);
 		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-		hsize_t mdims[2] = {prismatic_pars.xp.size(), prismatic_pars.yp.size()};
+		hsize_t mdims[2] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes};
 		std::vector<size_t> order = {0,1};
 
 		if(prismatic_pars.meta.saveComplexOutputWave)
@@ -284,7 +284,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(0);
 		H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
 		std::string dataSetName = "realslice";
-		hsize_t mdims[3] = {prismatic_pars.xp.size(), prismatic_pars.yp.size(), 2};
+		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, 2};
 		std::vector<size_t> order = {2,0,1};
 		writeRealDataSet(dataGroup, dataSetName, &prismatic_pars.DPC_CoM[0], mdims, 3, order);
 		dataGroup.close();
