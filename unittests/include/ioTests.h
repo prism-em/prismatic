@@ -68,6 +68,12 @@ ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> getAmplitude(ArrayND<N, std::
     return output;
 };
 
+// herr_t myOperator(void *elem, hid_t type_id, unsigned ndim, 
+//                 const hsize_t *point, void *operator_data)
+// {
+//     herr_t a = 0;
+//     return a;
+// };
 
 } //namespace Prismatic
 #endif

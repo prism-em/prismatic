@@ -22,6 +22,7 @@
 #include "atom.h"
 #include "meta.h"
 #include "H5Cpp.h"
+// #include "utility.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
@@ -50,6 +51,7 @@ namespace Prismatic{
     public:
 
 	    void calculateLambda();
+		void calculateFileSize();
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> output;
@@ -57,10 +59,11 @@ namespace Prismatic{
 		Array4D<T> DPC_CoM;
 		Array3D<T> pot;
 	    Array3D<std::complex<T> > transmission;
-
 	    Array2D< std::complex<T>  > prop;
 	    Array2D< std::complex<T> > propBack;
 	    Array2D< std::complex<T> > psiProbeInit;
+		Array2D<T> cbed_buffer;
+		Array2D<std::complex<T>> cbed_buffer_c;
 	    Array2D<unsigned int> qMask;
 	    T zTotal;
 	    T xTiltShift;
@@ -123,6 +126,7 @@ namespace Prismatic{
         size_t numPlanes;
 		size_t numSlices;
 		size_t zStartPlane;
+		size_t numLayers;
 		std::vector<T> depths;
 	    size_t numberBeams;
 		H5::H5File outputFile;
@@ -315,6 +319,62 @@ namespace Prismatic{
 		constexpr double h = 6.62607e-34;
 		lambda = (T)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
 	}
+
+	// template <class T>
+	// void Parameters<T>::calculateFileSize(){
+
+	// 	//calc detector size
+	// 	long long ncx = (long long) floor((PRISMATIC_FLOAT_PRECISION) imageSize[1] / 2);
+	// 	PRISMATIC_FLOAT_PRECISION dpx = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[1] * meta.realspacePixelSize[1]);
+	// 	long long ncy = (long long) floor((PRISMATIC_FLOAT_PRECISION) imageSize[0] / 2);
+	// 	PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)imageSize[0] * meta.realspacePixelSize[0]);
+	// 	PRISMATIC_FLOAT_PRECISION qmax_tmp = std::min(dpx*(ncx), dpy*(ncy)) / 2;
+
+	// 	PRISMATIC_FLOAT_PRECISION alphaMax_tmp = qmax_tmp*lambda;
+	// 	std::vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(meta.detectorAngleStep / 2, meta.detectorAngleStep, alphaMax_tmp - meta.detectorAngleStep / 2);
+	// 	size_t Ndet_tmp = detectorAngles_d.size();
+
+	// 	//calc num probes
+	// 	Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
+	// 	xR[0] = scanWindowXMin * tiledCellDim[2];
+	// 	xR[1] = scanWindowXMax * tiledCellDim[2];
+	// 	Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
+	// 	yR[0] = scanWindowYMin * tiledCellDim[1];
+	// 	yR[1] = scanWindowYMax * tiledCellDim[1];
+
+	// 	std::vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], meta.probeStepX, xR[1]);
+	// 	std::vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], meta.probeStepY, yR[1]);
+	// 	size_t numProbes = xp_d.size() + yp_d.size();
+
+	// 	long long uint numElems = 0;
+	// 	long long uint mult = (meta.saveComplexOutputWave) ? 2 : 1;
+	// 	if(meta.save2DOutput) numElems += numProbes*mult;
+	// 	if(meta.save3DOutput) numElems += numProbes*Ndet_tmp*mult;
+	// 	if(meta.saveDPC_CoM) numElems += 2*numProbes*(mult % 2); 
+	// 	if(meta.savePotentialSlices) numElems += imageSize[0]*imageSize[1]*std::ceil(tiledCellDim[0]/meta.sliceThickness);
+
+	// 	if(meta.algorithm == Algorithm::Multislice)
+	// 	{
+	// 		//TODO: num depth outputs
+	// 		if(meta.save4DOutput) numElems += numProbes*imageSize[0]*imageSize[1]*mult/4;
+	// 	}
+	// 	else if(meta.algorithm == Algorithm::PRISM)
+	// 	{
+	// 		size_t numBeams = imageSize[0]*imageSize[1]/(4*meta.interpolationFactorX*meta.interpolationFactorY);
+	// 		if(meta.save4DOutput) numElems += numProbes*imageSize[0]*imageSize[1]*mult/(4*meta.interpolationFactorX*meta.interpolationFactorY);
+	// 		if(meta.saveSMatrix) numElems += numBeams*imageSize[0]*imageSize[1]/4; 
+	// 	}
+	// 	else if(meta.algorithm == Algorithm::HRTEM)
+	// 	{
+	// 		//TODO: calculate number of tilts here
+	// 		numElems = 0;
+	// 		size_t numBeams = 1;
+	// 		if(meta.savePotentialSlices) numElems += imageSize[0]*imageSize[1]*std::ceil(tiledCellDim[0]/meta.sliceThickness);
+	// 		numElems += imageSize[0]*imageSize[1]*numBeams*mult/2; 
+	// 	}
+
+	// 	std::cout << "app. output file size is: " << numElems*sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
+	// }
 
 	template <class T>
 	class Parameters_C : Parameters<T> {

@@ -214,7 +214,8 @@ namespace Prismatic{
 		depths[0] = firstLayer * pars.meta.sliceThickness * pars.numSlices;
 		for(auto i = 1; i < numLayers; i++) depths[i] = depths[i-1]+pars.numSlices*pars.meta.sliceThickness;
 		pars.depths = depths;
-
+		pars.numLayers = numLayers;
+		
 		if(pars.meta.saveComplexOutputWave)
 		{
 			pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
@@ -225,8 +226,22 @@ namespace Prismatic{
 		}
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
-		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars, numLayers);
-		//set up
+		if(pars.meta.save4DOutput)
+		{
+			if(pars.fpFlag == 0) setup4DOutput(pars);
+
+			if(pars.meta.saveComplexOutputWave)
+			{
+				pars.cbed_buffer_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSize[0]/2, pars.imageSize[1]/2}});
+				if(pars.meta.crop4DOutput) pars.cbed_buffer_c = cropOutput(pars.cbed_buffer_c, pars);
+			}
+			else
+			{
+				pars.cbed_buffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0]/2, pars.imageSize[1]/2}});
+				if(pars.meta.crop4DOutput) pars.cbed_buffer = cropOutput(pars.cbed_buffer, pars);
+			}
+			
+		}
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -322,7 +337,7 @@ namespace Prismatic{
 
 				mdims[2] = {intOutput_small.get_dimi()};
 				mdims[3] = {intOutput_small.get_dimj()};
-				writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.str());
 
 			}
 			else
@@ -353,8 +368,7 @@ namespace Prismatic{
 
 				mdims[2] = {intOutput_small.get_dimi()};
 				mdims[3] = {intOutput_small.get_dimj()};
-
-				writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.str());
 
 			}
 		}
@@ -472,7 +486,7 @@ namespace Prismatic{
 
 					mdims[2] = {intOutput_small.get_dimi()};
 					mdims[3] = {intOutput_small.get_dimj()};
-					writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0], mdims,offset,numFP,nameString.str());
 
 				}
 				else
@@ -503,8 +517,7 @@ namespace Prismatic{
 
 					mdims[2] = {intOutput_small.get_dimi()};
 					mdims[3] = {intOutput_small.get_dimj()};
-
-					writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.str());
 				}
 			}
 

@@ -367,6 +367,10 @@ bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     {
         meta.algorithm = Prismatic::Algorithm::PRISM;
     }
+    else if (algo == "t" | algo == "hrtem")
+    {
+        meta.algorithm = Prismatic::Algorithm::HRTEM;
+    }
     else
     {
         cout << "Unrecognized algorithm \"" << (*argv)[1] << "\"\n";
