@@ -167,8 +167,20 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	PRISMATIC_FLOAT_PRECISION minXstep = pars.lambda / pars.tiledCellDim[2];
 	PRISMATIC_FLOAT_PRECISION minYstep = pars.lambda / pars.tiledCellDim[1];
 
-	long interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
-	long interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+	long interp_fx;
+	long interp_fy;
+
+	if(pars.meta.tiltMode == TiltSelection::Rectangular)
+	{
+
+		interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
+		interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+	}
+	else
+	{
+		interp_fx = pars.meta.interpolationFactorX;
+		interp_fy = pars.meta.interpolationFactorY;
+	}
 
 	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
 	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
