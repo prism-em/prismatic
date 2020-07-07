@@ -80,6 +80,51 @@ Array2D<PRISMATIC_FLOAT_PRECISION> gaussian2D(const PRISMATIC_FLOAT_PRECISION mu
     return output;
 };
 
+Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> gaussian2D_k(const PRISMATIC_FLOAT_PRECISION mu_x, 
+                                            const PRISMATIC_FLOAT_PRECISION sigma_x,
+                                            const PRISMATIC_FLOAT_PRECISION mu_y,
+                                            const PRISMATIC_FLOAT_PRECISION sigma_y,
+                                            const Array2D<PRISMATIC_FLOAT_PRECISION> samples_x,
+                                            const Array2D<PRISMATIC_FLOAT_PRECISION> samples_y)
+{
+    //return a fourier transformed gaussian kernel
+    Array2D<PRISMATIC_FLOAT_PRECISION> tmp(samples_x);
+    for(auto j = 0; j < samples_x.get_dimj(); j++)
+    {
+        for(auto i = 0; i < samples_x.get_dimi(); i++)
+        {
+            tmp.at(j,i) = gaussian_sample(mu_x, sigma_x, samples_x.at(j, i))+gaussian_sample(mu_y, sigma_y, samples_y.at(j, i));
+        }
+    }
+
+    //prepare FFT calls
+    extern std::mutex fftw_plan_lock;
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> output = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{samples_x.get_dimj(), samples_x.get_dimi()}});
+
+	//create FFT plans 
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(1);
+	
+	std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(output.get_dimj(), output.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&output[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&output[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	gatekeeper.unlock();
+
+    //copy data to transform
+    for(auto i = 0; i < output.size(); i++){
+         output[i] = tmp[i];
+    }
+    
+    //transform, multiply, transform
+    PRISMATIC_FFTW_EXECUTE(plan_forward);
+
+    return output;
+};
+
 PRISMATIC_FLOAT_PRECISION poisson_sample(const PRISMATIC_FLOAT_PRECISION lambda)
 {
     //get distribution
