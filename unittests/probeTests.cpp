@@ -70,9 +70,6 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
     std::string refname = "../test/rectGridRef.h5";
     std::string testname = "../test/rectGridTest.h5";
     meta.filenameOutput = refname;
-    meta.savePotentialSlices = false;
-    meta.saveDPC_CoM = false;
-    meta.save4DOutput = false;
     meta.algorithm = Algorithm::Multislice;
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: rectGrid_M ##########\n";
@@ -135,9 +132,6 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
     std::string refname = "../test/rectGridRef.h5";
     std::string testname = "../test/rectGridTest.h5";
     meta.filenameOutput = refname;
-    meta.savePotentialSlices = false;
-    meta.saveDPC_CoM = false;
-    meta.save4DOutput = false;
     meta.algorithm = Algorithm::PRISM;
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: rectGrid_P ##########\n";
