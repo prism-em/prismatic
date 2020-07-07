@@ -2,6 +2,7 @@
 #define PRISMATIC_FILEIO_H
 #include "H5Cpp.h"
 #include "params.h"
+#include <thread>
 
 struct complex_float_t
 {
@@ -15,13 +16,13 @@ static std::mutex write4D_lock;
 
 void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const size_t numLayers);
+void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int FP);
 
@@ -36,58 +37,6 @@ void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer
 void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);
 
 void writeDatacube3D(H5::DataSet dataset, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims);
-
-// void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString);
-template<class T>
-void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
-{
-	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
-	//lock the whole file access/writing procedure in only one location
-	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
-
-    H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-    H5::DataSet dataset = dataGroup.openDataSet("datacube");
-
-    //set up file and memory spaces
-    H5::DataSpace fspace = dataset.getSpace();
-
-    H5::DataSpace mspace(4, mdims); //rank = 4
-
-    fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-
-    //divide by num FP
-    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-        buffer[i] /= numFP;
-
-    //restride the dataset so that qx and qy are flipped
-    T *finalBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
-    for (auto i = 0; i < mdims[2]; i++)
-    {
-        for (auto j = 0; j < mdims[3]; j++)
-        {
-            finalBuffer[i * mdims[3] + j] = buffer[j * mdims[2] + i];
-        }
-    }
-
-    //add frozen phonon set
-    T *readBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
-    dataset.read(&readBuffer[0], dataset.getDataType(), mspace, fspace);
-    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
-        finalBuffer[i] += readBuffer[i];
-    free(readBuffer);
-		
-    dataset.write(finalBuffer, dataset.getDataType(), mspace, fspace);
-    free(finalBuffer);
-    fspace.close();
-    mspace.close();
-    dataset.flush(H5F_SCOPE_LOCAL);
-    dataset.close();
-    dataGroup.flush(H5F_SCOPE_LOCAL);
-    dataGroup.close();
-    pars.outputFile.flush(H5F_SCOPE_LOCAL);
-
-	writeGatekeeper.unlock();
-};
 
 void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t elements);
 
@@ -118,42 +67,25 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
-void writeComplexDataSet(H5::Group group, const std::string &dsetname, const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer, const hsize_t *mdims, const size_t &rank);
+void writeComplexDataSet(H5::Group group,
+                        const std::string &dsetname,
+                        const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank,
+                        std::vector<size_t> &order);
 
-void writeRealDataSet(H5::Group group, const std::string &dsetname, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const size_t &rank);
+void writeRealDataSet(H5::Group group,
+                        const std::string &dsetname,
+                        const PRISMATIC_FLOAT_PRECISION *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank,
+                        std::vector<size_t> &order);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const std::string &data);
-
-template <size_t N>
-void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output, const std::string &filename, const std::string &dataPath)
-{
-	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
-	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
-	H5::DataSpace dataspace = dataset.getSpace();
-
-	hsize_t dims_out[N];
-	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
-	H5::DataSpace mspace(N,dims_out);
-
-    std::array<size_t, N> data_dims;
-    size_t totalSize = 1;
-	for(auto i = 0; i < N; i++) totalSize *= dims_out[i];
-    for(auto i = 0; i < N; i++) data_dims[N-1-i] = dims_out[i];
-
-    std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>> data_in(totalSize);
-    dataset.read(&data_in[0], dataset.getDataType(), mspace, dataspace);
-
-	output = ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>>(data_in, data_dims);
-
-    mspace.close();
-    dataspace.close();
-    dataset.close();
-    input.close();
-};
 
 int countDataGroups(H5::Group group, const std::string &basename);
 
@@ -175,6 +107,128 @@ void depthSeriesSG(H5::H5File &file);
 std::string reducedDataSetName(std::string &fullPath);
 
 void copyDataSet(H5::Group &targetGroup, H5::DataSet &source);
+
+void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order);
+
+void restrideElements_subset(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order, std::vector<size_t> &offset);
+
+//return coords so they can be altered in place manually
+hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> &order, std::vector<size_t> &offset);
+
+template <size_t N>
+void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PRECISION>>> &output,
+                            const std::string &filename, 
+                            const std::string &dataPath,
+                            std::vector<size_t> &order)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    H5::DSetCreatPropList plist = dataset.getCreatePlist();
+    H5D_layout_t layout = plist.getLayout();
+    bool virtualCheck = layout == H5D_VIRTUAL;
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
+
+    if(N > 1 and not virtualCheck)
+    {
+        std::vector<size_t> rdims;
+        for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
+        restrideElements(dataspace, rdims, order);
+    }
+
+	output = zeros_ND<N, std::complex<PRISMATIC_FLOAT_PRECISION>>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
+
+template <size_t N>
+void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
+                        const std::string &filename,
+                        const std::string &dataPath,
+                        std::vector<size_t> &order)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    H5::DSetCreatPropList plist = dataset.getCreatePlist();
+    H5D_layout_t layout = plist.getLayout();
+    bool virtualCheck = layout == H5D_VIRTUAL;
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
+
+    if(N > 1 and not virtualCheck)
+    {
+        std::vector<size_t> rdims;
+        for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
+        restrideElements(dataspace, rdims, order);
+    }
+
+	output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
+
+// void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString);
+template<class T>
+void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, T *readBuffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString)
+{
+	//for 4D writes, need to first read the data set and then add; this way, FP are accounted for
+	//lock the whole file access/writing procedure in only one location
+	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
+
+    H5::Group dataGroup = pars.outputFile.openGroup(nameString);
+    H5::DataSet dataset = dataGroup.openDataSet("datacube");
+
+    //set up file and memory spaces
+    H5::DataSpace fspace = dataset.getSpace();
+    H5::DataSpace mspace(4, mdims); //rank = 4
+
+    //read old frozen phonon set
+    // fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+    std::vector<size_t> rdims = {mdims[0], mdims[1], mdims[2], mdims[3]};
+    std::vector<size_t> rorder = {2,3,0,1};
+    std::vector<size_t> roffset = {offset[0], offset[1], offset[2], offset[3]};
+    restrideElements_subset(fspace, rdims, rorder, roffset);
+
+    // T *readBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
+    dataset.read(&readBuffer[0], dataset.getDataType(), mspace, fspace);
+    for (auto i = 0; i < mdims[0] * mdims[1] * mdims[2] * mdims[3]; i++)
+        readBuffer[i] += buffer[i]/numFP;
+        
+    dataset.write(&readBuffer[0], dataset.getDataType(), mspace, fspace);
+    // free(readBuffer);
+
+    fspace.close();
+    mspace.close();
+    dataset.flush(H5F_SCOPE_LOCAL);
+    dataset.close();
+    dataGroup.flush(H5F_SCOPE_LOCAL);
+    dataGroup.close();
+    pars.outputFile.flush(H5F_SCOPE_LOCAL);
+
+	writeGatekeeper.unlock();
+};
 						
 } //namespace Prismatic
 

@@ -160,7 +160,7 @@ void setupBeams_2(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// create output of a size corresponding to 3D mode (integration)
-	size_t numLayers = 1;
+	pars.numLayers = 1;
 	if(pars.meta.saveComplexOutputWave)
 	{
 		pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{1, pars.yp.size(), pars.xp.size(), pars.Ndet}});
@@ -175,8 +175,21 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::vector<PRISMATIC_FLOAT_PRECISION> depths(1);
 	depths[0] = pars.numPlanes*pars.meta.sliceThickness;
 	pars.depths = depths;
-	if (pars.meta.save4DOutput && (pars.fpFlag == 0))
-			setup4DOutput(pars, numLayers);
+	if (pars.meta.save4DOutput)
+	{
+		if(pars.fpFlag == 0) setup4DOutput(pars);
+		
+		if(pars.meta.saveComplexOutputWave)
+		{
+			pars.cbed_buffer_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+			if(pars.meta.crop4DOutput) pars.cbed_buffer_c = cropOutput(pars.cbed_buffer_c, pars);
+		}
+		else
+		{
+			pars.cbed_buffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+			if(pars.meta.crop4DOutput) pars.cbed_buffer = cropOutput(pars.cbed_buffer, pars);
+		}
+	}
 }
 
 void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
@@ -468,7 +481,6 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 		hsize_t offset[4] = {ax, ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
-
 		if(pars.meta.saveComplexOutputWave)
 		{
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalOutput;
@@ -477,14 +489,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				finalOutput = cropOutput(psi, pars);
 				finalOutput *= sqrt(pars.scale);
 				hsize_t mdims[4] = {1, 1, finalOutput.get_dimi(), finalOutput.get_dimj()};
-				writeDatacube4D(pars, &finalOutput[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.str());
 			}
 			else
 			{
 				hsize_t mdims[4] = {1, 1, psi.get_dimi(), psi.get_dimj()};
 				finalOutput = fftshift2(psi);
 				finalOutput *= sqrt(pars.scale);
-				writeDatacube4D(pars, &finalOutput[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.str());
 			}
 		}
 		else
@@ -493,13 +505,13 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput, pars);
 				hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
-				writeDatacube4D(pars, &croppedOutput[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &croppedOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.str());
 			}
 			else
 			{
 				hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
 				intOutput = fftshift2(intOutput);
-				writeDatacube4D(pars, &intOutput[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &intOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.str());
 			}
 		}
 

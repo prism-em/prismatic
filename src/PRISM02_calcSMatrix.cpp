@@ -620,10 +620,11 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_restride = restride(pars.Scompact, dims_in, order);
-		writeComplexDataSet(smatrix_group, "realslice", &smatrix_restride[0], mdims, 3);
+		std::vector<size_t> order = {0, 1, 2};
+		
+		std::cout << pars.Scompact.at(2,3,5).real() << std::endl;
+		std::cout << pars.Scompact.at(2,3,5).imag() << std::endl;
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 }
 
@@ -633,25 +634,19 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//scope out imported smatrix as soon as possible
 	{
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> inSMatrix;
+		std::vector<size_t> order ={0,1,2};
 
 		if(pars.meta.importPath.size() > 0)
 		{
-			readComplexDataSet(inSMatrix, pars.meta.importFile, pars.meta.importPath);
+			readComplexDataSet(pars.Scompact, pars.meta.importFile, pars.meta.importPath, order);
 		}
 		else //read default path
 		{
 			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/realslice";
-			readComplexDataSet(inSMatrix, pars.meta.importFile, groupPath);
+			readComplexDataSet(pars.Scompact, pars.meta.importFile, groupPath, order);
 		}
-
-		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
-		std::array<size_t, 3> dims_in = {inSMatrix.get_dimk(), inSMatrix.get_dimj(), inSMatrix.get_dimi()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		inSMatrix = restride(inSMatrix, dims_in, order);
-
-		pars.Scompact = inSMatrix;
 	}
-
+	
 	//acquire necessary metadata to create auxillary variables
 	std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
@@ -723,6 +718,7 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	setupSMatrixCoordinates(pars);
 	downsampleFourierComponents(pars);
 
+	std::cout << "what/???: " << pars.meta.numFP << std::endl;
 	if(pars.meta.saveSMatrix)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;
@@ -731,9 +727,8 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 
 		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_tmp = restride(pars.Scompact, dims_in, order);
-		writeComplexDataSet(smatrix_group, "realslice", &smatrix_tmp[0], mdims, 3);
+		std::vector<size_t> order = {0, 1, 2};
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 
 }
