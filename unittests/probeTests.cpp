@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <random>
 #include "fileIO.h"
-#include "H5Cpp.h"
 #include "utility.h"
+#include "probe.h"
 
 namespace Prismatic{
 
@@ -193,6 +193,21 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
     BOOST_TEST(err < tol);
     removeFile(refname);
     removeFile(testname);
+}
+
+BOOST_AUTO_TEST_CASE(parser)
+{
+
+    std::vector<PRISMATIC_FLOAT_PRECISION> xprobes;
+    std::vector<PRISMATIC_FLOAT_PRECISION> yprobes;
+    std::string fname = "../unittests/pfiles/probes_real";
+
+    std::vector<PRISMATIC_FLOAT_PRECISION> xcheck = {0.0, 1.0, 2.0, 3.145, 7.6};
+    std::vector<PRISMATIC_FLOAT_PRECISION> ycheck = {5.0, 3.145, 7.6, 1.0, 0.32};
+    readProbes(fname, xprobes, yprobes);
+    BOOST_TEST(xprobes == xcheck);
+    BOOST_TEST(yprobes == ycheck);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END();
