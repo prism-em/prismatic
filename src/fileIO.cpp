@@ -717,7 +717,6 @@ void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	}
 }
 
-
 //these write functions will soon be deprecated
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims)
 {
@@ -852,6 +851,107 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	hrtem_group.close();
 }
+
+void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	if (pars.meta.save3DOutput)
+	{
+		setupVDOutput(pars);
+		hsize_t mdims[3] = {pars.numXprobes, pars.numYprobes, pars.Ndet};
+		size_t strides = mdims[0]*mdims[1]*mdims[2];
+		std::vector<size_t> order = {0,1,2};
+		for (auto j = 0; j < pars.numLayers; j++)
+		{
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(j);
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			if(pars.meta.saveComplexOutputWave)
+			{
+				writeComplexDataSet(dataGroup, "realslice", &pars.output_c[j*strides], mdims, 3, order);
+			}
+			else
+			{
+				writeRealDataSet(dataGroup, "realslice", &pars.output[j*strides], mdims, 3, order);
+			}
+			dataGroup.close();
+		}
+	}
+
+	if (pars.meta.save2DOutput)
+	{
+		size_t lower = std::max((size_t)0, (size_t)(pars.meta.integrationAngleMin / pars.meta.detectorAngleStep));
+		size_t upper = std::min(pars.detectorAngles.size(), (size_t)(pars.meta.integrationAngleMax / pars.meta.detectorAngleStep));
+		setup2DOutput(pars);
+		std::vector<size_t> order = {0,1};
+		hsize_t mdims[2] = {pars.numXprobes, pars.numYprobes};
+		for (auto j = 0; j < pars.numLayers; j++)
+		{
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(j);
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+
+			if(pars.meta.saveComplexOutputWave)
+			{
+				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
+				//need to initiliaze output image at each slice to prevent overflow of value
+				prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+					{{pars.output_c.get_dimj(), pars.output_c.get_dimk()}});
+
+				for (auto y = 0; y < pars.output_c.get_dimk(); ++y)
+				{
+					for (auto x = 0; x < pars.output_c.get_dimj(); ++x)
+					{
+						for (auto b = lower; b < upper; ++b)
+						{
+							prism_image.at(x, y) += pars.output_c.at(j, y, x, b);
+						}
+					}
+				}
+				writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
+			}
+			else
+			{
+				Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
+				//need to initiliaze output image at each slice to prevent overflow of value
+				prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+					{{pars.output.get_dimj(), pars.output.get_dimk()}});
+
+				for (auto y = 0; y < pars.output.get_dimk(); ++y)
+				{
+					for (auto x = 0; x < pars.output.get_dimj(); ++x)
+					{
+						for (auto b = lower; b < upper; ++b)
+						{
+							prism_image.at(x, y) += pars.output.at(j, y, x, b);
+						}
+					}
+				}
+				writeRealDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
+			}
+			dataGroup.close();
+		}
+	}
+
+	if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave)
+	{
+		setupDPCOutput(pars);
+		hsize_t mdims[3] = {pars.numXprobes, pars.numYprobes, 2};
+		size_t strides = mdims[0]*mdims[1]*mdims[2];
+		std::vector<size_t> order = {2,0,1};
+		for (auto j = 0; j < pars.numLayers; j++)
+		{
+			std::stringstream nameString;
+			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			writeRealDataSet(dataGroup, "realslice", &pars.DPC_CoM[j*strides], mdims, 3, order);
+			dataGroup.close();
+		}
+	}
+
+	writeMetadata(pars);
+	pars.outputFile.close();
+};
 
 std::string getDigitString(int digit)
 {
