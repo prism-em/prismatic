@@ -133,6 +133,7 @@ inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.beamsIndex = {}; //clear index
 	{
 		int beam_count = 1;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
@@ -185,6 +186,10 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
 	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
 	
+	pars.xTilts_tem = {};
+	pars.yTilts_tem = {};
+	pars.xTiltsInd_tem = {};
+	pars.yTiltsInd_tem = {};
 	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
 	{
 		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
@@ -224,6 +229,7 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::cout << "Number of total tilts: " << pars.numberBeams << std::endl;
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.beamsIndex = {};
 	{
 		int beam_count = 1;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
@@ -622,8 +628,8 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		std::vector<size_t> order = {0, 1, 2};
 		
-		std::cout << pars.Scompact.at(2,3,5).real() << std::endl;
-		std::cout << pars.Scompact.at(2,3,5).imag() << std::endl;
+		std::cout << pars.Scompact.at(0,3,5).real() << std::endl;
+		std::cout << pars.Scompact.at(0,3,5).imag() << std::endl;
 		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 }
@@ -718,7 +724,6 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	setupSMatrixCoordinates(pars);
 	downsampleFourierComponents(pars);
 
-	std::cout << "what/???: " << pars.meta.numFP << std::endl;
 	if(pars.meta.saveSMatrix)
 	{
 		std::cout << "Writing scattering matrix to output file." << std::endl;

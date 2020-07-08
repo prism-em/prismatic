@@ -21,6 +21,7 @@
 #include <algorithm>
 #include "utility.h"
 #include "fileIO.h"
+#include "Multislice_entry.h"
 
 namespace Prismatic
 {
@@ -39,203 +40,32 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	prismatic_pars.meta.toString();
 
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
+
 	setupOutputFile(prismatic_pars);
-	// compute projected potentials
-	prismatic_pars.fpFlag = 0;
+	prismatic_pars.outputFile.close();
 	
-	if(prismatic_pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-		std::string groupName = "4DSTEM_simulation/data/realslices/";
-		std::string baseName = "ppotential_fp";
-		H5::H5File inFile = H5::H5File(prismatic_pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
-		H5::Group realslices = inFile.openGroup(groupName.c_str());
-		int configurations = countDataGroups(realslices, baseName);
+	prismatic_pars.meta.importSMatrix = false; //incase it is accidentally set
+	if(prismatic_pars.meta.importPotential) configureImportFP(prismatic_pars);
 
-		std::cout << configurations << " frozen phonon configurations available in " << prismatic_pars.meta.importFile << std::endl;
-		int tmp_fp = prismatic_pars.meta.numFP;
-
-		//if user requests more than the available configurations, only run number available
-		if(prismatic_pars.meta.numFP > 1)
-		{
-			prismatic_pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
-			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
-			std::cout << "Running " << prismatic_pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
-		}
-		else
-		{
-			if( not prismatic_pars.meta.userSpecifiedNumFP)
-			{
-				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
-				prismatic_pars.meta.numFP = configurations;
-			}
-		}
-		//update original object as prismatic_pars is recreated later
-		meta.numFP = prismatic_pars.meta.numFP;
-		PRISM01_importPotential(prismatic_pars);
-	}
-	else
+	// calculate frozen phonon configurations
+	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
-		PRISM01_calcPotential(prismatic_pars);
+		Multislice_runFP(prismatic_pars, i);
+	}	
+
+	//average data by fp
+	for (auto &i : prismatic_pars.net_output)
+		i /= prismatic_pars.meta.numFP;
+	for (auto &i : prismatic_pars.net_output_c)
+		i /= prismatic_pars.meta.numFP;
+
+	if (prismatic_pars.meta.saveDPC_CoM)
+	{
+		for (auto &j : prismatic_pars.net_DPC_CoM)
+			j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
 	}
 
-	prismatic_pars.scale = 1.0;
-	// compute final output
-	Multislice_calcOutput(prismatic_pars);
-	prismatic_pars.outputFile.close();
-
-	// calculate remaining frozen phonon configurations
-	//TODO: Clarify the scope issues occuring here. Extraneous copy of prismatic_pars structure?
-	if (prismatic_pars.meta.numFP > 1)
-	{
-		// run the rest of the frozen phonons
-		Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
-		Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> net_output_c(prismatic_pars.output_c);
-		Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
-		if (prismatic_pars.meta.saveDPC_CoM)
-			DPC_CoM_output = prismatic_pars.DPC_CoM;
-		for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num)
-		{
-			meta.randomSeed = rand() % 100000;
-			++meta.fpNum;
-			Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars(meta);
-			cout << "Frozen Phonon #" << fp_num << endl;
-			prismatic_pars.meta.toString();
-
-			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-			prismatic_pars.fpFlag = fp_num;
-			prismatic_pars.scale = 1.0;
-
-			if(prismatic_pars.meta.importPotential)
-			{
-				std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-				PRISM01_importPotential(prismatic_pars);
-			}
-			else
-			{
-				PRISM01_calcPotential(prismatic_pars);
-			}
-
-			Multislice_calcOutput(prismatic_pars);
-			net_output += prismatic_pars.output;
-			net_output_c += prismatic_pars.output_c;
-			if (meta.saveDPC_CoM)
-				DPC_CoM_output += prismatic_pars.DPC_CoM;
-			prismatic_pars.outputFile.close();
-		}
-		// divide to take average
-		for (auto &i : net_output)
-			i /= prismatic_pars.meta.numFP;
-		for (auto &i : net_output_c)
-			i /= prismatic_pars.meta.numFP;
-		prismatic_pars.output = net_output;
-		prismatic_pars.output_c = net_output_c;
-
-		if (prismatic_pars.meta.saveDPC_CoM)
-		{
-			for (auto &j : DPC_CoM_output)
-				j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-			prismatic_pars.DPC_CoM = DPC_CoM_output;
-		}
-	}
-
-	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-	if (prismatic_pars.meta.save3DOutput)
-	{
-		setupVDOutput(prismatic_pars);
-		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, prismatic_pars.Ndet};
-		size_t strides = mdims[0]*mdims[1]*mdims[2];
-		std::vector<size_t> order = {0,1,2};
-		for (auto j = 0; j < prismatic_pars.numLayers; j++)
-		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-			if(prismatic_pars.meta.saveComplexOutputWave)
-			{
-				writeComplexDataSet(dataGroup, "realslice", &prismatic_pars.output_c[j*strides], mdims, 3, order);
-			}
-			else
-			{
-				writeRealDataSet(dataGroup, "realslice", &prismatic_pars.output[j*strides], mdims, 3, order);
-			}
-			dataGroup.close();
-		}
-	}
-
-	if (prismatic_pars.meta.save2DOutput)
-	{
-		size_t lower = std::max((size_t)0, (size_t)(prismatic_pars.meta.integrationAngleMin / prismatic_pars.meta.detectorAngleStep));
-		size_t upper = std::min(prismatic_pars.detectorAngles.size(), (size_t)(prismatic_pars.meta.integrationAngleMax / prismatic_pars.meta.detectorAngleStep));
-		setup2DOutput(prismatic_pars);
-		std::vector<size_t> order = {0,1};
-		hsize_t mdims[2] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes};
-		for (auto j = 0; j < prismatic_pars.numLayers; j++)
-		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-
-			if(prismatic_pars.meta.saveComplexOutputWave)
-			{
-				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
-				//need to initiliaze output image at each slice to prevent overflow of value
-				prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
-					{{prismatic_pars.output_c.get_dimj(), prismatic_pars.output_c.get_dimk()}});
-
-				for (auto y = 0; y < prismatic_pars.output_c.get_dimk(); ++y)
-				{
-					for (auto x = 0; x < prismatic_pars.output_c.get_dimj(); ++x)
-					{
-						for (auto b = lower; b < upper; ++b)
-						{
-							prism_image.at(x, y) += prismatic_pars.output_c.at(j, y, x, b);
-						}
-					}
-				}
-				writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
-			}
-			else
-			{
-				Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
-				//need to initiliaze output image at each slice to prevent overflow of value
-				prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-					{{prismatic_pars.output.get_dimj(), prismatic_pars.output.get_dimk()}});
-
-				for (auto y = 0; y < prismatic_pars.output.get_dimk(); ++y)
-				{
-					for (auto x = 0; x < prismatic_pars.output.get_dimj(); ++x)
-					{
-						for (auto b = lower; b < upper; ++b)
-						{
-							prism_image.at(x, y) += prismatic_pars.output.at(j, y, x, b);
-						}
-					}
-				}
-				writeRealDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
-			}
-			dataGroup.close();
-		}
-	}
-
-	if (prismatic_pars.meta.saveDPC_CoM and not prismatic_pars.meta.saveComplexOutputWave)
-	{
-		setupDPCOutput(prismatic_pars);
-		hsize_t mdims[3] = {prismatic_pars.numXprobes, prismatic_pars.numYprobes, 2};
-		size_t strides = mdims[0]*mdims[1]*mdims[2];
-		std::vector<size_t> order = {2,0,1};
-		for (auto j = 0; j < prismatic_pars.numLayers; j++)
-		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
-			H5::Group dataGroup = prismatic_pars.outputFile.openGroup(nameString.str());
-			writeRealDataSet(dataGroup, "realslice", &prismatic_pars.DPC_CoM[j*strides], mdims, 3, order);
-			dataGroup.close();
-		}
-	}
-
-	writeMetadata(prismatic_pars);
-	prismatic_pars.outputFile.close();
+	saveSTEM(prismatic_pars);
 
 #ifdef PRISMATIC_ENABLE_GPU
 	cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
@@ -244,4 +74,48 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 			  << std::endl;
 	return prismatic_pars;
 }
+
+void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
+{
+
+	pars.meta.randomSeed = rand() % 100000;
+	pars.meta.fpNum = fpNum;
+	cout << "Frozen Phonon #" << fpNum << endl;
+	pars.meta.toString();
+
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	pars.fpFlag = fpNum;
+	pars.scale = 1.0;
+
+	// compute projected potentials
+	if(pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+		PRISM01_importPotential(pars);
+	}
+	else
+	{
+		PRISM01_calcPotential(pars);
+	}
+
+	//update original object as prismatic_pars is recreated later
+	Multislice_calcOutput(pars);
+	pars.outputFile.close();
+
+	if(fpNum >= 1)
+	{
+		pars.net_output += pars.output;
+		pars.net_output_c += pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
+	}
+	else
+	{
+		pars.net_output = pars.output;
+		pars.net_output_c = pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
+	}
+	
+
+};
+
 } // namespace Prismatic
