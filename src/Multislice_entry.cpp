@@ -44,35 +44,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	setupOutputFile(prismatic_pars);
 	prismatic_pars.outputFile.close();
 	
-	//configure num FP if importing potentials
-	if(prismatic_pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-		std::string groupName = "4DSTEM_simulation/data/realslices/";
-		std::string baseName = "ppotential_fp";
-		H5::H5File inFile = H5::H5File(prismatic_pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
-		H5::Group realslices = inFile.openGroup(groupName.c_str());
-		int configurations = countDataGroups(realslices, baseName);
-
-		std::cout << configurations << " frozen phonon configurations available in " << prismatic_pars.meta.importFile << std::endl;
-		int tmp_fp = prismatic_pars.meta.numFP;
-
-		//if user requests more than the available configurations, only run number available
-		if(prismatic_pars.meta.numFP > 1)
-		{
-			prismatic_pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
-			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
-			std::cout << "Running " << prismatic_pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
-		}
-		else
-		{
-			if( not prismatic_pars.meta.userSpecifiedNumFP)
-			{
-				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
-				prismatic_pars.meta.numFP = configurations;
-			}
-		}
-	}
+	prismatic_pars.meta.importSMatrix = false; //incase it is accidentally set
+	if(prismatic_pars.meta.importPotential) configureImportFP(prismatic_pars);
 
 	// calculate frozen phonon configurations
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)

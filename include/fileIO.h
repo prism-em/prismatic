@@ -46,6 +46,8 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, Array3D<std::complex
 
 void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
+void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 std::string getDigitString(int digit);
 
 void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);

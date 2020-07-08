@@ -43,74 +43,10 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	}
 	prismatic_pars.meta.toString();
 
-	//        to_xyz(prismatic_pars.atoms, "/Users/ajpryor/Documents/MATLAB/multislice/PRISM/build/test.XYZ", "comment", 5.43,5.43,5.43);
-
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
 	setupOutputFile(prismatic_pars);
-	// compute projected potentials
-	prismatic_pars.fpFlag = 0;
 
-	if(prismatic_pars.meta.importSMatrix)
-	{
-		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << prismatic_pars.meta.importFile << std::endl;
-	}
-	else if(prismatic_pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-		std::string groupName = "4DSTEM_simulation/data/realslices/";
-		std::string baseName = "ppotential_fp";
-		H5::H5File inFile = H5::H5File(prismatic_pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
-		H5::Group realslices = inFile.openGroup(groupName.c_str());
-		int configurations = countDataGroups(realslices, baseName);
-
-		std::cout << configurations << " frozen phonon configurations available in " << prismatic_pars.meta.importFile << std::endl;
-		int tmp_fp = prismatic_pars.meta.numFP;
-
-		//if user requests more than the available configurations, only run number available
-		if(prismatic_pars.meta.numFP > 1)
-		{
-			prismatic_pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
-			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
-			std::cout << "Running " << prismatic_pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
-		}
-		else
-		{
-			if( not prismatic_pars.meta.userSpecifiedNumFP)
-			{
-				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
-				prismatic_pars.meta.numFP = configurations;
-			}
-		}
-	}
-
-	// compute compact S-matrix
-	if(prismatic_pars.meta.importSMatrix)
-	{
-		std::string groupName = "4DSTEM_simulation/data/realslices/";
-		std::string baseName = "smatrix_fp";
-		H5::H5File inFile = H5::H5File(prismatic_pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
-		H5::Group realslices = inFile.openGroup(groupName.c_str());
-		int configurations = countDataGroups(realslices, baseName);
-
-		std::cout << configurations << " frozen phonon configurations available in " << prismatic_pars.meta.importFile << std::endl;
-		int tmp_fp = prismatic_pars.meta.numFP;
-
-		//if user requests more than the available configurations, only run number available
-		if(prismatic_pars.meta.numFP > 1)
-		{
-			prismatic_pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
-			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
-			std::cout << "Running " << prismatic_pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
-		}
-		else
-		{
-			if( not prismatic_pars.meta.userSpecifiedNumFP)
-			{
-				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
-				prismatic_pars.meta.numFP = configurations;
-			}
-		}
-	}
+	if(prismatic_pars.meta.importPotential or prismatic_pars.meta.importSMatrix) configureImportFP(prismatic_pars);
 
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{

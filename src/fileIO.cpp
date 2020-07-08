@@ -953,6 +953,72 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.outputFile.close();
 };
 
+void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+
+	if(pars.meta.importSMatrix)
+	{
+		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
+	}
+	else if(pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+		std::string groupName = "4DSTEM_simulation/data/realslices/";
+		std::string baseName = "ppotential_fp";
+		H5::H5File inFile = H5::H5File(pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
+		H5::Group realslices = inFile.openGroup(groupName.c_str());
+		int configurations = countDataGroups(realslices, baseName);
+
+		std::cout << configurations << " frozen phonon configurations available in " << pars.meta.importFile << std::endl;
+		int tmp_fp = pars.meta.numFP;
+
+		//if user requests more than the available configurations, only run number available
+		if(pars.meta.numFP > 1)
+		{
+			pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
+			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
+			std::cout << "Running " << pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
+		}
+		else
+		{
+			if( not pars.meta.userSpecifiedNumFP)
+			{
+				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
+				pars.meta.numFP = configurations;
+			}
+		}
+	}
+
+	if(pars.meta.importSMatrix)
+	{
+		std::string groupName = "4DSTEM_simulation/data/realslices/";
+		std::string baseName = "smatrix_fp";
+		H5::H5File inFile = H5::H5File(pars.meta.importFile.c_str(), H5F_ACC_RDONLY);
+		H5::Group realslices = inFile.openGroup(groupName.c_str());
+		int configurations = countDataGroups(realslices, baseName);
+
+		std::cout << configurations << " frozen phonon configurations available in " << pars.meta.importFile << std::endl;
+		int tmp_fp = pars.meta.numFP;
+
+		//if user requests more than the available configurations, only run number available
+		if(pars.meta.numFP > 1)
+		{
+			pars.meta.numFP = (tmp_fp > configurations) ? configurations : tmp_fp;
+			std::cout << "User requested " << tmp_fp  << " frozen phonons." << std::endl;
+			std::cout << "Running " << pars.meta.numFP << " frozen phonons out of " << configurations << " available configurations." << std::endl;
+		}
+		else
+		{
+			if( not pars.meta.userSpecifiedNumFP)
+			{
+				//if user specifically specifies to run a single frozen phonon, this is skipped and only the first configuration will run
+				pars.meta.numFP = configurations;
+			}
+		}
+	}
+
+};
+
 std::string getDigitString(int digit)
 {
 	char buffer[20];
