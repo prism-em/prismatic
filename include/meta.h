@@ -86,8 +86,8 @@ namespace Prismatic{
             scanWindowXMax_r      = 0.0;
             scanWindowYMin_r      = 0.0;
             scanWindowYMax_r      = 0.0;
-            probes_x              = {0.0};
-            probes_y              = {0.0};
+            probes_x              = {};
+            probes_y              = {};
             srand(time(0));
             randomSeed            = rand() % 100000;
             crop4Damax            = 100.0 /1000;

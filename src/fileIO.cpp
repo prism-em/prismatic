@@ -60,8 +60,8 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "CBED_array_depth";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[4];
-	data_dims[0] = {pars.xp.size()};
-	data_dims[1] = {pars.yp.size()};
+	data_dims[0] = {pars.numXprobes};
+	data_dims[1] = {pars.numYprobes};
 	hsize_t chunkDims[4];
 	chunkDims[0] = chunkDims[1] = {1};
 	hsize_t rx_dim[1] = {pars.xp.size()};
@@ -230,15 +230,15 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "virtual_detector_depth";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3];
-	data_dims[0] = {pars.xp.size()};
-	data_dims[1] = {pars.yp.size()};
+	data_dims[0] = {pars.numXprobes};
+	data_dims[1] = {pars.numYprobes};
 	data_dims[2] = {pars.Ndet};
 
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t bin_dim[1] = {pars.Ndet};
 
-	//
+	
 	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
 	const H5std_string re_str("r"); //using h5py default configuration
 	const H5std_string im_str("i");
@@ -308,8 +308,8 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "annular_detector_depth";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[2];
-	data_dims[0] = {pars.xp.size()};
-	data_dims[1] = {pars.yp.size()};
+	data_dims[0] = {pars.numXprobes};
+	data_dims[1] = {pars.numYprobes};
 
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
@@ -377,8 +377,8 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "DPC_CoM_depth";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3];
-	data_dims[0] = {pars.xp.size()};
-	data_dims[1] = {pars.yp.size()};
+	data_dims[0] = {pars.numXprobes};
+	data_dims[1] = {pars.numYprobes};
 	data_dims[2] = {2};
 
 	hsize_t rx_dim[1] = {pars.xp.size()};
