@@ -868,11 +868,11 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
 			if(pars.meta.saveComplexOutputWave)
 			{
-				writeComplexDataSet(dataGroup, "realslice", &pars.output_c[j*strides], mdims, 3, order);
+				writeComplexDataSet(dataGroup, "realslice", &pars.net_output_c[j*strides], mdims, 3, order);
 			}
 			else
 			{
-				writeRealDataSet(dataGroup, "realslice", &pars.output[j*strides], mdims, 3, order);
+				writeRealDataSet(dataGroup, "realslice", &pars.net_output[j*strides], mdims, 3, order);
 			}
 			dataGroup.close();
 		}
@@ -896,15 +896,15 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
 				//need to initiliaze output image at each slice to prevent overflow of value
 				prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
-					{{pars.output_c.get_dimj(), pars.output_c.get_dimk()}});
+					{{pars.net_output_c.get_dimj(), pars.net_output_c.get_dimk()}});
 
-				for (auto y = 0; y < pars.output_c.get_dimk(); ++y)
+				for (auto y = 0; y < pars.net_output_c.get_dimk(); ++y)
 				{
-					for (auto x = 0; x < pars.output_c.get_dimj(); ++x)
+					for (auto x = 0; x < pars.net_output_c.get_dimj(); ++x)
 					{
 						for (auto b = lower; b < upper; ++b)
 						{
-							prism_image.at(x, y) += pars.output_c.at(j, y, x, b);
+							prism_image.at(x, y) += pars.net_output_c.at(j, y, x, b);
 						}
 					}
 				}
@@ -915,15 +915,15 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
 				//need to initiliaze output image at each slice to prevent overflow of value
 				prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-					{{pars.output.get_dimj(), pars.output.get_dimk()}});
+					{{pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
 
-				for (auto y = 0; y < pars.output.get_dimk(); ++y)
+				for (auto y = 0; y < pars.net_output.get_dimk(); ++y)
 				{
-					for (auto x = 0; x < pars.output.get_dimj(); ++x)
+					for (auto x = 0; x < pars.net_output.get_dimj(); ++x)
 					{
 						for (auto b = lower; b < upper; ++b)
 						{
-							prism_image.at(x, y) += pars.output.at(j, y, x, b);
+							prism_image.at(x, y) += pars.net_output.at(j, y, x, b);
 						}
 					}
 				}
@@ -944,7 +944,7 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			std::stringstream nameString;
 			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
-			writeRealDataSet(dataGroup, "realslice", &pars.DPC_CoM[j*strides], mdims, 3, order);
+			writeRealDataSet(dataGroup, "realslice", &pars.net_DPC_CoM[j*strides], mdims, 3, order);
 			dataGroup.close();
 		}
 	}

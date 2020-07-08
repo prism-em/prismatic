@@ -74,7 +74,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		}
 	}
 
-	// calculate remaining frozen phonon configurations
+	// calculate frozen phonon configurations
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
 		Multislice_runFP(prismatic_pars, i);
@@ -127,11 +127,21 @@ void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 
 	//update original object as prismatic_pars is recreated later
 	Multislice_calcOutput(pars);
-	pars.net_output += pars.output;
-	pars.net_output_c += pars.output_c;
-	if (pars.meta.saveDPC_CoM)
-		pars.net_DPC_CoM += pars.DPC_CoM;
 	pars.outputFile.close();
+
+	if(fpNum >= 1)
+	{
+		pars.net_output += pars.output;
+		pars.net_output_c += pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
+	}
+	else
+	{
+		pars.net_output = pars.output;
+		pars.net_output_c = pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
+	}
+	
 
 };
 

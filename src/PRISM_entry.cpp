@@ -49,6 +49,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	setupOutputFile(prismatic_pars);
 	// compute projected potentials
 	prismatic_pars.fpFlag = 0;
+
 	if(prismatic_pars.meta.importSMatrix)
 	{
 		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << prismatic_pars.meta.importFile << std::endl;
@@ -80,16 +81,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				prismatic_pars.meta.numFP = configurations;
 			}
 		}
-		//update original object as prismatic_pars is recreated later
-		meta.numFP = prismatic_pars.meta.numFP;
-
-		PRISM01_importPotential(prismatic_pars);
 	}
-	else
-	{
-		PRISM01_calcPotential(prismatic_pars);
-	}
-	
 
 	// compute compact S-matrix
 	if(prismatic_pars.meta.importSMatrix)
@@ -118,84 +110,23 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				prismatic_pars.meta.numFP = configurations;
 			}
 		}
-		//update original object as prismatic_pars is recreated later
-		meta.numFP = prismatic_pars.meta.numFP;
-		PRISM02_importSMatrix(prismatic_pars);
-	}
-	else
-	{
-		PRISM02_calcSMatrix(prismatic_pars);
 	}
 
-	// compute final output
-	PRISM03_calcOutput(prismatic_pars);
-	prismatic_pars.outputFile.close();
-
-	// calculate remaining frozen phonon configurations
-	if (prismatic_pars.meta.numFP > 1)
+	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
-		// run the rest of the frozen phonons
-		Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
-		Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> net_output_c(prismatic_pars.output_c);
-		Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
-		if (prismatic_pars.meta.saveDPC_CoM)
-			DPC_CoM_output = prismatic_pars.DPC_CoM;
-		for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num)
-		{
-			meta.randomSeed = rand() % 100000;
-			++meta.fpNum;
-			Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars(meta);
-			cout << "Frozen Phonon #" << fp_num << endl;
-			prismatic_pars.meta.toString();
+		PRISM_runFP(prismatic_pars, i);
+	}
 
-			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-			prismatic_pars.fpFlag = fp_num;
+	//average data by fp
+	for (auto &i : prismatic_pars.net_output)
+		i /= prismatic_pars.meta.numFP;
+	for (auto &i : prismatic_pars.net_output_c)
+		i /= prismatic_pars.meta.numFP;
 
-			if(prismatic_pars.meta.importSMatrix)
-			{
-				std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << prismatic_pars.meta.importFile << std::endl;
-			}
-			else if(prismatic_pars.meta.importPotential)
-			{
-				std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-				PRISM01_importPotential(prismatic_pars);
-			}
-			else
-			{
-				PRISM01_calcPotential(prismatic_pars);
-			}
-
-			// compute compact S-matrix
-			if(prismatic_pars.meta.importSMatrix)
-			{
-				PRISM02_importSMatrix(prismatic_pars);
-			}
-			else
-			{
-				PRISM02_calcSMatrix(prismatic_pars);
-			}
-
-			PRISM03_calcOutput(prismatic_pars);
-			net_output += prismatic_pars.output;
-			net_output_c += prismatic_pars.output_c;
-			if (meta.saveDPC_CoM)
-				DPC_CoM_output += prismatic_pars.DPC_CoM;
-			prismatic_pars.outputFile.close();
-		}
-		// divide to take average
-		for (auto &i : net_output)
-			i /= prismatic_pars.meta.numFP;
-		for (auto &i : net_output_c)
-			i /= prismatic_pars.meta.numFP;
-		prismatic_pars.output = net_output;
-		prismatic_pars.output_c = net_output_c;
-
-		if (prismatic_pars.meta.saveDPC_CoM)
-		{
-			for (auto &j : DPC_CoM_output)
-				j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-			prismatic_pars.DPC_CoM = DPC_CoM_output;
-		}
+	if (prismatic_pars.meta.saveDPC_CoM)
+	{
+		for (auto &j : prismatic_pars.net_DPC_CoM)
+			j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
 	}
 
 	saveSTEM(prismatic_pars);
@@ -206,5 +137,58 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	std::cout << "PRISM Calculation complete.\n"
 			  << std::endl;
 	return prismatic_pars;
-}
+};
+
+void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
+{
+	pars.meta.randomSeed = rand() % 100000;
+	pars.meta.fpNum = fpNum;
+	cout << "Frozen Phonon #" << fpNum << endl;
+	pars.meta.toString();
+
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	pars.fpFlag = fpNum;
+
+	if(pars.meta.importSMatrix)
+	{
+		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
+	}
+	else if(pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+		PRISM01_importPotential(pars);
+	}
+	else
+	{
+		PRISM01_calcPotential(pars);
+	}
+
+	// compute compact S-matrix
+	if(pars.meta.importSMatrix)
+	{
+		PRISM02_importSMatrix(pars);
+	}
+	else
+	{
+		PRISM02_calcSMatrix(pars);
+	}
+
+	PRISM03_calcOutput(pars);
+	pars.outputFile.close();
+
+	if(fpNum >= 1)
+	{
+		pars.net_output += pars.output;
+		pars.net_output_c += pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
+	}
+	else
+	{
+		pars.net_output = pars.output;
+		pars.net_output_c = pars.output_c;
+		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
+	}
+	
+};
+
 } // namespace Prismatic
