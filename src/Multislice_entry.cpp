@@ -21,6 +21,7 @@
 #include <algorithm>
 #include "utility.h"
 #include "fileIO.h"
+#include "Multislice_entry.h"
 
 namespace Prismatic
 {
@@ -39,10 +40,11 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	prismatic_pars.meta.toString();
 
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
+
 	setupOutputFile(prismatic_pars);
-	// compute projected potentials
-	prismatic_pars.fpFlag = 0;
+	prismatic_pars.outputFile.close();
 	
+	//configure num FP if importing potentials
 	if(prismatic_pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
@@ -70,73 +72,24 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 				prismatic_pars.meta.numFP = configurations;
 			}
 		}
-		//update original object as prismatic_pars is recreated later
-		meta.numFP = prismatic_pars.meta.numFP;
-		PRISM01_importPotential(prismatic_pars);
 	}
-	else
-	{
-		PRISM01_calcPotential(prismatic_pars);
-	}
-
-	prismatic_pars.scale = 1.0;
-	// compute final output
-	Multislice_calcOutput(prismatic_pars);
-	prismatic_pars.outputFile.close();
 
 	// calculate remaining frozen phonon configurations
-	//TODO: Clarify the scope issues occuring here. Extraneous copy of prismatic_pars structure?
-	if (prismatic_pars.meta.numFP > 1)
+	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
-		// run the rest of the frozen phonons
-		Array4D<PRISMATIC_FLOAT_PRECISION> net_output(prismatic_pars.output);
-		Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> net_output_c(prismatic_pars.output_c);
-		Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
-		if (prismatic_pars.meta.saveDPC_CoM)
-			DPC_CoM_output = prismatic_pars.DPC_CoM;
-		for (auto fp_num = 1; fp_num < prismatic_pars.meta.numFP; ++fp_num)
-		{
-			meta.randomSeed = rand() % 100000;
-			++meta.fpNum;
-			Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars(meta);
-			cout << "Frozen Phonon #" << fp_num << endl;
-			prismatic_pars.meta.toString();
+		Multislice_runFP(prismatic_pars, i);
+	}	
 
-			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-			prismatic_pars.fpFlag = fp_num;
-			prismatic_pars.scale = 1.0;
+	//average data by fp
+	for (auto &i : prismatic_pars.net_output)
+		i /= prismatic_pars.meta.numFP;
+	for (auto &i : prismatic_pars.net_output_c)
+		i /= prismatic_pars.meta.numFP;
 
-			if(prismatic_pars.meta.importPotential)
-			{
-				std::cout << "Using precalculated potential from " << prismatic_pars.meta.importFile << std::endl;
-				PRISM01_importPotential(prismatic_pars);
-			}
-			else
-			{
-				PRISM01_calcPotential(prismatic_pars);
-			}
-
-			Multislice_calcOutput(prismatic_pars);
-			net_output += prismatic_pars.output;
-			net_output_c += prismatic_pars.output_c;
-			if (meta.saveDPC_CoM)
-				DPC_CoM_output += prismatic_pars.DPC_CoM;
-			prismatic_pars.outputFile.close();
-		}
-		// divide to take average
-		for (auto &i : net_output)
-			i /= prismatic_pars.meta.numFP;
-		for (auto &i : net_output_c)
-			i /= prismatic_pars.meta.numFP;
-		prismatic_pars.output = net_output;
-		prismatic_pars.output_c = net_output_c;
-
-		if (prismatic_pars.meta.saveDPC_CoM)
-		{
-			for (auto &j : DPC_CoM_output)
-				j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-			prismatic_pars.DPC_CoM = DPC_CoM_output;
-		}
+	if (prismatic_pars.meta.saveDPC_CoM)
+	{
+		for (auto &j : prismatic_pars.net_DPC_CoM)
+			j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
 	}
 
 	saveSTEM(prismatic_pars);
@@ -148,4 +101,38 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 			  << std::endl;
 	return prismatic_pars;
 }
+
+void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
+{
+
+	pars.meta.randomSeed = rand() % 100000;
+	pars.meta.fpNum = fpNum;
+	cout << "Frozen Phonon #" << fpNum << endl;
+	pars.meta.toString();
+
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	pars.fpFlag = fpNum;
+	pars.scale = 1.0;
+
+	// compute projected potentials
+	if(pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+		PRISM01_importPotential(pars);
+	}
+	else
+	{
+		PRISM01_calcPotential(pars);
+	}
+
+	//update original object as prismatic_pars is recreated later
+	Multislice_calcOutput(pars);
+	pars.net_output += pars.output;
+	pars.net_output_c += pars.output_c;
+	if (pars.meta.saveDPC_CoM)
+		pars.net_DPC_CoM += pars.DPC_CoM;
+	pars.outputFile.close();
+
+};
+
 } // namespace Prismatic
