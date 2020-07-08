@@ -37,40 +37,48 @@ namespace Prismatic{
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 
 		// setup coordinates and build propagators
-		Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
-		xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
-		Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
-		yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
-		yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
-
-		PRISMATIC_FLOAT_PRECISION probeStepX;
-		PRISMATIC_FLOAT_PRECISION probeStepY;
-		if(pars.meta.nyquistSampling){
-			int numX = nyquistProbes(pars,2); //x is dim 2
-			int numY = nyquistProbes(pars,1); //y is dim 1
-			probeStepX = pars.tiledCellDim[2]/numX;
-			probeStepY = pars.tiledCellDim[1]/numY;
-		}else{
-			probeStepX = pars.meta.probeStepX;
-			probeStepY = pars.meta.probeStepY;
+		std::vector<PRISMATIC_FLOAT_PRECISION> xp_d;
+		std::vector<PRISMATIC_FLOAT_PRECISION> yp_d;
+		if(pars.meta.arbitraryProbes)
+		{
+			xp_d = pars.meta.probes_x;
+			yp_d = pars.meta.probes_y;
+			pars.numXprobes = xp_d.size();
+			pars.numYprobes = 1;
+			pars.numProbes = xp_d.size();
 		}
+		else
+		{
+			Array1D<PRISMATIC_FLOAT_PRECISION> xR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
+			xR[0] = pars.scanWindowXMin * pars.tiledCellDim[2];
+			xR[1] = pars.scanWindowXMax * pars.tiledCellDim[2];
+			Array1D<PRISMATIC_FLOAT_PRECISION> yR = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{2}});
+			yR[0] = pars.scanWindowYMin * pars.tiledCellDim[1];
+			yR[1] = pars.scanWindowYMax * pars.tiledCellDim[1];
+
+			PRISMATIC_FLOAT_PRECISION probeStepX;
+			PRISMATIC_FLOAT_PRECISION probeStepY;
+			if(pars.meta.nyquistSampling){
+				int numX = nyquistProbes(pars,2); //x is dim 2
+				int numY = nyquistProbes(pars,1); //y is dim 1
+				probeStepX = pars.tiledCellDim[2]/numX;
+				probeStepY = pars.tiledCellDim[1]/numY;
+			}else{
+				probeStepX = pars.meta.probeStepX;
+				probeStepY = pars.meta.probeStepY;
+			}
+			
+			xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
+			yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
 		
-		vector<PRISMATIC_FLOAT_PRECISION> xp_d = vecFromRange(xR[0], probeStepX, xR[1]);
-		vector<PRISMATIC_FLOAT_PRECISION> yp_d = vecFromRange(yR[0], probeStepY, yR[1]);
-		
+			pars.numXprobes = xp_d.size();
+			pars.numYprobes = yp_d.size();
+			pars.numProbes = xp_d.size()*yp_d.size();
+		}
+
 		Array1D<PRISMATIC_FLOAT_PRECISION> xp(xp_d, {{xp_d.size()}});
 		Array1D<PRISMATIC_FLOAT_PRECISION> yp(yp_d, {{yp_d.size()}});
 
-		/*
-		if(pars.meta.saveRealSpaceCoords){
-			pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > real_mesh = meshgrid(xp,yp);
-			std::string x_name = pars.meta.outputFolder + "real_space_x.mrc";
-			std::string y_name = pars.meta.outputFolder + "real_space_y.mrc";
-			real_mesh.first.toMRC_f(x_name.c_str());
-			real_mesh.second.toMRC_f(y_name.c_str());
-		} */
-		
 		pars.xp = xp;
 		pars.yp = yp;
 		pars.imageSize[0] = pars.pot.get_dimj();
@@ -99,7 +107,6 @@ namespace Prismatic{
 		long long ncy = (long long) floor((PRISMATIC_FLOAT_PRECISION) pars.imageSize[0] / 2);
 		PRISMATIC_FLOAT_PRECISION dpy = 1.0 / ((PRISMATIC_FLOAT_PRECISION)pars.imageSize[0] * pars.meta.realspacePixelSize[0]);
 		pars.qMax = std::min(dpx*(ncx), dpy*(ncy)) / 2;
-
 
 		pars.qMask = zeros_ND<2, unsigned int>({{pars.imageSize[0], pars.imageSize[1]}});
 		{
@@ -214,19 +221,34 @@ namespace Prismatic{
 		depths[0] = firstLayer * pars.meta.sliceThickness * pars.numSlices;
 		for(auto i = 1; i < numLayers; i++) depths[i] = depths[i-1]+pars.numSlices*pars.meta.sliceThickness;
 		pars.depths = depths;
-
+		pars.numLayers = numLayers;
+		
 		if(pars.meta.saveComplexOutputWave)
 		{
-			pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+			pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{numLayers, pars.numYprobes, pars.numXprobes, pars.Ndet}});
 		}
 		else
 		{
-			pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.yp.size(), pars.xp.size(), pars.Ndet}});
+			pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.numYprobes, pars.numXprobes, pars.Ndet}});
 		}
 
-		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.yp.size(),pars.xp.size(),2}});
-		if(pars.meta.save4DOutput && (pars.fpFlag == 0)) setup4DOutput(pars, numLayers);
-		//set up
+		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.numYprobes, pars.numXprobes,2}});
+		if(pars.meta.save4DOutput)
+		{
+			if(pars.fpFlag == 0) setup4DOutput(pars);
+
+			if(pars.meta.saveComplexOutputWave)
+			{
+				pars.cbed_buffer_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSize[0]/2, pars.imageSize[1]/2}});
+				if(pars.meta.crop4DOutput) pars.cbed_buffer_c = cropOutput(pars.cbed_buffer_c, pars);
+			}
+			else
+			{
+				pars.cbed_buffer = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0]/2, pars.imageSize[1]/2}});
+				if(pars.meta.crop4DOutput) pars.cbed_buffer = cropOutput(pars.cbed_buffer, pars);
+			}
+			
+		}
 	}
 
 	void formatOutput_CPU_integrate(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
@@ -322,7 +344,7 @@ namespace Prismatic{
 
 				mdims[2] = {intOutput_small.get_dimi()};
 				mdims[3] = {intOutput_small.get_dimj()};
-				writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.str());
 
 			}
 			else
@@ -353,8 +375,7 @@ namespace Prismatic{
 
 				mdims[2] = {intOutput_small.get_dimi()};
 				mdims[3] = {intOutput_small.get_dimj()};
-
-				writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.str());
 
 			}
 		}
@@ -368,8 +389,10 @@ namespace Prismatic{
 										  const size_t currentSlice){
 		int probe_idx = 0;
 		while (Nstart < Nstop) {
-			const size_t ay = Nstart / pars.xp.size();
-			const size_t ax = Nstart % pars.xp.size();
+			//since constant must use ternary operator
+			//ay and ax aren't used to calculate, just for IO and data copies
+			const size_t ay = (pars.meta.arbitraryProbes) ? 0 : Nstart / pars.numXprobes;
+			const size_t ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 
 			//can't just use PSI like in single integrate for complex output
 			Array2D<PRISMATIC_FLOAT_PRECISION> intOutput;
@@ -472,7 +495,7 @@ namespace Prismatic{
 
 					mdims[2] = {intOutput_small.get_dimi()};
 					mdims[3] = {intOutput_small.get_dimj()};
-					writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0], mdims,offset,numFP,nameString.str());
 
 				}
 				else
@@ -503,8 +526,7 @@ namespace Prismatic{
 
 					mdims[2] = {intOutput_small.get_dimi()};
 					mdims[3] = {intOutput_small.get_dimj()};
-
-					writeDatacube4D(pars,&intOutput_small[0],mdims,offset,numFP,nameString.str());
+					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.str());
 				}
 			}
 
@@ -602,8 +624,8 @@ namespace Prismatic{
 			//			for (auto i:pars.psiProbeInit)*psi_ptr++=i;
 			// Initialize the probes
 			// Determine x/y position from the linear index
-			const size_t ay = probe_num / pars.xp.size();
-			const size_t ax = probe_num % pars.xp.size();
+			const size_t ay = (pars.meta.arbitraryProbes) ? probe_num : probe_num / pars.xp.size();
+			const size_t ax = (pars.meta.arbitraryProbes) ? probe_num : probe_num % pars.xp.size();
 			// populates the output stack for Multislice simulation using the CPU. The number of
 			// threads used is determined by pars.meta.numThreads
 			{
@@ -710,12 +732,12 @@ namespace Prismatic{
 		workers.reserve(pars.meta.numThreads); // prevents multiple reallocations
 		PRISMATIC_FFTW_INIT_THREADS();
 		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
-		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1, pars.numProbes/ 10); // for printing status
+		WorkDispatcher dispatcher(0, pars.numProbes);
 
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
-		pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.numThreads));
+		pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numProbes / pars.meta.numThreads));
 		std::cout <<"batch size at run: " << pars.meta.batchSizeCPU << std::endl;
 		for (auto t = 0; t < pars.meta.numThreads; ++t){
 			cout << "Launching CPU worker #" << t << endl;
@@ -768,12 +790,11 @@ namespace Prismatic{
                     do {
 						while (Nstart < Nstop) {
 							if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batchSizeCPU | Nstart == 100){
-								cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+								cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 							}
-			//							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, pars.xp.size(), plan_forward, plan_inverse, psi);
 							getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 #ifdef PRISMATIC_BUILDING_GUI
-                            pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+                            pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 							Nstart=Nstop;
 						}
@@ -810,7 +831,7 @@ namespace Prismatic{
 
 #ifdef PRISMATIC_BUILDING_GUI
         pars.progressbar->signalDescriptionMessage("Computing final output (Multislice)");
-        pars.progressbar->signalOutputUpdate(0, pars.xp.size() * pars.yp.size());
+        pars.progressbar->signalOutputUpdate(0, pars.numProbes);
 #endif
 
 		// create the output

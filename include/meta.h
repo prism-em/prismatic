@@ -86,6 +86,8 @@ namespace Prismatic{
             scanWindowXMax_r      = 0.0;
             scanWindowYMin_r      = 0.0;
             scanWindowYMax_r      = 0.0;
+            probes_x              = {};
+            probes_y              = {};
             srand(time(0));
             randomSeed            = rand() % 100000;
             crop4Damax            = 100.0 /1000;
@@ -114,6 +116,7 @@ namespace Prismatic{
             userSpecifiedNumFP    = false;
             saveComplexOutputWave = false;
             enterCheck            = false;
+            arbitraryProbes       = false;
             importFile            = "";
             importPath            = "";
         }
@@ -169,6 +172,8 @@ namespace Prismatic{
         T scanWindowXMax_r;
         T scanWindowYMin_r;
         T scanWindowYMax_r;
+        std::vector<T> probes_x;
+        std::vector<T> probes_y;
         T randomSeed;
         T crop4Damax;
         size_t numThreads; // number of CPU threads to use
@@ -197,7 +202,8 @@ namespace Prismatic{
         bool importSMatrix;
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
-        bool enterCheck; 
+        bool enterCheck;
+        bool arbitraryProbes; 
         StreamingMode transferMode;
         TiltSelection tiltMode;
 

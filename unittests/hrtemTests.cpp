@@ -94,10 +94,11 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
     // check to see scaling is right
     double errSum = 0.0;
     double tol = 0.05; //5 % tolerance since can lose some electrons
+    std::vector<size_t> order_3D = {0,1,2}; 
     if(meta.saveComplexOutputWave)
     {
         Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice", order_3D);
         for(auto &i : output) errSum += pow(std::abs(i), 2.0);
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         BOOST_TEST(output.get_dimk() == 1);
@@ -146,10 +147,11 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
     // check to see scaling is right
     double errSum = 0.0;
     double tol = 0.05; //5 % tolerance since can lose some electrons
+    std::vector<size_t> order_3D = {0,1,2}; 
     if(meta.saveComplexOutputWave)
     {
         Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice", order_3D);
         for(auto &i : output) errSum += pow(std::abs(i), 2.0);
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
@@ -176,8 +178,8 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
     meta.potential3D = false;
     meta.numGPUs = 1;
     meta.batchSizeCPU = 1;
-    meta.realspacePixelSize[1] = 0.1;
-    meta.realspacePixelSize[0] = 0.1;
+    meta.realspacePixelSize[1] = 0.5;
+    meta.realspacePixelSize[0] = 0.5;
 
     meta.minXtilt = 0 / 1000.0;
     meta.minYtilt = 0 / 1000.0;
@@ -194,9 +196,9 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
     std::cout << "######### END TEST CASE: virtualDataset #######\n";
     revertOutput(fd, pos);
 
-    // check to see scaling is right
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube");
+    std::vector<size_t> order_4D = {0,1,2,3}; 
+    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube",order_4D);
     BOOST_TEST(output.get_dimk() == 3);
     BOOST_TEST(output.get_diml() == 3);
     removeFile(meta.filenameOutput);
@@ -234,7 +236,8 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
     double tol = 0.05; //5 % tolerance since can lose some electrons
 
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube");
+    std::vector<size_t> order_4D = {0,1,2,3}; 
+    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube", order_4D);
     BOOST_TEST(output.get_dimk() == 11);
     BOOST_TEST(output.get_diml() == 11);
     std::cout << output.at(0,0,0,0).real() << std::endl;

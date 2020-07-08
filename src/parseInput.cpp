@@ -24,6 +24,7 @@
 #include <cctype>
 #endif //_WIN32
 #include "atom.h"
+#include "probe.h"
 
 namespace Prismatic
 {
@@ -105,7 +106,8 @@ void printHelp()
               << "* --xtilt-tem (-xtt) min max step : plane wave tilt selection for HRTEM in x (in mrad) (default: " << defaults.minXtilt * 1000 << " " << defaults.maxXtilt * 1000 << " " << defaults.xTiltStep * 1000 << ")\n"
               << "* --ytilt-tem (-ytt) min max step : plane wave tilt selection for HRTEM in y (in mrad) (default: " << defaults.minYtilt * 1000 << " " << defaults.maxYtilt * 1000 << " " << defaults.yTiltStep * 1000 << ")\n"
               << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
-              << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n";
+              << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n"
+              << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -366,6 +368,10 @@ bool parse_a(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     else if (algo == "p" | algo == "prism")
     {
         meta.algorithm = Prismatic::Algorithm::PRISM;
+    }
+    else if (algo == "t" | algo == "hrtem")
+    {
+        meta.algorithm = Prismatic::Algorithm::HRTEM;
     }
     else
     {
@@ -1598,6 +1604,20 @@ bool parse_rtt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_pos(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+             int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No filename provided for -pos (syntax is -pos filename)\n";
+        return false;
+    }
+    readProbes(std::string((*argv)[1]), meta.probes_x, meta.probes_y);
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1675,7 +1695,8 @@ static std::map<std::string, parseFunction> parser{
     {"--xtilt-tem", parse_xtt}, {"-xtt", parse_xtt},
     {"--ytilt-tem", parse_ytt}, {"-ytt", parse_ytt},
     {"--rtilt-tem", parse_rtt}, {"-rtt", parse_rtt},
-    {"--tilt-offset-tem", parse_tot}, {"-tot", parse_tot}};
+    {"--tilt-offset-tem", parse_tot}, {"-tot", parse_tot},
+    {"--probe-pos", parse_pos}, {"-pos", parse_pos}};
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {

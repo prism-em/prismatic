@@ -133,6 +133,7 @@ inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.beamsIndex = {}; //clear index
 	{
 		int beam_count = 1;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
@@ -167,12 +168,28 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	PRISMATIC_FLOAT_PRECISION minXstep = pars.lambda / pars.tiledCellDim[2];
 	PRISMATIC_FLOAT_PRECISION minYstep = pars.lambda / pars.tiledCellDim[1];
 
-	long interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
-	long interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+	long interp_fx;
+	long interp_fy;
+
+	if(pars.meta.tiltMode == TiltSelection::Rectangular)
+	{
+
+		interp_fx = (pars.xTiltStep_tem >= minXstep) ? (long)round(pars.xTiltStep_tem / minXstep): 1; //use interpolation factor to control tilt step selection
+		interp_fy = (pars.xTiltStep_tem >= minYstep) ? (long)round(pars.yTiltStep_tem / minYstep): 1; //use interpolation factor to control tilt step selection
+	}
+	else
+	{
+		interp_fx = pars.meta.interpolationFactorX;
+		interp_fy = pars.meta.interpolationFactorY;
+	}
 
 	PRISMATIC_FLOAT_PRECISION relTiltX = 0.0;
 	PRISMATIC_FLOAT_PRECISION relTiltY = 0.0;
 	
+	pars.xTilts_tem = {};
+	pars.yTilts_tem = {};
+	pars.xTiltsInd_tem = {};
+	pars.yTiltsInd_tem = {};
 	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
 	{
 		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
@@ -212,6 +229,7 @@ inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::cout << "Number of total tilts: " << pars.numberBeams << std::endl;
 	// number the beams
 	pars.beams = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
+	pars.beamsIndex = {};
 	{
 		int beam_count = 1;
 		for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
@@ -608,10 +626,11 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_restride = restride(pars.Scompact, dims_in, order);
-		writeComplexDataSet(smatrix_group, "realslice", &smatrix_restride[0], mdims, 3);
+		std::vector<size_t> order = {0, 1, 2};
+		
+		std::cout << pars.Scompact.at(0,3,5).real() << std::endl;
+		std::cout << pars.Scompact.at(0,3,5).imag() << std::endl;
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 }
 
@@ -621,25 +640,19 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//scope out imported smatrix as soon as possible
 	{
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> inSMatrix;
+		std::vector<size_t> order ={0,1,2};
 
 		if(pars.meta.importPath.size() > 0)
 		{
-			readComplexDataSet(inSMatrix, pars.meta.importFile, pars.meta.importPath);
+			readComplexDataSet(pars.Scompact, pars.meta.importFile, pars.meta.importPath, order);
 		}
 		else //read default path
 		{
 			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/realslice";
-			readComplexDataSet(inSMatrix, pars.meta.importFile, groupPath);
+			readComplexDataSet(pars.Scompact, pars.meta.importFile, groupPath, order);
 		}
-
-		//restride S matrix : TODO: is there a way to do this in place to prevent two copies in memory?
-		std::array<size_t, 3> dims_in = {inSMatrix.get_dimk(), inSMatrix.get_dimj(), inSMatrix.get_dimi()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		inSMatrix = restride(inSMatrix, dims_in, order);
-
-		pars.Scompact = inSMatrix;
 	}
-
+	
 	//acquire necessary metadata to create auxillary variables
 	std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
@@ -719,9 +732,8 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 
 		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
-		std::array<size_t, 3> order = {2, 1, 0};
-		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix_tmp = restride(pars.Scompact, dims_in, order);
-		writeComplexDataSet(smatrix_group, "realslice", &smatrix_tmp[0], mdims, 3);
+		std::vector<size_t> order = {0, 1, 2};
+		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 
 }

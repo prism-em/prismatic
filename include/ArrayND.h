@@ -520,6 +520,36 @@ Prismatic::ArrayND<N, T> restride(const ArrayND<N, T> &input,
 	return output;
 }
 
+template <size_t N, class T>
+bool any_nan_real(ArrayND<N, T> &arr)
+{
+	bool check = false;
+	for(auto i = 0; i < arr.size(); i++)
+	{
+		if(std::isnan(arr[i]))
+		{
+			check = true;
+			break;
+		}
+	}
+	return check;
+}
+
+template <size_t N, class T>
+bool any_nan_complex(ArrayND<N, T> &arr)
+{
+	bool check = false;
+	for(auto i = 0; i < arr.size(); i++)
+	{
+		if(std::isnan(arr[i].real()) or std::isnan(arr[i].imag()))
+		{
+			check = true;
+			break;
+		}
+	}
+	return check;
+}
+
 template <>
 inline void ArrayND<3, std::vector<double>>::toMRC_f(const char *filename) const
 {

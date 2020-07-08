@@ -293,8 +293,8 @@ namespace Prismatic{
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
-		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1, pars.numProbes / 10); // for printing status
+		WorkDispatcher dispatcher(0, pars.numProbes);
 
 		for (auto t = 0; t < total_num_streams; ++t)
 		{
@@ -357,7 +357,7 @@ namespace Prismatic{
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeGPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
 						if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batchSizeGPU | Nstart == 100){
-							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << '\n';
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << '\n';
 						}
 						if(pars.meta.saveComplexOutputWave)
 						{
@@ -376,7 +376,7 @@ namespace Prismatic{
 																	current_alphaInd_d, current_cufft_plan, current_stream);
 						}
 						#ifdef PRISMATIC_BUILDING_GUI
-						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+						pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 						#endif
 						Nstart=Nstop;
 					}
@@ -394,7 +394,7 @@ namespace Prismatic{
 
 			// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 			// of batch FFT
-			pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.xp.size() * pars.yp.size() / pars.meta.numThreads));
+			pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numProbes / pars.meta.numThreads));
 			cout << "multislice pars.meta.batchSizeGPU = " << pars.meta.batchSizeGPU << endl;
 			for (auto t = 0; t < pars.meta.numThreads; ++t) {
 				cout << "Launching CPU worker #" << t << endl;
@@ -406,9 +406,9 @@ namespace Prismatic{
 					// wait longer for everything to complete
 					if (pars.meta.numGPUs > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.numProbes - pars.meta.earlyCPUStopCount);
 					} else {
-						early_CPU_stop = pars.xp.size() * pars.yp.size();
+						early_CPU_stop = pars.numProbes;
 					}
 					if (dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeCPU, early_CPU_stop)) { // synchronously get work assignment
 						Array1D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batchSizeCPU}});
@@ -442,12 +442,12 @@ namespace Prismatic{
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES  < pars.meta.batchSizeCPU | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 								}
 //							getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 #ifdef PRISMATIC_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+								pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 								Nstart=Nstop;
 							}
@@ -481,8 +481,8 @@ namespace Prismatic{
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		size_t psi_size = pars.psiProbeInit.size();
 		int stream_count = 0;
-		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1, pars.numProbes / 10); // for printing status
+		WorkDispatcher dispatcher(0, pars.numProbes);
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
 
@@ -549,7 +549,7 @@ namespace Prismatic{
 				while (dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeGPU)){ // synchronously get work assignment
 					while (Nstart < Nstop){
 						if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES < pars.meta.batchSizeGPU | Nstart == 100){
-							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 						}
 						if(pars.meta.saveComplexOutputWave)
 						{
@@ -567,7 +567,7 @@ namespace Prismatic{
 								current_alphaInd_d, current_cufft_plan, current_stream);
 						}
 #ifdef PRISMATIC_BUILDING_GUI
-						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+						pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 						Nstart = Nstop;
 					}
@@ -592,9 +592,9 @@ namespace Prismatic{
 					// wait longer for everything to complete
 					if (pars.meta.numGPUs > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.numProbes - pars.meta.earlyCPUStopCount);
 					} else {
-						early_CPU_stop = pars.xp.size() * pars.yp.size();
+						early_CPU_stop = pars.numProbes;
 					}
 					if (dispatcher.getWork(Nstart, Nstop, pars.meta.batchSizeCPU, early_CPU_stop)) { // synchronously get work assignment
 						Array1D<std::complex<PRISMATIC_FLOAT_PRECISION> > psi_stack = zeros_ND<1, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.psiProbeInit.size() * pars.meta.batchSizeCPU}});
@@ -628,12 +628,12 @@ namespace Prismatic{
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES  < pars.meta.batchSizeCPU | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 								}
 //							getMultisliceProbe_CPU(pars, ay, ax, plan_forward, plan_inverse, psi);
 								getMultisliceProbe_CPU_batch(pars, Nstart, Nstop, plan_forward, plan_inverse, psi_stack);
 #ifdef PRISMATIC_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+								pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 								Nstart=Nstop;
 							}
@@ -803,8 +803,8 @@ namespace Prismatic{
 	                                                      cudaStream_t& stream){
 		const size_t psi_size = dimj*dimi;
 		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			const size_t ay = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) / pars.numXprobes;
+			const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 
 			// initialize psi
 			PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
@@ -833,8 +833,8 @@ namespace Prismatic{
 
 					abs_squared << < ( psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						const size_t ay = (pars.meta.arbitraryProbes) ? 0 : (Nstart + batch_idx) / pars.numXprobes;
+						const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
 												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
@@ -863,8 +863,8 @@ namespace Prismatic{
 	                                                      cudaStream_t& stream){
 		const size_t psi_size = dimj*dimi;
 		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			const size_t ay = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) / pars.numXprobes;
+			const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 
 			// initialize psi
 			PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
@@ -892,8 +892,8 @@ namespace Prismatic{
 				if ( ((((planeNum+1) % pars.numSlices) == 0) && ((planeNum+1) >= pars.zStartPlane)) || ((planeNum+1) == pars.numPlanes) ){
 
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						const size_t ay = (pars.meta.arbitraryProbes) ? 0 : (Nstart + batch_idx) / pars.numXprobes;
+						const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 						formatOutput_GPU_c_integrate(pars, psi_ds + (batch_idx * psi_size),
 												alphaInd_d, output_c_ph, integratedOutput_c_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
@@ -971,8 +971,8 @@ namespace Prismatic{
 		// initialize psi
 		const size_t psi_size = dimj*dimi;
 		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			const size_t ay = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) / pars.numXprobes;
+			const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 			PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 			PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
 			initializePsi << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
@@ -1003,8 +1003,8 @@ namespace Prismatic{
 					abs_squared << < (psi_size*(Nstop-Nstart) - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> > (psiIntensity_ds, psi_ds, psi_size*(Nstop-Nstart));
 
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						const size_t ay = (pars.meta.arbitraryProbes) ? 0 : (Nstart + batch_idx) / pars.numXprobes;
+						const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 						formatOutput_GPU_integrate(pars, psiIntensity_ds + (batch_idx * psi_size),
 												alphaInd_d, output_ph, integratedOutput_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
@@ -1038,8 +1038,8 @@ namespace Prismatic{
 		// initialize psi
 		const size_t psi_size = dimj*dimi;
 		for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-			const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-			const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+			const size_t ay = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) / pars.numXprobes;
+			const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 			PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 			PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
 			initializePsi << < (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >> >
@@ -1068,8 +1068,8 @@ namespace Prismatic{
 
 				if ( ( ((planeNum+1) % pars.numSlices) == 0 && ((planeNum+1) >= pars.zStartPlane) ) || ((planeNum+1) == pars.numPlanes) ){
 					for (auto batch_idx = 0; batch_idx < (Nstop-Nstart); ++batch_idx) {
-						const size_t ay = (Nstart + batch_idx) / pars.xp.size();
-						const size_t ax = (Nstart + batch_idx) % pars.xp.size();
+						const size_t ay = (pars.meta.arbitraryProbes) ? 0 : (Nstart + batch_idx) / pars.numXprobes;
+						const size_t ax = (pars.meta.arbitraryProbes) ? (Nstart + batch_idx) : (Nstart + batch_idx) % pars.numXprobes;
 						formatOutput_GPU_c_integrate(pars, psi_ds + (batch_idx * psi_size),
 												alphaInd_d, output_c_ph, integratedOutput_c_ds, qya_d, qxa_d, currentSlice, ay, ax, dimj, dimi, stream);
 					}
@@ -1090,7 +1090,7 @@ namespace Prismatic{
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// determine the batch size to use
-	    pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.xp.size() * pars.yp.size() / max((size_t)1, (pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
+	    pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numProbes / max((size_t)1, (pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
 
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
@@ -1127,7 +1127,7 @@ namespace Prismatic{
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// determine the batch size to use
-		pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.xp.size() * pars.yp.size() / max((size_t)1, (pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
+		pars.meta.batchSizeGPU = min(pars.meta.batchSizeTargetGPU, max((size_t)1, pars.numProbes / max((size_t)1, (pars.meta.numStreamsPerGPU*pars.meta.numGPUs))));
 
 		// populate the Multislice output stack dividing the work between GPUs and CPU cores.
 		// this version assumes the full trans array fits into DRAM on each GPU
