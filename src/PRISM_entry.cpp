@@ -53,6 +53,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		PRISM_runFP(prismatic_pars, i);
 	}
 
+	std::cout << "All frozen phonon configurations complete. Writing data to output file." << std::endl;
 	//average data by fp
 	for (auto &i : prismatic_pars.net_output)
 		i /= prismatic_pars.meta.numFP;
