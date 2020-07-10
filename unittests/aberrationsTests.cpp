@@ -121,8 +121,71 @@ BOOST_FIXTURE_TEST_CASE(probeIO_M, basicSim)
 
     BOOST_TEST(dataCheck);
     BOOST_TEST(dimCheck);
+    BOOST_TEST(probeArr.get_dimi() = dim1.get_dimi());
+    BOOST_TEST(probeArr.get_dimj() = dim2.get_dimi());
     removeFile(meta.filenameOutput);
-}
+};
+
+BOOST_FIXTURE_TEST_CASE(probeIO_P, basicSim)
+{
+    meta.filenameOutput = "../test/probeIO_P.h5";
+    meta.potential3D = false;
+    meta.save2DOutput = false;
+    meta.save3DOutput = true;
+    meta.save4DOutput = false;
+    meta.savePotentialSlices = false;
+    meta.saveSMatrix = false;
+    meta.saveDPC_CoM = false;
+    meta.saveProbe = true;
+    meta.algorithm = Algorithm::PRISM;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n######### BEGIN TEST CASE: probeIO_P ##########\n";
+
+    go(meta);
+
+    std::cout << "########### END TEST CASE: probeIO_P ##########\n";
+    revertOutput(fd, pos);
+
+    //check for array
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> probeArr;
+    Array1D<PRISMATIC_FLOAT_PRECISION> dim1;
+    Array1D<PRISMATIC_FLOAT_PRECISION> dim2;
+
+    std::string datapath = "4DSTEM_simulation/data/diffractionslices/probe/data";
+    std::string dim1path = "4DSTEM_simulation/data/diffractionslices/probe/dim1";
+    std::string dim2path = "4DSTEM_simulation/data/diffractionslices/probe/dim2";
+    std::vector<size_t> order2D = {0,1};
+    std::vector<size_t> order1D = {0};
+    bool dataCheck;
+    try
+    {
+        readComplexDataSet(probeArr, meta.filenameOutput, datapath, order2D);
+        dataCheck = true;
+    }
+    catch(...)
+    {
+        dataCheck = false;
+    }
+
+    bool dimCheck;
+    try
+    {
+        readRealDataSet(dim1, meta.filenameOutput, dim1path, order1D);
+        readRealDataSet(dim2, meta.filenameOutput, dim2path, order1D);
+        dimCheck = true;
+    }
+    catch(...)
+    {
+        dimCheck = false;
+    }
+
+    BOOST_TEST(dataCheck);
+    BOOST_TEST(dimCheck);
+    BOOST_TEST(probeArr.get_dimi() = dim1.get_dimi());
+    BOOST_TEST(probeArr.get_dimj() = dim2.get_dimi());
+    removeFile(meta.filenameOutput);
+};
 
 BOOST_AUTO_TEST_SUITE_END();
 
