@@ -85,6 +85,12 @@ void writeRealDataSet(H5::Group group,
                         const size_t &rank,
                         std::vector<size_t> &order);
 
+void writeRealDataSet_inOrder(H5::Group group,
+                        const std::string &dsetname,
+                        const PRISMATIC_FLOAT_PRECISION *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank);
+
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data);
@@ -192,6 +198,36 @@ void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
     dataset.close();
     input.close();
 };
+
+template <size_t N>
+void readRealDataSet_inOrder(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
+                        const std::string &filename,
+                        const std::string &dataPath)
+{
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::DataSet dataset = input.openDataSet(dataPath.c_str());
+	H5::DataSpace dataspace = dataset.getSpace();
+
+	hsize_t dims_out[N];
+	int ndims = dataspace.getSimpleExtentDims(dims_out, NULL);
+	H5::DataSpace mspace(N,dims_out);
+
+    H5::DSetCreatPropList plist = dataset.getCreatePlist();
+    H5D_layout_t layout = plist.getLayout();
+    bool virtualCheck = layout == H5D_VIRTUAL;
+
+    std::array<size_t, N> data_dims;
+    for(auto i = 0; i < N; i++) data_dims[i] = dims_out[i];
+
+	output = zeros_ND<N, PRISMATIC_FLOAT_PRECISION>(data_dims);
+    dataset.read(&output[0], dataset.getDataType(), mspace, dataspace);
+
+    mspace.close();
+    dataspace.close();
+    dataset.close();
+    input.close();
+};
+
 
 // void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims, const hsize_t *offset, const PRISMATIC_FLOAT_PRECISION numFP, const std::string nameString);
 template<class T>
