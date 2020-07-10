@@ -178,6 +178,7 @@ namespace Prismatic{
 			catch (const std::domain_error &e) {
 				std::cout << "Prismatic: Error extracting atomic data from " << meta.filenameAtoms << "!" << std::endl;
 				std::cout << e.what();
+				std::cout << "Adjust simulation parameters or request larger file size with --max-filesize" << std::endl;
 				throw;
 			}
 
@@ -269,7 +270,17 @@ namespace Prismatic{
 			}
 
 			//check filesize
-			calculateFileSize();
+			try
+			{
+				calculateFileSize();
+			}
+			catch (const std::runtime_error &e)
+			{
+				std::cout << "Prismatic: Error with requested simulation settings." << std::endl;
+				std::cout << e.what()  << std::endl;
+				throw;
+			}
+			
 			#ifdef PRISMATIC_ENABLE_GPU
 			#ifndef NDEBUG
 					// for monitoring memory consumption on GPU
@@ -372,6 +383,10 @@ namespace Prismatic{
 
 		if(meta.savePotentialSlices) numElems += imageSize[0]*imageSize[1]*std::ceil(tiledCellDim[0]/meta.sliceThickness);
 		std::cout << "app. output file size is: " << numElems*sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
+		if(numElems*sizeof(PRISMATIC_FLOAT_PRECISION) > meta.maxFileSize)
+		{
+			throw std::runtime_error("Simulation output file will be larger than maximum allowed file size.");
+		}
 	}
 
 	template <class T>

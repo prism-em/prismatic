@@ -107,7 +107,8 @@ void printHelp()
               << "* --ytilt-tem (-ytt) min max step : plane wave tilt selection for HRTEM in y (in mrad) (default: " << defaults.minYtilt * 1000 << " " << defaults.maxYtilt * 1000 << " " << defaults.yTiltStep * 1000 << ")\n"
               << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
               << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n"
-              << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n";
+              << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n"
+              << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -1618,6 +1619,24 @@ bool parse_pos(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_maxFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No file size provided for --max-filesize (syntax is --max-filesize filesize)\n";
+        return false;
+    }
+    if ((meta.maxFileSize = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) * 1e9 == 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for max file size (syntax is --max-filesize filesize)\n";
+        return false;
+    }
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1696,7 +1715,9 @@ static std::map<std::string, parseFunction> parser{
     {"--ytilt-tem", parse_ytt}, {"-ytt", parse_ytt},
     {"--rtilt-tem", parse_rtt}, {"-rtt", parse_rtt},
     {"--tilt-offset-tem", parse_tot}, {"-tot", parse_tot},
-    {"--probe-pos", parse_pos}, {"-pos", parse_pos}};
+    {"--probe-pos", parse_pos}, {"-pos", parse_pos},
+    {"--max-filesize", parse_maxFile}
+    };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {
