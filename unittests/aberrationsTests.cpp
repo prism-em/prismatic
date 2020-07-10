@@ -11,6 +11,7 @@
 #include "fileIO.h"
 #include "H5Cpp.h"
 #include "utility.h"
+#include "aberration.h"
 
 namespace Prismatic{
 
@@ -185,6 +186,17 @@ BOOST_FIXTURE_TEST_CASE(probeIO_P, basicSim)
     BOOST_TEST(probeArr.get_dimi() = dim1.get_dimi());
     BOOST_TEST(probeArr.get_dimj() = dim2.get_dimi());
     removeFile(meta.filenameOutput);
+};
+
+BOOST_AUTO_TEST_CASE(parser)
+{
+    std::string fname = "../unittests/pfiles/ab_list";
+    std::vector<aberration> abberations = readAberrations(fname);
+    BOOST_TEST(abberations[0].m == 1);
+    BOOST_TEST(abberations[0].n == 2);
+    BOOST_TEST(abberations[0].mag == 3.14);
+    BOOST_TEST(abberations[0].angle == 23);
+
 };
 
 BOOST_AUTO_TEST_SUITE_END();

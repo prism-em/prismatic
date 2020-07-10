@@ -245,6 +245,7 @@ std::vector<T> getUnique(std::vector<T> input)
 
     return input;
 }
+
 } // namespace Prismatic
 
 #endif //PRISMATIC_UTILITY_H

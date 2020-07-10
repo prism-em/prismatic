@@ -22,6 +22,7 @@
 #include "atom.h"
 #include "meta.h"
 #include "H5Cpp.h"
+#include "aberration.h"
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
