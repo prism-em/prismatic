@@ -234,6 +234,8 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	data_dims[1] = {pars.numYprobes};
 	data_dims[2] = {pars.Ndet};
 
+	hsize_t chunkDims[3] = {1, pars.numYprobes, pars.Ndet};
+
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t bin_dim[1] = {pars.Ndet};
@@ -260,13 +262,15 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
 
 		H5::DataSet VD_data;
+		H5::DSetCreatPropList plist;
+		plist.setChunk(3, chunkDims);
 		if(pars.meta.saveComplexOutputWave)
 		{
-			VD_slice_n.createDataSet("realslice", complex_type, mspace);
+			VD_slice_n.createDataSet("realslice", complex_type, mspace, plist);
 		}
 		else
 		{
-			VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
+			VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace, plist);
 		}
 
 		VD_data.close();
@@ -1372,13 +1376,16 @@ void writeRealDataSet(H5::Group group,
 	}		
 	
 	H5::DataSpace fspace = real_dset.getSpace();
+	std::cout << "Organizing dataspace." << std::endl;
 	if(rank > 1)
 	{
 		std::vector<size_t> rdims;
 		for(auto i =0; i < rank; i++) rdims.push_back(mdims[i]);
 		restrideElements(fspace, rdims, order);
 	}
+	std::cout << "Writing dataset." << std::endl;
 	real_dset.write(buffer, PFP_TYPE, mspace, fspace);
+	std::cout << "Write finished." << std::endl;
 
 	//close spaces
 	fspace.close();

@@ -1575,5 +1575,36 @@ BOOST_AUTO_TEST_CASE(CBEDoperator)
 
 }
 
+BOOST_FIXTURE_TEST_CASE(fileSizeCheck, basicSim)
+{
+    meta.filenameOutput = "../test/fileSizeCheck.h5";
+    // meta.filenameAtoms = "../test/au_np.xyz";
+    meta.potential3D = false;
+    meta.save2DOutput = false;
+    meta.save3DOutput = true;
+    meta.save4DOutput = false;
+    meta.savePotentialSlices = false;
+    meta.saveSMatrix = false;
+    meta.saveDPC_CoM = false;
+    meta.maxFileSize = 100;
+    meta.algorithm = Algorithm::PRISM;
+
+    divertOutput(pos, fd, logPath);
+    bool errorCheck = false;
+    std::cout << "\n####### BEGIN TEST CASE: fileSizeCheck ########\n";
+    try
+    {
+        Parameters<PRISMATIC_FLOAT_PRECISION> testParams(meta);
+    }
+    catch (...)
+    {
+        errorCheck = true;
+    }
+    std::cout << "######### END TEST CASE: fileSizeCheck ########\n";
+    revertOutput(fd, pos);
+
+    BOOST_TEST(errorCheck);
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 }

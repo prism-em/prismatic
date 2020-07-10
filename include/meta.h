@@ -117,6 +117,7 @@ namespace Prismatic{
             saveComplexOutputWave = false;
             enterCheck            = false;
             arbitraryProbes       = false;
+            maxFileSize           = 2e9;
             importFile            = "";
             importPath            = "";
         }
@@ -203,7 +204,8 @@ namespace Prismatic{
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
         bool enterCheck;
-        bool arbitraryProbes; 
+        bool arbitraryProbes;
+        unsigned long long int maxFileSize; 
         StreamingMode transferMode;
         TiltSelection tiltMode;
 
