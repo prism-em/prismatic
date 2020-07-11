@@ -101,4 +101,34 @@ std::vector<aberration> readAberrations(const std::string &filename)
 	return aberrations;
 };
 
+Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_PRECISION> &q,
+                                                        Array2D<PRISMATIC_FLOAT_PRECISION> &qTheta,
+                                                        PRISMATIC_FLOAT_PRECISION &lambda, 
+                                                        std::vector<aberration> &ab)
+{
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{q.get_dimj(), q.get_dimi()}});
+	const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
+	std::cout << "number of aberrations: " << ab.size() << std::endl;
+    for(auto n = 0; n < ab.size(); n++)
+    {
+        for(auto j = 0; j < chi.get_dimi(); j++)
+        {
+            for(auto i = 0; i < chi.get_dimi(); i++)
+            {
+				PRISMATIC_FLOAT_PRECISION rad = ab[n].angle * pi / 180.0;
+                PRISMATIC_FLOAT_PRECISION cx = ab[n].mag * cos(ab[n].n*rad);
+                PRISMATIC_FLOAT_PRECISION cy = ab[n].mag * sin(ab[n].n*rad);
+                PRISMATIC_FLOAT_PRECISION tmp = chi.at(j,i).real();
+				tmp += cx*pow(lambda*q.at(j,i), ab[n].n)*cos(ab[n].m * qTheta.at(j,i));
+                tmp += cy*pow(lambda*q.at(j,i), ab[n].n)*sin(ab[n].m * qTheta.at(j,i));
+                chi.at(j,i).real(tmp);
+            }
+        }
+    }
+
+    return chi;
+
+};
+
 } //namespace Prismatic

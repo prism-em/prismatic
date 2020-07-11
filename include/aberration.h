@@ -18,13 +18,14 @@
 #include <array>
 #include <iostream>
 #include "ArrayND.h"
+#include "defines.h"
 
 struct aberration
 {
     int m;
     int n;
-    double mag;
-    double angle;
+    PRISMATIC_FLOAT_PRECISION mag;
+    PRISMATIC_FLOAT_PRECISION angle;
     void to_string() const
     {
         std::cout << "m = " << m << std::endl;
@@ -38,9 +39,15 @@ struct aberration
 namespace Prismatic
 {
 
+template <class T>
+using Array2D = Prismatic::ArrayND<2, std::vector<T> >;
+
 std::vector<aberration> readAberrations(const std::string &filename);
 
-// Array2D<PRISMATIC_FLOAT_PRECISION> getChi(Array2D<PRISMATIC_FLOAT_PRECISION> &q);
+Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_PRECISION> &q,
+                                                        Array2D<PRISMATIC_FLOAT_PRECISION> &qTheta,
+                                                        PRISMATIC_FLOAT_PRECISION &lambda, 
+                                                        std::vector<aberration> &ab);
 
 } // namespace Prismatic
 #endif //PRISM_ABERRATION_H
