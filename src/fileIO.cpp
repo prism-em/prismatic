@@ -1395,7 +1395,35 @@ void writeRealDataSet(H5::Group group,
 	mspace.close();
 	real_dset.close();
 
-}
+};
+
+void writeRealDataSet_inOrder(H5::Group group,
+						const std::string &dsetname,
+						const PRISMATIC_FLOAT_PRECISION *buffer,
+						const hsize_t *mdims,
+						const size_t &rank)
+{
+	//create dataset and write
+	H5::DataSpace mspace(rank, mdims);
+
+	H5::DataSet real_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		real_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		real_dset = group.createDataSet(dsetname.c_str(), PFP_TYPE, mspace);
+	}		
+	
+	H5::DataSpace fspace = real_dset.getSpace();
+	real_dset.write(buffer, PFP_TYPE, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	real_dset.close();
+};
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data)
 {
@@ -1701,15 +1729,15 @@ void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vec
 	}
 
 	//fill coordinates and make element selections
-	hsize_t coords[block0*block1][rank];
+	hsize_t * coords = (hsize_t*) malloc(block0*block1*rank*sizeof(hsize_t));
 	for(auto n = 0; n < Nblocks; n++)
 	{
 		for(auto m = 0; m < block0*block1; m++)
 		{
-			for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
-			for(auto j = 2; j < rank; j++)	coords[m][order[j]] = (n / divs[j]) % mods[j];
+			for(auto j = 0; j < 2; j++)	coords[m*rank+order[j]] = (m / divs[j]) % mods[j];
+			for(auto j = 2; j < rank; j++)	coords[m*rank+order[j]] = (n / divs[j]) % mods[j];
 		}
-		fspace.selectElements(H5S_SELECT_APPEND, block0*block1, &coords[0][0]);
+		fspace.selectElements(H5S_SELECT_APPEND, block0*block1, coords);
 	}
 	
 };

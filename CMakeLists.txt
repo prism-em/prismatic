@@ -81,6 +81,7 @@ if (PRISMATIC_TESTS)
             unittests/processingTests.cpp
             unittests/probeTests.cpp
             unittests/seriesTests.cpp
+            unittests/ioSpeedTests.cpp
             )
 endif (PRISMATIC_TESTS)
 
