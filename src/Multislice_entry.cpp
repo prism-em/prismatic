@@ -50,11 +50,28 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	// calculate frozen phonon configurations
 	if(prismatic_pars.meta.simSeries)
 	{
-		createScratchFile(prismatic_pars);
-
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			Multislice_series_runFP(prismatic_pars, i);
+		}
+
+		for(auto i = 0; i < prismatic_pars.meta.seriesTags.size(); i++)
+		{
+			std::cout << "writing output for series iter " << i << std::endl;
+			std::string currentName = prismatic_pars.meta.seriesTags[i];
+			prismatic_pars.currentTag = currentName;
+			readRealDataSet_inOrder(prismatic_pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
+			//average data by fp
+			for (auto &i : prismatic_pars.net_output)
+				i /= prismatic_pars.meta.numFP;
+
+			if (prismatic_pars.meta.saveDPC_CoM)
+			{
+				for (auto &j : prismatic_pars.net_DPC_CoM)
+					j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+			}
+
+			saveSTEM(prismatic_pars);
 		}
 	}
 	else
@@ -166,9 +183,9 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 		Multislice_calcOutput(pars);
 		pars.outputFile.close();
 
+		if(i == 0 and fpNum == 0) createScratchFile(pars);
 		updateScratchData(pars);
 
-		saveSTEM(pars);
 	}
 
 	

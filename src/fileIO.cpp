@@ -1817,7 +1817,7 @@ void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::Group scratchGroup = pars.scratchFile.createGroup("scratch");
 
 	//initialize datasets
-	hsize_t mdims[4] = {1,1,1,1};
+	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
 	H5::DataSpace mspace(4,mdims);
 	for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
 	{
@@ -1844,12 +1844,14 @@ void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	std::string currentName = pars.currentTag;
 	std::vector<size_t> order = {0,1,2,3};
-	readRealDataSet(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName, order);
+	std::cout << "Reading scratch dataset " << pars.currentTag << " from " <<  "prismatic_scratch.h5" << std::endl;
+	readRealDataSet_inOrder(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
 	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
 
 	H5::Group scratch = pars.scratchFile.openGroup("scratch");
 	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
-	writeRealDataSet(scratch, pars.currentTag, &tmp_buffer[0], mdims, 4, order);
+	std::cout << "Writing scratch dataset " << pars.currentTag << " to " <<  "prismatic_scratch.h5" << std::endl;
+	writeRealDataSet_inOrder(scratch, pars.currentTag, &tmp_buffer[0], mdims, 4);
 
 	scratch.close();
 
