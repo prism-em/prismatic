@@ -50,6 +50,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	// calculate frozen phonon configurations
 	if(prismatic_pars.meta.simSeries)
 	{
+		createScratchFile(prismatic_pars);
+
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			Multislice_series_runFP(prismatic_pars, i);
@@ -80,6 +82,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
+	removeScratchFile(prismatic_pars);
 
 #ifdef PRISMATIC_ENABLE_GPU
 	cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
@@ -163,18 +166,8 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 		Multislice_calcOutput(pars);
 		pars.outputFile.close();
 
-		if(fpNum >= 1)
-		{
-			pars.net_output += pars.output;
-			pars.net_output_c += pars.output_c;
-			if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
-		}
-		else
-		{
-			pars.net_output = pars.output;
-			pars.net_output_c = pars.output_c;
-			if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
-		}
+		updateScratchData(pars);
+
 		saveSTEM(pars);
 	}
 

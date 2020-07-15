@@ -1785,7 +1785,7 @@ hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> 
 void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//TODO: decide home directory for windows
-	pars.scratchFile = H5::H5File("~/prismatic_scratch.h5", H5F_ACC_TRUNC);
+	pars.scratchFile = H5::H5File("prismatic_scratch.h5", H5F_ACC_TRUNC);
 	H5::Group scratchGroup = pars.scratchFile.createGroup("scratch");
 
 	//initialize datasets
@@ -1803,7 +1803,7 @@ void removeScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//TODO: make better decision about where scratch file is written
 	// and save name as a member of pars
 	pars.scratchFile.close();
-	if( remove( "~/prismatic_scratch.h5" ) != 0 )
+	if( remove( "prismatic_scratch.h5" ) != 0 )
         perror( "Error deleting scratch file" );
     else
         puts( "Scratch file successfully deleted" );
@@ -1816,7 +1816,7 @@ void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	std::string currentName = pars.currentTag;
 	std::vector<size_t> order = {0,1,2,3};
-	readRealDataSet(tmp_buffer, "~/prismatic_scratch.h5", "scratch/"+currentName, order);
+	readRealDataSet(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName, order);
 	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
 
 	H5::Group scratch = pars.scratchFile.openGroup("scratch");
