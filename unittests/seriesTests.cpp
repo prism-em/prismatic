@@ -10,7 +10,6 @@
 #include <random>
 #include "fileIO.h"
 #include "utility.h"
-#include "probe.h"
 
 namespace Prismatic{
 
@@ -65,9 +64,34 @@ BOOST_GLOBAL_FIXTURE(logFile);
 
 BOOST_AUTO_TEST_SUITE(seriesTests);
 
-BOOST_AUTO_TEST_CASE(first)
+BOOST_FIXTURE_TEST_CASE(CC_series_M, basicSim)
 {
-    BOOST_TEST(1==0);
+    meta.algorithm = Algorithm::Multislice;
+    meta.simSeries = true;
+    meta.seriesVals = {-1.0, 0.0, 1.0};
+    meta.seriesTags = {"_df0000", "_df0001", "_df0002"};
+    meta.filenameOutput = "../test/CC_series.h5";
+    meta.save3DOutput = true;
+    meta.save2DOutput = false;
+    meta.save4DOutput = false;
+    meta.savePotentialSlices = false;
+    meta.saveDPC_CoM = false;
+
+    divertOutput(pos, fd, logPath);
+    std::cout << "\n######## BEGIN TEST CASE: CC_series_M ##########\n";
+    go(meta);
+    std::cout << "########## END TEST CASE: CC_series_M ##########\n";
+    revertOutput(fd, pos);
+
+    H5::H5File output = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
+    std::string basename = "virtual_detector_depth0000";
+    H5::Group realslices = output.openGroup("4DSTEM_simulation/data/realslices");
+    for(auto i = 0; i < meta.seriesTags.size(); i++)
+    {
+        std::string cur_name = basename + meta.seriesTags[i];
+        bool nameCheck = realslices.nameExists(cur_name.c_str());
+        BOOST_TEST(nameCheck);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END();

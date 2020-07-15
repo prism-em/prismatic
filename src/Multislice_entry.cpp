@@ -48,24 +48,38 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	if(prismatic_pars.meta.importPotential) configureImportFP(prismatic_pars);
 
 	// calculate frozen phonon configurations
-	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+	if(prismatic_pars.meta.simSeries)
 	{
-		Multislice_runFP(prismatic_pars, i);
-	}	
-
-	//average data by fp
-	for (auto &i : prismatic_pars.net_output)
-		i /= prismatic_pars.meta.numFP;
-	for (auto &i : prismatic_pars.net_output_c)
-		i /= prismatic_pars.meta.numFP;
-
-	if (prismatic_pars.meta.saveDPC_CoM)
-	{
-		for (auto &j : prismatic_pars.net_DPC_CoM)
-			j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+		{
+			Multislice_series_runFP(prismatic_pars, i);
+		}
 	}
+	else
+	{
+		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+		{
+			Multislice_runFP(prismatic_pars, i);
+		}	
 
-	saveSTEM(prismatic_pars);
+		//average data by fp
+		for (auto &i : prismatic_pars.net_output)
+			i /= prismatic_pars.meta.numFP;
+		for (auto &i : prismatic_pars.net_output_c)
+			i /= prismatic_pars.meta.numFP;
+
+		if (prismatic_pars.meta.saveDPC_CoM)
+		{
+			for (auto &j : prismatic_pars.net_DPC_CoM)
+				j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+		}
+
+		saveSTEM(prismatic_pars);
+	}
+		
+	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	writeMetadata(prismatic_pars);
+	prismatic_pars.outputFile.close();
 
 #ifdef PRISMATIC_ENABLE_GPU
 	cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
@@ -114,6 +128,56 @@ void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 		pars.net_output_c = pars.output_c;
 		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
 	}
+	
+
+};
+
+void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
+{
+
+	pars.meta.randomSeed = rand() % 100000;
+	pars.meta.fpNum = fpNum;
+	cout << "Frozen Phonon #" << fpNum << endl;
+	pars.meta.toString();
+
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	pars.fpFlag = fpNum;
+	pars.scale = 1.0;
+
+	// compute projected potentials
+	if(pars.meta.importPotential)
+	{
+		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+		PRISM01_importPotential(pars);
+	}
+	else
+	{
+		PRISM01_calcPotential(pars);
+	}
+
+	//update original object as prismatic_pars is recreated later
+	for(auto i = 0; i < pars.meta.seriesVals.size(); i++)
+	{
+		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
+		pars.currentTag = pars.meta.seriesTags[i];
+		Multislice_calcOutput(pars);
+		pars.outputFile.close();
+
+		if(fpNum >= 1)
+		{
+			pars.net_output += pars.output;
+			pars.net_output_c += pars.output_c;
+			if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
+		}
+		else
+		{
+			pars.net_output = pars.output;
+			pars.net_output_c = pars.output_c;
+			if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
+		}
+		saveSTEM(pars);
+	}
+
 	
 
 };

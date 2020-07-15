@@ -135,7 +135,9 @@ namespace Prismatic{
 		std::vector<T> depths;
 	    size_t numberBeams;
 		H5::H5File outputFile;
+		H5::H5File scratchFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
+		std::string currentTag;
 
 		#ifdef PRISMATIC_ENABLE_GPU
 				cudaDeviceProp deviceProperties;

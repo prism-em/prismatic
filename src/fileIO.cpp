@@ -250,8 +250,10 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
+		std::cout << "here" << std::endl;
 		H5::Group VD_slice_n(realslices.createGroup(nth_name.c_str()));
+		std::cout << "here 2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(VD_slice_n, "emd_group_type", 1);
@@ -867,9 +869,11 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		std::vector<size_t> order = {0,1,2};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString;
+			nameString = "4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(j);
+			nameString = nameString + pars.currentTag;
+			std::cout << nameString << std::endl;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			if(pars.meta.saveComplexOutputWave)
 			{
 				writeComplexDataSet(dataGroup, "realslice", &pars.net_output_c[j*strides], mdims, 3, order);
@@ -953,7 +957,6 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 	}
 
-	writeMetadata(pars);
 	pars.outputFile.close();
 };
 
@@ -1778,5 +1781,51 @@ hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> 
 
 	return (hsize_t *) coords;	
 };
+
+void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//TODO: decide home directory for windows
+	pars.scratchFile = H5::H5File("~/prismatic_scratch.h5", H5F_ACC_TRUNC);
+	H5::Group scratchGroup = pars.scratchFile.createGroup("scratch");
+
+	//initialize datasets
+	hsize_t mdims[4] = {1,1,1,1};
+	H5::DataSpace mspace(4,mdims);
+	for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
+	{
+		scratchGroup.createDataSet(pars.meta.seriesTags[i].c_str(), PFP_TYPE, mspace);
+	}
+	scratchGroup.close();
+};
+
+void removeScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//TODO: make better decision about where scratch file is written
+	// and save name as a member of pars
+	pars.scratchFile.close();
+	if( remove( "~/prismatic_scratch.h5" ) != 0 )
+        perror( "Error deleting scratch file" );
+    else
+        puts( "Scratch file successfully deleted" );
+};
+
+void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//for series simulations, need to update the 3D output array independently with a read-add-write process
+	Array4D<PRISMATIC_FLOAT_PRECISION> tmp_buffer(pars.output);
+
+	std::string currentName = pars.currentTag;
+	std::vector<size_t> order = {0,1,2,3};
+	readRealDataSet(tmp_buffer, "~/prismatic_scratch.h5", "scratch/"+currentName, order);
+	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
+
+	H5::Group scratch = pars.scratchFile.openGroup("scratch");
+	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
+	writeRealDataSet(scratch, pars.currentTag, &tmp_buffer[0], mdims, 4, order);
+
+	scratch.close();
+
+};
+
 
 } //namespace Prismatic

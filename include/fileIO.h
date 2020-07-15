@@ -233,7 +233,13 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, T *
 
 	writeGatekeeper.unlock();
 };
-						
+
+void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void removeScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 } //namespace Prismatic
 
 #endif //PRISMATIC_FILEIO_H
