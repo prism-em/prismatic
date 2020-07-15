@@ -68,7 +68,8 @@ BOOST_FIXTURE_TEST_CASE(CC_series_M, basicSim)
 {
     meta.algorithm = Algorithm::Multislice;
     meta.simSeries = true;
-    meta.seriesVals = {-1.0, 0.0, 1.0};
+    meta.seriesVals = {{-10.0, 0.0, 10.0}};
+    meta.seriesKeys = {"probeDefocus"};
     meta.seriesTags = {"_df0000", "_df0001", "_df0002"};
     meta.filenameOutput = "../test/CC_series.h5";
     meta.save3DOutput = true;

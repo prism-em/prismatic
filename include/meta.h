@@ -119,7 +119,8 @@ namespace Prismatic{
             enterCheck            = false;
             arbitraryProbes       = false;
             simSeries             = false;
-            seriesVals            = {};
+            seriesVals            = {{}};
+            seriesKeys            = {};
             seriesTags            = {};
             maxFileSize           = 2e9;
             importFile            = "";
@@ -209,7 +210,8 @@ namespace Prismatic{
         bool enterCheck;
         bool arbitraryProbes;
         bool simSeries;
-        std::vector<T> seriesVals;
+        std::vector<std::vector<T>> seriesVals;
+        std::vector<std::string> seriesKeys;
         std::vector<std::string> seriesTags;
         unsigned long long int maxFileSize; 
         StreamingMode transferMode;

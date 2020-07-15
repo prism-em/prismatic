@@ -176,10 +176,12 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 	}
 
 	//update original object as prismatic_pars is recreated later
-	for(auto i = 0; i < pars.meta.seriesVals.size(); i++)
+	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
-		pars.currentTag = pars.meta.seriesTags[i];
+
+		updateSeriesParams(pars, i);
+		std::cout << "Current defocus: " << pars.meta.probeDefocus << std::endl;
 		Multislice_calcOutput(pars);
 		pars.outputFile.close();
 

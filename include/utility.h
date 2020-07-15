@@ -245,6 +245,9 @@ std::vector<T> getUnique(std::vector<T> input)
 
     return input;
 }
+
+void updateSeriesParams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t iter);
+
 } // namespace Prismatic
 
 #endif //PRISMATIC_UTILITY_H
