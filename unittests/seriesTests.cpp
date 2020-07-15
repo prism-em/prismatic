@@ -73,10 +73,12 @@ BOOST_FIXTURE_TEST_CASE(CC_series_M, basicSim)
     meta.seriesTags = {"_df0000", "_df0001", "_df0002"};
     meta.filenameOutput = "../test/CC_series.h5";
     meta.save3DOutput = true;
-    meta.save2DOutput = false;
-    meta.save4DOutput = false;
+    meta.save2DOutput = true;
+    meta.save4DOutput = true;
     meta.savePotentialSlices = false;
     meta.saveDPC_CoM = false;
+    meta.probeStepX = 1;
+    meta.probeStepY = 1;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: CC_series_M ##########\n";
@@ -85,13 +87,27 @@ BOOST_FIXTURE_TEST_CASE(CC_series_M, basicSim)
     revertOutput(fd, pos);
 
     H5::H5File output = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDONLY);
-    std::string basename = "virtual_detector_depth0000";
+    std::string basename_3D = "virtual_detector_depth0000";
+    std::string basename_2D = "annular_detector_depth0000";
+    std::string basename_4D = "CBED_array_depth0000";
+
     H5::Group realslices = output.openGroup("4DSTEM_simulation/data/realslices");
+    H5::Group datacubes = output.openGroup("4DSTEM_simulation/data/datacubes");
+
     for(auto i = 0; i < meta.seriesTags.size(); i++)
     {
-        std::string cur_name = basename + meta.seriesTags[i];
-        bool nameCheck = realslices.nameExists(cur_name.c_str());
-        BOOST_TEST(nameCheck);
+        std::string cur_name_2D = basename_2D + meta.seriesTags[i];
+        bool nameCheck_2D = realslices.nameExists(cur_name_2D.c_str());
+        BOOST_TEST(nameCheck_2D);
+        
+        std::string cur_name_3D = basename_3D + meta.seriesTags[i];
+        bool nameCheck_3D = realslices.nameExists(cur_name_3D.c_str());
+        BOOST_TEST(nameCheck_3D);
+
+        std::string cur_name_4D = basename_4D + meta.seriesTags[i];
+        bool nameCheck_4D = datacubes.nameExists(cur_name_4D.c_str());
+        BOOST_TEST(nameCheck_4D);
+        
     }
 }
 

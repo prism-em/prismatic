@@ -54,7 +54,9 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
+	std::cout << "here?0" << std::endl;
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
+	std::cout << "here?0.5" << std::endl;
 
 	//shared properties
 	std::string base_name = "CBED_array_depth";
@@ -158,11 +160,13 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
+	std::cout << "here?1" << std::endl;
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
+		std::cout << "here?2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(CBED_slice_n, "emd_group_type", 1);
@@ -185,6 +189,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			CBED_data = CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
 		}
 		mspace.close();
+		std::cout << "here?3" << std::endl;
 
 		//write dimensions
 		H5::DataSpace str_name_ds(H5S_SCALAR);
@@ -329,7 +334,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 
 		//write attributes
@@ -394,7 +399,7 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group DPC_CoM_slice_n(realslices.createGroup(nth_name.c_str()));
 
 		//write attributes
@@ -895,9 +900,9 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[2] = {pars.numXprobes, pars.numYprobes};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString = "4DSTEM_simulation/data/realslices/annular_detector_depth" + getDigitString(j);
+			nameString += pars.currentTag;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
 
 			if(pars.meta.saveComplexOutputWave)
 			{
