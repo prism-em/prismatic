@@ -954,9 +954,9 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		std::vector<size_t> order = {2,0,1};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString = "4DSTEM_simulation/data/realslices/DPC_CoM_depth" + getDigitString(j);
+			nameString += pars.currentTag;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
 			writeRealDataSet(dataGroup, "realslice", &pars.net_DPC_CoM[j*strides], mdims, 3, order);
 			dataGroup.close();
 		}
@@ -1827,6 +1827,20 @@ void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
 	{
 		scratchGroup.createDataSet(pars.meta.seriesTags[i].c_str(), PFP_TYPE, mspace);
+			
+	}
+
+	if(pars.meta.saveDPC_CoM)
+	{
+		hsize_t mdims_dpc[4] = {pars.DPC_CoM.get_diml(), pars.DPC_CoM.get_dimk(), pars.DPC_CoM.get_dimj(), pars.DPC_CoM.get_dimi()};
+		std::cout << "MDIMS: " << mdims_dpc[0] << " " << mdims_dpc[1] << " " << mdims_dpc[2] << " " << mdims_dpc[3] << std::endl;
+		H5::DataSpace mspace_dpc(4,mdims_dpc);
+		for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
+		{
+			std::string current_name = pars.meta.seriesTags[i]+"_DPC";
+			scratchGroup.createDataSet(current_name.c_str(), PFP_TYPE, mspace_dpc);
+				
+		}
 	}
 	scratchGroup.close();
 };
@@ -1846,18 +1860,33 @@ void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	//for series simulations, need to update the 3D output array independently with a read-add-write process
 	Array4D<PRISMATIC_FLOAT_PRECISION> tmp_buffer(pars.output);
-
 	std::string currentName = pars.currentTag;
-	std::vector<size_t> order = {0,1,2,3};
-	std::cout << "Reading scratch dataset " << pars.currentTag << " from " <<  "prismatic_scratch.h5" << std::endl;
+	std::cout << "Reading scratch dataset " << currentName << " from " <<  "prismatic_scratch.h5" << std::endl;
 	readRealDataSet_inOrder(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
 	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
 
 	H5::Group scratch = pars.scratchFile.openGroup("scratch");
 	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
-	std::cout << "Writing scratch dataset " << pars.currentTag << " to " <<  "prismatic_scratch.h5" << std::endl;
-	writeRealDataSet_inOrder(scratch, pars.currentTag, &tmp_buffer[0], mdims, 4);
+	std::cout << "Writing scratch dataset " << currentName << " to " <<  "prismatic_scratch.h5" << std::endl;
+	writeRealDataSet_inOrder(scratch, currentName, &tmp_buffer[0], mdims, 4);
 
+	if(pars.meta.saveDPC_CoM)
+	{
+		Array4D<PRISMATIC_FLOAT_PRECISION> dpc_buffer(pars.DPC_CoM);
+		currentName += "_DPC";
+		std::cout << "Reading scratch dataset " << currentName << " from " <<  "prismatic_scratch.h5" << std::endl;
+		readRealDataSet_inOrder(dpc_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
+		for(auto i = 0; i < pars.DPC_CoM.size(); i++) dpc_buffer[i] += pars.DPC_CoM[i];
+
+		H5::Group scratch = pars.scratchFile.openGroup("scratch");
+		hsize_t mdims_dpc[4] = {pars.DPC_CoM.get_diml(), pars.DPC_CoM.get_dimk(), pars.DPC_CoM.get_dimj(), pars.DPC_CoM.get_dimi()};
+		std::cout << "MDIMS: " << mdims_dpc[0] << " " << mdims_dpc[1] << " " << mdims_dpc[2] << " " << mdims_dpc[3] << std::endl;
+
+		std::cout << "Writing scratch dataset " << currentName << " to " <<  "prismatic_scratch.h5" << std::endl;
+
+		writeRealDataSet_inOrder(scratch, currentName, &dpc_buffer[0], mdims_dpc, 4);
+
+	}
 	scratch.close();
 
 };

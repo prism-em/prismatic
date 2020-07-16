@@ -61,6 +61,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 			std::string currentName = prismatic_pars.meta.seriesTags[i];
 			prismatic_pars.currentTag = currentName;
 			readRealDataSet_inOrder(prismatic_pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
+			if(prismatic_pars.meta.saveDPC_CoM)
+				readRealDataSet_inOrder(prismatic_pars.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
 			//average data by fp
 			for (auto &i : prismatic_pars.net_output)
 				i /= prismatic_pars.meta.numFP;
