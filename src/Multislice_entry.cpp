@@ -180,11 +180,9 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 	//update original object as prismatic_pars is recreated later
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
-		if(i > 0)
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 
 		updateSeriesParams(pars, i);
-		std::cout << "Current defocus: " << pars.meta.probeDefocus << std::endl;
 		Multislice_calcOutput(pars);
 
 		if(i == 0 and fpNum == 0) createScratchFile(pars);
