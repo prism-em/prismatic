@@ -40,9 +40,6 @@ namespace Prismatic{
 
 	// for monitoring memory consumption on GPU
 	static std::mutex memLock;
-
-	// for threadsafe HDF5 writing to 4D output
-	// static std::mutex HDF5_lock;
 	
     template <class T>
     class Parameters {
@@ -271,6 +268,45 @@ namespace Prismatic{
 				}
 			}
 
+			auto digitString = [](int digit)
+			{
+				char buffer[20];
+				sprintf(buffer, "%04d", digit);
+				std::string output = buffer;
+				return output;
+			};
+
+			if(meta.probeDefocus_step > 0.0)
+			{
+				//set up defocus series with min max step
+				std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
+				PRISMATIC_FLOAT_PRECISION currentVal = meta.probeDefocus_min;
+				int iter = 0;
+				while(currentVal < meta.probeDefocus_max)
+				{
+					defocii.push_back(currentVal);
+					meta.seriesTags.push_back("_df"+digitString(iter));
+					currentVal+=meta.probeDefocus_step;
+					iter++;
+				}
+				meta.seriesKeys.push_back("probeDefocus");
+				meta.seriesVals.push_back(defocii);	
+			}
+			else if(meta.probeDefocus_sigma > 0.0)
+			{
+				//set up defocus series with range from -2 to 2 sigma in steps of 0.5 sigma centered about C1
+				std::vector<PRISMATIC_FLOAT_PRECISION> defocii = {-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0};
+
+				for(auto i = 0; i < defocii.size(); i++)
+				{
+					defocii[i] = defocii[i]*meta.probeDefocus_sigma + meta.probeDefocus;
+					meta.seriesTags.push_back("_df"+digitString(i));
+				}
+				meta.seriesKeys.push_back("probeDefocus");
+				meta.seriesVals.push_back(defocii);
+			}
+
+			
 			//check filesize
 			try
 			{
@@ -390,13 +426,6 @@ namespace Prismatic{
 			throw std::runtime_error("Simulation output file will be larger than maximum allowed file size.");
 		}
 	}
-
-	template <class T>
-	class Parameters_C : Parameters<T> {
-	
-	public:
-		Array4D<std::complex<T>> output;
-	};
 
 }
 #endif //PRISM_PARAMS_H

@@ -62,6 +62,10 @@ namespace Prismatic{
             probeStepX            = 0.25;
             probeStepY            = 0.25;
             probeDefocus          = 0.0;
+            probeDefocus_min      = 0.0;
+            probeDefocus_max      = 0.0;
+            probeDefocus_step     = 0.0;
+            probeDefocus_sigma    = 0.0;
             C3                    = 0.0;
             C5                    = 0.0;
             probeSemiangle        = 20.0 / 1000;
@@ -154,6 +158,10 @@ namespace Prismatic{
         T alphaBeamMax; // max semi angle for probe
         T detectorAngleStep;
         T probeDefocus;
+        T probeDefocus_min;
+        T probeDefocus_max;
+        T probeDefocus_step;
+        T probeDefocus_sigma;
         T C3;
         T C5;
         T probeSemiangle;

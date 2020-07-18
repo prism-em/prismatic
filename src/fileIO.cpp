@@ -264,6 +264,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		writeScalarAttribute(VD_slice_n, "emd_group_type", 1);
 		writeScalarAttribute(VD_slice_n, "metadata", 0);
 		writeScalarAttribute(VD_slice_n, "output_depth", pars.depths[n]);
+		if(pars.meta.simSeries) writeScalarAttribute(VD_slice_n, "output_defocus", pars.meta.probeDefocus);
 
 		//create datasets
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
@@ -885,7 +886,18 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			}
 			else
 			{
-				writeRealDataSet(dataGroup, "realslice", &pars.net_output[j*strides], mdims, 3, order);
+				Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
+				for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
+				{
+					for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
+					{
+						for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
+						{
+							tmp_array.at(ii,jj,kk) = pars.net_output.at(j,kk,jj,ii);
+						}
+					}
+				}
+				writeRealDataSet_inOrder(dataGroup, "realslice", &tmp_array[0], mdims, 3);
 			}
 			dataGroup.close();
 		}
@@ -1490,6 +1502,7 @@ void configureSupergroup(H5::Group &new_sg,
 						const std::vector<std::string> &sgdims_name,
 						const std::vector<std::string> &sgdims_units)
 {
+	std::cout << "writing supergroup attributes" << std::endl;
 	//write group type attribute
 	H5::DataSpace attr1_dataspace(H5S_SCALAR);
 	H5::Attribute emd_group_type = new_sg.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
@@ -1507,6 +1520,7 @@ void configureSupergroup(H5::Group &new_sg,
 
 	//write common dimensions
 	int numDims = countDimensions(sourceExample, "dim");
+	std::cout << "writing " << numDims << " common dimensions" << std::endl;
 	for(auto i = 0; i < numDims; i++)
 	{
 		H5::DataSet dim_data = sourceExample.openDataSet("dim"+std::to_string(i+1));
@@ -1514,6 +1528,7 @@ void configureSupergroup(H5::Group &new_sg,
 	}
 
 	//write supergroup dimensions
+	std::cout << "writing " << sgdims.size() << " supergroup dimensions" << std::endl;
 	for(auto i = 0; i < sgdims.size(); i++)
 	{
 		hsize_t dim_size[1] = {sgdims[i].size()};
@@ -1550,6 +1565,7 @@ void writeVirtualDataSet(H5::Group group,
 	}
 
 	//organize dimensions and create mem space for virtual dataset
+	std::cout << "setting up virtual dataset memspace" << std::endl;
 	H5::DataSpace sampleSpace = datasets[0].getSpace();
 	int rank = sampleSpace.getSimpleExtentNdims();
 	hsize_t dims_out[rank];
@@ -1579,6 +1595,7 @@ void writeVirtualDataSet(H5::Group group,
     std::string path;
 	hsize_t offset[rank+new_rank] = {0};
 	
+	std::cout << "mapping virtual dataset dataspace to source dataset spaces" << std::endl;
 	for(auto i = 0; i < datasets.size(); i++)
 	{
 		path = datasets[i].getObjName();
@@ -1592,6 +1609,7 @@ void writeVirtualDataSet(H5::Group group,
 
 	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+	std::cout << "creating virtual dataset" << std::endl;
 	H5::DataSet vds = group.createDataSet(dsetName, datasets[0].getDataType(), vds_mspace, plist);
 
 	src_mspace.close();
@@ -1642,6 +1660,53 @@ void depthSeriesSG(H5::H5File &file)
 
 	configureSupergroup(depthSeries, firstGroup, sgdims, sgdims_name, sgdims_units);
 
+}
+
+void CCseriesSG(H5::H5File &file)
+{
+	H5::Group supergroups = file.openGroup("4DSTEM_simulation/data/supergroups");
+	H5::Group CC_series = supergroups.createGroup("vd_CC_series");
+
+	//gather datasets and create mapping
+	std::string basename = "virtual_detector_depth0000_df";
+	H5::Group realslices = file.openGroup("4DSTEM_simulation/data/realslices");
+
+	int numDataSets = countDataGroups(realslices, basename);
+	std::vector<H5::DataSet> datasets;
+	std::vector<std::vector<size_t>> indices;
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
+	PRISMATIC_FLOAT_PRECISION tmp_defocus;
+	std::cout << "reading attributes from datasets" << std::endl;
+	for(auto i = 0; i < numDataSets; i++)
+	{
+		std::string tmp_name = basename+getDigitString(i);
+		H5::Group tmp_group = realslices.openGroup(tmp_name.c_str());
+		H5::DataSet tmp_dataset = tmp_group.openDataSet("realslice");
+		datasets.push_back(tmp_dataset);
+		indices.push_back(std::vector<size_t>{i});
+		readAttribute(tmp_group.getFileName(), tmp_group.getObjName(), "output_defocus", tmp_defocus);
+		defocii.push_back(tmp_defocus);
+	}
+
+	//write dataset
+	std::cout << "configuring virtual dataset" << std::endl;
+	writeVirtualDataSet(CC_series, "supergroup", datasets, indices);
+
+	//configure supergroup
+	//gather dim properties from first datagroup and write sgdims
+	H5::Group firstGroup = realslices.openGroup(basename+getDigitString(0));
+	std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> sgdims;
+	sgdims.push_back(defocii);
+	
+	std::vector<std::string> sgdims_name;
+	sgdims_name.push_back("Defocus");
+
+	std::vector<std::string> sgdims_units;
+	sgdims_units.push_back("[Å]");
+
+	std::cout << "configuring supergroup" << std::endl;
+	configureSupergroup(CC_series, firstGroup, sgdims, sgdims_name, sgdims_units);
 }
 
 std::string reducedDataSetName(std::string &fullPath)

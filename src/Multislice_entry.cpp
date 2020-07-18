@@ -75,6 +75,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 			saveSTEM(prismatic_pars);
 		}
+
 	}
 	else
 	{
@@ -99,6 +100,10 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	}
 		
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	
+	//perhaps have this check against the keys
+	if(prismatic_pars.meta.simSeries) CCseriesSG(prismatic_pars.outputFile);
+
 	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
 	removeScratchFile(prismatic_pars);
