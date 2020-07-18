@@ -54,7 +54,9 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
+	std::cout << "here?0" << std::endl;
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
+	std::cout << "here?0.5" << std::endl;
 
 	//shared properties
 	std::string base_name = "CBED_array_depth";
@@ -158,11 +160,13 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
+	std::cout << "here?1" << std::endl;
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
+		std::cout << "here?2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(CBED_slice_n, "emd_group_type", 1);
@@ -185,6 +189,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			CBED_data = CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
 		}
 		mspace.close();
+		std::cout << "here?3" << std::endl;
 
 		//write dimensions
 		H5::DataSpace str_name_ds(H5S_SCALAR);
@@ -250,13 +255,16 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
+		std::cout << "here" << std::endl;
 		H5::Group VD_slice_n(realslices.createGroup(nth_name.c_str()));
+		std::cout << "here 2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(VD_slice_n, "emd_group_type", 1);
 		writeScalarAttribute(VD_slice_n, "metadata", 0);
 		writeScalarAttribute(VD_slice_n, "output_depth", pars.depths[n]);
+		if(pars.meta.simSeries) writeScalarAttribute(VD_slice_n, "output_defocus", pars.meta.probeDefocus);
 
 		//create datasets
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
@@ -327,7 +335,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group annular_slice_n(realslices.createGroup(nth_name.c_str()));
 
 		//write attributes
@@ -392,7 +400,7 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
-		std::string nth_name = base_name + getDigitString(n);
+		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group DPC_CoM_slice_n(realslices.createGroup(nth_name.c_str()));
 
 		//write attributes
@@ -867,16 +875,29 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		std::vector<size_t> order = {0,1,2};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/virtual_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString;
+			nameString = "4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(j);
+			nameString = nameString + pars.currentTag;
+			std::cout << nameString << std::endl;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			if(pars.meta.saveComplexOutputWave)
 			{
 				writeComplexDataSet(dataGroup, "realslice", &pars.net_output_c[j*strides], mdims, 3, order);
 			}
 			else
 			{
-				writeRealDataSet(dataGroup, "realslice", &pars.net_output[j*strides], mdims, 3, order);
+				Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
+				for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
+				{
+					for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
+					{
+						for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
+						{
+							tmp_array.at(ii,jj,kk) = pars.net_output.at(j,kk,jj,ii);
+						}
+					}
+				}
+				writeRealDataSet_inOrder(dataGroup, "realslice", &tmp_array[0], mdims, 3);
 			}
 			dataGroup.close();
 		}
@@ -891,9 +912,9 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[2] = {pars.numXprobes, pars.numYprobes};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/annular_detector_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString = "4DSTEM_simulation/data/realslices/annular_detector_depth" + getDigitString(j);
+			nameString += pars.currentTag;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
 
 			if(pars.meta.saveComplexOutputWave)
 			{
@@ -945,15 +966,14 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		std::vector<size_t> order = {2,0,1};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			std::stringstream nameString;
-			nameString << "4DSTEM_simulation/data/realslices/DPC_CoM_depth" << getDigitString(j);
-			H5::Group dataGroup = pars.outputFile.openGroup(nameString.str());
+			std::string nameString = "4DSTEM_simulation/data/realslices/DPC_CoM_depth" + getDigitString(j);
+			nameString += pars.currentTag;
+			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
 			writeRealDataSet(dataGroup, "realslice", &pars.net_DPC_CoM[j*strides], mdims, 3, order);
 			dataGroup.close();
 		}
 	}
 
-	writeMetadata(pars);
 	pars.outputFile.close();
 };
 
@@ -1392,7 +1412,35 @@ void writeRealDataSet(H5::Group group,
 	mspace.close();
 	real_dset.close();
 
-}
+};
+
+void writeRealDataSet_inOrder(H5::Group group,
+						const std::string &dsetname,
+						const PRISMATIC_FLOAT_PRECISION *buffer,
+						const hsize_t *mdims,
+						const size_t &rank)
+{
+	//create dataset and write
+	H5::DataSpace mspace(rank, mdims);
+
+	H5::DataSet real_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		real_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		real_dset = group.createDataSet(dsetname.c_str(), PFP_TYPE, mspace);
+	}		
+	
+	H5::DataSpace fspace = real_dset.getSpace();
+	real_dset.write(buffer, PFP_TYPE, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	real_dset.close();
+};
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data)
 {
@@ -1454,6 +1502,7 @@ void configureSupergroup(H5::Group &new_sg,
 						const std::vector<std::string> &sgdims_name,
 						const std::vector<std::string> &sgdims_units)
 {
+	std::cout << "writing supergroup attributes" << std::endl;
 	//write group type attribute
 	H5::DataSpace attr1_dataspace(H5S_SCALAR);
 	H5::Attribute emd_group_type = new_sg.createAttribute("emd_group_type", H5::PredType::NATIVE_INT, attr1_dataspace);
@@ -1471,6 +1520,7 @@ void configureSupergroup(H5::Group &new_sg,
 
 	//write common dimensions
 	int numDims = countDimensions(sourceExample, "dim");
+	std::cout << "writing " << numDims << " common dimensions" << std::endl;
 	for(auto i = 0; i < numDims; i++)
 	{
 		H5::DataSet dim_data = sourceExample.openDataSet("dim"+std::to_string(i+1));
@@ -1478,6 +1528,7 @@ void configureSupergroup(H5::Group &new_sg,
 	}
 
 	//write supergroup dimensions
+	std::cout << "writing " << sgdims.size() << " supergroup dimensions" << std::endl;
 	for(auto i = 0; i < sgdims.size(); i++)
 	{
 		hsize_t dim_size[1] = {sgdims[i].size()};
@@ -1514,6 +1565,7 @@ void writeVirtualDataSet(H5::Group group,
 	}
 
 	//organize dimensions and create mem space for virtual dataset
+	std::cout << "setting up virtual dataset memspace" << std::endl;
 	H5::DataSpace sampleSpace = datasets[0].getSpace();
 	int rank = sampleSpace.getSimpleExtentNdims();
 	hsize_t dims_out[rank];
@@ -1543,6 +1595,7 @@ void writeVirtualDataSet(H5::Group group,
     std::string path;
 	hsize_t offset[rank+new_rank] = {0};
 	
+	std::cout << "mapping virtual dataset dataspace to source dataset spaces" << std::endl;
 	for(auto i = 0; i < datasets.size(); i++)
 	{
 		path = datasets[i].getObjName();
@@ -1556,6 +1609,7 @@ void writeVirtualDataSet(H5::Group group,
 
 	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+	std::cout << "creating virtual dataset" << std::endl;
 	H5::DataSet vds = group.createDataSet(dsetName, datasets[0].getDataType(), vds_mspace, plist);
 
 	src_mspace.close();
@@ -1606,6 +1660,53 @@ void depthSeriesSG(H5::H5File &file)
 
 	configureSupergroup(depthSeries, firstGroup, sgdims, sgdims_name, sgdims_units);
 
+}
+
+void CCseriesSG(H5::H5File &file)
+{
+	H5::Group supergroups = file.openGroup("4DSTEM_simulation/data/supergroups");
+	H5::Group CC_series = supergroups.createGroup("vd_CC_series");
+
+	//gather datasets and create mapping
+	std::string basename = "virtual_detector_depth0000_df";
+	H5::Group realslices = file.openGroup("4DSTEM_simulation/data/realslices");
+
+	int numDataSets = countDataGroups(realslices, basename);
+	std::vector<H5::DataSet> datasets;
+	std::vector<std::vector<size_t>> indices;
+
+	std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
+	PRISMATIC_FLOAT_PRECISION tmp_defocus;
+	std::cout << "reading attributes from datasets" << std::endl;
+	for(auto i = 0; i < numDataSets; i++)
+	{
+		std::string tmp_name = basename+getDigitString(i);
+		H5::Group tmp_group = realslices.openGroup(tmp_name.c_str());
+		H5::DataSet tmp_dataset = tmp_group.openDataSet("realslice");
+		datasets.push_back(tmp_dataset);
+		indices.push_back(std::vector<size_t>{i});
+		readAttribute(tmp_group.getFileName(), tmp_group.getObjName(), "output_defocus", tmp_defocus);
+		defocii.push_back(tmp_defocus);
+	}
+
+	//write dataset
+	std::cout << "configuring virtual dataset" << std::endl;
+	writeVirtualDataSet(CC_series, "supergroup", datasets, indices);
+
+	//configure supergroup
+	//gather dim properties from first datagroup and write sgdims
+	H5::Group firstGroup = realslices.openGroup(basename+getDigitString(0));
+	std::vector<std::vector<PRISMATIC_FLOAT_PRECISION>> sgdims;
+	sgdims.push_back(defocii);
+	
+	std::vector<std::string> sgdims_name;
+	sgdims_name.push_back("Defocus");
+
+	std::vector<std::string> sgdims_units;
+	sgdims_units.push_back("[Å]");
+
+	std::cout << "configuring supergroup" << std::endl;
+	configureSupergroup(CC_series, firstGroup, sgdims, sgdims_name, sgdims_units);
 }
 
 std::string reducedDataSetName(std::string &fullPath)
@@ -1698,15 +1799,15 @@ void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vec
 	}
 
 	//fill coordinates and make element selections
-	hsize_t coords[block0*block1][rank];
+	hsize_t * coords = (hsize_t*) malloc(block0*block1*rank*sizeof(hsize_t));
 	for(auto n = 0; n < Nblocks; n++)
 	{
 		for(auto m = 0; m < block0*block1; m++)
 		{
-			for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
-			for(auto j = 2; j < rank; j++)	coords[m][order[j]] = (n / divs[j]) % mods[j];
+			for(auto j = 0; j < 2; j++)	coords[m*rank+order[j]] = (m / divs[j]) % mods[j];
+			for(auto j = 2; j < rank; j++)	coords[m*rank+order[j]] = (n / divs[j]) % mods[j];
 		}
-		fspace.selectElements(H5S_SELECT_APPEND, block0*block1, &coords[0][0]);
+		fspace.selectElements(H5S_SELECT_APPEND, block0*block1, coords);
 	}
 	
 };
@@ -1778,5 +1879,82 @@ hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> 
 
 	return (hsize_t *) coords;	
 };
+
+void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//TODO: decide home directory for windows
+	pars.scratchFile = H5::H5File("prismatic_scratch.h5", H5F_ACC_TRUNC);
+	H5::Group scratchGroup = pars.scratchFile.createGroup("scratch");
+
+	//initialize datasets
+	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
+	H5::DataSpace mspace(4,mdims);
+	for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
+	{
+		scratchGroup.createDataSet(pars.meta.seriesTags[i].c_str(), PFP_TYPE, mspace);
+			
+	}
+
+	if(pars.meta.saveDPC_CoM)
+	{
+		hsize_t mdims_dpc[4] = {pars.DPC_CoM.get_diml(), pars.DPC_CoM.get_dimk(), pars.DPC_CoM.get_dimj(), pars.DPC_CoM.get_dimi()};
+		std::cout << "MDIMS: " << mdims_dpc[0] << " " << mdims_dpc[1] << " " << mdims_dpc[2] << " " << mdims_dpc[3] << std::endl;
+		H5::DataSpace mspace_dpc(4,mdims_dpc);
+		for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
+		{
+			std::string current_name = pars.meta.seriesTags[i]+"_DPC";
+			scratchGroup.createDataSet(current_name.c_str(), PFP_TYPE, mspace_dpc);
+				
+		}
+	}
+	scratchGroup.close();
+};
+
+void removeScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//TODO: make better decision about where scratch file is written
+	// and save name as a member of pars
+	pars.scratchFile.close();
+	if( remove( "prismatic_scratch.h5" ) != 0 )
+        perror( "Error deleting scratch file" );
+    else
+        puts( "Scratch file successfully deleted" );
+};
+
+void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	//for series simulations, need to update the 3D output array independently with a read-add-write process
+	Array4D<PRISMATIC_FLOAT_PRECISION> tmp_buffer(pars.output);
+	std::string currentName = pars.currentTag;
+	std::cout << "Reading scratch dataset " << currentName << " from " <<  "prismatic_scratch.h5" << std::endl;
+	readRealDataSet_inOrder(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
+	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
+
+	H5::Group scratch = pars.scratchFile.openGroup("scratch");
+	hsize_t mdims[4] = {pars.output.get_diml(), pars.output.get_dimk(), pars.output.get_dimj(), pars.output.get_dimi()};
+	std::cout << "Writing scratch dataset " << currentName << " to " <<  "prismatic_scratch.h5" << std::endl;
+	writeRealDataSet_inOrder(scratch, currentName, &tmp_buffer[0], mdims, 4);
+
+	if(pars.meta.saveDPC_CoM)
+	{
+		Array4D<PRISMATIC_FLOAT_PRECISION> dpc_buffer(pars.DPC_CoM);
+		currentName += "_DPC";
+		std::cout << "Reading scratch dataset " << currentName << " from " <<  "prismatic_scratch.h5" << std::endl;
+		readRealDataSet_inOrder(dpc_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
+		for(auto i = 0; i < pars.DPC_CoM.size(); i++) dpc_buffer[i] += pars.DPC_CoM[i];
+
+		H5::Group scratch = pars.scratchFile.openGroup("scratch");
+		hsize_t mdims_dpc[4] = {pars.DPC_CoM.get_diml(), pars.DPC_CoM.get_dimk(), pars.DPC_CoM.get_dimj(), pars.DPC_CoM.get_dimi()};
+		std::cout << "MDIMS: " << mdims_dpc[0] << " " << mdims_dpc[1] << " " << mdims_dpc[2] << " " << mdims_dpc[3] << std::endl;
+
+		std::cout << "Writing scratch dataset " << currentName << " to " <<  "prismatic_scratch.h5" << std::endl;
+
+		writeRealDataSet_inOrder(scratch, currentName, &dpc_buffer[0], mdims_dpc, 4);
+
+	}
+	scratch.close();
+
+};
+
 
 } //namespace Prismatic
