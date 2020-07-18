@@ -195,9 +195,6 @@ BOOST_FIXTURE_TEST_CASE(CC_series_virtual, basicSim)
     //organize virtual dataset
     H5::H5File output = H5::H5File(meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 
-    std::cout << "setting up CC series supergroup" << std::endl;
-    CCseriesSG(output);
-
     //check dataset sizes against eachother
     std::string basename_3D = "virtual_detector_depth0000";
     std::string cur_name_3D = basename_3D + meta.seriesTags[0];
@@ -222,36 +219,6 @@ BOOST_FIXTURE_TEST_CASE(CC_series_virtual, basicSim)
 
     output.close();
     removeFile(meta.filenameOutput);
-}
-
-BOOST_AUTO_TEST_CASE(parser)
-{
-    Metadata<PRISMATIC_FLOAT_PRECISION> meta;
-    const char* exe = "./exe";
-    const char* option = "-dfs";
-    const char* val = "10.0";
-    const char* val_2 = "2.5";
-    const char* hidden_array[5] = {exe, option, val, val_2, NULL};
-    int argc = 5;
-
-    // argv is a pointer that points to the first element in that array
-    const char** argv = &hidden_array[0];
-    const char*** word = &argv;
-    std::cout << ((*word)[4] == nullptr) << std::endl;
-    // PRISMATIC_FLOAT_PRECISION sigma = (PRISMATIC_FLOAT_PRECISION) atof((*word)[4]);
-    // std::cout << sigma << std::endl;
-    // bool result = parseInputs(meta, argc, &argv);
-
-    bool check1 = true;
-    bool check2 = true;
-    if(check1)
-    {
-        std::cout << "hi 1" << std::endl;
-    }
-    else if (check2)
-    {
-        std::cout << "hi 2" << std::endl;
-    }
 }
 
 BOOST_AUTO_TEST_SUITE_END();
