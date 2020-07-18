@@ -291,7 +291,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								   const Array1D<long> &zvec)
 {		
 	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
-	std::cout << "sizes: " << xvec.get_dimi() << " " << yvec.get_dimi() << " " << zvec.get_dimi() << std::endl;
 	//check if intermediate output was specified, if so, create index of output slices
 	pars.numPlanes = numPlanes;
 	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
@@ -321,7 +320,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	const long dim1 = (long) pars.pot.get_dimi();
 	const long dim0 = (long) pars.pot.get_dimj();
-	const long dim2 = (long) pars.pot.get_dimk();
 
 	// correct z orientation
 	auto max_z = *std::max_element(z.begin(), z.end());
@@ -344,7 +342,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	{
 		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ,
-								 &Z_lookup, &xvec, &yvec, &zvec, &dim0, &dim1, &dim2,
+								 &Z_lookup, &xvec, &yvec, &zvec, &dim0, &dim1,
 								 &numPlanes, &potLookup, &potFull, &dispatcher]()
 		{
 			size_t currentAtom, stop;
