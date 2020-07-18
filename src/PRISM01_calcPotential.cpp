@@ -291,6 +291,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								   const Array1D<long> &zvec)
 {		
 	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
+	std::cout << "sizes: " << xvec.get_dimi() << " " << yvec.get_dimi() << " " << zvec.get_dimi() << std::endl;
 	//check if intermediate output was specified, if so, create index of output slices
 	pars.numPlanes = numPlanes;
 	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
@@ -320,12 +321,15 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	const long dim1 = (long) pars.pot.get_dimi();
 	const long dim0 = (long) pars.pot.get_dimj();
+	const long dim2 = (long) pars.pot.get_dimk();
 
 	// correct z orientation
-	auto max_z = std::max_element(z.begin(), z.end());
+	auto max_z = *std::max_element(z.begin(), z.end());
+
 	std::transform(z.begin(), z.end(), z.begin(), [&max_z](PRISMATIC_FLOAT_PRECISION &t_z) {
-		return (-t_z + *max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+		return (-t_z + max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 	});
+
 	// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
 	map<size_t, size_t> Z_lookup;
 	for (auto i = 0; i < unique_species.size(); ++i)
@@ -340,7 +344,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	{
 		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ,
-								 &Z_lookup, &xvec, &yvec, &zvec, &dim0, &dim1,
+								 &Z_lookup, &xvec, &yvec, &zvec, &dim0, &dim1, &dim2,
 								 &numPlanes, &potLookup, &potFull, &dispatcher]()
 		{
 			size_t currentAtom, stop;
@@ -454,6 +458,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			}
 		}
 	}
+
 };
 
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)

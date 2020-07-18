@@ -832,9 +832,21 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	//create dataset
 	//first, in potential array and re-stride
-	std::vector<size_t> order_3D = {0, 1, 2};
 	hsize_t dataDims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-	writeRealDataSet(ppotential, "realslice", &pars.pot[0], dataDims, 3, order_3D);
+
+	Array3D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()}});
+	for(auto i = 0; i < pars.pot.get_dimi(); i++)
+	{
+		for(auto j = 0; j < pars.pot.get_dimj(); j++)
+		{
+			for(auto k = 0; k < pars.pot.get_dimk(); k++)
+			{
+				tmp.at(i,j,k) = pars.pot.at(k,j,i);
+			}
+		}
+	}
+	
+	writeRealDataSet_inOrder(ppotential, "realslice", &tmp[0], dataDims, 3);
 
 	dim1.close();
 	dim2.close();
