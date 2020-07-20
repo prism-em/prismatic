@@ -122,12 +122,11 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 
 	// compute the z-slice index for each atom
-	auto max_z = std::max_element(z.begin(), z.end());
 	Array1D<PRISMATIC_FLOAT_PRECISION> zPlane(z);
-	std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&max_z, &pars](PRISMATIC_FLOAT_PRECISION &t_z) {
-		return round((-t_z + *max_z) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+	std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&pars](PRISMATIC_FLOAT_PRECISION &t_z) {
+		return round((-t_z + pars.tiledCellDim[2]) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 	});
-	max_z = std::max_element(zPlane.begin(), zPlane.end());
+	auto max_z = std::max_element(zPlane.begin(), zPlane.end());
 	pars.numPlanes = *max_z + 1;
 
 	//check if intermediate output was specified, if so, create index of output slices
@@ -322,7 +321,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	const long dim0 = (long) pars.pot.get_dimj();
 
 	// correct z orientation
-	auto max_z = *std::max_element(z.begin(), z.end());
+	auto max_z = pars.tiledCellDim[2];
 
 	std::transform(z.begin(), z.end(), z.begin(), [&max_z](PRISMATIC_FLOAT_PRECISION &t_z) {
 		return (-t_z + max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
