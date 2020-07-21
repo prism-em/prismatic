@@ -235,9 +235,7 @@ namespace Prismatic{
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.numYprobes, pars.numXprobes,2}});
 		if(pars.meta.save4DOutput)
 		{
-			std::cout << "here??" << std::endl;
 			if(pars.fpFlag == 0) setup4DOutput(pars);
-			std::cout << "here!!" << std::endl;
 
 			if(pars.meta.saveComplexOutputWave)
 			{
@@ -312,7 +310,6 @@ namespace Prismatic{
 
 			std::string nameString = "4DSTEM_simulation/data/datacubes/CBED_array_depth" + getDigitString(currentSlice);
 			nameString += pars.currentTag;
-			std::cout << "current name string: " << nameString << std::endl;
 
 			PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 			hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
@@ -464,7 +461,6 @@ namespace Prismatic{
 			{
 				std::string nameString = "4DSTEM_simulation/data/datacubes/CBED_array_depth" + getDigitString(currentSlice);
 				nameString += pars.currentTag;
-				std::cout << "current name string: " << nameString << std::endl;
 
 				PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
 				hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM

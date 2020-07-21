@@ -628,8 +628,6 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 		std::vector<size_t> order = {0, 1, 2};
 		
-		std::cout << pars.Scompact.at(0,3,5).real() << std::endl;
-		std::cout << pars.Scompact.at(0,3,5).imag() << std::endl;
 		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
 	}
 }
