@@ -71,6 +71,8 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int &val);
 
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int *val);
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val);
 
 void writeComplexDataSet(H5::Group group,

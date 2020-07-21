@@ -33,9 +33,10 @@ bool compareSize(ArrayND<N, T> &ref, ArrayND<N, T> &test)
 template <size_t N, class T>
 PRISMATIC_FLOAT_PRECISION compareValues(ArrayND<N, T> &ref, ArrayND<N, T> &test)
 {
+    //returns mean error
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
     for(auto i = 0; i < ref.size(); i++) errorSum += std::abs(ref[i]-test[i]);
-    return errorSum;
+    return errorSum/ref.size();
 };
 
 template <size_t N, class T>

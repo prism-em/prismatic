@@ -228,7 +228,7 @@ __global__ void DPC_denominator_reduce(const float* psiIntensity_ds,
                                        float* denominator,
                                        const size_t N);
 
-__global__ void DPC_denominator_reduce(const float* psiIntensity_ds,
+__global__ void DPC_denominator_reduce(const double* psiIntensity_ds,
                                        double* denominator,
                                        const size_t N);
 

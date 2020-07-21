@@ -36,6 +36,13 @@ class basicSim{
         meta.save4DOutput = true;
         meta.saveDPC_CoM  = true;
         meta.savePotentialSlices = true;
+        meta.tileX = 4;
+        meta.tileY = 4;
+        meta.tileZ = 1;
+        meta.probeStepX = 1;
+        meta.probeStepY = 1;
+        meta.realspacePixelSize[0] = 0.25;
+        meta.realspacePixelSize[1] = 0.25;
         pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
     }
     
@@ -282,6 +289,16 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     //run simulations
 
     meta.potential3D = false;
+    // meta.probeStepX = 1;
+    // meta.probeStepY = 1;
+    meta.numGPUs = 1;
+    meta.alsoDoCPUWork = 0;
+    meta.numThreads = 12;
+    meta.numStreamsPerGPU = 1;
+    meta.saveSMatrix = true;
+    meta.interpolationFactorX = 4;
+    meta.interpolationFactorY = 4;
+    meta.transferMode = StreamingMode::SingleXfer;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_P #####\n";
@@ -307,6 +324,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/realslice";
+    std::vector<size_t> order_sm = {2,1,0};
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
@@ -320,23 +339,38 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.00001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
+
     BOOST_TEST(compareSize(refPS, testPS));
     BOOST_TEST(compareSize(refVD, testVD));
     BOOST_TEST(compareSize(refDPC, testDPC));
     BOOST_TEST(compareSize(refCBED, testCBED));
+
+    std::cout << compareValues(refAnnular, testAnnular) << std::endl;
+    std::cout << compareValues(refVD, testVD) << std::endl;
+    std::cout << compareValues(refDPC, testDPC) << std::endl;
+    std::cout << compareValues(refCBED, testCBED) << std::endl;
 
     BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
     BOOST_TEST(compareValues(refPS, testPS) < tol);
     BOOST_TEST(compareValues(refDPC, testDPC) < tol);
     BOOST_TEST(compareValues(refVD, testVD) < tol);
     BOOST_TEST(compareValues(refCBED, testCBED) < tol);
+    if(meta.saveSMatrix)
+    {
+        Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> refSMatrix;
+        Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
+        readComplexDataSet(refSMatrix, importFile, dataPathSM, order_sm);
+        readComplexDataSet(testSMatrix, meta.filenameOutput, dataPathSM, order_sm);
+        BOOST_TEST(compareSize(refSMatrix, testSMatrix));
+        BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
+    }
 
-    removeFile(importFile);
-    removeFile(meta.filenameOutput);
+    // removeFile(importFile);
+    // removeFile(meta.filenameOutput);
 };
 
 BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
@@ -406,7 +440,10 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     //run simulations
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
-    meta.numGPUs =0;
+    meta.numGPUs = 0;
+    meta.alsoDoCPUWork = 0;
+    meta.probeStepX = 1;
+    meta.probeStepY = 1;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
@@ -445,7 +482,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
@@ -453,6 +490,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     BOOST_TEST(compareSize(refVD, testVD));
     BOOST_TEST(compareSize(refDPC, testDPC));
     BOOST_TEST(compareSize(refCBED, testCBED));
+
+    std::cout << compareValues(refAnnular, testAnnular) << std::endl;
+    std::cout << compareValues(refVD, testVD) << std::endl;
+    std::cout << compareValues(refDPC, testDPC) << std::endl;
+    std::cout << compareValues(refCBED, testCBED) << std::endl;
 
     BOOST_TEST(compareValues(refAnnular, testAnnular) < tol);
     BOOST_TEST(compareValues(refPS, testPS) < tol);
@@ -508,7 +550,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
@@ -533,6 +575,8 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     //make larger to have better test for resampling
     meta.realspacePixelSize[0] = 0.06; 
     meta.realspacePixelSize[1] = 0.06;
+    meta.tileX = 1;
+    meta.tileY = 1;
     meta.numGPUs = 0;
     meta.algorithm = Algorithm::Multislice;
     meta.E0 = 200e3;
@@ -636,9 +680,9 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
-    readComplexDataSet(testSMatrix, importFile, dataPathSM, order_sm);
+    readComplexDataSet(testSMatrix, meta.filenameOutput, dataPathSM, order_sm);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
     BOOST_TEST(compareSize(refVD, testVD));
@@ -701,7 +745,7 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
     Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> testSMatrix;
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
@@ -812,7 +856,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
@@ -882,7 +926,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum = 0.0;
 
     BOOST_TEST(compareSize(refAnnular, testAnnular));
@@ -953,7 +997,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     Array3D<PRISMATIC_FLOAT_PRECISION> testVD = readDataSet3D(meta.filenameOutput, dataPath3D);
     Array4D<PRISMATIC_FLOAT_PRECISION> testCBED = readDataSet4D(meta.filenameOutput, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 0.0001;
     PRISMATIC_FLOAT_PRECISION errorSum;
     PRISMATIC_FLOAT_PRECISION maxCBED = 0.0;
 
@@ -1342,6 +1386,8 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_M, basicSim)
     meta.alsoDoCPUWork = 0;
     meta.numGPUs = 1;
     meta.numStreamsPerGPU = 4;
+    meta.tileX = 1;
+    meta.tileY = 1;
     meta.probeStepX = 0.25;
     meta.probeStepY = 0.2;
 

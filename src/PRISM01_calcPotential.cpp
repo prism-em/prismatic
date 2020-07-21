@@ -122,12 +122,11 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 
 	// compute the z-slice index for each atom
-	auto max_z = std::max_element(z.begin(), z.end());
 	Array1D<PRISMATIC_FLOAT_PRECISION> zPlane(z);
-	std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&max_z, &pars](PRISMATIC_FLOAT_PRECISION &t_z) {
-		return round((-t_z + *max_z) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+	std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&pars](PRISMATIC_FLOAT_PRECISION &t_z) {
+		return round((-t_z + pars.tiledCellDim[0]) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 	});
-	max_z = std::max_element(zPlane.begin(), zPlane.end());
+	auto max_z = std::max_element(zPlane.begin(), zPlane.end());
 	pars.numPlanes = *max_z + 1;
 
 	//check if intermediate output was specified, if so, create index of output slices
@@ -322,10 +321,12 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	const long dim0 = (long) pars.pot.get_dimj();
 
 	// correct z orientation
-	auto max_z = std::max_element(z.begin(), z.end());
+	auto max_z = pars.tiledCellDim[0];
+
 	std::transform(z.begin(), z.end(), z.begin(), [&max_z](PRISMATIC_FLOAT_PRECISION &t_z) {
-		return (-t_z + *max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+		return (-t_z + max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 	});
+
 	// create a key-value map to match the atomic Z numbers with their place in the potential lookup table
 	map<size_t, size_t> Z_lookup;
 	for (auto i = 0; i < unique_species.size(); ++i)
@@ -454,6 +455,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			}
 		}
 	}
+
 };
 
 void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
@@ -558,10 +560,14 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
     std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
 	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
-	pars.tiledCellDim[0] = meta_cellDims[0];
-	pars.tiledCellDim[1] = meta_cellDims[1];
-	pars.tiledCellDim[2] = meta_cellDims[2];
-	
+
+	PRISMATIC_FLOAT_PRECISION meta_tile[3];
+	readAttribute(pars.meta.importFile, groupPath, "t", meta_tile);
+
+	pars.tiledCellDim[0] = meta_cellDims[2]*meta_tile[2];
+	pars.tiledCellDim[1] = meta_cellDims[1]*meta_tile[1];
+	pars.tiledCellDim[2] = meta_cellDims[0]*meta_tile[0];
+
 	std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize{(PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[1], (PRISMATIC_FLOAT_PRECISION) pars.tiledCellDim[2]};
 	pars.imageSize[0] = pars.pot.get_dimj();
 	pars.imageSize[1] = pars.pot.get_dimi();

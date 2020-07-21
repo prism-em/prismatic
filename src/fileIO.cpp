@@ -54,9 +54,7 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
-	std::cout << "here?0" << std::endl;
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
-	std::cout << "here?0.5" << std::endl;
 
 	//shared properties
 	std::string base_name = "CBED_array_depth";
@@ -160,13 +158,11 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
-	std::cout << "here?1" << std::endl;
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
 		H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
-		std::cout << "here?2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(CBED_slice_n, "emd_group_type", 1);
@@ -189,7 +185,6 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			CBED_data = CBED_slice_n.createDataSet("datacube", PFP_TYPE, mspace, plist);
 		}
 		mspace.close();
-		std::cout << "here?3" << std::endl;
 
 		//write dimensions
 		H5::DataSpace str_name_ds(H5S_SCALAR);
@@ -256,9 +251,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
-		std::cout << "here" << std::endl;
 		H5::Group VD_slice_n(realslices.createGroup(nth_name.c_str()));
-		std::cout << "here 2" << std::endl;
 
 		//write attributes
 		writeScalarAttribute(VD_slice_n, "emd_group_type", 1);
@@ -888,9 +881,21 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	//create dataset
 	//first, in potential array and re-stride
-	std::vector<size_t> order_3D = {0, 1, 2};
 	hsize_t dataDims[3] = {pars.imageSize[1], pars.imageSize[0], pars.numPlanes};
-	writeRealDataSet(ppotential, "realslice", &pars.pot[0], dataDims, 3, order_3D);
+
+	Array3D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()}});
+	for(auto i = 0; i < pars.pot.get_dimi(); i++)
+	{
+		for(auto j = 0; j < pars.pot.get_dimj(); j++)
+		{
+			for(auto k = 0; k < pars.pot.get_dimk(); k++)
+			{
+				tmp.at(i,j,k) = pars.pot.at(k,j,i);
+			}
+		}
+	}
+	
+	writeRealDataSet_inOrder(ppotential, "realslice", &tmp[0], dataDims, 3);
 
 	dim1.close();
 	dim2.close();
@@ -934,7 +939,6 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			std::string nameString;
 			nameString = "4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(j);
 			nameString = nameString + pars.currentTag;
-			std::cout << nameString << std::endl;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			if(pars.meta.saveComplexOutputWave)
 			{
@@ -1210,7 +1214,7 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	int tile_buffer[3] = {pars.meta.tileX, pars.meta.tileY, pars.meta.tileZ};
 	tile_attr.write(H5::PredType::NATIVE_INT, tile_buffer);
 
-	PRISMATIC_FLOAT_PRECISION cellBuffer[3] = {pars.meta.cellDim[0], pars.meta.cellDim[1], pars.meta.cellDim[2]};
+	PRISMATIC_FLOAT_PRECISION cellBuffer[3] = {pars.meta.cellDim[2], pars.meta.cellDim[1], pars.meta.cellDim[0]};
 	cell_dim_attr.write(PFP_TYPE, cellBuffer);
 
 	metadata.close();
@@ -1370,6 +1374,23 @@ void readAttribute(const std::string &filename, const std::string &groupPath, co
 
 }
 
+void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, int *val)
+{
+	//read an attribute from a group into val
+	//overloaded by expected value type
+
+	H5::H5File input = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
+	H5::Group group = input.openGroup(groupPath);
+	H5::Attribute attribute = group.openAttribute(attr);
+	H5::DataType type =  attribute.getDataType();
+	attribute.read(type,&val[0]);
+
+	attribute.close();
+	group.close();
+	input.close();
+
+}
+
 void readAttribute(const std::string &filename, const std::string &groupPath, const std::string &attr, std::string &val)
 {
 	//read an attribute from a group into val
@@ -1452,16 +1473,13 @@ void writeRealDataSet(H5::Group group,
 	}		
 	
 	H5::DataSpace fspace = real_dset.getSpace();
-	std::cout << "Organizing dataspace." << std::endl;
 	if(rank > 1)
 	{
 		std::vector<size_t> rdims;
 		for(auto i =0; i < rank; i++) rdims.push_back(mdims[i]);
 		restrideElements(fspace, rdims, order);
 	}
-	std::cout << "Writing dataset." << std::endl;
 	real_dset.write(buffer, PFP_TYPE, mspace, fspace);
-	std::cout << "Write finished." << std::endl;
 
 	//close spaces
 	fspace.close();

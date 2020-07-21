@@ -57,7 +57,6 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 		currentImage *= pars.scale;
 		std::string nameString = "/4DSTEM_simulation/data/datacubes/CBED_array_depth" + Prismatic::getDigitString(currentSlice);
 		nameString += pars.currentTag;
-		std::cout << "current name string: " << nameString << std::endl;
 
 		hsize_t offset[4] = {ax,ay,0,0}; //order by ax, ay so that aligns with py4DSTEM
         PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
@@ -213,7 +212,6 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
 		currentImage *= sqrt(pars.scale);
 		std::string nameString = "/4DSTEM_simulation/data/datacubes/CBED_array_depth" + Prismatic::getDigitString(currentSlice);
 		nameString += pars.currentTag;
-		std::cout << "current name string: " << nameString << std::endl;
 		
 
 		Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalImage;
