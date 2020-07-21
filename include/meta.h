@@ -122,6 +122,7 @@ namespace Prismatic{
             saveComplexOutputWave = false;
             enterCheck            = false;
             arbitraryProbes       = false;
+            saveProbe             = false;
             simSeries             = false;
             seriesVals            = {{}};
             seriesKeys            = {};
@@ -217,6 +218,7 @@ namespace Prismatic{
         bool saveComplexOutputWave;
         bool enterCheck;
         bool arbitraryProbes;
+        bool saveProbe;
         bool simSeries;
         std::vector<std::vector<T>> seriesVals;
         std::vector<std::string> seriesKeys;

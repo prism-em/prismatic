@@ -729,6 +729,62 @@ void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	}
 }
 
+void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	H5::Group dslices = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices");
+
+	//shared properties
+	std::string base_name = "probe";
+	hsize_t attr_dims[1] = {1};
+	hsize_t data_dims[2];
+	data_dims[0] = {pars.psiProbeInit.get_dimi()};
+	data_dims[1] = {pars.psiProbeInit.get_dimj()};
+
+	hsize_t qx_dim[1] = {pars.qx.size()};
+	hsize_t qy_dim[1] = {pars.qy.size()};
+
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
+	//create slice group
+	H5::Group probeGroup(dslices.createGroup("probe"));
+
+	//write attributes
+	writeScalarAttribute(probeGroup, "emd_group_type", 1);
+	writeScalarAttribute(probeGroup, "metadata", 0);
+	writeScalarAttribute(probeGroup, "depth", 1);
+
+	//create dataset
+	H5::DataSpace mspace(2, data_dims); //rank is 2
+	H5::DataSet probe_data = probeGroup.createDataSet("data", complex_type, mspace);
+	mspace.close();
+
+	//write dimensions
+	std::vector<size_t> order = {0};
+	writeRealDataSet(probeGroup, "dim1", &pars.qx[0], qx_dim, 1, order);
+	writeRealDataSet(probeGroup, "dim2", &pars.qy[0], qy_dim, 1, order);
+
+	//dimension attribute
+	H5::DataSet dim1 = probeGroup.openDataSet("dim1");
+	H5::DataSet dim2 = probeGroup.openDataSet("dim2");
+
+	writeScalarAttribute(dim1, "name", "Q_x");
+	writeScalarAttribute(dim2, "name", "Q_y");
+
+	writeScalarAttribute(dim1, "units", "[Å^-1]");
+	writeScalarAttribute(dim2, "units", "[Å^-1]");
+
+	dim1.close();
+	dim2.close();
+
+	probeGroup.close();
+
+	dslices.close();
+};
+
 //these write functions will soon be deprecated
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims)
 {

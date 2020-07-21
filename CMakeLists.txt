@@ -50,7 +50,8 @@ set(SOURCE_FILES
         src/atom.cpp
         src/go.cpp
         src/fileIO.cpp
-        src/probe.cpp)
+        src/probe.cpp
+        src/aberration.cpp)
 
 if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
@@ -80,6 +81,7 @@ if (PRISMATIC_TESTS)
             unittests/hrtemTests.cpp
             unittests/processingTests.cpp
             unittests/probeTests.cpp
+            unittests/aberrationsTests.cpp
             unittests/seriesTests.cpp
             )
 endif (PRISMATIC_TESTS)

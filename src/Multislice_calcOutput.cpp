@@ -196,6 +196,15 @@ namespace Prismatic{
 		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISMATIC_FLOAT_PRECISION> &a) {
 					return a / norm_constant;
 				});
+
+		if(pars.meta.saveProbe && pars.fpFlag == 0)
+		{
+			setupProbeOutput(pars);
+			H5::Group probeGroup = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices/probe");
+			std::vector<size_t> order = {0,1};
+			hsize_t mdims[2] = {pars.psiProbeInit.get_dimi(), pars.psiProbeInit.get_dimj()};
+			writeComplexDataSet(probeGroup, "data", &pars.psiProbeInit[0], mdims, 2, order);
+		}
 	}
 
 	void createTransmission(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
