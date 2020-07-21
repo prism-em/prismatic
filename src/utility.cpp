@@ -24,6 +24,7 @@
 #include <unistd.h>
 #endif
 #include <thread>
+#include <map>
 
 namespace Prismatic
 {
@@ -173,5 +174,17 @@ int testExist(const std::string &filename)
 	return answer;
 }
 
+void updateSeriesParams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t iter)
+{
+
+    //right now this assumes only CC series
+	std::map<std::string, PRISMATIC_FLOAT_PRECISION*> valMap{{"probeDefocus", &pars.meta.probeDefocus}};
+    pars.currentTag = pars.meta.seriesTags[iter];
+	for(auto i = 0; i < pars.meta.seriesKeys.size(); i++)
+	{
+		PRISMATIC_FLOAT_PRECISION* val_ptr = valMap[pars.meta.seriesKeys[i]];
+		*val_ptr = pars.meta.seriesVals[i][iter];
+	}
+};
 
 } // namespace Prismatic

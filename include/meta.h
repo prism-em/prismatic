@@ -23,6 +23,7 @@ namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
     enum class TiltSelection{Rectangular, Radial};
+
     template <class T>
     class Metadata{
     public:
@@ -61,6 +62,10 @@ namespace Prismatic{
             probeStepX            = 0.25;
             probeStepY            = 0.25;
             probeDefocus          = 0.0;
+            probeDefocus_min      = 0.0;
+            probeDefocus_max      = 0.0;
+            probeDefocus_step     = 0.0;
+            probeDefocus_sigma    = 0.0;
             C3                    = 0.0;
             C5                    = 0.0;
             probeSemiangle        = 20.0 / 1000;
@@ -118,6 +123,10 @@ namespace Prismatic{
             enterCheck            = false;
             arbitraryProbes       = false;
             saveProbe             = false;
+            simSeries             = false;
+            seriesVals            = {{}};
+            seriesKeys            = {};
+            seriesTags            = {};
             maxFileSize           = 2e9;
             importFile            = "";
             importPath            = "";
@@ -150,6 +159,10 @@ namespace Prismatic{
         T alphaBeamMax; // max semi angle for probe
         T detectorAngleStep;
         T probeDefocus;
+        T probeDefocus_min;
+        T probeDefocus_max;
+        T probeDefocus_step;
+        T probeDefocus_sigma;
         T C3;
         T C5;
         T probeSemiangle;
@@ -206,6 +219,10 @@ namespace Prismatic{
         bool enterCheck;
         bool arbitraryProbes;
         bool saveProbe;
+        bool simSeries;
+        std::vector<std::vector<T>> seriesVals;
+        std::vector<std::string> seriesKeys;
+        std::vector<std::string> seriesTags;
         unsigned long long int maxFileSize; 
         StreamingMode transferMode;
         TiltSelection tiltMode;

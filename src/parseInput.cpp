@@ -108,7 +108,9 @@ void printHelp()
               << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
               << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n"
               << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n"
-              << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n";
+              << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n"
+              << "* --probe-defocus-sigma (-dfs) sigma: Run a simulation series over a range of 9 defocii, up to +- 2 sigma in steps 0.5 sigma (in angstroms).\n"
+              << "* --probe-defocus-range (-dfr) min max step : Run a simulation series over a range of defocus values, from min to max in step size of step. All input units in Angstroms. \n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -1637,6 +1639,55 @@ bool parse_maxFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_dfs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for --probe-defocus-sigma (syntax is -dfs sigma)\n";
+        return false;
+    }
+    if ((meta.probeDefocus_sigma = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1])) == 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for sigma (syntax is -dfs sigma)\n";
+        return false;
+    }
+    meta.simSeries = true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_dfr(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 4)
+    {
+        cout << "Not enough values provided for --probe-defocus-range (syntax is -dfr min max step)\n";
+        return false;
+    }
+    PRISMATIC_FLOAT_PRECISION minval, maxval;
+    minval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[1]);
+    maxval = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[2]);
+
+    if(maxval < minval)
+    {
+        cout << "Maximum probe defocus " << maxval << " is less than miminum defocus " << minval << ". Check inputs\n";
+    }
+    meta.probeDefocus_min = minval;
+    meta.probeDefocus_max = maxval;
+    if ((meta.probeDefocus_step = (PRISMATIC_FLOAT_PRECISION)atof((*argv)[3])) == 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for step (syntax is -dfr min max step)\n";
+        return false;
+    }
+
+    meta.simSeries = true;
+    argc -= 4;
+    argv[0] += 4;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1716,7 +1767,9 @@ static std::map<std::string, parseFunction> parser{
     {"--rtilt-tem", parse_rtt}, {"-rtt", parse_rtt},
     {"--tilt-offset-tem", parse_tot}, {"-tot", parse_tot},
     {"--probe-pos", parse_pos}, {"-pos", parse_pos},
-    {"--max-filesize", parse_maxFile}
+    {"--max-filesize", parse_maxFile},
+    {"--probe-defocus-sigma", parse_dfs}, {"-dfs", parse_dfs},
+    {"--probe-defocus-range", parse_dfr}, {"-dfr", parse_dfr}
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)

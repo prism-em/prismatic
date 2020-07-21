@@ -238,8 +238,8 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
     std::vector<size_t> order_4D = {0,1,2,3}; 
     readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual/datacube", order_4D);
-    BOOST_TEST(output.get_dimk() == 11);
-    BOOST_TEST(output.get_diml() == 11);
+    BOOST_TEST(output.get_dimk() == 5);
+    BOOST_TEST(output.get_diml() == 5);
     std::cout << output.at(0,0,0,0).real() << std::endl;
     std::cout << output.at(0,0,0,0).imag() << std::endl;
     removeFile(meta.filenameOutput);

@@ -114,8 +114,8 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
 
     for(auto i = 0; i < testArr.get_dimi(); i++)
     {
-        size_t ay = i / refArr.get_dimi();
-        size_t ax = i % refArr.get_dimi();
+        size_t ay = i % refArr.get_dimi();
+        size_t ax = i / refArr.get_dimi();
         for(auto b = 0; b < testArr.get_dimk(); b++)
         {
             err += std::abs(testArr.at(b,0,i) - refArr.at(b,ay,ax));
@@ -176,8 +176,8 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
 
     for(auto i = 0; i < testArr.get_dimi(); i++)
     {
-        size_t ay = i / refArr.get_dimi();
-        size_t ax = i % refArr.get_dimi();
+        size_t ay = i % refArr.get_dimi();
+        size_t ax = i / refArr.get_dimi();
         for(auto b = 0; b < testArr.get_dimk(); b++)
         {
             err += std::abs(testArr.at(b,0,i) - refArr.at(b,ay,ax));
