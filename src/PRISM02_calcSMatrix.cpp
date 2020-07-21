@@ -654,9 +654,10 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//acquire necessary metadata to create auxillary variables
 	std::string groupPath = "4DSTEM_simulation/metadata/metadata_0/original/simulation_parameters";
 	PRISMATIC_FLOAT_PRECISION meta_cellDims[3];
-	int meta_fx;
-	int meta_fy;
+	PRISMATIC_FLOAT_PRECISION meta_tile[3];
+	int meta_fx, meta_fy;
 	readAttribute(pars.meta.importFile, groupPath, "c", meta_cellDims);
+	readAttribute(pars.meta.importFile, groupPath, "t", meta_tile);
 	readAttribute(pars.meta.importFile, groupPath, "fx", meta_fx);
 	readAttribute(pars.meta.importFile, groupPath, "fy", meta_fy);
 
@@ -667,9 +668,9 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	readAttribute(pars.meta.importFile, groupPath, "px", tmp_rpixel);
 	meta_rpixel[1] = tmp_rpixel;
 
-	pars.tiledCellDim[0] = meta_cellDims[0];
-	pars.tiledCellDim[1] = meta_cellDims[1];
-	pars.tiledCellDim[2] = meta_cellDims[2];
+	pars.tiledCellDim[0] = meta_cellDims[2]*meta_tile[2];
+	pars.tiledCellDim[1] = meta_cellDims[1]*meta_tile[1];
+	pars.tiledCellDim[2] = meta_cellDims[0]*meta_tile[0];
 	pars.meta.realspacePixelSize[0] = meta_rpixel[0];
 	pars.meta.realspacePixelSize[1] = meta_rpixel[1];
 	pars.meta.interpolationFactorX = meta_fx;
