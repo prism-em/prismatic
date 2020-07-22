@@ -389,12 +389,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) + q0_1 * (pars.yp[ay] + pars.yTiltShift)));
 
 			const std::complex<PRISMATIC_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
-			auto psi_ptr = psi.begin();
+			// auto psi_ptr = psi.begin();
 			for (auto j = 0; j < y.size(); ++j)
 			{
 				for (auto i = 0; i < x.size(); ++i)
 				{
-					*psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+					// *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+					// psi.at(y[j], x[i]) += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+					psi.at(j, i) += (tmp_const * pars.Scompact.at(a4, j, i));
 				}
 			}
 		}

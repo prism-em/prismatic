@@ -11,6 +11,7 @@
 #include "H5Cpp.h"
 #include "fftw3.h"
 #include "ioTests.h"
+#include "utility.h"
 
 namespace Prismatic{
 
@@ -89,16 +90,23 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
 
     std::string fname_m = "../test/matrixRefocus_m.h5";
     std::string fname_p = "../test/matrixRefocus_p.h5";
-    meta.tileZ = 10;
+    meta.tileX = 5;
+    meta.tileY = 5;
+    meta.tileZ = 1;
     meta.filenameOutput = fname_m;
     meta.probeDefocus = 0.0;
-    meta.matrixRefocus = true;
-    meta.numGPUs = 1;
+    meta.matrixRefocus = false;
     meta.algorithm = Algorithm::Multislice;
-    meta.numThreads = 1;
     meta.saveComplexOutputWave = true;
     meta.savePotentialSlices = true;
     meta.matrixRefocus = false;
+    meta.probeStepX = 3;
+    meta.probeStepY = 6;
+    meta.alphaBeamMax = 50 / 1000.0;
+    meta.potBound = 3.0;
+    meta.numGPUs = 1;
+    meta.numThreads = 12;
+
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: refocus_test #########\n";
     go(meta);
@@ -124,13 +132,13 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     readComplexDataSet(refProbes, fname_m, dataPath4D);
     readComplexDataSet(testProbes, fname_p, dataPath4D);
 
-    PRISMATIC_FLOAT_PRECISION tol = 0.001;
+    PRISMATIC_FLOAT_PRECISION tol = 1e-7;
     BOOST_TEST(compareSize(refProbes, testProbes));
     if(compareSize(refProbes, testProbes))
     {
-        std::cout << compareValues(refProbes, testProbes) << std::endl;
-        std::cout << compareValues(refProbes, testProbes) / refProbes.size() << std::endl;
-        BOOST_TEST(compareValues(refProbes, testProbes) < tol);
+        PRISMATIC_FLOAT_PRECISION meanError = compareValues(refProbes, testProbes) / refProbes.size();
+        std::cout << meanError << std::endl;
+        BOOST_TEST(meanError < tol);
     }
     else
     {
