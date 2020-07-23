@@ -106,6 +106,7 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     meta.potBound = 3.0;
     meta.numGPUs = 1;
     meta.numThreads = 12;
+    meta.transferMode = StreamingMode::SingleXfer;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: refocus_test #########\n";

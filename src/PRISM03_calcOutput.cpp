@@ -365,12 +365,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						fmod(a, (PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[1]),
 					(PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[1]);
 	});
+
 	Array1D<PRISMATIC_FLOAT_PRECISION> y = pars.yVec + round(y0);
 	transform(y.begin(), y.end(), y.begin(), [&pars](PRISMATIC_FLOAT_PRECISION &a) {
 		return fmod((PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0] +
 						fmod(a, (PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0]),
 					(PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0]);
 	});
+
 	Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 		{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
@@ -389,13 +391,10 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) + q0_1 * (pars.yp[ay] + pars.yTiltShift)));
 
 			const std::complex<PRISMATIC_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
-			// auto psi_ptr = psi.begin();
 			for (auto j = 0; j < y.size(); ++j)
 			{
 				for (auto i = 0; i < x.size(); ++i)
 				{
-					// *psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
-					// psi.at(y[j], x[i]) += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
 					psi.at(j, i) += (tmp_const * pars.Scompact.at(a4, j, i));
 				}
 			}
