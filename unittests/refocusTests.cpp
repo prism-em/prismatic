@@ -158,5 +158,15 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     removeFile(fname_p);
 }
 
+BOOST_AUTO_TEST_CASE(boolstream)
+{
+    bool check = true;
+
+    std::cout << std::boolalpha;
+    std::cout << check << std::endl;
+    std::cout << std::noboolalpha;
+    std::cout << check << std::endl;
+}
+
 BOOST_AUTO_TEST_SUITE_END();
 }

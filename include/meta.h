@@ -106,7 +106,6 @@ namespace Prismatic{
             save4DOutput          = false;
             crop4DOutput          = false;
             saveDPC_CoM           = false;
-            saveRealSpaceCoords   = false;
             savePotentialSlices   = false;
             saveSMatrix           = false;
             userSpecifiedCelldims = false;
@@ -120,7 +119,6 @@ namespace Prismatic{
             importSMatrix         = false;
             userSpecifiedNumFP    = false;
             saveComplexOutputWave = false;
-            enterCheck            = false;
             arbitraryProbes       = false;
             saveProbe             = false;
             simSeries             = false;
@@ -206,7 +204,6 @@ namespace Prismatic{
         bool save4DOutput;
         bool crop4DOutput;
         bool saveDPC_CoM;
-        bool saveRealSpaceCoords;
         bool savePotentialSlices;
         bool saveSMatrix;
         bool userSpecifiedCelldims;
@@ -217,7 +214,6 @@ namespace Prismatic{
         bool importSMatrix;
         bool userSpecifiedNumFP;
         bool saveComplexOutputWave;
-        bool enterCheck;
         bool arbitraryProbes;
         bool saveProbe;
         bool simSeries;
@@ -235,30 +231,38 @@ namespace Prismatic{
     void Metadata<T>::toString(){
         std::cout << "\nSimulation parameters:" << std::endl;
         std::cout << "=====================\n" << std::endl;
+        
         if (algorithm == Prismatic::Algorithm::PRISM){
             std::cout << "Algorithm: PRISM" << std::endl;
             std::cout << "interpolationFactorX = " << interpolationFactorX << std::endl;
             std::cout << "interpolationFactorY = " << interpolationFactorY << std::endl;
-        } else {
+        } 
+        else if(algorithm == Prismatic::Algorithm::Multislice) 
+        {
             std::cout << "Algorithm: Multislice" << std::endl;
+        }
+        else if(algorithm == Prismatic::Algorithm::HRTEM)
+        {
+            std::cout << "Algorithm: HRTEM" << std::endl;
         }
 
         std::cout << "filenameAtoms = " <<  filenameAtoms     << std::endl;
         std::cout << "filenameOutput = " << filenameOutput  << std::endl;
         std::cout << "outputFolder = " << outputFolder  << std::endl;
         std::cout << "numThreads = " << numThreads << std::endl;
-        std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0]<< std::endl;
-        std::cout << "realspacePixelSize[1] = " << realspacePixelSize[1]<< std::endl;
+        std::cout << "realspacePixelSize[0] = " << realspacePixelSize[0] << std::endl;
+        std::cout << "realspacePixelSize[1] = " << realspacePixelSize[1] << std::endl;
         std::cout << "potBound = " << potBound << std::endl;
         std::cout << "numFP = " << numFP << std::endl;
         std::cout << "sliceThickness = " << sliceThickness<< std::endl;
+        std::cout << "zSampling = " << zSampling << std::endl;
         std::cout << "numSlices = " << numSlices << std::endl;
         std::cout << "zStart = " << zStart << std::endl;
         std::cout << "E0 = " << E0 << std::endl;
         std::cout << "alphaBeamMax = " << alphaBeamMax << std::endl;
-        std::cout << "numThreads = " << numThreads<< std::endl;
-        std::cout << "batchSizeTargetCPU = " << batchSizeTargetCPU<< std::endl;
-        std::cout << "batchSizeTargetGPU = " << batchSizeTargetGPU<< std::endl;
+        std::cout << "numThreads = " << numThreads << std::endl;
+        std::cout << "batchSizeTargetCPU = " << batchSizeTargetCPU << std::endl;
+        std::cout << "batchSizeTargetGPU = " << batchSizeTargetGPU << std::endl;
         std::cout << "probeStepX = " << probeStepX << std::endl;
         std::cout << "probeStepY = " << probeStepY << std::endl;
         std::cout << "cellDim[0] = " << cellDim[0] << std::endl;
@@ -268,12 +272,32 @@ namespace Prismatic{
         std::cout << "tileY = " << tileY << std::endl;
         std::cout << "tileZ = " << tileZ << std::endl;
         std::cout << "probeDefocus = " << probeDefocus<< std::endl;
+        std::cout << "probeDefocus_min = " << probeDefocus_min<< std::endl;
+        std::cout << "probeDefocus_max = " << probeDefocus_max<< std::endl;
+        std::cout << "probeDefocus_step = " << probeDefocus_step<< std::endl;
+        std::cout << "probeDefocus_sigma = " << probeDefocus_sigma<< std::endl;
         std::cout << "C3 = " << C3 << std::endl;
         std::cout << "C5 = " << C5 << std::endl;
         std::cout << "probeSemiangle = " << probeSemiangle<< std::endl;
         std::cout << "detectorAngleStep = " << detectorAngleStep<< std::endl;
         std::cout << "probeXtilt = " << probeXtilt<< std::endl;
         std::cout << "probeYtilt = " << probeYtilt<< std::endl;
+        if(tiltMode == TiltSelection::Rectangular)
+        {
+            std::cout << "tiltMode = Rectangular" << std::endl;
+            std::cout << "minXtilt = " << minXtilt << std::endl;
+            std::cout << "maxXtilt = " << maxXtilt << std::endl;
+            std::cout << "minYtilt = " << minYtilt << std::endl;
+            std::cout << "maxYtilt = " << maxYtilt << std::endl;
+            std::cout << "xTiltStep = " << xTiltStep << std::endl;
+            std::cout << "yTiltStep = " << yTiltStep << std::endl;
+        }
+        else
+        {
+            std::cout << "tiltMode = Radial" << std::endl;
+            std::cout << "minRtilt = " << minRtilt << std::endl;
+            std::cout << "maxRtilt = " << maxRtilt << std::endl;
+        }
         std::cout << "scanWindowXMin = " << scanWindowXMin<< std::endl;
         std::cout << "scanWindowXMax = " << scanWindowXMax<< std::endl;
         std::cout << "scanWindowYMin = " << scanWindowYMin<< std::endl;
@@ -287,62 +311,41 @@ namespace Prismatic{
         std::cout << "randomSeed = " << randomSeed << std::endl;
         std::cout << "crop4Damax = " << crop4Damax << std::endl;
 
-        if (includeOccupancy) {
-            std::cout << "includeOccupancy = true" << std::endl;
-        } else {
-            std::cout << "includeOccupancy = false" << std::endl;
+        std::cout << std::boolalpha << std::endl;
+        std::cout << "potential3D = " << potential3D << std::endl;
+        std::cout << "includeThermalEffects = " << includeThermalEffects << std::endl;
+        std::cout << "includeOccupancy = " << includeOccupancy << std::endl;
+        std::cout << "alsoDoCPUWork = " << alsoDoCPUWork << std::endl;
+        std::cout << "save2DOutput = " << save2DOutput << std::endl;
+        if(save2DOutput)
+        {
+            std::cout << "integrationAngleMin = " << integrationAngleMin << std::endl;
+            std::cout << "integrationAngleMax = " << integrationAngleMax << std::endl;
         }
-        if (includeThermalEffects) {
-            std::cout << "includeThermalEffects = true" << std::endl;
-        } else {
-            std::cout << "includeThermalEffects = false" << std::endl;
+        std::cout << "save3DOutput = " << save3DOutput << std::endl;
+        std::cout << "save4DOutput = " << save4DOutput << std::endl;
+        std::cout << "crop4DOutput = " << crop4DOutput << std::endl;
+        std::cout << "saveDPC_CoM = " << saveDPC_CoM << std::endl;
+        std::cout << "savePotentialSlices = " << savePotentialSlices << std::endl;
+        std::cout << "saveSMatrix = " << saveSMatrix << std::endl;
+        std::cout << "userSpecifiedCelldims = " << userSpecifiedCelldims << std::endl;
+        std::cout << "realSpaceWindow_x = " << realSpaceWindow_x << std::endl;
+        std::cout << "realSpaceWindow_y = " << realSpaceWindow_y << std::endl;
+        std::cout << "nyquistSampling = " << nyquistSampling << std::endl;
+        std::cout << "importPotential = " << importPotential << std::endl;
+        std::cout << "importSMatrix = " << importSMatrix << std::endl;
+        if(importPotential or importSMatrix)
+        {
+            std::cout << "importFile = " << importFile << std::endl;
+            std::cout << "importPath = " << importPath << std::endl;
         }
-        if (alsoDoCPUWork) {
-            std::cout << "alsoDoCPUWork = true" << std::endl;
-        } else {
-            std::cout << "alsoDoCPUWork = false" << std::endl;
-        }
-        if (save2DOutput) {
-            std::cout << "save2DOutput = true" << std::endl;
-        } else {
-            std::cout << "save2DOutput = false" << std::endl;
-        }
-        if (save3DOutput) {
-            std::cout << "save3DOutput = true" << std::endl;
-        } else {
-            std::cout << "save3DOutput = false" << std::endl;
-        }
-        if (save4DOutput) {
-            std::cout << "save4DOutput = true" << std::endl;
-        } else {
-            std::cout << "save4DOutput = false" << std::endl;
-        }
-        if (crop4DOutput) {
-            std::cout << "crop4DOutput = true" << std::endl;
-        } else {
-            std::cout << "crop4DOutput = false" << std::endl;
-        }
-        if (saveDPC_CoM) {
-            std::cout << "saveDPC_CoM = true" << std::endl;
-        } else {
-            std::cout << "saveDPC_CoM = false" << std::endl;
-        }
-        if (saveRealSpaceCoords) {
-            std::cout << "saveRealSpaceCoords = true" << std::endl;
-        } else {
-            std::cout << "saveRealSpaceCoords = false" << std::endl;
-        }
-        if (savePotentialSlices) {
-            std::cout << "savePotentialSlices = true" << std::endl;
-        } else {
-            std::cout << "savePotentialSlices= false" << std::endl;
-        }
-        if (nyquistSampling) {
-            std::cout << "nyquistSampling = true" << std::endl;
-        }else{
-            std::cout << "nyquistSampling = false" << std::endl;
-        }
-
+        std::cout << "userSpecifiedNumFP = " << userSpecifiedNumFP << std::endl;
+        std::cout << "saveComplexOutputWave = " << saveComplexOutputWave << std::endl;
+        std::cout << "arbitraryProbes = " << arbitraryProbes << std::endl;
+        std::cout << "saveProbe = " << saveProbe << std::endl;
+        std::cout << "simSeries = " << simSeries << std::endl;
+        std::cout << "matrixRefocus = " << matrixRefocus << std::endl;
+        std::cout << std::noboolalpha << std::endl;
 
     #ifdef PRISMATIC_ENABLE_GPU
         std::cout << "numGPUs = " << numGPUs<< std::endl;
@@ -361,6 +364,7 @@ namespace Prismatic{
 
     template <class T>
     bool Metadata<T>::operator==(const Metadata<T> other){
+        if(algorithm != other.algorithm)return false;
         if(interpolationFactorY != other.interpolationFactorY)return false;
         if(interpolationFactorX != other.interpolationFactorX)return false;
         if(filenameAtoms != other.filenameAtoms)return false;
@@ -370,7 +374,9 @@ namespace Prismatic{
         if(realspacePixelSize[1] != other.realspacePixelSize[1])return false;
         if(potBound != other.potBound)return false;
         if(numFP != other.numFP)return false;
+        if(fpNum != other.fpNum)return false;
         if(sliceThickness != other.sliceThickness)return false;
+        if(zSampling != other.zSampling)return false;
         if(numSlices != other.numSlices)return false;
         if(zStart != other.zStart)return false;
         if(cellDim[0] != other.cellDim[0])return false;
@@ -387,9 +393,24 @@ namespace Prismatic{
         if(C3 != other.C3)return false;
         if(C5 != other.C5)return false;
         if(probeDefocus != other.probeDefocus)return false;
+        if(probeDefocus_min != other.probeDefocus_min)return false;
+        if(probeDefocus_max != other.probeDefocus_max)return false;
+        if(probeDefocus_step != other.probeDefocus_step)return false;
+        if(probeDefocus_sigma != other.probeDefocus_sigma)return false;
         if(detectorAngleStep != other.detectorAngleStep)return false;
         if(probeXtilt != other.probeXtilt)return false;
         if(probeYtilt != other.probeYtilt)return false;
+        if(minXtilt != other.minXtilt)return false;
+        if(minYtilt != other.minYtilt)return false;
+        if(maxXtilt != other.maxXtilt)return false;
+        if(maxYtilt != other.maxYtilt)return false;
+        if(minRtilt != other.minRtilt)return false;
+        if(maxRtilt != other.maxRtilt)return false;
+        if(tiltMode != other.tiltMode)return false;
+        if(xTiltOffset != other.xTiltOffset)return false;
+        if(yTiltOffset != other.yTiltOffset)return false;
+        if(xTiltStep != other.xTiltStep)return false;
+        if(yTiltStep != other.yTiltStep)return false;
         if(scanWindowXMin != other.scanWindowXMin)return false;
         if(scanWindowXMax != other.scanWindowXMax)return false;
         if(scanWindowYMin != other.scanWindowYMin)return false;
@@ -408,12 +429,20 @@ namespace Prismatic{
         if(save4DOutput != other.save4DOutput)return false;
         if(crop4DOutput != other.crop4DOutput)return false;
         if(saveDPC_CoM != other.saveDPC_CoM)return false;
-        if(saveRealSpaceCoords != other.saveRealSpaceCoords)return false;
         if(savePotentialSlices != other.savePotentialSlices)return false;
+        if(saveSMatrix != other.saveSMatrix)return false;
         if(userSpecifiedCelldims != other.userSpecifiedCelldims)return false;
         if(realSpaceWindow_x != other.realSpaceWindow_x)return false;
         if(realSpaceWindow_y != other.realSpaceWindow_y)return false;
         if(nyquistSampling != other.nyquistSampling)return false;
+        if(importPotential != other.importPotential)return false;
+        if(importSMatrix != other.importSMatrix)return false;
+        if(userSpecifiedNumFP != other.userSpecifiedNumFP)return false;
+        if(saveComplexOutputWave != other.saveComplexOutputWave)return false;
+        if(arbitraryProbes != other.arbitraryProbes)return false;
+        if(saveProbe != other.saveProbe)return false;
+        if(simSeries != other.simSeries)return false;
+        if(matrixRefocus != other.matrixRefocus)return false;
         return true;
     }
 
