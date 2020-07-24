@@ -331,7 +331,7 @@ __global__ void shiftIndices(long* vec_out, const long by, const long imageSize,
 		//int idx = threadIdx.x + blockDim.x * blockIdx.x;
 		long idx = threadIdx.x + blockDim.x * blockIdx.x;
 		if (idx < N){
-			vec_out[idx] = (imageSize + ((idx - N/2 + by) % imageSize)) % imageSize;
+			vec_out[idx] = idx;//(imageSize + ((idx - N/2 + by) % imageSize)) % imageSize;
 //			vec_out[idx] =  (idx - N/2 + by) % imageSize;
 //			vec_out[idx] = 0;
 		}

@@ -322,6 +322,7 @@ void buildPRISMOutput_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			{ // synchronously get work assignment
 				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> psi = Prismatic::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
 					{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
+
 				unique_lock<mutex> gatekeeper(fftw_plan_lock);
 				PRISMATIC_FFTW_PLAN plan = PRISMATIC_FFTW_PLAN_DFT_2D(psi.get_dimj(), psi.get_dimi(),
 																	  reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi[0]),
@@ -382,12 +383,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						fmod(a, (PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[1]),
 					(PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[1]);
 	});
+
 	Array1D<PRISMATIC_FLOAT_PRECISION> y = pars.yVec + round(y0);
 	transform(y.begin(), y.end(), y.begin(), [&pars](PRISMATIC_FLOAT_PRECISION &a) {
 		return fmod((PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0] +
 						fmod(a, (PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0]),
 					(PRISMATIC_FLOAT_PRECISION)pars.imageSizeOutput[0]);
 	});
+
 	Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
 		{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 
@@ -406,12 +409,11 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				-2 * pi * i * (q0_0 * (pars.xp[ax] + pars.xTiltShift) + q0_1 * (pars.yp[ay] + pars.yTiltShift)));
 
 			const std::complex<PRISMATIC_FLOAT_PRECISION> tmp_const = pars.psiProbeInit.at(yB, xB) * phaseShift;
-			auto psi_ptr = psi.begin();
 			for (auto j = 0; j < y.size(); ++j)
 			{
 				for (auto i = 0; i < x.size(); ++i)
 				{
-					*psi_ptr++ += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
+					psi.at(j, i) += (tmp_const * pars.Scompact.at(a4, j, i));
 				}
 			}
 		}
@@ -577,11 +579,13 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				  return a;
 			  });
 
+
+	PRISMATIC_FLOAT_PRECISION factor = (pars.meta.matrixRefocus) ? 1.0 : 1.0;
 	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 			  pars.q2.begin(), pars.psiProbeInit.begin(),
-			  [&pars](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
+			  [&pars, &factor](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
 				  std::complex<PRISMATIC_FLOAT_PRECISION> chi{
-					  (PRISMATIC_FLOAT_PRECISION)(pi * pars.lambda * pars.meta.probeDefocus * q2_t +
+					  (PRISMATIC_FLOAT_PRECISION)(factor * pi * pars.lambda * pars.meta.probeDefocus * q2_t +
 												  pi / 2 * pow(pars.lambda, 3) * pars.meta.C3 * pow(q2_t, 2) +
 												  pi / 3 * pow(pars.lambda, 5) * pars.meta.C5 * pow(q2_t, 3)),
 					  (PRISMATIC_FLOAT_PRECISION)0.0};
@@ -620,7 +624,6 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// compute final image
 
 	cout << "Entering PRISM03_calcOutput" << endl;
-
 	// setup necessary coordinates
 	setupCoordinates_2(pars);
 

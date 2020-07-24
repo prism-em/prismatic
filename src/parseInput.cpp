@@ -1769,8 +1769,8 @@ static std::map<std::string, parseFunction> parser{
     {"--probe-pos", parse_pos}, {"-pos", parse_pos},
     {"--max-filesize", parse_maxFile},
     {"--probe-defocus-sigma", parse_dfs}, {"-dfs", parse_dfs},
-    {"--probe-defocus-range", parse_dfr}, {"-dfr", parse_dfr}
-    };
+    {"--probe-defocus-range", parse_dfr}, {"-dfr", parse_dfr},
+    {"--save-smatrix", parse_sm}, {"-sm", parse_sm}};
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {

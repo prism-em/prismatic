@@ -128,6 +128,7 @@ namespace Prismatic{
             seriesKeys            = {};
             seriesTags            = {};
             maxFileSize           = 2e9;
+            matrixRefocus         = true; //true by default since it improves accuracy
             importFile            = "";
             importPath            = "";
         }
@@ -224,6 +225,7 @@ namespace Prismatic{
         std::vector<std::string> seriesKeys;
         std::vector<std::string> seriesTags;
         unsigned long long int maxFileSize; 
+        bool matrixRefocus; //whether or not to refocus the comapct s-matrix in a PRISM sim
         StreamingMode transferMode;
         TiltSelection tiltMode;
 

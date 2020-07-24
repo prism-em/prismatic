@@ -59,8 +59,9 @@ namespace Prismatic{
 		Array4D<T> net_DPC_CoM;
 		Array3D<T> pot;
 	    Array3D<std::complex<T> > transmission;
-	    Array2D< std::complex<T>  > prop;
+	    Array2D< std::complex<T> > prop;
 	    Array2D< std::complex<T> > propBack;
+	    Array2D< std::complex<T> > propRefocus;
 	    Array2D< std::complex<T> > psiProbeInit;
 		Array2D<T> cbed_buffer;
 		Array2D<std::complex<T>> cbed_buffer_c;
