@@ -94,34 +94,31 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     meta.tileY = 5;
     meta.tileZ = 1;
     meta.filenameOutput = fname_m;
-    meta.probeDefocus = 0.0;
+    meta.probeDefocus = 10.0;
     meta.matrixRefocus = false;
     meta.algorithm = Algorithm::Multislice;
-    meta.saveComplexOutputWave = true;
+    meta.saveComplexOutputWave = false;
     meta.savePotentialSlices = true;
-    meta.matrixRefocus = false;
-    meta.probeStepX = 3;
-    meta.probeStepY = 6;
+    meta.probeStepX = 10;
+    meta.probeStepY = 10;
     meta.alphaBeamMax = 50 / 1000.0;
     meta.potBound = 3.0;
     meta.numGPUs = 1;
     meta.numThreads = 12;
-    meta.transferMode = StreamingMode::SingleXfer;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: refocus_test #########\n";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
+    meta.matrixRefocus = true;
+    meta.numGPUs = 0;
     meta.algorithm = Algorithm::PRISM;
-
     meta.interpolationFactorX = 1;
     meta.interpolationFactorY = 1;
     meta.filenameOutput = fname_p;
-    meta.importPotential = false; //import potential to ensure that image size is the same
-    meta.importPath = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
-    meta.importFile = fname_m;
     go(meta);
+
     std::cout << "######### END TEST CASE: refocus_test #########\n";
     revertOutput(fd, pos);
 
@@ -137,8 +134,12 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     BOOST_TEST(compareSize(refProbes, testProbes));
     if(compareSize(refProbes, testProbes))
     {
-        PRISMATIC_FLOAT_PRECISION meanError = compareValues(refProbes, testProbes) / refProbes.size();
-        std::cout << meanError << std::endl;
+        PRISMATIC_FLOAT_PRECISION error = 0.0;
+        for(auto i = 0; i < refProbes.size(); i++)
+        {
+            error += std::abs(pow(std::abs(refProbes[i]), 2.0) - pow(std::abs(testProbes[i]),2.0));
+        }
+        PRISMATIC_FLOAT_PRECISION meanError = error / refProbes.size();
         BOOST_TEST(meanError < tol);
     }
     else

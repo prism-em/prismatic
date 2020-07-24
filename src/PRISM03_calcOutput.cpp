@@ -561,11 +561,13 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				  return a;
 			  });
 
+
+	PRISMATIC_FLOAT_PRECISION factor = (pars.meta.matrixRefocus) ? 1.0 : 1.0;
 	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 			  pars.q2.begin(), pars.psiProbeInit.begin(),
-			  [&pars](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
+			  [&pars, &factor](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
 				  std::complex<PRISMATIC_FLOAT_PRECISION> chi{
-					  (PRISMATIC_FLOAT_PRECISION)(pi * pars.lambda * pars.meta.probeDefocus * q2_t +
+					  (PRISMATIC_FLOAT_PRECISION)(factor * pi * pars.lambda * pars.meta.probeDefocus * q2_t +
 												  pi / 2 * pow(pars.lambda, 3) * pars.meta.C3 * pow(q2_t, 2) +
 												  pi / 3 * pow(pars.lambda, 5) * pars.meta.C5 * pow(q2_t, 3)),
 					  (PRISMATIC_FLOAT_PRECISION)0.0};

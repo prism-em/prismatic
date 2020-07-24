@@ -476,7 +476,8 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	extern mutex fftw_plan_lock;  // lock for protecting FFTW plans
 
 	//calculate relative defocus
-	PRISMATIC_FLOAT_PRECISION rel_defocus = pars.tiledCellDim[0]-pars.meta.probeDefocus;
+	PRISMATIC_FLOAT_PRECISION rel_defocus = (pars.tiledCellDim[0]-pars.meta.probeDefocus);
+	std::cout << "rel_defocus: " << rel_defocus << std::endl;
 
 	//create a new propagator
 	pars.propRefocus = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.qyInd.size(), pars.qxInd.size()}});
@@ -525,6 +526,7 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		copy(&pars.Scompact.at(idx,0,0), &pars.Scompact.at(idx+1,0,0), beamHold.begin());
 
 		//apply propagator
+		PRISMATIC_FFTW_EXECUTE(plan_forward);
 		for(auto y = 0; y < pars.qyInd.size(); y++)
 		{
 			for(auto x = 0; x < pars.qxInd.size(); x++)
@@ -533,7 +535,6 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			}
 		}
 
-		PRISMATIC_FFTW_EXECUTE(plan_forward);
 		PRISMATIC_FFTW_EXECUTE(plan_inverse);
 
 		// scale FFT and copy back into smatrix
