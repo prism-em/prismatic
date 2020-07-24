@@ -105,6 +105,8 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     meta.potBound = 3.0;
     meta.numGPUs = 1;
     meta.numThreads = 12;
+    meta.realspacePixelSize[0] = 0.1;
+    meta.realspacePixelSize[1] = 0.1;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: refocus_test #########\n";
