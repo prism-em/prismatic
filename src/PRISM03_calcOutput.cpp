@@ -483,8 +483,7 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	//save 4D output if applicable
 	if (pars.meta.save4DOutput)
 	{
-		std::stringstream nameString;
-		nameString << "4DSTEM_simulation/data/datacubes/CBED_array_depth" << getDigitString(0);
+		std::string nameString ="4DSTEM_simulation/data/datacubes/CBED_array_depth" + getDigitString(0)+pars.currentTag;
 
 
 		PRISMATIC_FLOAT_PRECISION numFP = pars.meta.numFP;
@@ -497,14 +496,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				finalOutput = cropOutput(psi, pars);
 				finalOutput *= sqrt(pars.scale);
 				hsize_t mdims[4] = {1, 1, finalOutput.get_dimi(), finalOutput.get_dimj()};
-				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.c_str());
 			}
 			else
 			{
 				hsize_t mdims[4] = {1, 1, psi.get_dimi(), psi.get_dimj()};
 				finalOutput = fftshift2(psi);
 				finalOutput *= sqrt(pars.scale);
-				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.c_str());
 			}
 		}
 		else
@@ -513,13 +512,13 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput, pars);
 				hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
-				writeDatacube4D(pars, &croppedOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &croppedOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.c_str());
 			}
 			else
 			{
 				hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
 				intOutput = fftshift2(intOutput);
-				writeDatacube4D(pars, &intOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.str());
+				writeDatacube4D(pars, &intOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.c_str());
 			}
 		}
 
