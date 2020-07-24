@@ -95,6 +95,12 @@ void writeRealDataSet_inOrder(H5::Group group,
                         const hsize_t *mdims,
                         const size_t &rank);
 
+void writeComplexDataSet_inOrder(H5::Group group,
+                        const std::string &dsetname,
+                        const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer,
+                        const hsize_t *mdims,
+                        const size_t &rank);
+
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const int &data);
 
 void writeScalarAttribute(H5::H5Object &object, const std::string &name, const PRISMATIC_FLOAT_PRECISION &data);

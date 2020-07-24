@@ -222,8 +222,8 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
     meta.tiltMode = TiltSelection::Radial;
     meta.minRtilt = 0.0 / 1000;
     meta.maxRtilt = 5.0 / 1000;
-    meta.interpolationFactorX = 4;
-    meta.interpolationFactorY = 4;
+    meta.interpolationFactorX = 16;
+    meta.interpolationFactorY = 16;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: radialTilts #########\n";

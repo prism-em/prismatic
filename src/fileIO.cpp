@@ -915,11 +915,22 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	
 	if(pars.meta.saveComplexOutputWave)
 	{
-		writeComplexDataSet(hrtem_group, "realslice", &net_output_c[0], mdims, 3, order);
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
+		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
+		{
+			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
+			{
+				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
+				{
+					output_buffer.at(i,j,k) = net_output_c.at(k,j,i);
+				}
+			}
+		}
+		writeComplexDataSet_inOrder(hrtem_group, "realslice", &output_buffer[0], mdims, 3);
 	}
 	else
 	{
-		writeRealDataSet(hrtem_group, "realslice", &net_output[0], mdims, 3, order);
+		writeRealDataSet_inOrder(hrtem_group, "realslice", &net_output[0], mdims, 3);
 	}
 
 	hrtem_group.close();
@@ -1443,6 +1454,40 @@ void writeComplexDataSet(H5::Group group, const std::string &dsetname,
 		for(auto i =0; i < rank; i++) rdims.push_back(mdims[i]);
 		restrideElements(fspace, rdims, order);
 	}
+	complex_dset.write(buffer, complex_type, mspace, fspace);
+
+	//close spaces
+	fspace.close();
+	mspace.close();
+	complex_dset.close();
+
+}
+
+void writeComplexDataSet_inOrder(H5::Group group, const std::string &dsetname,
+							const std::complex<PRISMATIC_FLOAT_PRECISION> *buffer,
+							const hsize_t *mdims,
+							const size_t &rank)
+{
+	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
+	const H5std_string re_str("r"); //using h5py default configuration
+	const H5std_string im_str("i");
+	complex_type.insertMember(re_str, 0, PFP_TYPE);
+	complex_type.insertMember(im_str, 4, PFP_TYPE);
+
+	//create dataset and write
+	H5::DataSpace mspace(rank, mdims);
+
+	H5::DataSet complex_dset;
+	if(group.nameExists(dsetname.c_str()))
+	{
+		complex_dset = group.openDataSet(dsetname.c_str());
+	}
+	else
+	{
+		complex_dset = group.createDataSet(dsetname.c_str(), complex_type, mspace);
+	}		
+	
+	H5::DataSpace fspace = complex_dset.getSpace();
 	complex_dset.write(buffer, complex_type, mspace, fspace);
 
 	//close spaces
