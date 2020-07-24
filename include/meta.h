@@ -128,7 +128,7 @@ namespace Prismatic{
             seriesKeys            = {};
             seriesTags            = {};
             maxFileSize           = 2e9;
-            matrixRefocus         = true; //true by default since it improves accuracy
+            matrixRefocus         = false; //true by default since it improves accuracy
             importFile            = "";
             importPath            = "";
         }

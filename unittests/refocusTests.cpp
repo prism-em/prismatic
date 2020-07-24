@@ -126,8 +126,8 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refProbes;
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testProbes;
-    readComplexDataSet(refProbes, fname_m, dataPath4D);
-    readComplexDataSet(testProbes, fname_p, dataPath4D);
+    readComplexDataSet_inOrder(refProbes, fname_m, dataPath4D);
+    readComplexDataSet_inOrder(testProbes, fname_p, dataPath4D);
 
     PRISMATIC_FLOAT_PRECISION tol = 1e-7;
     BOOST_TEST(compareSize(refProbes, testProbes));
@@ -152,8 +152,8 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
     }
 
 
-    // removeFile(fname_m);
-    // removeFile(fname_p);
+    removeFile(fname_m);
+    removeFile(fname_p);
 }
 
 BOOST_AUTO_TEST_SUITE_END();
