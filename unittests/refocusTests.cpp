@@ -112,7 +112,6 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
 
     std::cout << "\n--------------------------------------------\n";
     meta.matrixRefocus = true;
-    meta.numGPUs = 0;
     meta.algorithm = Algorithm::PRISM;
     meta.interpolationFactorX = 1;
     meta.interpolationFactorY = 1;
