@@ -55,14 +55,14 @@ void printHelp()
               << "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers. (default: " << defaults.batchSizeCPU << ")\n"
               << "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers. (default: " << defaults.batchSizeGPU << ")\n"
               << "* --help(-h) : print information about the available options\n"
-                 "* --pixel-size (-p) pixel_size : size of simulated potential/probe X/Y pixel size (default: "
+              << "* --pixel-size (-p) pixel_size : size of simulated potential/probe X/Y pixel size (default: "
               << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
               << "* --pixel-size-x (-px) pixel_size : size of simulated potential/probe X pixel size (default: " << defaults.realspacePixelSize[1] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
               << "* --pixel-size-y (-py) pixel_size : size of simulated potential/probe Y pixel size (default: " << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
               << "* --detector-angle-step (-d) step_size : angular step size for detector integration bins (in mrad) (default: " << (1000 * defaults.detectorAngleStep) << ")\n"
               << "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms) (default: " << defaults.cellDim[2] << " " << defaults.cellDim[1] << " " << defaults.cellDim[0] << ")\n"
               << "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively (default: " << defaults.tileX << " " << defaults.tileY << " " << defaults.tileZ << ")\n"
-              << "* --algorithm (-a) p/m : the simulation algorithm to use, either (p)rism or (m)ultislice (default: PRISM)\n"
+              << "* --algorithm (-a) p/m/t : the simulation algorithm to use; either (p)rism, (m)ultislice, or hr(t)em (default: PRISM)\n"
               << "* --energy (-E) value : the energy of the electron beam (in keV) (default: " << defaults.E0 / 1000 << ")\n"
               << "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad) (default: " << 1000 * defaults.alphaBeamMax << ")\n"
               << "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms) (default: " << defaults.potBound << ")\n"
@@ -194,9 +194,26 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     {
         f << "--algorithm:" << 'm' << '\n';
     }
-    else
+    else if(meta.algorithm == Algorithm::PRISM)
     {
         f << "--algorithm:" << 'p' << '\n';
+        f << "--interp-factor-x:" << meta.interpolationFactorX << '\n';
+        f << "--interp-factor-y:" << meta.interpolationFactorY << '\n';
+    }
+    else if(meta.algorithm == Algorithm::HRTEM)
+    {
+        f << "--algorithm:" << 't' << '\n';
+        if (meta.tiltMode == TiltSelection::Rectangular)
+        {
+            f << "--xtt:" << meta.minXtilt << ' ' << meta.maxXtilt << ' ' << meta.xTiltStep << '\n';
+            f << "--ytt:" << meta.minYtilt << ' ' << meta.maxYtilt << ' ' << meta.yTiltStep << '\n';
+        }
+        else if(meta.tiltMode == TiltSelection::Radial)
+        {
+            f << "--rtt:" << meta.minRtilt << ' ' << meta.maxRtilt << '\n';
+        }
+        f << "--tot:" << meta.xTiltOffset << ' ' << meta.yTiltOffset << '\n';
+
     }
     if (validateFilename(meta.filenameAtoms))
         f << "--input-file:" << meta.filenameAtoms << '\n';
@@ -246,82 +263,19 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
     f << "--random-seed:" << meta.randomSeed << '\n';
     f << "--4D-amax:" << meta.crop4Damax << '\n';
-    if (meta.includeThermalEffects)
-    {
-        f << "--thermal-effects:1\n";
-    }
-    else
-    {
-        f << "--thermal-effects:0\n";
-    }
     if (meta.save2DOutput)
     {
         f << "--save-2D-output:" << meta.integrationAngleMin * 1000 << ' ' << meta.integrationAngleMax * 1000 << '\n';
     }
-    if (meta.save3DOutput)
-    {
-        f << "--save-3D-output:1\n";
-    }
-    else
-    {
-        f << "--save-3D-output:0\n";
-    }
-    if (meta.save4DOutput)
-    {
-        f << "--save-4D-output:1\n";
-    }
-    else
-    {
-        f << "--save-4D-output:0\n";
-    }    
-    if (meta.crop4DOutput)
-    {
-        f << "--4D-crop:1\n";
-    }
-    else
-    {
-        f << "--4D-crop:0\n";
-    }
-    if (meta.saveDPC_CoM)
-    {
-        f << "--save-DPC-CoM:1\n";
-    }
-    else
-    {
-        f << "--save-DPC-CoM:0\n";
-    }
-    if (meta.savePotentialSlices)
-    {
-        f << "--save-potential-slices:1\n";
-    }
-    else
-    {
-        f << "--save-potential-slices:0\n";
-    }
-    if (meta.saveRealSpaceCoords)
-    {
-        f << "--save-real-space-coords:1\n";
-    }
-    else
-    {
-        f << "--save-real-space-coords:0\n";
-    }
-    if (meta.includeOccupancy)
-    {
-        f << "--occupancy:1\n";
-    }
-    else
-    {
-        f << "--occupancy:0\n";
-    }
-    if (meta.nyquistSampling)
-    {
-        f << "--nyquist-sampling:1\n";
-    }
-    else
-    {
-        f << "--nyquist-sampling:0\n";
-    }
+
+    f << "--thermal-effects:" << meta.includeThermalEffects << "\n";
+    f << "--occupancy:"<< meta.includeOccupancy << "\n";
+    f << "--save-3D-output:" << meta.save3DOutput << "\n";
+    f << "--save-4D-output:" << meta.save4DOutput << "\n";
+    f << "--4D-crop:" << meta.crop4DOutput << "\n";
+    f << "--save-DPC-CoM:" << meta.saveDPC_CoM << "\n";
+    f << "--save-potential-slices:" << meta.savePotentialSlices << "\n";
+    f << "--nyquist-sampling:"<< meta.nyquistSampling <<"\n";
 
 #ifdef PRISMATIC_ENABLE_GPU
     if (meta.alsoDoCPUWork)
