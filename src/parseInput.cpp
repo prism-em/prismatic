@@ -275,6 +275,9 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--4D-crop:" << meta.crop4DOutput << "\n";
     f << "--save-DPC-CoM:" << meta.saveDPC_CoM << "\n";
     f << "--save-potential-slices:" << meta.savePotentialSlices << "\n";
+    f << "--save-smatrix:" << meta.saveSMatrix << "\n";
+    f << "--import-potential:" << meta.importPotential << "\n";
+    f << "--import-smatrix:" << meta.importSMatrix << "\n";
     f << "--nyquist-sampling:"<< meta.nyquistSampling <<"\n";
 
 #ifdef PRISMATIC_ENABLE_GPU
