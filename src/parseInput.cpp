@@ -111,7 +111,8 @@ void printHelp()
               << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n"
               << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n"
               << "* --probe-defocus-sigma (-dfs) sigma: Run a simulation series over a range of 9 defocii, up to +- 2 sigma in steps 0.5 sigma (in angstroms).\n"
-              << "* --probe-defocus-range (-dfr) min max step : Run a simulation series over a range of defocus values, from min to max in step size of step. All input units in Angstroms. \n";
+              << "* --probe-defocus-range (-dfr) min max step : Run a simulation series over a range of defocus values, from min to max in step size of step. All input units in Angstroms. \n"
+              << "* --matrix-refocus (-mrf) bool : Use matrix refocusing in PRISM simulation (default: Off).\n";
 }
 
 // string white-space trimming utility functions courtesy of https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
@@ -1650,6 +1651,20 @@ bool parse_3DPZ(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_mrf(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -mrf (syntax is -mrf bool)\n";
+        return false;
+    }
+    meta.matrixRefocus = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1731,7 +1746,10 @@ static std::map<std::string, parseFunction> parser{
     {"--max-filesize", parse_maxFile},
     {"--probe-defocus-sigma", parse_dfs}, {"-dfs", parse_dfs},
     {"--probe-defocus-range", parse_dfr}, {"-dfr", parse_dfr},
-    {"--save-smatrix", parse_sm}, {"-sm", parse_sm}};
+    {"--save-smatrix", parse_sm}, {"-sm", parse_sm},
+    {"--3Dpotential-zsampling", parse_3DPZ}, {"-3DPZ", parse_3DPZ},
+    {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf}
+    };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
 {
