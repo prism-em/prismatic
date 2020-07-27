@@ -55,10 +55,11 @@ void printHelp()
               << "* --batch-size-cpu (-bc) value : number of probes/beams to propagate simultaneously for CPU workers. (default: " << defaults.batchSizeCPU << ")\n"
               << "* --batch-size-gpu (-bg) value : number of probes/beams to propagate simultaneously for GPU workers. (default: " << defaults.batchSizeGPU << ")\n"
               << "* --help(-h) : print information about the available options\n"
-              << "* --pixel-size (-p) pixel_size : size of simulated potential/probe X/Y pixel size (default: "
+              << "* --pixel-size (-p) pixel_size : size of simulated potential pixel size (default: "
               << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
-              << "* --pixel-size-x (-px) pixel_size : size of simulated potential/probe X pixel size (default: " << defaults.realspacePixelSize[1] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
-              << "* --pixel-size-y (-py) pixel_size : size of simulated potential/probe Y pixel size (default: " << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
+              << "* --pixel-size-x (-px) pixel_size : size of simulated potential pixel size (default: " << defaults.realspacePixelSize[1] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
+              << "* --pixel-size-y (-py) pixel_size : size of simulated potential pixel size (default: " << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
+              << "* --3Dpotential-zsampling (-3DPZ) int : Supersampling factor for potential integration in propagation direction. (Default: 4)\n"
               << "* --detector-angle-step (-d) step_size : angular step size for detector integration bins (in mrad) (default: " << (1000 * defaults.detectorAngleStep) << ")\n"
               << "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms) (default: " << defaults.cellDim[2] << " " << defaults.cellDim[1] << " " << defaults.cellDim[0] << ")\n"
               << "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively (default: " << defaults.tileX << " " << defaults.tileY << " " << defaults.tileZ << ")\n"
@@ -66,7 +67,7 @@ void printHelp()
               << "* --energy (-E) value : the energy of the electron beam (in keV) (default: " << defaults.E0 / 1000 << ")\n"
               << "* --alpha-max (-A) angle : the maximum probe angle to consider (in mrad) (default: " << 1000 * defaults.alphaBeamMax << ")\n"
               << "* --potential-bound (-P) value : the maximum radius from the center of each atom to compute the potental (in Angstroms) (default: " << defaults.potBound << ")\n"
-              << "* --also-do-cpu-work (-C) bool=true : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones (default: 1)\n"
+              << "* --also-do-cpu-work (-C) bool : boolean value used to determine whether or not to also create CPU workers in addition to GPU ones (default: 1)\n"
               << "* --streaming-mode 0/1 : boolean value to force code to use (true) or not use (false) streaming versions of GPU codes. The default behavior is to estimate the needed memory from input parameters and choose automatically. (default: Auto)\n"
               << "* --probe-step (-r) step_size : step size of the probe for both X and Y directions (in Angstroms) (default: " << defaults.probeStepX << ")\n"
               << "* --probe-step-x (-rx) step_size : step size of the probe in X direction (in Angstroms) (default: " << defaults.probeStepX << ")\n"
@@ -88,7 +89,7 @@ void printHelp()
               << "* --num-FP (-F) value : number of frozen phonon configurations to calculate (default: " << defaults.numFP << ")\n"
               << "* --thermal-effects (-te) bool : whether or not to include Debye-Waller factors (thermal effects) (default: True)\n"
               << "* --occupancy (-oc) bool : whether or not to consider occupancy values for likelihood of atoms existing at each site (default: True)\n"
-              << "* --3Dpotential (-3DP) bool : whether or not to use 3D parameterization with subpixel shifting for calculating the atomic potentials (default: True)\n"
+              << "* --3Dpotential (-3DP) bool : whether or not to use 3D integration with subpixel shifting for calculating the atomic potentials (default: True)\n"
               << "* --save-2D-output (-2D) ang_min ang_max : save the 2D STEM image integrated between ang_min and ang_max (in mrads) (default: Off)\n"
               << "* --save-3D-output (-3D) bool=true : Also save the 3D output at the detector for each probe (3D output mode) (default: On)\n"
               << "* --save-4D-output (-4D) bool=false : Also save the 4D output at the detector for each probe (4D output mode) (default: Off)\n"
@@ -1393,20 +1394,6 @@ bool parse_nqs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
-bool parse_rsc(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
-               int &argc, const char ***argv)
-{
-    if (argc < 2)
-    {
-        cout << "No value provided for -rsc (syntax is -rsc bool)\n";
-        return false;
-    }
-    meta.saveRealSpaceCoords = std::string((*argv)[1]) == "0" ? false : true;
-    argc -= 2;
-    argv[0] += 2;
-    return true;
-};
-
 bool parse_ps(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
               int &argc, const char ***argv)
 {
@@ -1645,6 +1632,24 @@ bool parse_dfr(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_3DPZ(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No supersampling factor provided for -3DPZ (syntax is -3DPZ factor)\n";
+        return false;
+    }
+    if ((meta.zSampling = atoi((*argv)[1])) == 0)
+    {
+        cout << "Invalid value \"" << (*argv)[1] << "\" provided for 3D potential supersampling factor (syntax is -3DPZ factor)\n";
+        return false;
+    }
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1716,7 +1721,6 @@ static std::map<std::string, parseFunction> parser{
     {"--4D-crop", parse_4DC}, {"-4DC", parse_4DC},
     {"--4D-amax", parse_4DA}, {"-4DA", parse_4DA},
     {"--save-DPC-CoM", parse_dpc}, {"-DPC", parse_dpc},
-    {"--save-real-space-coords", parse_rsc}, {"-rsc", parse_rsc},
     {"--save-potential-slices", parse_ps}, {"-ps", parse_ps},
     {"--nyquist-sampling", parse_nqs}, {"-nqs", parse_nqs},
     {"--xtilt-tem", parse_xtt}, {"-xtt", parse_xtt},
