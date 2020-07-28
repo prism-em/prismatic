@@ -19,6 +19,8 @@
 #include <iostream>
 #include "defines.h"
 #include <time.h>
+#include "aberration.h"
+
 namespace Prismatic{
 
     enum class StreamingMode{Stream, SingleXfer, Auto};
@@ -68,6 +70,7 @@ namespace Prismatic{
             probeDefocus_sigma    = 0.0;
             C3                    = 0.0;
             C5                    = 0.0;
+            aberrations           = {};
             probeSemiangle        = 20.0 / 1000;
             detectorAngleStep     = 1.0 / 1000;
             probeXtilt            = 0;
@@ -127,6 +130,7 @@ namespace Prismatic{
             seriesTags            = {};
             maxFileSize           = 2e9;
             matrixRefocus         = false; //true by default since it improves accuracy
+            arbitraryAberrations  = false;
             importFile            = "";
             importPath            = "";
         }
@@ -164,6 +168,7 @@ namespace Prismatic{
         T probeDefocus_sigma;
         T C3;
         T C5;
+        std::vector<aberration> aberrations;
         T probeSemiangle;
         T probeXtilt;
         T probeYtilt;
@@ -222,6 +227,7 @@ namespace Prismatic{
         std::vector<std::string> seriesTags;
         unsigned long long int maxFileSize; 
         bool matrixRefocus; //whether or not to refocus the comapct s-matrix in a PRISM sim
+        bool arbitraryAberrations;
         StreamingMode transferMode;
         TiltSelection tiltMode;
 
