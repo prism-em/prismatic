@@ -238,18 +238,22 @@ namespace Prismatic{
 			          return a;
 		          });
 
-		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
-		          pars.q2.begin(), pars.psiProbeInit.begin(),
-		          [&pars](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q2_t) {
-			//			          a = a * exp(-i * pi * pars.lambda * pars.meta.probeDefocus * q2_t);
-                      std::complex<PRISMATIC_FLOAT_PRECISION> chi{
-                              (PRISMATIC_FLOAT_PRECISION) (pi   * pars.lambda        * pars.meta.probeDefocus * q2_t +
-                                                           pi/2 * pow(pars.lambda,3) * pars.meta.C3           * pow(q2_t,2)+
-                                                           pi/3 * pow(pars.lambda,5) * pars.meta.C5           * pow(q2_t,3)), (PRISMATIC_FLOAT_PRECISION)0.0};
-                      a = a * exp(-i * chi);
+		Array2D<PRISMATIC_FLOAT_PRECISION> qTheta(q1);
+		std::transform(pars.qxa.begin(), pars.qxa.end(),
+					   pars.qya.begin(), qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISON& b){
+						   return atan2(b,a);
+					   });
+		
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, qTheta, pars.lambda, pars.meta.aberrations);
 
-                      return a;
-		          });
+		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+				chi.begin(), pars.psiProbeInit.begin(),
+				[](std::complex<PRISMATIC_FLOAT_PRECISION> &a, std::complex<PRISMATIC_FLOAT_PRECISION> &b) {
+					a = a * exp(-i * b);
+					return a;
+				});
+
+
 		PRISMATIC_FLOAT_PRECISION norm_constant = sqrt(accumulate(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		                                                      (PRISMATIC_FLOAT_PRECISION)0.0, [](PRISMATIC_FLOAT_PRECISION accum, std::complex<PRISMATIC_FLOAT_PRECISION> &a) {
 					return accum + abs(a) * abs(a);
