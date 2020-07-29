@@ -25,6 +25,7 @@
 #endif //_WIN32
 #include "atom.h"
 #include "probe.h"
+#include "aberration.h"
 
 namespace Prismatic
 {
@@ -1675,7 +1676,7 @@ bool parse_abs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         return false;
     }
     meta.arbitraryAberrations = true;
-    meta.aberrations = readAbberations(std::string((*argv)[1]));
+    meta.aberrations = readAberrations(std::string((*argv)[1]));
     argc -= 2;
     argv[0] += 2;
     return true;

@@ -33,6 +33,11 @@ struct aberration
         std::cout << "mag = " << mag << std::endl;
         std::cout << "angle = " << angle << std::endl;
     }
+
+    bool operator==(const aberration &a) const
+    {
+        return (m == a.m) and (n == a.n);
+    }
 };
 
 
@@ -49,5 +54,10 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
                                                         PRISMATIC_FLOAT_PRECISION &lambda, 
                                                         std::vector<aberration> &ab);
 
+void updateAberrations(std::vector<aberration> &ab, 
+						PRISMATIC_FLOAT_PRECISION C1, 
+						PRISMATIC_FLOAT_PRECISION C3, 
+						PRISMATIC_FLOAT_PRECISION C5);
+                        
 } // namespace Prismatic
 #endif //PRISM_ABERRATION_H

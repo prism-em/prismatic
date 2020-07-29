@@ -20,6 +20,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include "utility.h"
+#include <vector>
 
 namespace Prismatic
 {
@@ -117,7 +119,8 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
             for(auto i = 0; i < chi.get_dimi(); i++)
             {
 				PRISMATIC_FLOAT_PRECISION rad = ab[n].angle * pi / 180.0;
-                PRISMATIC_FLOAT_PRECISION cx = ab[n].mag * cos(ab[n].n*rad);
+				//if m = 0, rotation input is meaningless, so use only effective cx so magnitude is not dropped
+                PRISMATIC_FLOAT_PRECISION cx = (ab[n].m == 0) ? ab[n].mag : ab[n].mag * cos(ab[n].n*rad);
                 PRISMATIC_FLOAT_PRECISION cy = ab[n].mag * sin(ab[n].n*rad);
                 PRISMATIC_FLOAT_PRECISION tmp = chi.at(j,i).real();
 				tmp += cx*pow(lambda*q.at(j,i), ab[n].n)*cos(ab[n].m * qTheta.at(j,i));
@@ -129,6 +132,94 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 
     return chi;
 
+};
+
+void updateAberrations(std::vector<aberration> &ab, 
+						PRISMATIC_FLOAT_PRECISION C1, 
+						PRISMATIC_FLOAT_PRECISION C3, 
+						PRISMATIC_FLOAT_PRECISION C5)
+{
+	//prune for unique aberrations
+	std::sort(ab.begin(), ab.end(), 
+				[](aberration &a, aberration &b){
+					return std::make_pair(a.m, a.n) < std::make_pair(b.m, b.n);
+				});
+	ab = getUnique(ab);
+
+	//m > n and m+n % 2 == 1 aren't valid components of basis set
+	std::vector<aberration> tmp;
+	for(auto i = 0; i < ab.size(); i++)
+	{
+		bool check = (ab[i].m  <= ab[i].n) and not (ab[i].m + ab[i].n % 2);
+		if(check)
+		{
+			tmp.push_back(ab[i]);
+		}
+	}
+
+	ab = tmp;
+
+	//input C1, C3, C5 aassumed to all be in angstrom
+	PRISMATIC_FLOAT_PRECISION pi = acos(-1);
+	if(std::abs(C1) > 0.0)
+	{
+		//override C1 val if exists; add if not
+		bool exists = false;
+		for(auto i = 0; i < ab.size(); i++)
+		{
+			if(ab[i].m ==0 and ab[i].n == 2)
+			{
+				exists = true;
+				ab[i].mag = C1 * pi;
+			}
+		}
+
+		if(not exists)
+		{
+			aberration new_C1 = aberration{0, 2, C1, 0.0};
+			ab.push_back(new_C1);
+		}
+	}
+
+	if(std::abs(C3) > 0.0)
+	{
+		//override C3 val
+		bool exists = false;
+		for(auto i = 0; i < ab.size(); i++)
+		{
+			if(ab[i].m ==0 and ab[i].n == 4)
+			{
+				exists = true;
+				ab[i].mag = C3 * pi / 2.0;
+			}
+		}
+
+		if(not exists)
+		{
+			aberration new_C3 = aberration{0, 4, C3, 0.0};
+			ab.push_back(new_C3);
+		}
+	}
+
+	if(std::abs(C5 > 0.0))
+	{
+		//override C5 val
+		bool exists = false;
+		for(auto i = 0; i < ab.size(); i++)
+		{
+			if(ab[i].m ==0 and ab[i].n == 6)
+			{
+				exists = true;
+				ab[i].mag = C5 * pi / 3.0;
+			}
+		}
+
+		if(not exists)
+		{
+			aberration new_C5 = aberration{0, 6, C5, 0.0};
+			ab.push_back(new_C5);
+		}
+	}
 };
 
 } //namespace Prismatic

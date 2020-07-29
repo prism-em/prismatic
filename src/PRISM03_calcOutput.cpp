@@ -579,12 +579,13 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			  });
 
 
-	Array2D<PRISMATIC_FLOAT_PRECISION> qTheta(q1);
+	Array2D<PRISMATIC_FLOAT_PRECISION> qTheta(pars.q1);
 	std::transform(pars.qxa.begin(), pars.qxa.end(),
-					pars.qya.begin(), qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISON& b){
+					pars.qya.begin(), qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISION& b){
 						return atan2(b,a);
 					});
 
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, qTheta, pars.lambda, pars.meta.aberrations);
 	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 				chi.begin(), pars.psiProbeInit.begin(),
 				[](std::complex<PRISMATIC_FLOAT_PRECISION> &a, std::complex<PRISMATIC_FLOAT_PRECISION> &b) {
