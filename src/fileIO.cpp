@@ -234,18 +234,9 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	data_dims[1] = {pars.numYprobes};
 	data_dims[2] = {pars.Ndet};
 
-	hsize_t chunkDims[3] = {1, pars.numYprobes, pars.Ndet};
-
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
 	hsize_t bin_dim[1] = {pars.Ndet};
-
-	
-	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
-	const H5std_string re_str("r"); //using h5py default configuration
-	const H5std_string im_str("i");
-	complex_type.insertMember(re_str, 0, PFP_TYPE);
-	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
@@ -263,16 +254,7 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::DataSpace mspace(3, data_dims); //rank is 2 for each realslice
 
 		H5::DataSet VD_data;
-		H5::DSetCreatPropList plist;
-		plist.setChunk(3, chunkDims);
-		if(pars.meta.saveComplexOutputWave)
-		{
-			VD_slice_n.createDataSet("realslice", complex_type, mspace, plist);
-		}
-		else
-		{
-			VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace, plist);
-		}
+		VD_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
 
 		VD_data.close();
 		mspace.close();
@@ -319,12 +301,6 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	hsize_t rx_dim[1] = {pars.xp.size()};
 	hsize_t ry_dim[1] = {pars.yp.size()};
 
-	H5::CompType complex_type = H5::CompType(sizeof(complex_float_t));
-	const H5std_string re_str("r"); //using h5py default configuration
-	const H5std_string im_str("i");
-	complex_type.insertMember(re_str, 0, PFP_TYPE);
-	complex_type.insertMember(im_str, 4, PFP_TYPE);
-
 	for (auto n = 0; n < pars.numLayers; n++)
 	{
 		//create slice group
@@ -340,14 +316,7 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		//create dataset
 		H5::DataSpace mspace(2, data_dims); //rank is 2
 		H5::DataSet annular_data;
-		if(pars.meta.saveComplexOutputWave)
-		{
-			annular_data = annular_slice_n.createDataSet("realslice", complex_type, mspace);
-		}
-		else
-		{
-			annular_data = annular_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
-		}
+		annular_data = annular_slice_n.createDataSet("realslice", PFP_TYPE, mspace);
 		mspace.close();
 
 		//write dimensions
@@ -930,6 +899,17 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 	else
 	{
+		Array3D<PRISMATIC_FLOAT_PRECISION> output_buffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
+		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
+		{
+			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
+			{
+				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
+				{
+					output_buffer.at(i,j,k) = net_output.at(k,j,i);
+				}
+			}
+		}
 		writeRealDataSet_inOrder(hrtem_group, "realslice", &net_output[0], mdims, 3);
 	}
 
@@ -951,25 +931,19 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			nameString = "4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(j);
 			nameString = nameString + pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-			if(pars.meta.saveComplexOutputWave)
+			//manual restride is faster
+			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
+			for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
 			{
-				writeComplexDataSet(dataGroup, "realslice", &pars.net_output_c[j*strides], mdims, 3, order);
-			}
-			else
-			{
-				Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
-				for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
+				for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
 				{
-					for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
+					for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
 					{
-						for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
-						{
-							tmp_array.at(ii,jj,kk) = pars.net_output.at(j,kk,jj,ii);
-						}
+						tmp_array.at(ii,jj,kk) = pars.net_output.at(j,kk,jj,ii);
 					}
 				}
-				writeRealDataSet_inOrder(dataGroup, "realslice", &tmp_array[0], mdims, 3);
 			}
+			writeRealDataSet_inOrder(dataGroup, "realslice", &tmp_array[0], mdims, 3);
 			dataGroup.close();
 		}
 	}
@@ -987,49 +961,25 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			nameString += pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
 
-			if(pars.meta.saveComplexOutputWave)
-			{
-				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> prism_image;
-				//need to initiliaze output image at each slice to prevent overflow of value
-				prism_image = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
-					{{pars.net_output_c.get_dimj(), pars.net_output_c.get_dimk()}});
+			Array2D<PRISMATIC_FLOAT_PRECISION> prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+				{{pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
 
-				for (auto y = 0; y < pars.net_output_c.get_dimk(); ++y)
+			for (auto y = 0; y < pars.net_output.get_dimk(); ++y)
+			{
+				for (auto x = 0; x < pars.net_output.get_dimj(); ++x)
 				{
-					for (auto x = 0; x < pars.net_output_c.get_dimj(); ++x)
+					for (auto b = lower; b < upper; ++b)
 					{
-						for (auto b = lower; b < upper; ++b)
-						{
-							prism_image.at(x, y) += pars.net_output_c.at(j, y, x, b);
-						}
+						prism_image.at(x, y) += pars.net_output.at(j, y, x, b);
 					}
 				}
-				writeComplexDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
 			}
-			else
-			{
-				Array2D<PRISMATIC_FLOAT_PRECISION> prism_image;
-				//need to initiliaze output image at each slice to prevent overflow of value
-				prism_image = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-					{{pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
-
-				for (auto y = 0; y < pars.net_output.get_dimk(); ++y)
-				{
-					for (auto x = 0; x < pars.net_output.get_dimj(); ++x)
-					{
-						for (auto b = lower; b < upper; ++b)
-						{
-							prism_image.at(x, y) += pars.net_output.at(j, y, x, b);
-						}
-					}
-				}
-				writeRealDataSet(dataGroup, "realslice", &prism_image[0], mdims, 2, order);
-			}
+			writeRealDataSet_inOrder(dataGroup, "realslice", &prism_image[0], mdims, 2);
 			dataGroup.close();
 		}
 	}
 
-	if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave)
+	if (pars.meta.saveDPC_CoM)
 	{
 		setupDPCOutput(pars);
 		hsize_t mdims[3] = {pars.numXprobes, pars.numYprobes, 2};

@@ -166,16 +166,9 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// create output of a size corresponding to 3D mode (integration)
 	pars.numLayers = 1;
-	if(pars.meta.saveComplexOutputWave)
-	{
-		pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{1, pars.numYprobes, pars.numXprobes, pars.Ndet}});
-	}
-	else
-	{
-		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.numYprobes, pars.numXprobes, pars.Ndet}});
-		if (pars.meta.saveDPC_CoM)
-			pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.numYprobes, pars.numXprobes, 2}});
-	}
+	pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.numYprobes, pars.numXprobes, pars.Ndet}});
+	if (pars.meta.saveDPC_CoM)
+		pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{1, pars.numYprobes, pars.numXprobes, 2}});
 	
 	std::vector<PRISMATIC_FLOAT_PRECISION> depths(1);
 	depths[0] = pars.numPlanes*pars.meta.sliceThickness;
@@ -421,19 +414,16 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	PRISMATIC_FFTW_EXECUTE(plan);
 
-	if(not pars.meta.saveComplexOutputWave)
+	for (auto jj = 0; jj < intOutput.get_dimj(); ++jj)
 	{
-		for (auto jj = 0; jj < intOutput.get_dimj(); ++jj)
+		for (auto ii = 0; ii < intOutput.get_dimi(); ++ii)
 		{
-			for (auto ii = 0; ii < intOutput.get_dimi(); ++ii)
-			{
-				intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2) * pars.scale;
-			}
+			intOutput.at(jj, ii) += pow(abs(psi.at(jj, ii)), 2) * pars.scale;
 		}
 	}
 
 	size_t write_ay = (pars.meta.arbitraryProbes) ? 0 : ay;
-	if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave)
+	if (pars.meta.saveDPC_CoM)
 	{
 		//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 		for (long y = 0; y < intOutput.get_dimj(); ++y)
@@ -456,29 +446,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	//         update output -- ax,ay are unique per thread so this write is thread-safe without a lock
 	auto idx = pars.alphaInd.begin();
-	if(pars.meta.saveComplexOutputWave)
+	for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts)
 	{
-		for (auto counts = psi.begin(); counts != psi.end(); ++counts)
+		if (*idx <= pars.Ndet)
 		{
-			if (*idx <= pars.Ndet)
-			{
-				pars.output_c.at(0, write_ay, ax, (*idx) - 1) += *counts*sqrt(pars.scale);
-			}
-			++idx;
+			pars.output.at(0, write_ay, ax, (*idx) - 1) += *counts;
 		}
-
-	}
-	else
-	{
-		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts)
-		{
-			if (*idx <= pars.Ndet)
-			{
-				pars.output.at(0, write_ay, ax, (*idx) - 1) += *counts;
-			}
-			++idx;
-		};
-	}
+		++idx;
+	};
 
 	//save 4D output if applicable
 	if (pars.meta.save4DOutput)

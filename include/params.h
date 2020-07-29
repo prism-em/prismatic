@@ -52,9 +52,7 @@ namespace Prismatic{
 	    Metadata<T> meta;
 	    Array3D< std::complex<T>  > Scompact;
 	    Array4D<T> output;
-		Array4D<std::complex<T>> output_c;
 	    Array4D<T> net_output;
-		Array4D<std::complex<T>> net_output_c;
 		Array4D<T> DPC_CoM;
 		Array4D<T> net_DPC_CoM;
 		Array3D<T> pot;

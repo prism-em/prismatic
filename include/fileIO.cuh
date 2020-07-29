@@ -26,7 +26,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
     PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
     const PRISMATIC_FLOAT_PRECISION* qya_d,
     const PRISMATIC_FLOAT_PRECISION* qxa_d,
-    const size_t current_slice,
+    const size_t currentSlice,
     const size_t ay,
     const size_t ax,
     const size_t& dimj,
@@ -35,18 +35,19 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
     const long& scale = 1);
 
 void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-        PRISMATIC_CUDA_COMPLEX_FLOAT *psi_ds,
-        const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
-        std::complex<PRISMATIC_FLOAT_PRECISION> *output_c_ph,
-        PRISMATIC_CUDA_COMPLEX_FLOAT *integratedOutput_c_ds,
-        const PRISMATIC_FLOAT_PRECISION* qya_d,
-        const PRISMATIC_FLOAT_PRECISION* qxa_d,
-        const size_t current_slice,
-        const size_t ay,
-        const size_t ax,
-        const size_t& dimj,
-        const size_t& dimi,
-        const cudaStream_t& stream,
-        const long& scale = 1);
+    PRISMATIC_CUDA_COMPLEX_FLOAT *psi,
+    PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
+    const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
+    PRISMATIC_FLOAT_PRECISION *output_ph,
+    PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+    const PRISMATIC_FLOAT_PRECISION* qya_d,
+    const PRISMATIC_FLOAT_PRECISION* qxa_d,
+    const size_t currentSlice,
+    const size_t ay,
+    const size_t ax,
+    const size_t& dimj,
+    const size_t& dimi,
+    const cudaStream_t& stream,
+    const long& scale = 1);
 
 #endif

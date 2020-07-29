@@ -89,8 +89,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		//average data by fp
 		for (auto &i : prismatic_pars.net_output)
 			i /= prismatic_pars.meta.numFP;
-		for (auto &i : prismatic_pars.net_output_c)
-			i /= prismatic_pars.meta.numFP;
 
 		if (prismatic_pars.meta.saveDPC_CoM)
 		{
@@ -148,13 +146,11 @@ void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	if(fpNum >= 1)
 	{
 		pars.net_output += pars.output;
-		pars.net_output_c += pars.output_c;
 		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM += pars.DPC_CoM;
 	}
 	else
 	{
 		pars.net_output = pars.output;
-		pars.net_output_c = pars.output_c;
 		if (pars.meta.saveDPC_CoM) pars.net_DPC_CoM = pars.DPC_CoM;
 	}
 	

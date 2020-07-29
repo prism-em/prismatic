@@ -180,19 +180,20 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 }
 
 void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-								PRISMATIC_CUDA_COMPLEX_FLOAT *psi,
-                                const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
-                                std::complex<PRISMATIC_FLOAT_PRECISION> *output_c_ph,
-								PRISMATIC_CUDA_COMPLEX_FLOAT *integratedOutput_c_ds,
-								const PRISMATIC_FLOAT_PRECISION* qya_d,
-								const PRISMATIC_FLOAT_PRECISION* qxa_d,
-								const size_t currentSlice,
-                                const size_t ay,
-                                const size_t ax,
-                                const size_t& dimj,
-                                const size_t& dimi,
-                                const cudaStream_t& stream,
-                                const long& scale) {
+									PRISMATIC_CUDA_COMPLEX_FLOAT *psi,
+									PRISMATIC_FLOAT_PRECISION *psiIntensity_ds,
+									const PRISMATIC_FLOAT_PRECISION *alphaInd_d,
+									PRISMATIC_FLOAT_PRECISION *output_ph,
+									PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
+									const PRISMATIC_FLOAT_PRECISION* qya_d,
+									const PRISMATIC_FLOAT_PRECISION* qxa_d,
+									const size_t currentSlice,
+									const size_t ay,
+									const size_t ax,
+									const size_t& dimj,
+									const size_t& dimi,
+									const cudaStream_t& stream,
+									const long& scale){
 
 	//save 4D output if applicable
     if (pars.meta.save4DOutput)
@@ -254,36 +255,82 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
                     //currentImage.toMRC_f(section4DFilename.c_str());
                 }
         }
-        // CBED_data.close();
-        // dataGroup.close();
-        // HDF5_gatekeeper.unlock();
 	}
+
+
 	size_t num_integration_bins = pars.detectorAngles.size();
 	setAll <<< (num_integration_bins - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
-	                                                                            (integratedOutput_c_ds, make_float2(0.0,0.0), num_integration_bins);
+	                                                                            (integratedOutput_ds, 0, num_integration_bins);
 
-	integrateDetector_real <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
-	                                                                              (psi, alphaInd_d, integratedOutput_c_ds,
+	integrateDetector <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+	                                                                              (psiIntensity_ds, alphaInd_d, integratedOutput_ds,
 			                                                                              dimj *
-																						  dimi, num_integration_bins);
-	
-	integrateDetector_imag <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
-	                                                                              (psi, alphaInd_d, integratedOutput_c_ds,
-			                                                                              dimj *
-																						  dimi, num_integration_bins);
-	
-	multiply_cxarr_scalar <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
-																					(integratedOutput_c_ds, make_float2(sqrt(scale), 0.0), num_integration_bins);
-	
-	cudaErrchk(cudaMemcpyAsync(output_c_ph, integratedOutput_c_ds,
-	                           num_integration_bins * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>),
+			                                                                              dimi, num_integration_bins);
+
+	multiply_arr_scalar <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+	                                                                                (integratedOutput_ds, scale, num_integration_bins);
+
+	cudaErrchk(cudaMemcpyAsync(output_ph, integratedOutput_ds,
+	                           num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION),
 	                           cudaMemcpyDeviceToHost, stream));
 
 	//	 wait for the copy to complete and then copy on the host. Other host threads exist doing work so this wait isn't costing anything
 	cudaErrchk(cudaStreamSynchronize(stream));
 	const size_t stack_start_offset =
-			currentSlice * pars.output_c.get_dimk() * pars.output_c.get_dimj() * pars.output_c.get_dimi() + ay * pars.output_c.get_dimj() * pars.output_c.get_dimi() + ax * pars.output_c.get_dimi();
+			currentSlice * pars.output.get_dimk() * pars.output.get_dimj() * pars.output.get_dimi() + ay * pars.output.get_dimj() * pars.output.get_dimi() + ax * pars.output.get_dimi();
+	memcpy(&pars.output[stack_start_offset], output_ph, num_integration_bins * sizeof(PRISMATIC_FLOAT_PRECISION));
+	
+    if(pars.meta.saveDPC_CoM)
+    {
+		//device variables
+		PRISMATIC_FLOAT_PRECISION *num_qx_d;
+		PRISMATIC_FLOAT_PRECISION *num_qy_d;
+		PRISMATIC_FLOAT_PRECISION *denominator_d;
+		cudaErrchk(cudaMallocManaged(&num_qx_d, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
+		cudaErrchk(cudaMallocManaged(&num_qy_d, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
+		cudaErrchk(cudaMallocManaged(&denominator_d, 1*sizeof(PRISMATIC_FLOAT_PRECISION)));
 
-			
-	memcpy(&pars.output_c[stack_start_offset], output_c_ph, num_integration_bins * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>));
+		//host variables
+		PRISMATIC_FLOAT_PRECISION *num_qx_h = new PRISMATIC_FLOAT_PRECISION[1];
+		PRISMATIC_FLOAT_PRECISION *num_qy_h = new PRISMATIC_FLOAT_PRECISION[1];
+		PRISMATIC_FLOAT_PRECISION *denominator_h = new PRISMATIC_FLOAT_PRECISION[1];
+		num_qx_h[0] = 0.0;
+		num_qy_h[0] = 0.0;
+		denominator_h[0] = 0.0;
+
+		//initialize device variables
+		cudaErrchk(cudaMemcpyAsync(num_qx_d,&num_qx_h[0],1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyHostToDevice));
+		cudaErrchk(cudaMemcpyAsync(num_qy_d,&num_qy_h[0],1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyHostToDevice));
+		cudaErrchk(cudaMemcpyAsync(denominator_d,&denominator_h[0],1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyHostToDevice));
+		
+		//reduce in X
+		DPC_numerator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+		(psiIntensity_ds,qxa_d, num_qx_d, dimj * dimi);
+		
+		//reduce in Y
+		DPC_numerator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>>
+		(psiIntensity_ds,qya_d, num_qy_d, dimj * dimi);
+		
+		DPC_denominator_reduce <<< (dimj * dimi - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psiIntensity_ds, denominator_d, dimj*dimi);
+		
+		//copy back to host
+		cudaErrchk(cudaMemcpyAsync(&num_qx_h[0],num_qx_d,1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyDeviceToHost));
+		cudaErrchk(cudaMemcpyAsync(&num_qy_h[0],num_qy_d,1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyDeviceToHost));
+		cudaErrchk(cudaMemcpyAsync(&denominator_h[0],denominator_d,1*sizeof(PRISMATIC_FLOAT_PRECISION),cudaMemcpyDeviceToHost));
+
+		PRISMATIC_FLOAT_PRECISION DPC_CoM[2];
+		DPC_CoM[0] = num_qx_h[0]/denominator_h[0]; //measurement at ax,ay of CoM w.r.t. qx
+		DPC_CoM[1] = num_qy_h[0]/denominator_h[0]; //measurement at ax,ay of CoM w.r.t. qy
+
+		//copy to memory and free variables
+		const size_t dpc_stack_offset = 
+				currentSlice*pars.DPC_CoM.get_dimk() * pars.DPC_CoM.get_dimj() * pars.DPC_CoM.get_dimi() + ay * pars.DPC_CoM.get_dimj() * pars.DPC_CoM.get_dimi() + ax * pars.DPC_CoM.get_dimi();
+		memcpy(&pars.DPC_CoM[dpc_stack_offset],&DPC_CoM[0],2*sizeof(PRISMATIC_FLOAT_PRECISION));
+		cudaErrchk(cudaFree(num_qx_d));
+		cudaErrchk(cudaFree(num_qy_d));
+		cudaErrchk(cudaFree(denominator_d));
+		free(num_qx_h);
+		free(num_qy_h);
+		free(denominator_h);
+	}
 }

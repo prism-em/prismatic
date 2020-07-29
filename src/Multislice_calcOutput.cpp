@@ -300,14 +300,7 @@ namespace Prismatic{
 		pars.depths = depths;
 		pars.numLayers = numLayers;
 		
-		if(pars.meta.saveComplexOutputWave)
-		{
-			pars.output_c = zeros_ND<4, std::complex<PRISMATIC_FLOAT_PRECISION>>({{numLayers, pars.numYprobes, pars.numXprobes, pars.Ndet}});
-		}
-		else
-		{
-			pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.numYprobes, pars.numXprobes, pars.Ndet}});
-		}
+		pars.output = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers, pars.numYprobes, pars.numXprobes, pars.Ndet}});
 
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.numYprobes, pars.numXprobes,2}});
 		if(pars.meta.save4DOutput)
@@ -339,13 +332,10 @@ namespace Prismatic{
 		if(pars.meta.matrixRefocus) refocus_test(pars, psi);
 		auto psi_ptr = psi.begin();
 
-		std::cout <<"in single" << std::endl;
-		if(not pars.meta.saveComplexOutputWave){
-			for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-		}
+		for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
 
 
-		if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave){
+		if (pars.meta.saveDPC_CoM){
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 			for (long y = 0; y < psi.get_dimj(); ++y){
 				for (long x = 0; x < psi.get_dimi(); ++x){
@@ -364,24 +354,12 @@ namespace Prismatic{
 
 		//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
 		auto idx = alphaInd.begin();
-		if(pars.meta.saveComplexOutputWave)
-		{
-			for (auto counts = psi.begin(); counts != psi.end(); ++counts){
-				if (*idx <= pars.Ndet){
-					pars.output_c.at(currentSlice,ay,ax,(*idx)-1) += *counts;
-				}
-				++idx;
-			};
-		}
-		else
-		{
-			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
-				if (*idx <= pars.Ndet){
-					pars.output.at(currentSlice,ay,ax,(*idx)-1) += *counts;
-				}
-				++idx;
-			};
-		}
+		for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts){
+			if (*idx <= pars.Ndet){
+				pars.output.at(currentSlice,ay,ax,(*idx)-1) += *counts;
+			}
+			++idx;
+		};
 
 		//save 4D output if applicable
 		if (pars.meta.save4DOutput)
@@ -474,30 +452,21 @@ namespace Prismatic{
 			const size_t ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 
 			//can't just use PSI like in single integrate for complex output
-			Array2D<PRISMATIC_FLOAT_PRECISION> intOutput;
+			Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> intOutput_c;
+			if(pars.meta.saveComplexOutputWave)
+				intOutput_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
 			
+			auto psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
+			for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
 			if(pars.meta.saveComplexOutputWave)
 			{
-				intOutput_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
-			}
-			else
-			{
-				intOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj(), pars.psiProbeInit.get_dimi()}});
-			}
-
-			auto psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
-			if(not pars.meta.saveComplexOutputWave)
-			{
-				for (auto& j:intOutput) j = pow(abs(*psi_ptr++),2);
-			}
-			else
-			{
+				//reset pointer
+				psi_ptr = &psi_stack[probe_idx*pars.psiProbeInit.size()];
 				for (auto& j:intOutput_c) j = *psi_ptr++;
 			}
-			if(pars.meta.matrixRefocus) refocus_test(pars, intOutput_c);
 
-			if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave){
+			if (pars.meta.saveDPC_CoM){
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 				for (long y = 0; y < pars.psiProbeInit.get_dimj(); ++y){
 					for (long x = 0; x < pars.psiProbeInit.get_dimi(); ++x){
@@ -517,25 +486,12 @@ namespace Prismatic{
 
 			//update stack -- ax,ay are unique per thread so this write is thread-safe without a lock
 			auto idx = alphaInd.begin();
-			if (pars.meta.saveComplexOutputWave)
-			{
-				for (auto counts = intOutput_c.begin(); counts != intOutput_c.end(); ++counts) {
-					// std::cout << *counts << std::endl;
-					if (*idx <= pars.Ndet) {
-						pars.output_c.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
-					}
-					++idx;
-				};
-			}
-			else
-			{
-				for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
-					if (*idx <= pars.Ndet) {
-						pars.output.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
-					}
-					++idx;
-				};
-			}
+			for (auto counts = intOutput.begin(); counts != intOutput.end(); ++counts) {
+				if (*idx <= pars.Ndet) {
+					pars.output.at(currentSlice, ay, ax, (*idx) - 1) += *counts;
+				}
+				++idx;
+			};
 
 			if (pars.meta.save4DOutput)
 			{
