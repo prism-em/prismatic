@@ -134,12 +134,15 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 
 };
 
-void updateAberrations(std::vector<aberration> &ab, 
-						PRISMATIC_FLOAT_PRECISION C1, 
-						PRISMATIC_FLOAT_PRECISION C3, 
-						PRISMATIC_FLOAT_PRECISION C5)
+std::vector<aberration> updateAberrations(std::vector<aberration> ab, 
+										PRISMATIC_FLOAT_PRECISION C1, 
+										PRISMATIC_FLOAT_PRECISION C3, 
+										PRISMATIC_FLOAT_PRECISION C5)
 {
 	//prune for unique aberrations
+	if(ab.size() > 0)
+	{
+
 	std::sort(ab.begin(), ab.end(), 
 				[](aberration &a, aberration &b){
 					return std::make_pair(a.m, a.n) < std::make_pair(b.m, b.n);
@@ -158,6 +161,7 @@ void updateAberrations(std::vector<aberration> &ab,
 	}
 
 	ab = tmp;
+	}
 
 	//input C1, C3, C5 aassumed to all be in angstrom
 	PRISMATIC_FLOAT_PRECISION pi = acos(-1);
@@ -201,7 +205,7 @@ void updateAberrations(std::vector<aberration> &ab,
 		}
 	}
 
-	if(std::abs(C5 > 0.0))
+	if(std::abs(C5) > 0.0)
 	{
 		//override C5 val
 		bool exists = false;
@@ -220,6 +224,8 @@ void updateAberrations(std::vector<aberration> &ab,
 			ab.push_back(new_C5);
 		}
 	}
+
+	return ab;
 };
 
 } //namespace Prismatic

@@ -22,6 +22,7 @@
 #include "utility.h"
 #include "fileIO.h"
 #include "Multislice_entry.h"
+#include "aberration.h"
 
 namespace Prismatic
 {
@@ -79,6 +80,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	}
 	else
 	{
+		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5);
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			Multislice_runFP(prismatic_pars, i);
@@ -182,12 +184,12 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 		PRISM01_calcPotential(pars);
 	}
 
-	//update original object as prismatic_pars is recreated later
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 
 		updateSeriesParams(pars, i);
+		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
 		Multislice_calcOutput(pars);
 
 		if(i == 0 and fpNum == 0) createScratchFile(pars);

@@ -40,13 +40,19 @@ namespace Prismatic {
                                       CudaParameters<PRISMATIC_FLOAT_PRECISION> &cuda_pars) {
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 
+		std::cout << "here7.0.0" << std::endl;
 		// create CUDA streams and cuFFT plans
+		std::cout << "total num streams" << total_num_streams << std::endl;
 		cuda_pars.streams = new cudaStream_t[total_num_streams];;
 		cuda_pars.cufftPlans = new cufftHandle[total_num_streams];
-
+		
+		std::cout << "here7.0.1" << std::endl;
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.numGPUs);
+			std::cout << "here7.0.2.0" << " iter: " << j << std::endl;
+			std::cout << &cuda_pars.streams[j] << std::endl;
 			cudaErrchk(cudaStreamCreate(&cuda_pars.streams[j]));
+			std::cout << "here7.0.2.1" << " iter: " << j << std::endl;
 			cufftErrchk(cufftPlan2d(&cuda_pars.cufftPlans[j], pars.imageSizeReduce[0], pars.imageSizeReduce[1], PRISMATIC_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cuda_pars.cufftPlans[j], cuda_pars.streams[j]));
 		}
@@ -1608,25 +1614,32 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// create CUDA streams and cuFFT plans
+		std::cout << "here7.0" << std::endl;
 		createStreamsAndPlans3(pars, cuda_pars);
-
+		std::cout << "here7.1" << std::endl;
 		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_singlexfer3(pars, cuda_pars);
-
+		std::cout << "here7.2" << std::endl;
+		
 		// copy data to pinned buffers
 		copyToPinnedMemory_singlexfer3(pars, cuda_pars);
-
+		std::cout << "here7.3" << std::endl;
+		
 		// allocate memory on the GPUs
 		allocateDeviceMemory_singlexfer3(pars, cuda_pars);
-
+		std::cout << "here7.4" << std::endl;
+		
 		// copy memory to GPUs
 		copyToGPUMemory_singlexfer3(pars, cuda_pars);
-
+		std::cout << "here7.5" << std::endl;
+		
 		// launch GPU and CPU workers
 		launchWorkers_singlexfer3(pars, cuda_pars);
-
+		std::cout << "here7.6" << std::endl;
+		
 		// free memory on the host/device
 		cleanupMemory3(pars, cuda_pars);
+		std::cout << "here7.7" << std::endl;
 	}
 
 	void buildPRISMOutput_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){

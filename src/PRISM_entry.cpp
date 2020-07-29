@@ -25,6 +25,7 @@
 #include "H5Cpp.h"
 #include "utility.h"
 #include "fileIO.h"
+#include "aberration.h"
 
 namespace Prismatic
 {
@@ -78,6 +79,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	}
 	else
 	{
+		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5);
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			PRISM_runFP(prismatic_pars, i);
@@ -206,6 +208,7 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 		updateSeriesParams(pars, i);
+		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
 		PRISM03_calcOutput(pars);
 
 		if(i == 0 and fpNum == 0) createScratchFile(pars);

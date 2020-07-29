@@ -546,6 +546,14 @@ void transformIndices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			  pars.q1.begin(),
 			  [](const PRISMATIC_FLOAT_PRECISION &a) { return sqrt(a); });
 	//						Array2D<PRISMATIC_FLOAT_PRECISION> alphaInd(pars.q1); // copy constructor more efficient than assignment
+
+	
+	pars.qTheta = pars.q1;
+	std::transform(qxaShift.begin(), qxaShift.end(),
+				   qyaShift.begin(), pars.qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISION& b){
+						return atan2(b,a);
+					});
+
 	pars.alphaInd = pars.q1;
 	transform(pars.alphaInd.begin(), pars.alphaInd.end(),
 			  pars.alphaInd.begin(),
@@ -578,14 +586,7 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				  return a;
 			  });
 
-
-	Array2D<PRISMATIC_FLOAT_PRECISION> qTheta(pars.q1);
-	std::transform(pars.qxa.begin(), pars.qxa.end(),
-					pars.qya.begin(), qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISION& b){
-						return atan2(b,a);
-					});
-
-	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, qTheta, pars.lambda, pars.meta.aberrations);
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, pars.qTheta, pars.lambda, pars.meta.aberrations);
 	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 				chi.begin(), pars.psiProbeInit.begin(),
 				[](std::complex<PRISMATIC_FLOAT_PRECISION> &a, std::complex<PRISMATIC_FLOAT_PRECISION> &b) {
@@ -626,24 +627,30 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	cout << "Entering PRISM03_calcOutput" << endl;
 	// setup necessary coordinates
 	setupCoordinates_2(pars);
-
+	std::cout << "here1" << std::endl;
 	// setup angles of detector and image sizes
 	setupDetector(pars);
+	std::cout << "here2" << std::endl;
 
 	// setup coordinates and indices for the beams
 	setupBeams_2(pars);
-
+	std::cout << "here3" << std::endl;
 	// setup Fourier coordinates for the S-matrix
+
 	setupFourierCoordinates(pars);
+	std::cout << "here4" << std::endl;
 
 	// initialize the output to the correct size for the output mode
 	createStack_integrate(pars);
+	std::cout << "here5" << std::endl;
 
 	// perform some necessary setup transformations of the data
 	transformIndices(pars);
+	std::cout << "here6" << std::endl;
 
 	// initialize/compute the probes
 	initializeProbes(pars);
+	std::cout << "here7" << std::endl;
 
 #ifdef PRISMATIC_BUILDING_GUI
 	pars.progressbar->signalDescriptionMessage("Computing final output (PRISM)");
@@ -652,5 +659,6 @@ void PRISM03_calcOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	// compute the final PRISM output
 	buildPRISMOutput(pars);
+	std::cout << "here8" << std::endl;
 }
 } // namespace Prismatic

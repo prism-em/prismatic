@@ -126,6 +126,7 @@ BOOST_AUTO_TEST_SUITE(ioTests);
 
 BOOST_FIXTURE_TEST_CASE(operationReorganization, basicSim)
 {
+    meta.numGPUs = 1;
     //make sure nothing is broken by moving all file IO operations to their own source
     divertOutput(pos, fd, logPath);
 

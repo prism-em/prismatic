@@ -90,6 +90,7 @@ namespace Prismatic{
 	    Array2D<T> alphaInd;
 	    Array2D<T> q2;
 	    Array2D<T> q1;
+		Array2D<T> qTheta;
         Array1D<T> xp;
         Array1D<T> yp;
 		Array1D<T> qx;
