@@ -106,7 +106,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
-	removeScratchFile(prismatic_pars);
+	if (prismatic_pars.meta.simSeries) removeScratchFile(prismatic_pars);
 
 #ifdef PRISMATIC_ENABLE_GPU
 	cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';

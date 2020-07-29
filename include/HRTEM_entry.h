@@ -22,5 +22,7 @@
 
 namespace Prismatic{
 	Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta);
+
+	void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum);
 }
 #endif //PRISM_HRTEM_ENTRY_H

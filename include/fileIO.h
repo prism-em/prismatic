@@ -44,7 +44,7 @@ void writeStringArray(H5::DataSet dataset,H5std_string * string_array, hsize_t e
 
 void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
-void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> &net_output_c, Array3D<PRISMATIC_FLOAT_PRECISION> &net_output);
+void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, Array3D<PRISMATIC_FLOAT_PRECISION> &net_output);
 
 void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 

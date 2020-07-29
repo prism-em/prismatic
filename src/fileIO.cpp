@@ -489,6 +489,8 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(re_str, 0, PFP_TYPE);
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
+	std::string basename = "HRTEM";
+	if(pars.meta.saveComplexOutputWave) basename += "_fp" + getDigitString(pars.meta.fpNum);
 	H5::Group hrtem_group(realslices.createGroup("HRTEM"));
 
 	//write attributes
@@ -574,14 +576,18 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	hsize_t tiltX_size[1] = {xTilts_unique.size()};
 	hsize_t tiltY_size[1] = {yTilts_unique.size()};
 
-	H5::Group hrtem_group(datacubes.createGroup("HRTEM_virtual"));
+	std::string basename = "HRTEM_virtual";
+	if(pars.meta.saveComplexOutputWave) basename += "_fp" + getDigitString(pars.meta.fpNum);
+	H5::Group hrtem_group(datacubes.createGroup(basename));
 
 	//write attributes
 	writeScalarAttribute(hrtem_group, "emd_group_type", 1);
 	writeScalarAttribute(hrtem_group, "metadata", 0);
 
 	//create virtual dataset
-	H5::DataSet src_data = pars.outputFile.openDataSet("4DSTEM_simulation/data/realslices/HRTEM/realslice");
+	std::string src_basename = "4DSTEM_simulation/data/realslices/HRTEM";
+	if(pars.meta.saveComplexOutputWave) src_basename += "_fp" + getDigitString(pars.meta.fpNum);
+	H5::DataSet src_data = pars.outputFile.openDataSet(src_basename+"/realslice");
 	std::string src_path = src_data.getObjName();
 	H5::DataSpace src_mspace = src_data.getSpace();
 
@@ -872,26 +878,28 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	ppotential.close();
 }
 
-void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, 
-				Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> &net_output_c, 
+void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				Array3D<PRISMATIC_FLOAT_PRECISION> &net_output)
 {
 	//open group and write tilt images incrementally in loop
 	//this avoids restriding S-matrix array all at once, which is memory intensive
-	H5::Group hrtem_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/HRTEM");
+	std::string basename = "4DSTEM_simulation/data/realslices/HRTEM";
+	if(pars.meta.saveComplexOutputWave) basename += "_fp" + getDigitString(pars.meta.fpNum);
+	H5::Group hrtem_group = pars.outputFile.openGroup(basename);
 	hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-	std::vector<size_t> order = {0,1,2};
 	
 	if(pars.meta.saveComplexOutputWave)
 	{
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
+		PRISMATIC_FLOAT_PRECISION scale = pars.Scompact.get_dimi()*pars.Scompact.get_dimj();
 		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
 		{
 			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
 			{
 				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
 				{
-					output_buffer.at(i,j,k) = net_output_c.at(k,j,i);
+					//scale S matrix to mean value and restride
+					output_buffer.at(i,j,k) = pars.Scompact.at(k,j,i)*scale;
 				}
 			}
 		}
