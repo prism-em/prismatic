@@ -71,10 +71,15 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 			//save FP individually
 			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 			std::cout << "Writing HRTEM data to output file." << std::endl;
+			std::cout << "here1" << std::endl;
 			sortHRTEMbeams(prismatic_pars);
+			std::cout << "here2" << std::endl;
 			setupHRTEMOutput(prismatic_pars);
+			std::cout << "here3" << std::endl;
 			setupHRTEMOutput_virtual(prismatic_pars);
+			std::cout << "here4" << std::endl;
 			saveHRTEM(prismatic_pars, net_output);
+			std::cout << "here5" << std::endl;
 			prismatic_pars.outputFile.close();
 		}
 		else

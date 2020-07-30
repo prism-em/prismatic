@@ -491,7 +491,7 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	std::string basename = "HRTEM";
 	if(pars.meta.saveComplexOutputWave) basename += "_fp" + getDigitString(pars.meta.fpNum);
-	H5::Group hrtem_group(realslices.createGroup("HRTEM"));
+	H5::Group hrtem_group(realslices.createGroup(basename));
 
 	//write attributes
 	writeScalarAttribute(hrtem_group, "emd_group_type", 1);
@@ -565,7 +565,6 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_unique(pars.yTilts_tem);
 	std::sort(yTilts_unique.begin(), yTilts_unique.end());
 	yTilts_unique = getUnique(yTilts_unique);
-	std::cout << "yTilts_unique size: " << yTilts_unique.size() << std::endl;
 
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[4] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(),
@@ -587,7 +586,10 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//create virtual dataset
 	std::string src_basename = "4DSTEM_simulation/data/realslices/HRTEM";
 	if(pars.meta.saveComplexOutputWave) src_basename += "_fp" + getDigitString(pars.meta.fpNum);
+	std::cout << "here3.1" << std::endl;
+	std::cout << src_basename << std::endl;
 	H5::DataSet src_data = pars.outputFile.openDataSet(src_basename+"/realslice");
+	std::cout << "here3.2" << std::endl;
 	std::string src_path = src_data.getObjName();
 	H5::DataSpace src_mspace = src_data.getSpace();
 
