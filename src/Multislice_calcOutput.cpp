@@ -34,70 +34,6 @@ namespace Prismatic{
 	mutex fftw_plan_lock; // for synchronizing access to shared FFTW resources
 	// mutex HDF5_lock;
 
-	void refocus_test(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, Array2D<complex<PRISMATIC_FLOAT_PRECISION> >& psi)
-	{
-		//work with temporary
-		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> psi_temp(psi);
-		//calculate relative defocus
-		PRISMATIC_FLOAT_PRECISION rel_defocus = (pars.tiledCellDim[0]-pars.meta.probeDefocus);
-
-		//create a new propagator
-		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> propRefocus = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.qy.size(), pars.qx.size()}});
-		Array2D<PRISMATIC_FLOAT_PRECISION> q2(pars.qxa);
-		transform(pars.qxa.begin(), pars.qxa.end(),
-				pars.qya.begin(), q2.begin(), [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b) {
-					return a * a + b * b;
-				});
-
-		for(auto y = 0; y < pars.qy.size(); y++)
-		{
-			for(auto x = 0; x < pars.qx.size(); x++)
-			{
-				propRefocus.at(y, x) = exp(-i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
-											complex<PRISMATIC_FLOAT_PRECISION>(q2.at(y, x), 0) * 
-											complex<PRISMATIC_FLOAT_PRECISION>(rel_defocus, 0));
-			}
-		}
-		
-		// create FFT plans
-		PRISMATIC_FFTW_INIT_THREADS();
-		PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
-		
-		unique_lock<mutex> gatekeeper(fftw_plan_lock);
-		PRISMATIC_FFTW_PLAN plan_forward2 = PRISMATIC_FFTW_PLAN_DFT_2D(psi_temp.get_dimj(), psi_temp.get_dimi(),
-																reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_temp[0]),
-																reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_temp[0]),
-																FFTW_FORWARD,
-																FFTW_ESTIMATE);
-
-		PRISMATIC_FFTW_PLAN plan_inverse2 = PRISMATIC_FFTW_PLAN_DFT_2D(psi_temp.get_dimj(), psi_temp.get_dimi(),
-																reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_temp[0]),
-																reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&psi_temp[0]),
-																FFTW_BACKWARD,
-																FFTW_ESTIMATE);
-		gatekeeper.unlock();
-
-		// apply propagator
-		PRISMATIC_FFTW_EXECUTE(plan_forward2);
-		for(auto y = 0; y < pars.qy.size(); y++)
-		{
-			for(auto x = 0; x < pars.qx.size(); x++)
-			{
-				psi_temp.at(y,x) *= propRefocus.at(y,x);
-			}
-		}
-
-		PRISMATIC_FFTW_EXECUTE(plan_inverse2);
-
-		gatekeeper.lock();
-		PRISMATIC_FFTW_DESTROY_PLAN(plan_forward2);
-		PRISMATIC_FFTW_DESTROY_PLAN(plan_inverse2);
-		// PRISMATIC_FFTW_CLEANUP_THREADS();
-
-		psi_temp /= psi_temp.size(); //scale FFT
-		psi = psi_temp;
-	}
-
 	void setupCoordinates_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 
 		// setup coordinates and build propagators
@@ -229,15 +165,34 @@ namespace Prismatic{
 
 		PRISMATIC_FLOAT_PRECISION qProbeMax = pars.meta.probeSemiangle/ pars.lambda; // currently a single semiangle
 		pars.psiProbeInit = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
-		Array2D<complex<PRISMATIC_FLOAT_PRECISION> > psi;
-		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
-		          pars.q1.begin(), pars.psiProbeInit.begin(),
-		          [&pars, &qProbeMax](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q1_t) {
-			          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
-			          a.imag(0);
-			          return a;
-		          });
 
+		PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
+		PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
+		// erf probe is deprecated, but keeping the source here in case we ever want to flexibly switch
+		// transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+		//           pars.q1.begin(), pars.psiProbeInit.begin(),
+		//           [&pars, &qProbeMax](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q1_t) {
+		// 	          a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
+		// 	          a.imag(0);
+		// 	          return a;
+		//           });
+
+		for(auto j = 0; j < pars.q1.get_dimj(); j++)
+		{
+			for(auto i = 0; i < pars.q1.get_dimi(); i++)
+			{
+				PRISMATIC_FLOAT_PRECISION tmp_val = (qProbeMax*pars.q1.at(j,i) - pars.q2.at(j,i));
+				tmp_val /= sqrt(dqx*dqx*pow(pars.qxa.at(j,i),2.0)+dqy*dqy*pow(pars.qya.at(j,i),2.0));					
+				tmp_val += 0.5; 
+				tmp_val = std::max(tmp_val, (PRISMATIC_FLOAT_PRECISION) 0.0);
+				tmp_val = std::min(tmp_val, (PRISMATIC_FLOAT_PRECISION) 1.0);
+				pars.psiProbeInit.at(j,i).real(tmp_val);
+			}
+		}
+
+		pars.psiProbeInit.at(0,0).real(1.0);
+
+		//apply aberrations
 		pars.qTheta = pars.q1;
 		std::transform(pars.qxa.begin(), pars.qxa.end(),
 					   pars.qya.begin(), pars.qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISION& b){
@@ -258,8 +213,7 @@ namespace Prismatic{
 		                                                      (PRISMATIC_FLOAT_PRECISION)0.0, [](PRISMATIC_FLOAT_PRECISION accum, std::complex<PRISMATIC_FLOAT_PRECISION> &a) {
 					return accum + abs(a) * abs(a);
 				})); // make sure to initialize with 0.0 and NOT 0 or it won't be a float and answer will be wrong
-		PRISMATIC_FLOAT_PRECISION a = 0;
-		for (auto &i : pars.psiProbeInit) { a += i.real(); };
+
 		transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		          pars.psiProbeInit.begin(), [&norm_constant](std::complex<PRISMATIC_FLOAT_PRECISION> &a) {
 					return a / norm_constant;
@@ -336,7 +290,6 @@ namespace Prismatic{
 	                                       const size_t ax){
 		Array2D<PRISMATIC_FLOAT_PRECISION> intOutput = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj(), psi.get_dimi()}});
 		
-		if(pars.meta.matrixRefocus) refocus_test(pars, psi);
 		auto psi_ptr = psi.begin();
 
 		std::cout <<"in single" << std::endl;
@@ -495,7 +448,6 @@ namespace Prismatic{
 			{
 				for (auto& j:intOutput_c) j = *psi_ptr++;
 			}
-			if(pars.meta.matrixRefocus) refocus_test(pars, intOutput_c);
 
 			if (pars.meta.saveDPC_CoM and not pars.meta.saveComplexOutputWave){
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
