@@ -110,7 +110,7 @@ void printHelp()
               << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
               << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n"
               << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n"
-              << "* --aberrations (-abs) filename : filename containing list of arbitrary aberrations. See www.prism-em.com/about for details \n"
+              << "* --aberrations (-aber) filename : filename containing list of arbitrary aberrations. See www.prism-em.com/about for details \n"
               << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n"
               << "* --probe-defocus-sigma (-dfs) sigma: Run a simulation series over a range of 9 defocii, up to +- 2 sigma in steps 0.5 sigma (in angstroms).\n"
               << "* --probe-defocus-range (-dfr) min max step : Run a simulation series over a range of defocus values, from min to max in step size of step. All input units in Angstroms. \n"
@@ -1667,12 +1667,12 @@ bool parse_mrf(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
-bool parse_abs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+bool parse_aber(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
              int &argc, const char ***argv)
 {
     if (argc < 2)
     {
-        cout << "No filename provided for -abb (syntax is -abb filename)\n";
+        cout << "No filename provided for -aber (syntax is -aber filename)\n";
         return false;
     }
     meta.arbitraryAberrations = true;
@@ -1766,7 +1766,7 @@ static std::map<std::string, parseFunction> parser{
     {"--save-smatrix", parse_sm}, {"-sm", parse_sm},
     {"--3Dpotential-zsampling", parse_3DPZ}, {"-3DPZ", parse_3DPZ},
     {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf},
-    {"--aberrations", parse_abs}, {"-abs", parse_abs},
+    {"--aberrations", parse_aber}, {"-aber", parse_aber},
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)

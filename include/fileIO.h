@@ -10,6 +10,15 @@ struct complex_float_t
 	PRISMATIC_FLOAT_PRECISION im;
 };
 
+struct aberration_t
+{
+    int m;
+    int n;
+    PRISMATIC_FLOAT_PRECISION mag;
+    PRISMATIC_FLOAT_PRECISION angle;
+};
+
+
 namespace Prismatic{
 
 static std::mutex write4D_lock;

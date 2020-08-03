@@ -230,7 +230,6 @@ namespace Prismatic{
         bool arbitraryAberrations;
         StreamingMode transferMode;
         TiltSelection tiltMode;
-
     };
 
     template <class T>

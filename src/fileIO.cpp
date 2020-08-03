@@ -1136,23 +1136,53 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	H5::DataSpace scalar_attr(H5S_SCALAR);
 
 	//create string attributes
-	H5std_string algorithm = (pars.meta.algorithm == Algorithm::Multislice) ? "m" : "p";
+	H5std_string algorithm; 
+	if(pars.meta.algorithm == Algorithm::Multislice)
+	{
+		algorithm = "m";
+	}
+	else if(pars.meta.algorithm == Algorithm::PRISM)
+	{
+		algorithm = "p";
+	}
+	else if(pars.meta.algorithm == Algorithm::HRTEM)
+	{
+		algorithm = "t";
+	}
 
 	writeScalarAttribute(sim_params, "i", pars.meta.filenameAtoms);
 	writeScalarAttribute(sim_params, "a", algorithm);
+	if(pars.meta.importPotential or pars.meta.importSMatrix)
+	{
+		writeScalarAttribute(sim_params, "if", pars.meta.importFile);
+		writeScalarAttribute(sim_params, "idp", pars.meta.importPath);
+	}
 
-	//create scalar logical/integer attributes
+	//create scalar int attributes
 	writeScalarAttribute(sim_params, "fx", (int) pars.meta.interpolationFactorX);
 	writeScalarAttribute(sim_params, "fy", (int) pars.meta.interpolationFactorY);
 	writeScalarAttribute(sim_params, "F", (int) pars.meta.numFP);
 	writeScalarAttribute(sim_params, "ns", (int) pars.meta.numSlices);
+	writeScalarAttribute(sim_params, "3DPZ", (int) pars.meta.zSampling);
+
+	//create logical attributes
 	writeScalarAttribute(sim_params, "te", (int) pars.meta.includeThermalEffects);
 	writeScalarAttribute(sim_params, "oc", (int) pars.meta.includeOccupancy);
 	writeScalarAttribute(sim_params, "3D", (int) pars.meta.save3DOutput);
 	writeScalarAttribute(sim_params, "4D", (int) pars.meta.save4DOutput);
+	writeScalarAttribute(sim_params, "4DC", (int) pars.meta.crop4DOutput);
 	writeScalarAttribute(sim_params, "DPC", (int) pars.meta.saveDPC_CoM);
 	writeScalarAttribute(sim_params, "ps", (int) pars.meta.savePotentialSlices);
+	writeScalarAttribute(sim_params, "sm", (int) pars.meta.saveSMatrix);
 	writeScalarAttribute(sim_params, "nqs", (int) pars.meta.nyquistSampling);
+	writeScalarAttribute(sim_params, "3DP", (int) pars.meta.potential3D);
+	writeScalarAttribute(sim_params, "complex", (int) pars.meta.saveComplexOutputWave); //NEEDS PARSER
+	writeScalarAttribute(sim_params, "ip", (int) pars.meta.importPotential);
+	writeScalarAttribute(sim_params, "ism", (int) pars.meta.importSMatrix);
+	writeScalarAttribute(sim_params, "saveProbe", (int) pars.meta.saveProbe); //NEEDS PARSER
+	writeScalarAttribute(sim_params, "mrf", (int) pars.meta.matrixRefocus);
+	writeScalarAttribute(sim_params, "abs", (int) pars.meta.arbitraryAberrations);
+	writeScalarAttribute(sim_params, "C", (int) pars.meta.alsoDoCPUWork);
 
 	//create scalar float attributes
 	writeScalarAttribute(sim_params, "px", pars.meta.realspacePixelSize[1]);
@@ -1165,14 +1195,18 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	writeScalarAttribute(sim_params, "rx", pars.meta.probeStepX);
 	writeScalarAttribute(sim_params, "ry", pars.meta.probeStepY);
 	writeScalarAttribute(sim_params, "df", pars.meta.probeDefocus);
+	writeScalarAttribute(sim_params, "dfs", pars.meta.probeDefocus_sigma);
 	writeScalarAttribute(sim_params, "C3", pars.meta.C3);
 	writeScalarAttribute(sim_params, "C5", pars.meta.C5);
 	writeScalarAttribute(sim_params, "sa", pars.meta.probeSemiangle * 1000);
 	writeScalarAttribute(sim_params, "d", pars.meta.detectorAngleStep * 1000);
 	writeScalarAttribute(sim_params, "tx", pars.meta.probeXtilt * 1000);
 	writeScalarAttribute(sim_params, "ty", pars.meta.probeYtilt * 1000);
+	writeScalarAttribute(sim_params, "rs", pars.meta.randomSeed);
+	writeScalarAttribute(sim_params, "4DA", pars.meta.crop4Damax * 1000);
 
 	//create vector spaces
+	PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
 	hsize_t two[1] = {2};
 	hsize_t three[1] = {3};
 	H5::DataSpace v_two_dataspace(1, two);
@@ -1180,39 +1214,9 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	H5::Attribute cell_dim_attr = sim_params.createAttribute("c", PFP_TYPE, v_three_dataspace);
 	H5::Attribute tile_attr = sim_params.createAttribute("t", PFP_TYPE, v_three_dataspace);
+	H5::Attribute probeDefocus_range_attr = sim_params.createAttribute("dfr", PFP_TYPE, v_three_dataspace);
 	H5::Attribute scanWindow_x_attr = sim_params.createAttribute("wx", PFP_TYPE, v_two_dataspace);
 	H5::Attribute scanWindow_y_attr = sim_params.createAttribute("wy", PFP_TYPE, v_two_dataspace);
-
-	H5::Attribute scanWindow_x_r_attr;
-	H5::Attribute scanWindow_y_r_attr;
-	if (pars.meta.realSpaceWindow_x) scanWindow_x_r_attr = sim_params.createAttribute("wxr", PFP_TYPE, v_two_dataspace);
-	if (pars.meta.realSpaceWindow_y) scanWindow_y_r_attr = sim_params.createAttribute("wyr", PFP_TYPE, v_two_dataspace);
-
-	H5::Attribute save2D_attr;
-	if (pars.meta.save2DOutput) save2D_attr = sim_params.createAttribute("2D", PFP_TYPE, v_two_dataspace);
-	
-	PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
-
-	if (pars.meta.realSpaceWindow_x)
-	{
-		tmp_buffer[0] = pars.meta.scanWindowXMin_r;
-		tmp_buffer[1] = pars.meta.scanWindowXMax_r;
-		scanWindow_x_r_attr.write(PFP_TYPE, tmp_buffer);
-	}
-
-	if (pars.meta.realSpaceWindow_y)
-	{
-		tmp_buffer[0] = pars.meta.scanWindowYMin_r;
-		tmp_buffer[1] = pars.meta.scanWindowYMax_r;
-		scanWindow_y_r_attr.write(PFP_TYPE, tmp_buffer);
-	}
-
-	if (pars.meta.save2DOutput)
-	{
-		tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
-		tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
-		save2D_attr.write(PFP_TYPE, tmp_buffer);
-	}
 
 	tmp_buffer[0] = pars.meta.scanWindowXMin;
 	tmp_buffer[1] = pars.meta.scanWindowXMax;
@@ -1227,6 +1231,111 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	PRISMATIC_FLOAT_PRECISION cellBuffer[3] = {pars.meta.cellDim[2], pars.meta.cellDim[1], pars.meta.cellDim[0]};
 	cell_dim_attr.write(PFP_TYPE, cellBuffer);
+
+	PRISMATIC_FLOAT_PRECISION dfrBuffer[3] = {pars.meta.probeDefocus_min, pars.meta.probeDefocus_max, pars.meta.probeDefocus_step};
+	probeDefocus_range_attr.write(PFP_TYPE, dfrBuffer);
+
+	if (pars.meta.realSpaceWindow_x)
+	{
+		H5::Attribute scanWindow_x_r_attr = sim_params.createAttribute("wxr", PFP_TYPE, v_two_dataspace);
+		tmp_buffer[0] = pars.meta.scanWindowXMin_r;
+		tmp_buffer[1] = pars.meta.scanWindowXMax_r;
+		scanWindow_x_r_attr.write(PFP_TYPE, tmp_buffer);
+	}
+
+	if (pars.meta.realSpaceWindow_y)
+	{
+		H5::Attribute scanWindow_y_r_attr = sim_params.createAttribute("wyr", PFP_TYPE, v_two_dataspace);
+		tmp_buffer[0] = pars.meta.scanWindowYMin_r;
+		tmp_buffer[1] = pars.meta.scanWindowYMax_r;
+		scanWindow_y_r_attr.write(PFP_TYPE, tmp_buffer);
+	}
+
+	if (pars.meta.save2DOutput)
+	{
+		H5::Attribute save2D_attr = sim_params.createAttribute("2D", PFP_TYPE, v_two_dataspace);
+		tmp_buffer[0] = pars.meta.integrationAngleMin * 1000;
+		tmp_buffer[1] = pars.meta.integrationAngleMax * 1000;
+		save2D_attr.write(PFP_TYPE, tmp_buffer);
+	}
+
+	if(pars.meta.algorithm == Algorithm::HRTEM)
+	{
+		PRISMATIC_FLOAT_PRECISION tilt_buffer[3];
+		//HRTEM rect tilts
+		H5::Attribute xTilt_tem_attr = sim_params.createAttribute("xtt", PFP_TYPE, v_three_dataspace);
+		tilt_buffer[0] = pars.meta.minXtilt*1000; tilt_buffer[1] = pars.meta.maxXtilt*1000; tilt_buffer[2] = pars.meta.xTiltStep*1000;
+		xTilt_tem_attr.write(PFP_TYPE, tilt_buffer);
+
+		H5::Attribute yTilt_tem_attr = sim_params.createAttribute("ytt", PFP_TYPE, v_three_dataspace);
+		tilt_buffer[0] = pars.meta.minYtilt*1000; tilt_buffer[1] = pars.meta.maxYtilt*1000; tilt_buffer[2] = pars.meta.yTiltStep*1000;
+		yTilt_tem_attr.write(PFP_TYPE, tilt_buffer);
+		
+		//HRTEM rad tilts
+		H5::Attribute rTilt_tem_attr = sim_params.createAttribute("rtt", PFP_TYPE, v_two_dataspace);
+		tmp_buffer[0] = pars.meta.minRtilt*1000; tmp_buffer[1] = pars.meta.maxRtilt*1000;
+		rTilt_tem_attr.write(PFP_TYPE, tmp_buffer);
+		
+		//HRTEM tilt offsets
+		H5::Attribute tot_attr = sim_params.createAttribute("tot", PFP_TYPE, v_two_dataspace);
+		tmp_buffer[0] = pars.meta.xTiltOffset*1000; tmp_buffer[1] = pars.meta.yTiltOffset*1000;
+		tot_attr.write(PFP_TYPE, tmp_buffer);
+	}
+
+	if(pars.meta.arbitraryProbes)
+	{
+		hsize_t numProbes[1] = {pars.meta.probes_x.size()};
+		H5::DataSpace probe_mspace(1, numProbes);
+		H5::Attribute probes_x_attr = sim_params.createAttribute("probes_x", PFP_TYPE, probe_mspace);
+		H5::Attribute probes_y_attr = sim_params.createAttribute("probes_y", PFP_TYPE, probe_mspace);
+		probes_x_attr.write(PFP_TYPE, &pars.meta.probes_x[0]);
+		probes_y_attr.write(PFP_TYPE, &pars.meta.probes_y[0]);
+
+	}
+
+	//arbitrary aberrations
+	if(pars.meta.arbitraryAberrations)
+	{
+		H5::CompType ab_type = H5::CompType(sizeof(aberration_t));
+		const H5std_string m_string("m");
+		const H5std_string n_string("n");
+		const H5std_string mag_string("mag");
+		const H5std_string angle_string("angle");
+		size_t oi = sizeof(int);
+		size_t of = sizeof(PRISMATIC_FLOAT_PRECISION);
+		ab_type.insertMember(m_string, 0, H5::PredType::NATIVE_INT);
+		ab_type.insertMember(n_string, oi, H5::PredType::NATIVE_INT);
+		ab_type.insertMember(mag_string, 2*oi, PFP_TYPE);
+		ab_type.insertMember(angle_string, 2*oi+of, PFP_TYPE);
+
+		hsize_t dim[1] = {pars.meta.aberrations.size()};
+		H5::DataSpace mspace(1,dim);
+		H5::Attribute ab_attr = sim_params.createAttribute("aber", ab_type, mspace);
+		ab_attr.write(ab_type, &pars.meta.aberrations[0]);
+	}
+
+	//series vals
+	writeScalarAttribute(sim_params, "simseries", (int) pars.meta.simSeries);
+	if(pars.meta.simSeries)
+	{
+		//series vals will be NxM vector of vectors
+		//N is the number of keys
+		//M is the product of the number of unique values in each keys
+		//current implementation only allows series vals with CC series
+		//loop through each key and write an attribute vector for that
+
+		size_t num_vals = pars.meta.seriesVals[0].size();
+		size_t num_keys = pars.meta.seriesKeys.size();
+		hsize_t series_dims[1] = {num_vals};
+		H5::DataSpace val_mspace(1, series_dims);
+		for(auto i = 0; i < num_keys; i++)
+		{
+			std::string key_name = "seriesVal_" + pars.meta.seriesKeys[i];
+			H5::Attribute series_val_attr = sim_params.createAttribute(key_name.c_str(), PFP_TYPE, val_mspace);
+			series_val_attr.write(PFP_TYPE, &pars.meta.seriesVals[i][0]);
+		}
+	}
+
 
 	metadata.close();
 };
