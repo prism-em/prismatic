@@ -578,13 +578,33 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.psiProbeInit = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION>>(
 		{{pars.imageSizeReduce[0], pars.imageSizeReduce[1]}});
 	PRISMATIC_FLOAT_PRECISION qProbeMax = pars.meta.probeSemiangle / pars.lambda;
-	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
-			  pars.q1.begin(), pars.psiProbeInit.begin(),
-			  [&pars, &qProbeMax](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q1_t) {
-				  a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
-				  a.imag(0);
-				  return a;
-			  });
+
+	// erf probe is deprecated, but keeping the source here in case we ever want to flexibly switch
+	// transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
+	// 		  pars.q1.begin(), pars.psiProbeInit.begin(),
+	// 		  [&pars, &qProbeMax](std::complex<PRISMATIC_FLOAT_PRECISION> &a, PRISMATIC_FLOAT_PRECISION &q1_t) {
+	// 			  a.real(erf((qProbeMax - q1_t) / (0.5 * pars.dq)) * 0.5 + 0.5);
+	// 			  a.imag(0);
+	// 			  return a;
+	// 		  });
+
+	PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
+	PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
+	for(auto j = 0; j < pars.q1.get_dimj(); j++)
+	{
+		for(auto i = 0; i < pars.q1.get_dimi(); i++)
+		{
+			PRISMATIC_FLOAT_PRECISION tmp_val = (qProbeMax*pars.q1.at(j,i) - pars.q2.at(j,i));
+			tmp_val /= sqrt(dqx*dqx*pow(pars.qxa.at(j,i),2.0)+dqy*dqy*pow(pars.qya.at(j,i),2.0));					
+			tmp_val += 0.5; 
+			tmp_val = std::max(tmp_val, (PRISMATIC_FLOAT_PRECISION) 0.0);
+			tmp_val = std::min(tmp_val, (PRISMATIC_FLOAT_PRECISION) 1.0);
+			pars.psiProbeInit.at(j,i).real(tmp_val);
+		}
+	}
+
+	pars.psiProbeInit.at(0,0).real(1.0);
+
 
 	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, pars.qTheta, pars.lambda, pars.meta.aberrations);
 	transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
