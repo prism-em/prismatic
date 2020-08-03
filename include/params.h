@@ -269,6 +269,12 @@ namespace Prismatic{
 					std::cout << "Resetting Y offset to 0.0 mrad" << std::endl;
 					yTiltOffset_tem = 0.0;
 				}
+
+				if(meta.maxRtilt > 0.0)
+				{
+					//if it was specified
+					meta.tiltMode = TiltSelection::Radial;
+				}
 			}
 
 			auto digitString = [](int digit)

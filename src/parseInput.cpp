@@ -1549,7 +1549,6 @@ bool parse_rtt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         cout << "Invalid value \"" << (*argv)[2] << "\" provided for R tilt max (syntax is -rtt min max)\n";
         return false;
     }
-    meta.tiltMode = Prismatic::TiltSelection::Radial;
     argc -= 3;
     argv[0] += 3;
     return true;
