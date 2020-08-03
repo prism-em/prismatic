@@ -120,6 +120,7 @@ namespace Prismatic{
 	    T sigma;
 	    T qMax;
 	    T alphaMax;
+		T sMatrix_defocus;
 		T scanWindowXMin;
 		T scanWindowXMax;
 		T scanWindowYMin;

@@ -590,8 +590,7 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	extern mutex fftw_plan_lock;  // lock for protecting FFTW plans
 
 	//calculate relative defocus
-	PRISMATIC_FLOAT_PRECISION rel_defocus = (pars.tiledCellDim[0]-pars.meta.probeDefocus);
-	std::cout << "rel_defocus: " << rel_defocus << std::endl;
+	PRISMATIC_FLOAT_PRECISION rel_defocus = (pars.sMatrix_defocus-pars.meta.probeDefocus);
 
 	//create a new propagator
 	pars.propRefocus = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.qyInd.size(), pars.qxInd.size()}});
@@ -656,6 +655,8 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		copy(beamHold.begin(), beamHold.end(), &pars.Scompact.at(idx,0,0));
 	}
 
+	pars.sMatrix_defocus = pars.meta.probeDefocus;
+
 }
 
 void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
@@ -693,10 +694,8 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// only keep the relevant/nonzero Fourier components
 	downsampleFourierComponents(pars);
 
-	if(pars.meta.matrixRefocus)
-	{
-		refocus(pars);
-	}
+	//set defocus parameter
+	pars.sMatrix_defocus = pars.tiledCellDim[0];
 
 	if(pars.meta.saveSMatrix)
 	{
@@ -800,6 +799,8 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	setupBeams(pars);
 	setupSMatrixCoordinates(pars);
 	downsampleFourierComponents(pars);
+
+	pars.sMatrix_defocus = pars.tiledCellDim[0];
 
 	if(pars.meta.saveSMatrix)
 	{

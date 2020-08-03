@@ -152,6 +152,12 @@ void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 		PRISM02_calcSMatrix(pars);
 	}
 
+	if(pars.meta.matrixRefocus)
+	{
+		refocus(pars);
+	}
+
+
 	PRISM03_calcOutput(pars);
 	pars.outputFile.close();
 
@@ -204,11 +210,18 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 		PRISM02_calcSMatrix(pars);
 	}
 
+
+
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 		updateSeriesParams(pars, i);
 		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
+		//need to use current shift-- so the matrix doesn't get refocused out to oblivion
+		if(pars.meta.matrixRefocus)
+		{
+			refocus(pars);
+		}
 		PRISM03_calcOutput(pars);
 
 		if(i == 0 and fpNum == 0) createScratchFile(pars);
