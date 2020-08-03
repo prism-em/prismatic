@@ -97,7 +97,7 @@ void printHelp()
               << "* --4D-crop (-4DC) bool=false : Crop the 4D output smaller than the anti-aliasing boundary (default: Off)\n"
               << "* --4D-amax (-4DA) value: If --4D-crop, the maximum angle to which the output is cropped (in mrad) (default: 100)\n"
               << "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n"
-              << "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n"
+              << "* --save-probe (-probe) bool=false : Also save the complex entrance probe (default: Off)\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
               << "* --save-smatrix (-sm) bool=false : Also save the compact smatrix (warning: can be very large) (default: Off)\n"
               << "* --save-complex (-com) bool=false : Save the complex valued output probes (STEM) or plane waves (HRTEM), instead of integrating intensity. Saves each frozen phonon individually. (default: Off)\n"
@@ -1697,6 +1697,20 @@ bool parse_com(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_probe(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -probe (syntax is -probe bool)\n";
+        return false;
+    }
+    meta.saveProbe = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1782,7 +1796,8 @@ static std::map<std::string, parseFunction> parser{
     {"--3Dpotential-zsampling", parse_3DPZ}, {"-3DPZ", parse_3DPZ},
     {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf},
     {"--aberrations", parse_aber}, {"-aber", parse_aber},
-    {"--save-complex", parse_com}, {"-com", parse_com}
+    {"--save-complex", parse_com}, {"-com", parse_com},
+    {"--save-probe", parse_probe}, {"-probe", parse_probe}
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)
