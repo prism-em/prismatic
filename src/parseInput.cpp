@@ -100,6 +100,7 @@ void printHelp()
               << "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
               << "* --save-smatrix (-sm) bool=false : Also save the compact smatrix (warning: can be very large) (default: Off)\n"
+              << "* --save-complex (-com) bool=false : Save the complex valued output probes (STEM) or plane waves (HRTEM), instead of integrating intensity. Saves each frozen phonon individually. (default: Off)\n"
               << "* --nyquist-sampling (-nqs) bool=false : Set number of probe positions at Nyquist sampling limit (default: Off)]\n"
               << "* --import-potential (-ips) bool=false : Use precalculated projected potential from import HDF5 file. Must specify -if and -idp (default: Off)]\n"
               << "* --import-smatrix (-ism) bool=false : Use precalculated scattering matrix from import HDF5 file -if and -idp (default: Off)]\n"
@@ -1682,6 +1683,20 @@ bool parse_aber(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
+bool parse_com(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -com (syntax is -com bool)\n";
+        return false;
+    }
+    meta.saveComplexOutputWave = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
 bool parseInputs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                  int &argc, const char ***argv)
 {
@@ -1767,6 +1782,7 @@ static std::map<std::string, parseFunction> parser{
     {"--3Dpotential-zsampling", parse_3DPZ}, {"-3DPZ", parse_3DPZ},
     {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf},
     {"--aberrations", parse_aber}, {"-aber", parse_aber},
+    {"--save-complex", parse_com}, {"-com", parse_com}
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)

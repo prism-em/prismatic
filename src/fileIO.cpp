@@ -1176,7 +1176,7 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	writeScalarAttribute(sim_params, "sm", (int) pars.meta.saveSMatrix);
 	writeScalarAttribute(sim_params, "nqs", (int) pars.meta.nyquistSampling);
 	writeScalarAttribute(sim_params, "3DP", (int) pars.meta.potential3D);
-	writeScalarAttribute(sim_params, "complex", (int) pars.meta.saveComplexOutputWave); //NEEDS PARSER
+	writeScalarAttribute(sim_params, "com", (int) pars.meta.saveComplexOutputWave);
 	writeScalarAttribute(sim_params, "ip", (int) pars.meta.importPotential);
 	writeScalarAttribute(sim_params, "ism", (int) pars.meta.importSMatrix);
 	writeScalarAttribute(sim_params, "saveProbe", (int) pars.meta.saveProbe); //NEEDS PARSER
