@@ -12,6 +12,9 @@
 //	  Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
 // Parameters for computing atomic potentials using Kirkland's method
+// values from Kirkland's Advancedd Computing in Electron Microscopy, 3rd. edition
+// doi: 10.1007/978-3-030-33260-0
+
 #ifndef FPARAMS_H
 #define FPARAMS_H
 #include <stdlib.h>
