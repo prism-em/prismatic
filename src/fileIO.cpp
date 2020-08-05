@@ -640,7 +640,7 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	vds_mspace.selectHyperslab(H5S_SELECT_SET, data_dims, dest_offset);
 	if(pars.meta.saveComplexOutputWave)
 	{
-		std::complex<PRISMATIC_FLOAT_PRECISION> fillVal = {nan(""), nan("")};
+		std::complex<PRISMATIC_FLOAT_PRECISION> fillVal = {(PRISMATIC_FLOAT_PRECISION) nan(""), (PRISMATIC_FLOAT_PRECISION) nan("")};
 		plist.setFillValue(src_data.getDataType(), &fillVal);
 	}
 	else
@@ -1783,7 +1783,7 @@ void writeVirtualDataSet(H5::Group group,
 {
 	//determine new dimensionality of VDS and get extent along each dim
 	size_t new_rank = indices[0].size();
-	size_t max_dims[new_rank] = {0};
+	std::vector<size_t> max_dims(new_rank);
 	for(auto i = 0; i < indices.size(); i++)
 	{
 		for(auto j = 0; j < new_rank; j++)
@@ -1796,11 +1796,11 @@ void writeVirtualDataSet(H5::Group group,
 	std::cout << "setting up virtual dataset memspace" << std::endl;
 	H5::DataSpace sampleSpace = datasets[0].getSpace();
 	int rank = sampleSpace.getSimpleExtentNdims();
-	hsize_t dims_out[rank];
+	hsize_t* dims_out = (hsize_t*)  malloc(rank*sizeof(hsize_t));
 	int ndims = sampleSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
 	
-	hsize_t mdims[rank+new_rank] = {0};
-	hsize_t mdims_ind[rank+new_rank] = {0};
+	hsize_t* mdims = (hsize_t*) malloc((rank+new_rank*sizeof(hsize_t)));
+	hsize_t* mdims_ind = (hsize_t*) malloc((rank+new_rank*sizeof(hsize_t)));
 
 	for(auto i = 0; i < rank; i++)
 	{
@@ -1821,7 +1821,8 @@ void writeVirtualDataSet(H5::Group group,
 	H5::DataSpace src_mspace;
 	H5::DSetCreatPropList plist;
     std::string path;
-	hsize_t offset[rank+new_rank] = {0};
+
+	hsize_t* offset = (hsize_t*) malloc((rank+new_rank)*sizeof(hsize_t));
 	
 	std::cout << "mapping virtual dataset dataspace to source dataset spaces" << std::endl;
 	for(auto i = 0; i < datasets.size(); i++)
@@ -1860,7 +1861,7 @@ void depthSeriesSG(H5::H5File &file)
 
 	std::vector<PRISMATIC_FLOAT_PRECISION> depths;
 	PRISMATIC_FLOAT_PRECISION tmp_depth;
-	for(auto i = 0; i < numDataSets; i++)
+	for(size_t i = 0; i < numDataSets; i++)
 	{
 		std::string tmp_name = basename+getDigitString(i);
 		H5::Group tmp_group = realslices.openGroup(tmp_name.c_str());
@@ -1906,7 +1907,7 @@ void CCseriesSG(H5::H5File &file)
 	std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
 	PRISMATIC_FLOAT_PRECISION tmp_defocus;
 	std::cout << "reading attributes from datasets" << std::endl;
-	for(auto i = 0; i < numDataSets; i++)
+	for(size_t i = 0; i < numDataSets; i++)
 	{
 		std::string tmp_name = basename+getDigitString(i);
 		H5::Group tmp_group = realslices.openGroup(tmp_name.c_str());
@@ -1951,13 +1952,13 @@ void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 
 	H5::DataSpace sourceSpace = source.getSpace();
 	int rank = sourceSpace.getSimpleExtentNdims();
-	hsize_t dims_out[rank];
+	hsize_t* dims_out = (hsize_t*) malloc(rank*sizeof(hsize_t));
 	int ndims = sourceSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
 
 	//create buffer array and read data from source
 	H5::DataSpace mspace(rank, dims_out);
 	size_t bufferSize = source.getInMemDataSize(); //size in bytes
-	unsigned char buffer[bufferSize]; //unsigned char is always byte sized, let's us be agnostic to storage type of array
+	unsigned char* buffer = (unsigned char*) malloc(bufferSize); //unsigned char is always byte sized, let's us be agnostic to storage type of array
 	source.read(buffer, source.getDataType(), mspace, sourceSpace);	
 
 	//create new 
@@ -1971,13 +1972,13 @@ void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 		H5::Attribute tmp_attr = source.openAttribute(i);
 		H5::DataSpace attr_space = tmp_attr.getSpace();
 		int attr_rank = attr_space.getSimpleExtentNdims();
-		hsize_t attr_dims_out[attr_rank];
+		hsize_t* attr_dims_out = (hsize_t*) malloc(attr_rank*sizeof(hsize_t));
 		int ndims = attr_space.getSimpleExtentDims(attr_dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
 		
 		H5::DataSpace t_attr_space(attr_rank, attr_dims_out);
 		H5::Attribute t_attr = target.createAttribute(tmp_attr.getName(), tmp_attr.getDataType(), t_attr_space);
 		
-		unsigned char attr_buffer[tmp_attr.getInMemDataSize()];
+		unsigned char* attr_buffer = (unsigned char*) malloc(tmp_attr.getInMemDataSize());
 		tmp_attr.read(tmp_attr.getDataType(), attr_buffer);
 		t_attr.write(tmp_attr.getDataType(), &attr_buffer[0]);
 	}
@@ -2068,13 +2069,14 @@ void restrideElements_subset(H5::DataSpace &fspace, std::vector<size_t> &dims, s
 	mods[1] = block0*block1;
 
 	//fill coordinates and make element selections
-	hsize_t coords[block0*block1][rank];
+	// hsize_t coords[block0*block1][rank];
+	hsize_t* coords = (hsize_t*) malloc(block0*block1*rank*sizeof(hsize_t));
 	for(auto m = 0; m < block0*block1; m++)
 	{
-		for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
-		for(auto j = 2; j < rank; j++)	coords[m][order[j]] =  offset[order[j]];
+		for(auto j = 0; j < 2; j++)	coords[m*rank+order[j]] = (m / divs[j]) % mods[j];
+		for(auto j = 2; j < rank; j++)	coords[m*rank+order[j]] =  offset[order[j]];
 	}
-	fspace.selectElements(H5S_SELECT_APPEND, block0*block1, &coords[0][0]);
+	fspace.selectElements(H5S_SELECT_APPEND, block0*block1, coords);
 	
 };
 
@@ -2098,14 +2100,14 @@ hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> 
 	mods[1] = block0*block1;
 
 	//fill coordinates and make element selections
-	hsize_t coords[block0*block1][rank];
+	hsize_t* coords = (hsize_t*) malloc(block0*block1*rank*sizeof(hsize_t));
 	for(auto m = 0; m < block0*block1; m++)
 	{
-		for(auto j = 0; j < 2; j++)	coords[m][order[j]] = (m / divs[j]) % mods[j];
-		for(auto j = 2; j < rank; j++)	coords[m][order[j]] =  offset[order[j]];
+		for(auto j = 0; j < 2; j++)	coords[m*rank+order[j]] = (m / divs[j]) % mods[j];
+		for(auto j = 2; j < rank; j++)	coords[m*rank+order[j]] =  offset[order[j]];
 	}
 
-	return (hsize_t *) coords;	
+	return coords;	
 };
 
 void createScratchFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)

@@ -61,7 +61,7 @@ std::vector<aberration> readAberrations(const std::string &filename)
 		++aberration_count;
 		++line_num;
 		int m, n;
-        double mag, angle;
+        PRISMATIC_FLOAT_PRECISION mag, angle;
 		std::stringstream ss;
 		ss.precision(8);
 		ss << line;
