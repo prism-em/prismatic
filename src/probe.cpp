@@ -41,6 +41,8 @@ void readProbes(const std::string &filename,
             std::vector<PRISMATIC_FLOAT_PRECISION> &xprobes,
             std::vector<PRISMATIC_FLOAT_PRECISION> &yprobes)
 {
+    //TODO: check for malloc issues if large number of probes is passed
+    //count lines in file?
     xprobes = {}; //reset vectors
     yprobes = {};
     std::ifstream f(filename);

@@ -97,9 +97,10 @@ void printHelp()
               << "* --4D-crop (-4DC) bool=false : Crop the 4D output smaller than the anti-aliasing boundary (default: Off)\n"
               << "* --4D-amax (-4DA) value: If --4D-crop, the maximum angle to which the output is cropped (in mrad) (default: 100)\n"
               << "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n"
-              << "* --save-real-space-coords (-rsc) bool=false : Also save the real space coordinates of the probe dimensions (default: Off)\n"
+              << "* --save-probe (-probe) bool=false : Also save the complex entrance probe (default: Off)\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
               << "* --save-smatrix (-sm) bool=false : Also save the compact smatrix (warning: can be very large) (default: Off)\n"
+              << "* --save-complex (-com) bool=false : Save the complex valued output probes (STEM) or plane waves (HRTEM), instead of integrating intensity. Saves each frozen phonon individually. (default: Off)\n"
               << "* --nyquist-sampling (-nqs) bool=false : Set number of probe positions at Nyquist sampling limit (default: Off)]\n"
               << "* --import-potential (-ips) bool=false : Use precalculated projected potential from import HDF5 file. Must specify -if and -idp (default: Off)]\n"
               << "* --import-smatrix (-ism) bool=false : Use precalculated scattering matrix from import HDF5 file -if and -idp (default: Off)]\n"
@@ -110,7 +111,7 @@ void printHelp()
               << "* --rtilt-tem (-rtt) min max : plane wave tilt selection for HRTEM in radial fashion (in mrad) (default: " << defaults.minRtilt * 1000 << " " << defaults.maxRtilt * 1000 << ")\n"
               << "* --tilt-offset-tem (-tot) xOffset yOffset : offset to select center tilt for HRTEM in (in mrad) (default: " << defaults.xTiltOffset * 1000 << " " << defaults.yTiltOffset * 1000 << ")\n"
               << "* --probe-pos (-pos) filename : filename containing list of arbitrary probe positions. If set, runs custom list of probe positions; data are returned in order of list. See www.prism-em.com/about for details \n"
-              << "* --aberrations (-abs) filename : filename containing list of arbitrary aberrations. See www.prism-em.com/about for details \n"
+              << "* --aberrations (-aber) filename : filename containing list of arbitrary aberrations. See www.prism-em.com/about for details \n"
               << "* --max-filesize size : Maximum output file size in gigabytes that Prismatic will be allowed to generate. Default is 2 Gigabytes. \n"
               << "* --probe-defocus-sigma (-dfs) sigma: Run a simulation series over a range of 9 defocii, up to +- 2 sigma in steps 0.5 sigma (in angstroms).\n"
               << "* --probe-defocus-range (-dfr) min max step : Run a simulation series over a range of defocus values, from min to max in step size of step. All input units in Angstroms. \n"
@@ -1548,7 +1549,6 @@ bool parse_rtt(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         cout << "Invalid value \"" << (*argv)[2] << "\" provided for R tilt max (syntax is -rtt min max)\n";
         return false;
     }
-    meta.tiltMode = Prismatic::TiltSelection::Radial;
     argc -= 3;
     argv[0] += 3;
     return true;
@@ -1667,16 +1667,44 @@ bool parse_mrf(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     return true;
 };
 
-bool parse_abs(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+bool parse_aber(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
              int &argc, const char ***argv)
 {
     if (argc < 2)
     {
-        cout << "No filename provided for -abb (syntax is -abb filename)\n";
+        cout << "No filename provided for -aber (syntax is -aber filename)\n";
         return false;
     }
     meta.arbitraryAberrations = true;
     meta.aberrations = readAberrations(std::string((*argv)[1]));
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_com(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -com (syntax is -com bool)\n";
+        return false;
+    }
+    meta.saveComplexOutputWave = std::string((*argv)[1]) == "0" ? false : true;
+    argc -= 2;
+    argv[0] += 2;
+    return true;
+};
+
+bool parse_probe(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
+              int &argc, const char ***argv)
+{
+    if (argc < 2)
+    {
+        cout << "No value provided for -probe (syntax is -probe bool)\n";
+        return false;
+    }
+    meta.saveProbe = std::string((*argv)[1]) == "0" ? false : true;
     argc -= 2;
     argv[0] += 2;
     return true;
@@ -1766,7 +1794,9 @@ static std::map<std::string, parseFunction> parser{
     {"--save-smatrix", parse_sm}, {"-sm", parse_sm},
     {"--3Dpotential-zsampling", parse_3DPZ}, {"-3DPZ", parse_3DPZ},
     {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf},
-    {"--aberrations", parse_abs}, {"-abs", parse_abs},
+    {"--aberrations", parse_aber}, {"-aber", parse_aber},
+    {"--save-complex", parse_com}, {"-com", parse_com},
+    {"--save-probe", parse_probe}, {"-probe", parse_probe}
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)

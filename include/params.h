@@ -118,6 +118,7 @@ namespace Prismatic{
 	    T sigma;
 	    T qMax;
 	    T alphaMax;
+		T sMatrix_defocus;
 		T scanWindowXMin;
 		T scanWindowXMax;
 		T scanWindowYMin;
@@ -266,6 +267,12 @@ namespace Prismatic{
 					std::cout << "Requested tilt series lies outside of antialiasing aperture in Y" << std::endl;
 					std::cout << "Resetting Y offset to 0.0 mrad" << std::endl;
 					yTiltOffset_tem = 0.0;
+				}
+
+				if(meta.maxRtilt > 0.0)
+				{
+					//if it was specified
+					meta.tiltMode = TiltSelection::Radial;
 				}
 			}
 

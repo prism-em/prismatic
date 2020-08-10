@@ -80,7 +80,7 @@ namespace Prismatic{
             maxXtilt              = 5.0 / 1000; //mrads, for HRTEM only
             maxYtilt              = 5.0 / 1000;
             minRtilt              = 0.0 / 1000; //radial option
-            maxRtilt              = 5.0 / 1000; 
+            maxRtilt              = 0.0 / 1000; 
             tiltMode              = TiltSelection::Rectangular;
             xTiltOffset           = 0.0 / 1000; //mrads, for HRTEM only
             yTiltOffset           = 0.0 / 1000;
@@ -230,7 +230,6 @@ namespace Prismatic{
         bool arbitraryAberrations;
         StreamingMode transferMode;
         TiltSelection tiltMode;
-
     };
 
     template <class T>

@@ -294,7 +294,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	pars.numPlanes = numPlanes;
 	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
 
-	pars.pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes, pars.imageSize[0], pars.imageSize[1]}});
+	pars.pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{ (size_t) numPlanes, pars.imageSize[0], pars.imageSize[1]}});
 	Array3D<PRISMATIC_FLOAT_PRECISION> potFull = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{numPlanes*pars.meta.zSampling, pars.imageSize[1], pars.imageSize[0]}});
 
 	// create arrays for the coordinates
@@ -594,13 +594,13 @@ void fourierResampling(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	Ni -= pars.meta.interpolationFactorX*4;
  	Nj -= pars.meta.interpolationFactorY*4;
  	
-	Array3D<PRISMATIC_FLOAT_PRECISION> newPot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimk(), Nj, Ni}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> newPot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimk(), (size_t) Nj, (size_t) Ni}});
 
 	//create storage variables to hold data from FFTs
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(), pars.pot.get_dimi()}});
-	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bstore = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{(size_t) Nj, (size_t) Ni}});
 	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> fpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{pars.pot.get_dimj(),pars.pot.get_dimi()}});
-	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{Nj, Ni}});
+	Array2D<complex<PRISMATIC_FLOAT_PRECISION>> bpot = zeros_ND<2,complex<PRISMATIC_FLOAT_PRECISION>>({{(size_t)Nj,(size_t) Ni}});
 	
 	//create FFT plans 
 	PRISMATIC_FFTW_INIT_THREADS();
