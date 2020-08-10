@@ -280,7 +280,7 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, T *
 	std::unique_lock<std::mutex> writeGatekeeper(write4D_lock);
 
     H5::Group dataGroup = pars.outputFile.openGroup(nameString);
-    H5::DataSet dataset = dataGroup.openDataSet("datacube");
+    H5::DataSet dataset = dataGroup.openDataSet("data");
 
     //set up file and memory spaces
     H5::DataSpace fspace = dataset.getSpace();
