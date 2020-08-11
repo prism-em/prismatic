@@ -136,7 +136,7 @@ public slots:
     void toggleDPC_CoM();
     void togglePotentialSlices();
     void toggleThermalEffects();
-    void toggleOccupancy();
+    //void toggleOccupancy();
     void toggleNyquist();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
@@ -202,6 +202,19 @@ public slots:
     void preventOverwrite();
     void flipOverwrite();
 
+    //Collapse functions for each box
+    void collapseSample();
+    void collapseSimulation();
+    void collapseStem();
+    void collapseHrtem();
+    void collapseOutput();
+    void collapseComputational();
+
+
+    //Change themes functions
+    //void lightField();
+    //void darkField();
+
 protected:
     void setFilenameAtoms(const std::string &filename);
     void setFilenameOutput(const std::string &filename);
@@ -250,6 +263,27 @@ private:
     bool minWindowYSet;
     bool maxWindowYSet;
     bool overwriteCheck = false;
+
+
+    //collapse funtction variables
+    bool sampleClosed = false;
+    bool simulationClosed = false;
+    bool stemClosed = false;
+    bool hrtemClosed = true;
+    bool outputClosed = false;
+    bool computationalClosed = true;
+
+    //Height each box gets
+    int boxOpen = 260;
+    int boxClosed = 20;
+
+    int scrollOpen = 250;
+
+
+
+    //test collapse feature
+    bool testCollapse = false;
+
 
     QImage potentialImage;
     QImage probeImage;
