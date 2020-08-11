@@ -1747,8 +1747,8 @@ void writeVirtualDataSet(H5::Group group,
 	hsize_t* dims_out = (hsize_t*)  malloc(rank*sizeof(hsize_t));
 	int ndims = sampleSpace.getSimpleExtentDims(dims_out, NULL); //nidms and rank are redundant, but rank is not known a priori
 	
-	hsize_t* mdims = (hsize_t*) malloc((rank+new_rank*sizeof(hsize_t)));
-	hsize_t* mdims_ind = (hsize_t*) malloc((rank+new_rank*sizeof(hsize_t)));
+	hsize_t* mdims = (hsize_t*) malloc((rank+new_rank)*sizeof(hsize_t));
+	hsize_t* mdims_ind = (hsize_t*) malloc((rank+new_rank)*sizeof(hsize_t));
 
 	for(auto i = 0; i < rank; i++)
 	{
@@ -1761,7 +1761,6 @@ void writeVirtualDataSet(H5::Group group,
 		mdims[i] = max_dims[i-rank]+1;
 		mdims_ind[i] = 1;
 	}
-
 	sampleSpace.close();
 
 	//create virtual dataspace and plist mapping
@@ -1770,10 +1769,11 @@ void writeVirtualDataSet(H5::Group group,
 	H5::DSetCreatPropList plist;
     std::string path;
 
-	hsize_t* offset = (hsize_t*) malloc((rank+new_rank)*sizeof(hsize_t));
-	
+	hsize_t* offset    = (hsize_t*) malloc((rank+new_rank)*sizeof(hsize_t));
+	for(auto i = 0; i < rank;  i++) offset[i] = 0; 
 	for(auto i = 0; i < datasets.size(); i++)
 	{
+		std::cout << i << std::endl;
 		path = datasets[i].getObjName();
 		src_mspace = datasets[i].getSpace();
 
@@ -1789,6 +1789,11 @@ void writeVirtualDataSet(H5::Group group,
 
 	src_mspace.close();
 	vds.close();
+
+	free(offset);
+	free(mdims_ind);
+	free(mdims);
+	free(dims_out);
 
 };
 
@@ -1925,11 +1930,13 @@ void copyDataSet(H5::Group &targetGroup, H5::DataSet &source)
 		unsigned char* attr_buffer = (unsigned char*) malloc(tmp_attr.getInMemDataSize());
 		tmp_attr.read(tmp_attr.getDataType(), attr_buffer);
 		t_attr.write(tmp_attr.getDataType(), &attr_buffer[0]);
+		free(attr_dims_out);
 	}
 
 	target.close();
 
-
+	free(dims_out);
+	free(buffer);
 };
 
 void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vector<size_t> &order)
@@ -1982,7 +1989,8 @@ void restrideElements(H5::DataSpace &fspace, std::vector<size_t> &dims, std::vec
 		}
 		fspace.selectElements(H5S_SELECT_APPEND, block0*block1, coords);
 	}
-	
+
+	free(coords);	
 };
 
 
@@ -2022,6 +2030,7 @@ void restrideElements_subset(H5::DataSpace &fspace, std::vector<size_t> &dims, s
 	}
 	fspace.selectElements(H5S_SELECT_APPEND, block0*block1, coords);
 	
+	free(coords);
 };
 
 hsize_t* restrideElements_subset(std::vector<size_t> &dims, std::vector<size_t> &order, std::vector<size_t> &offset)

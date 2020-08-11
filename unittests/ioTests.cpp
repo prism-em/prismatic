@@ -180,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(4, data_dims); //rank is 4
-        H5::DataSet test4D_data = test4D_group.createDataSet("datacube", PFP_TYPE, mspace);
+        H5::DataSet test4D_data = test4D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
         test4D_group.close();
     }
@@ -221,7 +221,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(3, data_dims);
-        H5::DataSet test3D_data = test3D_group.createDataSet("realslice", PFP_TYPE, mspace);
+        H5::DataSet test3D_data = test3D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
         test3D_group.close();
     }
@@ -235,14 +235,14 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
 
         //create dataset
         H5::DataSpace mspace(2, data_dims);
-        H5::DataSet test2D_data = test2D_group.createDataSet("realslice", PFP_TYPE, mspace);
+        H5::DataSet test2D_data = test2D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
         test2D_group.close();
     }
 
     //write 2D and 3D arrays
     {
-        H5::DataSet test3D_data = realslices.openDataSet("test3Darray/realslice");
+        H5::DataSet test3D_data = realslices.openDataSet("test3Darray/data");
         hsize_t mdims[3];
         mdims[0] = {testArr3D.get_dimi()};
         mdims[1] = {testArr3D.get_dimj()};
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     }
 
     {
-        H5::DataSet test2D_data = realslices.openDataSet("test2Darray/realslice");
+        H5::DataSet test2D_data = realslices.openDataSet("test2Darray/data");
         hsize_t mdims[2];
         mdims[0] = {testArr2D.get_dimi()};
         mdims[1] = {testArr2D.get_dimj()};
@@ -262,9 +262,9 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     realslices.close();
     pars.outputFile.close();
 
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/test2Darray/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/test3Darray/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/test4Darray/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/test2Darray/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/test3Darray/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/test4Darray/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> read2D = readDataSet2D(pars.meta.filenameOutput, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> read3D = readDataSet3D(pars.meta.filenameOutput, dataPath3D);
@@ -312,7 +312,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
 
     meta.filenameOutput = "../test/potentialRerun.h5";
     meta.importFile     = "../test/potentialImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
     std::cout << "###### END TEST CASE: importPotential2D_P #####\n";
@@ -320,12 +320,12 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
-    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
+    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/data";
     std::vector<size_t> order_sm = {2,1,0};
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
@@ -391,7 +391,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
 
     meta.filenameOutput = "../test/potentialRerun.h5";
     meta.importFile     = "../test/potentialImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
     std::cout << "###### END TEST CASE: importPotential3D_P #####\n";
@@ -399,11 +399,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
@@ -457,7 +457,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
 
     meta.filenameOutput = "../test/potentialRerun.h5";
     meta.importFile     = "../test/potentialImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
     std::cout << "###### END TEST CASE: importPotential2D_M #####\n";
@@ -465,11 +465,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
@@ -525,7 +525,7 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
 
     meta.filenameOutput = "../test/potentialRerun.h5";
     meta.importFile     = "../test/potentialImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
     std::cout << "###### END TEST CASE: importPotential3D_M #####\n";
@@ -533,11 +533,11 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
@@ -596,7 +596,7 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     meta.interpolationFactorY = 7;
     meta.filenameOutput = "../test/potentialRerun.h5";
     meta.importFile     = "../test/potentialImport.h5";
-    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
     std::cout << "####### END TEST CASE: fourierResampling ######\n";
@@ -604,7 +604,7 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/realslice";
+    std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
 
     Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
     Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
@@ -662,11 +662,11 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
-    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/realslice";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
+    std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp0000/data";
     std::vector<size_t> order_sm = {2,1,0};
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
@@ -729,10 +729,10 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
@@ -761,7 +761,7 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
 
     for(auto i = 0; i < 4; i++)
     {
-        std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(i) + "/realslice";
+        std::string dataPathSM = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(i) + "/data";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
         std::vector<size_t> order_sm = {2,1,0};
         readComplexDataSet(refSMatrix, importFile, dataPathSM, order_sm);
@@ -842,10 +842,10 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
@@ -873,7 +873,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
 
     for(auto i = 0; i < 4; i++)
     {
-        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
+        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/data";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
         Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
         Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
@@ -912,10 +912,10 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
@@ -943,7 +943,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
 
     for(auto i = 0; i < 4; i++)
     {
-        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
+        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/data";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
         Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
         Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
@@ -983,10 +983,10 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     revertOutput(fd, pos);
 
     //read in output arrays and compare
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPathDPC = "4DSTEM_simulation/data/realslices/DPC_CoM_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     Array2D<PRISMATIC_FLOAT_PRECISION> refAnnular = readDataSet2D(importFile, dataPath2D);
     Array3D<PRISMATIC_FLOAT_PRECISION> refDPC = readDataSet3D(importFile, dataPathDPC);
@@ -1015,7 +1015,7 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     int slices = (meta.numFP < 4) ? meta.numFP : 4;
     for(auto i = 0; i < slices; i++)
     {
-        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/realslice";
+        std::string dataPathPS = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(i) + "/data";
         std::cout << "Checking frozen phonon configuration: " << i << std::endl;
         Array3D<PRISMATIC_FLOAT_PRECISION> refPS = readDataSet3D(importFile, dataPathPS);
         Array3D<PRISMATIC_FLOAT_PRECISION> testPS = readDataSet3D(meta.filenameOutput, dataPathPS);
@@ -1129,11 +1129,13 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     H5::DataSpace mspace(2, msize);
     H5::DataSpace fspace;
 
+    std::cout << "here" << std::endl;
     H5::DataSet one_dset = dataHold.createDataSet("one", PFP_TYPE, mspace);
     H5::DataSet two_dset = dataHold.createDataSet("two", PFP_TYPE, mspace);
     H5::DataSet three_dset = dataHold.createDataSet("three", PFP_TYPE, mspace);
     H5::DataSet four_dset = dataHold.createDataSet("four", PFP_TYPE, mspace);
 
+    std::cout << "here1" << std::endl;
     fspace = one_dset.getSpace();
     one_dset.write(&one[0], PFP_TYPE, mspace, fspace);    
     fspace = two_dset.getSpace();
@@ -1144,6 +1146,7 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     four_dset.write(&four[0], PFP_TYPE, mspace, fspace);
 
 
+    std::cout << "here3" << std::endl;
     std::string sgName = "testSG";
     std::vector<H5::DataSet> datasets{one_dset, two_dset, three_dset, four_dset};
 
@@ -1154,6 +1157,7 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     indices_3D.push_back(std::vector<size_t>{2});
     indices_3D.push_back(std::vector<size_t>{3});
 
+    std::cout << "here4" << std::endl;
     writeVirtualDataSet(dataHold, "testVDS", datasets, indices_3D);
 
 
@@ -1164,11 +1168,13 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     indices_4D.push_back(std::vector<size_t>{1,0});
     indices_4D.push_back(std::vector<size_t>{1,1});
 
+    std::cout << "here5" << std::endl;
     writeVirtualDataSet(dataHold, "testVD", datasets, indices_4D);
     pars.outputFile.close();
 
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
 
+    std::cout << "here6" << std::endl;
     Array3D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataSet3D(fname, "/4DSTEM_simulation/dataHold/testVDS");
     { //restride
         Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp(vds_read);
@@ -1325,13 +1331,13 @@ BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
 
     //check equivalance of indvidual datasets to component datasets in VDS
     Array4D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataSet4D_keepOrder(fname, "/4DSTEM_simulation/data/supergroups/vd_depth_series/supergroup");
-    Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp = readDataSet3D(fname, "/4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice");
+    Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp = readDataSet3D(fname, "/4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data");
     Array4D<PRISMATIC_FLOAT_PRECISION> ref_array = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{3, vds_tmp.get_dimk(), vds_tmp.get_dimj(), vds_tmp.get_dimi()}});
     
     size_t strides = vds_tmp.get_dimk()*vds_tmp.get_dimj()*vds_tmp.get_dimi();
     for(auto i = 0; i < 3; i++)
     {   //read each vd and add to 4D array
-        std::string path = "/4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(i) + "/realslice";
+        std::string path = "/4DSTEM_simulation/data/realslices/virtual_detector_depth" + getDigitString(i) + "/data";
         Array3D<PRISMATIC_FLOAT_PRECISION> vds_depth_i = readDataSet3D(fname, path);
         std::copy(vds_depth_i.begin(), vds_depth_i.end(), &ref_array[i*strides]);
     }
@@ -1410,9 +1416,9 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_M, basicSim)
     std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
 
     //read in output arrays
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     std::vector<size_t> order_2D = {0,1}; 
     std::vector<size_t> order_3D = {0,1,2}; 
@@ -1477,9 +1483,9 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
     std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
 
     //read in output arrays
-    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/realslice";
-    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath2D = "4DSTEM_simulation/data/realslices/annular_detector_depth0000/data";
+    std::string dataPath3D = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
 
     std::vector<size_t> order_2D = {0,1}; 
     std::vector<size_t> order_3D = {0,1,2}; 

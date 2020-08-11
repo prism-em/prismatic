@@ -535,7 +535,7 @@ void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	}
 	else //read default path
 	{
-		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/realslice";
+		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/data";
 		readRealDataSet(pars.pot, pars.meta.importFile, groupPath, order);
 	}
 

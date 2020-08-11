@@ -125,7 +125,7 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
 
 
     //read and compare probes    
-    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/datacube";
+    std::string dataPath4D = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> refProbes;
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> testProbes;
     readComplexDataSet_inOrder(refProbes, fname_m, dataPath4D);

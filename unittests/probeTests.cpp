@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
     std::cout << "########## END TEST CASE: rectGrid_M ##########\n";
     revertOutput(fd, pos);
 
-    std::string datapath = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string datapath = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
     Array3D<PRISMATIC_FLOAT_PRECISION> testArr;
     Array3D<PRISMATIC_FLOAT_PRECISION> refArr;
     std::vector<size_t> order = {0,1,2};
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
     std::cout << "########## END TEST CASE: rectGrid_P ##########\n";
     revertOutput(fd, pos);
 
-    std::string datapath = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/realslice";
+    std::string datapath = "4DSTEM_simulation/data/realslices/virtual_detector_depth0000/data";
     Array3D<PRISMATIC_FLOAT_PRECISION> testArr;
     Array3D<PRISMATIC_FLOAT_PRECISION> refArr;
     std::vector<size_t> order = {0,1,2};

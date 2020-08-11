@@ -98,14 +98,14 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
     if(meta.saveComplexOutputWave)
     {
         Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM_fp0000/realslice", order_3D);
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM_fp0000/data", order_3D);
         for(auto &i : output) errSum += pow(std::abs(i), 2.0);
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         BOOST_TEST(output.get_dimk() == 1);
     }
     else
     {
-        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/data");
         for(auto &i : output) errSum += i;
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         BOOST_TEST(output.get_dimk() == 1);
@@ -151,14 +151,14 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
     if(meta.saveComplexOutputWave)
     {
         Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
-        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM_fp0000/realslice", order_3D);
+        readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM_fp0000/data", order_3D);
         for(auto &i : output) errSum += pow(std::abs(i), 2.0);
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
     }
     else
     {
-        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/realslice");
+        Array3D<PRISMATIC_FLOAT_PRECISION> output = readDataSet3D(meta.filenameOutput, "4DSTEM_simulation/data/realslices/HRTEM/data");
         for(auto &i : output) errSum += i;
         errSum /= (PRISMATIC_FLOAT_PRECISION) output.size();
         std::cout << "Number of tilts: " << output.get_dimk() << std::endl;
@@ -198,7 +198,7 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
     std::vector<size_t> order_4D = {0,1,2,3}; 
-    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual_fp0000/datacube",order_4D);
+    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual_fp0000/data",order_4D);
     BOOST_TEST(output.get_dimk() == 3);
     BOOST_TEST(output.get_diml() == 3);
     removeFile(meta.filenameOutput);
@@ -237,7 +237,7 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
 
     Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> output;
     std::vector<size_t> order_4D = {0,1,2,3}; 
-    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual_fp0000/datacube", order_4D);
+    readComplexDataSet(output, meta.filenameOutput, "4DSTEM_simulation/data/datacubes/HRTEM_virtual_fp0000/data", order_4D);
     BOOST_TEST(output.get_dimk() == 5);
     BOOST_TEST(output.get_diml() == 5);
     std::cout << output.at(0,0,0,0).real() << std::endl;

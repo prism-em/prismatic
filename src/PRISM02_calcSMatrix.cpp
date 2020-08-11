@@ -703,9 +703,20 @@ void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		setupSMatrixOutput(pars, pars.fpFlag);
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
-		std::vector<size_t> order = {0, 1, 2};
-		
-		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
+
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()}});
+
+		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
+		{
+			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
+			{
+				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
+				{
+					output_buffer.at(i,j,k) = pars.Scompact.at(k,j,i);
+				}
+			}
+		}		
+		writeComplexDataSet_inOrder(smatrix_group, "data", &output_buffer[0], mdims, 3);
 	}
 }
 
@@ -723,7 +734,7 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		}
 		else //read default path
 		{
-			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/realslice";
+			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/data";
 			readComplexDataSet(pars.Scompact, pars.meta.importFile, groupPath, order);
 		}
 	}
@@ -809,9 +820,19 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::Group smatrix_group = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag));
 		hsize_t mdims[3] = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams};
 
-		std::array<size_t, 3> dims_in = {pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()};
-		std::vector<size_t> order = {0, 1, 2};
-		writeComplexDataSet(smatrix_group, "realslice", &pars.Scompact[0], mdims, 3, order);
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()}});
+
+		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
+		{
+			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
+			{
+				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
+				{
+					output_buffer.at(i,j,k) = pars.Scompact.at(k,j,i);
+				}
+			}
+		}		
+		writeComplexDataSet_inOrder(smatrix_group, "data", &output_buffer[0], mdims, 3);
 	}
 
 }

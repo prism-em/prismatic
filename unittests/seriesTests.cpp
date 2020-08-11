@@ -200,7 +200,7 @@ BOOST_FIXTURE_TEST_CASE(CC_series_virtual, basicSim)
     std::string cur_name_3D = basename_3D + meta.seriesTags[0];
     Array3D<PRISMATIC_FLOAT_PRECISION> vd;
     std::vector<size_t> order_3D = {0,1,2};
-    std::string path = "4DSTEM_simulation/data/realslices/" + cur_name_3D + "/realslice";
+    std::string path = "4DSTEM_simulation/data/realslices/" + cur_name_3D + "/data";
     // readRealDataSet(vd, meta.filenameOutput, path, order_3D);
     readRealDataSet_inOrder(vd, meta.filenameOutput, path);
 
