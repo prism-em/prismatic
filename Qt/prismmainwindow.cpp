@@ -161,12 +161,16 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
 
     // connect signals and slots
     connect(this->ui->btn_loadParams, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
+    connect(this->ui->actionLoad_Parameters, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
     connect(this->ui->btn_saveParams, SIGNAL(pressed()), this, SLOT(writeParameterFile()));
+    connect(this->ui->actionSave_Parameters, SIGNAL(pressed()), this, SLOT(writeParameterFile()));
     connect(this->ui->lineEdit_interpFactor_x, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorX()));
     connect(this->ui->lineEdit_interpFactor_y, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorY()));
     connect(this->ui->lineEdit_outputfile, SIGNAL(textEdited(QString)), this, SLOT(setFilenameOutput_fromLineEdit()));
     connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
+    connect(this->ui->actionLoad_Coordinates, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->btn_saveCoordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
+    connect(this->ui->actionSave_Coordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
@@ -288,6 +292,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     //connections for changing the theme/field of the application
     //connect(this->ui->actionDarkField, SIGNAL(clicked()), this, SLOT(darkField()));
     //connect(this->ui->actionLightField, SIGNAL(clicked()), this, SLOT(lightField()));
+
 
 
 
@@ -2435,14 +2440,14 @@ void PRISMMainWindow::collapseComputational(){
     }
 }
 
-/*
+
 void PRISMMainWindow::lightField(){
 
 // set stylesheet
     QFile file(":/light.qss");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
-    app.setStyleSheet(stream.readAll());
+    this->setStyleSheet(stream.readAll());
 
 }
 
@@ -2452,9 +2457,9 @@ void PRISMMainWindow::darkField(){
     QFile file(":/dark.qss");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
-    app.setStyleSheet(stream.readAll());
+    this->setStyleSheet(stream.readAll());
 
-}*/
+}
 
 
 

@@ -212,8 +212,8 @@ public slots:
 
 
     //Change themes functions
-    //void lightField();
-    //void darkField();
+    void lightField();
+    void darkField();
 
 protected:
     void setFilenameAtoms(const std::string &filename);
@@ -269,20 +269,16 @@ private:
     bool sampleClosed = false;
     bool simulationClosed = false;
     bool stemClosed = false;
-    bool hrtemClosed = true;
+    bool hrtemClosed = false;
     bool outputClosed = false;
-    bool computationalClosed = true;
+    bool computationalClosed = false;
 
     //Height each box gets
     int boxOpen = 260;
     int boxClosed = 20;
 
-    int scrollOpen = 250;
+    int scrollOpen = 240;
 
-
-
-    //test collapse feature
-    bool testCollapse = false;
 
 
     QImage potentialImage;
