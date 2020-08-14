@@ -41,4 +41,8 @@
         <file>Roboto-Thin.ttf</file>
         <file>Roboto-ThinItalic.ttf</file>
     </qresource>
+  <qresource prefix="">
+    <file>dark.qss</file>
+    <file>light.qss</file>
+  </qresource>
 </RCC>

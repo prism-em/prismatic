@@ -266,18 +266,20 @@ private:
 
 
     //collapse funtction variables
-    bool sampleClosed = false;
-    bool simulationClosed = false;
-    bool stemClosed = false;
-    bool hrtemClosed = false;
-    bool outputClosed = false;
-    bool computationalClosed = false;
+    bool sampleClosed = true;
+    bool simulationClosed = true;
+    bool stemClosed = true;
+    bool hrtemClosed = true;
+    bool outputClosed = true;
+    bool computationalClosed = true;
 
     //Height each box gets
+    //Computational and Output boxes both have unique sizes
     int boxOpen = 260;
     int boxClosed = 20;
+    int scrollOpen = 230;
 
-    int scrollOpen = 240;
+    int animSpeed = 600;
 
 
 

@@ -34,6 +34,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QTextStream>
+#include <QPropertyAnimation>
 //#include <unistd.h>
 
 bool validateFilename(const std::string str){
@@ -92,7 +93,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     // set window title
     setWindowTitle("Prismatic (no atomic coordinate file selected)");
 
-    ui->box_samplesettings->setStyleSheet("QGroupBox { \
+   /* ui->box_samplesettings->setStyleSheet("QGroupBox { \
                                           border: 1px solid gray;\
                                           border-radius: 9px;\
                                           margin-top: 0.5em;\
@@ -102,7 +103,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
-    /*ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+    ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
                                       border-radius: 9px;\
                                       margin-top: 0.5em;\
@@ -111,7 +112,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
                                      subcontrol-origin: margin;\
                                      left: 145px;\
                                      padding: 0 3px 0 3px;\
-                                     }");*/
+                                     }");
 
 
     ui->box_simulationsettings->setStyleSheet("QGroupBox { \
@@ -122,7 +123,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
                                        subcontrol-origin: margin;\
                                        left: 150px;\
                                        padding: 0 3px 0px 3px;\
-                                       }");
+                                       }");*/
 
 
     //potentialImage.load(":/images/prism.png");
@@ -161,16 +162,16 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
 
     // connect signals and slots
     connect(this->ui->btn_loadParams, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
-    connect(this->ui->actionLoad_Parameters, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
+    connect(this->ui->actionLoad_Parameters, SIGNAL(triggered()), this, SLOT(selectParameterFile()));
     connect(this->ui->btn_saveParams, SIGNAL(pressed()), this, SLOT(writeParameterFile()));
-    connect(this->ui->actionSave_Parameters, SIGNAL(pressed()), this, SLOT(writeParameterFile()));
+    connect(this->ui->actionSave_Parameters, SIGNAL(triggered()), this, SLOT(writeParameterFile()));
     connect(this->ui->lineEdit_interpFactor_x, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorX()));
     connect(this->ui->lineEdit_interpFactor_y, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorY()));
     connect(this->ui->lineEdit_outputfile, SIGNAL(textEdited(QString)), this, SLOT(setFilenameOutput_fromLineEdit()));
     connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
-    connect(this->ui->actionLoad_Coordinates, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
+    connect(this->ui->actionLoad_Coordinates, SIGNAL(triggered()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->btn_saveCoordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
-    connect(this->ui->actionSave_Coordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
+    connect(this->ui->actionSave_Coordinates, SIGNAL(triggered()), this, SLOT(openSaveAtomsDialog()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
@@ -262,9 +263,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
     connect(this->ui->comboBox_streamMode, SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
     //connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
-    connect(this->ui->actionReset_Prismatic, SIGNAL(clicked()), this, SLOT(resetCalculation()));
+    connect(this->ui->actionReset_Prismatic, SIGNAL(triggered()), this, SLOT(resetCalculation()));
     connect(this->ui->btn_calculateProbe, SIGNAL(clicked()), this, SLOT(calculateProbe()));
-    connect(this->ui->actionReset_Prismatic, SIGNAL(clicked()), this, SLOT(resetLinks()));
+    connect(this->ui->actionReset_Prismatic, SIGNAL(triggered()), this, SLOT(resetLinks()));
     connect(this->ui->checkBox_2D, SIGNAL(toggled(bool)), this, SLOT(toggle2DOutput()));
     connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
@@ -290,8 +291,8 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
 
 
     //connections for changing the theme/field of the application
-    //connect(this->ui->actionDarkField, SIGNAL(clicked()), this, SLOT(darkField()));
-    //connect(this->ui->actionLightField, SIGNAL(clicked()), this, SLOT(lightField()));
+    connect(this->ui->actionDarkField, SIGNAL(triggered()), this, SLOT(darkField()));
+    connect(this->ui->actionLightField, SIGNAL(triggered()), this, SLOT(lightField()));
 
 
 
@@ -2336,14 +2337,37 @@ void PRISMMainWindow::collapseSample(){
     if(!sampleClosed){
         this->ui->box_samplesettings->setMaximumHeight(boxClosed);
         this->ui->box_samplesettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_samplesettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
         sampleClosed = true;
 
 
     }else{
+
         this->ui->box_samplesettings->setMaximumHeight(boxOpen);
         this->ui->box_samplesettings->setMinimumHeight(boxOpen);
-        this->ui->scrollArea_4->setMinimumHeight(scrollOpen);
+        this->ui->btn_closebox->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_samplesettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        //QPropertyAnimation* pAni2 = new QPropertyAnimation(this->ui->scrollArea_4, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(scrollOpen);
+        //pAni->setDuration(300);
         this->ui->scrollArea_4->setMaximumHeight(scrollOpen);
+        this->ui->scrollArea_4->setMinimumHeight(scrollOpen);
+
+        //pAni->start();
+        //pAni2->start();
         sampleClosed = false;
     }
 }
@@ -2355,14 +2379,33 @@ void PRISMMainWindow::collapseStem(){
     if(!stemClosed){
         this->ui->box_stemsettings->setMaximumHeight(boxClosed);
         this->ui->box_stemsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_3->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_stemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+        
         stemClosed = true;
 
 
     }else{
+
         this->ui->box_stemsettings->setMaximumHeight(boxOpen);
         this->ui->box_stemsettings->setMinimumHeight(boxOpen);
+        this->ui->btn_closebox_3->setText("-");
+
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_stemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
         this->ui->scrollArea_3->setMinimumHeight(scrollOpen);
         this->ui->scrollArea_3->setMaximumHeight(scrollOpen);
+
+        //pAni->start();
         stemClosed = false;
     }
 }
@@ -2373,14 +2416,32 @@ void PRISMMainWindow::collapseHrtem(){
     if(!hrtemClosed){
         this->ui->box_hrtemsettings->setMaximumHeight(boxClosed);
         this->ui->box_hrtemsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_4->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_hrtemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+        
         hrtemClosed = true;
 
 
     }else{
         this->ui->box_hrtemsettings->setMaximumHeight(boxOpen);
         this->ui->box_hrtemsettings->setMinimumHeight(boxOpen);
+        this->ui->btn_closebox_4->setText("-");
+
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_hrtemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
         this->ui->scrollArea_7->setMinimumHeight(scrollOpen);
         this->ui->scrollArea_7->setMaximumHeight(scrollOpen);
+
+        //pAni->start();
         hrtemClosed = false;
     }
 }
@@ -2392,14 +2453,33 @@ void PRISMMainWindow::collapseOutput(){
     if(!outputClosed){
         this->ui->box_outputsettings->setMaximumHeight(boxClosed);
         this->ui->box_outputsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_5->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_outputsettings, "minimumHeight" );
+        //pAni->setStartValue(120);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
         outputClosed = true;
 
 
     }else{
-        this->ui->box_outputsettings->setMaximumHeight(boxOpen);
-        this->ui->box_outputsettings->setMinimumHeight(boxOpen);
-        this->ui->scrollArea_6->setMinimumHeight(scrollOpen);
-        this->ui->scrollArea_6->setMaximumHeight(scrollOpen);
+
+        this->ui->box_outputsettings->setMaximumHeight(120);
+        this->ui->box_outputsettings->setMinimumHeight(120);
+        this->ui->btn_closebox_5->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_outputsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(120);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_6->setMinimumHeight(110);
+        this->ui->scrollArea_6->setMaximumHeight(110);
+
+        //pAni->start();
+
         outputClosed = false;
     }
 }
@@ -2408,16 +2488,38 @@ void PRISMMainWindow::collapseSimulation(){
 
     //if widget is open
     if(!simulationClosed){
+
+
         this->ui->box_simulationsettings->setMaximumHeight(boxClosed);
         this->ui->box_simulationsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_2->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_simulationsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
         simulationClosed = true;
 
 
     }else{
-        this->ui->box_simulationsettings->setMaximumHeight(boxOpen);
-        this->ui->box_simulationsettings->setMinimumHeight(boxOpen);
-        this->ui->scrollArea_5->setMinimumHeight(scrollOpen);
-        this->ui->scrollArea_5->setMaximumHeight(scrollOpen);
+
+
+        this->ui->box_simulationsettings->setMaximumHeight(boxOpen+10);
+        this->ui->box_simulationsettings->setMinimumHeight(boxOpen+10);
+        this->ui->btn_closebox_2->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_simulationsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_5->setMaximumHeight(scrollOpen+5);
+        this->ui->scrollArea_5->setMinimumHeight(scrollOpen+5);
+
+        //pAni->start();
+
         simulationClosed = false;
     }
 }
@@ -2426,16 +2528,45 @@ void PRISMMainWindow::collapseComputational(){
 
     //if widget is open
     if(!computationalClosed){
+
         this->ui->box_computationalsettings->setMaximumHeight(boxClosed);
         this->ui->box_computationalsettings->setMinimumHeight(boxClosed);
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_computationalsettings, "minimumHeight" );
+        //pAni->setStartValue(190);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
         computationalClosed = true;
+        this->ui->btn_closebox_7->setText("+");
 
 
     }else{
-        this->ui->box_computationalsettings->setMaximumHeight(boxOpen);
-        this->ui->box_computationalsettings->setMinimumHeight(boxOpen);
-        this->ui->scrollArea_9->setMinimumHeight(scrollOpen);
-        this->ui->scrollArea_9->setMaximumHeight(scrollOpen);
+
+        this->ui->box_computationalsettings->setMaximumHeight(200);
+        this->ui->box_computationalsettings->setMinimumHeight(200);
+        this->ui->btn_closebox_7->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_computationalsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(190);
+        //pAni->setDuration(animSpeed);
+
+
+        //QPropertyAnimation* pAni2 = new QPropertyAnimation(this->ui->scrollArea_9, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(170);
+        //pAni->setDuration(300);
+
+
+        this->ui->scrollArea_9->setMaximumHeight(170);
+        this->ui->scrollArea_9->setMinimumHeight(170);
+
+
+        //pAni->start();
+        //pAni2->start();
+
         computationalClosed = false;
     }
 }
@@ -2447,7 +2578,7 @@ void PRISMMainWindow::lightField(){
     QFile file(":/light.qss");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
-    this->setStyleSheet(stream.readAll());
+    qApp->setStyleSheet(stream.readAll());
 
 }
 
@@ -2457,7 +2588,7 @@ void PRISMMainWindow::darkField(){
     QFile file(":/dark.qss");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream stream(&file);
-    this->setStyleSheet(stream.readAll());
+    qApp->setStyleSheet(stream.readAll());
 
 }
 
