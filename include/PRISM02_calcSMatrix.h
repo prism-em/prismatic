@@ -50,5 +50,7 @@ namespace Prismatic {
 
 	void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
+	void apply_aberrations(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 }
 #endif //PRISMATIC_PRISM02_H

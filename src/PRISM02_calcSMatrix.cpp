@@ -659,6 +659,66 @@ void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 }
 
+void apply_aberrations(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	extern mutex fftw_plan_lock;  // lock for protecting FFTW plans
+
+	//create a new propagator
+	pars.qTheta = pars.q1;
+	std::transform(pars.qxa.begin(), pars.qxa.end(),
+					pars.qya.begin(), pars.qTheta.begin(), [](const PRISMATIC_FLOAT_PRECISION&a, const PRISMATIC_FLOAT_PRECISION& b){
+						return atan2(b,a);
+					});
+	
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(pars.q1, pars.qTheta, pars.lambda, pars.meta.aberrations);
+
+	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> beamHold = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+				{{pars.Scompact.get_dimj(), pars.Scompact.get_dimi()}});
+
+	//create FFT plans
+	PRISMATIC_FFTW_INIT_THREADS();
+	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
+	
+	unique_lock<mutex> gatekeeper(fftw_plan_lock);
+	PRISMATIC_FFTW_PLAN plan_forward = PRISMATIC_FFTW_PLAN_DFT_2D(beamHold.get_dimj(), beamHold.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															FFTW_FORWARD,
+															FFTW_ESTIMATE);
+
+	PRISMATIC_FFTW_PLAN plan_inverse = PRISMATIC_FFTW_PLAN_DFT_2D(beamHold.get_dimj(), beamHold.get_dimi(),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															reinterpret_cast<PRISMATIC_FFTW_COMPLEX *>(&beamHold[0]),
+															FFTW_BACKWARD,
+															FFTW_ESTIMATE);
+	gatekeeper.unlock();
+
+
+	//apply propagator to all s-matrix beams
+	for(auto idx = 0; idx < pars.Scompact.get_dimk(); idx++)
+	{
+		//copy data into beamHold
+		copy(&pars.Scompact.at(idx,0,0), &pars.Scompact.at(idx+1,0,0), beamHold.begin());
+
+		//apply propagator
+		PRISMATIC_FFTW_EXECUTE(plan_forward);
+		for(auto y = 0; y < pars.qyInd.size(); y++)
+		{
+			for(auto x = 0; x < pars.qxInd.size(); x++)
+			{
+				beamHold.at(y,x) *=  chi.at(y,x);
+			}
+		}
+
+		PRISMATIC_FFTW_EXECUTE(plan_inverse);
+
+		// scale FFT and copy back into smatrix
+		beamHold /= beamHold.size();
+		copy(beamHold.begin(), beamHold.end(), &pars.Scompact.at(idx,0,0));
+	}
+
+}
+
 void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// propagate plane waves to construct compact S-matrix

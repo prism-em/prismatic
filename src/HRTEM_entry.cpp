@@ -20,6 +20,7 @@
 #include "HRTEM_entry.h"
 #include "PRISM01_calcPotential.h"
 #include "PRISM02_calcSMatrix.h"
+#include "PRISM03_calcOutput.h"
 #include "fileIO.h"
 
 namespace Prismatic
@@ -66,25 +67,33 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
 		HRTEM_runFP(prismatic_pars, i);
-		if(prismatic_pars.meta.saveComplexOutputWave)
+		//apply aberrations
+		if(prismatic_pars.meta.aberrations.size() > 0)
 		{
+			// setup necessary coordinates
+			setupCoordinates_2(pars);
+			setupDetector(pars);
+			setupFourierCoordinates(pars);
+			transformIndices(pars);
+		
+			//now apply aberrations to each beam
+			apply_aberrations(pars);
+		}
+
+		if(prismatic_pars.meta.saveComplexOutputWave)
+		{			
 			//save FP individually
 			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 			std::cout << "Writing HRTEM data to output file." << std::endl;
-			std::cout << "here1" << std::endl;
 			sortHRTEMbeams(prismatic_pars);
-			std::cout << "here2" << std::endl;
 			setupHRTEMOutput(prismatic_pars);
-			std::cout << "here3" << std::endl;
 			setupHRTEMOutput_virtual(prismatic_pars);
-			std::cout << "here4" << std::endl;
 			saveHRTEM(prismatic_pars, net_output);
-			std::cout << "here5" << std::endl;
 			prismatic_pars.outputFile.close();
 		}
 		else
 		{
-			//apply aberrations and integrate output
+			//integrate output
 			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
 			for(auto i = 0; i < net_output.size(); i++)
 			{
