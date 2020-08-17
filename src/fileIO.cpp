@@ -182,11 +182,10 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::DataSpace str_name_ds(H5S_SCALAR);
 		H5::StrType strdatatype(H5::PredType::C_S1, 256);
 
-		std::vector<size_t> order = {0};
-		writeRealDataSet(CBED_slice_n, "dim1", &pars.xp[0], rx_dim, 1, order);
-		writeRealDataSet(CBED_slice_n, "dim2", &pars.yp[0], ry_dim, 1, order);
-		writeRealDataSet(CBED_slice_n, "dim3", &qx[offset_qx], qx_dim, 1, order);
-		writeRealDataSet(CBED_slice_n, "dim4", &qy[offset_qy], qy_dim, 1, order);
+		writeRealDataSet_inOrder(CBED_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet_inOrder(CBED_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
+		writeRealDataSet_inOrder(CBED_slice_n, "dim3", &qx[offset_qx], qx_dim, 1);
+		writeRealDataSet_inOrder(CBED_slice_n, "dim4", &qy[offset_qy], qy_dim, 1);
 
 		//dimension attributes
 		H5::DataSet dim1 = CBED_slice_n.openDataSet("dim1");
@@ -252,10 +251,9 @@ void setupVDOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		mspace.close();
 
 		//write dimensions
-		std::vector<size_t> order = {0};
-		writeRealDataSet(VD_slice_n, "dim1", &pars.xp[0], rx_dim, 1, order);
-		writeRealDataSet(VD_slice_n, "dim2", &pars.yp[0], ry_dim, 1, order);
-		writeRealDataSet(VD_slice_n, "dim3", &pars.detectorAngles[0], bin_dim, 1, order);
+		writeRealDataSet_inOrder(VD_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet_inOrder(VD_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
+		writeRealDataSet_inOrder(VD_slice_n, "dim3", &pars.detectorAngles[0], bin_dim, 1);
 
 		//dimension attribute
 		H5::DataSet dim1 = VD_slice_n.openDataSet("dim1");
@@ -312,9 +310,8 @@ void setup2DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		mspace.close();
 
 		//write dimensions
-		std::vector<size_t> order = {0};
-		writeRealDataSet(annular_slice_n, "dim1", &pars.xp[0], rx_dim, 1, order);
-		writeRealDataSet(annular_slice_n, "dim2", &pars.yp[0], ry_dim, 1, order);
+		writeRealDataSet_inOrder(annular_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet_inOrder(annular_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
 
 		//dimension attribute
 		H5::DataSet dim1 = annular_slice_n.openDataSet("dim1");
@@ -368,9 +365,8 @@ void setupDPCOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		mspace.close();
 
 		//write dimensions
-		std::vector<size_t> order = {0};
-		writeRealDataSet(DPC_CoM_slice_n, "dim1", &pars.xp[0], rx_dim, 1, order);
-		writeRealDataSet(DPC_CoM_slice_n, "dim2", &pars.yp[0], ry_dim, 1, order);
+		writeRealDataSet_inOrder(DPC_CoM_slice_n, "dim1", &pars.xp[0], rx_dim, 1);
+		writeRealDataSet_inOrder(DPC_CoM_slice_n, "dim2", &pars.yp[0], ry_dim, 1);
 
 		H5::StrType strdatatype(H5::PredType::C_S1, 256);
 		H5::DataSpace dim3_mspace(1, str_dim);
@@ -440,10 +436,9 @@ void setupSMatrixOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, const int F
 	std::vector<PRISMATIC_FLOAT_PRECISION> beamsIndex(pars.numberBeams); //convert to float
 	for(auto i = 0; i < pars.numberBeams; i++) beamsIndex.push_back(pars.beamsIndex[i]);
 
-	std::vector<size_t> order = {0};
-	writeRealDataSet(smatrix_group, "dim1", &x_dim_data[0], x_size, 1, order);
-	writeRealDataSet(smatrix_group, "dim2", &y_dim_data[0], y_size, 1, order);
-	writeRealDataSet(smatrix_group, "dim3", &beamsIndex[0], beams, 1, order);
+	writeRealDataSet_inOrder(smatrix_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet_inOrder(smatrix_group, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet_inOrder(smatrix_group, "dim3", &beamsIndex[0], beams, 1);
 
 	//dimension attributes
 	H5::DataSet dim1 = smatrix_group.openDataSet("dim1");
@@ -519,15 +514,12 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for(auto i = 0; i < xTilts_write.size(); i++)
 	{
 		dim_tilts.at(i,0) = xTilts_write[i];
-		dim_tilts.at(i,1) = yTilts_write[i];
+		dim_tilts.at(i,0) = yTilts_write[i];
 	}
 	
-	std::vector<size_t> order_1D = {0};
-	std::vector<size_t> order_2D = {0, 1};
-
-	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1, order_1D);
-	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1, order_1D);
-	writeRealDataSet(hrtem_group, "dim3", &dim_tilts[0], tilt_size, 2, order_2D);
+	writeRealDataSet_inOrder(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet_inOrder(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet_inOrder(hrtem_group, "dim3", &dim_tilts[0], tilt_size, 2);
 
 	//dimension attributes
 	H5::DataSet dim1 = hrtem_group.openDataSet("dim1");
@@ -636,11 +628,10 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for(auto i = 0; i < xTilts_write.size(); i++) xTilts_write[i] *= 1000; //convert to mrad for writing
 	for(auto i = 0; i < yTilts_write.size(); i++) yTilts_write[i] *= 1000; //convert to mrad for writing
 	
-	std::vector<size_t> order = {0};
-	writeRealDataSet(hrtem_group, "dim1", &x_dim_data[0], x_size, 1, order);
-	writeRealDataSet(hrtem_group, "dim2", &y_dim_data[0], y_size, 1, order);
-	writeRealDataSet(hrtem_group, "dim3", &xTilts_write[0], tiltX_size, 1, order);
-	writeRealDataSet(hrtem_group, "dim4", &yTilts_write[0], tiltY_size, 1, order);
+	writeRealDataSet_inOrder(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet_inOrder(hrtem_group, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet_inOrder(hrtem_group, "dim3", &xTilts_write[0], tiltX_size, 1);
+	writeRealDataSet_inOrder(hrtem_group, "dim4", &yTilts_write[0], tiltY_size, 1);
 
 	//dimension attributes
 	H5::DataSet dim1 = hrtem_group.openDataSet("dim1");
@@ -725,9 +716,8 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	mspace.close();
 
 	//write dimensions
-	std::vector<size_t> order = {0};
-	writeRealDataSet(probeGroup, "dim1", &pars.qx[0], qx_dim, 1, order);
-	writeRealDataSet(probeGroup, "dim2", &pars.qy[0], qy_dim, 1, order);
+	writeRealDataSet_inOrder(probeGroup, "dim1", &pars.qx[0], qx_dim, 1);
+	writeRealDataSet_inOrder(probeGroup, "dim2", &pars.qy[0], qy_dim, 1);
 
 	//dimension attribute
 	H5::DataSet dim1 = probeGroup.openDataSet("dim1");
@@ -830,10 +820,9 @@ void savePotentialSlices(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for (auto i = 0; i < pars.imageSize[0]; i++) y_dim_data[i] = i * pars.pixelSize[0];
 	for (auto i = 0; i < pars.numPlanes; i++) z_dim_data[i] = i * pars.meta.sliceThickness;
 
-	std::vector<size_t> order_1D = {0};
-	writeRealDataSet(ppotential, "dim1", &x_dim_data[0], x_size, 1, order_1D);
-	writeRealDataSet(ppotential, "dim2", &y_dim_data[0], y_size, 1, order_1D);
-	writeRealDataSet(ppotential, "dim3", &z_dim_data[0], z_size, 1, order_1D);
+	writeRealDataSet_inOrder(ppotential, "dim1", &x_dim_data[0], x_size, 1);
+	writeRealDataSet_inOrder(ppotential, "dim2", &y_dim_data[0], y_size, 1);
+	writeRealDataSet_inOrder(ppotential, "dim3", &z_dim_data[0], z_size, 1);
 
 	//dimension attributes
 	H5::DataSet dim1 = ppotential.openDataSet("dim1");
@@ -985,14 +974,24 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		setupDPCOutput(pars);
 		hsize_t mdims[3] = {pars.numXprobes, pars.numYprobes, 2};
-		size_t strides = mdims[0]*mdims[1]*mdims[2];
-		std::vector<size_t> order = {2,0,1};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
+			Array2D<PRISMATIC_FLOAT_PRECISION> DPC_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
+				{{pars.numXprobes, pars.numYProbes, 2}});
+				
+			for(auto ii = 0; ii < pars.numXprobes; ii++)
+			{
+				for(auto jj = 0; jj < pars.numYprobes; jj++)
+				{
+					DPC_image.at(ii,jj,0) = pars.net_DPC_CoM.at(j,0,jj,ii);
+					DPC_image.at(ii,jj,1) = pars.net_DPC_CoM.at(j,1,jj,ii);
+				}
+			}
 			std::string nameString = "4DSTEM_simulation/data/realslices/DPC_CoM_depth" + getDigitString(j);
 			nameString += pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString.c_str());
-			writeRealDataSet(dataGroup, "data", &pars.net_DPC_CoM[j*strides], mdims, 3, order);
+			
+			writeRealDataSet_inOrder(dataGroup, "data", &DPC_image[0], mdims, 3);
 			dataGroup.close();
 		}
 	}

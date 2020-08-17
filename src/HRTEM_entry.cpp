@@ -67,6 +67,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 	{
 		HRTEM_runFP(prismatic_pars, i);
+
 		//apply aberrations
 		if(prismatic_pars.meta.aberrations.size() > 0)
 		{
@@ -129,7 +130,9 @@ void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 
 	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	pars.fpFlag = fpNum;
-
+	
+	//update aberrations here to maintain consistency between runFP calls
+	pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
 	if(pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
