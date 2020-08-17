@@ -1129,13 +1129,11 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     H5::DataSpace mspace(2, msize);
     H5::DataSpace fspace;
 
-    std::cout << "here" << std::endl;
     H5::DataSet one_dset = dataHold.createDataSet("one", PFP_TYPE, mspace);
     H5::DataSet two_dset = dataHold.createDataSet("two", PFP_TYPE, mspace);
     H5::DataSet three_dset = dataHold.createDataSet("three", PFP_TYPE, mspace);
     H5::DataSet four_dset = dataHold.createDataSet("four", PFP_TYPE, mspace);
 
-    std::cout << "here1" << std::endl;
     fspace = one_dset.getSpace();
     one_dset.write(&one[0], PFP_TYPE, mspace, fspace);    
     fspace = two_dset.getSpace();
@@ -1146,7 +1144,6 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     four_dset.write(&four[0], PFP_TYPE, mspace, fspace);
 
 
-    std::cout << "here3" << std::endl;
     std::string sgName = "testSG";
     std::vector<H5::DataSet> datasets{one_dset, two_dset, three_dset, four_dset};
 
@@ -1157,9 +1154,7 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     indices_3D.push_back(std::vector<size_t>{2});
     indices_3D.push_back(std::vector<size_t>{3});
 
-    std::cout << "here4" << std::endl;
     writeVirtualDataSet(dataHold, "testVDS", datasets, indices_3D);
-
 
     //write virtual dataset as 2x2x10x10
     std::vector<std::vector<size_t>> indices_4D;
@@ -1168,13 +1163,11 @@ BOOST_AUTO_TEST_CASE(virtualDataSet)
     indices_4D.push_back(std::vector<size_t>{1,0});
     indices_4D.push_back(std::vector<size_t>{1,1});
 
-    std::cout << "here5" << std::endl;
     writeVirtualDataSet(dataHold, "testVD", datasets, indices_4D);
     pars.outputFile.close();
 
     PRISMATIC_FLOAT_PRECISION tol = 0.00001;
 
-    std::cout << "here6" << std::endl;
     Array3D<PRISMATIC_FLOAT_PRECISION> vds_read = readDataSet3D(fname, "/4DSTEM_simulation/dataHold/testVDS");
     { //restride
         Array3D<PRISMATIC_FLOAT_PRECISION> vds_tmp(vds_read);

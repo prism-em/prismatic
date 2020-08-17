@@ -20,6 +20,7 @@ void setupOutputFile(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//data groups
 	H5::Group data(simulation.createGroup("data"));
 	H5::Group datacubes(data.createGroup("datacubes"));
+	H5::Group cdatacubes(data.createGroup("counted_datacubes"));
 	H5::Group dslices(data.createGroup("diffractionslices"));
 	H5::Group rslices(data.createGroup("realslices"));
 	H5::Group pointlists(data.createGroup("pointlists"));	//point lists and point list arrays are not used in prismatic
