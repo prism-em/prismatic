@@ -154,6 +154,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	{
 		//create slice group
 		std::string nth_name = base_name + getDigitString(n) + pars.currentTag;
+		if(pars.meta.saveComplexOutputWave) nth_name += "_fp" + getDigitString(pars.meta.fpNum);
 		H5::Group CBED_slice_n(datacubes.createGroup(nth_name.c_str()));
 
 		//write attributes

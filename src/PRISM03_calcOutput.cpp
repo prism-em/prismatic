@@ -175,7 +175,7 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	pars.depths = depths;
 	if (pars.meta.save4DOutput)
 	{
-		if(pars.fpFlag == 0) setup4DOutput(pars);
+		if(pars.fpFlag == 0 or pars.meta.saveComplexOutputWave) setup4DOutput(pars);
 		
 		if(pars.meta.saveComplexOutputWave)
 		{
@@ -465,6 +465,7 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		hsize_t offset[4] = {ax, write_ay, 0, 0}; //order by ax, ay so that aligns with py4DSTEM
 		if(pars.meta.saveComplexOutputWave)
 		{
+			nameString += "_fp" + getDigitString(pars.meta.fpNum);
 			Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalOutput;
 			if(pars.meta.crop4DOutput)
 			{

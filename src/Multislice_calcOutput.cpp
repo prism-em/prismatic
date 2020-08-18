@@ -269,7 +269,7 @@ namespace Prismatic{
 		if(pars.meta.saveDPC_CoM) pars.DPC_CoM = zeros_ND<4, PRISMATIC_FLOAT_PRECISION>({{numLayers,pars.numYprobes, pars.numXprobes,2}});
 		if(pars.meta.save4DOutput)
 		{
-			if(pars.fpFlag == 0) setup4DOutput(pars);
+			if(pars.fpFlag == 0 or pars.meta.saveComplexOutputWave) setup4DOutput(pars);
 
 			if(pars.meta.saveComplexOutputWave)
 			{
@@ -338,7 +338,7 @@ namespace Prismatic{
 			
 			if(pars.meta.saveComplexOutputWave)
 			{
-
+				nameString += "_fp" + getDigitString(pars.meta.fpNum);
 				Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> intOutput_small;
 				
 				if(pars.meta.crop4DOutput)
@@ -468,7 +468,7 @@ namespace Prismatic{
 				
 				if(pars.meta.saveComplexOutputWave)
 				{
-
+					nameString += "_fp" + getDigitString(pars.meta.fpNum);
 					Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> intOutput_small;
 					
 					if(pars.meta.crop4DOutput)

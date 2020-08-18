@@ -212,7 +212,7 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
 		// Need to scale the output by the square of the PRISM interpolation factor 
 		currentImage *= sqrt(pars.scale);
 		std::string nameString = "/4DSTEM_simulation/data/datacubes/CBED_array_depth" + Prismatic::getDigitString(currentSlice);
-		nameString += pars.currentTag;
+		nameString += pars.currentTag + "_fp" + Prismatic::getDigitString(pars.meta.fpNum);
 		
 
 		Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> finalImage;
