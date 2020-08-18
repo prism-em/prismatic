@@ -49,27 +49,6 @@ PRISMATIC_FLOAT_PRECISION get_potMin(const Array2D<PRISMATIC_FLOAT_PRECISION> &p
 	return potMin;
 }
 
-PRISMATIC_FLOAT_PRECISION get_potMin3D(const Array3D<PRISMATIC_FLOAT_PRECISION>& pot,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& xr,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& yr,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& zr)
-{	
-	//xr, yr, and zr are generated symmetric about zero
-	//looks for minimum potential to prevent interaction with vacuum edge at boundaries of potential integration
-	const size_t xInd = std::floor(xr.size() / 2);
-	const size_t yInd = std::floor(yr.size() / 2);
-	const size_t zInd = std::floor(zr.size() / 2);
-
-	const PRISMATIC_FLOAT_PRECISION xv[] = {(PRISMATIC_FLOAT_PRECISION)xr.size() - 2, xInd, xInd}; // -2 to guarantee zero on face
-	const PRISMATIC_FLOAT_PRECISION yv[] = {yInd, (PRISMATIC_FLOAT_PRECISION)yr.size() - 2, yInd};
-	const PRISMATIC_FLOAT_PRECISION zv[] = {zInd, zInd, (PRISMATIC_FLOAT_PRECISION)zr.size() - 2};
-
-	PRISMATIC_FLOAT_PRECISION potMin = 0;
-	for (auto i = 0; i < 3; ++i)
-		potMin = (pot.at(zv[i], yv[i], xv[i]) > potMin) ? pot.at(zv[i], yv[i], xv[i]) : potMin;
-	return potMin;
-};
-
 using namespace std;
 
 Array2D<PRISMATIC_FLOAT_PRECISION> projPot(const size_t &Z,
@@ -200,11 +179,14 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 										const Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
 										const Array1D<PRISMATIC_FLOAT_PRECISION> &zr)
 {
+	const PRISMATIC_FLOAT_PRECISION dx = xr[1] - xr[0];
+	const PRISMATIC_FLOAT_PRECISION dy = yr[1] - yr[0];
+	const PRISMATIC_FLOAT_PRECISION dz = zr[1] - zr[0];
 	static const PRISMATIC_FLOAT_PRECISION pi = std::acos(-1);
 	PRISMATIC_FLOAT_PRECISION a0 = 0.529; //bohr radius
 	PRISMATIC_FLOAT_PRECISION e = 14.4; //electron charge in Volt-Angstoms
-	PRISMATIC_FLOAT_PRECISION term1 =  2*pi*pi*a0*e;
-	PRISMATIC_FLOAT_PRECISION term2 = 2*pow(pi,5.0/2.0)*a0*e;
+	PRISMATIC_FLOAT_PRECISION term1 =  2*pi*pi*a0*e*dz;
+	PRISMATIC_FLOAT_PRECISION term2 = 2*pow(pi,5.0/2.0)*a0*e*dz;
 	
 	// get the relevant table values
 	std::vector<PRISMATIC_FLOAT_PRECISION> ap;
@@ -214,64 +196,7 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 		ap[i] = fparams[(Z - 1) * NUM_PARAMETERS + i];
 	}
 
-	//construct arrays with supersampling
-	PRISMATIC_FLOAT_PRECISION ss = 8;
-	const PRISMATIC_FLOAT_PRECISION dx = xr[1] - xr[0];
-	const PRISMATIC_FLOAT_PRECISION dy = yr[1] - yr[0];
-	const PRISMATIC_FLOAT_PRECISION dz = zr[1] - zr[0];
-
-	PRISMATIC_FLOAT_PRECISION start = -(ss - 1) / ss / 2;
-	const PRISMATIC_FLOAT_PRECISION step = 1 / ss;
-	const PRISMATIC_FLOAT_PRECISION end = -start;
-	vector<PRISMATIC_FLOAT_PRECISION> sub_data;
-	while (start <= end)
-	{
-		sub_data.push_back(start);
-		start += step;
-	}
-	ArrayND<1, std::vector<PRISMATIC_FLOAT_PRECISION>> sub(sub_data, {{sub_data.size()}});
-
-	std::pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> meshx = meshgrid(xr, sub * dx);
-	std::pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> meshy = meshgrid(yr, sub * dy);
-	std::pair<Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION>> meshz = meshgrid(zr, sub * dz);
-
-	ArrayND<1, std::vector<PRISMATIC_FLOAT_PRECISION>> xv = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{meshx.first.size()}});
-	ArrayND<1, std::vector<PRISMATIC_FLOAT_PRECISION>> yv = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{meshy.first.size()}});
-	ArrayND<1, std::vector<PRISMATIC_FLOAT_PRECISION>> zv = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{meshz.first.size()}});
-	{
-		auto t_x = xv.begin();
-		for (auto j = 0; j < meshx.first.get_dimj(); ++j)
-		{
-			for (auto i = 0; i < meshx.first.get_dimi(); ++i)
-			{
-				*t_x++ = meshx.first.at(j, i) + meshx.second.at(j, i);
-			}
-		}
-	}
-
-	{
-		auto t_y = yv.begin();
-		for (auto j = 0; j < meshy.first.get_dimj(); ++j)
-		{
-			for (auto i = 0; i < meshy.first.get_dimi(); ++i)
-			{
-				*t_y++ = meshy.first.at(j, i) + meshy.second.at(j, i);
-			}
-		}
-	}
-
-	{
-		auto t_z = zv.begin();
-		for (auto j = 0; j < meshz.first.get_dimj(); ++j)
-		{
-			for (auto i = 0; i < meshz.first.get_dimi(); ++i)
-			{
-				*t_z++ = meshz.first.at(j, i) + meshz.second.at(j, i);
-			}
-		}
-	}
-
-	std::tuple<Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>> meshxyz = meshgrid(zv, yv, xv);
+	std::tuple<Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>> meshxyz = meshgrid(zr, yr, xr);
 	Array3D<PRISMATIC_FLOAT_PRECISION> r2 = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zv.size(), yv.size(), xv.size()}});
 	Array3D<PRISMATIC_FLOAT_PRECISION> r  = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zv.size(), yv.size(), xv.size()}});
 
@@ -294,9 +219,9 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 
 	for (auto i = 0; i < r.size(); ++i) r[i] = sqrt(r2[i]);
 	
-	Array3D<PRISMATIC_FLOAT_PRECISION> potSS = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{r2.get_dimk(), r2.get_dimj(), r2.get_dimi()}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{r2.get_dimk(), r2.get_dimj(), r2.get_dimi()}});
 
-	std::transform(r2.begin(),r2.end(),r.begin(),potSS.begin(),[&ap,&term1,&term2](const PRISMATIC_FLOAT_PRECISION &r2, const PRISMATIC_FLOAT_PRECISION &r){
+	std::transform(r2.begin(),r2.end(),r.begin(),pot.begin(),[&ap,&term1,&term2](const PRISMATIC_FLOAT_PRECISION &r2, const PRISMATIC_FLOAT_PRECISION &r){
 		return term1*(ap[0]*exp(-2*pi*r*sqrt(ap[1]))/r
 						+ ap[2]*exp(-2*pi*r*sqrt(ap[3]))/r
 						+ ap[4]*exp(-2*pi*r*sqrt(ap[5]))/r)
@@ -305,32 +230,18 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 					+ ap[10]*pow(ap[11],-3.0/2.0)*exp(-pi*pi*r2/ap[11]));
 	});
 
-	//integrate
-	Array3D<PRISMATIC_FLOAT_PRECISION> pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{zr.size(), yr.size(), xr.size()}});
-	for (auto sz = 0; sz < ss; ++sz)
-	{
-		for (auto sy = 0; sy < ss; ++sy)
-		{
-			for (auto sx = 0; sx < ss; ++sx)
-			{
-				for (auto k = 0; k < pot.get_dimk(); ++k)
-				{
-					for (auto j = 0; j < pot.get_dimj(); ++j)
-					{
-						for (auto i = 0; i < pot.get_dimi(); ++i)
-						{
-							pot.at(k, j, i) += potSS.at(k * ss + sz, j * ss + sy, i * ss + sx);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	pot /= ss*ss*ss;
-	PRISMATIC_FLOAT_PRECISION potMin = get_potMin3D(pot, xr, yr, zr);
-	pot -= potMin;
+	PRISMATIC_FLOAT_PRECISION max_x = *std::max_element(xr.begin(), xr.end());
+	PRISMATIC_FLOAT_PRECISION max_y = *std::max_element(yr.begin(), yr.end());
+	PRISMATIC_FLOAT_PRECISION max_z = *std::max_element(zr.begin(), zr.end());
+	PRISMATIC_FLOAT_PRECISION cr = std::min({max_x, max_y, max_z}); //cutoff radius
+	PRISMATIC_FLOAT_PRECISION cpot = term1*(ap[0]*exp(-2*pi*r*sqrt(ap[1]))/cr  
+												+ ap[2]*exp(-2*pi*r*sqrt(ap[3]))/cr
+												+ ap[4]*exp(-2*pi*r*sqrt(ap[5]))/cr)
+											  + term2*(ap[6]*pow(ap[7],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[7])
+												+ ap[8]*pow(ap[9],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[9])
+												+ ap[10]*pow(ap[11],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[11])); //cutoff potential
 	//keep potential if it is positive, else, zero
+	std::transform(pot.begin(), pot.end(), pot.begin(), [cpot](PRISMATIC_FLOAT_PRECISION &pot){ return pot - cpot;});
 	std::transform(pot.begin(), pot.end(), pot.begin(), [](PRISMATIC_FLOAT_PRECISION &pot){ return pot < 0 ? 0 : pot;});
 	return pot;
 }
