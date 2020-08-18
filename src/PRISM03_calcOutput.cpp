@@ -611,7 +611,7 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::Group probeGroup = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices/probe");
 		hsize_t mdims[2] = {pars.psiProbeInit.get_dimi(), pars.psiProbeInit.get_dimj()};
 		
-		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp = zeros_ND<2, std;:complex<PRISMATIC_FLOAT_PRECISION>>(
+		Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
 			{{pars.psiProbeInit.get_dimi(), pars.psiProbeInit.get_dimj()}});
 
 		for(auto i = 0; i < pars.psiProbeInit.get_dimi(); i++)

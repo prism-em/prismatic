@@ -976,8 +976,8 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		hsize_t mdims[3] = {pars.numXprobes, pars.numYprobes, 2};
 		for (auto j = 0; j < pars.numLayers; j++)
 		{
-			Array2D<PRISMATIC_FLOAT_PRECISION> DPC_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
-				{{pars.numXprobes, pars.numYProbes, 2}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> DPC_image = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(
+				{{pars.numXprobes, pars.numYprobes, 2}});
 				
 			for(auto ii = 0; ii < pars.numXprobes; ii++)
 			{

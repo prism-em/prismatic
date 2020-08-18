@@ -527,16 +527,31 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void PRISM01_importPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	std::cout << "Setting up PRISM01 auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
-	std::vector<size_t> order = {0,1,2};
-	
-	if(pars.meta.importPath.size() > 0)
+	//scope out imported tmp_pot as soon as possible
 	{
-		readRealDataSet(pars.pot, pars.meta.importFile, pars.meta.importPath, order);
-	}
-	else //read default path
-	{
-		std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/data";
-		readRealDataSet(pars.pot, pars.meta.importFile, groupPath, order);
+		Array3D<PRISMATIC_FLOAT_PRECISION> tmp_pot;
+		if(pars.meta.importPath.size() > 0)
+		{
+			readRealDataSet_inOrder(tmp_pot, pars.meta.importFile, pars.meta.importPath);
+		}
+		else //read default path
+		{
+			std::string groupPath = "4DSTEM_simulation/data/realslices/ppotential_fp" + getDigitString(pars.fpFlag) + "/data";
+			readRealDataSet_inOrder(tmp_pot, pars.meta.importFile, groupPath);
+		}
+
+		//initailize array and get data in right order
+		pars.pot = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{tmp_pot.get_dimi(), tmp_pot.get_dimj(), tmp_pot.get_dimk()}});
+		for(auto i = 0; i < tmp_pot.get_dimi(); i++)
+		{
+			for(auto j = 0; j < tmp_pot.get_dimj(); j++)
+			{
+				for(auto k = 0; k < tmp_pot.get_dimk(); k++)
+				{
+					pars.pot.at(i,j,k) = tmp_pot.at(k,j,i);
+				}
+			}
+		}
 	}
 
 	pars.numPlanes = pars.pot.get_dimk();

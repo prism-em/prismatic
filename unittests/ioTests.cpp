@@ -290,8 +290,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     //run simulations
 
     meta.potential3D = false;
-    // meta.probeStepX = 1;
-    // meta.probeStepY = 1;
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
     meta.numGPUs = 1;
     meta.alsoDoCPUWork = 0;
     meta.numThreads = 12;
@@ -370,8 +370,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
         BOOST_TEST(compareValues(refSMatrix, testSMatrix) < tol);
     }
 
-    // removeFile(importFile);
-    // removeFile(meta.filenameOutput);
+    removeFile(importFile);
+    removeFile(meta.filenameOutput);
 };
 
 BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
@@ -379,6 +379,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
     //run simulations
 
     meta.potential3D = true;
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential3D_P #####\n";
@@ -443,8 +445,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     meta.algorithm = Algorithm::Multislice;
     meta.numGPUs = 0;
     meta.alsoDoCPUWork = 0;
-    meta.probeStepX = 1;
-    meta.probeStepY = 1;
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
 
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
@@ -512,6 +514,8 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
     //run simulations
 
     meta.potential3D = true;
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
     meta.algorithm = Algorithm::Multislice;
 
     divertOutput(pos, fd, logPath);
@@ -823,7 +827,9 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     meta.potential3D = false;
     meta.numFP = 4;
     meta.includeThermalEffects = 1;
-    
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
+
     divertOutput(pos, fd, logPath);
     std::cout << "\n### BEGIN TEST CASE: importPot_multipleFP_P ###\n";
 
@@ -893,6 +899,8 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     meta.numFP = 4;
     meta.includeThermalEffects = 1;
     meta.algorithm = Algorithm::Multislice;
+    meta.probeStepX = 3;
+    meta.probeStepY = 3;
     
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPot_multipleFP_M ####\n";

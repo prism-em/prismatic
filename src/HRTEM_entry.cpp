@@ -72,13 +72,13 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		if(prismatic_pars.meta.aberrations.size() > 0)
 		{
 			// setup necessary coordinates
-			setupCoordinates_2(pars);
-			setupDetector(pars);
-			setupFourierCoordinates(pars);
-			transformIndices(pars);
+			setupCoordinates_2(prismatic_pars);
+			setupDetector(prismatic_pars);
+			setupFourierCoordinates(prismatic_pars);
+			transformIndices(prismatic_pars);
 		
 			//now apply aberrations to each beam
-			apply_aberrations(pars);
+			apply_aberrations(prismatic_pars);
 		}
 
 		if(prismatic_pars.meta.saveComplexOutputWave)

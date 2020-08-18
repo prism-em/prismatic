@@ -785,17 +785,28 @@ void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::cout << "Setting up auxilary variables according to " << pars.meta.importFile << " metadata." << std::endl;
 	//scope out imported smatrix as soon as possible
 	{
-		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> inSMatrix;
-		std::vector<size_t> order ={0,1,2};
-
+		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_sm;
 		if(pars.meta.importPath.size() > 0)
 		{
-			readComplexDataSet(pars.Scompact, pars.meta.importFile, pars.meta.importPath, order);
+			readComplexDataSet_inOrder(tmp_sm, pars.meta.importFile, pars.meta.importPath);
 		}
 		else //read default path
 		{
 			std::string groupPath = "4DSTEM_simulation/data/realslices/smatrix_fp" + getDigitString(pars.fpFlag) + "/data";
-			readComplexDataSet(pars.Scompact, pars.meta.importFile, groupPath, order);
+			readComplexDataSet_inOrder(tmp_sm, pars.meta.importFile, groupPath);
+		}
+
+		//initailize array and get data in right order
+		pars.Scompact = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{tmp_sm.get_dimi(), tmp_sm.get_dimj(), tmp_sm.get_dimk()}});
+		for(auto i = 0; i < tmp_sm.get_dimi(); i++)
+		{
+			for(auto j = 0; j < tmp_sm.get_dimj(); j++)
+			{
+				for(auto k = 0; k < tmp_sm.get_dimk(); k++)
+				{
+					pars.Scompact.at(i,j,k) = tmp_sm.at(k,j,i);
+				}
+			}
 		}
 	}
 	
