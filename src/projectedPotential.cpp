@@ -197,8 +197,8 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 	}
 
 	std::tuple<Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>, Array3D<PRISMATIC_FLOAT_PRECISION>> meshxyz = meshgrid(zr, yr, xr);
-	Array3D<PRISMATIC_FLOAT_PRECISION> r2 = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zv.size(), yv.size(), xv.size()}});
-	Array3D<PRISMATIC_FLOAT_PRECISION> r  = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zv.size(), yv.size(), xv.size()}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> r2 = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zr.size(), yr.size(), xr.size()}});
+	Array3D<PRISMATIC_FLOAT_PRECISION> r  = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{zr.size(), yr.size(), xr.size()}});
 
 	//calculate radius
 	{
@@ -234,15 +234,16 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 	PRISMATIC_FLOAT_PRECISION max_y = *std::max_element(yr.begin(), yr.end());
 	PRISMATIC_FLOAT_PRECISION max_z = *std::max_element(zr.begin(), zr.end());
 	PRISMATIC_FLOAT_PRECISION cr = std::min({max_x, max_y, max_z}); //cutoff radius
-	PRISMATIC_FLOAT_PRECISION cpot = term1*(ap[0]*exp(-2*pi*r*sqrt(ap[1]))/cr  
-												+ ap[2]*exp(-2*pi*r*sqrt(ap[3]))/cr
-												+ ap[4]*exp(-2*pi*r*sqrt(ap[5]))/cr)
+	PRISMATIC_FLOAT_PRECISION cpot = term1*(ap[0]*exp(-2*pi*cr*sqrt(ap[1]))/cr  
+												+ ap[2]*exp(-2*pi*cr*sqrt(ap[3]))/cr
+												+ ap[4]*exp(-2*pi*cr*sqrt(ap[5]))/cr)
 											  + term2*(ap[6]*pow(ap[7],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[7])
 												+ ap[8]*pow(ap[9],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[9])
 												+ ap[10]*pow(ap[11],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[11])); //cutoff potential
+
 	//keep potential if it is positive, else, zero
 	std::transform(pot.begin(), pot.end(), pot.begin(), [cpot](PRISMATIC_FLOAT_PRECISION &pot){ return pot - cpot;});
-	std::transform(pot.begin(), pot.end(), pot.begin(), [](PRISMATIC_FLOAT_PRECISION &pot){ return pot < 0 ? 0 : pot;});
+	std::transform(pot.begin(), pot.end(), pot.begin(), [](PRISMATIC_FLOAT_PRECISION &pot){ return pot < 0.0 ? 0.0 : pot;});
 	return pot;
 }
 

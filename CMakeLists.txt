@@ -6,7 +6,7 @@ set(CMAKE_BUILD_TYPE RELEASE)
 
 # set warning level
 if ( CMAKE_COMPILER_IS_GNUCC )
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -w -O3 -fPIC")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -w -O3 -fPIC -g")
 endif ( CMAKE_COMPILER_IS_GNUCC )
 if ( MSVC )
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W0 /utf-8 /Ox /permissive-")
@@ -332,7 +332,7 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=*
+    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=potentialTests/
                         DEPENDS prismatic prismatic-tests)
 
 endif (PRISMATIC_TESTS)
