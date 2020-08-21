@@ -8,6 +8,8 @@
 #include "prismmainwindow.h"
 #include <QFontDatabase>
 #include <QFont>
+#include <QFile>
+#include <QTextStream>
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +24,14 @@ int main(int argc, char *argv[])
     QFont font = QFont("Roboto");
     a.setFont(font);
     PRISMMainWindow w;
+
+    QFile file(":/dark.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream stream(&file);
+    a.setStyleSheet(stream.readAll());
+
     w.show();
     w.setGeometry(100, 100, 850, 700);
+
     return a.exec();
 }
