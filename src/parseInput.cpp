@@ -267,7 +267,7 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--scan-window-xr:" << meta.scanWindowXMin_r << ' ' << meta.scanWindowXMax_r << '\n';
     f << "--scan-window-yr:" << meta.scanWindowYMin_r << ' ' << meta.scanWindowYMax_r << '\n';
     f << "--random-seed:" << meta.randomSeed << '\n';
-    f << "--4D-amax:" << meta.crop4Damax << '\n';
+    f << "--4D-amax:" << meta.crop4Damax * 1000 << '\n';
     if (meta.save2DOutput)
     {
         f << "--save-2D-output:" << meta.integrationAngleMin * 1000 << ' ' << meta.integrationAngleMax * 1000 << '\n';

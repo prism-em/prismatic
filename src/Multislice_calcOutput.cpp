@@ -87,7 +87,7 @@ namespace Prismatic{
 		Array1D<PRISMATIC_FLOAT_PRECISION> qy = makeFourierCoords(pars.imageSize[0], pars.pixelSize[0]);
 		pars.qx = qx;
 		pars.qy = qy;
-		
+
 		pair< Array2D<PRISMATIC_FLOAT_PRECISION>, Array2D<PRISMATIC_FLOAT_PRECISION> > mesh = meshgrid(qy,qx);
 		pars.qya = mesh.first;
 		pars.qxa = mesh.second;
@@ -151,7 +151,9 @@ namespace Prismatic{
 
 	void setupDetector_multislice(Parameters<PRISMATIC_FLOAT_PRECISION>& pars){
 		pars.alphaMax = pars.qMax * pars.lambda;
-		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep / 2, pars.meta.detectorAngleStep, pars.alphaMax - pars.meta.detectorAngleStep / 2);
+		vector<PRISMATIC_FLOAT_PRECISION> detectorAngles_d = vecFromRange(pars.meta.detectorAngleStep * 1000 / 2,
+																	      pars.meta.detectorAngleStep * 1000,
+																	      (pars.alphaMax - pars.meta.detectorAngleStep / 2) * 1000);
 		Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles(detectorAngles_d, {{detectorAngles_d.size()}});
 		pars.detectorAngles = detectorAngles;
 		pars.Ndet = pars.detectorAngles.size();
@@ -302,8 +304,8 @@ namespace Prismatic{
 			//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 			for (long y = 0; y < psi.get_dimj(); ++y){
 				for (long x = 0; x < psi.get_dimi(); ++x){
-					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
-					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
+					pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x);
+					pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x);
 				}
 			}
 			//divide by sum of intensity
@@ -311,7 +313,7 @@ namespace Prismatic{
 			for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
 				intensitySum += *iter;
 			}
-			pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+			pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum;
 			pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
 		}
 
@@ -433,8 +435,8 @@ namespace Prismatic{
 				//calculate center of mass; qxa, qya are the fourier coordinates, should have 0 components at boundaries
 				for (long y = 0; y < pars.psiProbeInit.get_dimj(); ++y){
 					for (long x = 0; x < pars.psiProbeInit.get_dimi(); ++x){
-						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x); 
-						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x); 
+						pars.DPC_CoM.at(currentSlice,ay,ax,0) += pars.qxa.at(y,x) * intOutput.at(y,x);
+						pars.DPC_CoM.at(currentSlice,ay,ax,1) += pars.qya.at(y,x) * intOutput.at(y,x);
 					}
 				}
 
@@ -443,7 +445,7 @@ namespace Prismatic{
 				for (auto iter = intOutput.begin(); iter != intOutput.end(); ++iter){
 					intensitySum += *iter;
 				}
-				pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum; 
+				pars.DPC_CoM.at(currentSlice,ay,ax,0) /= intensitySum;
 				pars.DPC_CoM.at(currentSlice,ay,ax,1) /= intensitySum;
 			}
 
@@ -713,7 +715,7 @@ namespace Prismatic{
 				PRISMATIC_FFTW_EXECUTE(plan_forward);
 				auto p_ptr = scaled_prop.begin();
 				for (auto& p:psi)p *= (*p_ptr++); // propagate
-				
+
 				if ( ( (((a2+1) % pars.numSlices) == 0) && ((a2+1) >= pars.zStartPlane) ) || ((a2+1) == pars.numPlanes) ){
 					formatOutput_CPU(pars, psi, pars.alphaInd, currentSlice, ay, ax);
 					currentSlice++;

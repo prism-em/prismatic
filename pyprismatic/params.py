@@ -11,6 +11,8 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 #    Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+import os
+import time
 from typing import List, Any
 import pyprismatic.core
 
@@ -34,8 +36,8 @@ class Metadata:
     "tileX" : number of unit cells to tile in X direction
     "tileY" : number of unit cells to tile in Y direction
     "tileZ" : number of unit cells to tile in Z direction
-    "E0" : electron beam energy (in eV)
-    "alphaBeamMax" : the maximum probe angle to consider (in rad)
+    "E0" : electron beam energy (in keV)
+    "alphaBeamMax" : the maximum probe angle to consider (in mrad)
     "numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.
     "numStreamsPerGPU" : number of CUDA streams to use per GPU
     "numThreads" : number of CPU worker threads to use
@@ -47,10 +49,10 @@ class Metadata:
     "probeDefocus" : probe defocus (in Angstroms)
     "C3" : microscope C3 (in Angstroms)
     "C5" : microscope C5 (in Angstroms)
-    "probeSemiangle" : probe convergence semi-angle (in rad)
-    "detectorAngleStep" : angular step size for detector integration bins (in rad)
-    "probeXtilt" : (in Angstroms)
-    "probeYtilt" : (in Angstroms)
+    "probeSemiangle" : probe convergence semi-angle (in mrad)
+    "detectorAngleStep" : angular step size for detector integration bins (in mrad)
+    "probeXtilt" : (in mrad)
+    "probeYtilt" : (in mrad)
     "scanWindowXMin" : lower X size of the window to scan the probe (in fractional coordinates)
     "scanWindowXMax" : upper X size of the window to scan the probe (in fractional coordinates)
     "scanWindowYMin" : lower Y size of the window to scan the probe (in fractional coordinates)
@@ -62,15 +64,18 @@ class Metadata:
     "randomSeed" : number to use for random seeding of thermal effects
     "algorithm" : simulation algorithm to use, "prism" or "multislice"
     "includeThermalEffects" : true/false to apply random thermal displacements (Debye-Waller effect)
+    "includeOccupancy" : true/false to consider occupancy values for likelihood of atoms existing at each site
     "alsoDoCPUWork" : true/false
     "save2DOutput" : save the 2D STEM image integrated between integrationAngleMin and integrationAngleMax
     "save3DOutput" : true/false Also save the 3D output at the detector for each probe (3D output mode)
     "save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
     "saveDPC_CoM"  : true/false Also save the DPC center of mass calculation for each probe
     "savePotentialSlices" : true/false Also save the projected potential array
+    "crop4DOutput" : true/false Crop the 4D output smaller than the anti-aliasing boundary (default: False)
+    "crop4Damax" : float If crop4D, the maximum angle to which the output is cropped (in mrad) (default: 100)
     "nyquistSampling": set number of probe positions at Nyquist sampling limit
-    "integrationAngleMin" : (in rad)
-    "integrationAngleMax" : (in rad)
+    "integrationAngleMin" : (in mrad)
+    "integrationAngleMax" : (in mrad)
     "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
@@ -114,6 +119,7 @@ class Metadata:
         "randomSeed",
         "algorithm",
         "includeThermalEffects",
+        "includeOccupancy",
         "alsoDoCPUWork",
         "save2DOutput",
         "save3DOutput",
@@ -123,6 +129,8 @@ class Metadata:
         "transferMode",
         "saveDPC_CoM",
         "savePotentialSlices",
+        "crop4DOutput",
+        "crop4Damax",
         "nyquistSampling",
         "numSlices",
         "zStart",
@@ -157,7 +165,8 @@ class Metadata:
         "potBound",
         "sliceThickness",
         "E0",
-        "alphaBeamMax" "earlyCPUStopCount",
+        "alphaBeamMax",
+        "earlyCPUStopCount",
         "probeStepX",
         "probeStepY",
         "probeDefocus",
@@ -178,6 +187,7 @@ class Metadata:
         "integrationAngleMin",
         "integrationAngleMax",
         "zStart",
+        "crop4Damax",
     ]
 
     def __init__(self, *args, **kwargs):
@@ -208,8 +218,8 @@ class Metadata:
         self.tileX = 3
         self.tileY = 3
         self.tileZ = 1
-        self.E0 = 80e3
-        self.alphaBeamMax = 0.024
+        self.E0 = 80
+        self.alphaBeamMax = 24
         self.numGPUs = 4
         self.numStreamsPerGPU = 3
         self.numThreads = 12
@@ -223,8 +233,8 @@ class Metadata:
         self.probeDefocus = 0.0
         self.C3 = 0.0
         self.C5 = 0.0
-        self.probeSemiangle = 0.02
-        self.detectorAngleStep = 0.001
+        self.probeSemiangle = 20.0
+        self.detectorAngleStep = 1.0
         self.probeXtilt = 0.0
         self.probeYtilt = 0.0
         self.scanWindowXMin = 0.0
@@ -238,15 +248,18 @@ class Metadata:
         self.randomSeed = np.random.randint(0, 999999)
         self.algorithm = "prism"
         self.includeThermalEffects = False
+        self.includeOccupancy = True
         self.alsoDoCPUWork = True
         self.save2DOutput = False
         self.save3DOutput = True
         self.save4DOutput = False
         self.saveDPC_CoM = False
+        self.crop4DOutput = False
+        self.crop4Damax = 0.1
         self.savePotentialSlices = False
         self.nyquistSampling = False
         self.integrationAngleMin = 0
-        self.integrationAngleMax = 0.001
+        self.integrationAngleMax = 1.0
         self.transferMode = "auto"
         for k, v in kwargs.items():
             if k not in Metadata.fields:
@@ -324,11 +337,30 @@ class Metadata:
         outf.close()
 
     def toString(self):
+        """
+        Display the simulation parameters.
+        """
         for field in Metadata.fields:
             print("{} = {}".format(field, getattr(self, field)))
 
-    def go(self):
+    def go(self, display_run_time=True, save_run_time=True):
+        """Run the simulation. To display and/or export the simulation run
+        time set the corresponding arguments ``display_run_time`` and
+        ``save_run_time`` to ``True`` or ``False`` (default is True).
+        """
         self.algorithm: str = self.algorithm.lower()
         self.transferMode: str = self.transferMode.lower()
         l: List[Any] = [getattr(self, field) for field in Metadata.fields]
+        start = time.time()
         pyprismatic.core.go(*l)
+        end = time.time()
+
+        # Display and save run time when requested
+        formatted_time = time.strftime("%H:%M:%S", time.gmtime(end-start))
+        total_time = f"The simulation time of {self.filenameOutput} was: {formatted_time} ({end-start:6g} s)"
+        if display_run_time:
+            print(total_time)
+        if save_run_time:
+            filename = f"{os.path.splitext(self.filenameOutput)[0]}-timing.txt"
+            with open(filename, 'w') as f:
+                f.write(total_time)

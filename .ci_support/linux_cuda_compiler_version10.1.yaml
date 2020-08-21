@@ -1,0 +1,46 @@
+boost:
+- 1.70.0
+boost_cpp:
+- 1.70.0
+c_compiler:
+- gcc
+c_compiler_version:
+- '7'
+channel_sources:
+- conda-forge,defaults
+channel_targets:
+- conda-forge main
+cuda_compiler:
+- nvcc
+cuda_compiler_version:
+- '10.1'
+cxx_compiler:
+- gxx
+cxx_compiler_version:
+- '7'
+docker_image:
+- condaforge/linux-anvil-cuda:10.1
+fftw:
+- '3'
+hdf5:
+- 1.10.5
+pin_run_as_build:
+  boost:
+    max_pin: x.x.x
+  boost-cpp:
+    max_pin: x.x.x
+  fftw:
+    max_pin: x
+  python:
+    min_pin: x.x
+    max_pin: x.x
+  qt:
+    max_pin: x.x
+python:
+- 3.6.* *_cpython
+- 3.7.* *_cpython
+qt:
+- '5.12'
+zip_keys:
+- - cuda_compiler_version
+  - docker_image
