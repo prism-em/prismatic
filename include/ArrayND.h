@@ -541,7 +541,7 @@ bool any_nan_complex(ArrayND<N, T> &arr)
 	bool check = false;
 	for(auto i = 0; i < arr.size(); i++)
 	{
-		if(std::isnan(arr[i].real()) or std::isnan(arr[i].imag()))
+		if(std::isnan(arr[i].real()) || std::isnan(arr[i].imag()))
 		{
 			check = true;
 			break;

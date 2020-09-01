@@ -32,12 +32,12 @@ struct aberration
         std::cout << "n = " << n << std::endl;
         std::cout << "mag = " << mag << std::endl;
         std::cout << "angle = " << angle << std::endl;
-    }
+    };
 
     bool operator==(const aberration &a) const
     {
-        return (m == a.m) and (n == a.n);
-    }
+        return (m == a.m) && (n == a.n);
+    };
 };
 
 

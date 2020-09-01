@@ -339,7 +339,7 @@ namespace Prismatic{
         std::cout << "nyquistSampling = " << nyquistSampling << std::endl;
         std::cout << "importPotential = " << importPotential << std::endl;
         std::cout << "importSMatrix = " << importSMatrix << std::endl;
-        if(importPotential or importSMatrix)
+        if(importPotential || importSMatrix)
         {
             std::cout << "importFile = " << importFile << std::endl;
             std::cout << "importPath = " << importPath << std::endl;

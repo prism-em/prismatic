@@ -167,7 +167,7 @@ void readComplexDataSet(ArrayND<N, std::vector<std::complex<PRISMATIC_FLOAT_PREC
     std::array<size_t, N> data_dims;
     for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
 
-    if(N > 1 and not virtualCheck)
+    if(N > 1 && (!virtualCheck))
     {
         std::vector<size_t> rdims;
         for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
@@ -229,7 +229,7 @@ void readRealDataSet(ArrayND<N, std::vector<PRISMATIC_FLOAT_PRECISION>> &output,
     std::array<size_t, N> data_dims;
     for(auto i = 0; i < N; i++) data_dims[i] = dims_out[N-1-order[i]];
 
-    if(N > 1 and not virtualCheck)
+    if(N > 1 && (!virtualCheck))
     {
         std::vector<size_t> rdims;
         for(auto i = 0;i < N; i++) rdims.push_back(dims_out[i]);
