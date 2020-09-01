@@ -26,6 +26,7 @@
 
 namespace Prismatic
 {
+	
 Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 {
 	Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars;
