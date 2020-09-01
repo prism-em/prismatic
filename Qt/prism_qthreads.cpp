@@ -23,6 +23,7 @@
 #include "H5Cpp.h"
 #include "QMessageBox"
 #include <stdio.h>
+#include "fileIO.h"
 
 PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : parent(_parent), progressbar(_progressbar)
 {
