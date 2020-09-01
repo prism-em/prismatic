@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     QTextStream stream(&file);
     a.setStyleSheet(stream.readAll());
 
+    //add a comment
     w.show();
     w.setGeometry(100, 100, 850, 700);
 
