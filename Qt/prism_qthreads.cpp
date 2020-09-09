@@ -440,7 +440,7 @@ void FullPRISMCalcThread::run()
     }
 
     // params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-    
+
     saveSTEM(params);
     Prismatic::writeMetadata(params);
 
@@ -576,9 +576,9 @@ void FullMultisliceCalcThread::run()
     }
 
     saveSTEM(params);
+    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
     Prismatic::writeMetadata(params);
 
-    // params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 
     this->parent->outputReceived(params.output);
     emit outputCalculated();

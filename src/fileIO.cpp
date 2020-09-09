@@ -874,6 +874,7 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	
 	if(pars.meta.saveComplexOutputWave)
 	{
+		std::cout << "here 4" << std::endl;
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
 		PRISMATIC_FLOAT_PRECISION scale = pars.Scompact.get_dimi()*pars.Scompact.get_dimj();
 		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
@@ -891,6 +892,7 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 	else
 	{
+		std::cout << "here 4b" << std::endl;
 		Array3D<PRISMATIC_FLOAT_PRECISION> output_buffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
 		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
 		{
@@ -924,14 +926,14 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			nameString = nameString + pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			//manual restride is faster
-			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimj(), pars.net_output.get_dimk()}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimj(), pars.net_output.get_dimk(), pars.net_output.get_dimi()}});
 			for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
 			{
 				for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
 				{
 					for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
 					{
-						tmp_array.at(ii,jj,kk) = pars.net_output.at(j,kk,jj,ii);
+						tmp_array.at(jj,kk,ii) = pars.net_output.at(j,kk,jj,ii);
 					}
 				}
 			}

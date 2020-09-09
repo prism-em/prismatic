@@ -287,11 +287,11 @@ void writeDatacube4D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, T *buffer, T *
     H5::DataSpace mspace(4, mdims); //rank = 4
 
     //read old frozen phonon set
-    // fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
-    std::vector<size_t> rdims = {mdims[0], mdims[1], mdims[2], mdims[3]};
-    std::vector<size_t> rorder = {2,3,0,1};
-    std::vector<size_t> roffset = {offset[0], offset[1], offset[2], offset[3]};
-    restrideElements_subset(fspace, rdims, rorder, roffset);
+    fspace.selectHyperslab(H5S_SELECT_SET, mdims, offset);
+    // std::vector<size_t> rdims = {mdims[0], mdims[1], mdims[2], mdims[3]};
+    // std::vector<size_t> rorder = {2,3,0,1};
+    // std::vector<size_t> roffset = {offset[0], offset[1], offset[2], offset[3]};
+    // restrideElements_subset(fspace, rdims, rorder, roffset);
 
     // T *readBuffer = (T *)malloc(mdims[0] * mdims[1] * mdims[2] * mdims[3] * sizeof(T));
     dataset.read(&readBuffer[0], dataset.getDataType(), mspace, fspace);
