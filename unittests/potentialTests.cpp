@@ -8,6 +8,7 @@
 #include <vector>
 #include "params.h"
 #include "atom.h"
+#include "go.h"
 
 namespace Prismatic{
 
@@ -26,8 +27,8 @@ class basicCell {
     PRISMATIC_FLOAT_PRECISION potBound = 2.0;
     PRISMATIC_FLOAT_PRECISION sliceThickness = 2.0;
     PRISMATIC_FLOAT_PRECISION sliceThicknessFactor = 4;
-    PRISMATIC_FLOAT_PRECISION xPixel = 0.1;
-    PRISMATIC_FLOAT_PRECISION yPixel = 0.1;
+    PRISMATIC_FLOAT_PRECISION xPixel = 0.05;
+    PRISMATIC_FLOAT_PRECISION yPixel = 0.05;
     PRISMATIC_FLOAT_PRECISION dzPot = sliceThickness/sliceThicknessFactor;
     Array1D<size_t> imageSize = zeros_ND<1, size_t>({{2}});
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
@@ -523,6 +524,63 @@ BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
     for(auto i = 0; i < testPot.size(); i++) minVal = (testPot[i] < minVal) ? testPot[i] : minVal;
     // std::cout << "minVal: " << minVal << std::endl;
     BOOST_TEST(minVal >=0);
+
+    H5::H5File testFile = H5::H5File("../test/newpot3D.h5", H5F_ACC_TRUNC);
+    hsize_t mdims[3] = {pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()};
+    H5::DataSpace mspace(3, mdims);
+    H5::DataSet testPot_ds = testFile.createDataSet("pot_3D", PFP_TYPE, mspace);
+    H5::DataSpace fspace = testPot_ds.getSpace();
+
+    Array3D<PRISMATIC_FLOAT_PRECISION> strided_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()}});
+    for(auto i = 0; i < pars.pot.get_dimi(); i++)
+    {
+        for(auto j = 0; j < pars.pot.get_dimj(); j++)
+        {
+            for(auto k = 0; k < pars.pot.get_dimk(); k++)
+            {
+                strided_pot.at(i,j,k) = pars.pot.at(k,j,i);
+            }
+        }
+    }
+    testPot_ds.write(&strided_pot[0], PFP_TYPE, mspace, fspace);
+
+    fspace.close();
+    mspace.close();
+    testPot_ds.close();
+    testFile.close();
+
+
+};
+
+BOOST_AUTO_TEST_CASE(pot_comparison)
+{
+    Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    meta.filenameAtoms = "../unittests/pfiles/center_Au.xyz";
+    // meta.filenameAtoms = "../SI100.XYZ";
+    meta.filenameOutput = "../test/new_pot_ref.h5";
+    meta.realspacePixelSize[0] = 0.05;
+    meta.realspacePixelSize[1] = 0.05;
+    meta.algorithm = Algorithm::Multislice;
+    meta.probeStepX = 4;
+    meta.probeStepY = 4;
+    meta.savePotentialSlices = true;
+    meta.potBound = 3.0;
+    meta.numThreads = 1;
+    meta.sliceThickness = 2.0;
+    meta.potential3D = false;
+    meta.includeThermalEffects = false;
+
+
+    go(meta);
+
+    std::cout << "#######################################################\n##############################################" << std::endl;
+    meta.filenameOutput = "../test/new_pot_test.h5";
+    meta.zSampling = 16;
+    meta.potential3D = true;
+
+    go(meta);
+
+
 };
 
 BOOST_AUTO_TEST_SUITE_END();

@@ -460,20 +460,21 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					{
 						PRISMATIC_FLOAT_PRECISION tmp = round((Z+zr[i])/pars.meta.sliceThickness);
 						tmp = std::max(tmp, (PRISMATIC_FLOAT_PRECISION) 0.0);
-						zp[i] = std::min((long) tmp, numPlanes);
+						zp[i] = std::min((long) tmp, numPlanes-1);
 						zVals[i] = zp[i];
 					}
 
-					std::sort(zVals.begin(),zVals.end());
+					std::sort(zVals.begin(), zVals.end());
 					auto last = std::unique(zVals.begin(), zVals.end());
-					// zVals.erase(last, zVals.end());
+					zVals.erase(last, zVals.end());
 
 					//iterate through unique z slice values
-					for(auto cz_ind = 0; cz_ind < 3; cz_ind++) //zVals.size(); cz_ind++)
+					for(auto cz_ind = 0; cz_ind < zVals.size(); cz_ind++)
 					{
 						
 						//create tmp array to add potential lookup table to
 						Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_pot = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{yp.size(), xp.size()}});
+
 						for(auto kk = 0; kk < zp.size(); kk++)
 						{
 							if(zp[kk] == zVals[cz_ind])
@@ -487,8 +488,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								}
 							}
 						}
-
-
 
 						//apply fourier shift and qband limit
 						for(auto jj = 0; jj < yp.size(); jj++)
@@ -523,7 +522,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						{
 							for(auto ii = 0; ii < xp.size(); ii++)
 							{
-								pars.pot.at(zVals[cz_ind],yp[jj],xp[ii]) += tmp_pot.at(jj,ii).real();
+								pars.pot.at(zVals[cz_ind],yp[jj],xp[ii]) += std::abs(tmp_pot.at(jj,ii));
 							}
 						}
 						write_gatekeeper.unlock();
@@ -586,6 +585,11 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		fetch_potentials3D(potentialLookup, unique_species, xr, yr, zr);
 		//generate potential
 		generateProjectedPotentials3D(pars, potentialLookup, unique_species, xvec, yvec, zvec);
+
+		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/supergroups/");
+		hsize_t mdims[4] = {potentialLookup.get_diml(), potentialLookup.get_dimk(), potentialLookup.get_dimj(), potentialLookup.get_dimi()};
+		writeComplexDataSet_inOrder(datacubes, "potLookup", &potentialLookup[0], mdims, 4);
+		datacubes.close();
 	}else{
 		// initialize the lookup table
 		Array3D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});
