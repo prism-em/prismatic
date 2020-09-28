@@ -284,13 +284,17 @@ namespace Prismatic{
 				return output;
 			};
 
+			std::cout << "probe defocus min: " << meta.probeDefocus_min << std::endl;
+			std::cout << "probe defocus max: " << meta.probeDefocus_max << std::endl;
+			std::cout << "probe defocus step: " << meta.probeDefocus_step << std::endl;
 			if(meta.probeDefocus_step > 0.0)
 			{
+				std::cout << "entered" << std::endl;
 				//set up defocus series with min max step
 				std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
 				PRISMATIC_FLOAT_PRECISION currentVal = meta.probeDefocus_min;
 				int iter = 0;
-				while(currentVal < meta.probeDefocus_max)
+				while(currentVal <= meta.probeDefocus_max)
 				{
 					defocii.push_back(currentVal);
 					meta.seriesTags.push_back("_df"+digitString(iter));
@@ -299,6 +303,10 @@ namespace Prismatic{
 				}
 				meta.seriesKeys.push_back("probeDefocus");
 				meta.seriesVals.push_back(defocii);	
+				std::cout << iter << std::endl;
+				std::cout << meta.seriesVals.size() << std::endl;
+				std::cout << meta.seriesVals[0].size() << std::endl;
+				std::cout << meta.seriesVals[1].size() << std::endl;
 			}
 			else if(meta.probeDefocus_sigma > 0.0)
 			{
@@ -401,6 +409,10 @@ namespace Prismatic{
 		size_t numXP = std::floor((xR[1]-xR[0])/meta.probeStepX);
 		size_t numYP = std::floor((yR[1]-yR[0])/meta.probeStepY);
 		size_t numProbes = numXP*numYP;
+		if(meta.arbitraryProbes)
+		{
+			numProbes = meta.probes_x.size();
+		}
 
 		unsigned long long int numElems = 0;
 		if(meta.save2DOutput) numElems += numProbes;

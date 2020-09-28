@@ -1563,6 +1563,7 @@ bool parse_pos(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         return false;
     }
     readProbes(std::string((*argv)[1]), meta.probes_x, meta.probes_y);
+    meta.arbitraryProbes = true;
     argc -= 2;
     argv[0] += 2;
     return true;

@@ -125,7 +125,7 @@ namespace Prismatic{
             arbitraryProbes       = false;
             saveProbe             = false;
             simSeries             = false;
-            seriesVals            = {{}};
+            seriesVals            = {};
             seriesKeys            = {};
             seriesTags            = {};
             maxFileSize           = 2e9;
