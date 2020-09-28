@@ -1743,8 +1743,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		// Copy the relevant portion of the Scompact matrix. This can be accomplished with ideally one but at most 4 strided 3-D memory copies
 		// depending on whether or not the coordinates wrap around.
 		long x1,y1;
-		y1 = pars.yVec[0];
-		x1 = pars.xVec[0];
+		y1 = pars.yVec[0] +  std::round(yp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[0]);
+		x1 = pars.xVec[0] +  std::round(xp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[1]);
 
 
 		// determine where in the coordinate list wrap-around occurs (if at all)
@@ -1755,13 +1755,13 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		nx2 = pars.xVec.size() - xsplit;
 		ny2 = pars.yVec.size() - ysplit;
 
-		xstart2 = ((long) pars.imageSizeOutput[1] + (x1 % (long) pars.imageSizeOutput[1])) %
+		xstart1 = ((long) pars.imageSizeOutput[1] + (x1 % (long) pars.imageSizeOutput[1])) %
 		           (long) pars.imageSizeOutput[1];
-		xstart1 = ((long) pars.imageSizeOutput[1] + (x1 + xsplit % (long) pars.imageSizeOutput[1])) %
+		xstart2 = ((long) pars.imageSizeOutput[1] + (x1 + xsplit % (long) pars.imageSizeOutput[1])) %
 		           (long) pars.imageSizeOutput[1];
-		ystart2 = ((long) pars.imageSizeOutput[0] + (y1 % (long) pars.imageSizeOutput[0])) %
+		ystart1 = ((long) pars.imageSizeOutput[0] + (y1 % (long) pars.imageSizeOutput[0])) %
 		           (long) pars.imageSizeOutput[0];
-		ystart1 = ((long) pars.imageSizeOutput[0] + (y1 + ysplit % (long) pars.imageSizeOutput[0])) %
+		ystart2 = ((long) pars.imageSizeOutput[0] + (y1 + ysplit % (long) pars.imageSizeOutput[0])) %
 		           (long) pars.imageSizeOutput[0];
 
 		cudaErrchk(cudaMemcpy2DAsync(permutedScompact_ds,

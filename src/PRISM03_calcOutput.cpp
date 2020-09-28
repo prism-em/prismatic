@@ -407,7 +407,7 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				for (auto i = 0; i < x.size(); ++i)
 				{
-					psi.at(j, i) += (tmp_const * pars.Scompact.at(a4, j, i));
+					psi.at(j, i) += (tmp_const * pars.Scompact.at(a4, y[j], x[i]));
 				}
 			}
 		}
