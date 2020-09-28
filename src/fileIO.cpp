@@ -926,14 +926,14 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			nameString = nameString + pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			//manual restride is faster
-			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimj(), pars.net_output.get_dimk(), pars.net_output.get_dimi()}});
-			for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++)
+			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimk(), pars.net_output.get_dimj()}});
+			for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++) //over detector
 			{
-				for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++)
+				for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++) //over x
 				{
-					for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++)
+					for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++) //over y
 					{
-						tmp_array.at(jj,kk,ii) = pars.net_output.at(j,kk,jj,ii);
+						tmp_array.at(ii,kk,jj) = pars.net_output.at(j,kk,jj,ii);
 					}
 				}
 			}

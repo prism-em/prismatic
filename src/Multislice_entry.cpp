@@ -63,6 +63,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 			std::cout << "writing output for series iter " << i << std::endl;
 			std::string currentName = prismatic_pars.meta.seriesTags[i];
 			prismatic_pars.currentTag = currentName;
+			prismatic_pars.meta.probeDefocus = prismatic_pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
+			
 			readRealDataSet_inOrder(prismatic_pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
 			if(prismatic_pars.meta.saveDPC_CoM)
 				readRealDataSet_inOrder(prismatic_pars.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
@@ -82,7 +84,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	}
 	else
 	{
-		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5);
+		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5, prismatic_pars.lambda);
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			Multislice_runFP(prismatic_pars, i);
@@ -188,7 +190,8 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 
 		updateSeriesParams(pars, i);
-		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
+		std::cout << "current defocus: " << pars.meta.probeDefocus << std::endl;
+		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
 		Multislice_calcOutput(pars);
 
 		if(i == 0 and fpNum == 0) 

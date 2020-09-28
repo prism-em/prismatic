@@ -61,6 +61,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 			std::cout << "writing output for series iter " << i << std::endl;
 			std::string currentName = prismatic_pars.meta.seriesTags[i];
 			prismatic_pars.currentTag = currentName;
+			prismatic_pars.meta.probeDefocus = prismatic_pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
+
 			readRealDataSet_inOrder(prismatic_pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
 			if(prismatic_pars.meta.saveDPC_CoM)
 				readRealDataSet_inOrder(prismatic_pars.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
@@ -79,7 +81,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	}
 	else
 	{
-		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5);
+		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5, prismatic_pars.lambda);
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			PRISM_runFP(prismatic_pars, i);
@@ -213,7 +215,7 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;
 		updateSeriesParams(pars, i);
-		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
+		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
 		//need to use current shift-- so the matrix doesn't get refocused out to oblivion
 		if(pars.meta.matrixRefocus)
 		{

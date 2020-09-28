@@ -57,7 +57,8 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 std::vector<aberration> updateAberrations(std::vector<aberration> ab, 
                                         PRISMATIC_FLOAT_PRECISION C1, 
                                         PRISMATIC_FLOAT_PRECISION C3, 
-                                        PRISMATIC_FLOAT_PRECISION C5);
+                                        PRISMATIC_FLOAT_PRECISION C5,
+                                        const PRISMATIC_FLOAT_PRECISION &lambda);
                         
 } // namespace Prismatic
 #endif //PRISM_ABERRATION_H

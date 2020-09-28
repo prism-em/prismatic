@@ -137,7 +137,8 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 std::vector<aberration> updateAberrations(std::vector<aberration> ab, 
 										PRISMATIC_FLOAT_PRECISION C1, 
 										PRISMATIC_FLOAT_PRECISION C3, 
-										PRISMATIC_FLOAT_PRECISION C5)
+										PRISMATIC_FLOAT_PRECISION C5,
+										const PRISMATIC_FLOAT_PRECISION &lambda)
 {
 	//prune for unique aberrations
 	if(ab.size() > 0)
@@ -174,7 +175,7 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 			if(ab[i].m ==0 and ab[i].n == 2)
 			{
 				exists = true;
-				ab[i].mag = C1 * pi;
+				ab[i].mag = C1 * pi / lambda;
 			}
 		}
 
@@ -194,7 +195,7 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 			if(ab[i].m ==0 and ab[i].n == 4)
 			{
 				exists = true;
-				ab[i].mag = C3 * pi / 2.0;
+				ab[i].mag = C3 * pi / (2.0*lambda);
 			}
 		}
 
@@ -214,7 +215,7 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 			if(ab[i].m ==0 and ab[i].n == 6)
 			{
 				exists = true;
-				ab[i].mag = C5 * pi / 3.0;
+				ab[i].mag = C5 * pi / (3.0*lambda);
 			}
 		}
 

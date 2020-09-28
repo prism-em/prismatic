@@ -110,11 +110,8 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		std::cout << "Writing HRTEM data to output file." << std::endl;
 		sortHRTEMbeams(prismatic_pars);
-		std::cout << "here1" << std::endl;
 		setupHRTEMOutput(prismatic_pars);
-		std::cout << "here2" << std::endl;
 		setupHRTEMOutput_virtual(prismatic_pars);
-		std::cout << "here3" << std::endl;
 		saveHRTEM(prismatic_pars, net_output);
 	};
 	
@@ -135,7 +132,7 @@ void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	pars.fpFlag = fpNum;
 	
 	//update aberrations here to maintain consistency between runFP calls
-	pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5);
+	pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
 	if(pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
