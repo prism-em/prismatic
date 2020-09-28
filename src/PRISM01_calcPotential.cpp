@@ -458,7 +458,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					std::vector<long> zVals(zp.size(), 0);
 					for(auto i = 0; i < zp.size(); i++)
 					{
-						PRISMATIC_FLOAT_PRECISION tmp = round((Z+zr[i])/pars.meta.sliceThickness);
+						PRISMATIC_FLOAT_PRECISION tmp = round((Z+zr[i])/pars.meta.sliceThickness + 0.5)-1;
 						tmp = std::max(tmp, (PRISMATIC_FLOAT_PRECISION) 0.0);
 						zp[i] = std::min((long) tmp, numPlanes-1);
 						zVals[i] = zp[i];
@@ -467,6 +467,8 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					std::sort(zVals.begin(), zVals.end());
 					auto last = std::unique(zVals.begin(), zVals.end());
 					zVals.erase(last, zVals.end());
+					std::cout << "zVals for atom " << currentAtom << std::endl;
+					for(auto cz_ind = 0; cz_ind < zVals.size(); cz_ind++) std::cout << zVals[cz_ind] << std::endl;
 
 					//iterate through unique z slice values
 					for(auto cz_ind = 0; cz_ind < zVals.size(); cz_ind++)
@@ -522,7 +524,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						{
 							for(auto ii = 0; ii < xp.size(); ii++)
 							{
-								pars.pot.at(zVals[cz_ind],yp[jj],xp[ii]) += std::abs(tmp_pot.at(jj,ii));
+								pars.pot.at(zVals[cz_ind],yp[jj],xp[ii]) += tmp_pot.at(jj,ii).real();
 							}
 						}
 						write_gatekeeper.unlock();

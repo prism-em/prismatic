@@ -561,12 +561,12 @@ BOOST_AUTO_TEST_CASE(pot_comparison)
     meta.realspacePixelSize[0] = 0.05;
     meta.realspacePixelSize[1] = 0.05;
     meta.algorithm = Algorithm::Multislice;
-    meta.probeStepX = 4;
-    meta.probeStepY = 4;
+    meta.probeStepX = 40;
+    meta.probeStepY = 40;
     meta.savePotentialSlices = true;
     meta.potBound = 3.0;
     meta.numThreads = 1;
-    meta.sliceThickness = 2.0;
+    meta.sliceThickness = 4.0;
     meta.potential3D = false;
     meta.includeThermalEffects = false;
 
@@ -579,8 +579,6 @@ BOOST_AUTO_TEST_CASE(pot_comparison)
     meta.potential3D = true;
 
     go(meta);
-
-
 };
 
 BOOST_AUTO_TEST_SUITE_END();
