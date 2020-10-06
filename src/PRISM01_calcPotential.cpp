@@ -467,8 +467,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 					std::sort(zVals.begin(), zVals.end());
 					auto last = std::unique(zVals.begin(), zVals.end());
 					zVals.erase(last, zVals.end());
-					std::cout << "zVals for atom " << currentAtom << std::endl;
-					for(auto cz_ind = 0; cz_ind < zVals.size(); cz_ind++) std::cout << zVals[cz_ind] << std::endl;
 
 					//iterate through unique z slice values
 					for(auto cz_ind = 0; cz_ind < zVals.size(); cz_ind++)
@@ -588,10 +586,6 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		//generate potential
 		generateProjectedPotentials3D(pars, potentialLookup, unique_species, xvec, yvec, zvec);
 
-		H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/supergroups/");
-		hsize_t mdims[4] = {potentialLookup.get_diml(), potentialLookup.get_dimk(), potentialLookup.get_dimj(), potentialLookup.get_dimi()};
-		writeComplexDataSet_inOrder(datacubes, "potLookup", &potentialLookup[0], mdims, 4);
-		datacubes.close();
 	}else{
 		// initialize the lookup table
 		Array3D<PRISMATIC_FLOAT_PRECISION> potentialLookup = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{unique_species.size(), 2 * (size_t)yleng + 1, 2 * (size_t)xleng + 1}});

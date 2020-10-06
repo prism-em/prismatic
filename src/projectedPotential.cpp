@@ -241,12 +241,10 @@ Array3D<PRISMATIC_FLOAT_PRECISION> kirklandPotential3D(const size_t &Z,
 												+ ap[8]*pow(ap[9],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[9])
 												+ ap[10]*pow(ap[11],-3.0/2.0)*exp(-pi*pi*cr*cr/ap[11])); //cutoff potential
 
-	std::cout << "Cutoff potential: " << cpot <<  std::endl;
 	//keep potential if it is positive, else, zero
 	std::transform(pot.begin(), pot.end(), pot.begin(), [cpot](PRISMATIC_FLOAT_PRECISION &pot){ return pot - cpot;});
 	std::transform(pot.begin(), pot.end(), pot.begin(), [](PRISMATIC_FLOAT_PRECISION &pot){ return pot < 0.0 ? 0.0 : pot;});
 
-	std::cout << "proj pot max: " << *std::max_element(pot.begin(), pot.end());
 	return pot;
 }
 

@@ -502,7 +502,6 @@ BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
     }
 
     pars.meta.potential3D = true;
-    pars.meta.numThreads = 1;
     PRISM01_calcPotential(pars);
     Array3D<PRISMATIC_FLOAT_PRECISION> testPot = pars.pot;
 
@@ -515,41 +514,6 @@ BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
 
     BOOST_TEST(std::abs(refPotSum-testPotSum)/refPotSum<tol);
     BOOST_TEST(std::abs(refPotSum2-testPotSum)/refPotSum2<tol);
-
-    std::cout << "min refpot1: " << *std::min_element(refPot.begin(), refPot.end()) << " max refpot1: " << *std::max_element(refPot.begin(), refPot.end()) << std::endl;
-    std::cout << "min oneH: " << *std::min_element(oneH.begin(), oneH.end()) << " max oneH: " << *std::max_element(oneH.begin(), oneH.end()) << std::endl;
-    std::cout << "min testPot: " << *std::min_element(testPot.begin(), testPot.end()) << " max testPot: " << *std::max_element(testPot.begin(), testPot.end()) << std::endl;
-    //print min val in testPot
-    PRISMATIC_FLOAT_PRECISION minVal = pow(2,10); //check for nonnegativity
-    for(auto i = 0; i < testPot.size(); i++) minVal = (testPot[i] < minVal) ? testPot[i] : minVal;
-    // std::cout << "minVal: " << minVal << std::endl;
-    BOOST_TEST(minVal >=0);
-
-    H5::H5File testFile = H5::H5File("../test/newpot3D.h5", H5F_ACC_TRUNC);
-    hsize_t mdims[3] = {pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()};
-    H5::DataSpace mspace(3, mdims);
-    H5::DataSet testPot_ds = testFile.createDataSet("pot_3D", PFP_TYPE, mspace);
-    H5::DataSpace fspace = testPot_ds.getSpace();
-
-    Array3D<PRISMATIC_FLOAT_PRECISION> strided_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()}});
-    for(auto i = 0; i < pars.pot.get_dimi(); i++)
-    {
-        for(auto j = 0; j < pars.pot.get_dimj(); j++)
-        {
-            for(auto k = 0; k < pars.pot.get_dimk(); k++)
-            {
-                strided_pot.at(i,j,k) = pars.pot.at(k,j,i);
-            }
-        }
-    }
-    testPot_ds.write(&strided_pot[0], PFP_TYPE, mspace, fspace);
-
-    fspace.close();
-    mspace.close();
-    testPot_ds.close();
-    testFile.close();
-
-
 };
 
 BOOST_AUTO_TEST_CASE(pot_comparison)
