@@ -27,11 +27,6 @@ namespace Prismatic {
                                      const Array1D<PRISMATIC_FLOAT_PRECISION>& xr,
                                      const Array1D<PRISMATIC_FLOAT_PRECISION>& yr);
 
-	PRISMATIC_FLOAT_PRECISION get_potMin3D(const Array3D<PRISMATIC_FLOAT_PRECISION>& pot,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& xr,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& yr,
-                                     const Array1D<PRISMATIC_FLOAT_PRECISION>& zr);
-
 	Array2D<PRISMATIC_FLOAT_PRECISION> projPot(const size_t &Z,
 	                                       const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
 	                                       const Array1D<PRISMATIC_FLOAT_PRECISION> &yr);

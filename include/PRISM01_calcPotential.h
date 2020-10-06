@@ -34,7 +34,7 @@ void fetch_potentials(Array3D<PRISMATIC_FLOAT_PRECISION> &potentials,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &yr);
 
-void fetch_potentials3D(Array4D<PRISMATIC_FLOAT_PRECISION> &potentials,
+void fetch_potentials3D(Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> &potentials,
 					  const std::vector<size_t> &atomic_species,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &xr,
 					  const Array1D<PRISMATIC_FLOAT_PRECISION> &yr,
@@ -63,11 +63,11 @@ void cropLookup(Array3D<PRISMATIC_FLOAT_PRECISION> &potCrop,
 				const size_t &cur_Z);
 
 void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
-								   const Array4D<PRISMATIC_FLOAT_PRECISION> &potLookup,
+								   const Array4D<std::complex<PRISMATIC_FLOAT_PRECISION>> &potLookup,
 								   const std::vector<size_t> &unique_species,
 								   const Array1D<long> &xvec,
 								   const Array1D<long> &yvec,
-								   const Array1D<long> &zvec);
+								   const Array1D<PRISMATIC_FLOAT_PRECISION> &zvec);
 
 //#ifdef PRISMATIC_BUILDING_GUI
 //	void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION>& pars, prism_progressbar *progressbar=NULL);

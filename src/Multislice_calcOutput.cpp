@@ -168,8 +168,6 @@ namespace Prismatic{
 		PRISMATIC_FLOAT_PRECISION qProbeMax = pars.meta.probeSemiangle/ pars.lambda; // currently a single semiangle
 		pars.psiProbeInit = zeros_ND<2, complex<PRISMATIC_FLOAT_PRECISION> >({{pars.q1.get_dimj(), pars.q1.get_dimi()}});
 
-		PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
-		PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
 		// erf probe is deprecated, but keeping the source here in case we ever want to flexibly switch
 		// transform(pars.psiProbeInit.begin(), pars.psiProbeInit.end(),
 		//           pars.q1.begin(), pars.psiProbeInit.begin(),
@@ -179,6 +177,8 @@ namespace Prismatic{
 		// 	          return a;
 		//           });
 
+		PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
+		PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
 		for(auto j = 0; j < pars.q1.get_dimj(); j++)
 		{
 			for(auto i = 0; i < pars.q1.get_dimi(); i++)

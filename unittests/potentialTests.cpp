@@ -8,6 +8,7 @@
 #include <vector>
 #include "params.h"
 #include "atom.h"
+#include "go.h"
 
 namespace Prismatic{
 
@@ -26,8 +27,8 @@ class basicCell {
     PRISMATIC_FLOAT_PRECISION potBound = 2.0;
     PRISMATIC_FLOAT_PRECISION sliceThickness = 2.0;
     PRISMATIC_FLOAT_PRECISION sliceThicknessFactor = 4;
-    PRISMATIC_FLOAT_PRECISION xPixel = 0.1;
-    PRISMATIC_FLOAT_PRECISION yPixel = 0.1;
+    PRISMATIC_FLOAT_PRECISION xPixel = 0.05;
+    PRISMATIC_FLOAT_PRECISION yPixel = 0.05;
     PRISMATIC_FLOAT_PRECISION dzPot = sliceThickness/sliceThicknessFactor;
     Array1D<size_t> imageSize = zeros_ND<1, size_t>({{2}});
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
@@ -36,7 +37,7 @@ class basicCell {
     PRISMATIC_FLOAT_PRECISION zleng;
     Array1D<long> xvec;
     Array1D<long> yvec;
-    Array1D<long> zvec;
+    Array1D<PRISMATIC_FLOAT_PRECISION> zvec;
     Array1D<PRISMATIC_FLOAT_PRECISION> xr;
     Array1D<PRISMATIC_FLOAT_PRECISION> yr;
     Array1D<PRISMATIC_FLOAT_PRECISION> zr;
@@ -57,22 +58,24 @@ class basicCell {
         zleng = std::ceil(potBound/dzPot);
         xvec = zeros_ND<1,long>({{2*xleng+1}});
         yvec = zeros_ND<1,long>({{2*yleng+1}});
-        zvec = zeros_ND<1,long>({{2*zleng+1}});
+        zvec = zeros_ND<1,PRISMATIC_FLOAT_PRECISION>({{2*zleng}});
         xr = zeros_ND<1,PRISMATIC_FLOAT_PRECISION>({{2*xleng+1}});
         yr = zeros_ND<1,PRISMATIC_FLOAT_PRECISION>({{2*yleng+1}});
-        zr = zeros_ND<1,PRISMATIC_FLOAT_PRECISION>({{2*zleng+1}});
+        zr = zeros_ND<1,PRISMATIC_FLOAT_PRECISION>({{2*zleng}});
 
         {
             PRISMATIC_FLOAT_PRECISION tmpx = -xleng;
             PRISMATIC_FLOAT_PRECISION tmpy = -yleng;
-            PRISMATIC_FLOAT_PRECISION tmpz = -zleng;
             for (auto &i : xvec)
                 i = tmpx++;
             for (auto &j : yvec)
                 j = tmpy++;
-            for (auto &k : zvec)
-                k = tmpz++;
         }
+
+        for (auto j = -zleng; j < zleng; j++)
+		{
+			zvec[j+zleng] = (PRISMATIC_FLOAT_PRECISION) j + 0.5;
+		}
 
         for (auto i = 0; i < xr.size(); ++i) xr[i] = (PRISMATIC_FLOAT_PRECISION)xvec[i] * pixelSize[1];
         for (auto j = 0; j < yr.size(); ++j) yr[j] = (PRISMATIC_FLOAT_PRECISION)yvec[j] * pixelSize[0];
@@ -238,7 +241,6 @@ void addMismatchedArray(Array3D<PRISMATIC_FLOAT_PRECISION> &big,
 
 };
 
-
 BOOST_AUTO_TEST_SUITE(potentialTests);
 
 BOOST_AUTO_TEST_CASE(pot3DFunction)
@@ -248,15 +250,10 @@ BOOST_AUTO_TEST_CASE(pot3DFunction)
     Array1D<PRISMATIC_FLOAT_PRECISION> yr = ones_ND<1,PRISMATIC_FLOAT_PRECISION>({{10}});
     Array1D<PRISMATIC_FLOAT_PRECISION> zr = ones_ND<1,PRISMATIC_FLOAT_PRECISION>({{10}});
 
-    //normalize radius to 1 at all points in grid
-    xr /= sqrt(3);
-    yr /= sqrt(3);
-    zr /= sqrt(3);
-    
     //seed corner with lower radius so that we can test function with potMin taken into acct
-    xr.at(0) = 0.5;
-    yr.at(0) = 0.5;
-    zr.at(0) = 0.5;
+    xr.at(0) = 0.1;
+    yr.at(0) = 0.1;
+    zr.at(0) = 0.1;
 
     PRISMATIC_FLOAT_PRECISION r2 = pow(xr.at(0),2) + pow(yr.at(0),2) + pow(zr.at(0),2);
     PRISMATIC_FLOAT_PRECISION r = sqrt(r2);
@@ -266,6 +263,7 @@ BOOST_AUTO_TEST_CASE(pot3DFunction)
     parameters.resize(NUM_PARAMETERS);
     for (auto i =0; i < NUM_PARAMETERS; i++) parameters[i] = fparams[(Z-1)*NUM_PARAMETERS + i];
     
+    PRISMATIC_FLOAT_PRECISION dz = zr.at(1) - zr.at(0);
     PRISMATIC_FLOAT_PRECISION pot_at_1 = term1*(parameters[0]*exp(-2*pi*sqrt(parameters[1]))
                                         + parameters[2]*exp(-2*pi*sqrt(parameters[3]))
                                         + parameters[4]*exp(-2*pi*sqrt(parameters[5])))
@@ -280,7 +278,7 @@ BOOST_AUTO_TEST_CASE(pot3DFunction)
                                         + parameters[8]*pow(parameters[9],-3.0/2.0)*exp(-pi*pi*r2/parameters[9])
                                         + parameters[10]*pow(parameters[11],-3.0/2.0)*exp(-pi*pi*r2/parameters[11]));
 
-    PRISMATIC_FLOAT_PRECISION expected = pot_at_0 - pot_at_1; //since potMin only checks 3 points
+    PRISMATIC_FLOAT_PRECISION expected = dz*(pot_at_0 - pot_at_1); //since potMin only checks 3 points
   
     Array3D<PRISMATIC_FLOAT_PRECISION> pot = kirklandPotential3D(Z, xr, yr, zr);
     PRISMATIC_FLOAT_PRECISION tol = 0.01;
@@ -412,7 +410,7 @@ BOOST_AUTO_TEST_CASE(potMin)
 };
 */
 
-
+/*
 BOOST_FIXTURE_TEST_CASE(projPotGeneration, basicCell)
 {
     PRISMATIC_FLOAT_PRECISION tol = 0.001;
@@ -476,6 +474,7 @@ BOOST_FIXTURE_TEST_CASE(projPotGeneration, basicCell)
     // testPot.toMRC_f("testPot.mrc");
     // refPot.toMRC_f("refPot.mrc");
 };
+*/
 
 BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
 {
@@ -517,11 +516,69 @@ BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
     BOOST_TEST(std::abs(refPotSum-testPotSum)/refPotSum<tol);
     BOOST_TEST(std::abs(refPotSum2-testPotSum)/refPotSum2<tol);
 
+    std::cout << "min refpot1: " << *std::min_element(refPot.begin(), refPot.end()) << " max refpot1: " << *std::max_element(refPot.begin(), refPot.end()) << std::endl;
+    std::cout << "min oneH: " << *std::min_element(oneH.begin(), oneH.end()) << " max oneH: " << *std::max_element(oneH.begin(), oneH.end()) << std::endl;
+    std::cout << "min testPot: " << *std::min_element(testPot.begin(), testPot.end()) << " max testPot: " << *std::max_element(testPot.begin(), testPot.end()) << std::endl;
     //print min val in testPot
     PRISMATIC_FLOAT_PRECISION minVal = pow(2,10); //check for nonnegativity
     for(auto i = 0; i < testPot.size(); i++) minVal = (testPot[i] < minVal) ? testPot[i] : minVal;
     // std::cout << "minVal: " << minVal << std::endl;
     BOOST_TEST(minVal >=0);
+
+    H5::H5File testFile = H5::H5File("../test/newpot3D.h5", H5F_ACC_TRUNC);
+    hsize_t mdims[3] = {pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()};
+    H5::DataSpace mspace(3, mdims);
+    H5::DataSet testPot_ds = testFile.createDataSet("pot_3D", PFP_TYPE, mspace);
+    H5::DataSpace fspace = testPot_ds.getSpace();
+
+    Array3D<PRISMATIC_FLOAT_PRECISION> strided_pot = zeros_ND<3,PRISMATIC_FLOAT_PRECISION>({{pars.pot.get_dimi(), pars.pot.get_dimj(), pars.pot.get_dimk()}});
+    for(auto i = 0; i < pars.pot.get_dimi(); i++)
+    {
+        for(auto j = 0; j < pars.pot.get_dimj(); j++)
+        {
+            for(auto k = 0; k < pars.pot.get_dimk(); k++)
+            {
+                strided_pot.at(i,j,k) = pars.pot.at(k,j,i);
+            }
+        }
+    }
+    testPot_ds.write(&strided_pot[0], PFP_TYPE, mspace, fspace);
+
+    fspace.close();
+    mspace.close();
+    testPot_ds.close();
+    testFile.close();
+
+
+};
+
+BOOST_AUTO_TEST_CASE(pot_comparison)
+{
+    Metadata<PRISMATIC_FLOAT_PRECISION> meta;
+    meta.filenameAtoms = "../unittests/pfiles/center_Au.xyz";
+    // meta.filenameAtoms = "../SI100.XYZ";
+    meta.filenameOutput = "../test/new_pot_ref.h5";
+    meta.realspacePixelSize[0] = 0.05;
+    meta.realspacePixelSize[1] = 0.05;
+    meta.algorithm = Algorithm::Multislice;
+    meta.probeStepX = 40;
+    meta.probeStepY = 40;
+    meta.savePotentialSlices = true;
+    meta.potBound = 3.0;
+    meta.numThreads = 1;
+    meta.sliceThickness = 4.0;
+    meta.potential3D = false;
+    meta.includeThermalEffects = false;
+
+
+    go(meta);
+
+    std::cout << "#######################################################\n##############################################" << std::endl;
+    meta.filenameOutput = "../test/new_pot_test.h5";
+    meta.zSampling = 16;
+    meta.potential3D = true;
+
+    go(meta);
 };
 
 BOOST_AUTO_TEST_SUITE_END();
