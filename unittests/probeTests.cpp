@@ -71,6 +71,7 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
     std::string testname = "../test/rectGridTest.h5";
     meta.filenameOutput = refname;
     meta.algorithm = Algorithm::Multislice;
+    meta.potential3D = false;
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: rectGrid_M ##########\n";
     go(meta);
@@ -126,8 +127,8 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
     err /= testArr.size();
 
     BOOST_TEST(err < tol);
-    removeFile(refname);
-    removeFile(testname);
+    // removeFile(refname);
+    // removeFile(testname);
 }
 
 BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
@@ -136,6 +137,7 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
     std::string testname = "../test/rectGridTest.h5";
     meta.filenameOutput = refname;
     meta.algorithm = Algorithm::PRISM;
+    meta.potential3D = false;
     divertOutput(pos, fd, logPath);
     std::cout << "\n######## BEGIN TEST CASE: rectGrid_P ##########\n";
     go(meta);
@@ -190,8 +192,8 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
 
     err/=testArr.size();
     BOOST_TEST(err < tol);
-    removeFile(refname);
-    removeFile(testname);
+    // removeFile(refname);
+    // removeFile(testname);
 }
 
 BOOST_AUTO_TEST_CASE(parser)
