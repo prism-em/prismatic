@@ -173,56 +173,36 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
         std::string base_name = "test4Darray";
         H5::Group test4D_group(datacubes.createGroup(base_name.c_str()));
         hsize_t data_dims[4];
-        data_dims[0] = {testArr4D.get_dimk()};
-        data_dims[1] = {testArr4D.get_diml()};
-        data_dims[2] = {testArr4D.get_dimi()};
-        data_dims[3] = {testArr4D.get_dimj()};
+        data_dims[0] = {testArr4D.get_diml()};
+        data_dims[1] = {testArr4D.get_dimk()};
+        data_dims[2] = {testArr4D.get_dimj()};
+        data_dims[3] = {testArr4D.get_dimi()};
 
         //create dataset
         H5::DataSpace mspace(4, data_dims); //rank is 4
         H5::DataSet test4D_data = test4D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
+
+        writeRealDataSet_inOrder(test4D_group, "data", &testArr4D[0], data_dims, 4);
         test4D_group.close();
     }
     datacubes.close();
-
-    //write 4D array to HDF5 file
-    std::string nameString = "4DSTEM_simulation/data/datacubes/test4Darray";
-    PRISMATIC_FLOAT_PRECISION numFP = 1;
-
-    {
-        hsize_t mdims[4];
-        mdims[0] = {1};
-        mdims[1] = {1};
-        mdims[2] = {testArr4D.get_dimi()};
-        mdims[3] = {testArr4D.get_dimj()};
-        hsize_t offset[4] = {0,0,0,0};
-        for(auto l = 0; l < testArr4D.get_diml(); l++)
-        {
-            for(auto k = 0; k < testArr4D.get_dimk(); k++)
-            {
-                offset[0] = k;
-                offset[1] = l;
-                size_t arrayStart = l*testArr4D.get_dimk()*testArr4D.get_dimj()*testArr4D.get_dimi()+k*testArr4D.get_dimj()*testArr4D.get_dimi();
-                writeDatacube4D(pars,&testArr4D[arrayStart],&readBuffer[0],mdims,offset,numFP,nameString.c_str());
-
-            }
-        }
-    }
 
     H5::Group realslices = pars.outputFile.openGroup("4DSTEM_simulation/data/realslices");
     {
         std::string base_name = "test3Darray";
         H5::Group test3D_group(realslices.createGroup(base_name.c_str()));
         hsize_t data_dims[3];
-        data_dims[0] = {testArr3D.get_dimi()};
+        data_dims[0] = {testArr3D.get_dimk()};
         data_dims[1] = {testArr3D.get_dimj()};
-        data_dims[2] = {testArr3D.get_dimk()};
+        data_dims[2] = {testArr3D.get_dimi()};
 
         //create dataset
         H5::DataSpace mspace(3, data_dims);
         H5::DataSet test3D_data = test3D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
+        writeRealDataSet_inOrder(test3D_group, "data", &testArr3D[0], data_dims, 3);
+
         test3D_group.close();
     }
 
@@ -230,35 +210,18 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
         std::string base_name = "test2Darray";
         H5::Group test2D_group(realslices.createGroup(base_name.c_str()));
         hsize_t data_dims[2];
-        data_dims[0] = {testArr2D.get_dimi()};
-        data_dims[1] = {testArr2D.get_dimj()};
+        data_dims[0] = {testArr2D.get_dimj()};
+        data_dims[1] = {testArr2D.get_dimi()};
 
         //create dataset
         H5::DataSpace mspace(2, data_dims);
         H5::DataSet test2D_data = test2D_group.createDataSet("data", PFP_TYPE, mspace);
         mspace.close();
+        writeRealDataSet_inOrder(test2D_group, "data", &testArr2D[0], data_dims, 2);
+
         test2D_group.close();
     }
 
-    //write 2D and 3D arrays
-    {
-        H5::DataSet test3D_data = realslices.openDataSet("test3Darray/data");
-        hsize_t mdims[3];
-        mdims[0] = {testArr3D.get_dimi()};
-        mdims[1] = {testArr3D.get_dimj()};
-        mdims[2] = {testArr3D.get_dimk()};
-        writeDatacube3D(test3D_data, &testArr3D[0],mdims);
-        test3D_data.close();
-    }
-
-    {
-        H5::DataSet test2D_data = realslices.openDataSet("test2Darray/data");
-        hsize_t mdims[2];
-        mdims[0] = {testArr2D.get_dimi()};
-        mdims[1] = {testArr2D.get_dimj()};
-        writeRealSlice(test2D_data, &testArr2D[0],mdims);
-        test2D_data.close();
-    }
     realslices.close();
     pars.outputFile.close();
 
@@ -266,9 +229,13 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     std::string dataPath3D = "4DSTEM_simulation/data/realslices/test3Darray/data";
     std::string dataPath4D = "4DSTEM_simulation/data/datacubes/test4Darray/data";
 
-    Array2D<PRISMATIC_FLOAT_PRECISION> read2D = readDataSet2D(pars.meta.filenameOutput, dataPath2D);
-    Array3D<PRISMATIC_FLOAT_PRECISION> read3D = readDataSet3D(pars.meta.filenameOutput, dataPath3D);
-    Array4D<PRISMATIC_FLOAT_PRECISION> read4D = readDataSet4D(pars.meta.filenameOutput, dataPath4D);
+    Array2D<PRISMATIC_FLOAT_PRECISION> read2D; 
+    Array3D<PRISMATIC_FLOAT_PRECISION> read3D; 
+    Array4D<PRISMATIC_FLOAT_PRECISION> read4D; 
+
+    readRealDataSet_inOrder(read2D, pars.meta.filenameOutput, dataPath2D);
+    readRealDataSet_inOrder(read3D, pars.meta.filenameOutput, dataPath3D);
+    readRealDataSet_inOrder(read4D, pars.meta.filenameOutput, dataPath4D);
 
     //check for array sizing equivalance
     BOOST_TEST(compareSize(read2D, testArr2D));
