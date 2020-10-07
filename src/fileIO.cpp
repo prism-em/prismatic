@@ -874,7 +874,6 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	
 	if(pars.meta.saveComplexOutputWave)
 	{
-		std::cout << "here 4" << std::endl;
 		Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> output_buffer = zeros_ND<3, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
 		PRISMATIC_FLOAT_PRECISION scale = pars.Scompact.get_dimi()*pars.Scompact.get_dimj();
 		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
@@ -892,18 +891,6 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 	else
 	{
-		std::cout << "here 4b" << std::endl;
-		Array3D<PRISMATIC_FLOAT_PRECISION> output_buffer = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.numberBeams}});
-		for(auto i = 0; i < pars.Scompact.get_dimi(); i++)
-		{
-			for(auto j = 0; j < pars.Scompact.get_dimj(); j++)
-			{
-				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
-				{
-					output_buffer.at(i,j,k) = net_output.at(k,j,i);
-				}
-			}
-		}
 		writeRealDataSet_inOrder(hrtem_group, "data", &net_output[0], mdims, 3);
 	}
 
@@ -926,14 +913,14 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			nameString = nameString + pars.currentTag;
 			H5::Group dataGroup = pars.outputFile.openGroup(nameString);
 			//manual restride is faster
-			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimi(), pars.net_output.get_dimk(), pars.net_output.get_dimj()}});
+			Array3D<PRISMATIC_FLOAT_PRECISION> tmp_array = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.net_output.get_dimj(), pars.net_output.get_dimk(), pars.net_output.get_dimi()}});
 			for(auto ii = 0; ii < pars.net_output.get_dimi(); ii++) //over detector
 			{
 				for(auto jj = 0; jj < pars.net_output.get_dimj(); jj++) //over x
 				{
 					for(auto kk = 0; kk < pars.net_output.get_dimk(); kk++) //over y
 					{
-						tmp_array.at(ii,kk,jj) = pars.net_output.at(j,kk,jj,ii);
+						tmp_array.at(jj,kk,ii) = pars.net_output.at(j,kk,jj,ii);
 					}
 				}
 			}
@@ -986,8 +973,8 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 			{
 				for(auto jj = 0; jj < pars.numYprobes; jj++)
 				{
-					DPC_image.at(ii,jj,0) = pars.net_DPC_CoM.at(j,0,jj,ii);
-					DPC_image.at(ii,jj,1) = pars.net_DPC_CoM.at(j,1,jj,ii);
+					DPC_image.at(ii,jj,0) = pars.net_DPC_CoM.at(j,jj,ii,0);
+					DPC_image.at(ii,jj,1) = pars.net_DPC_CoM.at(j,jj,ii,1);
 				}
 			}
 			std::string nameString = "4DSTEM_simulation/data/realslices/DPC_CoM_depth" + getDigitString(j);

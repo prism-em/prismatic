@@ -51,17 +51,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
     prismatic_pars.scale = 1.0;
 
 	Array3D<PRISMATIC_FLOAT_PRECISION> net_output;
-	if(not prismatic_pars.meta.saveComplexOutputWave)
-	{
-		//integrate output here
-		net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>(prismatic_pars.Scompact.get_dimarr());
-		for(auto i = 0; i < net_output.size(); i++)
-		{
-			//scale before integration
-			prismatic_pars.Scompact *= prismatic_pars.Scompact.get_dimi()*prismatic_pars.Scompact.get_dimj();
-			net_output[i] += pow(std::abs(prismatic_pars.Scompact[i]), 2.0) / prismatic_pars.meta.numFP;
-		}
-	}
 
 	//run multiple frozen phonons
 	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
@@ -94,12 +83,24 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		}
 		else
 		{
-			//integrate output
-			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
-			for(auto i = 0; i < net_output.size(); i++)
+			if(i == 0)
 			{
-				net_output[i] += pow(std::abs(prismatic_pars.Scompact[i]*scale), 2.0) / prismatic_pars.meta.numFP;
+				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
 			}
+			//integrate output
+			std::cout << "input integrated" << std::endl;
+			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
+			for(auto kk = 0; kk < prismatic_pars.Scompact.get_dimk(); kk++)
+			{
+				for(auto jj = 0; jj < prismatic_pars.Scompact.get_dimj(); jj++)
+				{
+					for(auto ii = 0; ii < prismatic_pars.Scompact.get_dimi(); ii++)
+					{
+						net_output.at(ii,jj,kk) += pow(std::abs(prismatic_pars.Scompact.at(kk,jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
+					}
+				}
+			}
+
 		}
 	}
 
