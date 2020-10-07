@@ -188,7 +188,6 @@ namespace Prismatic{
 		    tiledCellDim[2] *= meta.tileX;
 		    tiledCellDim[1] *= meta.tileY;
 		    tiledCellDim[0] *= meta.tileZ;
-			//	std::cout << "tiledCellDim[0]= " << tiledCellDim[0]<< std::endl;
 		    zTotal = tiledCellDim[0];
 		    xTiltShift = -zTotal * tan(meta.probeXtilt);
 		    yTiltShift = -zTotal * tan(meta.probeYtilt);
@@ -215,21 +214,10 @@ namespace Prismatic{
 
 		    T f_x = 4 * meta.interpolationFactorX;
 		    T f_y = 4 * meta.interpolationFactorY;
-		    //std::cout << "f_x = " << f_x << std::endl;
-		    //std::cout << "f_y = " << f_y << std::endl;
-		    //std::cout << "tiledCellDim[1] = " << tiledCellDim[1] << std::endl;
-		    //std::cout << "tiledCellDim[2] = " << tiledCellDim[2] << std::endl;
 		    Array1D<size_t> _imageSize({{(size_t)tiledCellDim[1], (size_t)tiledCellDim[2]}}, {{2}});
 		    _imageSize[0] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)));
 		    _imageSize[1] = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)4.0,  (PRISMATIC_FLOAT_PRECISION)(f_x * round((tiledCellDim[2]) / meta.realspacePixelSize[1] / f_x)));
 
-		    // std::cout << "(f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y) = " << (f_y * round((tiledCellDim[1]) / meta.realspacePixelSize[0] / f_y)) << std::endl;
-		    // std::cout << "_imageSize[0] = " << _imageSize[0] << std::endl;
-		    // std::cout << "_imageSize[1] = " << _imageSize[1] << std::endl;
-			//		    std::transform(_imageSize.begin(), _imageSize.end(), _imageSize.begin(),
-			//		                   [&f, this](size_t &a) {
-			//			                   return (size_t)std::max(4.0,  (f * round(((T)a) / meta.realspacePixelSize / f)));
-			//		                   });
 		    this->imageSize = _imageSize;
 
 		    std::vector<T> _pixelSize{(T) tiledCellDim[1], (T) tiledCellDim[2]};
@@ -284,12 +272,8 @@ namespace Prismatic{
 				return output;
 			};
 
-			std::cout << "probe defocus min: " << meta.probeDefocus_min << std::endl;
-			std::cout << "probe defocus max: " << meta.probeDefocus_max << std::endl;
-			std::cout << "probe defocus step: " << meta.probeDefocus_step << std::endl;
 			if(meta.probeDefocus_step > 0.0)
 			{
-				std::cout << "entered" << std::endl;
 				//set up defocus series with min max step
 				std::vector<PRISMATIC_FLOAT_PRECISION> defocii;
 				PRISMATIC_FLOAT_PRECISION currentVal = meta.probeDefocus_min;
@@ -427,7 +411,6 @@ namespace Prismatic{
 		else if(meta.algorithm == Algorithm::PRISM)
 		{
 			size_t numBeams = std::ceil(qx_extent*qy_extent/(meta.interpolationFactorX*meta.interpolationFactorY));
-			std::cout << numBeams << std::endl;
 			if(meta.save4DOutput) numElems += numProbes*imageSize[0]*imageSize[1]/(4*meta.interpolationFactorX*meta.interpolationFactorY);
 			if(meta.saveSMatrix) numElems += numBeams*imageSize[0]*imageSize[1]/4; 
 		}
@@ -440,7 +423,7 @@ namespace Prismatic{
 		}
 
 		if(meta.savePotentialSlices) numElems += imageSize[0]*imageSize[1]*std::ceil(tiledCellDim[0]/meta.sliceThickness);
-		std::cout << "app. output file size is: " << numElems*sizeof(PRISMATIC_FLOAT_PRECISION) << std::endl;
+		std::cout << "Approximate output file size is (Gb): " << (numElems*sizeof(PRISMATIC_FLOAT_PRECISION))/(1e9) << std::endl;
 		if(numElems*sizeof(PRISMATIC_FLOAT_PRECISION) > meta.maxFileSize)
 		{
 			throw std::runtime_error("Simulation output file will be larger than maximum allowed file size.");

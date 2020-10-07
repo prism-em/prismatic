@@ -47,12 +47,6 @@ upsamplePRISMProbe(Prismatic::Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> p
 		{
 			buffer_probe.at((dimj + ((j - ncy + ys) % dimj)) % dimj,
 							(dimi + ((i - ncx + xs) % dimi)) % dimi) = probe.at(j, i);
-			//				std::cout << "(dimj + ((j - ncy) % dimj)) % dimj= " << (dimj + ((j - ncy) % dimj)) % dimj<< std::endl;
-			//				std::cout << "(j - ncy)= " << (j - ncy) << std::endl;
-			//				std::cout << "(j - ncy) % dimj)= " << (j - ncy) % dimj<< std::endl;
-
-			//				buffer_probe.at( (dimj + ((j - ncy) % dimj)) % dimj,
-			//				                 (dimi + ((i - ncx) % dimi)) % dimi) = probe.at(j, i);
 		}
 	}
 	std::unique_lock<std::mutex> gatekeeper(fftw_plan_lock);

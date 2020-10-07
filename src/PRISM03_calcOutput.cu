@@ -1460,32 +1460,24 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		CudaParameters<PRISMATIC_FLOAT_PRECISION> cuda_pars;
 
 		// create CUDA streams and cuFFT plans
-		std::cout << "here7.0" << std::endl;
 		createStreamsAndPlans3(pars, cuda_pars);
-		std::cout << "here7.1" << std::endl;
 		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_singlexfer3(pars, cuda_pars);
-		std::cout << "here7.2" << std::endl;
 		
 		// copy data to pinned buffers
 		copyToPinnedMemory_singlexfer3(pars, cuda_pars);
-		std::cout << "here7.3" << std::endl;
 		
 		// allocate memory on the GPUs
 		allocateDeviceMemory_singlexfer3(pars, cuda_pars);
-		std::cout << "here7.4" << std::endl;
 		
 		// copy memory to GPUs
 		copyToGPUMemory_singlexfer3(pars, cuda_pars);
-		std::cout << "here7.5" << std::endl;
 		
 		// launch GPU and CPU workers
 		launchWorkers_singlexfer3(pars, cuda_pars);
-		std::cout << "here7.6" << std::endl;
 		
 		// free memory on the host/device
 		cleanupMemory3(pars, cuda_pars);
-		std::cout << "here7.7" << std::endl;
 	}
 
 	void buildPRISMOutput_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){

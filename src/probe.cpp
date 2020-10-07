@@ -87,7 +87,7 @@ void readProbes(const std::string &filename,
     }
     else
     {
-        std::cout << "extracted " << probe_count << " probe positions from " << line_num << " lines in " << filename
+        std::cout << "Extracted " << probe_count << " probe positions from " << line_num << " lines in " << filename
             << std::endl;
     }
 };

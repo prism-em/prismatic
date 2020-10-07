@@ -402,15 +402,14 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	size_t numWorkers = pars.meta.numThreads; //std::min(pars.meta.numThreads, (size_t) 4); //heuristic for now, TODO: improve parallelization scheme to segment atoms over regions to avoid write locks
 	workers.reserve(numWorkers);
 	WorkDispatcher dispatcher(0, pars.atoms.size());
+	const size_t print_frequency = std::max((size_t)1, pars.atoms.size() / 10);
 
 	PRISMATIC_FFTW_INIT_THREADS();
-
-	std::cout << "# of atoms: " <<  pars.atoms.size() << std::endl;
 	std::cout << "Base random seed = " << pars.meta.randomSeed << std::endl;
 	for (long t = 0; t < numWorkers; t++)
 	{
 		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
-		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ,
+		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ, &print_frequency,
 								 &Z_lookup, &xvec, &yvec, &zvec, &zr, &dim0, &dim1,
 								 &numPlanes, &potLookup, &rband, &qband, &qxShift, &qyShift, &dispatcher]()
 		{
@@ -420,9 +419,9 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				while(currentAtom != stop)
 				{
-					if(!(currentAtom % 1000))
+					if(!(currentAtom % print_frequency))
 					{
-						std::cout << "Computing atom " << currentAtom << std::endl;
+						std::cout << "Computing atom " << currentAtom << "/" << pars.atoms.size() << std::endl;
 					}
 
 					// create a random number generator to simulate thermal effects

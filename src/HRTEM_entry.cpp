@@ -88,7 +88,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
 			}
 			//integrate output
-			std::cout << "input integrated" << std::endl;
 			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
 			for(auto kk = 0; kk < prismatic_pars.Scompact.get_dimk(); kk++)
 			{

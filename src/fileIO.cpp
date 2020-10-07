@@ -571,10 +571,7 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//create virtual dataset
 	std::string src_basename = "4DSTEM_simulation/data/realslices/HRTEM";
 	if(pars.meta.saveComplexOutputWave) src_basename += "_fp" + getDigitString(pars.meta.fpNum);
-	std::cout << "here3.1" << std::endl;
-	std::cout << src_basename << std::endl;
 	H5::DataSet src_data = pars.outputFile.openDataSet(src_basename+"/data");
-	std::cout << "here3.2" << std::endl;
 	std::string src_path = src_data.getObjName();
 	H5::DataSpace src_mspace = src_data.getSpace();
 
@@ -1695,7 +1692,6 @@ void configureSupergroup(H5::Group &new_sg,
 	}
 
 	//write supergroup dimensions
-	std::cout << "writing " << sgdims.size() << " supergroup dimensions" << std::endl;
 	for(auto i = 0; i < sgdims.size(); i++)
 	{
 		hsize_t dim_size[1] = {sgdims[i].size()};
@@ -1763,7 +1759,6 @@ void writeVirtualDataSet(H5::Group group,
 	for(auto i = 0; i < rank;  i++) offset[i] = 0; 
 	for(auto i = 0; i < datasets.size(); i++)
 	{
-		std::cout << i << std::endl;
 		path = datasets[i].getObjName();
 		src_mspace = datasets[i].getSpace();
 
@@ -1873,7 +1868,6 @@ void CCseriesSG(H5::H5File &file)
 	std::vector<std::string> sgdims_units;
 	sgdims_units.push_back("[Å]");
 
-	std::cout << "configuring supergroup" << std::endl;
 	configureSupergroup(CC_series, firstGroup, sgdims, sgdims_name, sgdims_units);
 }
 

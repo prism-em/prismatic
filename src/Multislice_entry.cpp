@@ -52,7 +52,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	// calculate frozen phonon configurations
 	if(prismatic_pars.meta.simSeries)
 	{
-		std::cout << "numFP:" << prismatic_pars.meta.numFP << std::endl;
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{
 			Multislice_series_runFP(prismatic_pars, i);
@@ -60,7 +59,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 
 		for(auto i = 0; i < prismatic_pars.meta.seriesTags.size(); i++)
 		{
-			std::cout << "writing output for series iter " << i << std::endl;
 			std::string currentName = prismatic_pars.meta.seriesTags[i];
 			prismatic_pars.currentTag = currentName;
 			prismatic_pars.meta.probeDefocus = prismatic_pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
