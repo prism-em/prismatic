@@ -399,15 +399,15 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		Z_lookup[unique_species[i]] = i;
 		
 	std::vector<std::thread> workers;
-	workers.reserve(pars.meta.numThreads);
+	size_t numWorkers = pars.meta.numThreads; //std::min(pars.meta.numThreads, (size_t) 4); //heuristic for now, TODO: improve parallelization scheme to segment atoms over regions to avoid write locks
+	workers.reserve(numWorkers);
 	WorkDispatcher dispatcher(0, pars.atoms.size());
 
 	PRISMATIC_FFTW_INIT_THREADS();
-	PRISMATIC_FFTW_PLAN_WITH_NTHREADS(pars.meta.numThreads);
 
 	std::cout << "# of atoms: " <<  pars.atoms.size() << std::endl;
 	std::cout << "Base random seed = " << pars.meta.randomSeed << std::endl;
-	for (long t = 0; t < pars.meta.numThreads; t++)
+	for (long t = 0; t < numWorkers; t++)
 	{
 		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ,
@@ -420,7 +420,11 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				while(currentAtom != stop)
 				{
-					std::cout << "calculating atom: " << currentAtom << std::endl;
+					if(!(currentAtom % 1000))
+					{
+						std::cout << "Computing atom " << currentAtom << std::endl;
+					}
+
 					// create a random number generator to simulate thermal effects
 					srand(pars.meta.randomSeed+currentAtom);
 					std::default_random_engine de(pars.meta.randomSeed+currentAtom);
