@@ -230,9 +230,9 @@ void addMismatchedArray(Array3D<PRISMATIC_FLOAT_PRECISION> &big,
         {
             for(auto i = 0; i < small.get_dimi(); i++)
             {
-                if(i+x_offset>= big.get_dimi()) std::cout <<"huhx" << std::endl;
-                if(j+y_offset>= big.get_dimj()) std::cout <<"huhy" << std::endl;
-                if(k+z_offset>= big.get_dimk()) std::cout <<"huhz" << std::endl;
+                if(i+x_offset>= big.get_dimi()) std::cout <<"Out of dimension x" << std::endl;
+                if(j+y_offset>= big.get_dimj()) std::cout <<"Out of dimension y" << std::endl;
+                if(k+z_offset>= big.get_dimk()) std::cout <<"Out of dimension z" << std::endl;
 
                 big.at(k+z_offset,j+y_offset,i+x_offset) += small.at(k,j,i);
             }

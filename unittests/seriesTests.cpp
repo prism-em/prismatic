@@ -210,9 +210,6 @@ BOOST_FIXTURE_TEST_CASE(CC_series_virtual, basicSim)
     // readRealDataSet(vd_series, meta.filenameOutput, path, order_4D);
     readRealDataSet_inOrder(vd_series, meta.filenameOutput, path);
 
-    std::cout << vd.get_dimi() << " " << vd.get_dimj() << " " << vd.get_dimk() << std::endl;
-    std::cout << vd_series.get_dimi() << " " << vd_series.get_dimj() << " " << vd_series.get_dimk() << " " << vd_series.get_diml() << std::endl;
-
     BOOST_TEST(vd.get_dimi() == vd_series.get_dimj());
     BOOST_TEST(vd.get_dimj() == vd_series.get_dimk());
     BOOST_TEST(vd.get_dimk() == vd_series.get_diml());

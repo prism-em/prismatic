@@ -83,7 +83,6 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
     PRISMATIC_FLOAT_PRECISION r1y = 0.99999*meta.tileY*5.43;
     std::vector<PRISMATIC_FLOAT_PRECISION> px = vecFromRange(r0, meta.probeStepX, r1x);
     std::vector<PRISMATIC_FLOAT_PRECISION> py = vecFromRange(r0, meta.probeStepY, r1y);
-    std::cout << px.size() << std::endl;
     meta.probes_x = {};
     meta.probes_y = {};
     for(auto i = 0; i < px.size(); i++)
