@@ -336,8 +336,15 @@ if (PRISMATIC_TESTS)
         ${HDF5_LIBRARIES}
         ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-    add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
-                        DEPENDS prismatic prismatic-tests)
+    # always run tests last
+    if(PRISMATIC_ENABLE_PYPRISMATIC)
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+                            DEPENDS prismatic prismatic-tests pyprismatic_core)
+    else(PRISMATIC_ENABLE_PYPRISMATIC)
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+                            DEPENDS prismatic prismatic-tests)
+    endif(PRISMATIC_ENABLE_PYPRISMATIC)
+       
 
 endif (PRISMATIC_TESTS)
 
