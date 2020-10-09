@@ -516,35 +516,6 @@ BOOST_FIXTURE_TEST_CASE(PRISM01_integration, basicCell)
     BOOST_TEST(std::abs(refPotSum2-testPotSum)/refPotSum2<tol);
 };
 
-BOOST_AUTO_TEST_CASE(pot_comparison)
-{
-    Metadata<PRISMATIC_FLOAT_PRECISION> meta;
-    meta.filenameAtoms = "../unittests/pfiles/center_Au.xyz";
-    // meta.filenameAtoms = "../SI100.XYZ";
-    meta.filenameOutput = "../unittests/outputs/new_pot_ref.h5";
-    meta.realspacePixelSize[0] = 0.05;
-    meta.realspacePixelSize[1] = 0.05;
-    meta.algorithm = Algorithm::Multislice;
-    meta.probeStepX = 40;
-    meta.probeStepY = 40;
-    meta.savePotentialSlices = true;
-    meta.potBound = 3.0;
-    meta.numThreads = 1;
-    meta.sliceThickness = 4.0;
-    meta.potential3D = false;
-    meta.includeThermalEffects = false;
-
-
-    go(meta);
-
-    std::cout << "#######################################################\n##############################################" << std::endl;
-    meta.filenameOutput = "../unittests/outputs/new_pot_test.h5";
-    meta.zSampling = 16;
-    meta.potential3D = true;
-
-    go(meta);
-};
-
 BOOST_AUTO_TEST_SUITE_END();
 
 }
