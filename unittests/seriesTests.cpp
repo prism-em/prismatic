@@ -21,7 +21,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -29,7 +29,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -44,15 +44,15 @@ class basicSim{
 
 class logFile{
     public:
-    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
-    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up prismatic-tests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing prismatic-tests.log file.");}
     std::string logPath;
 
     void setupLog()
     {
-        logPath = "ioTests.log";
+        logPath = "prismatic-tests.log";
         FILE *fp = fopen(logPath.c_str(),"w");
-        fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
+        fprintf(fp,"########## BEGIN TEST SUITE: seriesTests ##########\n");
         fclose(fp);
     }
 };
@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(CC_series_M, basicSim)
     meta.seriesVals = {{-10.0, 0.0, 10.0}};
     meta.seriesKeys = {"probeDefocus"};
     meta.seriesTags = {"_df0000", "_df0001", "_df0002"};
-    meta.filenameOutput = "../test/CC_series.h5";
+    meta.filenameOutput = "../unittests/outputs/CC_series.h5";
     meta.save3DOutput = true;
     meta.save2DOutput = true;
     meta.save4DOutput = true;
@@ -125,7 +125,7 @@ BOOST_FIXTURE_TEST_CASE(CC_series_P, basicSim)
     meta.seriesVals = {{-10.0, 0.0, 10.0}};
     meta.seriesKeys = {"probeDefocus"};
     meta.seriesTags = {"_df0000", "_df0001", "_df0002"};
-    meta.filenameOutput = "../test/CC_series.h5";
+    meta.filenameOutput = "../unittests/outputs/CC_series.h5";
     meta.save3DOutput = true;
     meta.save2DOutput = true;
     meta.save4DOutput = true;
@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(CC_series_virtual, basicSim)
     meta.seriesVals = {{-96.0, -48.0, 0.0, 48.0, 96}};
     meta.seriesKeys = {"probeDefocus"};
     meta.seriesTags = {"_df0000", "_df0001", "_df0002", "_df0003", "_df0004"};
-    meta.filenameOutput = "../test/CC_series_virtual.h5";
+    meta.filenameOutput = "../unittests/outputs/CC_series_virtual.h5";
     meta.save3DOutput = true;
     meta.save2DOutput = false;
     meta.save4DOutput = false;

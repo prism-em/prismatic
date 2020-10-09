@@ -21,7 +21,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -29,7 +29,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -44,15 +44,15 @@ class basicSim{
 
 class logFile{
     public:
-    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
-    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up prismatic-tests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing prismatic-tests.log file.");}
     std::string logPath;
 
     void setupLog()
     {
-        logPath = "ioTests.log";
+        logPath = "prismatic-tests.log";
         FILE *fp = fopen(logPath.c_str(),"w");
-        fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
+        fprintf(fp,"########## BEGIN TEST SUITE: probeTests ##########\n");
         fclose(fp);
     }
 };
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_SUITE(probeTests);
 
 BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
 {
-    std::string refname = "../test/rectGridRef.h5";
-    std::string testname = "../test/rectGridTest.h5";
+    std::string refname = "../unittests/outputs/rectGridRef.h5";
+    std::string testname = "../unittests/outputs/rectGridTest.h5";
     meta.filenameOutput = refname;
     meta.algorithm = Algorithm::Multislice;
     meta.potential3D = false;
@@ -132,8 +132,8 @@ BOOST_FIXTURE_TEST_CASE(rectGrid_M, basicSim)
 
 BOOST_FIXTURE_TEST_CASE(rectGrid_P, basicSim)
 {
-    std::string refname = "../test/rectGridRef.h5";
-    std::string testname = "../test/rectGridTest.h5";
+    std::string refname = "../unittests/outputs/rectGridRef.h5";
+    std::string testname = "../unittests/outputs/rectGridTest.h5";
     meta.filenameOutput = refname;
     meta.algorithm = Algorithm::PRISM;
     meta.potential3D = false;

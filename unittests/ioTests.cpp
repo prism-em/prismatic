@@ -21,7 +21,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -29,7 +29,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -51,13 +51,13 @@ class basicSim{
 
 class logFile{
     public:
-    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
-    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up prismatic-tests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing prismatic-tests.log file.");}
     std::string logPath;
 
     void setupLog()
     {
-        logPath = "ioTests.log";
+        logPath = "prismatic-tests.log";
         FILE *fp = fopen(logPath.c_str(),"w");
         fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
         fclose(fp);
@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(readH5, basicSim)
     assignRandomValues(testArr4D, de);
 
     //setting up output file to read from
-    pars.meta.filenameOutput = "../test/fileIOreadTest.h5";
+    pars.meta.filenameOutput = "../unittests/outputs/fileIOreadTest.h5";
     pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
     setupOutputFile(pars);
 
@@ -271,14 +271,14 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_P, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_P #####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
@@ -347,14 +347,14 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_P, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential3D_P #####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
@@ -413,14 +413,14 @@ BOOST_FIXTURE_TEST_CASE(importPotential2D_M, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential2D_M #####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
@@ -478,14 +478,14 @@ BOOST_FIXTURE_TEST_CASE(importPotential3D_M, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPotential3D_M #####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
@@ -546,8 +546,8 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n##### BEGIN TEST CASE: fourierResampling ######\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
@@ -555,8 +555,8 @@ BOOST_FIXTURE_TEST_CASE(fourierResampling, basicSim)
     meta.algorithm = Algorithm::PRISM;
     meta.interpolationFactorX = 5;
     meta.interpolationFactorY = 7;
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPath     = "4DSTEM_simulation/data/realslices/ppotential_fp0000/data";
     meta.importPotential = true;
     go(meta);
@@ -606,14 +606,14 @@ BOOST_FIXTURE_TEST_CASE(importSMatrix, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n####### BEGIN TEST CASE: importSMatrix ########\n";
 
-    std::string importFile = "../test/smatrixImport.h5";
-    meta.filenameOutput = "../test/smatrixImport.h5";
+    std::string importFile = "../unittests/outputs/smatrixImport.h5";
+    meta.filenameOutput = "../unittests/outputs/smatrixImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/smatrixRerun.h5";
-    meta.importFile     = "../test/smatrixImport.h5";
+    meta.filenameOutput = "../unittests/outputs/smatrixRerun.h5";
+    meta.importFile     = "../unittests/outputs/smatrixImport.h5";
     meta.importSMatrix = true;
     go(meta);
     std::cout << "######### END TEST CASE: importSMatrix ########\n";
@@ -673,14 +673,14 @@ BOOST_FIXTURE_TEST_CASE(importSM_multFP, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n###### BEGIN TEST CASE: importSM_multFP #######\n";
 
-    std::string importFile = "../test/smatrixImport.h5";
-    meta.filenameOutput = "../test/smatrixImport.h5";
+    std::string importFile = "../unittests/outputs/smatrixImport.h5";
+    meta.filenameOutput = "../unittests/outputs/smatrixImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/smatrixRerun.h5";
-    meta.importFile     = "../test/smatrixImport.h5";
+    meta.filenameOutput = "../unittests/outputs/smatrixRerun.h5";
+    meta.importFile     = "../unittests/outputs/smatrixImport.h5";
     meta.importSMatrix = true;
     go(meta);
     std::cout << "######## END TEST CASE: importSM_multFP #######\n";
@@ -788,14 +788,14 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_P, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n### BEGIN TEST CASE: importPot_multipleFP_P ###\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPotential = true;
     go(meta);
     std::cout << "#### END TEST CASE: importPot_multipleFP_P ####\n";
@@ -859,14 +859,14 @@ BOOST_FIXTURE_TEST_CASE(importPot_multipleFP_M, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPot_multipleFP_M ####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.importPotential = true;
     go(meta);
     std::cout << "#### END TEST CASE: importPot_multipleFP_M ####\n";
@@ -928,14 +928,14 @@ BOOST_FIXTURE_TEST_CASE(importPot_fpMismatch, basicSim)
     divertOutput(pos, fd, logPath);
     std::cout << "\n#### BEGIN TEST CASE: importPot_fpMismatch ####\n";
 
-    std::string importFile = "../test/potentialImport.h5";
-    meta.filenameOutput = "../test/potentialImport.h5";
+    std::string importFile = "../unittests/outputs/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialImport.h5";
     go(meta);
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/potentialRerun.h5";
-    meta.importFile     = "../test/potentialImport.h5";
+    meta.filenameOutput = "../unittests/outputs/potentialRerun.h5";
+    meta.importFile     = "../unittests/outputs/potentialImport.h5";
     meta.numFP = 1;
     meta.importPotential = true;
     go(meta);
@@ -1003,7 +1003,7 @@ BOOST_AUTO_TEST_CASE(complexIO)
     assignRandomValues(refArr4D, de);
 
     //create a test file
-    std::string fname = "../test/testFile.h5";
+    std::string fname = "../unittests/outputs/testFile.h5";
     H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
     H5::Group testGroup(testFile.createGroup("/complex_data"));
 
@@ -1046,7 +1046,7 @@ BOOST_AUTO_TEST_CASE(complexIO)
 BOOST_AUTO_TEST_CASE(dataGroupCount)
 {
     //create a test file
-    std::string fname = "../test/testFile.h5";
+    std::string fname = "../unittests/outputs/testFile.h5";
     H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
     H5::Group testGroup(testFile.createGroup("/complex_data"));
 
@@ -1071,7 +1071,7 @@ BOOST_AUTO_TEST_CASE(dataGroupCount)
 BOOST_AUTO_TEST_CASE(virtualDataSet)
 {
     //create test file
-    std::string fname = "../test/testFile.h5";
+    std::string fname = "../unittests/outputs/testFile.h5";
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     pars.outputFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);;
     setupOutputFile(pars);
@@ -1174,7 +1174,7 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
     assignRandomValues(refArr_complex, de);
 
     //create a test file
-    std::string fname = "../test/testFile.h5";
+    std::string fname = "../unittests/outputs/testFile.h5";
     H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
     H5::Group sourceGroup(testFile.createGroup("/source"));
     H5::Group targetGroup(testFile.createGroup("/target"));
@@ -1260,7 +1260,7 @@ BOOST_AUTO_TEST_CASE(datasetCopy)
 BOOST_FIXTURE_TEST_CASE(supergroup, basicSim)
 {
     //generate virtual detector depth series
-    std::string fname = "../test/supergroup.h5";
+    std::string fname = "../unittests/outputs/supergroup.h5";
     meta.potential3D = false;
     meta.save2DOutput = false;
     meta.save4DOutput = false;
@@ -1342,7 +1342,7 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_M, basicSim)
     meta.potential3D = false;
     meta.algorithm = Algorithm::Multislice;
     meta.numGPUs = 1; //change later, test CPU first
-    meta.filenameOutput = "../test/complexOutputWave_amplitude.h5";
+    meta.filenameOutput = "../unittests/outputs/complexOutputWave_amplitude.h5";
     meta.savePotentialSlices = false;
     meta.alsoDoCPUWork = 0;
     meta.numGPUs = 1;
@@ -1359,15 +1359,15 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_M, basicSim)
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/complexOutputWave.h5";
+    meta.filenameOutput = "../unittests/outputs/complexOutputWave.h5";
     meta.saveComplexOutputWave = true;
     go(meta);
     std::cout << "###### END TEST CASE: complexOutputWave_M #####\n";
 
     revertOutput(fd, pos);
     
-    std::string complexFile = "../test/complexOutputWave.h5";
-    std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
+    std::string complexFile = "../unittests/outputs/complexOutputWave.h5";
+    std::string amplitudeFile = "../unittests/outputs/complexOutputWave_amplitude.h5";
 
     //read in output arrays
     std::string dataPath4D_amp = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
@@ -1397,7 +1397,7 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
 
     meta.potential3D = false;
     meta.algorithm = Algorithm::PRISM;
-    meta.filenameOutput = "../test/complexOutputWave_amplitude.h5";
+    meta.filenameOutput = "../unittests/outputs/complexOutputWave_amplitude.h5";
     meta.savePotentialSlices = false;
     meta.transferMode = StreamingMode::Stream;
     divertOutput(pos, fd, logPath);
@@ -1407,15 +1407,15 @@ BOOST_FIXTURE_TEST_CASE(complexOutputWave_P, basicSim)
 
     std::cout << "\n--------------------------------------------\n";
 
-    meta.filenameOutput = "../test/complexOutputWave.h5";
+    meta.filenameOutput = "../unittests/outputs/complexOutputWave.h5";
     meta.saveComplexOutputWave = true;
     go(meta);
     std::cout << "###### END TEST CASE: complexOutputWave_P #####\n";
 
     revertOutput(fd, pos);
     
-    std::string complexFile = "../test/complexOutputWave.h5";
-    std::string amplitudeFile = "../test/complexOutputWave_amplitude.h5";
+    std::string complexFile = "../unittests/outputs/complexOutputWave.h5";
+    std::string amplitudeFile = "../unittests/outputs/complexOutputWave_amplitude.h5";
 
     //read in output arrays
     std::string dataPath4D_amp = "4DSTEM_simulation/data/datacubes/CBED_array_depth0000/data";
@@ -1449,7 +1449,7 @@ BOOST_AUTO_TEST_CASE(hdfStride)
     for(auto i = 0; i < refData.size(); i++) refData[i] = i;
 
     //create a test file and write to test dataset
-    std::string fname = "../test/hdfStride.h5";
+    std::string fname = "../unittests/outputs/hdfStride.h5";
     H5::H5File testFile = H5::H5File(fname.c_str(), H5F_ACC_TRUNC);
     hsize_t mdims[3] = {Nx, Ny, Nz};
     H5::DataSpace mspace(3,mdims);
@@ -1476,8 +1476,8 @@ BOOST_AUTO_TEST_CASE(hdfStride)
 
 BOOST_FIXTURE_TEST_CASE(fileSizeCheck, basicSim)
 {
-    meta.filenameOutput = "../test/fileSizeCheck.h5";
-    // meta.filenameAtoms = "../test/au_np.xyz";
+    meta.filenameOutput = "../unittests/outputs/fileSizeCheck.h5";
+    // meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.potential3D = false;
     meta.save2DOutput = false;
     meta.save3DOutput = true;

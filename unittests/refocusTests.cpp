@@ -22,7 +22,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -30,7 +30,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -53,7 +53,7 @@ class logFile{
     {
         logPath = "matrixRefocus.log";
         FILE *fp = fopen(logPath.c_str(),"w");
-        fprintf(fp,"####### BEGIN TEST SUITE: matrixRefocus #######\n");
+        fprintf(fp,"####### BEGIN TEST SUITE: refocusTests #######\n");
         fclose(fp);
     }
 };
@@ -88,8 +88,8 @@ BOOST_FIXTURE_TEST_CASE(matrixRefocus, basicSim)
 
     */
 
-    std::string fname_m = "../test/matrixRefocus_m.h5";
-    std::string fname_p = "../test/matrixRefocus_p.h5";
+    std::string fname_m = "../unittests/outputs/matrixRefocus_m.h5";
+    std::string fname_p = "../unittests/outputs/matrixRefocus_p.h5";
     meta.tileX = 5;
     meta.tileY = 5;
     meta.tileZ = 1;

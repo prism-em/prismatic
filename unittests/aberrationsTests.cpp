@@ -22,7 +22,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -30,7 +30,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -45,15 +45,15 @@ class basicSim{
 
 class logFile{
     public:
-    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
-    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up prismatic-tests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing prismatic-tests.log file.");}
     std::string logPath;
 
     void setupLog()
     {
-        logPath = "ioTests.log";
+        logPath = "prismatic-tests.log";
         FILE *fp = fopen(logPath.c_str(),"w");
-        fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
+        fprintf(fp,"########## BEGIN TEST SUITE: aberrationTests ##########\n");
         fclose(fp);
     }
 };
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_SUITE(aberrationsTests);
 
 BOOST_FIXTURE_TEST_CASE(probeIO_M, basicSim)
 {
-    meta.filenameOutput = "../test/probeIO_M.h5";
+    meta.filenameOutput = "../unittests/outputs/probeIO_M.h5";
     meta.potential3D = false;
     meta.save2DOutput = false;
     meta.save3DOutput = true;
@@ -129,7 +129,7 @@ BOOST_FIXTURE_TEST_CASE(probeIO_M, basicSim)
 
 BOOST_FIXTURE_TEST_CASE(probeIO_P, basicSim)
 {
-    meta.filenameOutput = "../test/probeIO_P.h5";
+    meta.filenameOutput = "../unittests/outputs/probeIO_P.h5";
     meta.potential3D = false;
     meta.save2DOutput = false;
     meta.save3DOutput = true;
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(astig)
 
     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(q1, qTheta, lambda, abberations);
     for(auto i = 0; i < chi.size(); i++) chi[i] *= (q1[i] < 1.0) ? 1.0 : 0.0;
-    H5::H5File testFile = H5::H5File("../test/astig.h5", H5F_ACC_TRUNC);
+    H5::H5File testFile = H5::H5File("../unittests/outputs/astig.h5", H5F_ACC_TRUNC);
     H5::Group group = testFile.createGroup("test");
     hsize_t mdims[2] = {chi.get_dimi(), chi.get_dimj()};
     std::vector<size_t> order = {0,1};
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(abb1)
 
     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = getChi(q1, qTheta, lambda, abberations);
     for(auto i = 0; i < chi.size(); i++) chi[i] *= (q1[i] < 1.0) ? 1.0 : 0.0;
-    H5::H5File testFile = H5::H5File("../test/abb1.h5", H5F_ACC_TRUNC);
+    H5::H5File testFile = H5::H5File("../unittests/outputs/abb1.h5", H5F_ACC_TRUNC);
     H5::Group group = testFile.createGroup("test");
     hsize_t mdims[2] = {chi.get_dimi(), chi.get_dimj()};
     std::vector<size_t> order = {0,1};

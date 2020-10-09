@@ -21,7 +21,7 @@ class basicSim{
     ~basicSim()    {BOOST_TEST_MESSAGE( "Tearing down fixture");}
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     Parameters<PRISMATIC_FLOAT_PRECISION> pars;
-    std::string logPath = "ioTests.log";
+    std::string logPath = "prismatic-tests.log";
     int fd;
     fpos_t pos;
 
@@ -29,7 +29,7 @@ class basicSim{
     {
         //running from build directory
         meta.filenameAtoms = "../SI100.XYZ";
-        meta.filenameOutput = "../test/fileIOtests.h5";
+        meta.filenameOutput = "../unittests/outputs/fileIOtests.h5";
         meta.includeThermalEffects = 0;
         meta.save2DOutput = true;
         meta.save3DOutput = true;
@@ -44,15 +44,15 @@ class basicSim{
 
 class logFile{
     public:
-    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up ioTests.log file.");}
-    ~logFile()      {BOOST_TEST_MESSAGE("Releasing ioTests.log file.");}
+    logFile()       {setupLog(), BOOST_TEST_MESSAGE("Setting up prismatic-tests.log file.");}
+    ~logFile()      {BOOST_TEST_MESSAGE("Releasing prismatic-tests.log file.");}
     std::string logPath;
 
     void setupLog()
     {
-        logPath = "ioTests.log";
+        logPath = "prismatic-tests.log";
         FILE *fp = fopen(logPath.c_str(),"w");
-        fprintf(fp,"########## BEGIN TEST SUITE: ioTests ##########\n");
+        fprintf(fp,"########## BEGIN TEST SUITE: hrtemTests ##########\n");
         fclose(fp);
     }
 };
@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_SUITE(hrtemTests);
 BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
-    meta.filenameOutput = "../test/planeWave.h5";
-    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.filenameOutput = "../unittests/outputs/planeWave.h5";
+    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -118,8 +118,8 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
 BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
-    meta.filenameOutput = "../test/imageTilts.h5";
-    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.filenameOutput = "../unittests/outputs/imageTilts.h5";
+    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -168,8 +168,8 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
 BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
-    meta.filenameOutput = "../test/virtualHRTEM.h5";
-    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.filenameOutput = "../unittests/outputs/virtualHRTEM.h5";
+    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -205,8 +205,8 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
-    meta.filenameOutput = "../test/radialTilts.h5";
-    meta.filenameAtoms = "../test/au_np.xyz";
+    meta.filenameOutput = "../unittests/outputs/radialTilts.h5";
+    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;

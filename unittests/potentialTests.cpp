@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE(pot_comparison)
     Metadata<PRISMATIC_FLOAT_PRECISION> meta;
     meta.filenameAtoms = "../unittests/pfiles/center_Au.xyz";
     // meta.filenameAtoms = "../SI100.XYZ";
-    meta.filenameOutput = "../test/new_pot_ref.h5";
+    meta.filenameOutput = "../unittests/outputs/new_pot_ref.h5";
     meta.realspacePixelSize[0] = 0.05;
     meta.realspacePixelSize[1] = 0.05;
     meta.algorithm = Algorithm::Multislice;
@@ -538,7 +538,7 @@ BOOST_AUTO_TEST_CASE(pot_comparison)
     go(meta);
 
     std::cout << "#######################################################\n##############################################" << std::endl;
-    meta.filenameOutput = "../test/new_pot_test.h5";
+    meta.filenameOutput = "../unittests/outputs/new_pot_test.h5";
     meta.zSampling = 16;
     meta.potential3D = true;
 
