@@ -160,6 +160,7 @@ class Metadata:
         "importPotential",
         "importSMatrix",
         "saveProbe",
+        "saveComplexOutputWave",
         "matrixRefocus",
         "importFile",
         "importPath"
@@ -274,7 +275,7 @@ class Metadata:
         self.batchSizeTargetGPU = 1
         self.batchSizeCPU = 1
         self.batchSizeGPU = 1
-        self.earlyCPUStopCount = 100.0
+        self.earlyCPUStopCount = 100
         self.probeStepX = 0.25
         self.probeStepY = 0.25
         self.probeDefocus = 0.0
@@ -326,7 +327,7 @@ class Metadata:
         self.saveSMatrix = False
         self.nyquistSampling = False
         self.importPotential = False
-        self.importSmatrix = False
+        self.importSMatrix = False
         self.saveComplexOutputWave = False
         self.saveProbe = False
         self.matrixRefocus = False

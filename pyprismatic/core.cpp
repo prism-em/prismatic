@@ -56,7 +56,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	//d - double
 	//p - bool
 	if (!PyArg_ParseTuple( 
-			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsidspppppppppppddsppppppss",
+			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppss",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -98,8 +98,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&probeXtilt,
 			&probeYtilt,
 			&minXtilt,
-			&minYtilt,
 			&maxXtilt,
+			&minYtilt,
 			&maxYtilt,
 			&minRtilt,
 			&maxRtilt,
@@ -117,7 +117,6 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&scanWindowYMax_r,
 			&probes_file,
 			&randomSeed,
-			&crop4Damax,
 			&algorithm,
 			&potential3D,
 			&includeThermalEffects,
@@ -126,18 +125,19 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&save2DOutput,
 			&save3DOutput,
 			&save4DOutput,
-			&crop4DOutput,
-			&saveDPC_CoM,
-			&savePotentialSlices,
-			&saveSMatrix,
 			&integrationAngleMin,
 			&integrationAngleMax,
 			&transferMode,
+			&saveDPC_CoM,
+			&savePotentialSlices,
+			&saveSMatrix,
+			&crop4DOutput,
+			&crop4Damax,
 			&nyquistSampling,
 			&importPotential,
 			&importSMatrix,
-			&saveComplexOutputWave,
 			&saveProbe,
+			&saveComplexOutputWave,
 			&matrixRefocus,
 			&importFile,
 			&importPath))
@@ -173,10 +173,22 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.probeStepX = probeStepX;
 	meta.probeStepY = probeStepY;
 	meta.probeDefocus = probeDefocus;
-	meta.probeDefocus_min = probeDefocus_min;
-	meta.probeDefocus_max = probeDefocus_max;
-	meta.probeDefocus_step = probeDefocus_step;
-	meta.probeDefocus_sigma = probeDefocus_sigma;
+	
+	//set up sim series if values require it
+	if(probeDefocus_min != 0.0 && probeDefocus_max > probeDefocus_min && probeDefocus_step != 0)
+	{
+		meta.probeDefocus_min = probeDefocus_min;
+		meta.probeDefocus_max = probeDefocus_max;
+		meta.probeDefocus_step = probeDefocus_step;
+		meta.simSeries = true;
+	}
+
+	if(probeDefocus_sigma != 0.0)
+	{
+		meta.probeDefocus_sigma = probeDefocus_sigma;
+		meta.simSeries = true;
+	}
+	
 	meta.C3 = C3;
 	meta.C5 = C5;
 	if(std::string(aberrations_file).size() > 0)
@@ -204,6 +216,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.scanWindowYMax_r = scanWindowYMax_r;
 	if(std::string(probes_file).size() > 0)
 	{
+		meta.arbitraryProbes = true;
+		std::cout << "Reading probe positions from" << " " << std::string(probes_file) << std::endl;
 		Prismatic::readProbes(std::string(probes_file), meta.probes_x, meta.probes_y);
 	}
 	meta.randomSeed = randomSeed;

@@ -50,9 +50,7 @@ def demo():
     meta.algorithm = "multislice"
     meta.go()
     import numpy as np
-    #from pyprismatic.fileio import readMRC
     import h5py
-    #result = readMRC("output.mrc")
 
     demoFile = h5py.File('demo.h5','r')
     print('demo.h5 filestructure:')

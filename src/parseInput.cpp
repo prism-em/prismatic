@@ -1797,7 +1797,9 @@ static std::map<std::string, parseFunction> parser{
     {"--matrix-refocus", parse_mrf}, {"-mrf", parse_mrf},
     {"--aberrations", parse_aber}, {"-aber", parse_aber},
     {"--save-complex", parse_com}, {"-com", parse_com},
-    {"--save-probe", parse_probe}, {"-probe", parse_probe}
+    {"--save-probe", parse_probe}, {"-probe", parse_probe},
+    {"--import-potential", parse_ips}, {"-ips", parse_ips},
+    {"--import-smatrix", parse_ism}, {"-ism", parse_ism}
     };
 bool parseInput(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
                 int &argc, const char ***argv)

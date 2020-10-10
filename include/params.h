@@ -287,10 +287,6 @@ namespace Prismatic{
 				}
 				meta.seriesKeys.push_back("probeDefocus");
 				meta.seriesVals.push_back(defocii);	
-				std::cout << iter << std::endl;
-				std::cout << meta.seriesVals.size() << std::endl;
-				std::cout << meta.seriesVals[0].size() << std::endl;
-				std::cout << meta.seriesVals[1].size() << std::endl;
 			}
 			else if(meta.probeDefocus_sigma > 0.0)
 			{
