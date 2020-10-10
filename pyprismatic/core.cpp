@@ -207,13 +207,17 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 		Prismatic::readProbes(std::string(probes_file), meta.probes_x, meta.probes_y);
 	}
 	meta.randomSeed = randomSeed;
-	if (std::string(algorithm) == "multislice")
+	if (std::string(algorithm) == "multislice" || std::string(algorithm) == "m")
 	{
 		meta.algorithm = Prismatic::Algorithm::Multislice;
 	}
-	else
+	else if(std::string(algorithm) == "prism" || std::string(algorithm) == "p")
 	{
 		meta.algorithm = Prismatic::Algorithm::PRISM;
+	}
+	else if(std::string(algorithm) == "hrtem" || std::string(algorithm) == "t")
+	{
+		meta.algorithm = Prismatic::Algorithm::HRTEM;
 	}
 	meta.includeThermalEffects = includeThermalEffects;
 	meta.includeOccupancy = includeOccupancy;
