@@ -76,9 +76,9 @@ namespace Prismatic{
             probeXtilt            = 0;
             probeYtilt            = 0;
             minXtilt              = 0.0 / 1000; //mrads, for HRTEM only
-            maxXtilt              = 5.0 / 1000; 
+            maxXtilt              = 0.0 / 1000; 
             minYtilt              = 0.0 / 1000;
-            maxYtilt              = 5.0 / 1000;
+            maxYtilt              = 0.0 / 1000;
             minRtilt              = 0.0 / 1000; //radial option
             maxRtilt              = 0.0 / 1000; 
             tiltMode              = TiltSelection::Rectangular;
