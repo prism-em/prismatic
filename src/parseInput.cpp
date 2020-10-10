@@ -210,14 +210,23 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
         f << "--algorithm:" << 't' << '\n';
         if (meta.tiltMode == TiltSelection::Rectangular)
         {
-            f << "--xtt:" << meta.minXtilt << ' ' << meta.maxXtilt << ' ' << meta.xTiltStep << '\n';
-            f << "--ytt:" << meta.minYtilt << ' ' << meta.maxYtilt << ' ' << meta.yTiltStep << '\n';
+            if(meta.maxXtilt != 0.0)
+            {
+                f << "--xtilt-tem:" << meta.minXtilt << ' ' << meta.maxXtilt << ' ' << meta.xTiltStep << '\n';
+            }
+            if(meta.maxYtilt != 0.0)
+            {
+                f << "--ytilt-tem:" << meta.minYtilt << ' ' << meta.maxYtilt << ' ' << meta.yTiltStep << '\n';
+            }
         }
         else if(meta.tiltMode == TiltSelection::Radial)
         {
-            f << "--rtt:" << meta.minRtilt << ' ' << meta.maxRtilt << '\n';
+            if(meta.maxRtilt != 0.0)
+            {
+                f << "--rtilt-tem:" << meta.minRtilt << ' ' << meta.maxRtilt << '\n';
+            }
         }
-        f << "--tot:" << meta.xTiltOffset << ' ' << meta.yTiltOffset << '\n';
+        f << "--tilt-offset-tem:" << meta.xTiltOffset << ' ' << meta.yTiltOffset << '\n';
 
     }
     if (validateFilename(meta.filenameAtoms))

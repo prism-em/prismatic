@@ -205,7 +205,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.minYtilt = minYtilt / 1000;
 	meta.maxYtilt = maxYtilt / 1000;
 	meta.minRtilt = minRtilt / 1000;
-	meta.maxRtilt = minRtilt / 1000;
+	meta.maxRtilt = maxRtilt / 1000;
 	meta.scanWindowXMin = scanWindowXMin;
 	meta.scanWindowXMax = scanWindowXMax;
 	meta.scanWindowYMin = scanWindowYMin;
