@@ -40,6 +40,9 @@ public:
 	size_t get_dimk() const { return this->dims[N - 3]; }
 	size_t get_diml() const { return this->dims[N - 4]; }
 	size_t get_dimm() const { return this->dims[N - 5]; }
+	size_t get_rank() const { return this->dims.size();}
+	std::array<size_t, N> get_dimarr() const { return this->dims;}
+	std::array<size_t, N-1> get_strides() const { return this->strides;}
 	size_t size() const { return this->arr_size; }
 	typename T::iterator begin();
 	typename T::iterator end();
@@ -434,6 +437,117 @@ std::pair<Array2D_T<T>, Array2D_T<T>> meshgrid(const Array1D_T<T> &Y, const Arra
 		}
 	}
 	return std::pair<Array2D_T<T>, Array2D_T<T>>(yy, xx);
+}
+
+template <class T>
+using Array3D_T = Prismatic::ArrayND<3, std::vector<T>>;
+template <class T>
+using Array1D_T = Prismatic::ArrayND<1, std::vector<T>>;
+template <class T>
+std::tuple<Array3D_T<T>, Array3D_T<T>, Array3D_T<T>> meshgrid(const Array1D_T<T> &Z, const Array1D_T<T> &Y, const Array1D_T<T> &X)
+{
+	Array3D_T<T> zz = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	Array3D_T<T> yy = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	Array3D_T<T> xx = zeros_ND<3, T>({{Z.size(), Y.size(), X.size()}});
+	for (auto k = 0; k < xx.get_dimk(); k++)
+	{
+		for (auto j = 0; j < xx.get_dimj(); ++j)
+		{
+			for (auto i = 0; i < xx.get_dimi(); ++i)
+			{
+				zz.at(k, j, i) = Z[k];
+				yy.at(k, j, i) = Y[j];
+				xx.at(k, j, i) = X[i];
+			}
+		}
+	}
+
+	return std::tuple<Array3D_T<T>, Array3D_T<T>, Array3D_T<T>>(zz, yy, xx);
+}
+
+template <size_t N, class T>
+Prismatic::ArrayND<N, T> restride(const ArrayND<N, T> &input,
+											const std::array<size_t, N> &dims_in,
+											const std::array<size_t, N> &order)
+{
+	//restrides array data from dims_in to dims_out order
+	//primarily used for file IO
+	Prismatic::ArrayND<N, T> output(input);
+	size_t size = 1;
+	for (auto &i : dims_in)
+		size *= i;
+
+	std::array<size_t, N> dims_out;
+	for(auto i = 0; i < N; i++) dims_out[i] = dims_in[order[i]];
+
+	//set up indexing calculation arrays
+	std::array<size_t, N> divisors_in;
+	std::array<size_t, N> divisors_out;
+	divisors_in[0] = size / dims_in[0];
+	divisors_out[0] = size / dims_out[0];
+
+	for(auto i = 1; i < N; i++)
+	{
+		divisors_in[i] = divisors_in[i-1] / dims_in[i];
+		divisors_out[i] = divisors_out[i-1] / dims_out[i];
+	}
+
+	std::array<size_t, N> indices = {0};
+	std::array<size_t, N> indices_out = {0};
+	for(auto i = 0; i < size; i++)
+	{
+		for(auto ii = 0; ii < N; ii++)
+		{	
+			size_t cumsum = 0;
+			for(auto jj = 0; jj < ii; jj++)
+			{
+				cumsum += indices[jj]*divisors_in[jj];
+			}
+			indices[ii] = (i-cumsum) / divisors_in[ii];
+		}
+
+		for(auto ii = 0; ii < N; ii++) indices_out[ii] = indices[order[ii]];
+
+		size_t i_out = 0;
+		for(auto ii = 0; ii < N; ii++)
+		{
+			i_out += indices_out[ii]*divisors_out[ii];
+		}
+
+		output[i] = input[i_out];
+	}
+
+	return output;
+}
+
+template <size_t N, class T>
+bool any_nan_real(ArrayND<N, T> &arr)
+{
+	bool check = false;
+	for(auto i = 0; i < arr.size(); i++)
+	{
+		if(std::isnan(arr[i]))
+		{
+			check = true;
+			break;
+		}
+	}
+	return check;
+}
+
+template <size_t N, class T>
+bool any_nan_complex(ArrayND<N, T> &arr)
+{
+	bool check = false;
+	for(auto i = 0; i < arr.size(); i++)
+	{
+		if(std::isnan(arr[i].real()) || std::isnan(arr[i].imag()))
+		{
+			check = true;
+			break;
+		}
+	}
+	return check;
 }
 
 template <>

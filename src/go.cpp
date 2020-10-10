@@ -17,6 +17,7 @@
 //#include <vector>
 #include "PRISM_entry.h"
 #include "Multislice_entry.h"
+#include "HRTEM_entry.h"
 //#include "configure.h"
 //#include "ArrayND.h"
 #include "params.h"

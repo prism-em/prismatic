@@ -89,6 +89,9 @@ class Metadata:
         "potBound",
         "numFP",
         "sliceThickness",
+        "zSampling",
+        "numSlices",
+        "zStart",
         "cellDimX",
         "cellDimY",
         "cellDimZ",
@@ -106,18 +109,39 @@ class Metadata:
         "probeStepX",
         "probeStepY",
         "probeDefocus",
+        "probeDefocus_min",
+        "probeDefocus_max",
+        "probeDefocus_step",
+        "probeDefocus_sigma",
         "C3",
         "C5",
+        "aberrations_file",
         "probeSemiangle",
         "detectorAngleStep",
         "probeXtilt",
         "probeYtilt",
+        "minXtilt",
+        "maxXtilt",
+        "minYtilt",
+        "maxYtilt",
+        "minRtilt",
+        "maxRtilt",
+        "xTiltOffset",
+        "yTiltOffset",
+        "xTiltStep",
+        "yTiltStep",
         "scanWindowXMin",
         "scanWindowXMax",
         "scanWindowYMin",
         "scanWindowYMax",
+        "scanWindowXMin_r",
+        "scanWindowXMax_r",
+        "scanWindowYMin_r",
+        "scanWindowYMax_r",
+        "probes_file",
         "randomSeed",
         "algorithm",
+        "potential3D",
         "includeThermalEffects",
         "includeOccupancy",
         "alsoDoCPUWork",
@@ -129,18 +153,26 @@ class Metadata:
         "transferMode",
         "saveDPC_CoM",
         "savePotentialSlices",
+        "saveSMatrix",
         "crop4DOutput",
         "crop4Damax",
         "nyquistSampling",
-        "numSlices",
-        "zStart",
-        "scanWindowXMin_r",
-        "scanWindowXMax_r",
-        "scanWindowYMin_r",
-        "scanWindowYMax_r",
+        "importPotential",
+        "importSMatrix",
+        "saveProbe",
+        "saveComplexOutputWave",
+        "matrixRefocus",
+        "importFile",
+        "importPath"
     ]
 
-    str_fields: List[str] = ["algorithm", "transferMode"]
+    str_fields: List[str] = [
+        "algorithm",
+        "transferMode",
+        "aberrations_file",
+        "probes_file",
+        "importFile",
+        "importPath"]
 
     int_fields: List[str] = [
         "interpolationFactorX",
@@ -157,6 +189,7 @@ class Metadata:
         "batchSizeCPU",
         "batchSizeGPU",
         "numSlices",
+        "zSampling",
     ]
 
     float_fields: List[str] = [
@@ -170,12 +203,26 @@ class Metadata:
         "probeStepX",
         "probeStepY",
         "probeDefocus",
+        "probeDefocus_min",
+        "probeDefocus_max",
+        "probeDefocus_step",
+        "probeDefocus_sigma",
         "C3",
         "C5",
         "probeSemiangle",
         "detectorAngleStep",
         "probeXtilt",
         "probeYtilt",
+        "minXtilt",
+        "maxXtilt",
+        "minYtilt",
+        "maxYtilt",
+        "minRtilt",
+        "maxRtilt",
+        "xTiltOffset",
+        "yTiltOffset",
+        "xTiltStep",
+        "yTiltStep",
         "scanWindowXMin",
         "scanWindowXMax",
         "scanWindowYMin",
@@ -207,16 +254,17 @@ class Metadata:
         self.filenameOutput = "output.h5"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
-        self.potBound = 1.0
+        self.potBound = 2.0
         self.numFP = 1
         self.sliceThickness = 2.0
+        self.zSampling = 4
         self.numSlices = 0
         self.zStart = 0.0
         self.cellDimX = 20.0
         self.cellDimY = 20.0
         self.cellDimZ = 20.0
-        self.tileX = 3
-        self.tileY = 3
+        self.tileX = 1
+        self.tileY = 1
         self.tileZ = 1
         self.E0 = 80
         self.alphaBeamMax = 24
@@ -224,42 +272,67 @@ class Metadata:
         self.numStreamsPerGPU = 3
         self.numThreads = 12
         self.batchSizeTargetCPU = 1
-        self.batchSizeTargetGPU = 2
+        self.batchSizeTargetGPU = 1
         self.batchSizeCPU = 1
         self.batchSizeGPU = 1
-        self.earlyCPUStopCount = 100.0
+        self.earlyCPUStopCount = 100
         self.probeStepX = 0.25
         self.probeStepY = 0.25
         self.probeDefocus = 0.0
+        self.probeDefocus_min = 0.0
+        self.probeDefocus_max = 0.0
+        self.probeDefocus_step = 0.0
+        self.probeDefocus_sigma = 0.0
         self.C3 = 0.0
         self.C5 = 0.0
+        self.aberrations_file = ""
         self.probeSemiangle = 20.0
         self.detectorAngleStep = 1.0
         self.probeXtilt = 0.0
         self.probeYtilt = 0.0
+        self.minXtilt = 0.0
+        self.maxXtilt = 0.0
+        self.minYtilt = 0.0
+        self.maxYtilt = 0.0
+        self.minRtilt = 0.0
+        self.maxRtilt = 0.0
+        self.xTiltOffset = 0.0
+        self.yTiltOffset = 0.0
+        self.xTiltStep = 1.0
+        self.yTiltStep = 1.0
         self.scanWindowXMin = 0.0
         self.scanWindowXMax = 0.99999
         self.scanWindowYMin = 0.0
         self.scanWindowYMax = 0.99999
         self.scanWindowXMin_r = 0.0
-        self.scanWindowXMax_r = 1.0
+        self.scanWindowXMax_r = 0.0
         self.scanWindowYMin_r = 0.0
-        self.scanWindowYMax_r = 1.0
+        self.scanWindowYMax_r = 0.0
+        self.probes_file = ""
         self.randomSeed = np.random.randint(0, 999999)
         self.algorithm = "prism"
-        self.includeThermalEffects = False
+        self.potential3D = True
+        self.includeThermalEffects = True
         self.includeOccupancy = True
         self.alsoDoCPUWork = True
         self.save2DOutput = False
-        self.save3DOutput = True
-        self.save4DOutput = False
-        self.saveDPC_CoM = False
-        self.crop4DOutput = False
-        self.crop4Damax = 0.1
-        self.savePotentialSlices = False
-        self.nyquistSampling = False
         self.integrationAngleMin = 0
         self.integrationAngleMax = 1.0
+        self.save3DOutput = True
+        self.save4DOutput = False
+        self.crop4DOutput = False
+        self.crop4Damax = 0.1
+        self.saveDPC_CoM = False
+        self.savePotentialSlices = False
+        self.saveSMatrix = False
+        self.nyquistSampling = False
+        self.importPotential = False
+        self.importSMatrix = False
+        self.saveComplexOutputWave = False
+        self.saveProbe = False
+        self.matrixRefocus = False
+        self.importFile = ""
+        self.importPath = ""
         self.transferMode = "auto"
         for k, v in kwargs.items():
             if k not in Metadata.fields:

@@ -14,6 +14,7 @@
 #include "configure.h"
 #include "PRISM_entry.h"
 #include "Multislice_entry.h"
+#include "HRTEM_entry.h"
 #include "Multislice_calcOutput.h"
 #include <iostream>
 #include "PRISM01_calcPotential.h"
@@ -24,7 +25,7 @@
 #include "PRISM02_calcSMatrix.cuh"
 #include "PRISM03_calcOutput.cuh"
 #include "utility.cuh"
-#include "Multislice_entry.h"
+#include "fileIO.cuh"
 #endif //PRISMATIC_ENABLE_GPU
 namespace Prismatic
 {
@@ -251,5 +252,32 @@ void configure(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 		buildMultisliceOutput = buildMultisliceOutput_CPUOnly;
 #endif //PRISMATIC_ENABLE_GPU
 	}
+	else if (meta.algorithm == Algorithm::HRTEM)
+	{
+		std::cout <<"Execution plan: HRTEM\n";
+		execute_plan = HRTEM_entry;
+#ifdef PRISMATIC_ENABLE_GPU
+		std::cout << "Using GPU codes" << '\n';
+		if (meta.transferMode == Prismatic::StreamingMode::Auto)
+		{
+			meta.transferMode = transferMethodAutoChooser(meta);
+		}
+		if (meta.transferMode == Prismatic::StreamingMode::Stream)
+		{
+			cout << "Using streaming method\n";
+			fill_Scompact = fill_Scompact_GPU_streaming;
+		}
+		else
+		{
+			cout << "Using single transfer method\n";
+			fill_Scompact = fill_Scompact_GPU_singlexfer;
+		}
+#else
+		std::cout << "Using CPU codes" << '\n';
+		fill_Scompact = fill_Scompact_CPUOnly;
+
+#endif //PRISMATIC_ENABLE_GPU
+	}
+
 }
 } // namespace Prismatic
