@@ -6,20 +6,16 @@ jobs:
 - job: win
   pool:
     vmImage: vs2017-win2016
-  timeoutInMinutes: 360
   strategy:
-    maxParallel: 4
     matrix:
-      win_:
-        CONFIG: win_
-        CONDA_BLD_PATH: D:\\bld\\
-        UPLOAD_PACKAGES: True
-  steps:
-    # TODO: Fast finish on azure pipelines?
-    - script: |
-        ECHO ON
-        
+      win_64_cuda_compiler_versionNone:
+        CONFIG: win_64_cuda_compiler_versionNone
+        UPLOAD_PACKAGES: 'True'
+  timeoutInMinutes: 360
+  variables:
+    CONDA_BLD_PATH: D:\\bld\\
 
+  steps:
     - script: |
         choco install vcpython27 -fdv -y --debug
       condition: contains(variables['CONFIG'], 'vs2008')
@@ -56,15 +52,19 @@ jobs:
 
     - task: CondaEnvironment@1
       inputs:
-        packageSpecs: 'python=3.6 conda-build conda conda-forge::conda-forge-ci-setup=2' # Optional
+        packageSpecs: 'python=3.6 conda-build conda "conda-forge-ci-setup=3" pip' # Optional
         installOptions: "-c conda-forge"
         updateConda: true
       displayName: Install conda-build and activate environment
 
     - script: set PYTHONUNBUFFERED=1
+      displayName: Set PYTHONUNBUFFERED
 
     # Configure the VM
-    - script: setup_conda_rc .\ ".\recipe" .\.ci_support\%CONFIG%.yaml
+    - script: |
+        call activate base
+        setup_conda_rc .\ ".\recipe" .\.ci_support\%CONFIG%.yaml
+      displayName: conda-forge CI setup
 
     # Configure the VM.
     - script: |
@@ -73,11 +73,6 @@ jobs:
         run_conda_forge_build_setup
       displayName: conda-forge build setup
     
-
-    - script: |
-        rmdir C:\strawberry /s /q
-      continueOnError: true
-      displayName: remove strawberryperl
 
     # Special cased version setting some more things!
     - script: |
@@ -99,8 +94,9 @@ jobs:
 
     - script: |
         set "GIT_BRANCH=%BUILD_SOURCEBRANCHNAME%"
+        set "FEEDSTOCK_NAME=%BUILD_REPOSITORY_NAME:*/=%"
         call activate base
-        upload_package .\ ".\recipe" .ci_support\%CONFIG%.yaml
+        upload_package  .\ ".\recipe" .ci_support\%CONFIG%.yaml
       displayName: Upload package
       env:
         BINSTAR_TOKEN: $(BINSTAR_TOKEN)

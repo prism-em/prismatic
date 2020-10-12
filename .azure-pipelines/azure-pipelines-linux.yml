@@ -6,31 +6,36 @@ jobs:
 - job: linux
   pool:
     vmImage: ubuntu-16.04
-  timeoutInMinutes: 360
   strategy:
-    maxParallel: 8
     matrix:
-      linux_cuda_compiler_version10.0:
-        CONFIG: linux_cuda_compiler_version10.0
-        UPLOAD_PACKAGES: True
+      linux_64_c_compiler_version7cuda_compiler_version10.0cxx_compiler_version7:
+        CONFIG: linux_64_c_compiler_version7cuda_compiler_version10.0cxx_compiler_version7
+        UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-cuda:10.0
-      linux_cuda_compiler_version10.1:
-        CONFIG: linux_cuda_compiler_version10.1
-        UPLOAD_PACKAGES: True
+      linux_64_c_compiler_version7cuda_compiler_version10.1cxx_compiler_version7:
+        CONFIG: linux_64_c_compiler_version7cuda_compiler_version10.1cxx_compiler_version7
+        UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-cuda:10.1
-      linux_cuda_compiler_version10.2:
-        CONFIG: linux_cuda_compiler_version10.2
-        UPLOAD_PACKAGES: True
+      linux_64_c_compiler_version7cuda_compiler_version10.2cxx_compiler_version7:
+        CONFIG: linux_64_c_compiler_version7cuda_compiler_version10.2cxx_compiler_version7
+        UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-cuda:10.2
-      linux_cuda_compiler_version9.2:
-        CONFIG: linux_cuda_compiler_version9.2
-        UPLOAD_PACKAGES: True
+      linux_64_c_compiler_version7cuda_compiler_version9.2cxx_compiler_version7:
+        CONFIG: linux_64_c_compiler_version7cuda_compiler_version9.2cxx_compiler_version7
+        UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-cuda:9.2
-      linux_cuda_compiler_versionNone:
-        CONFIG: linux_cuda_compiler_versionNone
-        UPLOAD_PACKAGES: True
+      linux_64_c_compiler_version7cuda_compiler_versionNonecxx_compiler_version7:
+        CONFIG: linux_64_c_compiler_version7cuda_compiler_versionNonecxx_compiler_version7
+        UPLOAD_PACKAGES: 'True'
         DOCKER_IMAGE: condaforge/linux-anvil-comp7
+  timeoutInMinutes: 360
+
   steps:
+  - script: |
+         rm -rf /opt/ghc
+         df -h
+    displayName: Manage disk space
+
   # configure qemu binfmt-misc running.  This allows us to run docker containers
   # embedded qemu-static
   - script: |
@@ -42,6 +47,7 @@ jobs:
   - script: |
         export CI=azure
         export GIT_BRANCH=$BUILD_SOURCEBRANCHNAME
+        export FEEDSTOCK_NAME=$(basename ${BUILD_REPOSITORY_NAME})
         .scripts/run_docker_build.sh
     displayName: Run docker build
     env:
