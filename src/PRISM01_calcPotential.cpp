@@ -28,7 +28,7 @@
 #include "utility.h"
 #include "fileIO.h"
 #include "fftw3.h"
-#include "complex.h"
+#include <complex>
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -362,8 +362,8 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	{
 		for(auto i = 0; i < qya.get_dimi(); i++)
 		{
-			qyShift.at(j,i) = -2*I*pi*qya.at(j,i);
-			qxShift.at(j,i) = -2*I*pi*qxa.at(j,i);
+			qyShift.at(j,i) = -2.0*i*pi*qya.at(j,i);
+			qxShift.at(j,i) = -2.0*i*pi*qxa.at(j,i);
 		}
 	}
 
@@ -574,7 +574,7 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 		pars.dzPot = pars.meta.sliceThickness/pars.meta.zSampling;
         PRISMATIC_FLOAT_PRECISION zleng = std::ceil(pars.meta.potBound/pars.dzPot);
-		Array1D<PRISMATIC_FLOAT_PRECISION> zvec = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{zleng*2}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> zvec = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{(size_t)zleng*2}});
 		for (auto j = -zleng; j < zleng; j++)
 		{
 			zvec[j+zleng] = (PRISMATIC_FLOAT_PRECISION) j + 0.5;

@@ -40,8 +40,8 @@ PRISMATIC_FLOAT_PRECISION get_potMin(const Array2D<PRISMATIC_FLOAT_PRECISION> &p
 	// const PRISMATIC_FLOAT_PRECISION xv[] = {xInd - dx, xInd + dx, xInd - dx, xInd + dx, 0, 0, (PRISMATIC_FLOAT_PRECISION)xr.size() - 1, (PRISMATIC_FLOAT_PRECISION)xr.size() - 1};
 	// const PRISMATIC_FLOAT_PRECISION yv[] = {0, 0, (PRISMATIC_FLOAT_PRECISION)yr.size() - 1, (PRISMATIC_FLOAT_PRECISION)yr.size() - 1, yInd - dy, yInd + dy, yInd - dy, yInd + dy};
 
-	const PRISMATIC_FLOAT_PRECISION xv[] = {(PRISMATIC_FLOAT_PRECISION)xr.size() - 2, xInd}; //-2 to gaurantee zero faces
-	const PRISMATIC_FLOAT_PRECISION yv[] = {yInd, (PRISMATIC_FLOAT_PRECISION)yr.size() - 2};
+	const PRISMATIC_FLOAT_PRECISION xv[] = {(PRISMATIC_FLOAT_PRECISION)xr.size() - 2, (PRISMATIC_FLOAT_PRECISION)xInd}; //-2 to gaurantee zero faces
+	const PRISMATIC_FLOAT_PRECISION yv[] = {(PRISMATIC_FLOAT_PRECISION)yInd, (PRISMATIC_FLOAT_PRECISION)yr.size() - 2};
 
 	PRISMATIC_FLOAT_PRECISION potMin = 0;
 	for (auto i = 0; i < 2; ++i)
