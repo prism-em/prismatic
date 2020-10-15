@@ -69,7 +69,7 @@ BOOST_FIXTURE_TEST_CASE(planeWave, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
     meta.filenameOutput = "../unittests/outputs/planeWave.h5";
-    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
+    meta.filenameAtoms = "../unittests/pfiles/Pt_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -119,7 +119,7 @@ BOOST_FIXTURE_TEST_CASE(imageTilts, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
     meta.filenameOutput = "../unittests/outputs/imageTilts.h5";
-    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
+    meta.filenameAtoms = "../unittests/pfiles/Pt_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -169,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE(virtualDataset, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
     meta.filenameOutput = "../unittests/outputs/virtualHRTEM.h5";
-    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
+    meta.filenameAtoms = "../unittests/pfiles/Pt_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(radialTilts, basicSim)
 {
     meta.algorithm = Algorithm::HRTEM;
     meta.filenameOutput = "../unittests/outputs/radialTilts.h5";
-    meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
+    meta.filenameAtoms = "../unittests/pfiles/Pt_np.xyz";
     meta.saveSMatrix = false;
     meta.savePotentialSlices = false;
     meta.saveComplexOutputWave = true;

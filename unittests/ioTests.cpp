@@ -1477,7 +1477,6 @@ BOOST_AUTO_TEST_CASE(hdfStride)
 BOOST_FIXTURE_TEST_CASE(fileSizeCheck, basicSim)
 {
     meta.filenameOutput = "../unittests/outputs/fileSizeCheck.h5";
-    // meta.filenameAtoms = "../unittests/outputs/au_np.xyz";
     meta.potential3D = false;
     meta.save2DOutput = false;
     meta.save3DOutput = true;

@@ -28,7 +28,7 @@
 #include "utility.h"
 #include "fileIO.h"
 #include "fftw3.h"
-#include "complex.h"
+#include <complex.h>
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
@@ -139,12 +139,13 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	}
 
 	// compute the z-slice index for each atom
+	long numPlanes = ceil(pars.tiledCellDim[0]/pars.meta.sliceThickness);
 	Array1D<PRISMATIC_FLOAT_PRECISION> zPlane(z);
 	std::transform(zPlane.begin(), zPlane.end(), zPlane.begin(), [&pars](PRISMATIC_FLOAT_PRECISION &t_z) {
 		return round((-t_z + pars.tiledCellDim[0]) / pars.meta.sliceThickness + 0.5) - 1; // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
 	});
-	auto max_z = std::max_element(zPlane.begin(), zPlane.end());
-	pars.numPlanes = *max_z + 1;
+	// auto max_z = std::max_element(zPlane.begin(), zPlane.end());
+	pars.numPlanes = numPlanes;
 
 	//check if intermediate output was specified, if so, create index of output slices
 	if (pars.meta.numSlices == 0)
@@ -306,7 +307,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 								   const Array1D<long> &yvec,
 								   const Array1D<PRISMATIC_FLOAT_PRECISION> &zvec)
 {		
-	long numPlanes = round(pars.tiledCellDim[0]/pars.meta.sliceThickness);
+	long numPlanes = ceil(pars.tiledCellDim[0]/pars.meta.sliceThickness);
 	//check if intermediate output was specified, if so, create index of output slices
 	pars.numPlanes = numPlanes;
 	if (pars.meta.numSlices == 0) pars.numSlices = pars.numPlanes;
@@ -340,7 +341,7 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	auto max_z = pars.tiledCellDim[0];
 
 	std::transform(z.begin(), z.end(), z.begin(), [&max_z](PRISMATIC_FLOAT_PRECISION &t_z) {
-		return (-t_z + max_z); // If the +0.5 was to make the first slice z=1 not 0, can drop the +0.5 and -1
+		return (-t_z + max_z);
 	});
 
 	Array1D<PRISMATIC_FLOAT_PRECISION> zr = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{zvec.get_dimi()}});
@@ -574,7 +575,7 @@ void PRISM01_calcPotential(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 		pars.dzPot = pars.meta.sliceThickness/pars.meta.zSampling;
         PRISMATIC_FLOAT_PRECISION zleng = std::ceil(pars.meta.potBound/pars.dzPot);
-		Array1D<PRISMATIC_FLOAT_PRECISION> zvec = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{zleng*2}});
+		Array1D<PRISMATIC_FLOAT_PRECISION> zvec = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{(size_t) zleng*2}});
 		for (auto j = -zleng; j < zleng; j++)
 		{
 			zvec[j+zleng] = (PRISMATIC_FLOAT_PRECISION) j + 0.5;
