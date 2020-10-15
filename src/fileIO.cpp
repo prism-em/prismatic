@@ -1020,9 +1020,9 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		Array2D<PRISMATIC_FLOAT_PRECISION> tmp_qya = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimi(), pars.qxaOutput.get_dimj()}});
 
 		//restride qxa, qya in x, y
-		for(auto i = 0; i < pars.qxa.get_dimi(); i++)
+		for(auto i = 0; i < pars.qxaOutput.get_dimi(); i++)
 		{
-			for(auto j = 0; j < pars.qxa.get_dimj(); j++)
+			for(auto j = 0; j < pars.qxaOutput.get_dimj(); j++)
 			{
 				tmp_qxa.at(i,j) = pars.qxaOutput.at(j,i);
 				tmp_qya.at(i,j) = pars.qyaOutput.at(j,i);
@@ -1034,7 +1034,6 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		H5::DataSpace w_mspace(3, write_dims);
 		H5::DataSpace w_fspace = qArr_data.getSpace();
 		w_fspace.selectHyperslab(H5S_SELECT_SET, write_dims, offset);
-
 		qArr_data.write(&tmp_qxa[0], PFP_TYPE, w_mspace, w_fspace);
 
 		offset[2] = 1;
@@ -1047,8 +1046,8 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	Array1D<PRISMATIC_FLOAT_PRECISION> qx_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimi()}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> qy_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimj()}});
-	for(auto i = 0; i < pars.qxa.get_dimi(); i++) qx_dim_data.at(i) = pars.qxaOutput.at(0,i);
-	for(auto i = 0; i < pars.qya.get_dimj(); i++) qy_dim_data.at(i) = pars.qyaOutput.at(i,0);
+	for(auto i = 0; i < pars.qxaOutput.get_dimi(); i++) qx_dim_data.at(i) = pars.qxaOutput.at(0,i);
+	for(auto i = 0; i < pars.qyaOutput.get_dimj(); i++) qy_dim_data.at(i) = pars.qyaOutput.at(i,0);
 
 	//write dimensions
 	writeRealDataSet_inOrder(qArr_group, "dim1", &qx_dim_data[0], qx_dim, 1);
