@@ -993,12 +993,12 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[3];
-	data_dims[0] = {pars.qxa.get_dimi()};
-	data_dims[1] = {pars.qxa.get_dimj()};
+	data_dims[0] = {pars.qxaOutput.get_dimi()};
+	data_dims[1] = {pars.qxaOutput.get_dimj()};
 	data_dims[2] = {2};
 
-	hsize_t qx_dim[1] = {pars.qxa.get_dimi()};
-	hsize_t qy_dim[1] = {pars.qxa.get_dimj()};
+	hsize_t qx_dim[1] = {pars.qxaOutput.get_dimi()};
+	hsize_t qy_dim[1] = {pars.qxaOutput.get_dimj()};
 	hsize_t str_dim[1] = {2};
 
 	//create slice group
@@ -1016,16 +1016,16 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	//write to dataset immediately, since save_qArr will be called at end of simulation
 	{
-		Array2D<PRISMATIC_FLOAT_PRECISION> tmp_qxa = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.qxa.get_dimi(), pars.qxa.get_dimj()}});
-		Array2D<PRISMATIC_FLOAT_PRECISION> tmp_qya = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.qxa.get_dimi(), pars.qxa.get_dimj()}});
+		Array2D<PRISMATIC_FLOAT_PRECISION> tmp_qxa = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimi(), pars.qxaOutput.get_dimj()}});
+		Array2D<PRISMATIC_FLOAT_PRECISION> tmp_qya = zeros_ND<2,PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimi(), pars.qxaOutput.get_dimj()}});
 
 		//restride qxa, qya in x, y
 		for(auto i = 0; i < pars.qxa.get_dimi(); i++)
 		{
 			for(auto j = 0; j < pars.qxa.get_dimj(); j++)
 			{
-				tmp_qxa.at(i,j) = pars.qxa.at(j,i);
-				tmp_qya.at(i,j) = pars.qya.at(j,i);
+				tmp_qxa.at(i,j) = pars.qxaOutput.at(j,i);
+				tmp_qya.at(i,j) = pars.qyaOutput.at(j,i);
 			}
 		}
 
@@ -1045,10 +1045,10 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		w_fspace.close();
 	}
 
-	Array1D<PRISMATIC_FLOAT_PRECISION> qx_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxa.get_dimi()}});
-	Array1D<PRISMATIC_FLOAT_PRECISION> qy_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxa.get_dimj()}});
-	for(auto i = 0; i < pars.qxa.get_dimi(); i++) qx_dim_data.at(i) = pars.qxa.at(0,i);
-	for(auto i = 0; i < pars.qya.get_dimj(); i++) qy_dim_data.at(i) = pars.qxa.at(i,0);
+	Array1D<PRISMATIC_FLOAT_PRECISION> qx_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimi()}});
+	Array1D<PRISMATIC_FLOAT_PRECISION> qy_dim_data = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.qxaOutput.get_dimj()}});
+	for(auto i = 0; i < pars.qxa.get_dimi(); i++) qx_dim_data.at(i) = pars.qxaOutput.at(0,i);
+	for(auto i = 0; i < pars.qya.get_dimj(); i++) qy_dim_data.at(i) = pars.qyaOutput.at(i,0);
 
 	//write dimensions
 	writeRealDataSet_inOrder(qArr_group, "dim1", &qx_dim_data[0], qx_dim, 1);
