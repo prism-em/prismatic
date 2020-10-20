@@ -32,28 +32,6 @@ __device__ __constant__ cuDoubleComplex i           = {0, 1};
 __device__ __constant__ cuDoubleComplex pi_cx       = {PI, 0};
 __device__ __constant__ cuDoubleComplex minus_2pii  = {0, -2*PI};
 
-//atomicAdd for doubles on devices with compute capability < 6. This is directly copied from the CUDA Programming Guide
-#if __CUDA_ARCH__ < 600
-__device__  double atomicAdd_double(double* address, const double val)
-{
-	unsigned long long int* address_as_ull =
-			(unsigned long long int*)address;
-	unsigned long long int old = *address_as_ull, assumed;
-
-	do {
-		assumed = old;
-		old = atomicCAS(address_as_ull, assumed,
-		                __double_as_longlong(val +
-		                                     __longlong_as_double(assumed)));
-
-//		 Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
-	} while (assumed != old);
-
-	return __longlong_as_double(old);
-}
-#endif
-
-
 
 // computes exp(real(a) + i * imag(a))
 __device__ __forceinline__ cuDoubleComplex exp_cx(const cuDoubleComplex a){
@@ -437,7 +415,7 @@ __global__ void integrateDetector(const double* psiIntensity_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			atomicAdd_double(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
+			atomicAdd(&integratedOutput[alpha-1], psiIntensity_ds[idx]);
 	}
 }
 
@@ -476,7 +454,7 @@ __global__ void integrateDetector_real(const cuDoubleComplex* psi_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			atomicAdd_double(&integratedOutput[alpha-1].x, cuCreal(psi_ds[idx]));
+			atomicAdd(&integratedOutput[alpha-1].x, cuCreal(psi_ds[idx]));
 	}
 }
 
@@ -489,7 +467,7 @@ __global__ void integrateDetector_imag(const cuDoubleComplex* psi_ds,
 	if (idx < N) {
 		size_t alpha = (size_t)alphaInd_d[idx];
 		if (alpha <= num_integration_bins)
-			atomicAdd_double(&integratedOutput[alpha-1].y, cuCimag(psi_ds[idx]));
+			atomicAdd(&integratedOutput[alpha-1].y, cuCimag(psi_ds[idx]));
 	}
 }
 
@@ -509,7 +487,7 @@ __global__ void DPC_numerator_reduce(const double* psiIntensity_ds,
 									 const size_t N){
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 		if (idx < N){
-			atomicAdd_double(&numerator[0], psiIntensity_ds[idx]*q_coord[idx]);
+			atomicAdd(&numerator[0], psiIntensity_ds[idx]*q_coord[idx]);
 		}
 }
 
@@ -527,7 +505,7 @@ __global__ void DPC_denominator_reduce(const double* psiIntensity_ds,
 									   const size_t N){
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	if (idx < N){
-		atomicAdd_double(&denominator[0], psiIntensity_ds[idx]);
+		atomicAdd(&denominator[0], psiIntensity_ds[idx]);
 	}			
 }
 

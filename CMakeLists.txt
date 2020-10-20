@@ -25,7 +25,7 @@ set(OUTPUT_NAME prismatic CACHE STRING OUTPUT_NAME)
 
 #set (CMAKE_BUILD_TYPE DEBUG)
 if (PRISMATIC_ENABLE_GPU)
-    set(NVCC_FLAGS_EXTRA "-arch=sm_30 -std=c++11 -Xcompiler -fPIC")
+    set(NVCC_FLAGS_EXTRA "-arch=sm_60 -std=c++11 -Xcompiler -fPIC")
 endif (PRISMATIC_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -344,7 +344,7 @@ if (PRISMATIC_TESTS)
         add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
                             DEPENDS prismatic prismatic-tests)
     endif(PRISMATIC_ENABLE_PYPRISMATIC)
-       
+
 
 endif (PRISMATIC_TESTS)
 
