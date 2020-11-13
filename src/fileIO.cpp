@@ -1164,7 +1164,7 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	tmp_buffer[1] = pars.meta.scanWindowYMax;
 	scanWindow_y_attr.write(PFP_TYPE, tmp_buffer);
 
-	int tile_buffer[3] = {pars.meta.tileX, pars.meta.tileY, pars.meta.tileZ};
+	int tile_buffer[3] = {(int)pars.meta.tileX, (int)pars.meta.tileY, (int)pars.meta.tileZ};
 	tile_attr.write(H5::PredType::NATIVE_INT, tile_buffer);
 
 	PRISMATIC_FLOAT_PRECISION cellBuffer[3] = {pars.meta.cellDim[2], pars.meta.cellDim[1], pars.meta.cellDim[0]};

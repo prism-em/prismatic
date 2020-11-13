@@ -236,8 +236,5 @@ __global__ void DPC_denominator_reduce(const double* psiIntensity_ds,
 //size_t getNextPower2(const float& val);
 size_t getNextPower2(const size_t& val);
 
-#if __CUDA_ARCH__ < 600
-__device__  double atomicAdd_double(double* address, const double val);
-#endif
 //__global__ void shiftIndices(size_t* vec, const size_t* vec_in, double by, const size_t N);
 #endif // PRISMATIC_UTILITY_CUH
