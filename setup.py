@@ -149,7 +149,7 @@ setup(
     description="Python wrapper for Prismatic package for fast image simulation using the PRISM and multislice algorithms in Scanning Transmission Electron Microscopy (STEM)",
     ext_modules=[CMakeExtension(c_module_name)],
     packages=["pyprismatic"],
-    install_requires=["numpy>=1.13.0", "matplotlib>=2.0.2","h5py>=2.9.0"],
+    install_requires=["numpy>=1.13.0"],
     cmdclass={"install": InstallCommand,
     "develop":DevelopCommand,
     "build_ext":cmake_build_ext},

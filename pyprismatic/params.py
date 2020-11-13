@@ -272,8 +272,8 @@ class Metadata:
 
     @filenameAtoms.setter
     def filenameAtoms(self, filenameAtoms):
+        self._filenameAtoms = filenameAtoms
         if filenameAtoms != "":  # do not set cell dimensions for default empty string
-            self._filenameAtoms = filenameAtoms
             self._setCellDims(filenameAtoms)
 
     def readParameters(self, filename: str):
