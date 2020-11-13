@@ -1238,6 +1238,8 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	writeScalarAttribute(sim_params, "4DA", pars.meta.crop4Damax * 1000);
 
 	writeScalarAttribute(sim_params, "lambda", pars.lambda);
+	writeScalarAttribute(sim_params, "eff_pixel_size_x", pars.pixelSize[1]* (PRISMATIC_FLOAT_PRECISION) 2.0);
+	writeScalarAttribute(sim_params, "eff_pixel_size_y", pars.pixelSize[0]* (PRISMATIC_FLOAT_PRECISION) 2.0);
 
 	//create vector spaces
 	PRISMATIC_FLOAT_PRECISION tmp_buffer[2];
