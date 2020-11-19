@@ -359,12 +359,14 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> qyShift = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{qya.get_dimj(), qya.get_dimi()}});
 	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> qxShift = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{qya.get_dimj(), qya.get_dimi()}});
 	Array2D<PRISMATIC_FLOAT_PRECISION> q1(qya);
-	for(auto j = 0; j < qya.get_dimj(); j++)
+	std::complex<PRISMATIC_FLOAT_PRECISION> I = 0.0 + 1.0i;
+	PRISMATIC_FLOAT_PRECISION two = 2.0;
+	for(auto jj = 0; jj < qya.get_dimj(); jj++)
 	{
-		for(auto i = 0; i < qya.get_dimi(); i++)
+		for(auto ii = 0; ii < qya.get_dimi(); ii++)
 		{
-			qyShift.at(j,i) = -2.0*i*pi*qya.at(j,i);
-			qxShift.at(j,i) = -2.0*i*pi*qxa.at(j,i);
+			qyShift.at(jj,ii) = -two*I*pi*qya.at(jj,ii);
+			qxShift.at(jj,ii) = -two*I*pi*qxa.at(jj,ii);
 		}
 	}
 
