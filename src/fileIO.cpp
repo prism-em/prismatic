@@ -515,7 +515,7 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	for(auto i = 0; i < xTilts_write.size(); i++)
 	{
 		dim_tilts.at(i,0) = xTilts_write[i];
-		dim_tilts.at(i,0) = yTilts_write[i];
+		dim_tilts.at(i,1) = yTilts_write[i];
 	}
 	
 	writeRealDataSet_inOrder(hrtem_group, "dim1", &x_dim_data[0], x_size, 1);
@@ -880,7 +880,7 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
 				{
 					//scale S matrix to mean value and restride
-					output_buffer.at(i,j,k) = pars.Scompact.at(k,j,i)*scale;
+					output_buffer.at(i,j,pars.HRTEMbeamOrder[k]) = pars.Scompact.at(k,j,i)*scale;
 				}
 			}
 		}
