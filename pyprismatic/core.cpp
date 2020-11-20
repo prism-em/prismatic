@@ -233,6 +233,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	{
 		meta.algorithm = Prismatic::Algorithm::HRTEM;
 	}
+	meta.potential3D = potential3D;
 	meta.includeThermalEffects = includeThermalEffects;
 	meta.includeOccupancy = includeOccupancy;
 	meta.alsoDoCPUWork = alsoDoCPUWork;
