@@ -85,6 +85,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		{
 			if(i == 0)
 			{
+				sortHRTEMbeams(prismatic_pars); //sort beams early so that can put in right order as integrating
 				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
 			}
 			//integrate output
@@ -95,7 +96,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				{
 					for(auto ii = 0; ii < prismatic_pars.Scompact.get_dimi(); ii++)
 					{
-						net_output.at(ii,jj,kk) += pow(std::abs(prismatic_pars.Scompact.at(kk,jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
+						net_output.at(ii,jj,prismatic_pars.HRTEMbeamOrder[kk]) += pow(std::abs(prismatic_pars.Scompact.at(kk,jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
 					}
 				}
 			}
@@ -109,7 +110,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	if(not prismatic_pars.meta.saveComplexOutputWave)
 	{
 		std::cout << "Writing HRTEM data to output file." << std::endl;
-		sortHRTEMbeams(prismatic_pars);
 		setupHRTEMOutput(prismatic_pars);
 		setupHRTEMOutput_virtual(prismatic_pars);
 		saveHRTEM(prismatic_pars, net_output);
