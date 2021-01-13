@@ -44,7 +44,7 @@ namespace Prismatic{
             numFP                 = 1;
             fpNum                 = 1;
             sliceThickness        = 2.0;
-            zSampling             = 4;
+            zSampling             = 16;
             numSlices             = 0; 
             zStart                = 0.0;
             cellDim               = std::vector<T>{20.0, 20.0, 20.0}; // this is z,y,x format

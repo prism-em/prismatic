@@ -202,8 +202,12 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.probeYtilt = probeYtilt / 1000;
 	meta.minXtilt = minXtilt / 1000;
 	meta.maxXtilt = maxXtilt / 1000;
+	meta.xTiltStep = xTiltStep /1000;
+	meta.xTiltOffset = xTiltOffset / 1000;
 	meta.minYtilt = minYtilt / 1000;
 	meta.maxYtilt = maxYtilt / 1000;
+	meta.yTiltStep = yTiltStep /1000;
+	meta.yTiltOffset = yTiltOffset / 1000;
 	meta.minRtilt = minRtilt / 1000;
 	meta.maxRtilt = maxRtilt / 1000;
 	meta.scanWindowXMin = scanWindowXMin;
@@ -214,6 +218,9 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.scanWindowXMax_r = scanWindowXMax_r;
 	meta.scanWindowYMin_r = scanWindowYMin_r;
 	meta.scanWindowYMax_r = scanWindowYMax_r;
+	if(scanWindowXMax_r) meta.realSpaceWindow_x = true;
+	if(scanWindowYMax_r) meta.realSpaceWindow_y = true;
+
 	if(std::string(probes_file).size() > 0)
 	{
 		meta.arbitraryProbes = true;

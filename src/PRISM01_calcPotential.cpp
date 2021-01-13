@@ -358,7 +358,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> qyShift = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{qya.get_dimj(), qya.get_dimi()}});
 	Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> qxShift = zeros_ND<2,std::complex<PRISMATIC_FLOAT_PRECISION>>({{qya.get_dimj(), qya.get_dimi()}});
-	Array2D<PRISMATIC_FLOAT_PRECISION> q1(qya);
 	std::complex<PRISMATIC_FLOAT_PRECISION> I = 0.0 + 1.0i;
 	PRISMATIC_FLOAT_PRECISION two = 2.0;
 	for(auto jj = 0; jj < qya.get_dimj(); jj++)
@@ -373,26 +372,52 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	//band limit arrays for soft aperture with shift in realpace and fourier space; hard-coded for now
 	PRISMATIC_FLOAT_PRECISION rband_max = 0.95;
 	PRISMATIC_FLOAT_PRECISION rband_min = 0.75;
+	Array2D<PRISMATIC_FLOAT_PRECISION> q1(qya);
+	std::transform(qxa.begin(), qxa.end(),
+		qya.begin(), q1.begin(), [](const PRISMATIC_FLOAT_PRECISION& a, const PRISMATIC_FLOAT_PRECISION& b){
+		return sqrt(a*a + b*b);
+	});
+
 	Array2D<PRISMATIC_FLOAT_PRECISION> qband(q1);
 	qband *= -2.0;
 	qband += rband_max;
 	qband /= (rband_max-rband_min);
-	for(auto i = 0; i < qband.size(); i++)
+	// for(auto i = 0; i < qband.size(); i++)
+	// {
+	// 	qband[i] = (rband_max-2*q1[i])/(rband_max-rband_min);
+	// 	qband[i] = std::max(qband[i], (PRISMATIC_FLOAT_PRECISION) 0.0);
+	// 	qband[i] = std::min(qband[i], (PRISMATIC_FLOAT_PRECISION) 1.0);
+	// 	qband[i] = pow(std::sin(qband[i]*pi/2.0), 2.0);
+	// }
+
+	for(auto jj = 0; jj < qband.get_dimj(); jj++)
 	{
-		qband[i] = (rband_max-2*q1[i])/(rband_max-rband_min);
-		qband[i] = std::max(qband[i], (PRISMATIC_FLOAT_PRECISION) 0.0);
-		qband[i] = std::min(qband[i], (PRISMATIC_FLOAT_PRECISION) 1.0);
-		qband[i] = pow(std::sin(qband[i]*pi/2.0), 2.0);
+		for(auto ii = 0; ii < qband.get_dimi(); ii++)
+		{
+			qband.at(jj,ii) = (rband_max-2*q1.at(jj,ii))/(rband_max-rband_min);
+			qband.at(jj,ii) = std::max(qband.at(jj,ii), (PRISMATIC_FLOAT_PRECISION) 0.0);
+			qband.at(jj,ii) = std::min(qband.at(jj,ii), (PRISMATIC_FLOAT_PRECISION) 1.0);
+			qband.at(jj,ii) = pow(std::sin(qband.at(jj,ii)*pi/2.0), 2.0);
+		}
 	}
 
 	std::pair<Array2D<long>, Array2D<long>> rmesh = meshgrid(yvec,xvec);
 	Array2D<PRISMATIC_FLOAT_PRECISION> rband(qband); //construct with qband to avoid type mismatch, knowing sizes are the same
 	PRISMATIC_FLOAT_PRECISION xl = (PRISMATIC_FLOAT_PRECISION) xvec[xvec.size()-1];
 	PRISMATIC_FLOAT_PRECISION yl = (PRISMATIC_FLOAT_PRECISION) yvec[yvec.size()-1];
-	for(auto i =0; i < rband.size(); i++)
+	// for(auto i =0; i < rband.size(); i++)
+	// {
+	// 	rband[i] = pow((rmesh.first[i] / (yl+0.5)), 2.0) + pow((rmesh.second[i] / (xl+0.5)), 2.0);
+	// 	rband[i] = (rband[i] <= 1) ? 1.0 : 0.0;  
+	// }
+
+	for(auto jj = 0; jj < rband.get_dimj(); jj++)
 	{
-		rband[i] = pow((rmesh.first[i] / (yl+0.5)), 2.0) + pow((rmesh.second[i] / (xl+0.5)), 2.0);
-		rband[i] = (rband[i] <= 1) ? 1.0 : 0.0;  
+		for(auto ii = 0; ii < rband.get_dimi(); ii++)
+		{
+			rband.at(jj,ii) = pow((rmesh.first.at(jj,ii) / (yl+0.5)), 2.0) + pow((rmesh.second.at(jj,ii) / (xl+0.5)), 2.0);
+			rband.at(jj,ii) = (rband.at(jj,ii) <= 1) ? 1.0 : 0.0;  	
+		}
 	}
 
 
