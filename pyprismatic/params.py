@@ -163,7 +163,8 @@ class Metadata:
         "saveComplexOutputWave",
         "matrixRefocus",
         "importFile",
-        "importPath"
+        "importPath",
+        "maxFileSize",
     ]
 
     str_fields: List[str] = [
@@ -190,6 +191,7 @@ class Metadata:
         "batchSizeGPU",
         "numSlices",
         "zSampling",
+        "maxFileSize",
     ]
 
     float_fields: List[str] = [
@@ -330,6 +332,7 @@ class Metadata:
         self.importSMatrix = False
         self.saveComplexOutputWave = False
         self.saveProbe = False
+        self.maxFileSize = 2*10**9 #to make sure python types as int
         self.matrixRefocus = False
         self.importFile = ""
         self.importPath = ""

@@ -34,7 +34,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 		tileX, tileY, tileZ,
 		numGPUs, numStreamsPerGPU, numThreads, includeThermalEffects, includeOccupancy, alsoDoCPUWork,
 		save2DOutput, save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, crop4DOutput,
-		zSampling, numSlices, potential3D, saveSMatrix, importPotential, importSMatrix, saveComplexOutputWave, saveProbe, matrixRefocus;
+		zSampling, numSlices, potential3D, saveSMatrix, importPotential, importSMatrix, saveComplexOutputWave, saveProbe, matrixRefocus, maxFileSize;
 	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode,
 		 *aberrations_file, *probes_file, *importFile, *importPath;
 	double realspacePixelSizeX, realspacePixelSizeY, potBound,
@@ -56,7 +56,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	//d - double
 	//p - bool
 	if (!PyArg_ParseTuple( 
-			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppss",
+			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppssi",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -140,7 +140,8 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&saveComplexOutputWave,
 			&matrixRefocus,
 			&importFile,
-			&importPath))
+			&importPath,
+			&maxFileSize))
 	{
 		return NULL;
 	}
@@ -259,6 +260,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.importSMatrix = importSMatrix;
 	meta.saveComplexOutputWave = saveComplexOutputWave;
 	meta.saveProbe = saveProbe;
+	meta.maxFileSize = maxFileSize;
 	meta.matrixRefocus = matrixRefocus;
 	meta.importFile = std::string(importFile);
 	meta.importPath = std::string(importPath);
