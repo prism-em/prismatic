@@ -34,7 +34,7 @@ class Metadata:
     "tileX" : number of unit cells to tile in X direction
     "tileY" : number of unit cells to tile in Y direction
     "tileZ" : number of unit cells to tile in Z direction
-    "E0" : electron beam energy (in KeV)
+    "E0" : electron beam energy (in keV)
     "alphaBeamMax" : the maximum probe angle to consider (in mrad)
     "numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.
     "numStreamsPerGPU" : number of CUDA streams to use per GPU
