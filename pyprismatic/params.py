@@ -257,7 +257,7 @@ class Metadata:
         self.potBound = 2.0
         self.numFP = 1
         self.sliceThickness = 2.0
-        self.zSampling = 4
+        self.zSampling = 16
         self.numSlices = 0
         self.zStart = 0.0
         self.cellDimX = 20.0
