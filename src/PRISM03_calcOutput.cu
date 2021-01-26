@@ -41,7 +41,6 @@ namespace Prismatic {
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 
 		// create CUDA streams and cuFFT plans
-		std::cout << "total num streams" << total_num_streams << std::endl;
 		cuda_pars.streams = new cudaStream_t[total_num_streams];;
 		cuda_pars.cufftPlans = new cufftHandle[total_num_streams];
 		

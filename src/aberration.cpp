@@ -111,7 +111,6 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 
     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{q.get_dimj(), q.get_dimi()}});
 	const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
-	std::cout << "number of aberrations: " << ab.size() << std::endl;
     for(auto n = 0; n < ab.size(); n++)
     {
         for(auto j = 0; j < chi.get_dimj(); j++)

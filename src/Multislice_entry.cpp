@@ -182,7 +182,6 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 		PRISM01_calcPotential(pars);
 	}
 
-	std::cout << "series val size: " <<  pars.meta.seriesVals[0].size() << std::endl;
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;

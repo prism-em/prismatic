@@ -96,7 +96,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				{
 					for(auto ii = 0; ii < prismatic_pars.Scompact.get_dimi(); ii++)
 					{
-						net_output.at(ii,jj,prismatic_pars.HRTEMbeamOrder[kk]) += pow(std::abs(prismatic_pars.Scompact.at(kk,jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
+						net_output.at(ii,jj,kk) += pow(std::abs(prismatic_pars.Scompact.at(prismatic_pars.HRTEMbeamOrder[kk],jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
 					}
 				}
 			}

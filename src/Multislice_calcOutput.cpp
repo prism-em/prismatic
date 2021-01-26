@@ -739,7 +739,6 @@ namespace Prismatic{
 		// If the batch size is too big, the work won't be spread over the threads, which will usually hurt more than the benefit
 		// of batch FFT
 		pars.meta.batchSizeCPU = min(pars.meta.batchSizeTargetCPU, max((size_t)1, pars.numProbes / pars.meta.numThreads));
-		std::cout <<"batch size at run: " << pars.meta.batchSizeCPU << std::endl;
 		for (auto t = 0; t < pars.meta.numThreads; ++t){
 			cout << "Launching CPU worker #" << t << endl;
 			workers.push_back(thread([&pars, &dispatcher, t, &PRISMATIC_PRINT_FREQUENCY_PROBES]() {

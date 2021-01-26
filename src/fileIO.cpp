@@ -543,7 +543,6 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
-
 	//get unique vectors for qx and qy first; assumes sorting before set up
 	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_unique = getUnique(pars.xTilts_tem);
 
@@ -880,7 +879,7 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				for(auto k = 0; k < pars.Scompact.get_dimk(); k++)
 				{
 					//scale S matrix to mean value and restride
-					output_buffer.at(i,j,pars.HRTEMbeamOrder[k]) = pars.Scompact.at(k,j,i)*scale;
+					output_buffer.at(i,j,k) = pars.Scompact.at(pars.HRTEMbeamOrder[k],j,i)*scale;
 				}
 			}
 		}
