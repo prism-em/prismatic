@@ -46,7 +46,6 @@ namespace Prismatic {
 		
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.numGPUs);
-			std::cout << &cuda_pars.streams[j] << std::endl;
 			cudaErrchk(cudaStreamCreate(&cuda_pars.streams[j]));
 			cufftErrchk(cufftPlan2d(&cuda_pars.cufftPlans[j], pars.imageSizeReduce[0], pars.imageSizeReduce[1], PRISMATIC_CUFFT_PLAN_TYPE));
 			cufftErrchk(cufftSetStream(cuda_pars.cufftPlans[j], cuda_pars.streams[j]));
