@@ -63,13 +63,13 @@ namespace Prismatic{
             earlyCPUStopCount     = 100; // relative speed of job completion between gpu and cpu, used to determine early stopping point for cpu work
             probeStepX            = 0.25;
             probeStepY            = 0.25;
-            probeDefocus          = 0.0;
+            probeDefocus          = (T) nan("");
             probeDefocus_min      = 0.0;
             probeDefocus_max      = 0.0;
             probeDefocus_step     = 0.0;
             probeDefocus_sigma    = 0.0;
-            C3                    = 0.0;
-            C5                    = 0.0;
+            C3                    = (T) nan("");
+            C5                    = (T) nan("");
             aberrations           = {};
             probeSemiangle        = 20.0 / 1000;
             detectorAngleStep     = 1.0 / 1000;

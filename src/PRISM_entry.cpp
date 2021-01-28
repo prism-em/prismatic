@@ -208,8 +208,6 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 		PRISM02_calcSMatrix(pars);
 	}
 
-
-
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{
 		std::cout << "------------------- Series iter " << i << " -------------------" << std::endl;

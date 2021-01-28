@@ -280,13 +280,13 @@ class Metadata:
         self.earlyCPUStopCount = 100
         self.probeStepX = 0.25
         self.probeStepY = 0.25
-        self.probeDefocus = 0.0
+        self.probeDefocus = float("NaN")
         self.probeDefocus_min = 0.0
         self.probeDefocus_max = 0.0
         self.probeDefocus_step = 0.0
         self.probeDefocus_sigma = 0.0
-        self.C3 = 0.0
-        self.C5 = 0.0
+        self.C3 = float("NaN")
+        self.C5 = float("NaN")
         self.aberrations_file = ""
         self.probeSemiangle = 20.0
         self.detectorAngleStep = 1.0

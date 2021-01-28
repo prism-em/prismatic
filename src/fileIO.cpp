@@ -1122,6 +1122,11 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	writeScalarAttribute(sim_params, "C", (int) pars.meta.alsoDoCPUWork);
 
 	//create scalar float attributes
+	//overwrite NaNs to zero for C1, C3, C5
+	if(isnan(pars.meta.probeDefocus)) pars.meta.probeDefocus = 0.0;
+	if(isnan(pars.meta.C3)) pars.meta.C3 = 0.0;
+	if(isnan(pars.meta.C5)) pars.meta.C5 = 0.0;
+
 	writeScalarAttribute(sim_params, "px", pars.meta.realspacePixelSize[1]);
 	writeScalarAttribute(sim_params, "py", pars.meta.realspacePixelSize[0]);
 	writeScalarAttribute(sim_params, "P", pars.meta.potBound);
@@ -2091,6 +2096,7 @@ void updateScratchData(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	//for series simulations, need to update the 3D output array independently with a read-add-write process
 	Array4D<PRISMATIC_FLOAT_PRECISION> tmp_buffer(pars.output);
 	std::string currentName = pars.currentTag;
+
 	std::cout << "Reading scratch dataset " << currentName << " from " <<  "prismatic_scratch.h5" << std::endl;
 	readRealDataSet_inOrder(tmp_buffer, "prismatic_scratch.h5", "scratch/"+currentName);
 	for(auto i = 0; i < pars.output.size(); i++) tmp_buffer[i] += pars.output[i];
