@@ -85,10 +85,11 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		{
 			if(i == 0)
 			{
-				sortHRTEMbeams(prismatic_pars); //sort beams early so that can put in right order as integrating
 				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
 			}
+
 			//integrate output
+            sortHRTEMbeams(prismatic_pars);
 			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
 			for(auto kk = 0; kk < prismatic_pars.Scompact.get_dimk(); kk++)
 			{

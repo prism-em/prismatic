@@ -543,8 +543,11 @@ void setupHRTEMOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	H5::Group datacubes = pars.outputFile.openGroup("4DSTEM_simulation/data/datacubes");
-	//get unique vectors for qx and qy first; assumes sorting before set up
-	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_unique = getUnique(pars.xTilts_tem);
+
+	//get unique vectors for qx and qy first
+	std::vector<PRISMATIC_FLOAT_PRECISION> xTilts_unique(pars.xTilts_tem);
+	std::sort(xTilts_unique.begin(), xTilts_unique.end());
+	xTilts_unique = getUnique(xTilts_unique);
 
 	std::vector<PRISMATIC_FLOAT_PRECISION> yTilts_unique(pars.yTilts_tem);
 	std::sort(yTilts_unique.begin(), yTilts_unique.end());
