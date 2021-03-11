@@ -323,7 +323,7 @@ class Metadata:
         self.save3DOutput = True
         self.save4DOutput = False
         self.crop4DOutput = False
-        self.crop4Damax = 0.1
+        self.crop4Damax = 100.0
         self.saveDPC_CoM = False
         self.savePotentialSlices = False
         self.saveSMatrix = False

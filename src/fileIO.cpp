@@ -593,7 +593,7 @@ void setupHRTEMOutput_virtual(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 		dest_offset[3] = pars.yTiltsInd_tem[i];
 		vds_mspace.selectHyperslab(H5S_SELECT_SET, dest_mdims, dest_offset);
 
-		plist.setVirtual(vds_mspace, src_data.getFileName(), src_path, src_mspace);
+		plist.setVirtual(vds_mspace, ".", src_path, src_mspace);
 	}
 
 	dest_offset[2] = 0;
@@ -1772,7 +1772,7 @@ void writeVirtualDataSet(H5::Group group,
 		for(auto j = rank; j < rank+new_rank; j++) offset[j] = indices[i][j-rank];
 		
 		vds_mspace.selectHyperslab(H5S_SELECT_SET, mdims_ind, offset);
-		plist.setVirtual(vds_mspace, datasets[i].getFileName(), path, src_mspace);
+		plist.setVirtual(vds_mspace, ".", path, src_mspace);
 	}
 
 	for(auto i = rank; i < rank+new_rank; i++) offset[i] = 0;
