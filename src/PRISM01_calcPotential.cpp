@@ -127,12 +127,13 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	Array1D<PRISMATIC_FLOAT_PRECISION> sigma = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> occ = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 
-	// populate arrays from the atoms structure
 	for (auto i = 0; i < pars.atoms.size(); ++i)
 	{
+
 		x[i] = pars.atoms[i].x * pars.tiledCellDim[2];
 		y[i] = pars.atoms[i].y * pars.tiledCellDim[1];
 		z[i] = pars.atoms[i].z * pars.tiledCellDim[0];
+
 		ID[i] = pars.atoms[i].species;
 		sigma[i] = pars.atoms[i].sigma;
 		occ[i] = pars.atoms[i].occ;
@@ -175,7 +176,7 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	{
 		cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &Z_lookup, &xvec, &sigma, &occ,
-								  &zPlane, &yvec, &potentialLookup, &dispatcher]()
+								  &zPlane, &yvec, &potentialLookup, &dispatcher, &t]()
 		{
 			// create a random number generator to simulate thermal effects
 			// std::cout<<"random seed = " << pars.meta.randomSeed << std::endl;
@@ -187,6 +188,12 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 
 			size_t currentSlice, stop;
 			currentSlice = stop = 0;
+            // create a random number generator to simulate thermal effects
+            std::cout << "random seed = " << pars.meta.randomSeed + t * 1000 << std::endl;
+            srand(pars.meta.randomSeed + 1000*t);
+            std::mt19937 de(pars.meta.randomSeed + 1000*t);
+            normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0, 1);
+
 			while (dispatcher.getWork(currentSlice, stop))
 			{ // synchronously get work assignment
 				Array2D<PRISMATIC_FLOAT_PRECISION> projectedPotential = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.imageSize[0], pars.imageSize[1]}});
@@ -194,13 +201,6 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 				const long dim1 = (long)pars.imageSize[1];
 				while (currentSlice != stop)
 				{
-
-					// create a random number generator to simulate thermal effects
-					std::cout << "random seed = " << pars.meta.randomSeed + currentSlice * pars.numPlanes << std::endl;
-					srand(pars.meta.randomSeed + currentSlice * pars.numPlanes);
-					std::default_random_engine de(pars.meta.randomSeed + currentSlice * pars.numPlanes);
-					normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0, 1);
-
 					for (auto atom_num = 0; atom_num < x.size(); ++atom_num)
 					{
 						if (zPlane[atom_num] == currentSlice)
@@ -217,8 +217,10 @@ void generateProjectedPotentials(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 							PRISMATIC_FLOAT_PRECISION X, Y;
 							if (pars.meta.includeThermalEffects)
 							{ // apply random perturbations
-								X = round((x[atom_num] + randn(de) * sigma[atom_num]) / pars.pixelSize[1]);
-								Y = round((y[atom_num] + randn(de) * sigma[atom_num]) / pars.pixelSize[0]);
+                                PRISMATIC_FLOAT_PRECISION perturbX = randn(de) * sigma[atom_num];
+                                PRISMATIC_FLOAT_PRECISION perturbY = randn(de) * sigma[atom_num];
+								X = round((x[atom_num] + perturbX) / pars.pixelSize[1]);
+								Y = round((y[atom_num] + perturbY) / pars.pixelSize[0]);
 							}
 							else
 							{
@@ -322,11 +324,10 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	Array1D<PRISMATIC_FLOAT_PRECISION> sigma = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 	Array1D<PRISMATIC_FLOAT_PRECISION> occ = zeros_ND<1, PRISMATIC_FLOAT_PRECISION>({{pars.atoms.size()}});
 
-
 	// populate arrays from the atoms structure
 	for (auto i = 0; i < pars.atoms.size(); ++i)
 	{
-		x[i] = pars.atoms[i].x * pars.tiledCellDim[2];
+        x[i] = pars.atoms[i].x * pars.tiledCellDim[2];
 		y[i] = pars.atoms[i].y * pars.tiledCellDim[1];
 		z[i] = pars.atoms[i].z * pars.tiledCellDim[0];
 		ID[i] = pars.atoms[i].species;
@@ -379,16 +380,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	});
 
 	Array2D<PRISMATIC_FLOAT_PRECISION> qband(q1);
-	qband *= -2.0;
-	qband += rband_max;
-	qband /= (rband_max-rband_min);
-	// for(auto i = 0; i < qband.size(); i++)
-	// {
-	// 	qband[i] = (rband_max-2*q1[i])/(rband_max-rband_min);
-	// 	qband[i] = std::max(qband[i], (PRISMATIC_FLOAT_PRECISION) 0.0);
-	// 	qband[i] = std::min(qband[i], (PRISMATIC_FLOAT_PRECISION) 1.0);
-	// 	qband[i] = pow(std::sin(qband[i]*pi/2.0), 2.0);
-	// }
 
 	for(auto jj = 0; jj < qband.get_dimj(); jj++)
 	{
@@ -405,11 +396,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 	Array2D<PRISMATIC_FLOAT_PRECISION> rband(qband); //construct with qband to avoid type mismatch, knowing sizes are the same
 	PRISMATIC_FLOAT_PRECISION xl = (PRISMATIC_FLOAT_PRECISION) xvec[xvec.size()-1];
 	PRISMATIC_FLOAT_PRECISION yl = (PRISMATIC_FLOAT_PRECISION) yvec[yvec.size()-1];
-	// for(auto i =0; i < rband.size(); i++)
-	// {
-	// 	rband[i] = pow((rmesh.first[i] / (yl+0.5)), 2.0) + pow((rmesh.second[i] / (xl+0.5)), 2.0);
-	// 	rband[i] = (rband[i] <= 1) ? 1.0 : 0.0;  
-	// }
 
 	for(auto jj = 0; jj < rband.get_dimj(); jj++)
 	{
@@ -439,10 +425,16 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 		std::cout << "Launching thread #" << t << " to compute projected potential slices\n";
 		workers.push_back(thread([&pars, &x, &y, &z, &ID, &sigma, &occ, &print_frequency,
 								 &Z_lookup, &xvec, &yvec, &zvec, &zr, &dim0, &dim1,
-								 &numPlanes, &potLookup, &rband, &qband, &qxShift, &qyShift, &dispatcher]()
+								 &numPlanes, &potLookup, &rband, &qband, &qxShift, &qyShift, &dispatcher, &t]()
 		{
 			size_t currentAtom, stop;
 			currentAtom = stop = 0;
+            // create a random number generator to simulate thermal effects
+            std::cout << "random seed = " << pars.meta.randomSeed + t * 1000 << std::endl;
+            srand(pars.meta.randomSeed+1000*t);
+            std::mt19937 de(pars.meta.randomSeed+1000*t);
+            normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0, 1);
+
 			while (dispatcher.getWork(currentAtom, stop))
 			{
 				while(currentAtom != stop)
@@ -452,10 +444,6 @@ void generateProjectedPotentials3D(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 						std::cout << "Computing atom " << currentAtom << "/" << pars.atoms.size() << std::endl;
 					}
 
-					// create a random number generator to simulate thermal effects
-					srand(pars.meta.randomSeed+currentAtom);
-					std::default_random_engine de(pars.meta.randomSeed+currentAtom);
-					normal_distribution<PRISMATIC_FLOAT_PRECISION> randn(0, 1);
 					
 					const size_t cur_Z = Z_lookup[ID[currentAtom]];
 					PRISMATIC_FLOAT_PRECISION X, Y, Z;
