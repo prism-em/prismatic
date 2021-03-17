@@ -117,6 +117,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	};
 	
     std::cout << "Calculation complete.\n" << std::endl;
+	save_qArr(prismatic_pars);
 	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
     return prismatic_pars;
