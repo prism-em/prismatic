@@ -194,7 +194,6 @@ void createStack_integrate(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 void setupFourierCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
 	// create Fourier space coordinates
-
 	pars.qxaReduce = array2D_subset(pars.qxaOutput,
 									0, pars.meta.interpolationFactorY, pars.qxaOutput.get_dimj(),
 									0, pars.meta.interpolationFactorX, pars.qxaOutput.get_dimi());
