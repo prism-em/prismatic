@@ -58,7 +58,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 		for(auto i = 0; i < prismatic_pars.meta.seriesTags.size(); i++)
 		{
-			std::cout << "writing output for series iter " << i << std::endl;
 			std::string currentName = prismatic_pars.meta.seriesTags[i];
 			prismatic_pars.currentTag = currentName;
 			prismatic_pars.meta.probeDefocus = prismatic_pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
@@ -208,8 +207,6 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 	{
 		PRISM02_calcSMatrix(pars);
 	}
-
-
 
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{

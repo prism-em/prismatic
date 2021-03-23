@@ -163,7 +163,8 @@ class Metadata:
         "saveComplexOutputWave",
         "matrixRefocus",
         "importFile",
-        "importPath"
+        "importPath",
+        "maxFileSize",
     ]
 
     str_fields: List[str] = [
@@ -190,6 +191,7 @@ class Metadata:
         "batchSizeGPU",
         "numSlices",
         "zSampling",
+        "maxFileSize",
     ]
 
     float_fields: List[str] = [
@@ -278,13 +280,13 @@ class Metadata:
         self.earlyCPUStopCount = 100
         self.probeStepX = 0.25
         self.probeStepY = 0.25
-        self.probeDefocus = 0.0
+        self.probeDefocus = float("NaN")
         self.probeDefocus_min = 0.0
         self.probeDefocus_max = 0.0
         self.probeDefocus_step = 0.0
         self.probeDefocus_sigma = 0.0
-        self.C3 = 0.0
-        self.C5 = 0.0
+        self.C3 = float("NaN")
+        self.C5 = float("NaN")
         self.aberrations_file = ""
         self.probeSemiangle = 20.0
         self.detectorAngleStep = 1.0
@@ -321,7 +323,7 @@ class Metadata:
         self.save3DOutput = True
         self.save4DOutput = False
         self.crop4DOutput = False
-        self.crop4Damax = 0.1
+        self.crop4Damax = 100.0
         self.saveDPC_CoM = False
         self.savePotentialSlices = False
         self.saveSMatrix = False
@@ -330,6 +332,7 @@ class Metadata:
         self.importSMatrix = False
         self.saveComplexOutputWave = False
         self.saveProbe = False
+        self.maxFileSize = 2*10**9 #to make sure python types as int
         self.matrixRefocus = False
         self.importFile = ""
         self.importPath = ""

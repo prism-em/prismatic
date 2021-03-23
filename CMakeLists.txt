@@ -338,10 +338,10 @@ if (PRISMATIC_TESTS)
 
     # always run tests last
     if(PRISMATIC_ENABLE_PYPRISMATIC)
-        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=NONE
                             DEPENDS prismatic prismatic-tests pyprismatic_core)
     else(PRISMATIC_ENABLE_PYPRISMATIC)
-        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=NONE
                             DEPENDS prismatic prismatic-tests)
     endif(PRISMATIC_ENABLE_PYPRISMATIC)
 

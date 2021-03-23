@@ -57,18 +57,25 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		HRTEM_runFP(prismatic_pars, i);
 
-		//apply aberrations
-		if(prismatic_pars.meta.aberrations.size() > 0)
-		{
-			// setup necessary coordinates
-			setupCoordinates_2(prismatic_pars);
-			setupDetector(prismatic_pars);
-			setupFourierCoordinates(prismatic_pars);
-			transformIndices(prismatic_pars);
+		// //apply aberrations
+		// if(prismatic_pars.meta.aberrations.size() > 0)
+		// {
+        //     std::cout << "setting up coordinates for aberrations" << std::endl;
+		// 	// setup necessary coordinates
+		// 	setupCoordinates_2(prismatic_pars);
+
+
+        //     std::cout << "setting up detector" << std::endl;
+		// 	setupDetector(prismatic_pars);
+        //     std::cout << "setting up fourier" << std::endl;
+		// 	setupFourierCoordinates(prismatic_pars);
+        //     std::cout << "setting up indices" << std::endl;
+		// 	transformIndices(prismatic_pars);
 		
-			//now apply aberrations to each beam
-			apply_aberrations(prismatic_pars);
-		}
+        //     std::cout << "applying aberrations " << std::endl;
+		// 	//now apply aberrations to each beam
+		// 	apply_aberrations(prismatic_pars);
+		// }
 
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{			
@@ -85,10 +92,11 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 		{
 			if(i == 0)
 			{
-				sortHRTEMbeams(prismatic_pars); //sort beams early so that can put in right order as integrating
 				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
 			}
+
 			//integrate output
+            sortHRTEMbeams(prismatic_pars);
 			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
 			for(auto kk = 0; kk < prismatic_pars.Scompact.get_dimk(); kk++)
 			{
@@ -96,7 +104,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 				{
 					for(auto ii = 0; ii < prismatic_pars.Scompact.get_dimi(); ii++)
 					{
-						net_output.at(ii,jj,prismatic_pars.HRTEMbeamOrder[kk]) += pow(std::abs(prismatic_pars.Scompact.at(kk,jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
+						net_output.at(ii,jj,kk) += pow(std::abs(prismatic_pars.Scompact.at(prismatic_pars.HRTEMbeamOrder[kk],jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
 					}
 				}
 			}
@@ -116,6 +124,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	};
 	
     std::cout << "Calculation complete.\n" << std::endl;
+	save_qArr(prismatic_pars);
 	writeMetadata(prismatic_pars);
 	prismatic_pars.outputFile.close();
     return prismatic_pars;

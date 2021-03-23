@@ -81,6 +81,21 @@ void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// build propagators
 	pars.prop = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSize[0], pars.imageSize[1]}});
 	pars.propBack = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSize[0], pars.imageSize[1]}});
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.imageSize[0], pars.imageSize[1]}});
+    if(pars.meta.aberrations.size() > 0 ){
+        //apply aberrations in prop back
+        Array2D<PRISMATIC_FLOAT_PRECISION> q1(q2);
+        Array2D<PRISMATIC_FLOAT_PRECISION> qTheta(q2);
+        std::transform(pars.q2.begin(), pars.q2.end(), q1.begin(), [](const PRISMATIC_FLOAT_PRECISION &a) { return sqrt(a); });
+        std::transform(pars.qxa.begin(), pars.qxa.end(), pars.qya.begin(), qTheta.begin(),
+                [](const PRISMATIC_FLOAT_PRECISION &a, const PRISMATIC_FLOAT_PRECISION &b){
+                    return atan2(b,a);
+                });
+
+        chi = getChi(q1, qTheta, pars.lambda, pars.meta.aberrations);
+    }
+
 	for (auto y = 0; y < pars.qMask.get_dimj(); ++y)
 	{
 		for (auto x = 0; x < pars.qMask.get_dimi(); ++x)
@@ -94,7 +109,8 @@ void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 				//propBack is only used to center defocus of HRTEM at center of cell
 				pars.propBack.at(y, x) = exp(i * pi * complex<PRISMATIC_FLOAT_PRECISION>(pars.lambda, 0) *
 											 complex<PRISMATIC_FLOAT_PRECISION>(pars.tiledCellDim[0] / 2, 0) *
-											 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0));
+											 complex<PRISMATIC_FLOAT_PRECISION>(pars.q2.at(y, x), 0) +
+                                             complex<PRISMATIC_FLOAT_PRECISION>(-1.0, 0.0)*i * chi.at(y, x));
 			}
 		}
 	}

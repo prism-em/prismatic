@@ -57,6 +57,8 @@ void saveHRTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, Array3D<PRISMATIC_FL
 
 void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
+void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 std::string getDigitString(int digit);
