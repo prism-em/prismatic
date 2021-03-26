@@ -1220,9 +1220,9 @@ void writeMetadata(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	//create scalar float attributes
 	//overwrite NaNs to zero for C1, C3, C5
-	if(isnan(pars.meta.probeDefocus)) pars.meta.probeDefocus = 0.0;
-	if(isnan(pars.meta.C3)) pars.meta.C3 = 0.0;
-	if(isnan(pars.meta.C5)) pars.meta.C5 = 0.0;
+	if(std::isnan(pars.meta.probeDefocus)) pars.meta.probeDefocus = 0.0;
+	if(std::isnan(pars.meta.C3)) pars.meta.C3 = 0.0;
+	if(std::isnan(pars.meta.C5)) pars.meta.C5 = 0.0;
 
 	writeScalarAttribute(sim_params, "px", pars.meta.realspacePixelSize[1]);
 	writeScalarAttribute(sim_params, "py", pars.meta.realspacePixelSize[0]);

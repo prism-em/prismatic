@@ -174,11 +174,11 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 		if(ab[i].m ==0 and ab[i].n == 2)
 		{
 			C1_exists = true;
-			if(not isnan(C1)) ab[i].mag = C1 * pi / lambda;
+			if(not std::isnan(C1)) ab[i].mag = C1 * pi / lambda;
 		}
 	}
 
-	if((not C1_exists) and (not isnan(C1)))
+	if((not C1_exists) and (not std::isnan(C1)))
 	{
 		PRISMATIC_FLOAT_PRECISION mag = C1 * pi / lambda;
 		aberration new_C1 = aberration{0, 2, mag, 0.0};
@@ -191,11 +191,11 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 		if(ab[i].m ==0 and ab[i].n == 4)
 		{
 			C3_exists = true;
-			if(not isnan(C3)) ab[i].mag = C3 * pi / (2.0*lambda);
+			if(not std::isnan(C3)) ab[i].mag = C3 * pi / (2.0*lambda);
 		}
 	}
 
-	if((not C3_exists) and (not isnan(C3)))
+	if((not C3_exists) and (not std::isnan(C3)))
 	{
 		PRISMATIC_FLOAT_PRECISION mag = C3 * pi / (2.0*lambda);
 		aberration new_C3 = aberration{0, 4, mag, 0.0};
@@ -208,11 +208,11 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 		if(ab[i].m ==0 and ab[i].n == 6)
 		{
 			C5_exists = true;
-			if(not isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
+			if(not std:isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
 		}
 	}
 
-	if((not C5_exists) and (not isnan(C5)))
+	if((not C5_exists) and (not std::isnan(C5)))
 	{
 		PRISMATIC_FLOAT_PRECISION mag = C5 * pi / (3.0*lambda);
 		aberration new_C5 = aberration{0, 6, mag, 0.0};
