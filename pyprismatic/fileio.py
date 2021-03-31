@@ -29,36 +29,40 @@ def readMRC(filename: str, dtype: type = float, order: str = "C"):
     """
     import numpy as np
     import struct
+    import h5py
 
-    headerIntNumber = 56
-    sizeof_int = 4
-    headerCharNumber = 800
-    sizeof_char = 1
-    with open(filename, "rb") as fid:
-        int_header = struct.unpack(
-            "=" + "i" * headerIntNumber, fid.read(headerIntNumber * sizeof_int)
-        )
-        char_header = struct.unpack(
-            "=" + "c" * headerCharNumber, fid.read(headerCharNumber * sizeof_char)
-        )
-        dimz, dimy, dimx, data_flag = int_header[:4]
-        if data_flag == 0:
-            datatype = "u1"
-        elif data_flag == 1:
-            datatype = "i1"
-        elif data_flag == 2:
-            datatype = "f4"
-        elif data_flag == 3:
-            datatype = "c"
-        elif data_flag == 4:
-            datatype = "f4"
-        elif data_flag == 6:
-            datatype = "u2"
-        else:
-            raise ValueError("No supported datatype found!\n")
-
-        return (
-            np.fromfile(file=fid, dtype=datatype, count=dimx * dimy * dimz)
-            .reshape((dimx, dimy, dimz), order=order)
-            .astype(dtype)
-        )
+    hf = h5py.File(filename, "r")
+    return hf["4DSTEM_simulation"]["data"]["realslices"][
+        "virtual_detector_depth0000"
+    ]["realslice"][:]
+    # headerIntNumber = 56
+    # sizeof_int = 4
+    # headerCharNumber = 800
+    # sizeof_char = 1
+    # with open(filename, "rb") as fid:
+    #     int_header = struct.unpack(
+    #         "=" + "i" * headerIntNumber, fid.read(headerIntNumber * sizeof_int)
+    #     )
+    #     char_header = struct.unpack(
+    #         "=" + "c" * headerCharNumber, fid.read(headerCharNumber * sizeof_char)
+    #     )
+    #     dimz, dimy, dimx, data_flag = int_header[:4]
+    #     if data_flag == 0:
+    #         datatype = "u1"
+    #     elif data_flag == 1:
+    #         datatype = "i1"
+    #     elif data_flag == 2:
+    #         datatype = "f4"
+    #     elif data_flag == 3:
+    #         datatype = "c"
+    #     elif data_flag == 4:
+    #         datatype = "f4"
+    #     elif data_flag == 6:
+    #         datatype = "u2"
+    #     else:
+    #         raise ValueError("No supported datatype found!\n")
+    #     return (
+    #         np.fromfile(file=fid, dtype=datatype, count=dimx * dimy * dimz)
+    #         .reshape((dimx, dimy, dimz), order=order)
+    #         .astype(dtype)
+    #     )
