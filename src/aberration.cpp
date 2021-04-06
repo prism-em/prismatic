@@ -208,7 +208,7 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 		if(ab[i].m ==0 and ab[i].n == 6)
 		{
 			C5_exists = true;
-			if(not std:isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
+			if(not std::isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
 		}
 	}
 
