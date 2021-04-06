@@ -34,8 +34,9 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 		tileX, tileY, tileZ,
 		numGPUs, numStreamsPerGPU, numThreads, includeThermalEffects, includeOccupancy, alsoDoCPUWork,
 		save2DOutput, save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, crop4DOutput,
-		zSampling, numSlices, potential3D, saveSMatrix, importPotential, importSMatrix, saveComplexOutputWave, saveProbe, matrixRefocus, maxFileSize,
+		zSampling, numSlices, potential3D, saveSMatrix, importPotential, importSMatrix, saveComplexOutputWave, saveProbe, matrixRefocus,
         earlyCPUStopCount;
+    unsigned long long int maxFileSize;
 	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode,
 		 *aberrations_file, *probes_file, *importFile, *importPath;
 	double realspacePixelSizeX, realspacePixelSizeY, potBound,
@@ -57,7 +58,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	//d - double
 	//p - bool
 	if (!PyArg_ParseTuple( 
-			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppssi",
+			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppssK",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
