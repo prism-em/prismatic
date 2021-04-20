@@ -64,7 +64,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
         if(pars.meta.crop4DOutput)
         {
             Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = cropOutput(currentImage, pars);
-            hsize_t mdims[4] = {1,1,finalImage.get_dimi(),finalImage.get_dimj()};
+            hsize_t mdims[4] = {1,1,finalImage.get_dimj(),finalImage.get_dimi()};
             Prismatic::writeDatacube4D(pars, &finalImage[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
         }
         else
@@ -72,7 +72,7 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
 
             if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
                 Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> finalImage = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-                    {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
+                    {{pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2}});
                     {
                         long offset_x = pars.psiProbeInit.get_dimi() / 4;
                         long offset_y = pars.psiProbeInit.get_dimj() / 4;
@@ -80,26 +80,21 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                         long ndimx = (long) pars.psiProbeInit.get_dimi();
                         for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
                             for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-                                finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                finalImage.at(x, y) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
                                 ((x - offset_x) % ndimx + ndimx) % ndimx);
                             }
                         }
                     }
                     
-                    //finalImage = fftshift2(finalImage);
-                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2};
+                    hsize_t mdims[4] = {1,1, finalImage.get_dimj(), finalImage.get_dimi()};
                     Prismatic::writeDatacube4D(pars, &finalImage[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
-                    //finalImage.toMRC_f(section4DFilename.c_str());
                 }else{                     
-                    currentImage = fftshift2(currentImage);
-                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi(),pars.psiProbeInit.get_dimj()};
+                    currentImage = fftshift2_flip(currentImage);
+                    hsize_t mdims[4] = {1,1,currentImage.get_dimj(), currentImage.get_dimi()};
+                    std::cout << "mdims " << mdims[0] << " " << mdims[1] << " " << mdims[2] << " " << mdims[3] << std::endl;
                     Prismatic::writeDatacube4D(pars, &currentImage[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
-                    //currentImage.toMRC_f(section4DFilename.c_str());
                 }
         }
-        // CBED_data.close();
-        // dataGroup.close();
-        // HDF5_gatekeeper.unlock();
     }
 
 	size_t num_integration_bins = pars.detectorAngles.size();
@@ -223,14 +218,14 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
         if(pars.meta.crop4DOutput)
         {
             finalImage = cropOutput(currentImage, pars);
-            hsize_t mdims[4] = {1,1,finalImage.get_dimi(),finalImage.get_dimj()};
+            hsize_t mdims[4] = {1,1,finalImage.get_dimj(),finalImage.get_dimi()};
             Prismatic::writeDatacube4D(pars, &finalImage[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.c_str());
         }
         else
         {
             if (pars.meta.algorithm == Prismatic::Algorithm::Multislice){
                 finalImage = Prismatic::zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
-                    {{pars.psiProbeInit.get_dimj()/2,pars.psiProbeInit.get_dimi()/2}});
+                    {{pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2}});
                     {
                         long offset_x = pars.psiProbeInit.get_dimi() / 4;
                         long offset_y = pars.psiProbeInit.get_dimj() / 4;
@@ -238,21 +233,18 @@ void formatOutput_GPU_c_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISIO
                         long ndimx = (long) pars.psiProbeInit.get_dimi();
                         for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
                             for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-                                finalImage.at(y, x) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                finalImage.at(x, y) = currentImage.at(((y - offset_y) % ndimy + ndimy) % ndimy,
                                 ((x - offset_x) % ndimx + ndimx) % ndimx);
                             }
                         }
                     }
                     
-                    //finalImage = fftshift2(finalImage);
-                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi()/2,pars.psiProbeInit.get_dimj()/2};
+                    hsize_t mdims[4] = {1,1, finalImage.get_dimj(), finalImage.get_dimi()};
                     Prismatic::writeDatacube4D(pars, &finalImage[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.c_str());
-                    //finalImage.toMRC_f(section4DFilename.c_str());
                 }else{                     
-                    currentImage = fftshift2(currentImage);
-                    hsize_t mdims[4] = {1,1,pars.psiProbeInit.get_dimi(),pars.psiProbeInit.get_dimj()};
+                    currentImage = fftshift2_flip(currentImage);
+                    hsize_t mdims[4] = {1, 1, currentImage.get_dimj(), currentImage.get_dimi()};
                     Prismatic::writeDatacube4D(pars, &currentImage[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.c_str());
-                    //currentImage.toMRC_f(section4DFilename.c_str());
                 }
         }
 	}
