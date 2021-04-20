@@ -471,14 +471,14 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			{
 				finalOutput = cropOutput(psi, pars);
 				finalOutput *= sqrt(pars.scale);
-				hsize_t mdims[4] = {1, 1, finalOutput.get_dimi(), finalOutput.get_dimj()};
+				hsize_t mdims[4] = {1, 1, finalOutput.get_dimj(), finalOutput.get_dimi()};
 				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.c_str());
 			}
 			else
 			{
-				hsize_t mdims[4] = {1, 1, psi.get_dimi(), psi.get_dimj()};
-				finalOutput = fftshift2(psi);
+				finalOutput = fftshift2_flip(psi);
 				finalOutput *= sqrt(pars.scale);
+				hsize_t mdims[4] = {1, 1, finalOutput.get_dimj(), finalOutput.get_dimi()};
 				writeDatacube4D(pars, &finalOutput[0], &pars.cbed_buffer_c[0], mdims, offset, numFP, nameString.c_str());
 			}
 		}
@@ -487,13 +487,13 @@ void buildSignal_CPU(Parameters<PRISMATIC_FLOAT_PRECISION> &pars,
 			if(pars.meta.crop4DOutput)
 			{
 				Array2D<PRISMATIC_FLOAT_PRECISION> croppedOutput = cropOutput(intOutput, pars);
-				hsize_t mdims[4] = {1, 1, croppedOutput.get_dimi(), croppedOutput.get_dimj()};
+				hsize_t mdims[4] = {1, 1, croppedOutput.get_dimj(), croppedOutput.get_dimi()};
 				writeDatacube4D(pars, &croppedOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.c_str());
 			}
 			else
 			{
-				hsize_t mdims[4] = {1, 1, intOutput.get_dimi(), intOutput.get_dimj()};
-				intOutput = fftshift2(intOutput);
+				intOutput = fftshift2_flip(intOutput);
+				hsize_t mdims[4] = {1, 1, intOutput.get_dimj(), intOutput.get_dimi()};
 				writeDatacube4D(pars, &intOutput[0],  &pars.cbed_buffer[0], mdims, offset, numFP, nameString.c_str());
 			}
 		}
@@ -565,14 +565,14 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// 			  return a;
 	// 		  });
 
-	PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
-	PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
+	PRISMATIC_FLOAT_PRECISION dqx = pars.qxaReduce.at(0,1);
+	PRISMATIC_FLOAT_PRECISION dqy = pars.qyaReduce.at(1,0);
 	for(auto j = 0; j < pars.q1.get_dimj(); j++)
 	{
 		for(auto i = 0; i < pars.q1.get_dimi(); i++)
 		{
 			PRISMATIC_FLOAT_PRECISION tmp_val = (qProbeMax*pars.q1.at(j,i) - pars.q2.at(j,i));
-			tmp_val /= sqrt(dqx*dqx*pow(pars.qxa.at(j,i),2.0)+dqy*dqy*pow(pars.qya.at(j,i),2.0));					
+			tmp_val /= sqrt(dqx*dqx*pow(pars.qxaReduce.at(j,i),2.0)+dqy*dqy*pow(pars.qyaReduce.at(j,i),2.0));					
 			tmp_val += 0.5; 
 			tmp_val = std::max(tmp_val, (PRISMATIC_FLOAT_PRECISION) 0.0);
 			tmp_val = std::min(tmp_val, (PRISMATIC_FLOAT_PRECISION) 1.0);

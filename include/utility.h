@@ -89,6 +89,22 @@ Array2D<T> fftshift2(Array2D<T> arr)
 };
 
 template <class T>
+Array2D<T> fftshift2_flip(Array2D<T> arr)
+{
+	Array2D<T> result = zeros_ND<2, T>({{arr.get_dimi(), arr.get_dimj()}});
+	const long sj = std::floor(arr.get_dimj() / 2);
+	const long si = std::floor(arr.get_dimi() / 2);
+	for (auto j = 0; j < arr.get_dimj(); ++j)
+	{
+		for (auto i = 0; i < arr.get_dimi(); ++i)
+		{
+			result.at((i + si) % arr.get_dimi(), (j + sj) % arr.get_dimj()) = arr.at(j, i);
+		}
+	}
+	return result;
+};
+
+template <class T>
 Array1D<T> fftshift(Array1D<T> arr)
 {
 	Array1D<T> result(arr);
