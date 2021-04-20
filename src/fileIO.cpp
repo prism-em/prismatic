@@ -168,6 +168,7 @@ void setup4DOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 		//create dataset
 		H5::DataSpace mspace(4, data_dims); //rank is 4
+        std::cout << "setup data dims: " << data_dims[0] << " " << data_dims[1] << " " << data_dims[2] << " " << data_dims[3] << std::endl;
 		H5::DataSet CBED_data;
 		if(pars.meta.saveComplexOutputWave)
 		{

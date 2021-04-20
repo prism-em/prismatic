@@ -349,7 +349,7 @@ namespace Prismatic{
 				}
 				else
 				{
-					intOutput_small = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{psi.get_dimj()/2, psi.get_dimi()/2}});
+					intOutput_small = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{psi.get_dimi()/2, psi.get_dimj()/2}});
 					{
 						long offset_x = psi.get_dimi() / 4;
 						long offset_y = psi.get_dimj() / 4;
@@ -357,15 +357,15 @@ namespace Prismatic{
 						long ndimx = (long) psi.get_dimi();
 						for (long y = 0; y < psi.get_dimj() / 2; ++y) {
 							for (long x = 0; x < psi.get_dimi() / 2; ++x) {
-								intOutput_small.at(y, x) = psi.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+								intOutput_small.at(x, y) = psi.at(((y - offset_y) % ndimy + ndimy) % ndimy,
 															((x - offset_x) % ndimx + ndimx) % ndimx);
 							}
 						}
 					}
 				}
 
-				mdims[2] = {intOutput_small.get_dimi()};
-				mdims[3] = {intOutput_small.get_dimj()};
+				mdims[2] = {intOutput_small.get_dimj()};
+				mdims[3] = {intOutput_small.get_dimi()};
 				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0],mdims,offset,numFP,nameString.c_str());
 
 			}
@@ -380,7 +380,7 @@ namespace Prismatic{
 				}
 				else
 				{
-					intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimj()/2, psi.get_dimi()/2}});
+					intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{psi.get_dimi()/2, psi.get_dimj()/2}});
 					{
 						long offset_x = psi.get_dimi() / 4;
 						long offset_y = psi.get_dimj() / 4;
@@ -388,15 +388,15 @@ namespace Prismatic{
 						long ndimx = (long) psi.get_dimi();
 						for (long y = 0; y < psi.get_dimj() / 2; ++y) {
 							for (long x = 0; x < psi.get_dimi() / 2; ++x) {
-								intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+								intOutput_small.at(x, y) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
 															((x - offset_x) % ndimx + ndimx) % ndimx);
 							}
 						}
 					}
 				}
 
-				mdims[2] = {intOutput_small.get_dimi()};
-				mdims[3] = {intOutput_small.get_dimj()};
+				mdims[2] = {intOutput_small.get_dimj()};
+				mdims[3] = {intOutput_small.get_dimi()};
 				writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
 
 			}
@@ -479,7 +479,7 @@ namespace Prismatic{
 					}
 					else
 					{
-						intOutput_small = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.psiProbeInit.get_dimj()/2, pars.psiProbeInit.get_dimi()/2}});
+						intOutput_small = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2}});
 						{
 							long offset_x = pars.psiProbeInit.get_dimi() / 4;
 							long offset_y = pars.psiProbeInit.get_dimj() / 4;
@@ -487,15 +487,15 @@ namespace Prismatic{
 							long ndimx = (long) pars.psiProbeInit.get_dimi();
 							for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
 								for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-									intOutput_small.at(y, x) = intOutput_c.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+									intOutput_small.at(x, y) = intOutput_c.at(((y - offset_y) % ndimy + ndimy) % ndimy,
 																((x - offset_x) % ndimx + ndimx) % ndimx);
 								}
 							}
 						}
 					}
 
-					mdims[2] = {intOutput_small.get_dimi()};
-					mdims[3] = {intOutput_small.get_dimj()};
+					mdims[2] = {intOutput_small.get_dimj()};
+					mdims[3] = {intOutput_small.get_dimi()};
 					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer_c[0], mdims,offset,numFP,nameString.c_str());
 
 				}
@@ -510,7 +510,7 @@ namespace Prismatic{
 					}
 					else
 					{
-						intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimj()/2, pars.psiProbeInit.get_dimi()/2}});
+						intOutput_small = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2}});
 						{
 							long offset_x = pars.psiProbeInit.get_dimi() / 4;
 							long offset_y = pars.psiProbeInit.get_dimj() / 4;
@@ -518,15 +518,15 @@ namespace Prismatic{
 							long ndimx = (long) pars.psiProbeInit.get_dimi();
 							for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
 								for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
-									intOutput_small.at(y, x) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+									intOutput_small.at(x, y) = intOutput.at(((y - offset_y) % ndimy + ndimy) % ndimy,
 																((x - offset_x) % ndimx + ndimx) % ndimx);
 								}
 							}
 						}
 					}
 
-					mdims[2] = {intOutput_small.get_dimi()};
-					mdims[3] = {intOutput_small.get_dimj()};
+					mdims[2] = {intOutput_small.get_dimj()};
+					mdims[3] = {intOutput_small.get_dimi()};
 					writeDatacube4D(pars,&intOutput_small[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
 				}
 			}
