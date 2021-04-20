@@ -565,14 +565,14 @@ void initializeProbes(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	// 			  return a;
 	// 		  });
 
-	PRISMATIC_FLOAT_PRECISION dqx = pars.qxa.at(0,1);
-	PRISMATIC_FLOAT_PRECISION dqy = pars.qya.at(1,0);
+	PRISMATIC_FLOAT_PRECISION dqx = pars.qxaReduce.at(0,1);
+	PRISMATIC_FLOAT_PRECISION dqy = pars.qyaReduce.at(1,0);
 	for(auto j = 0; j < pars.q1.get_dimj(); j++)
 	{
 		for(auto i = 0; i < pars.q1.get_dimi(); i++)
 		{
 			PRISMATIC_FLOAT_PRECISION tmp_val = (qProbeMax*pars.q1.at(j,i) - pars.q2.at(j,i));
-			tmp_val /= sqrt(dqx*dqx*pow(pars.qxa.at(j,i),2.0)+dqy*dqy*pow(pars.qya.at(j,i),2.0));					
+			tmp_val /= sqrt(dqx*dqx*pow(pars.qxaReduce.at(j,i),2.0)+dqy*dqy*pow(pars.qyaReduce.at(j,i),2.0));					
 			tmp_val += 0.5; 
 			tmp_val = std::max(tmp_val, (PRISMATIC_FLOAT_PRECISION) 0.0);
 			tmp_val = std::min(tmp_val, (PRISMATIC_FLOAT_PRECISION) 1.0);
