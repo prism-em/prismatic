@@ -91,7 +91,6 @@ void formatOutput_GPU_integrate(Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION>
                 }else{                     
                     currentImage = fftshift2_flip(currentImage);
                     hsize_t mdims[4] = {1,1,currentImage.get_dimj(), currentImage.get_dimi()};
-                    std::cout << "mdims " << mdims[0] << " " << mdims[1] << " " << mdims[2] << " " << mdims[3] << std::endl;
                     Prismatic::writeDatacube4D(pars, &currentImage[0],&pars.cbed_buffer[0],mdims,offset,numFP,nameString.c_str());
                 }
         }
