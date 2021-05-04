@@ -155,11 +155,6 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
         readParams(get_default_parameter_filename());
     }
 
-
-
-
-
-
     // connect signals and slots
     connect(this->ui->btn_loadParams, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
     connect(this->ui->actionLoad_Parameters, SIGNAL(triggered()), this, SLOT(selectParameterFile()));
@@ -2217,6 +2212,11 @@ void PRISMMainWindow::resetCalculation(){
     // delete this->meta;
     // this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
     // updateDisplay();
+}
+
+void PRISMMainWindow::resetPotential(){
+    QMutexLocker gatekeeper(&dataLock);
+    potentialReady  = false;
 }
 
 

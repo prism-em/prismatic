@@ -24,6 +24,11 @@
 #include "Multislice_entry.h"
 #include "aberration.h"
 
+#ifdef PRISMATIC_ENABLE_GUI
+#include <QMutex>
+#include <QMutexLocker>
+#endif
+
 namespace Prismatic
 {
 	
@@ -39,7 +44,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 		std::cout << "Terminating" << std::endl;
 		exit(1);
 	}
-	prismatic_pars.meta.toString();
 
 	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
 
@@ -131,6 +135,11 @@ void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	pars.scale = 1.0;
 
 	// compute projected potentials
+#ifdef PRISMATIC_BUILDING_GUI
+    if(!pars.parent_thread->parent->potentialIsReady() || !(pars.meta == *(pars.parent_thread->parent->getMetadata()))){
+        pars.parent_thread->parent->resetCalculation();
+
+#endif
 	if(pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
@@ -140,6 +149,25 @@ void Multislice_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	{
 		PRISM01_calcPotential(pars);
 	}
+#ifdef PRISMATIC_BUILDING_GUI
+    std::cout << "Potential Calculated" << std::endl;
+        {
+            QMutexLocker gatekeeper(&pars.parent_thread->dataLock);
+            pars.parent_thread->parent->pars = pars;
+        }
+
+    }
+    else{
+        QMutexLocker gatekeeper(&pars.parent_thread->parent->dataLock);
+        PRISMThread tmp_parent = &pars.parent_thread;
+        pars = pars.parent_thread->parent->pars;
+        pars.progressbar = progressbar;
+        pars.parent_thread = tmp_parent;
+        std::cout << "Potential already calculated. Using existing result." << std::endl;
+    }
+    pars.parent_thread->parent->potentialRecevied(pars.pot);
+    emit pars.parent_thread::potentialCalculated();
+#endif
 
 	//update original object as prismatic_pars is recreated later
 	Multislice_calcOutput(pars);
@@ -172,6 +200,11 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 	pars.scale = 1.0;
 
 	// compute projected potentials
+#ifdef PRISMATIC_BUILDING_GUI
+    if(!pars.parent_thread->parent->potentialIsReady() || !(pars.meta == *(pars.parent_thread->parent->getMetadata()))){
+        pars.parent_thread->parent->resetCalculation();
+
+#endif
 	if(pars.meta.importPotential)
 	{
 		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
@@ -181,6 +214,25 @@ void Multislice_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t
 	{
 		PRISM01_calcPotential(pars);
 	}
+#ifdef PRISMATIC_BUILDING_GUI
+    std::cout << "Potential Calculated" << std::endl;
+        {
+            QMutexLocker gatekeeper(&pars.parent_thread->dataLock);
+            pars.parent_thread->parent->pars = pars;
+        }
+
+    }
+    else{
+        QMutexLocker gatekeeper(&pars.parent_thread->parent->dataLock);
+        PRISMThread tmp_parent = &pars.parent_thread;
+        pars = pars.parent_thread->parent->pars;
+        pars.progressbar = progressbar;
+        pars.parent_thread = tmp_parent;
+        std::cout << "Potential already calculated. Using existing result." << std::endl;
+    }
+    pars.parent_thread->parent->potentialRecevied(pars.pot);
+    emit pars.parent_thread::potentialCalculated();
+#endif
 
 	for(auto i = 0; i < pars.meta.seriesVals[0].size(); i++)
 	{

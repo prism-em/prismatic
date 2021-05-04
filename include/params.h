@@ -26,6 +26,7 @@
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
+class PRISMThread;
 #endif
 
 namespace Prismatic{
@@ -148,10 +149,11 @@ namespace Prismatic{
 		#endif // PRISMATIC_ENABLE_GPU
 		#ifdef PRISMATIC_BUILDING_GUI
 				prism_progressbar *progressbar;
+                PRISMThread *parent_thread;
 		#endif
 		Parameters(){};
 		#ifdef PRISMATIC_BUILDING_GUI
-		Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
+		Parameters(Metadata<T> _meta, PRISMThread* _parent_thread = NULL, prism_progressbar* _progressbar = NULL) : meta(_meta), parent_thread(_parent_thread), progressbar(_progressbar){
 		#else
 	    Parameters(Metadata<T> _meta) : meta(_meta){
 		#endif

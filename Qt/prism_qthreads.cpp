@@ -27,6 +27,7 @@
 #include "QMessageBox"
 #include <stdio.h>
 #include "fileIO.h"
+#include "aberration.h"
 
 PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : parent(_parent), progressbar(_progressbar)
 {
@@ -456,7 +457,7 @@ FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, pri
 void FullMultisliceCalcThread::run()
 {
 
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
     if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
     {
         std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
@@ -488,75 +489,44 @@ void FullMultisliceCalcThread::run()
     params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
     Prismatic::setupOutputFile(params);
     params.fpFlag = 0;
-
-    if ((!this->parent->potentialIsReady()) || !(params.meta == *(this->parent->getMetadata())))
-    {
-        this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        Prismatic::PRISM01_calcPotential(params);
-
-        std::cout << "Potential Calculated" << std::endl;
-        {
-            QMutexLocker gatekeeper(&this->parent->dataLock);
-            this->parent->pars = params;
-        }
-    }
-    else
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-        std::cout << "Potential already calculated. Using existing result." << std::endl;
-    }
-
-    this->parent->potentialReceived(params.pot);
-    emit potentialCalculated();
-    std::cout << "Also do CPU work: " << params.meta.alsoDoCPUWork << std::endl;
-
     params.scale = 1.0;
-    //Calls Multislice_calcOutput for first frozen phonon pass
-    Prismatic::Multislice_calcOutput(params);
-    params.outputFile.close();
 
-    if (params.meta.numFP > 1)
-    {
-        // run the rest of the frozen phonons
-        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
-        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
-        if (params.meta.saveDPC_CoM)
-            DPC_CoM_output = params.DPC_CoM;
-        for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num)
-        {
-            params.meta.randomSeed = rand() % 100000;
-            ++meta.fpNum;
-            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
-            emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
-            progressbar->resetOutputs();
+    if(params.meta.simSeries){
+		for(auto i = 0; i < params.meta.numFP; i++)
+		{
+			Multislice_series_runFP(params, i);
+		}
 
-            params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-            params.fpFlag = fp_num;
-            params.scale = 1.0;
+		for(auto i = 0; i < params.meta.seriesTags.size(); i++)
+		{
+			std::string currentName = params.meta.seriesTags[i];
+			params.currentTag = currentName;
+			params.meta.probeDefocus = params.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
+			
+			readRealDataSet_inOrder(params.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
+			if(params.meta.saveDPC_CoM)
+				readRealDataSet_inOrder(params.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
+			//average data by fp
+			for (auto &i : params.net_output)
+				i /= params.meta.numFP;
 
-            Prismatic::PRISM01_calcPotential(params);
-            this->parent->potentialReceived(params.pot);
-            emit potentialCalculated();
-            Prismatic::Multislice_calcOutput(params);
+			if (params.meta.saveDPC_CoM)
+			{
+				for (auto &j : params.net_DPC_CoM)
+					j /= params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+			}
 
-            net_output += params.output;
-            if (meta.saveDPC_CoM)
-                DPC_CoM_output += params.DPC_CoM;
-            params.outputFile.close();
-        }
-        // divide to take average
-        for (auto &i : net_output)
-            i /= params.meta.numFP;
-        params.output = net_output;
-
-        if (params.meta.saveDPC_CoM)
-        {
-            for (auto &j : DPC_CoM_output)
-                j /= params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-            params.DPC_CoM = DPC_CoM_output;
-        }
+			saveSTEM(params);
+		}
+    }
+    else{
+        params.meta.aberrations = updateAberrations(params.meta.aberrations, params.meta.probeDefocus, params.meta.C3, params.meta.C5, params.lambda);
+        for(auto i = 0; i < pars.meta.numFP; i++)
+		{
+            if(i > 0) this->parent-resetPotential();
+			Multislice_runFP(params, i);
+		}	
+        saveSTEM(params);
     }
 
     {
@@ -575,10 +545,11 @@ void FullMultisliceCalcThread::run()
         gatekeeper.unlock();
     }
 
-    saveSTEM(params);
     params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	if(params.meta.simSeries) CCseriesSG(params.outputFile);
     Prismatic::writeMetadata(params);
-
+    params.outputFile.close();
+	if (params.meta.simSeries) removeScratchFile(params);
 
     this->parent->outputReceived(params.output);
     emit outputCalculated();

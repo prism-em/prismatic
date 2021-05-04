@@ -143,6 +143,7 @@ public slots:
     void setscan_WindowYMin_fromLineEdit();
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
+    void resetPotential();
     void newRandomSeed();
 
     //    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
