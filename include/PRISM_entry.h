@@ -17,7 +17,9 @@
 #include "params.h"
 
 namespace Prismatic{
-	Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta);
+	void PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta);
+	
+    void PRISM_entry_pars(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 	void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum);
 

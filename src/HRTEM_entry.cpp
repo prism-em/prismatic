@@ -57,26 +57,6 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 	{
 		HRTEM_runFP(prismatic_pars, i);
 
-		// //apply aberrations
-		// if(prismatic_pars.meta.aberrations.size() > 0)
-		// {
-        //     std::cout << "setting up coordinates for aberrations" << std::endl;
-		// 	// setup necessary coordinates
-		// 	setupCoordinates_2(prismatic_pars);
-
-
-        //     std::cout << "setting up detector" << std::endl;
-		// 	setupDetector(prismatic_pars);
-        //     std::cout << "setting up fourier" << std::endl;
-		// 	setupFourierCoordinates(prismatic_pars);
-        //     std::cout << "setting up indices" << std::endl;
-		// 	transformIndices(prismatic_pars);
-		
-        //     std::cout << "applying aberrations " << std::endl;
-		// 	//now apply aberrations to each beam
-		// 	apply_aberrations(prismatic_pars);
-		// }
-
 		if(prismatic_pars.meta.saveComplexOutputWave)
 		{			
 			//save FP individually

@@ -92,4 +92,16 @@ signals:
     void signalTitle(const QString str);
 };
 
+class FullHRTEMCalcThread : public PRISMThread {
+    Q_OBJECT
+    void run() Q_DECL_OVERRIDE;
+    friend class PRISMMainWindow;
+public:
+    explicit Full(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~Full();
+signals:
+    void signalTitle(const QString str);
+};
+
+
 #endif // PRISM_QTHREADS_H

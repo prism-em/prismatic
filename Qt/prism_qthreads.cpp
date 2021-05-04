@@ -486,49 +486,7 @@ void FullMultisliceCalcThread::run()
     QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
 
-    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
-    Prismatic::setupOutputFile(params);
-    params.fpFlag = 0;
-    params.scale = 1.0;
-
-    if(params.meta.simSeries){
-		for(auto i = 0; i < params.meta.numFP; i++)
-		{
-			Multislice_series_runFP(params, i);
-		}
-
-		for(auto i = 0; i < params.meta.seriesTags.size(); i++)
-		{
-			std::string currentName = params.meta.seriesTags[i];
-			params.currentTag = currentName;
-			params.meta.probeDefocus = params.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
-			
-			readRealDataSet_inOrder(params.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
-			if(params.meta.saveDPC_CoM)
-				readRealDataSet_inOrder(params.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
-			//average data by fp
-			for (auto &i : params.net_output)
-				i /= params.meta.numFP;
-
-			if (params.meta.saveDPC_CoM)
-			{
-				for (auto &j : params.net_DPC_CoM)
-					j /= params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-			}
-
-			saveSTEM(params);
-		}
-    }
-    else{
-        params.meta.aberrations = updateAberrations(params.meta.aberrations, params.meta.probeDefocus, params.meta.C3, params.meta.C5, params.lambda);
-        for(auto i = 0; i < pars.meta.numFP; i++)
-		{
-            if(i > 0) this->parent-resetPotential();
-			Multislice_runFP(params, i);
-		}	
-        saveSTEM(params);
-    }
-
+    Prismatic::Multislice_entry_pars(params);
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
@@ -545,12 +503,6 @@ void FullMultisliceCalcThread::run()
         gatekeeper.unlock();
     }
 
-    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-	if(params.meta.simSeries) CCseriesSG(params.outputFile);
-    Prismatic::writeMetadata(params);
-    params.outputFile.close();
-	if (params.meta.simSeries) removeScratchFile(params);
-
     this->parent->outputReceived(params.output);
     emit outputCalculated();
     std::cout << "Multislice calculation complete" << std::endl;
@@ -558,9 +510,39 @@ void FullMultisliceCalcThread::run()
     calculationLocker.unlock();
 }
 
+FullHRTEMCalcThread::FullHRTEMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
+
+void FullHRTEMCalcThread::run()
+{
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
+    if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
+    {
+        std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
+        return;
+    }
+
+    if (Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2)
+    {
+        emit overwriteWarning();
+        if (this->parent->overwriteFile())
+        {
+            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
+            remove(params.meta.filenameOutput.c_str());
+            this->thread()->sleep(1);
+            this->parent->flipOverwrite(); //flip the check back
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    
+}
+
 PRISMThread::~PRISMThread() {}
 PotentialThread::~PotentialThread() {}
-//SMatrixThread::~SMatrixThread(){}
 ProbeThread::~ProbeThread() {}
 FullPRISMCalcThread::~FullPRISMCalcThread() {}
 FullMultisliceCalcThread::~FullMultisliceCalcThread() {}
+FullHRTEMCalcThread::~FullHRTEMCalcThread() {}
