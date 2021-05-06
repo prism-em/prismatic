@@ -80,7 +80,7 @@ public slots:
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
     void setzStart_fromLineEdit();
-    void setalphaBeamMax_fromLineEdit();
+    // void setalphaBeamMax_fromLineEdit();
     void set2D_innerAngle_fromLineEdit();
     void set2D_outerAngle_fromLineEdit();
     void setSliceThickness_fromLineEdit();
@@ -224,7 +224,7 @@ protected:
     void setNumFP(const size_t &numFP);
     void setNumNS(const size_t &numSlices);
     void setE0(const PRISMATIC_FLOAT_PRECISION &E0);
-    void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION &alphaBeamMax);
+    // void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION &alphaBeamMax);
     void setSliceThickness(const PRISMATIC_FLOAT_PRECISION &thickness);
     void setCellDimX(const int &dimX);
     void setCellDimY(const int &dimY);

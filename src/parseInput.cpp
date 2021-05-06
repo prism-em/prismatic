@@ -60,7 +60,7 @@ void printHelp()
               << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
               << "* --pixel-size-x (-px) pixel_size : size of simulated potential pixel size (default: " << defaults.realspacePixelSize[1] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
               << "* --pixel-size-y (-py) pixel_size : size of simulated potential pixel size (default: " << defaults.realspacePixelSize[0] << "). Note this is different from the size of a pixel in the output, which is determined by probe_stepX(Y)\n"
-              << "* --3Dpotential-zsampling (-3DPZ) int : Supersampling factor for potential integration in propagation direction. (Default: 4)\n"
+              << "* --3Dpotential-zsampling (-3DPZ) int : Supersampling factor for potential integration in propagation direction. (default: << " << defaults.zSampling << ")\n"
               << "* --detector-angle-step (-d) step_size : angular step size for detector integration bins (in mrad) (default: " << (1000 * defaults.detectorAngleStep) << ")\n"
               << "* --cell-dimension (-c) x y z : size of sample in x, y, z directions (in Angstroms) (default: " << defaults.cellDim[2] << " " << defaults.cellDim[1] << " " << defaults.cellDim[0] << ")\n"
               << "* --tile-uc (-t) x y z : tile the unit cell x, y, z number of times in x, y, z directions, respectively (default: " << defaults.tileX << " " << defaults.tileY << " " << defaults.tileZ << ")\n"

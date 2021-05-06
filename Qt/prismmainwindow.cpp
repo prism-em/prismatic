@@ -174,7 +174,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->spinBox_numStreams, SIGNAL(valueChanged(int)), this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(textEdited(QString)), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineEdit_zStart, SIGNAL(textEdited(QString)), this, SLOT(setzStart_fromLineEdit()));
-    connect(this->ui->lineEdit_alphaBeamMax, SIGNAL(textEdited(QString)), this, SLOT(setalphaBeamMax_fromLineEdit()));
+    // connect(this->ui->lineEdit_alphaBeamMax, SIGNAL(textEdited(QString)), this, SLOT(setalphaBeamMax_fromLineEdit()));
     connect(this->ui->lineEdit_2D_inner, SIGNAL(textEdited(QString)), this, SLOT(set2D_innerAngle_fromLineEdit()));
     connect(this->ui->lineEdit_2D_outer, SIGNAL(textEdited(QString)), this, SLOT(set2D_outerAngle_fromLineEdit()));
     connect(this->ui->lineEdit_pixelSizeX, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeX_fromLineEdit()));
@@ -327,8 +327,8 @@ void PRISMMainWindow::updateDisplay(){
 	ss << (this->meta->zStart);
     this->ui->lineEdit_zStart->setText(QString::fromStdString(ss.str()));
     ss.str("");
-    ss << (this->meta->alphaBeamMax * 1e3);
-    this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+    // ss << (this->meta->alphaBeamMax * 1e3);
+    // this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->integrationAngleMin * 1e3);
     this->ui->lineEdit_2D_inner->setText(QString::fromStdString(ss.str()));
@@ -449,7 +449,7 @@ void PRISMMainWindow::updateDisplay(){
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
-    ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
+    // ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
@@ -495,7 +495,7 @@ void PRISMMainWindow::setAlgo_PRISM(){
 	setAlgo(Prismatic::Algorithm::PRISM);
     ui->lineEdit_interpFactor_x->setEnabled(true);
     ui->lineEdit_interpFactor_y->setEnabled(true);
-    ui->lineEdit_alphaBeamMax->setEnabled(true);
+    // ui->lineEdit_alphaBeamMax->setEnabled(true);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
@@ -503,7 +503,7 @@ void PRISMMainWindow::setAlgo_Multislice(){
 	setAlgo(Prismatic::Algorithm::Multislice);
     ui->lineEdit_interpFactor_x->setDisabled(true);
     ui->lineEdit_interpFactor_y->setDisabled(true);
-    ui->lineEdit_alphaBeamMax->setDisabled(true);
+    // ui->lineEdit_alphaBeamMax->setDisabled(true);
 }
 
 void PRISMMainWindow::setAlgo(const Prismatic::Algorithm algo){
@@ -721,15 +721,15 @@ void PRISMMainWindow::setzStart_fromLineEdit(){
     resetCalculation();
 }
 
-void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
-    bool flag = false;
-    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
-    if (flag){
-        this->meta->alphaBeamMax = val / 1000;
-        std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
-    }
-    resetCalculation();
-}
+// void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
+//     bool flag = false;
+//     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
+//     if (flag){
+//         this->meta->alphaBeamMax = val / 1000;
+//         std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
+//     }
+//     resetCalculation();
+// }
 
 void PRISMMainWindow::set2D_innerAngle_fromLineEdit(){
     bool flag = false;
@@ -2591,6 +2591,3 @@ void PRISMMainWindow::darkField(){
     qApp->setStyleSheet(stream.readAll());
 
 }
-
-
-
