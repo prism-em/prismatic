@@ -36,12 +36,18 @@ PRISMThread::PRISMThread(PRISMMainWindow *_parent, prism_progressbar *_progressb
     this->meta = *(parent->getMetadata());
 }
 
+void PRISMThread::passPotentialToParent(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> &arr)
+{
+    this->parent->potentialReceived(arr);
+    emit potentialCalculated();
+}
+
 PotentialThread::PotentialThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
 
 void PotentialThread::run()
 {
     // create parameters
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
     //prevent it from trying to write to a non-existing H5 file
     params.meta.savePotentialSlices = false;
     progressbar->signalDescriptionMessage("Computing projected potential");
@@ -67,7 +73,7 @@ ProbeThread::ProbeThread(PRISMMainWindow *_parent, PRISMATIC_FLOAT_PRECISION _X,
 
 void ProbeThread::run()
 {
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
     progressbar->signalDescriptionMessage("Computing single probe");
     progressbar->setProgress(10);
     //    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta);
@@ -316,140 +322,140 @@ FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progres
 
 void FullPRISMCalcThread::run()
 {
-    //std::cout << "Full PRISM Calculation thread running" << std::endl;
+    // //std::cout << "Full PRISM Calculation thread running" << std::endl;
 
-    //bool error_reading = false;
-    //QMutexLocker gatekeeper(&this->parent->dataLock);
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
+    // //bool error_reading = false;
+    // //QMutexLocker gatekeeper(&this->parent->dataLock);
+    // Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
 
-    if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
-    {
-        std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
-        return;
-    }
+    // if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
+    // {
+    //     std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
+    //     return;
+    // }
 
-    if (Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2)
-    {
-        emit overwriteWarning();
-        if (this->parent->overwriteFile())
-        {
-            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
-            remove(params.meta.filenameOutput.c_str());
-            this->thread()->sleep(1);
-            this->parent->flipOverwrite(); //flip the check back
-        }
-        else
-        {
-            return;
-        }
-    }
+    // if (Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2)
+    // {
+    //     emit overwriteWarning();
+    //     if (this->parent->overwriteFile())
+    //     {
+    //         //params.outputFile.flush(H5F_SCOPE_GLOBAL);
+    //         remove(params.meta.filenameOutput.c_str());
+    //         this->thread()->sleep(1);
+    //         this->parent->flipOverwrite(); //flip the check back
+    //     }
+    //     else
+    //     {
+    //         return;
+    //     }
+    // }
 
-    progressbar->signalDescriptionMessage("Initiating PRISM simulation");
-    QMutexLocker calculationLocker(&this->parent->calculationLock);
+    // progressbar->signalDescriptionMessage("Initiating PRISM simulation");
+    // QMutexLocker calculationLocker(&this->parent->calculationLock);
 
-    Prismatic::configure(meta);
-    params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
-    Prismatic::setupOutputFile(params);
-    params.fpFlag = 0;
+    // Prismatic::configure(meta);
+    // params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
+    // Prismatic::setupOutputFile(params);
+    // params.fpFlag = 0;
 
-    if ((!this->parent->potentialIsReady()) || !(params.meta == *(this->parent->getMetadata())))
-    {
-        this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-        Prismatic::PRISM01_calcPotential(params);
+    // if ((!this->parent->potentialIsReady()) || !(params.meta == *(this->parent->getMetadata())))
+    // {
+    //     this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
+    //     Prismatic::PRISM01_calcPotential(params);
 
-        std::cout << "Potential Calculated" << std::endl;
-        {
-            QMutexLocker gatekeeper(&this->parent->dataLock);
-            this->parent->pars = params;
-        }
-    }
-    else
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-        std::cout << "Potential already calculated. Using existing result." << std::endl;
-    }
+    //     std::cout << "Potential Calculated" << std::endl;
+    //     {
+    //         QMutexLocker gatekeeper(&this->parent->dataLock);
+    //         this->parent->pars = params;
+    //     }
+    // }
+    // else
+    // {
+    //     QMutexLocker gatekeeper(&this->parent->dataLock);
+    //     params = this->parent->pars;
+    //     params.progressbar = progressbar;
+    //     std::cout << "Potential already calculated. Using existing result." << std::endl;
+    // }
 
-    this->parent->potentialReceived(params.pot);
-    emit potentialCalculated();
+    // this->parent->potentialReceived(params.pot);
+    // emit potentialCalculated();
 
-    Prismatic::PRISM02_calcSMatrix(params);
+    // Prismatic::PRISM02_calcSMatrix(params);
 
-    Prismatic::PRISM03_calcOutput(params);
-    params.outputFile.close();
+    // Prismatic::PRISM03_calcOutput(params);
+    // params.outputFile.close();
 
-    if (params.meta.numFP > 1)
-    {
-        // run the rest of the frozen phonons
-        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
-        Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
-        if (params.meta.saveDPC_CoM)
-            DPC_CoM_output = params.DPC_CoM;
+    // if (params.meta.numFP > 1)
+    // {
+    //     // run the rest of the frozen phonons
+    //     Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> net_output(params.output);
+    //     Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> DPC_CoM_output;
+    //     if (params.meta.saveDPC_CoM)
+    //         DPC_CoM_output = params.DPC_CoM;
 
-        for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num)
-        {
-            params.meta.randomSeed = rand() % 100000;
-            ++meta.fpNum;
-            Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, progressbar);
-            emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
-            progressbar->resetOutputs();
+    //     for (auto fp_num = 1; fp_num < params.meta.numFP; ++fp_num)
+    //     {
+    //         params.meta.randomSeed = rand() % 100000;
+    //         ++meta.fpNum;
+    //         Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this ,progressbar);
+    //         emit signalTitle("PRISM: Frozen Phonon #" + QString::number(1 + fp_num));
+    //         progressbar->resetOutputs();
 
-            params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-            params.fpFlag = fp_num;
+    //         params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+    //         params.fpFlag = fp_num;
 
-            Prismatic::PRISM01_calcPotential(params);
-            this->parent->potentialReceived(params.pot);
-            emit potentialCalculated();
-            Prismatic::PRISM02_calcSMatrix(params);
-            Prismatic::PRISM03_calcOutput(params);
-            net_output += params.output;
-            if (meta.saveDPC_CoM)
-                DPC_CoM_output += params.DPC_CoM;
-            params.outputFile.close();
-        }
-        // divide to take average
-        for (auto &i : net_output)
-            i /= params.meta.numFP;
-        params.output = net_output;
+    //         Prismatic::PRISM01_calcPotential(params);
+    //         this->parent->potentialReceived(params.pot);
+    //         emit potentialCalculated();
+    //         Prismatic::PRISM02_calcSMatrix(params);
+    //         Prismatic::PRISM03_calcOutput(params);
+    //         net_output += params.output;
+    //         if (meta.saveDPC_CoM)
+    //             DPC_CoM_output += params.DPC_CoM;
+    //         params.outputFile.close();
+    //     }
+    //     // divide to take average
+    //     for (auto &i : net_output)
+    //         i /= params.meta.numFP;
+    //     params.output = net_output;
 
-        if (params.meta.saveDPC_CoM)
-        {
-            for (auto &j : DPC_CoM_output)
-                j /= params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
-            params.DPC_CoM = DPC_CoM_output;
-        }
-    }
+    //     if (params.meta.saveDPC_CoM)
+    //     {
+    //         for (auto &j : DPC_CoM_output)
+    //             j /= params.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+    //         params.DPC_CoM = DPC_CoM_output;
+    //     }
+    // }
 
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        this->parent->pars = params;
-        gatekeeper.unlock();
-    }
+    // {
+    //     QMutexLocker gatekeeper(&this->parent->dataLock);
+    //     this->parent->pars = params;
+    //     gatekeeper.unlock();
+    // }
 
-    {
-        QMutexLocker gatekeeper(&this->parent->outputLock);
-        this->parent->detectorAngles = params.detectorAngles;
-        for (auto &a : this->parent->detectorAngles)
-            a *= 1000; // convert to mrads
-        this->parent->pixelSize = params.pixelSize;
+    // {
+    //     QMutexLocker gatekeeper(&this->parent->outputLock);
+    //     this->parent->detectorAngles = params.detectorAngles;
+    //     for (auto &a : this->parent->detectorAngles)
+    //         a *= 1000; // convert to mrads
+    //     this->parent->pixelSize = params.pixelSize;
 
-        //        this->parent->outputArrayExists = true;
+    //     //        this->parent->outputArrayExists = true;
 
-        //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
-        gatekeeper.unlock();
-    }
+    //     //        params.output.toMRC_f(params.meta.filenameOutput.c_str());
+    //     gatekeeper.unlock();
+    // }
 
-    // params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+    // // params.outputFile = H5::H5File(params.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 
-    saveSTEM(params);
-    Prismatic::writeMetadata(params);
+    // saveSTEM(params);
+    // Prismatic::writeMetadata(params);
 
-    this->parent->outputReceived(params.output);
-    emit outputCalculated();
-    std::cout << "PRISM calculation complete" << std::endl;
+    // this->parent->outputReceived(params.output);
+    // emit outputCalculated();
+    // std::cout << "PRISM calculation complete" << std::endl;
 
-    calculationLocker.unlock();
+    // calculationLocker.unlock();
 }
 
 FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
@@ -486,6 +492,19 @@ void FullMultisliceCalcThread::run()
     QMutexLocker calculationLocker(&this->parent->calculationLock);
     Prismatic::configure(meta);
 
+    if( (!this->parent->potentialIsReady()) || !(meta == *(this->parent->getMetadata())) ){
+        this->parent->resetCalculation();
+    }
+    else
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        params = this->parent->pars;
+        params.progressbar = progressbar;
+        params.parent_thread = this;
+        std::cout << "Potential already calculated. Using existing result for first frozen phonon. " << std::endl;
+    }
+    
+    params.potentialReady = this->parent->potentialIsReady();
     Prismatic::Multislice_entry_pars(params);
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);

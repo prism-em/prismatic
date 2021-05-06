@@ -25,6 +25,7 @@ class PRISMThread : public QThread {
     Q_OBJECT
     friend class PRISMMainWindow;
 public:
+    void passPotentialToParent(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> &arr);
     explicit PRISMThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PRISMThread();
 protected:
@@ -97,8 +98,8 @@ class FullHRTEMCalcThread : public PRISMThread {
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit Full(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~Full();
+    explicit FullHRTEMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullHRTEMCalcThread();
 signals:
     void signalTitle(const QString str);
 };

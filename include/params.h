@@ -138,6 +138,7 @@ namespace Prismatic{
 		H5::H5File scratchFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
 		std::string currentTag;
+		bool potentialReady;
 
 		#ifdef PRISMATIC_ENABLE_GPU
 				cudaDeviceProp deviceProperties;
@@ -229,6 +230,8 @@ namespace Prismatic{
 
 			numSlices = meta.numSlices;
 			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);
+			
+			potentialReady = false;
 
 			//set tilt properties to prevent out of bound access
 			if(meta.algorithm == Algorithm::HRTEM)
