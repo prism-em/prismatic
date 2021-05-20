@@ -118,12 +118,11 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
             for(auto i = 0; i < chi.get_dimi(); i++)
             {
 				PRISMATIC_FLOAT_PRECISION rad = ab[n].angle * pi / 180.0;
-				//if m = 0, rotation input is meaningless, so use only effective cx so magnitude is not dropped
-                PRISMATIC_FLOAT_PRECISION cx = (ab[n].m == 0) ? ab[n].mag : ab[n].mag * cos(ab[n].n*rad);
+                PRISMATIC_FLOAT_PRECISION cx = ab[n].mag * cos(ab[n].n*rad);
                 PRISMATIC_FLOAT_PRECISION cy = ab[n].mag * sin(ab[n].n*rad);
                 PRISMATIC_FLOAT_PRECISION tmp = chi.at(j,i).real();
-				tmp += cx*pow(lambda*q.at(j,i), ab[n].n)*cos(ab[n].m * qTheta.at(j,i));
-                tmp += cy*pow(lambda*q.at(j,i), ab[n].n)*sin(ab[n].m * qTheta.at(j,i));
+				tmp += cx*pow(lambda*q.at(j,i), ab[n].m)*cos(ab[n].n * qTheta.at(j,i));
+                tmp += cy*pow(lambda*q.at(j,i), ab[n].m)*sin(ab[n].n * qTheta.at(j,i));
                 chi.at(j,i).real(tmp);
             }
         }
@@ -148,11 +147,11 @@ std::vector<aberration> updateAberrations(std::vector<aberration> ab,
 					});
 		ab = getUnique(ab);
 
-		//m > n and m+n % 2 == 1 aren't valid components of basis set
+		//m < n and m+n % 2 == 1 aren't valid components of basis set
 		std::vector<aberration> tmp;
 		for(auto i = 0; i < ab.size(); i++)
 		{
-			bool check = (ab[i].m  <= ab[i].n) and not (ab[i].m + ab[i].n % 2);
+			bool check = (ab[i].m  >= ab[i].n) && !(ab[i].m + ab[i].n % 2);
 			if(check)
 			{
 				tmp.push_back(ab[i]);
