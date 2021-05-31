@@ -82,6 +82,7 @@ Parameters<PRISMATIC_FLOAT_PRECISION> Multislice_entry(Metadata<PRISMATIC_FLOAT_
 	}
 	else
 	{
+        std::cout << "number of abs " <<  prismatic_pars.meta.aberrations.size() << std::endl;
 		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5, prismatic_pars.lambda);
 		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
 		{

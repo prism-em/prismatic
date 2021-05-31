@@ -40,7 +40,7 @@ namespace Prismatic{
             outputFolder          = "";
             realspacePixelSize[0] = 0.1;
             realspacePixelSize[1] = 0.1;
-            potBound              = 2.0;
+            potBound              = 3.0;
             numFP                 = 1;
             fpNum                 = 1;
             sliceThickness        = 2.0;

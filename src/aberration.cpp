@@ -110,7 +110,7 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 {
 
     Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> chi = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>({{q.get_dimj(), q.get_dimi()}});
-	const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
+    const PRISMATIC_FLOAT_PRECISION pi = acos(-1);
     for(auto n = 0; n < ab.size(); n++)
     {
         for(auto j = 0; j < chi.get_dimj(); j++)
@@ -133,92 +133,92 @@ Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> getChi(Array2D<PRISMATIC_FLOAT_
 };
 
 std::vector<aberration> updateAberrations(std::vector<aberration> ab, 
-										PRISMATIC_FLOAT_PRECISION C1, 
-										PRISMATIC_FLOAT_PRECISION C3, 
-										PRISMATIC_FLOAT_PRECISION C5,
-										const PRISMATIC_FLOAT_PRECISION &lambda)
+                                        PRISMATIC_FLOAT_PRECISION C1, 
+                                        PRISMATIC_FLOAT_PRECISION C3, 
+                                        PRISMATIC_FLOAT_PRECISION C5,
+                                        const PRISMATIC_FLOAT_PRECISION &lambda)
 {
-	//prune for unique aberrations
-	if(ab.size() > 0)
-	{
-		std::sort(ab.begin(), ab.end(), 
-					[](aberration &a, aberration &b){
-						return std::make_pair(a.m, a.n) < std::make_pair(b.m, b.n);
-					});
-		ab = getUnique(ab);
+    //prune for unique aberrations
+    if(ab.size() > 0)
+    {
+        std::sort(ab.begin(), ab.end(), 
+                    [](aberration &a, aberration &b){
+                        return std::make_pair(a.m, a.n) < std::make_pair(b.m, b.n);
+                    });
+        ab = getUnique(ab);
 
-		//m < n and m+n % 2 == 1 aren't valid components of basis set
-		std::vector<aberration> tmp;
-		for(auto i = 0; i < ab.size(); i++)
-		{
-			bool check = (ab[i].m  >= ab[i].n) && !(ab[i].m + ab[i].n % 2);
-			if(check)
-			{
-				tmp.push_back(ab[i]);
-			}
-		}
+        //m < n and m+n % 2 == 1 aren't valid components of basis set
+        std::vector<aberration> tmp;
+        for(auto i = 0; i < ab.size(); i++)
+        {
+            bool check = (ab[i].m  >= ab[i].n) && !((ab[i].m + ab[i].n) % 2);
+            if(check)
+            {
+                tmp.push_back(ab[i]);
+            }
+        }
 
-		ab = tmp;
-	}
+        ab = tmp;
+    }
 
-	//input C1, C3, C5 aassumed to all be in angstrom
-	//first, check if aberration exists
-	//if exists and CX is not nan, update; else, don't update
-	//if does not exist and CX is not nan, set to CX; else if CX is nan, do nothing
-	PRISMATIC_FLOAT_PRECISION pi = acos(-1);
+    //input C1, C3, C5 aassumed to all be in angstrom
+    //first, check if aberration exists
+    //if exists and CX is not nan, update; else, don't update
+    //if does not exist and CX is not nan, set to CX; else if CX is nan, do nothing
+    PRISMATIC_FLOAT_PRECISION pi = acos(-1);
 
-	bool C1_exists = false;
-	for(auto i = 0; i < ab.size(); i++)
-	{
-		if(ab[i].m ==0 and ab[i].n == 2)
-		{
-			C1_exists = true;
-			if(not std::isnan(C1)) ab[i].mag = C1 * pi / lambda;
-		}
-	}
+    bool C1_exists = false;
+    for(auto i = 0; i < ab.size(); i++)
+    {
+        if(ab[i].m ==0 and ab[i].n == 2)
+        {
+            C1_exists = true;
+            if(not std::isnan(C1)) ab[i].mag = C1 * pi / lambda;
+        }
+    }
 
-	if((not C1_exists) and (not std::isnan(C1)))
-	{
-		PRISMATIC_FLOAT_PRECISION mag = C1 * pi / lambda;
-		aberration new_C1 = aberration{0, 2, mag, 0.0};
-		ab.push_back(new_C1);
-	}
+    if((not C1_exists) and (not std::isnan(C1)))
+    {
+        PRISMATIC_FLOAT_PRECISION mag = C1 * pi / lambda;
+        aberration new_C1 = aberration{2, 0, mag, 0.0};
+        ab.push_back(new_C1);
+    }
 
-	bool C3_exists = false;
-	for(auto i = 0; i < ab.size(); i++)
-	{
-		if(ab[i].m ==0 and ab[i].n == 4)
-		{
-			C3_exists = true;
-			if(not std::isnan(C3)) ab[i].mag = C3 * pi / (2.0*lambda);
-		}
-	}
+    bool C3_exists = false;
+    for(auto i = 0; i < ab.size(); i++)
+    {
+        if(ab[i].m ==0 and ab[i].n == 4)
+        {
+            C3_exists = true;
+            if(not std::isnan(C3)) ab[i].mag = C3 * pi / (2.0*lambda);
+        }
+    }
 
-	if((not C3_exists) and (not std::isnan(C3)))
-	{
-		PRISMATIC_FLOAT_PRECISION mag = C3 * pi / (2.0*lambda);
-		aberration new_C3 = aberration{0, 4, mag, 0.0};
-		ab.push_back(new_C3);
-	}
+    if((not C3_exists) and (not std::isnan(C3)))
+    {
+        PRISMATIC_FLOAT_PRECISION mag = C3 * pi / (2.0*lambda);
+        aberration new_C3 = aberration{4, 0, mag, 0.0};
+        ab.push_back(new_C3);
+    }
 
-	bool C5_exists = false;
-	for(auto i = 0; i < ab.size(); i++)
-	{
-		if(ab[i].m ==0 and ab[i].n == 6)
-		{
-			C5_exists = true;
-			if(not std::isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
-		}
-	}
+    bool C5_exists = false;
+    for(auto i = 0; i < ab.size(); i++)
+    {
+        if(ab[i].m ==0 and ab[i].n == 6)
+        {
+            C5_exists = true;
+            if(not std::isnan(C5)) ab[i].mag = C5 * pi / (3.0*lambda);
+        }
+    }
 
-	if((not C5_exists) and (not std::isnan(C5)))
-	{
-		PRISMATIC_FLOAT_PRECISION mag = C5 * pi / (3.0*lambda);
-		aberration new_C5 = aberration{0, 6, mag, 0.0};
-		ab.push_back(new_C5);
-	}
+    if((not C5_exists) and (not std::isnan(C5)))
+    {
+        PRISMATIC_FLOAT_PRECISION mag = C5 * pi / (3.0*lambda);
+        aberration new_C5 = aberration{6, 0, mag, 0.0};
+        ab.push_back(new_C5);
+    }
 
-	return ab;
+    return ab;
 };
 
 } //namespace Prismatic

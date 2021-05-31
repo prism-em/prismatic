@@ -256,7 +256,7 @@ class Metadata:
         self.filenameOutput = "output.h5"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
-        self.potBound = 2.0
+        self.potBound = 3.0
         self.numFP = 1
         self.sliceThickness = 2.0
         self.zSampling = 16
@@ -522,10 +522,10 @@ class Metadata:
         for field in Metadata.fields:
             print("{} = {}".format(field, getattr(self, field)))
 
-    def go(self, display_run_time=True, save_run_time=True):
+    def go(self, display_run_time=True, save_run_time=False):
         """Run the simulation. To display and/or export the simulation run
         time set the corresponding arguments ``display_run_time`` and
-        ``save_run_time`` to ``True`` or ``False`` (default is True).
+        ``save_run_time`` to ``True`` or ``False`` (defaults are True and False).
         """
         self.algorithm: str = self.algorithm.lower()
         self.transferMode: str = self.transferMode.lower()
