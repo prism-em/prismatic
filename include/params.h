@@ -233,6 +233,8 @@ namespace Prismatic{
 			
 			potentialReady = false;
 
+            meta.alphaBeamMax = meta.probeSemiangle + 2.5 / 1000.0;
+
 			//set tilt properties to prevent out of bound access
 			if(meta.algorithm == Algorithm::HRTEM)
 			{

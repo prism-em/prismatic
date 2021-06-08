@@ -28,6 +28,8 @@
 #include "atom.h"
 #include "parseInput.h"
 #include "params.h"
+#include "aberration.h"
+#include "probe.h"
 #include <cstdio>
 #include "QMessageBox"
 #include <stdio.h>
@@ -167,10 +169,13 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->actionLoad_Coordinates, SIGNAL(triggered()), this, SLOT(setFilenameAtoms_fromDialog()));
     connect(this->ui->btn_saveCoordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
     connect(this->ui->actionSave_Coordinates, SIGNAL(triggered()), this, SLOT(openSaveAtomsDialog()));
+    connect(this->ui->btn_loadAbFile, SIGNAL(pressed()), this, SLOT(readAberrationFile()));
+    connect(this->ui->btn_loadProbePos, SIGNAL(pressed()), this, SLOT(readProbeFile()));
     connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
     connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
     connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
     connect(this->ui->spinBox_numNS, SIGNAL(valueChanged(int)), this, SLOT(setNumNS(const int&)));
+    connect(this->ui->spinBox_zSampling, SIGNAL(valueChanged(int)), this, SLOT(setzSampling(const int&)));
     connect(this->ui->spinBox_numStreams, SIGNAL(valueChanged(int)), this, SLOT(setNumStreams(const int&)));
     connect(this->ui->lineEdit_probeSemiangle, SIGNAL(textEdited(QString)), this, SLOT(setprobeSemiangle_fromLineEdit()));
     connect(this->ui->lineEdit_zStart, SIGNAL(textEdited(QString)), this, SLOT(setzStart_fromLineEdit()));
@@ -191,6 +196,10 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->lineEdit_tileZ, SIGNAL(textEdited(QString)), this, SLOT(setTileZ_fromLineEdit()));
     connect(this->ui->lineEdit_randomSeed, SIGNAL(textEdited(QString)), this, SLOT(setRandomSeed_fromLineEdit()));
     connect(this->ui->lineEdit_probeDefocus, SIGNAL(textEdited(QString)), this, SLOT(setprobe_defocus_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_min, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_min_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_max, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_max_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_step, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_step_fromLineEdit()));
+    connect(this->ui->lineEdit_dfs, SIGNAL(textEdited(QString)), this, SLOT(set_dfs_fromLineEdit()));
     connect(this->ui->lineEdit_C3, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C3_fromLineEdit()));
     connect(this->ui->lineEdit_C5, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C5_fromLineEdit()));
     connect(this->ui->lineEdit_detectorAngle, SIGNAL(textEdited(QString)), this, SLOT(setdetectorAngleStep_fromLineEdit()));
@@ -198,6 +207,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->lineEdit_probeTiltY, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Ytilt_fromLineEdit()));
     connect(this->ui->lineEdit_probeStepX, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepX_fromLineEdit()));
     connect(this->ui->lineEdit_probeStepY, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepY_fromLineEdit()));
+    connect(this->ui->lineEdit_4Damax, SIGNAL(textEdited(QString)), this, SLOT(set4Damax_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMin_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMax_fromLineEdit()));
     connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMin_fromLineEdit()));
@@ -264,9 +274,15 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->checkBox_2D, SIGNAL(toggled(bool)), this, SLOT(toggle2DOutput()));
     connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
     connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
+    connect(this->ui->checkBox_crop4D, SIGNAL(toggled(bool)), this, SLOT(toggle4Dcrop()));
     connect(this->ui->checkBox_DPC_CoM, SIGNAL(toggled(bool)), this, SLOT(toggleDPC_CoM()));
     connect(this->ui->checkBox_PS, SIGNAL(toggled(bool)), this, SLOT(togglePotentialSlices()));
+    connect(this->ui->checkBox_saveSmatrix, SIGNAL(toggled(bool)), this, SLOT(toggleSMatrixoutput()));
+    connect(this->ui->checkBox_saveComplex, SIGNAL(toggled(bool)), this, SLOT(toggleComplexoutput()));
+    connect(this->ui->checkBox_saveProbe, SIGNAL(toggled(bool)), this, SLOT(toggleProbeOutput()));
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
+    connect(this->ui->checkBox_matrixRefocus, SIGNAL(toggled(bool)), this, SLOT(togglematrixRefocus()));
+    connect(this->ui->checkBox_potential3D, SIGNAL(toggled(bool)), this, SLOT(togglePotential3D()));
    // connect(this->ui->checkBox_occupancy, SIGNAL(toggled(bool)), this, SLOT(toggleOccupancy()));
     connect(this->ui->checkBox_NQS, SIGNAL(toggled(bool)), this, SLOT(toggleNyquist()));
     connect(this->ui->checkBox_sqrtIntensityPot, SIGNAL(toggled(bool)), this, SLOT(updatePotentialFloatImage()));
@@ -369,6 +385,18 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->probeDefocus);
     this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
     ss.str("");
+    ss << (this->meta->probeDefocus_min);
+    this->ui->lineEdit_dfr_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_max);
+    this->ui->lineEdit_dfr_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_step);
+    this->ui->lineEdit_dfr_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_sigma);
+    this->ui->lineEdit_dfs->setText(QString::fromStdString(ss.str()));
+    ss.str("");
 	ss << (this->meta->C3);
 	this->ui->lineEdit_C3->setText(QString::fromStdString(ss.str()));
 	ss.str("");
@@ -399,6 +427,9 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->randomSeed);
     this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
     ss.str("");
+    ss << (this->meta->crop4Damax);
+    this->ui->lineEdit_4Damax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
     ss << (this->meta->batchSizeTargetCPU);
     this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
     ss.str("");
@@ -411,13 +442,17 @@ void PRISMMainWindow::updateDisplay(){
     this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
     this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
     this->ui->lineEdit_randomSeed->setCursorPosition(0);
+    ui->lineEdit_4Damax->setEnabled(false);
 
     this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
     this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
     this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
     this->ui->spinBox_numFP->setValue(this->meta->numFP);
     this->ui->spinBox_numNS->setValue(this->meta->numSlices);
+    this->ui->spinBox_zSampling->setValue(this->meta->zSampling);
     this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
+    ui->checkBox_potential3D->setChecked(meta->potential3D);
+    ui->checkBox_matrixRefocus->setChecked(meta->matrixRefocus);
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
    // ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
     ui->checkBox_NQS->setChecked(meta->nyquistSampling);
@@ -426,6 +461,10 @@ void PRISMMainWindow::updateDisplay(){
     ui->checkBox_4D->setChecked(meta->save4DOutput);
     ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
     ui->checkBox_PS->setChecked(meta->savePotentialSlices);
+    ui->checkBox_saveSmatrix->setChecked(meta->saveSMatrix);
+    ui->checkBox_saveComplex->setChecked(meta->saveComplexOutputWave);
+    ui->checkBox_saveProbe->setChecked(meta->saveProbe);
+
 
     switch (this->meta->algorithm){
         case Prismatic::Algorithm::PRISM :
@@ -490,6 +529,24 @@ void PRISMMainWindow::writeParameterFile(){
     }
 }
 
+void PRISMMainWindow::readAberrationFile(){
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Aberration File(*.txt);;All files(*)"));
+    if (validateFilename(filename.toStdString())){
+        this->meta->aberrations = Prismatic::readAberrations(filename.toStdString());
+        this->meta->arbitraryAberrations = true;
+    }
+}
+
+void PRISMMainWindow::readProbeFile(){
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Probe File(*.txt);;All files(*)"));
+    if (validateFilename(filename.toStdString())){
+        Prismatic::readProbes(filename.toStdString(), this->meta->probes_x, this->meta->probes_y);
+        this->meta->arbitraryProbes = true;
+    }
+}
+
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
 	setAlgo(Prismatic::Algorithm::PRISM);
@@ -536,7 +593,6 @@ void PRISMMainWindow::setInterpolationFactorY(){
     }
     resetCalculation();
 }
-
 
 void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
@@ -658,6 +714,14 @@ void PRISMMainWindow::setNumNS(const int& num){
     if (num > 0){
         this->meta->numSlices = num;
         std::cout << "Setting number of slices for intermediate output steps to " << num << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setzSampling(const int& num){
+    if (num > 0){
+        this->meta->zSampling = num;
+        std::cout << "Setting number of subslices for 3D potential integration to " << num << std::endl;
     }
     resetCalculation();
 }
@@ -890,6 +954,46 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
     resetCalculation();
 }
 
+void PRISMMainWindow::set_dfr_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_min = val;
+        std::cout << "Setting probe defocus range min to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfr_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_max = val;
+        std::cout << "Setting probe defocus range max to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfr_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_step = val;
+        std::cout << "Setting probe defocus range step to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfs_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfs->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_sigma = val;
+        std::cout << "Setting probe defocus range step to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::setprobe_C3_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble(&flag);
@@ -942,6 +1046,106 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     if (flag){
         this->meta->probeYtilt =  val / 1000;
         std::cout << "Setting probe Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min X tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max X tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->xTiltStep =  val / 1000;
+        std::cout << "Setting HRTEM X tilt step to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->yTiltStep =  val / 1000;
+        std::cout << "Setting HRTEM Y tilt step to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setrtt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_rtt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min R tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setrtt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_rtt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max R tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtilt_offset_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtilt_offset->text().toDouble(&flag);
+    if (flag){
+        this->meta->xTiltOffset =  val / 1000;
+        std::cout << "Setting HRTEM X tilt offset to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytilt_offset_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytilt_offset->text().toDouble(&flag);
+    if (flag){
+        this->meta->yTiltOffset =  val / 1000;
+        std::cout << "Setting HRTEM Y tilt offset to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -1998,6 +2202,25 @@ void PRISMMainWindow::toggle4DOutput(){
     meta->save4DOutput = ui->checkBox_4D->isChecked();
 }
 
+void PRISMMainWindow::toggle4Dcrop(){
+    meta->crop4DOutput = ui->checkBox_4D->isChecked();
+    if(meta->crop4DOutput){
+        ui->lineEdit_4Damax->setEnabled(true);
+    }else{
+        ui->lineEdit_4Damax->setDisabled(true);
+    }
+}
+
+void PRISMMainWindow::set4Damax_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_4Damax->text().toDouble(&flag);
+    if (flag){
+        this->meta->crop4Damax =  val / 1000;
+        std::cout << "Setting 4D crop angle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::toggleDPC_CoM(){
     meta->saveDPC_CoM = ui->checkBox_DPC_CoM->isChecked();
 }
@@ -2006,8 +2229,30 @@ void PRISMMainWindow::togglePotentialSlices(){
     meta->savePotentialSlices = ui->checkBox_PS->isChecked();
 }
 
+void PRISMMainWindow::toggleSMatrixoutput(){
+    meta->saveSMatrix = ui->checkBox_saveSmatrix->isChecked();
+}
+
+void PRISMMainWindow::toggleComplexoutput(){
+    meta->saveComplexOutputWave = ui->checkBox_saveComplex->isChecked();
+}
+
+void PRISMMainWindow::toggleProbeOutput(){
+    meta->saveProbe = ui->checkBox_saveProbe->isChecked();
+}
+
 void PRISMMainWindow::toggleThermalEffects(){
     meta->includeThermalEffects = ui->checkBox_thermalEffects->isChecked();
+    resetCalculation();
+}
+
+void PRISMMainWindow::togglematrixRefocus(){
+    meta->matrixRefocus = ui->checkBox_matrixRefocus->isChecked();
+    resetCalculation();
+}
+
+void PRISMMainWindow::togglePotential3D(){
+    meta->potential3D = ui->checkBox_potential3D->isChecked();
     resetCalculation();
 }
 

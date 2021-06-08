@@ -4499,7 +4499,7 @@
                       </layout>
                      </item>
                      <item>
-                      <widget class="QPushButton" name="pushButton_loadProbePos">
+                      <widget class="QPushButton" name="btn_loadProbePos">
                        <property name="minimumSize">
                         <size>
                          <width>120</width>
