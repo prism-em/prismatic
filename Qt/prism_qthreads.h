@@ -71,38 +71,15 @@ private:
     bool use_log_scale;
 };
 
-class FullPRISMCalcThread : public PRISMThread {
+class FullCalcThread : public PRISMThread {
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullPRISMCalcThread();
+    explicit FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullCalcThread();
 signals:
     void signalTitle(const QString str);
 };
-
-class FullMultisliceCalcThread : public PRISMThread {
-    Q_OBJECT
-    void run() Q_DECL_OVERRIDE;
-    friend class PRISMMainWindow;
-public:
-    explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullMultisliceCalcThread();
-signals:
-    void signalTitle(const QString str);
-};
-
-class FullHRTEMCalcThread : public PRISMThread {
-    Q_OBJECT
-    void run() Q_DECL_OVERRIDE;
-    friend class PRISMMainWindow;
-public:
-    explicit FullHRTEMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullHRTEMCalcThread();
-signals:
-    void signalTitle(const QString str);
-};
-
 
 #endif // PRISM_QTHREADS_H

@@ -230,37 +230,6 @@ void ProbeThread::run()
     emit signal_pearsonK(QString("Pearson Correlation = ") + QString::number(computePearsonCorrelation(prism_probes.second, multislice_probes.second)));
     emit signal_RReal(QString("R = ") + QString::number(computeRfactor(prism_probes.first, multislice_probes.first)));
     emit signal_RK(QString("R = ") + QString::number(computeRfactor(prism_probes.second, multislice_probes.second)));
-    //    pr_sum = std::accumulate(&prism_probes.first[0], &*(prism_probes.first.end()-1), (PRISMATIC_FLOAT_PRECISION)0.0, [](std::complex<PRISMATIC_FLOAT_PRECISION> a){return abs(a);});
-
-    //    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> debug = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
-    //    for (auto j = 0; j < multislice_probes.first.get_dimj(); ++j){
-    //        for (auto i = 0; i < multislice_probes.first.get_dimi(); ++i){
-    //        debug.at(j,i) = std::abs(multislice_probes.first.at(j,i));
-    //        }
-    //    }
-    //    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db.mrc");
-    //    for (auto j = 0; j < multislice_probes.second.get_dimj(); ++j){
-    //        for (auto i = 0; i < multislice_probes.second.get_dimi(); ++i){
-    //        debug.at(j,i) = std::abs(multislice_probes.second.at(j,i));
-    //        }
-    //    }
-    //    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk.mrc");
-
-    //    for (auto j = 0; j < prism_probes.first.get_dimj(); ++j){
-    //        for (auto i = 0; i < prism_probes.first.get_dimi(); ++i){
-    //        debug.at(j,i) = std::abs(prism_probes.first.at(j,i));
-    //        }
-    //    }
-    //    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/db_p.mrc");
-    //    for (auto j = 0; j < prism_probes.second.get_dimj(); ++j){
-    //        for (auto i = 0; i < prism_probes.second.get_dimi(); ++i){
-    //        debug.at(j,i) = std::abs(prism_probes.second.at(j,i));
-    //        }
-    //    }
-    //    debug.toMRC_f("/mnt/spareA/clion/PRISM/build/dbk_p.mrc");
-
-    //    std::cout << "prism_probes.first.get_dimj() = " << prism_probes.first.get_dimj() <<std::endl;
-    //    std::cout << "multislice_probes.first.get_dimj() = " << multislice_probes.first.get_dimj() <<std::endl;
 
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> pr = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.first.get_dimj(), prism_probes.first.get_dimi()}});
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> pk = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{prism_probes.second.get_dimj(), prism_probes.second.get_dimi()}});
@@ -269,24 +238,6 @@ void ProbeThread::run()
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> diffr = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.first.get_dimj(), multislice_probes.first.get_dimi()}});
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> diffk = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{multislice_probes.second.get_dimj(), multislice_probes.second.get_dimi()}});
 
-    //if (use_log_scale){
-    //    for (auto i = 0; i < prism_probes.first.size(); ++i){
-    //        pr[i] =  std::log(1e-5 + std::abs(prism_probes.first[i]));
-    //    }
-    //    for (auto i = 0; i < prism_probes.second.size(); ++i){
-    //        pk[i] =  std::log(1e-5 + std::abs(prism_probes.second[i]));
-    //    }
-    //    for (auto i = 0; i < multislice_probes.first.size(); ++i){
-    //        mr[i] =  std::log(1e-5 + std::abs(multislice_probes.first[i]));
-    //    }
-    //    for (auto i = 0; i < multislice_probes.second.size(); ++i){
-    //        mk[i] =  std::log(1e-5 + std::abs(multislice_probes.second[i]));
-    //    }
-    //    for (auto i = 0; i < prism_probes.second.size(); ++i){
-    //        diffr[i] =  log(1e-5 + std::abs(pr[i] - mr[i]));
-    //        diffk[i] =  log(1e-5 + std::abs(pk[i] - mk[i]));
-    //    }
-    //} else{
     for (auto i = 0; i < prism_probes.first.size(); ++i)
     {
         pr[i] = std::abs(prism_probes.first[i]);
@@ -308,7 +259,6 @@ void ProbeThread::run()
         diffr[i] = (std::abs(pr[i] - mr[i]));
         diffk[i] = (std::abs(pk[i] - mk[i]));
     }
-    //}
 
     emit signalProbeR_PRISM((pr));
     emit signalProbeK_PRISM(fftshift2(pk));
@@ -318,83 +268,9 @@ void ProbeThread::run()
     emit signalProbe_diffK(fftshift2(diffk));
 }
 
-FullPRISMCalcThread::FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
+FullCalcThread::FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
 
-void FullPRISMCalcThread::run()
-{
-    // //std::cout << "Full PRISM Calculation thread running" << std::endl;
-
-    // //bool error_reading = false;
-    // //QMutexLocker gatekeeper(&this->parent->dataLock);
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
-
-    if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
-    {
-        std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
-        return;
-    }
-
-    if (Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2)
-    {
-        emit overwriteWarning();
-        if (this->parent->overwriteFile())
-        {
-            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
-            remove(params.meta.filenameOutput.c_str());
-            this->thread()->sleep(1);
-            this->parent->flipOverwrite(); //flip the check back
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    progressbar->signalDescriptionMessage("Initiating PRISM simulation");
-    QMutexLocker calculationLocker(&this->parent->calculationLock);
-
-    Prismatic::configure(meta);
-
-    if ((!this->parent->potentialIsReady()) || !(params.meta == *(this->parent->getMetadata())))
-    {
-        this->parent->resetCalculation(); // any time we are computing the potential we are effectively starting over the whole calculation, so make sure all flags are reset
-    else
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-        params.parent_thread = this;
-        std::cout << "Potential already calculated. Using existing result." << std::endl;
-    }
-
-    params.potentialReady = this->parent->potentialIsReady();
-    Prismatic::PRISM_entry_pars(params);
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        this->parent->pars = params;
-        gatekeeper.unlock();
-    }
-
-    {
-        QMutexLocker gatekeeper(&this->parent->outputLock);
-        this->parent->detectorAngles = params.detectorAngles;
-        for (auto &a : this->parent->detectorAngles)
-            a *= 1000; // convert to mrads
-        this->parent->pixelSize = params.pixelSize;
-
-        gatekeeper.unlock();
-    }
-
-    this->parent->outputReceived(params.output);
-    emit outputCalculated();
-    std::cout << "Multislice calculation complete" << std::endl;
-
-    calculationLocker.unlock();
-}
-
-FullMultisliceCalcThread::FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
-
-void FullMultisliceCalcThread::run()
+void FullCalcThread::run()
 {
 
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
@@ -439,7 +315,17 @@ void FullMultisliceCalcThread::run()
     }
     
     params.potentialReady = this->parent->potentialIsReady();
-    Prismatic::Multislice_entry_pars(params);
+    if(params.meta.algorithm == Prismatic::Algorithm::Multislice){
+        Prismatic::Multislice_entry_pars(params);
+    }
+    else if (params.meta.algorithm == Prismatic::Algorithm::PRISM){
+        Prismatic::PRISM_entry_pars(params);
+    }
+    else if (params.meta.algorithm == Prismatic::Algorithm::HRTEM)
+    {
+        Prismatic::HRTEM_entry_pars(params);
+    }
+
     {
         QMutexLocker gatekeeper(&this->parent->dataLock);
         this->parent->pars = params;
@@ -456,79 +342,15 @@ void FullMultisliceCalcThread::run()
         gatekeeper.unlock();
     }
 
-    this->parent->outputReceived(params.output);
+
+    if(params.meta.algorithm == Prismatic::Algorithm::HRTEM){
+
+    }
+    else{
+        this->parent->outputReceived(params.output);
+    }
     emit outputCalculated();
-    std::cout << "Multislice calculation complete" << std::endl;
-
-    calculationLocker.unlock();
-}
-
-FullHRTEMCalcThread::FullHRTEMCalcThread(PRISMMainWindow *_parent, prism_progressbar *_progressbar) : PRISMThread(_parent, _progressbar){};
-
-void FullHRTEMCalcThread::run()
-{
-    Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> params(meta, this, progressbar);
-    if (!Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()))
-    {
-        std::cout << "Aborting calculation, please choose an accessible output directory" << std::endl;
-        return;
-    }
-
-    if (Prismatic::testFilenameOutput(params.meta.filenameOutput.c_str()) == 2)
-    {
-        emit overwriteWarning();
-        if (this->parent->overwriteFile())
-        {
-            //params.outputFile.flush(H5F_SCOPE_GLOBAL);
-            remove(params.meta.filenameOutput.c_str());
-            this->thread()->sleep(1);
-            this->parent->flipOverwrite(); //flip the check back
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    progressbar->signalDescriptionMessage("Initiating Multislice simulation");
-
-    std::cout << "Also do CPU work: " << params.meta.alsoDoCPUWork << std::endl;
-    QMutexLocker calculationLocker(&this->parent->calculationLock);
-    Prismatic::configure(meta);
-
-    if( (!this->parent->potentialIsReady()) || !(meta == *(this->parent->getMetadata())) ){
-        this->parent->resetCalculation();
-    }
-    else
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        params = this->parent->pars;
-        params.progressbar = progressbar;
-        params.parent_thread = this;
-        std::cout << "Potential already calculated. Using existing result for first frozen phonon. " << std::endl;
-    }
-    
-    params.potentialReady = this->parent->potentialIsReady();
-    Prismatic::HRTEM_entry_pars(params);
-    {
-        QMutexLocker gatekeeper(&this->parent->dataLock);
-        this->parent->pars = params;
-        gatekeeper.unlock();
-    }
-
-    {
-        QMutexLocker gatekeeper(&this->parent->outputLock);
-        this->parent->detectorAngles = params.detectorAngles;
-        for (auto &a : this->parent->detectorAngles)
-            a *= 1000; // convert to mrads
-        this->parent->pixelSize = params.pixelSize;
-
-        gatekeeper.unlock();
-    }
-
-    this->parent->outputReceived(params.output);
-    emit outputCalculated();
-    std::cout << "Multislice calculation complete" << std::endl;
+    std::cout << "Calculation complete" << std::endl;
 
     calculationLocker.unlock();
 }
@@ -536,6 +358,4 @@ void FullHRTEMCalcThread::run()
 PRISMThread::~PRISMThread() {}
 PotentialThread::~PotentialThread() {}
 ProbeThread::~ProbeThread() {}
-FullPRISMCalcThread::~FullPRISMCalcThread() {}
-FullMultisliceCalcThread::~FullMultisliceCalcThread() {}
-FullHRTEMCalcThread::~FullHRTEMCalcThread() {}
+FullCalcThread::~FullCalcThread() {}

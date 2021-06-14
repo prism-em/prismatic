@@ -45,8 +45,7 @@ class PRISMMainWindow : public QMainWindow
     friend class PotentialThread;
     //    friend class SMatrixThread;
     friend class ProbeThread;
-    friend class FullPRISMCalcThread;
-    friend class FullMultisliceCalcThread;
+    friend class FullCalcThread;
     friend class prism_progressbar;
 
 public:
@@ -102,6 +101,7 @@ public slots:
     void setAlgo_Multislice();
     void calculatePotential();
     void calculateAll();
+    void calculateAllHRTEM();
     void calculateProbe();
     void updatePotentialImage();
     void updatePotentialDisplay();

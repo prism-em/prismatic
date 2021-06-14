@@ -244,6 +244,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
     connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
     connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
+    connect(this->ui->btn_go_hrtem, SIGNAL(clicked(bool)), this, SLOT(calculateAllHRTEM()));
     connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
     connect(this->ui->slider_bothSlices, SIGNAL(valueChanged(int)), this, SLOT(moveBothPotentialSliders(int)));
@@ -618,6 +619,7 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
     }else{
         this->setFilenameAtoms(filename);
         ui->btn_go->setEnabled(true);
+        ui->btn_go_hrtem->setEnabled(true);
         ui->btn_calcPotential->setEnabled(true);
         this->setWindowTitle(QString::fromStdString(std::string("Prismatic (") + std::string(filename + std::string(")"))));
         if (uc_dims[0]>0){
@@ -1311,36 +1313,29 @@ void PRISMMainWindow::calculateAll(){
     progressbar->show();
     this->setFilenameOutput_fromLineEdit();
 
-    if (meta->algorithm == Prismatic::Algorithm::PRISM) {
-	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-        std::cout <<"Starting Full PRISM Calculation" << std::endl;
-        worker->meta.toString();
-        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
-        connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
-	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        worker->start();
-    } else{
-        FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
-        std::cout <<"Also do CPU work: "<<worker->meta.alsoDoCPUWork<<std::endl;
-        std::cout <<"Starting Full Multislice Calculation" << std::endl;
-        worker->meta.toString();
-        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
-        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        worker->start();
-    }
+    FullCalcThread *worker = new FullCalcThread(this, progressbar);
+    std::cout <<"Starting Full PRISM Calculation" << std::endl;
+    worker->meta.toString();
+    connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+    connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
+    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+    connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
+    connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+    connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
+    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+    worker->start();
     Prismatic::writeParamFile(*this->meta, get_default_parameter_filename());
+}
+
+void PRISMMainWindow::calculateAllHRTEM(){
+    Prismatic::Algorithm stem_algo = this->meta->algorithm;
+
+    this->meta->algorithm = Prismatic::Algorithm::HRTEM;
+    calculateAll();
+
+    setAlgo(stem_algo);
 }
 
 void PRISMMainWindow::preventOverwrite(){
