@@ -2405,10 +2405,19 @@ void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECI
         potentialReady = true;
     }
 }
+
 void PRISMMainWindow::outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> _output){
     {
         QMutexLocker gatekeeper(&outputLock);
         output = _output;
+        outputArrayExists = true;
+    }
+}
+
+void PRISMMainWindow::outputReceived_HRTEM(Prismatic::Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> _output){
+    {
+        QMutexLocker gatekeeper(&outputLock);
+        smatrix = _output;
         outputArrayExists = true;
     }
 }
