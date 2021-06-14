@@ -490,7 +490,47 @@ void FullHRTEMCalcThread::run()
         }
     }
 
+    progressbar->signalDescriptionMessage("Initiating Multislice simulation");
+
+    std::cout << "Also do CPU work: " << params.meta.alsoDoCPUWork << std::endl;
+    QMutexLocker calculationLocker(&this->parent->calculationLock);
+    Prismatic::configure(meta);
+
+    if( (!this->parent->potentialIsReady()) || !(meta == *(this->parent->getMetadata())) ){
+        this->parent->resetCalculation();
+    }
+    else
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        params = this->parent->pars;
+        params.progressbar = progressbar;
+        params.parent_thread = this;
+        std::cout << "Potential already calculated. Using existing result for first frozen phonon. " << std::endl;
+    }
     
+    params.potentialReady = this->parent->potentialIsReady();
+    Prismatic::HRTEM_entry_pars(params);
+    {
+        QMutexLocker gatekeeper(&this->parent->dataLock);
+        this->parent->pars = params;
+        gatekeeper.unlock();
+    }
+
+    {
+        QMutexLocker gatekeeper(&this->parent->outputLock);
+        this->parent->detectorAngles = params.detectorAngles;
+        for (auto &a : this->parent->detectorAngles)
+            a *= 1000; // convert to mrads
+        this->parent->pixelSize = params.pixelSize;
+
+        gatekeeper.unlock();
+    }
+
+    this->parent->outputReceived(params.output);
+    emit outputCalculated();
+    std::cout << "Multislice calculation complete" << std::endl;
+
+    calculationLocker.unlock();
 }
 
 PRISMThread::~PRISMThread() {}

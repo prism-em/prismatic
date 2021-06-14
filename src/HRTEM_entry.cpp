@@ -129,15 +129,25 @@ void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	
 	//update aberrations here to maintain consistency between runFP calls
 	pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
-	if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+        if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	PRISM02_calcSMatrix(pars);
 };
