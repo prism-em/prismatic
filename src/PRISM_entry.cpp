@@ -135,15 +135,25 @@ void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	{
 		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
 	}
-	else if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	else if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+		if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	// compute compact S-matrix
 	if(pars.meta.importSMatrix)
@@ -191,15 +201,25 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 	{
 		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
 	}
-	else if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	else if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+		if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	// compute compact S-matrix
 	if(pars.meta.importSMatrix)
