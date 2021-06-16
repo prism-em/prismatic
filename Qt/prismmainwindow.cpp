@@ -278,7 +278,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->checkBox_crop4D, SIGNAL(toggled(bool)), this, SLOT(toggle4Dcrop()));
     connect(this->ui->checkBox_DPC_CoM, SIGNAL(toggled(bool)), this, SLOT(toggleDPC_CoM()));
     connect(this->ui->checkBox_PS, SIGNAL(toggled(bool)), this, SLOT(togglePotentialSlices()));
-    connect(this->ui->checkBox_saveSmatrix, SIGNAL(toggled(bool)), this, SLOT(toggleSMatrixoutput()));
+    connect(this->ui->checkBox_saveSMatrix, SIGNAL(toggled(bool)), this, SLOT(toggleSMatrixoutput()));
     connect(this->ui->checkBox_saveComplex, SIGNAL(toggled(bool)), this, SLOT(toggleComplexoutput()));
     connect(this->ui->checkBox_saveProbe, SIGNAL(toggled(bool)), this, SLOT(toggleProbeOutput()));
     connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
@@ -462,7 +462,7 @@ void PRISMMainWindow::updateDisplay(){
     ui->checkBox_4D->setChecked(meta->save4DOutput);
     ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
     ui->checkBox_PS->setChecked(meta->savePotentialSlices);
-    ui->checkBox_saveSmatrix->setChecked(meta->saveSMatrix);
+    ui->checkBox_saveSMatrix->setChecked(meta->saveSMatrix);
     ui->checkBox_saveComplex->setChecked(meta->saveComplexOutputWave);
     ui->checkBox_saveProbe->setChecked(meta->saveProbe);
 
@@ -1314,7 +1314,6 @@ void PRISMMainWindow::calculateAll(){
     this->setFilenameOutput_fromLineEdit();
 
     FullCalcThread *worker = new FullCalcThread(this, progressbar);
-    std::cout <<"Starting Full PRISM Calculation" << std::endl;
     worker->meta.toString();
     connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
     connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
@@ -2225,7 +2224,7 @@ void PRISMMainWindow::togglePotentialSlices(){
 }
 
 void PRISMMainWindow::toggleSMatrixoutput(){
-    meta->saveSMatrix = ui->checkBox_saveSmatrix->isChecked();
+    meta->saveSMatrix = ui->checkBox_saveSMatrix->isChecked();
 }
 
 void PRISMMainWindow::toggleComplexoutput(){
@@ -2418,7 +2417,7 @@ void PRISMMainWindow::outputReceived_HRTEM(Prismatic::Array3D<std::complex<PRISM
     {
         QMutexLocker gatekeeper(&outputLock);
         smatrix = _output;
-        outputArrayExists = true;
+        outputArrayExists_HRTEM = true;
     }
 }
 

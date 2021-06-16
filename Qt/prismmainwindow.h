@@ -282,6 +282,7 @@ private:
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
+    bool outputArrayExists_HRTEM;
     bool probesCalculated;
     bool interpYSet;
     bool pixelSizeYSet;
