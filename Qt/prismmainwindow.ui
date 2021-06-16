@@ -1399,8 +1399,8 @@
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>1</width>
-                        <height>1</height>
+                        <width>650</width>
+                        <height>624</height>
                        </size>
                       </property>
                       <property name="text">
@@ -1747,8 +1747,8 @@
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>1</width>
-                        <height>1</height>
+                        <width>650</width>
+                        <height>620</height>
                        </size>
                       </property>
                       <property name="font">

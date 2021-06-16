@@ -55,6 +55,7 @@ public:
     bool SMatrixIsReady();
     bool OutputIsReady();
     bool checkoutputArrayExists();
+    bool checkoutputArrayExists_HRTEM();
     bool checkpotentialArrayExists();
     void updateUCdims(const std::string &filename);
     ~PRISMMainWindow();
@@ -109,6 +110,9 @@ public slots:
     void updateOutputImage();
     void updateOutputDisplay();
     void updateOutputFloatImage();
+    void updateOutputImage_HRTEM();
+    void updateOutputDisplay_HRTEM();
+    void updateOutputFloatImage_HRTEM();
     void updateSliders_fromLineEdits();
     void updateSliders_fromLineEdits_ang();
     void updateContrastPotMin();
@@ -282,6 +286,7 @@ private:
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
+    bool outputArrayExists_HRTEM;
     bool probesCalculated;
     bool interpYSet;
     bool pixelSizeYSet;
@@ -307,9 +312,7 @@ private:
     int scrollOpen = 230;
 
     int animSpeed = 600;
-
-
-
+    
     QImage potentialImage;
     QImage probeImage;
     QImage probeImage_pr;
@@ -319,9 +322,11 @@ private:
     QImage probeImage_diffr;
     QImage probeImage_diffk;
     QImage outputImage;
+    QImage outputImage_HRTEM;
 
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> potentialImage_float;
-    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_float;
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_float; 
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_HRTEM_float; 
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pr_float;
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pk_float;
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_mr_float;
@@ -333,6 +338,8 @@ private:
     PRISMATIC_FLOAT_PRECISION contrast_potentialMax;
     PRISMATIC_FLOAT_PRECISION contrast_outputMin;
     PRISMATIC_FLOAT_PRECISION contrast_outputMax;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMin_HRTEM;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMax_HRTEM;
     PRISMATIC_FLOAT_PRECISION currently_calculated_X;
     PRISMATIC_FLOAT_PRECISION currently_calculated_Y;
 };
