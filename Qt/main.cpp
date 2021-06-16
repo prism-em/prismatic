@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
     a.setFont(font);
     PRISMMainWindow w;
 
-    QFile file(":/dark.qss");
-    file.open(QFile::ReadOnly | QFile::Text);
-    QTextStream stream(&file);
-    a.setStyleSheet(stream.readAll());
+    // QFile file(":/dark.qss");
+    // file.open(QFile::ReadOnly | QFile::Text);
+    // QTextStream stream(&file);
+    // a.setStyleSheet(stream.readAll());
 
     //add a comment
     w.show();

@@ -26,85 +26,73 @@
 namespace Prismatic
 {
 
-Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECISION>& meta)
+void HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 {
-    Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars;
+
+	Parameters<PRISMATIC_FLOAT_PRECISION> pars;
     try
     { // read atomic coordinates
-        prismatic_pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
+        pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
     }
     catch (...)
     {
         std::cout << "Terminating" << std::endl;
         exit(1);
     }
-    prismatic_pars.meta.toString();
+
+	HRTEM_entry_pars(pars);
+}
+
+void HRTEM_entry_pars(Parameters<PRISMATIC_FLOAT_PRECISION>& pars)
+{
+
+    pars.meta.toString();
     
-    prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
-    setupOutputFile(prismatic_pars);
-    prismatic_pars.outputFile.close();
+    pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
+    setupOutputFile(pars);
+    pars.outputFile.close();
 
     // compute projected potentials
-    prismatic_pars.fpFlag = 0;
+    pars.fpFlag = 0;
 
-    if(prismatic_pars.meta.importPotential) configureImportFP(prismatic_pars);
-    prismatic_pars.scale = 1.0;
+    if(pars.meta.importPotential) configureImportFP(pars);
+    pars.scale = 1.0;
 
 	Array3D<PRISMATIC_FLOAT_PRECISION> net_output;
 
 	//run multiple frozen phonons
-	for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+	for(auto i = 0; i < pars.meta.numFP; i++)
 	{
-		HRTEM_runFP(prismatic_pars, i);
+		HRTEM_runFP(pars, i);
 
-		// //apply aberrations
-		// if(prismatic_pars.meta.aberrations.size() > 0)
-		// {
-        //     std::cout << "setting up coordinates for aberrations" << std::endl;
-		// 	// setup necessary coordinates
-		// 	setupCoordinates_2(prismatic_pars);
-
-
-        //     std::cout << "setting up detector" << std::endl;
-		// 	setupDetector(prismatic_pars);
-        //     std::cout << "setting up fourier" << std::endl;
-		// 	setupFourierCoordinates(prismatic_pars);
-        //     std::cout << "setting up indices" << std::endl;
-		// 	transformIndices(prismatic_pars);
-		
-        //     std::cout << "applying aberrations " << std::endl;
-		// 	//now apply aberrations to each beam
-		// 	apply_aberrations(prismatic_pars);
-		// }
-
-		if(prismatic_pars.meta.saveComplexOutputWave)
+		if(pars.meta.saveComplexOutputWave)
 		{			
 			//save FP individually
-			prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+			pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 			std::cout << "Writing HRTEM data to output file." << std::endl;
-			sortHRTEMbeams(prismatic_pars);
-			setupHRTEMOutput(prismatic_pars);
-			setupHRTEMOutput_virtual(prismatic_pars);
-			saveHRTEM(prismatic_pars, net_output);
-			prismatic_pars.outputFile.close();
+			sortHRTEMbeams(pars);
+			setupHRTEMOutput(pars);
+			setupHRTEMOutput_virtual(pars);
+			saveHRTEM(pars, net_output);
+			pars.outputFile.close();
 		}
 		else
 		{
 			if(i == 0)
 			{
-				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{prismatic_pars.Scompact.get_dimi(), prismatic_pars.Scompact.get_dimj(), prismatic_pars.Scompact.get_dimk()}});
+				net_output = zeros_ND<3, PRISMATIC_FLOAT_PRECISION>({{pars.Scompact.get_dimi(), pars.Scompact.get_dimj(), pars.Scompact.get_dimk()}});
 			}
 
 			//integrate output
-            sortHRTEMbeams(prismatic_pars);
-			PRISMATIC_FLOAT_PRECISION scale = prismatic_pars.Scompact.get_dimj() * prismatic_pars.Scompact.get_dimi();
-			for(auto kk = 0; kk < prismatic_pars.Scompact.get_dimk(); kk++)
+            sortHRTEMbeams(pars);
+			PRISMATIC_FLOAT_PRECISION scale = pars.Scompact.get_dimj() * pars.Scompact.get_dimi();
+			for(auto kk = 0; kk < pars.Scompact.get_dimk(); kk++)
 			{
-				for(auto jj = 0; jj < prismatic_pars.Scompact.get_dimj(); jj++)
+				for(auto jj = 0; jj < pars.Scompact.get_dimj(); jj++)
 				{
-					for(auto ii = 0; ii < prismatic_pars.Scompact.get_dimi(); ii++)
+					for(auto ii = 0; ii < pars.Scompact.get_dimi(); ii++)
 					{
-						net_output.at(ii,jj,kk) += pow(std::abs(prismatic_pars.Scompact.at(prismatic_pars.HRTEMbeamOrder[kk],jj,ii)*scale), 2.0) / prismatic_pars.meta.numFP;
+						net_output.at(ii,jj,kk) += pow(std::abs(pars.Scompact.at(pars.HRTEMbeamOrder[kk],jj,ii)*scale), 2.0) / pars.meta.numFP;
 					}
 				}
 			}
@@ -114,20 +102,19 @@ Parameters<PRISMATIC_FLOAT_PRECISION> HRTEM_entry(Metadata<PRISMATIC_FLOAT_PRECI
 
 
 	//save data
-	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
-	if(not prismatic_pars.meta.saveComplexOutputWave)
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	if(not pars.meta.saveComplexOutputWave)
 	{
 		std::cout << "Writing HRTEM data to output file." << std::endl;
-		setupHRTEMOutput(prismatic_pars);
-		setupHRTEMOutput_virtual(prismatic_pars);
-		saveHRTEM(prismatic_pars, net_output);
+		setupHRTEMOutput(pars);
+		setupHRTEMOutput_virtual(pars);
+		saveHRTEM(pars, net_output);
 	};
 	
     std::cout << "Calculation complete.\n" << std::endl;
-	save_qArr(prismatic_pars);
-	writeMetadata(prismatic_pars);
-	prismatic_pars.outputFile.close();
-    return prismatic_pars;
+	save_qArr(pars);
+	writeMetadata(pars);
+	pars.outputFile.close();
 };
 
 void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
@@ -142,15 +129,25 @@ void HRTEM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	
 	//update aberrations here to maintain consistency between runFP calls
 	pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
-	if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+        if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	PRISM02_calcSMatrix(pars);
 };

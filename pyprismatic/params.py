@@ -256,7 +256,7 @@ class Metadata:
         self.filenameOutput = "output.h5"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
-        self.potBound = 2.0
+        self.potBound = 3.0
         self.numFP = 1
         self.sliceThickness = 2.0
         self.zSampling = 16
@@ -365,6 +365,109 @@ class Metadata:
             self._filenameAtoms = filenameAtoms
             self._setCellDims(filenameAtoms)
 
+    ##############################
+    ### Convenience Properties ###
+    ##############################
+
+    @property
+    def interpolationFactor(self):
+        return self.interpolationFactorX, self.interpolationFactorY
+
+    @interpolationFactor.setter
+    def interpolationFactor(self, val):
+        self.interpolationFactorX = val
+        self.interpolationFactorY = val
+
+    @property
+    def realspacePixelSize(self):
+        return self.realspacePixelSizeX, self.realspacePixelSizeY
+
+    @realspacePixelSize.setter
+    def realspacePixelSize(self, val):
+        self.realspacePixelSizeX = val
+        self.realspacePixelSizeY = val
+
+    @property
+    def cellDim(self):
+        return self.cellDimX, self.cellDimY, self.cellDimZ
+
+    @cellDim.setter
+    def cellDim(self, vals):
+        self.cellDimX = vals[0]
+        self.cellDimY = vals[1]
+        self.cellDimZ = vals[2]
+
+    @property
+    def tile(self):
+        return self.tileX, self.tileY, self.tileZ
+
+    @tile.setter
+    def tile(self, vals):
+        self.tileX = vals[0]
+        self.tileY = vals[1]
+        self.tileZ = vals[2]
+
+    @property
+    def probeStep(self):
+        return self.probeStepX, self.probeStepY
+
+    @probeStep.setter
+    def probeStep(self, val):
+        self.probeStepX = val
+        self.probeStepY = val
+
+    @property
+    def probetilt(self):
+        return self.probeXtilt, self.probeYtilt
+
+    @probetilt.setter
+    def probetilt(self, val):
+        self.probeXtilt = val
+        self.probeYtilt = val
+
+    @property
+    def scanWindowX(self):
+        return self.scanWindowXMin, self.scanWindowXMax
+
+    @scanWindowX.setter
+    def scanWindowX(self, vals):
+        self.scanWindowXMin = vals[0]
+        self.scanWindowXMax = vals[1]
+
+    @property
+    def scanWindowY(self):
+        return self.scanWindowYMin, self.scanWindowYMax
+
+    @scanWindowY.setter
+    def scanWindowY(self, vals):
+        self.scanWindowYMin = vals[0]
+        self.scanWindowYMax = vals[1]
+
+    @property
+    def scanWindowX_r(self):
+        return self.scanWindowXMin_r, self.scanWindowXMax_r
+
+    @scanWindowX_r.setter
+    def scanWindowX_r(self, vals):
+        self.scanWindowXMin_r = vals[0]
+        self.scanWindowXMax_r = vals[1]
+
+    @property
+    def scanWindowY_r(self):
+        return self.scanWindowYMin_r, self.scanWindowYMax_r
+
+    @scanWindowY_r.setter
+    def scanWindowY_r(self, vals):
+        self.scanWindowYMin_r = vals[0]
+        self.scanWindowYMax_r = vals[1]
+
+
+
+
+    #####################
+    ###### Methods ######
+    #####################
+
     def readParameters(self, filename: str):
         """Read parameters from ``filename`` previously stored by ``writeParameters()``.
         No input verification is performed.
@@ -419,10 +522,10 @@ class Metadata:
         for field in Metadata.fields:
             print("{} = {}".format(field, getattr(self, field)))
 
-    def go(self, display_run_time=True, save_run_time=True):
+    def go(self, display_run_time=True, save_run_time=False):
         """Run the simulation. To display and/or export the simulation run
         time set the corresponding arguments ``display_run_time`` and
-        ``save_run_time`` to ``True`` or ``False`` (default is True).
+        ``save_run_time`` to ``True`` or ``False`` (defaults are True and False).
         """
         self.algorithm: str = self.algorithm.lower()
         self.transferMode: str = self.transferMode.lower()
