@@ -132,6 +132,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     potentialImage.load(":/images/prismatic-logo.png");
     probeImage.load(":/images/prismatic-logo.png");
     outputImage.load(":/images/prismatic-logo.png");
+    outputImage_HRTEM.load(":/images/prismatic-logo.png");
     probeImage_pr.load(":/images/airy.png");
     probeImage_pk.load(":/images/airy.png");
     probeImage_mr.load(":/images/airy.png");
@@ -139,6 +140,9 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     probeImage_diffk.load(":/images/airy.png");
     probeImage_diffr.load(":/images/airy.png");
     ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(540,
+        420,
+        Qt::KeepAspectRatio)));
+    ui->lbl_image_potential_2->setPixmap(QPixmap::fromImage(potentialImage.scaled(540,
         420,
         Qt::KeepAspectRatio)));
 
@@ -205,6 +209,16 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     connect(this->ui->lineEdit_detectorAngle, SIGNAL(textEdited(QString)), this, SLOT(setdetectorAngleStep_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltX, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Xtilt_fromLineEdit()));
     connect(this->ui->lineEdit_probeTiltY, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Ytilt_fromLineEdit()));
+    connect(this->ui->lineEdit_xtt_min, SIGNAL(textEdited(QString)), this, SLOT(setxtt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtt_max, SIGNAL(textEdited(QString)), this, SLOT(setxtt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtt_step, SIGNAL(textEdited(QString)), this, SLOT(setxtt_step_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_min, SIGNAL(textEdited(QString)), this, SLOT(setytt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_max, SIGNAL(textEdited(QString)), this, SLOT(setytt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_step, SIGNAL(textEdited(QString)), this, SLOT(setytt_step_fromLineEdit())); 
+    connect(this->ui->lineEdit_rtt_min, SIGNAL(textEdited(QString)), this, SLOT(setrtt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_rtt_max, SIGNAL(textEdited(QString)), this, SLOT(setrtt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtilt_offset, SIGNAL(textEdited(QString)), this, SLOT(setxtilt_offset_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytilt_offset, SIGNAL(textEdited(QString)), this, SLOT(setxtilt_offset_fromLineEdit())); 
     connect(this->ui->lineEdit_probeStepX, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepX_fromLineEdit()));
     connect(this->ui->lineEdit_probeStepY, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepY_fromLineEdit()));
     connect(this->ui->lineEdit_4Damax, SIGNAL(textEdited(QString)), this, SLOT(set4Damax_fromLineEdit()));
@@ -287,6 +301,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
    // connect(this->ui->checkBox_occupancy, SIGNAL(toggled(bool)), this, SLOT(toggleOccupancy()));
     connect(this->ui->checkBox_NQS, SIGNAL(toggled(bool)), this, SLOT(toggleNyquist()));
     connect(this->ui->checkBox_sqrtIntensityPot, SIGNAL(toggled(bool)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->checkBox_sqrtIntensityPot_2, SIGNAL(toggled(bool)), this, SLOT(updatePotentialFloatImage()));
     connect(this->ui->checkBox_log, SIGNAL(toggled(bool)), this, SLOT(updateProbeImages()));
     connect(this->ui->comboBox_colormap, SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
     connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updatePotentialFloatImage()));
@@ -409,6 +424,36 @@ void PRISMMainWindow::updateDisplay(){
     ss.str("");
     ss << (this->meta->probeYtilt * 1e3);
     this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minXtilt * 1e3);
+    this->ui->lineEdit_xtt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxXtilt * 1e3);
+    this->ui->lineEdit_xtt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->xTiltStep * 1e3);
+    this->ui->lineEdit_xtt_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minYtilt * 1e3);
+    this->ui->lineEdit_ytt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxYtilt * 1e3);
+    this->ui->lineEdit_ytt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->yTiltStep * 1e3);
+    this->ui->lineEdit_ytt_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minRtilt * 1e3);
+    this->ui->lineEdit_rtt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxRtilt * 1e3);
+    this->ui->lineEdit_rtt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->xTiltOffset * 1e3);
+    this->ui->lineEdit_xtilt_offset->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->yTiltOffset * 1e3);
+    this->ui->lineEdit_ytilt_offset->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->detectorAngleStep * 1e3);
     this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
@@ -1318,7 +1363,11 @@ void PRISMMainWindow::calculateAll(){
     connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
     connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
     connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-    connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
+    if(this->meta->algorithm == Prismatic::Algorithm::HRTEM){
+        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage_HRTEM()));
+    }else{
+        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
+    }
     connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
     connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
     connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
@@ -1507,6 +1556,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                                                  ui->lbl_image_potential->height(),
                                                                  Qt::KeepAspectRatio));
 
+        ui->lbl_image_potential_2->setPixmap(qpix);
         // draw a rectangle around the region that will be scanned
         QPainter p;
         p.begin(&qpix);
@@ -1839,6 +1889,69 @@ void PRISMMainWindow::updateOutputDisplay(){
 
         ui->lbl_image_output->setPixmap(QPixmap::fromImage( outputImage.scaled(ui->lbl_image_output->width(),
                                                                                ui->lbl_image_output->height(),
+                                                                               Qt::KeepAspectRatio)));
+    }
+}
+
+void PRISMMainWindow::updateOutputImage_HRTEM(){
+    if (checkoutputArrayExists_HRTEM()){
+            {
+            QMutexLocker gatekeeper(&outputLock);
+
+            // create new empty image with appropriate dimensions
+            outputImage_HRTEM = QImage(smatrix.get_dimj(), smatrix.get_dimi(), QImage::Format_ARGB32);
+            }
+            // update sliders to match dimensions of output, which also triggers a redraw of the image
+            this->ui->slider_angmin_2->setMinimum(0);
+            this->ui->slider_angmin_2->setMaximum(smatrix.get_dimk()-1);
+            this->ui->lineEdit_angmin_2->setText(QString::number((PRISMATIC_FLOAT_PRECISION) smatrix.get_dimk()));
+        }
+    updateOutputFloatImage_HRTEM();
+}
+
+void PRISMMainWindow::updateOutputFloatImage_HRTEM(){
+      if (checkoutputArrayExists_HRTEM()){
+        QMutexLocker gatekeeper(&outputLock);
+
+        // integrate image into the float array, then convert to uchar
+        size_t beam = 0; // this->ui->slider_angmin_2->value();
+        outputImage_HRTEM_float = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{smatrix.get_dimj(), smatrix.get_dimi()}});
+        for (auto j = 0; j < smatrix.get_dimj(); ++j){
+            for (auto i = 0; i < smatrix.get_dimi(); ++i){
+                outputImage_HRTEM_float.at(j,i) += pow(std::abs(smatrix.at(beam, j, i)), 2.0);
+            }
+        }
+
+        // get max/min values for contrast setting
+        auto minval = std::min_element(outputImage_HRTEM_float.begin(),
+                                       outputImage_HRTEM_float.end());
+        auto maxval = std::max_element(outputImage_HRTEM_float.begin(),
+                                       outputImage_HRTEM_float.end());
+        contrast_outputMin_HRTEM = *minval;
+        contrast_outputMax_HRTEM = *maxval;
+        ui->lineEdit_contrast_outputMin_2->setText(QString::number(contrast_outputMin));
+        ui->lineEdit_contrast_outputMax_2->setText(QString::number(contrast_outputMax));
+    }
+    updateOutputDisplay_HRTEM();
+}
+
+void PRISMMainWindow::updateOutputDisplay_HRTEM(){
+    if (checkoutputArrayExists_HRTEM()){
+        QMutexLocker gatekeeper(&outputLock);
+            for (auto j = 0; j < smatrix.get_dimj(); ++j){
+                for (auto i = 0; i < smatrix.get_dimi(); ++i){
+                    outputImage_HRTEM.setPixel(j, i, this->colormapper.getColor(outputImage_HRTEM_float.at(j,i),
+                                                                         contrast_outputMin_HRTEM,
+                                                                         contrast_outputMax_HRTEM));
+                }
+            }
+
+        QImage outputImage_tmp = outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                    ui->lbl_image_output_2->height(),
+                                                    Qt::KeepAspectRatio);
+
+        ui->lbl_image_output_2->setPixmap(QPixmap::fromImage( outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                                               ui->lbl_image_output_2->height(),
                                                                                Qt::KeepAspectRatio)));
     }
 }
@@ -2318,6 +2431,11 @@ bool PRISMMainWindow::checkoutputArrayExists(){
     return outputArrayExists;
 }
 
+bool PRISMMainWindow::checkoutputArrayExists_HRTEM(){
+    QMutexLocker gatekeeper(&outputLock);
+    return outputArrayExists_HRTEM;
+}
+
 bool PRISMMainWindow::checkpotentialArrayExists(){
     QMutexLocker gatekeeper(&potentialLock);
     return potentialArrayExists;
@@ -2510,8 +2628,9 @@ void PRISMMainWindow::redrawImages(){
     ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(probeImage_diffr.scaled(ui->lbl_image_probeDifferenceR->width(),
                                                                                          ui->lbl_image_probeDifferenceR->height(),
                                                                                          Qt::KeepAspectRatio)));
-    ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
-                                                                          ui->lbl_image_output->height(),
+
+    ui->lbl_image_output_2->setPixmap(QPixmap::fromImage(outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                                          ui->lbl_image_output_2->height(),
                                                                           Qt::KeepAspectRatio)));
 
     updatePotentialDisplay();
