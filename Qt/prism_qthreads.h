@@ -25,6 +25,7 @@ class PRISMThread : public QThread {
     Q_OBJECT
     friend class PRISMMainWindow;
 public:
+    void passPotentialToParent(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> &arr);
     explicit PRISMThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
     virtual ~PRISMThread();
 protected:
@@ -70,24 +71,13 @@ private:
     bool use_log_scale;
 };
 
-class FullPRISMCalcThread : public PRISMThread {
+class FullCalcThread : public PRISMThread {
     Q_OBJECT
     void run() Q_DECL_OVERRIDE;
     friend class PRISMMainWindow;
 public:
-    explicit FullPRISMCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullPRISMCalcThread();
-signals:
-    void signalTitle(const QString str);
-};
-
-class FullMultisliceCalcThread : public PRISMThread {
-    Q_OBJECT
-    void run() Q_DECL_OVERRIDE;
-    friend class PRISMMainWindow;
-public:
-    explicit FullMultisliceCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
-    virtual ~FullMultisliceCalcThread();
+    explicit FullCalcThread(PRISMMainWindow *_parent, prism_progressbar *progressbar);
+    virtual ~FullCalcThread();
 signals:
     void signalTitle(const QString str);
 };

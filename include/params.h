@@ -26,6 +26,7 @@
 
 #ifdef PRISMATIC_BUILDING_GUI
 class prism_progressbar;
+class PRISMThread;
 #endif
 
 namespace Prismatic{
@@ -137,6 +138,7 @@ namespace Prismatic{
 		H5::H5File scratchFile;
 		size_t fpFlag; //flag to prevent creation of new HDF5 files
 		std::string currentTag;
+		bool potentialReady;
 
 		#ifdef PRISMATIC_ENABLE_GPU
 				cudaDeviceProp deviceProperties;
@@ -148,10 +150,11 @@ namespace Prismatic{
 		#endif // PRISMATIC_ENABLE_GPU
 		#ifdef PRISMATIC_BUILDING_GUI
 				prism_progressbar *progressbar;
+                PRISMThread *parent_thread;
 		#endif
 		Parameters(){};
 		#ifdef PRISMATIC_BUILDING_GUI
-		Parameters(Metadata<T> _meta, prism_progressbar* _progressbar = NULL) : meta(_meta), progressbar(_progressbar){
+		Parameters(Metadata<T> _meta, PRISMThread* _parent_thread = NULL, prism_progressbar* _progressbar = NULL) : meta(_meta), parent_thread(_parent_thread), progressbar(_progressbar){
 		#else
 	    Parameters(Metadata<T> _meta) : meta(_meta){
 		#endif
@@ -227,6 +230,10 @@ namespace Prismatic{
 
 			numSlices = meta.numSlices;
 			zStartPlane = (size_t) std::ceil(meta.zStart / meta.sliceThickness);
+			
+			potentialReady = false;
+
+            meta.alphaBeamMax = meta.probeSemiangle + 2.5 / 1000.0;
 
 			//set tilt properties to prevent out of bound access
 			if(meta.algorithm == Algorithm::HRTEM)

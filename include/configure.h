@@ -30,10 +30,11 @@
 
 #ifdef PRISMATIC_BUILDING_GUI
 #include "prism_progressbar.h"
+#include "prism_qthreads.h"
 #endif
 
 namespace Prismatic {
-	using entry_func     = Parameters<PRISMATIC_FLOAT_PRECISION>  (*)(Metadata<PRISMATIC_FLOAT_PRECISION>&);
+	using entry_func     = void (*)(Metadata<PRISMATIC_FLOAT_PRECISION>&);
 	using ms_output_func = void (*)(Parameters<PRISMATIC_FLOAT_PRECISION>&);
 
 	using prism_output_func = void (*)(Parameters<PRISMATIC_FLOAT_PRECISION>&);

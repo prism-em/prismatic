@@ -30,92 +30,95 @@
 namespace Prismatic
 {
 using namespace std;
-Parameters<PRISMATIC_FLOAT_PRECISION> PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
+void PRISM_entry(Metadata<PRISMATIC_FLOAT_PRECISION> &meta)
 {
-	Parameters<PRISMATIC_FLOAT_PRECISION> prismatic_pars;
+	Parameters<PRISMATIC_FLOAT_PRECISION> pars;
 	try
 	{ // read atomic coordinates
-		prismatic_pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
+		pars = Parameters<PRISMATIC_FLOAT_PRECISION>(meta);
 	}
 	catch (...)
 	{
 		std::cout << "Terminating" << std::endl;
 		exit(1);
 	}
-	prismatic_pars.meta.toString();
 
-	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
-	setupOutputFile(prismatic_pars);
+    PRISM_entry_pars(pars);
+}
 
-	if(prismatic_pars.meta.importPotential or prismatic_pars.meta.importSMatrix) configureImportFP(prismatic_pars);
+void PRISM_entry_pars(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
+{
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_TRUNC);
+	setupOutputFile(pars);
 
-	if(prismatic_pars.meta.simSeries)
+	if(pars.meta.importPotential or pars.meta.importSMatrix) configureImportFP(pars);
+
+	if(pars.meta.simSeries)
 	{
-		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+		for(auto i = 0; i < pars.meta.numFP; i++)
 		{
-			PRISM_series_runFP(prismatic_pars, i);
+			PRISM_series_runFP(pars, i);
 		}
 
-		for(auto i = 0; i < prismatic_pars.meta.seriesTags.size(); i++)
+		for(auto i = 0; i < pars.meta.seriesTags.size(); i++)
 		{
-			std::string currentName = prismatic_pars.meta.seriesTags[i];
-			prismatic_pars.currentTag = currentName;
-			prismatic_pars.meta.probeDefocus = prismatic_pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
+			std::string currentName = pars.meta.seriesTags[i];
+			pars.currentTag = currentName;
+			pars.meta.probeDefocus = pars.meta.seriesVals[0][i]; //TODO: later, if expanding sim series past defocus, need to pull current val more generally
 
-			readRealDataSet_inOrder(prismatic_pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
-			if(prismatic_pars.meta.saveDPC_CoM)
-				readRealDataSet_inOrder(prismatic_pars.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
+			readRealDataSet_inOrder(pars.net_output, "prismatic_scratch.h5", "scratch/"+currentName);
+			if(pars.meta.saveDPC_CoM)
+				readRealDataSet_inOrder(pars.net_DPC_CoM, "prismatic_scratch.h5", "scratch/"+currentName+"_DPC");
 			//average data by fp
-			for (auto &i : prismatic_pars.net_output)
-				i /= prismatic_pars.meta.numFP;
+			for (auto &i : pars.net_output)
+				i /= pars.meta.numFP;
 
-			if (prismatic_pars.meta.saveDPC_CoM)
+			if (pars.meta.saveDPC_CoM)
 			{
-				for (auto &j : prismatic_pars.net_DPC_CoM)
-					j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+				for (auto &j : pars.net_DPC_CoM)
+					j /= pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
 			}
 
-			saveSTEM(prismatic_pars);
+			saveSTEM(pars);
 		}
 	}
 	else
 	{
-		prismatic_pars.meta.aberrations = updateAberrations(prismatic_pars.meta.aberrations, prismatic_pars.meta.probeDefocus, prismatic_pars.meta.C3, prismatic_pars.meta.C5, prismatic_pars.lambda);
-		for(auto i = 0; i < prismatic_pars.meta.numFP; i++)
+		pars.meta.aberrations = updateAberrations(pars.meta.aberrations, pars.meta.probeDefocus, pars.meta.C3, pars.meta.C5, pars.lambda);
+		for(auto i = 0; i < pars.meta.numFP; i++)
 		{
-			PRISM_runFP(prismatic_pars, i);
+			PRISM_runFP(pars, i);
 		}
 
 		std::cout << "All frozen phonon configurations complete. Writing data to output file." << std::endl;
 		//average data by fp
-		for (auto &i : prismatic_pars.net_output)
-			i /= prismatic_pars.meta.numFP;
+		for (auto &i : pars.net_output)
+			i /= pars.meta.numFP;
 
-		if (prismatic_pars.meta.saveDPC_CoM)
+		if (pars.meta.saveDPC_CoM)
 		{
-			for (auto &j : prismatic_pars.net_DPC_CoM)
-				j /= prismatic_pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
+			for (auto &j : pars.net_DPC_CoM)
+				j /= pars.meta.numFP; //since squared intensities are used to calculate DPC_CoM, this is incoherent averaging
 		}
 
-		saveSTEM(prismatic_pars);
+		saveSTEM(pars);
 	}
 	
-	prismatic_pars.outputFile = H5::H5File(prismatic_pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
+	pars.outputFile = H5::H5File(pars.meta.filenameOutput.c_str(), H5F_ACC_RDWR);
 	
 	//perhaps have this check against the keys
-	if(prismatic_pars.meta.simSeries) CCseriesSG(prismatic_pars.outputFile);
+	if(pars.meta.simSeries) CCseriesSG(pars.outputFile);
 
-	writeMetadata(prismatic_pars);
-	prismatic_pars.outputFile.close();
+	writeMetadata(pars);
+	pars.outputFile.close();
 
-	if (prismatic_pars.meta.simSeries) removeScratchFile(prismatic_pars);
+	if (pars.meta.simSeries) removeScratchFile(pars);
 
 #ifdef PRISMATIC_ENABLE_GPU
-	cout << "peak GPU memory usage = " << prismatic_pars.maxGPUMem << '\n';
+	cout << "peak GPU memory usage = " << pars.maxGPUMem << '\n';
 #endif //PRISMATIC_ENABLE_GPU
 	std::cout << "PRISM Calculation complete.\n"
 			  << std::endl;
-	return prismatic_pars;
 };
 
 void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
@@ -132,15 +135,25 @@ void PRISM_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNum)
 	{
 		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
 	}
-	else if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	else if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+		if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	// compute compact S-matrix
 	if(pars.meta.importSMatrix)
@@ -188,15 +201,25 @@ void PRISM_series_runFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars, size_t fpNu
 	{
 		std::cout << "Skipping PRISM01. Using precalculated scattering matrix from: "  << pars.meta.importFile << std::endl;
 	}
-	else if(pars.meta.importPotential)
-	{
-		std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
-		PRISM01_importPotential(pars);
-	}
-	else
-	{
-		PRISM01_calcPotential(pars);
-	}
+	else if(!pars.potentialReady){
+        if(pars.meta.importPotential)
+        {
+            std::cout << "Using precalculated potential from " << pars.meta.importFile << std::endl;
+            PRISM01_importPotential(pars);
+        }
+        else
+        {
+            PRISM01_calcPotential(pars);
+        }
+    }
+    else{
+        //reset flag if more than one FP
+		if(pars.meta.numFP > 1) pars.potentialReady = false;
+    }
+
+#ifdef PRISMATIC_BUILDING_GUI
+    pars.parent_thread->passPotentialToParent(pars.pot);
+#endif
 
 	// compute compact S-matrix
 	if(pars.meta.importSMatrix)
