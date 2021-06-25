@@ -43,6 +43,8 @@ void sortHRTEMbeams(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
+void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 void writeRealSlice(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);
 
 void writeDatacube3D(H5::DataSet dataset, const PRISMATIC_FLOAT_PRECISION *buffer, const hsize_t *mdims);

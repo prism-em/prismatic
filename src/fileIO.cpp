@@ -690,8 +690,8 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "probe";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[2];
-	data_dims[0] = {pars.psiProbeInit.get_dimi()};
-	data_dims[1] = {pars.psiProbeInit.get_dimj()};
+	data_dims[0] = {pars.psiProbeInit.get_dimi()/2};
+	data_dims[1] = {pars.psiProbeInit.get_dimj()/2};
 
 	hsize_t qx_dim[1] = {pars.qx.size()};
 	hsize_t qy_dim[1] = {pars.qy.size()};
@@ -1081,6 +1081,28 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	qArr_group.close();
 };
+
+void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){
+    H5::Group probeGroup = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices/probe");
+    hsize_t mdims[2] = {pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2};
+
+    Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+        {{pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2}});
+
+    long offset_x = pars.psiProbeInit.get_dimi() / 4;
+    long offset_y = pars.psiProbeInit.get_dimj() / 4;
+    long ndimy = (long) pars.psiProbeInit.get_dimj();
+    long ndimx = (long) pars.psiProbeInit.get_dimi();
+    for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
+        for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+            tmp.at(x, y) = pars.psiProbeInit.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                        ((x - offset_x) % ndimx + ndimx) % ndimx);
+        }
+    }
+
+    writeComplexDataSet_inOrder(probeGroup, "data", &tmp[0], mdims, 2);
+};
+
 
 void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {
