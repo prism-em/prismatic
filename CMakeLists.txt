@@ -62,7 +62,8 @@ set(GUI_SOURCE_FILES
         Qt/prism_progressbar.cpp
         Qt/saveatomiccoordinatesdialog.cpp
         Qt/prism_colormapper.cpp
-	    Qt/prism_resources.qrc)
+	    Qt/prism_resources.qrc
+        Qt/breeze.qrc)
 endif (PRISMATIC_ENABLE_GUI)
 
 if (PRISMATIC_ENABLE_GPU)
