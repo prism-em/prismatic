@@ -58,7 +58,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	//d - double
 	//p - bool
 	if (!PyArg_ParseTuple( 
-			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdppppppssK",
+			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdpppippssK",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -262,6 +262,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.importSMatrix = importSMatrix;
 	meta.saveComplexOutputWave = saveComplexOutputWave;
 	meta.saveProbe = saveProbe;
+    meta.saveProbeComplex = (saveProbe == 1) ? false : true;
 	meta.maxFileSize = maxFileSize;
 	meta.matrixRefocus = matrixRefocus;
 	meta.importFile = std::string(importFile);
