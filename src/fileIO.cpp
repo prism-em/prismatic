@@ -690,8 +690,10 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "probe";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[2];
-	data_dims[0] = {pars.psiProbeInit.get_dimi()/2};
-	data_dims[1] = {pars.psiProbeInit.get_dimj()/2};
+    int f = 1;
+    if(pars.meta.algorithm == Algorithm::Multislice) f = 2;
+	data_dims[0] = {pars.psiProbeInit.get_dimi()/f};
+	data_dims[1] = {pars.psiProbeInit.get_dimj()/f};
 
 	hsize_t qx_dim[1] = {pars.qx.size()};
 	hsize_t qy_dim[1] = {pars.qy.size()};
@@ -1090,19 +1092,21 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){
 
-    hsize_t mdims[2] = {pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2};
-    long offset_x = pars.psiProbeInit.get_dimi() / 4;
-    long offset_y = pars.psiProbeInit.get_dimj() / 4;
+    int f = 1;
+    if(pars.meta.algorithm == Algorithm::Multislice) f = 2;
+    hsize_t mdims[2] = {pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f};
+    long offset_x = pars.psiProbeInit.get_dimi() / (2*f);
+    long offset_y = pars.psiProbeInit.get_dimj() / (2*f);
     long ndimy = (long) pars.psiProbeInit.get_dimj();
     long ndimx = (long) pars.psiProbeInit.get_dimi();
 
 
     if(pars.meta.saveProbeComplex){
         Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
-            {{pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2}});
+            {{pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f}});
 
-        for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
-            for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+        for (long y = 0; y < pars.psiProbeInit.get_dimj() / f; ++y) {
+            for (long x = 0; x < pars.psiProbeInit.get_dimi() / f; ++x) {
                 tmp_c.at(x, y) = pars.psiProbeInit.at(((y - offset_y) % ndimy + ndimy) % ndimy,
                                             ((x - offset_x) % ndimx + ndimx) % ndimx);
             }
@@ -1113,10 +1117,10 @@ void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){
     }
     else{
         Array2D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
-            {{pars.psiProbeInit.get_dimi()/2, pars.psiProbeInit.get_dimj()/2}});
+            {{pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f}});
 
-        for (long y = 0; y < pars.psiProbeInit.get_dimj() / 2; ++y) {
-            for (long x = 0; x < pars.psiProbeInit.get_dimi() / 2; ++x) {
+        for (long y = 0; y < pars.psiProbeInit.get_dimj() / f; ++y) {
+            for (long x = 0; x < pars.psiProbeInit.get_dimi() / f; ++x) {
                 tmp.at(x, y) = pow(std::abs(pars.psiProbeInit.at(((y - offset_y) % ndimy + ndimy) % ndimy,
                                             ((x - offset_x) % ndimx + ndimx) % ndimx)), 2.0);
             }
