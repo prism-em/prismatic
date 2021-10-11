@@ -60,7 +60,7 @@ namespace Prismatic {
 	                                             const size_t dimi,
 	                                             const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
 	                                             const cufftHandle& plan,
-	                                             cudaStream_t& stream);
+												 cudaStream_t& stream);
 
 	 void getMultisliceProbe_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>& pars,
 	                                      PRISMATIC_CUDA_COMPLEX_FLOAT* trans_d,
@@ -99,5 +99,6 @@ namespace Prismatic {
 	                                            const PRISMATIC_FLOAT_PRECISION* alphaInd_d,
 	                                            const cufftHandle& plan,
 	                                            cudaStream_t& stream);
+												
 }
 #endif //PRISMATIC_MULTISLICE_CUH

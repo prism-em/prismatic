@@ -13,6 +13,7 @@
 
 from . import core  # noqa
 from . import fileio  # noqa
+from . import process
 from pyprismatic.params import Metadata
 
 def keySearch(dictionary,layer):

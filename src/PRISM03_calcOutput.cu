@@ -21,6 +21,7 @@
 #include "PRISM03_calcOutput.cuh"
 #include "PRISM03_calcOutput.h"
 #include "utility.cuh"
+#include "fileIO.cuh"
 
 namespace Prismatic {
 	extern std::mutex fftw_plan_lock;
@@ -42,7 +43,7 @@ namespace Prismatic {
 		// create CUDA streams and cuFFT plans
 		cuda_pars.streams = new cudaStream_t[total_num_streams];;
 		cuda_pars.cufftPlans = new cufftHandle[total_num_streams];
-
+		
 		for (auto j = 0; j < total_num_streams; ++j) {
 			cudaSetDevice(j % pars.meta.numGPUs);
 			cudaErrchk(cudaStreamCreate(&cuda_pars.streams[j]));
@@ -74,12 +75,12 @@ namespace Prismatic {
 
 		const int total_num_streams = pars.meta.numGPUs * pars.meta.numStreamsPerGPU;
 		cuda_pars.output_ph = new PRISMATIC_FLOAT_PRECISION *[total_num_streams]; // one output array per stream
-
-		// allocate pinned memory
 		for (auto s = 0; s < total_num_streams; ++s) {
 			cudaErrchk(cudaMallocHost((void **) &cuda_pars.output_ph[s],
-			                          pars.output.get_dimi() * sizeof(PRISMATIC_FLOAT_PRECISION)));
+			pars.output.get_dimi() * sizeof(PRISMATIC_FLOAT_PRECISION)));
 		}
+
+		// allocate pinned memory
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.permutedScompact_ph, pars.Scompact.size()     * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.PsiProbeInit_ph,      pars.psiProbeInit.size() * sizeof(std::complex<PRISMATIC_FLOAT_PRECISION>)));
 		cudaErrchk(cudaMallocHost((void **) &cuda_pars.qxaReduce_ph,         pars.qxaReduce.size()    * sizeof(PRISMATIC_FLOAT_PRECISION)));
@@ -186,10 +187,10 @@ namespace Prismatic {
 		// pointers to read/write GPU memory (one copy per stream)
 		cuda_pars.psi_ds              = new PRISMATIC_CUDA_COMPLEX_FLOAT *[total_num_streams];
 		cuda_pars.phaseCoeffs_ds      = new PRISMATIC_CUDA_COMPLEX_FLOAT *[total_num_streams];
-		cuda_pars.psiIntensity_ds    = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
-		cuda_pars.integratedOutput_ds = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
 		cuda_pars.y_ds                = new long *[total_num_streams];
 		cuda_pars.x_ds                = new long *[total_num_streams];
+		cuda_pars.psiIntensity_ds    = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
+		cuda_pars.integratedOutput_ds = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
 
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.numGPUs; ++g) {
@@ -208,16 +209,16 @@ namespace Prismatic {
 			cudaErrchk(cudaSetDevice(s % pars.meta.numGPUs));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.phaseCoeffs_ds[s],      pars.numberBeams           * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiIntensity_ds[s],    pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.y_ds[s],                pars.imageSizeReduce[0]    * sizeof(long)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.x_ds[s],                pars.imageSizeReduce[1]    * sizeof(long)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
 
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s],              0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.phaseCoeffs_ds[s],      0, pars.numberBeams           * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMemset(cuda_pars.psiIntensity_ds[s],    0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(cuda_pars.y_ds[s],                0, pars.imageSizeReduce[0]    * sizeof(long)));
 			cudaErrchk(cudaMemset(cuda_pars.x_ds[s],                0, pars.imageSizeReduce[1]    * sizeof(long)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiIntensity_ds[s],    pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(cuda_pars.psiIntensity_ds[s],    0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
 		}
 	}
@@ -238,10 +239,10 @@ namespace Prismatic {
 		cuda_pars.permutedScompact_d   = new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
 		cuda_pars.psi_ds 				= new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
 		cuda_pars.phaseCoeffs_ds 		= new PRISMATIC_CUDA_COMPLEX_FLOAT*[total_num_streams];
-		cuda_pars.psiIntensity_ds 	    = new PRISMATIC_FLOAT_PRECISION*[total_num_streams];
-		cuda_pars.integratedOutput_ds   = new PRISMATIC_FLOAT_PRECISION*[total_num_streams];
 		cuda_pars.y_ds                  = new long*[total_num_streams];
 		cuda_pars.x_ds                  = new long*[total_num_streams];
+		cuda_pars.psiIntensity_ds    = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
+		cuda_pars.integratedOutput_ds = new PRISMATIC_FLOAT_PRECISION *[total_num_streams];
 
 		// allocate memory on each GPU
 		for (auto g = 0; g < pars.meta.numGPUs; ++g) {
@@ -260,16 +261,16 @@ namespace Prismatic {
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.permutedScompact_d[s], pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * pars.numberBeams * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.psi_ds[s],              pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.phaseCoeffs_ds[s],      pars.numberBeams * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiIntensity_ds[s],    pars.imageSizeReduce[0] * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.y_ds[s],                pars.imageSizeReduce[0] * sizeof(long)));
 			cudaErrchk(cudaMalloc((void **) &cuda_pars.x_ds[s],                pars.imageSizeReduce[1] * sizeof(long)));
-			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
-
+			
 			cudaErrchk(cudaMemset(cuda_pars.psi_ds[s],              0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
 			cudaErrchk(cudaMemset(cuda_pars.phaseCoeffs_ds[s],      0, pars.numberBeams           * sizeof(PRISMATIC_CUDA_COMPLEX_FLOAT)));
-			cudaErrchk(cudaMemset(cuda_pars.psiIntensity_ds[s],    0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(cuda_pars.y_ds[s],                0, pars.imageSizeReduce[0]    * sizeof(long)));
 			cudaErrchk(cudaMemset(cuda_pars.x_ds[s],                0, pars.imageSizeReduce[1]    * sizeof(long)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.psiIntensity_ds[s],    pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
+			cudaErrchk(cudaMalloc((void **) &cuda_pars.integratedOutput_ds[s], pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
+			cudaErrchk(cudaMemset(cuda_pars.psiIntensity_ds[s],    0, pars.imageSizeReduce[0]    * pars.imageSizeReduce[1] * sizeof(PRISMATIC_FLOAT_PRECISION)));
 			cudaErrchk(cudaMemset(cuda_pars.integratedOutput_ds[s], 0, pars.detectorAngles.size() * sizeof(PRISMATIC_FLOAT_PRECISION)));
 		}
 	}
@@ -359,8 +360,8 @@ namespace Prismatic {
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t) 1, pars.xp.size() * pars.yp.size() / 10); // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size()); // create work dispatcher
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t) 1, pars.numProbes / 10); // for printing status
+		WorkDispatcher dispatcher(0, pars.numProbes); // create work dispatcher
 
 		for (auto t = 0; t < total_num_streams; ++t) {
 
@@ -380,20 +381,19 @@ namespace Prismatic {
 			// get pointers to per-stream arrays
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_ds           = cuda_pars.psi_ds[stream_count];
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_phaseCoeffs_ds   = cuda_pars.phaseCoeffs_ds[stream_count];
-			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds    = cuda_pars.psiIntensity_ds[stream_count];
-			PRISMATIC_FLOAT_PRECISION *current_integratedOutput_ds = cuda_pars.integratedOutput_ds[stream_count];
 			long *current_y_ds                                 = cuda_pars.y_ds[stream_count];
 			long *current_x_ds                                 = cuda_pars.x_ds[stream_count];
 			cufftHandle &current_cufft_plan                    = cuda_pars.cufftPlans[stream_count];
-
 			// get pointer to output pinned memory
+			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds  = cuda_pars.psiIntensity_ds[stream_count];
+			PRISMATIC_FLOAT_PRECISION *current_integratedOutput_ds = cuda_pars.integratedOutput_ds[stream_count];
 			PRISMATIC_FLOAT_PRECISION *current_output_ph = cuda_pars.output_ph[stream_count];
 
 			workers_GPU.push_back(
 					thread([&pars, GPU_num, stream_count, current_permutedScompact_d, &dispatcher, current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 							       current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
-							       current_psiIntensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
-							       current_output_ph, &current_cufft_plan, &current_stream, &PRISMATIC_PRINT_FREQUENCY_PROBES, &cuda_pars]() {
+								   current_psiIntensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds, current_output_ph,
+							       &current_cufft_plan, &current_stream, &PRISMATIC_PRINT_FREQUENCY_PROBES, &cuda_pars]() {
 						cudaErrchk(cudaSetDevice(GPU_num));
 
 
@@ -416,21 +416,21 @@ namespace Prismatic {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100) {
 									cout << "Computing Probe Position #" << Nstart << "/"
-									     << pars.xp.size() * pars.yp.size() << endl;
+									     << pars.numProbes << endl;
 								}
-								ay = Nstart / pars.xp.size();
-								ax = Nstart % pars.xp.size();
+								ay = (pars.meta.arbitraryProbes) ? Nstart : Nstart / pars.numXprobes;
+								ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 								buildSignal_GPU_singlexfer(pars, ay, ax, current_permutedScompact_d,
-								                           current_PsiProbeInit_d, current_qxaReduce_d,
-								                           current_qyaReduce_d,
-								                           current_yBeams_d, current_xBeams_d, current_alphaInd_d,
-								                           current_psi_ds,
-								                           current_phaseCoeffs_ds, current_psiIntensity_ds,
-								                           current_y_ds,
-								                           current_x_ds, current_output_ph, current_integratedOutput_ds,
-								                           current_cufft_plan, current_stream, cuda_pars);
+									current_PsiProbeInit_d, current_qxaReduce_d,
+									current_qyaReduce_d,
+									current_yBeams_d, current_xBeams_d, current_alphaInd_d,
+									current_psi_ds,
+									current_phaseCoeffs_ds, current_psiIntensity_ds,
+									current_y_ds,
+									current_x_ds, current_output_ph, current_integratedOutput_ds,
+									current_cufft_plan, current_stream, cuda_pars);
 #ifdef PRISMATIC_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+								pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 //						buildSignal_CPU(pars, ay, ax, yTiltShift, xTiltShift, alphaInd, PsiProbeInit);
 								++Nstart;
@@ -455,9 +455,9 @@ namespace Prismatic {
 					if (pars.meta.numGPUs > 0) {
 						// if there are no GPUs, make sure to do all work on CPU
 						early_CPU_stop = (size_t) std::max((PRISMATIC_FLOAT_PRECISION) 0.0,
-						                                   pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
+						                                   pars.numProbes - pars.meta.earlyCPUStopCount);
 					} else {
-						early_CPU_stop = pars.xp.size() * pars.yp.size();
+						early_CPU_stop = pars.numProbes;
 					}
 					cout << "early_CPU_stop= " << early_CPU_stop << endl;
 					if (dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop)) { // synchronously get work assignment
@@ -475,13 +475,13 @@ namespace Prismatic {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100) {
 									cout << "Computing Probe Position #" << Nstart << "/"
-									     << pars.xp.size() * pars.yp.size() << endl;
+									     << pars.numProbes << endl;
 								}
-								ay = Nstart / pars.xp.size();
-								ax = Nstart % pars.xp.size();
+								ay = (pars.meta.arbitraryProbes) ? Nstart : Nstart / pars.numXprobes;
+								ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 #ifdef PRISMATIC_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+								pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 								++Nstart;
 							}
@@ -517,8 +517,8 @@ namespace Prismatic {
 		vector<thread> workers_GPU;
 		workers_GPU.reserve(total_num_streams); // prevents multiple reallocations
 		int stream_count = 0;
-		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.xp.size() * pars.yp.size() / 10); // for printing status
-		WorkDispatcher dispatcher(0, pars.xp.size() * pars.yp.size());
+		const size_t PRISMATIC_PRINT_FREQUENCY_PROBES = max((size_t)1,pars.numProbes / 10); // for printing status
+		WorkDispatcher dispatcher(0, pars.numProbes);
 
 		for (auto t = 0; t < total_num_streams; ++t) {
 
@@ -539,20 +539,20 @@ namespace Prismatic {
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_permutedScompact_ds = cuda_pars.permutedScompact_d[stream_count];
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_psi_ds               = cuda_pars.psi_ds[stream_count];
 			PRISMATIC_CUDA_COMPLEX_FLOAT *current_phaseCoeffs_ds       = cuda_pars.phaseCoeffs_ds[stream_count];
-			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds        = cuda_pars.psiIntensity_ds[stream_count];
-			PRISMATIC_FLOAT_PRECISION *current_integratedOutput_ds     = cuda_pars.integratedOutput_ds[stream_count];
 			long *current_y_ds                                     = cuda_pars.y_ds[stream_count];
 			long *current_x_ds                                     = cuda_pars.x_ds[stream_count];
 			cufftHandle &current_cufft_plan                        = cuda_pars.cufftPlans[stream_count];
 
 			// get pointer to output pinned memory
-			PRISMATIC_FLOAT_PRECISION *current_output_ph               = cuda_pars.output_ph[stream_count];
-
+			PRISMATIC_FLOAT_PRECISION *current_psiIntensity_ds = cuda_pars.psiIntensity_ds[stream_count];
+			PRISMATIC_FLOAT_PRECISION *current_integratedOutput_ds = cuda_pars.integratedOutput_ds[stream_count];
+			PRISMATIC_FLOAT_PRECISION *current_output_ph = cuda_pars.output_ph[stream_count];
+			
 			workers_GPU.push_back(thread([&pars, GPU_num, stream_count, current_permutedScompact_ds,  &dispatcher,
 					                             current_alphaInd_d, current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
 					                             current_yBeams_d, current_xBeams_d, current_psi_ds, current_phaseCoeffs_ds,
-					                             current_psiIntensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds,
-					                             current_output_ph, &current_cufft_plan, &current_stream, &PRISMATIC_PRINT_FREQUENCY_PROBES, &cuda_pars]() {
+					                             current_psiIntensity_ds, current_y_ds, current_x_ds, current_integratedOutput_ds, current_output_ph,
+					                             &current_cufft_plan, &current_stream, &PRISMATIC_PRINT_FREQUENCY_PROBES, &cuda_pars]() {
 				cudaErrchk(cudaSetDevice(GPU_num));
 
 #ifndef NDEBUG
@@ -572,17 +572,17 @@ namespace Prismatic {
 				while (dispatcher.getWork(Nstart, Nstop)) { // synchronously get work assignment
 					while (Nstart < Nstop) {
 						if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-							cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+							cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 						}
-						ay = Nstart / pars.xp.size();
-						ax = Nstart % pars.xp.size();
+						ay = (pars.meta.arbitraryProbes) ? Nstart : Nstart / pars.numXprobes;
+						ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 						buildSignal_GPU_streaming(pars, ay, ax, current_permutedScompact_ds, cuda_pars.permutedScompact_ph,
-						                          current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
-						                          current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
-						                          current_phaseCoeffs_ds, current_psiIntensity_ds, current_y_ds,
-						                          current_x_ds, current_output_ph, current_integratedOutput_ds, current_cufft_plan, current_stream,  cuda_pars );
+													current_PsiProbeInit_d, current_qxaReduce_d, current_qyaReduce_d,
+													current_yBeams_d, current_xBeams_d, current_alphaInd_d, current_psi_ds,
+													current_phaseCoeffs_ds, current_psiIntensity_ds, current_y_ds,
+													current_x_ds, current_output_ph, current_integratedOutput_ds, current_cufft_plan, current_stream,  cuda_pars );
 #ifdef PRISMATIC_BUILDING_GUI
-						pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+						pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 						++Nstart;
 					}
@@ -605,9 +605,9 @@ namespace Prismatic {
 					Nstart=Nstop=0;
 					if (pars.meta.numGPUs > 0){
 						// if there are no GPUs, make sure to do all work on CPU
-						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.xp.size() * pars.yp.size() - pars.meta.earlyCPUStopCount);
+						early_CPU_stop = (size_t)std::max((PRISMATIC_FLOAT_PRECISION)0.0, pars.numProbes - pars.meta.earlyCPUStopCount);
 					} else {
-						early_CPU_stop = pars.xp.size() * pars.yp.size();
+						early_CPU_stop = pars.numProbes;
 					}
 //					while (getWorkID(pars, Nstart, Nstop)) { // synchronously get work assignment
 					if(dispatcher.getWork(Nstart, Nstop, 1, early_CPU_stop)) { // synchronously get work assignment
@@ -626,13 +626,13 @@ namespace Prismatic {
 						do {
 							while (Nstart < Nstop) {
 								if (Nstart % PRISMATIC_PRINT_FREQUENCY_PROBES == 0 | Nstart == 100){
-									cout << "Computing Probe Position #" << Nstart << "/" << pars.xp.size() * pars.yp.size() << endl;
+									cout << "Computing Probe Position #" << Nstart << "/" << pars.numProbes << endl;
 								}
-								ay = Nstart / pars.xp.size();
-								ax = Nstart % pars.xp.size();
+								ay = (pars.meta.arbitraryProbes) ? Nstart : Nstart / pars.numXprobes;
+								ax = (pars.meta.arbitraryProbes) ? Nstart : Nstart % pars.numXprobes;
 								buildSignal_CPU(pars, ay, ax, plan, psi);
 #ifdef PRISMATIC_BUILDING_GUI
-								pars.progressbar->signalOutputUpdate(Nstart, pars.xp.size() * pars.yp.size());
+								pars.progressbar->signalOutputUpdate(Nstart, pars.numProbes);
 #endif
 								++Nstart;
 							}
@@ -689,11 +689,11 @@ namespace Prismatic {
 			cudaErrchk(cudaSetDevice(s % pars.meta.numGPUs));
 			cudaErrchk(cudaFree(cuda_pars.psi_ds[s]));
 			cudaErrchk(cudaFree(cuda_pars.phaseCoeffs_ds[s]));
-			cudaErrchk(cudaFree(cuda_pars.psiIntensity_ds[s]));
 			cudaErrchk(cudaFree(cuda_pars.y_ds[s]));
 			cudaErrchk(cudaFree(cuda_pars.x_ds[s]));
-			cudaErrchk(cudaFree(cuda_pars.integratedOutput_ds[s]));
 			cufftErrchk(cufftDestroy(cuda_pars.cufftPlans[s]));
+			cudaErrchk(cudaFree(cuda_pars.psiIntensity_ds[s]));
+			cudaErrchk(cudaFree(cuda_pars.integratedOutput_ds[s]));
 		}
 
 		for (auto j = 0; j < pars.meta.numGPUs; ++j) {
@@ -703,7 +703,6 @@ namespace Prismatic {
 
 		delete[] cuda_pars.streams;
 		delete[] cuda_pars.cufftPlans;
-		delete[] cuda_pars.output_ph;
 		delete[] cuda_pars.PsiProbeInit_d;
 		delete[] cuda_pars.qxaReduce_d;
 		delete[] cuda_pars.qyaReduce_d;
@@ -713,10 +712,11 @@ namespace Prismatic {
 		delete[] cuda_pars.permutedScompact_d;
 		delete[] cuda_pars.psi_ds;
 		delete[] cuda_pars.phaseCoeffs_ds;
-		delete[] cuda_pars.psiIntensity_ds;
-		delete[] cuda_pars.integratedOutput_ds;
 		delete[] cuda_pars.y_ds;
 		delete[] cuda_pars.x_ds;
+		delete[] cuda_pars.output_ph;
+		delete[] cuda_pars.psiIntensity_ds;
+		delete[] cuda_pars.integratedOutput_ds;
 	}
 
 
@@ -1459,22 +1459,21 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 
 		// create CUDA streams and cuFFT plans
 		createStreamsAndPlans3(pars, cuda_pars);
-
 		// create page-locked (pinned) host memory buffers
 		allocatePinnedHostMemory_singlexfer3(pars, cuda_pars);
-
+		
 		// copy data to pinned buffers
 		copyToPinnedMemory_singlexfer3(pars, cuda_pars);
-
+		
 		// allocate memory on the GPUs
 		allocateDeviceMemory_singlexfer3(pars, cuda_pars);
-
+		
 		// copy memory to GPUs
 		copyToGPUMemory_singlexfer3(pars, cuda_pars);
-
+		
 		// launch GPU and CPU workers
 		launchWorkers_singlexfer3(pars, cuda_pars);
-
+		
 		// free memory on the host/device
 		cleanupMemory3(pars, cuda_pars);
 	}
@@ -1531,6 +1530,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 
 		const PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
+
 		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
 		shiftIndices <<<((long)pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				y_ds, (long)std::round(yp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[0]), (long)pars.imageSizeOutput[0], (long)pars.imageSizeReduce[0]);
@@ -1678,9 +1678,19 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psiIntensity_ds, psi_ds, psi_size);
 
 		// output calculation result
-		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
-		                           integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, ay, ax, pars.imageSizeReduce[0],
-		                           pars.imageSizeReduce[1], stream, pars.scale);
+		size_t write_ay = (pars.meta.arbitraryProbes) ? 0 : ay;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			formatOutput_GPU_c_integrate(pars, psi_ds, psiIntensity_ds, alphaInd_d, output_ph,
+				integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, write_ay, ax, pars.imageSizeReduce[0],
+				pars.imageSizeReduce[1], stream, pars.scale);
+		}
+		else
+		{
+			formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
+				integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, write_ay, ax, pars.imageSizeReduce[0],
+				pars.imageSizeReduce[1], stream, pars.scale);
+		}
 	}
 
 	void buildSignal_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
@@ -1709,6 +1719,7 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		const PRISMATIC_FLOAT_PRECISION yp = pars.yp[ay];
 		const PRISMATIC_FLOAT_PRECISION xp = pars.xp[ax];
 		const size_t psi_size = pars.imageSizeReduce[0] * pars.imageSizeReduce[1];
+
 		shiftIndices <<<(pars.imageSizeReduce[0] - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream>>> (
 				y_ds, std::round(yp / pars.pixelSizeOutput[0]),pars.imageSize[0], pars.imageSizeReduce[0]);
 
@@ -1722,8 +1733,8 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		// Copy the relevant portion of the Scompact matrix. This can be accomplished with ideally one but at most 4 strided 3-D memory copies
 		// depending on whether or not the coordinates wrap around.
 		long x1,y1;
-		y1 = pars.yVec[0] + std::round(yp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[0]);
-		x1 = pars.xVec[0] + std::round(xp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[1]);
+		y1 = pars.yVec[0] +  std::round(yp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[0]);
+		x1 = pars.xVec[0] +  std::round(xp / (PRISMATIC_FLOAT_PRECISION)pars.pixelSizeOutput[1]);
 
 
 		// determine where in the coordinate list wrap-around occurs (if at all)
@@ -1932,8 +1943,19 @@ __global__ void scaleReduceS(const cuFloatComplex *permutedScompact_d,
 		abs_squared <<< (psi_size - 1) / BLOCK_SIZE1D + 1, BLOCK_SIZE1D, 0, stream >>> (psiIntensity_ds, psi_ds, psi_size);
 
 		// output calculation result
-		formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
-		                           integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, ay, ax, pars.imageSizeReduce[0],
-		                           pars.imageSizeReduce[1], stream, pars.scale);
+		size_t write_ay = (pars.meta.arbitraryProbes) ? 0 : ay;
+		if(pars.meta.saveComplexOutputWave)
+		{
+			formatOutput_GPU_c_integrate(pars, psi_ds, psiIntensity_ds, alphaInd_d, output_ph,
+				integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, write_ay, ax, pars.imageSizeReduce[0],
+				pars.imageSizeReduce[1], stream, pars.scale);	
+		}
+		else
+		{
+			formatOutput_GPU_integrate(pars, psiIntensity_ds, alphaInd_d, output_ph,
+				integratedOutput_ds, qyaReduce_d, qxaReduce_d, 0, write_ay, ax, pars.imageSizeReduce[0],
+				pars.imageSizeReduce[1], stream, pars.scale);
+		}
 	}
+
 }

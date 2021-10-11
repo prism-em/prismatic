@@ -28,9 +28,15 @@
 #include "atom.h"
 #include "parseInput.h"
 #include "params.h"
+#include "aberration.h"
+#include "probe.h"
 #include <cstdio>
 #include "QMessageBox"
 #include <stdio.h>
+#include <QApplication>
+#include <QFile>
+#include <QTextStream>
+#include <QPropertyAnimation>
 //#include <unistd.h>
 
 bool validateFilename(const std::string str){
@@ -58,7 +64,7 @@ std::string get_default_parameter_filename() {
 
 PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> meta);
 
-PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
+PRISMMainWindow::PRISMMainWindow(QWidget* parent) :
     QMainWindow(parent),
     ui(new Ui::PRISMMainWindow),
     potentialReady(false),
@@ -77,19 +83,19 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     potentialImage(QImage()),
     currently_calculated_X(0.0),
     currently_calculated_Y(0.0),
-    pixelSize({1,1}),
+    pixelSize({ 1,1 }),
     colormapper(Prismatic::Colormapper(Prismatic::VioletFireColormap))
 {
     qRegisterMetaType<Prismatic::Array2D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>");
     qRegisterMetaType<Prismatic::Array3D< PRISMATIC_FLOAT_PRECISION> >("Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>");
 
-	// build Qt generated interface
+    // build Qt generated interface
     ui->setupUi(this);
 
-	// set window title
+    // set window title
     setWindowTitle("Prismatic (no atomic coordinate file selected)");
 
-    ui->box_sampleSettings->setStyleSheet("QGroupBox { \
+   /* ui->box_samplesettings->setStyleSheet("QGroupBox { \
                                           border: 1px solid gray;\
                                           border-radius: 9px;\
                                           margin-top: 0.5em;\
@@ -99,7 +105,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                          padding: 0 3px 0 3px;\
                                          }");
 
-	ui->box_calculationSettings->setStyleSheet("QGroupBox { \
+    ui->box_calculationSettings->setStyleSheet("QGroupBox { \
                                       border: 1px solid gray;\
                                       border-radius: 9px;\
                                       margin-top: 0.5em;\
@@ -111,7 +117,7 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                      }");
 
 
-    ui->box_simulationSettings->setStyleSheet("QGroupBox { \
+    ui->box_simulationsettings->setStyleSheet("QGroupBox { \
                                         border: 1px solid gray;\
                                         border-radius: 9px;\
                                         margin-top: 0.5em;\
@@ -119,13 +125,14 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
                                        subcontrol-origin: margin;\
                                        left: 150px;\
                                        padding: 0 3px 0px 3px;\
-                                       }");
+                                       }");*/
 
 
     //potentialImage.load(":/images/prism.png");
     potentialImage.load(":/images/prismatic-logo.png");
     probeImage.load(":/images/prismatic-logo.png");
     outputImage.load(":/images/prismatic-logo.png");
+    outputImage_HRTEM.load(":/images/prismatic-logo.png");
     probeImage_pr.load(":/images/airy.png");
     probeImage_pk.load(":/images/airy.png");
     probeImage_mr.load(":/images/airy.png");
@@ -133,278 +140,201 @@ PRISMMainWindow::PRISMMainWindow(QWidget *parent) :
     probeImage_diffk.load(":/images/airy.png");
     probeImage_diffr.load(":/images/airy.png");
     ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(540,
-                                                                                420,
-                                                                                Qt::KeepAspectRatio)));
+        420,
+        Qt::KeepAspectRatio)));
+    ui->lbl_image_potential_2->setPixmap(QPixmap::fromImage(potentialImage.scaled(540,
+        420,
+        Qt::KeepAspectRatio)));
 
-//    probeImage.load(":/images/probe.png");
-//    outputImage.load(":/images/output.png");
+    //    probeImage.load(":/images/probe.png");
+    //    outputImage.load(":/images/output.png");
     redrawImages();
 
 
-	// set initially displayed values based on the default parameters
-	this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
+    // set initially displayed values based on the default parameters
+    this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
     updateDisplay();
 
-	// {
-	// 	std::stringstream ss;
- //        ss << this->meta->interpolationFactorX;
- //        this->ui->lineEdit_interpFactor_x->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
- //        ss << this->meta->interpolationFactorY;
- //        this->ui->lineEdit_interpFactor_y->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
-	// 	ss << this->meta->potBound;
-	// 	this->ui->lineEdit_potbound->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
- //        ss << (this->meta->probeSemiangle * 1e3);
- //        this->ui->lineEdit_probeSemiangle->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
- //        ss << (this->meta->alphaBeamMax * 1e3);
- //        this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
-	// 	ss << this->meta->sliceThickness;
-	// 	this->ui->lineEdit_sliceThickness->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
-	// 	ss << this->meta->cellDim[2];
-	// 	this->ui->lineEdit_cellDimX->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
-	// 	ss << this->meta->cellDim[1];
-	// 	this->ui->lineEdit_cellDimY->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
-	// 	ss << this->meta->cellDim[0];
-	// 	this->ui->lineEdit_cellDimZ->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
- //        ss << this->meta->tileX;
- //        this->ui->lineEdit_tileX->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << this->meta->tileY;
- //        this->ui->lineEdit_tileY->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << this->meta->tileZ;
- //        this->ui->lineEdit_tileZ->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
-	// 	ss << (this->meta->E0 *1e-3);
-	// 	this->ui->lineEdit_E0->setText(QString::fromStdString(ss.str()));
-	// 	ss.str("");
- //        ss << (this->meta->probeStepX);
- //        this->ui->lineEdit_probeStepX->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->probeStepY);
- //        this->ui->lineEdit_probeStepY->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->probeDefocus);
- //        this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->probeXtilt);
- //        this->ui->lineEdit_probeTiltX->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->probeYtilt);
- //        this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->detectorAngleStep * 1e3);
- //        this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->scanWindowXMin);
- //        this->ui->lineEdit_scanWindowXMin->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->scanWindowXMax);
- //        this->ui->lineEdit_scanWindowXMax->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->scanWindowYMin);
- //        this->ui->lineEdit_scanWindowYMin->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->scanWindowYMax);
- //        this->ui->lineEdit_scanWindowYMax->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->randomSeed);
- //        this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->batchSizeTargetCPU);
- //        this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
- //        ss << (this->meta->batchSizeTargetGPU);
- //        this->ui->lineEdit_batchGPU->setText(QString::fromStdString(ss.str()));
- //        ss.str("");
-
- //        this->ui->lineEdit_scanWindowXMin->setCursorPosition(0);
- //        this->ui->lineEdit_scanWindowXMax->setCursorPosition(0);
- //        this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
- //        this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
- //        this->ui->lineEdit_randomSeed->setCursorPosition(0);
-
- //        this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
-	// 	this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
-	// 	this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
- //        this->ui->spinBox_numFP->setValue(this->meta->numFP);
- //        this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
-	// }
-
-//     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
-//     ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
-//     ui->checkBox_3D->setChecked(meta->save3DOutput);
-//     ui->checkBox_4D->setChecked(meta->save4DOutput);
-
-// 	switch (this->meta->algorithm){
-// 		case Prismatic::Algorithm::PRISM :
-//             this->ui->radBtn_PRISM->setChecked(true);
-//             this->ui->radBtn_Multislice->setChecked(false);
-// 			break;
-// 		case Prismatic::Algorithm::Multislice : 
-//              this->ui->radBtn_PRISM->setChecked(false);
-// 		    this->ui->radBtn_Multislice->setChecked(true);
-// 			break;
-// 	}
-// #ifndef PRISMATIC_ENABLE_GPU
-//     this->ui->spinBox_numGPUs->setEnabled(false);
-//     this->ui->spinBox_numStreams->setEnabled(false);
-//     this->ui->lineEdit_batchGPU ->setEnabled(false);
-//     this->ui->comboBox_streamMode->setEnabled(false);
-// #endif //PRISMATIC_ENABLE_GPU
 
 
-//     ui->lbl_angstrom->setText(QString::fromUtf8("\u212B"));
-//     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
-//     ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
-//     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
-//     ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
-//     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
-//     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
-//     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
-//     ui->lbl_defocus->setText(QString::fromUtf8("C1 (defocus)(\u212B)"));
-//     ui->lbl_C3->setText(QString::fromUtf8("C3 (\u212B)"));
-//     ui->lbl_C5->setText(QString::fromUtf8("C5 (\u212B)"));
-//     ui->label_Xprobe->setText(QString::fromUtf8("X (\u212B)"));
-//     ui->label_Yprobe->setText(QString::fromUtf8("Y (\u212B)"));
-
-//     this->ui->lineEdit_outputfile->setText(QString::fromStdString(this->meta->filenameOutput));
-
-    if (validateFilename(get_default_parameter_filename())){
+    if (validateFilename(get_default_parameter_filename())) {
         readParams(get_default_parameter_filename());
     }
+
     // connect signals and slots
-    connect(this->ui->btn_loadParams,                  SIGNAL(pressed()),                this, SLOT(selectParameterFile()));
-    connect(this->ui->btn_saveParams,                  SIGNAL(pressed()),                this, SLOT(writeParameterFile()));
-    connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorX()));
-    connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(textEdited(QString)),      this, SLOT(setInterpolationFactorY()));
-    connect(this->ui->lineEdit_outputfile,             SIGNAL(textEdited(QString)),      this, SLOT(setFilenameOutput_fromLineEdit()));
-    connect(this->ui->btn_atomsfile_browse,            SIGNAL(pressed()),                this, SLOT(setFilenameAtoms_fromDialog()));
-    connect(this->ui->btn_saveCoordinates,             SIGNAL(pressed()),                this, SLOT(openSaveAtomsDialog()));
-    connect(this->ui->spinBox_numGPUs,                 SIGNAL(valueChanged(int)),        this, SLOT(setNumGPUs(const int&)));
-    connect(this->ui->spinBox_numThreads,              SIGNAL(valueChanged(int)),        this, SLOT(setNumThreads(const int&)));
-    connect(this->ui->spinBox_numFP,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumFP(const int&)));
-    connect(this->ui->spinBox_numNS,                   SIGNAL(valueChanged(int)),        this, SLOT(setNumNS(const int&)));
-    connect(this->ui->spinBox_numStreams,              SIGNAL(valueChanged(int)),        this, SLOT(setNumStreams(const int&)));
-    connect(this->ui->lineEdit_probeSemiangle,         SIGNAL(textEdited(QString)),      this, SLOT(setprobeSemiangle_fromLineEdit()));
-    connect(this->ui->lineEdit_zStart,                 SIGNAL(textEdited(QString)),      this, SLOT(setzStart_fromLineEdit()));
-    connect(this->ui->lineEdit_alphaBeamMax,           SIGNAL(textEdited(QString)),      this, SLOT(setalphaBeamMax_fromLineEdit()));
-    connect(this->ui->lineEdit_2D_inner,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_innerAngle_fromLineEdit()));
-    connect(this->ui->lineEdit_2D_outer,               SIGNAL(textEdited(QString)),      this, SLOT(set2D_outerAngle_fromLineEdit()));
-    connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeX_fromLineEdit()));
-    connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(textEdited(QString)),      this, SLOT(setPixelSizeY_fromLineEdit()));
-    connect(this->ui->lineEdit_batchCPU,               SIGNAL(textEdited(QString)),      this, SLOT(setBatchCPU_fromLineEdit()));
-    connect(this->ui->lineEdit_batchGPU,               SIGNAL(textEdited(QString)),      this, SLOT(setBatchGPU_fromLineEdit()));
-    connect(this->ui->lineEdit_potbound,               SIGNAL(textEdited(QString)),      this, SLOT(setPotBound_fromLineEdit()));
-    connect(this->ui->lineEdit_sliceThickness,         SIGNAL(textEdited(QString)),      this, SLOT(setSliceThickness_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimX,               SIGNAL(textEdited(QString)),      this, SLOT(setCellDimX_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimY,               SIGNAL(textEdited(QString)),      this, SLOT(setCellDimY_fromLineEdit()));
-    connect(this->ui->lineEdit_cellDimZ,               SIGNAL(textEdited(QString)),      this, SLOT(setCellDimZ_fromLineEdit()));
-    connect(this->ui->lineEdit_tileX,                  SIGNAL(textEdited(QString)),      this, SLOT(setTileX_fromLineEdit()));
-    connect(this->ui->lineEdit_tileY,                  SIGNAL(textEdited(QString)),      this, SLOT(setTileY_fromLineEdit()));
-    connect(this->ui->lineEdit_tileZ,                  SIGNAL(textEdited(QString)),      this, SLOT(setTileZ_fromLineEdit()));
-    connect(this->ui->lineEdit_randomSeed,             SIGNAL(textEdited(QString)),      this, SLOT(setRandomSeed_fromLineEdit()));
-    connect(this->ui->lineEdit_probeDefocus,           SIGNAL(textEdited(QString)),      this, SLOT(setprobe_defocus_fromLineEdit()));
-    connect(this->ui->lineEdit_C3,                     SIGNAL(textEdited(QString)),      this, SLOT(setprobe_C3_fromLineEdit()));
-    connect(this->ui->lineEdit_C5,                     SIGNAL(textEdited(QString)),      this, SLOT(setprobe_C5_fromLineEdit()));
-    connect(this->ui->lineEdit_detectorAngle,          SIGNAL(textEdited(QString)),      this, SLOT(setdetectorAngleStep_fromLineEdit()));
-    connect(this->ui->lineEdit_probeTiltX,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_Xtilt_fromLineEdit()));
-    connect(this->ui->lineEdit_probeTiltY,             SIGNAL(textEdited(QString)),      this, SLOT(setprobe_Ytilt_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepX,             SIGNAL(textEdited(QString)),      this, SLOT(setprobeStepX_fromLineEdit()));
-    connect(this->ui->lineEdit_probeStepY,             SIGNAL(textEdited(QString)),      this, SLOT(setprobeStepY_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowXMin,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowXMin_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowXMax,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowXMax_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowYMin,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowYMin_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowYMax,         SIGNAL(textEdited(QString)),      this, SLOT(setscan_WindowYMax_fromLineEdit()));
-    connect(this->ui->lineEdit_scanWindowYMin,         SIGNAL(editingFinished()),        this, SLOT(setscan_WindowYMin_edited()));
-    connect(this->ui->lineEdit_scanWindowYMax,         SIGNAL(editingFinished()),        this, SLOT(setscan_WindowYMax_edited()));
-    connect(this->ui->lineEdit_scanWindowXMin,         SIGNAL(textEdited(QString)),      this, SLOT(updatePotentialDisplay()));
-    connect(this->ui->lineEdit_scanWindowXMax,         SIGNAL(textEdited(QString)),      this, SLOT(updatePotentialDisplay()));
-    connect(this->ui->lineEdit_scanWindowYMin,         SIGNAL(textEdited(QString)),      this, SLOT(updatePotentialDisplay()));
-    connect(this->ui->lineEdit_scanWindowYMax,         SIGNAL(textEdited(QString)),      this, SLOT(updatePotentialDisplay()));
-    connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(editingFinished()),        this, SLOT(setinterpYSet_edited()));
-    connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(editingFinished()),        this, SLOT(setpixelSizeYSet_edited()));
-    connect(this->ui->lineEdit_probeStepY,             SIGNAL(editingFinished()),        this, SLOT(setprobeStepYSet_edited()));
-    connect(this->ui->lineEdit_probeTiltY,             SIGNAL(editingFinished()),        this, SLOT(setprobeTiltYSet_edited()));
-    connect(this->ui->lineEdit_scanWindowXMin,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_scanWindowXMin()));
-    connect(this->ui->lineEdit_scanWindowXMax,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_scanWindowXMax()));
-    connect(this->ui->lineEdit_scanWindowYMin,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_scanWindowYMin()));
-    connect(this->ui->lineEdit_scanWindowYMax,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_scanWindowYMax()));
-    connect(this->ui->lineEdit_cellDimX,               SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_cellDimX()));
-    connect(this->ui->lineEdit_cellDimY,               SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_cellDimY()));
-    connect(this->ui->lineEdit_cellDimZ,               SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_cellDimZ()));
-    connect(this->ui->lineEdit_tileX,                  SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_tileX()));
-    connect(this->ui->lineEdit_tileY,                  SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_tileY()));
-    connect(this->ui->lineEdit_tileZ,                  SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_tileZ()));
-    connect(this->ui->lineEdit_cellDimX,               SIGNAL(textEdited(QString)),      this, SLOT(userHasSetCellDims()));
-    connect(this->ui->lineEdit_cellDimY,               SIGNAL(textEdited(QString)),      this, SLOT(userHasSetCellDims()));
-    connect(this->ui->lineEdit_cellDimZ,               SIGNAL(textEdited(QString)),      this, SLOT(userHasSetCellDims()));
-    connect(this->ui->lineEdit_pixelSizeX,             SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_pixelSizeX()));
-    connect(this->ui->lineEdit_pixelSizeY,             SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_pixelSizeY()));
-    connect(this->ui->lineEdit_interpFactor_x,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_interpFactor_x()));
-    connect(this->ui->lineEdit_interpFactor_y,         SIGNAL(editingFinished()),        this, SLOT(checkInput_lineEdit_interpFactor_y()));
-    connect(this->ui->lineEdit_E0,                     SIGNAL(textEdited(QString)),      this, SLOT(setE0_fromLineEdit()));
-    connect(this->ui->radBtn_PRISM,                    SIGNAL(clicked(bool)),            this, SLOT(setAlgo_PRISM()));
-    connect(this->ui->radBtn_Multislice,               SIGNAL(clicked(bool)),            this, SLOT(setAlgo_Multislice()));
-    connect(this->ui->btn_calcPotential,               SIGNAL(clicked(bool)),            this, SLOT(calculatePotential()));
-    connect(this->ui->btn_go,                          SIGNAL(clicked(bool)),            this, SLOT(calculateAll()));
-    connect(this->ui->lineEdit_slicemin,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
-    connect(this->ui->lineEdit_slicemax,               SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits()));
-    connect(this->ui->slider_bothSlices,               SIGNAL(valueChanged(int)),        this, SLOT(moveBothPotentialSliders(int)));
-    connect(this->ui->slider_bothDetectors,            SIGNAL(valueChanged(int)),        this, SLOT(moveBothDetectorSliders(int)));
+    connect(this->ui->btn_loadParams, SIGNAL(pressed()), this, SLOT(selectParameterFile()));
+    connect(this->ui->actionLoad_Parameters, SIGNAL(triggered()), this, SLOT(selectParameterFile()));
+    connect(this->ui->btn_saveParams, SIGNAL(pressed()), this, SLOT(writeParameterFile()));
+    connect(this->ui->actionSave_Parameters, SIGNAL(triggered()), this, SLOT(writeParameterFile()));
+    connect(this->ui->lineEdit_interpFactor_x, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorX()));
+    connect(this->ui->lineEdit_interpFactor_y, SIGNAL(textEdited(QString)), this, SLOT(setInterpolationFactorY()));
+    connect(this->ui->lineEdit_outputfile, SIGNAL(textEdited(QString)), this, SLOT(setFilenameOutput_fromLineEdit()));
+    connect(this->ui->btn_atomsfile_browse, SIGNAL(pressed()), this, SLOT(setFilenameAtoms_fromDialog()));
+    connect(this->ui->actionLoad_Coordinates, SIGNAL(triggered()), this, SLOT(setFilenameAtoms_fromDialog()));
+    connect(this->ui->btn_saveCoordinates, SIGNAL(pressed()), this, SLOT(openSaveAtomsDialog()));
+    connect(this->ui->actionSave_Coordinates, SIGNAL(triggered()), this, SLOT(openSaveAtomsDialog()));
+    connect(this->ui->btn_loadAbFile, SIGNAL(pressed()), this, SLOT(readAberrationFile()));
+    connect(this->ui->btn_loadProbePos, SIGNAL(pressed()), this, SLOT(readProbeFile()));
+    connect(this->ui->spinBox_numGPUs, SIGNAL(valueChanged(int)), this, SLOT(setNumGPUs(const int&)));
+    connect(this->ui->spinBox_numThreads, SIGNAL(valueChanged(int)), this, SLOT(setNumThreads(const int&)));
+    connect(this->ui->spinBox_numFP, SIGNAL(valueChanged(int)), this, SLOT(setNumFP(const int&)));
+    connect(this->ui->spinBox_numNS, SIGNAL(valueChanged(int)), this, SLOT(setNumNS(const int&)));
+    connect(this->ui->spinBox_zSampling, SIGNAL(valueChanged(int)), this, SLOT(setzSampling(const int&)));
+    connect(this->ui->spinBox_numStreams, SIGNAL(valueChanged(int)), this, SLOT(setNumStreams(const int&)));
+    connect(this->ui->lineEdit_probeSemiangle, SIGNAL(textEdited(QString)), this, SLOT(setprobeSemiangle_fromLineEdit()));
+    connect(this->ui->lineEdit_zStart, SIGNAL(textEdited(QString)), this, SLOT(setzStart_fromLineEdit()));
+    // connect(this->ui->lineEdit_alphaBeamMax, SIGNAL(textEdited(QString)), this, SLOT(setalphaBeamMax_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_inner, SIGNAL(textEdited(QString)), this, SLOT(set2D_innerAngle_fromLineEdit()));
+    connect(this->ui->lineEdit_2D_outer, SIGNAL(textEdited(QString)), this, SLOT(set2D_outerAngle_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeX, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeX_fromLineEdit()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(textEdited(QString)), this, SLOT(setPixelSizeY_fromLineEdit()));
+    connect(this->ui->lineEdit_batchCPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchCPU_fromLineEdit()));
+    connect(this->ui->lineEdit_batchGPU, SIGNAL(textEdited(QString)), this, SLOT(setBatchGPU_fromLineEdit()));
+    connect(this->ui->lineEdit_potbound, SIGNAL(textEdited(QString)), this, SLOT(setPotBound_fromLineEdit()));
+    connect(this->ui->lineEdit_sliceThickness, SIGNAL(textEdited(QString)), this, SLOT(setSliceThickness_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(textEdited(QString)), this, SLOT(setCellDimX_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(textEdited(QString)), this, SLOT(setCellDimY_fromLineEdit()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(textEdited(QString)), this, SLOT(setCellDimZ_fromLineEdit()));
+    connect(this->ui->lineEdit_tileX, SIGNAL(textEdited(QString)), this, SLOT(setTileX_fromLineEdit()));
+    connect(this->ui->lineEdit_tileY, SIGNAL(textEdited(QString)), this, SLOT(setTileY_fromLineEdit()));
+    connect(this->ui->lineEdit_tileZ, SIGNAL(textEdited(QString)), this, SLOT(setTileZ_fromLineEdit()));
+    connect(this->ui->lineEdit_randomSeed, SIGNAL(textEdited(QString)), this, SLOT(setRandomSeed_fromLineEdit()));
+    connect(this->ui->lineEdit_probeDefocus, SIGNAL(textEdited(QString)), this, SLOT(setprobe_defocus_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_min, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_min_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_max, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_max_fromLineEdit()));
+    connect(this->ui->lineEdit_dfr_step, SIGNAL(textEdited(QString)), this, SLOT(set_dfr_step_fromLineEdit()));
+    connect(this->ui->lineEdit_dfs, SIGNAL(textEdited(QString)), this, SLOT(set_dfs_fromLineEdit()));
+    connect(this->ui->lineEdit_C3, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C3_fromLineEdit()));
+    connect(this->ui->lineEdit_C5, SIGNAL(textEdited(QString)), this, SLOT(setprobe_C5_fromLineEdit()));
+    connect(this->ui->lineEdit_detectorAngle, SIGNAL(textEdited(QString)), this, SLOT(setdetectorAngleStep_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltX, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Xtilt_fromLineEdit()));
+    connect(this->ui->lineEdit_probeTiltY, SIGNAL(textEdited(QString)), this, SLOT(setprobe_Ytilt_fromLineEdit()));
+    connect(this->ui->lineEdit_xtt_min, SIGNAL(textEdited(QString)), this, SLOT(setxtt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtt_max, SIGNAL(textEdited(QString)), this, SLOT(setxtt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtt_step, SIGNAL(textEdited(QString)), this, SLOT(setxtt_step_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_min, SIGNAL(textEdited(QString)), this, SLOT(setytt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_max, SIGNAL(textEdited(QString)), this, SLOT(setytt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytt_step, SIGNAL(textEdited(QString)), this, SLOT(setytt_step_fromLineEdit())); 
+    connect(this->ui->lineEdit_rtt_min, SIGNAL(textEdited(QString)), this, SLOT(setrtt_min_fromLineEdit())); 
+    connect(this->ui->lineEdit_rtt_max, SIGNAL(textEdited(QString)), this, SLOT(setrtt_max_fromLineEdit())); 
+    connect(this->ui->lineEdit_xtilt_offset, SIGNAL(textEdited(QString)), this, SLOT(setxtilt_offset_fromLineEdit())); 
+    connect(this->ui->lineEdit_ytilt_offset, SIGNAL(textEdited(QString)), this, SLOT(setxtilt_offset_fromLineEdit())); 
+    connect(this->ui->lineEdit_probeStepX, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepX_fromLineEdit()));
+    connect(this->ui->lineEdit_probeStepY, SIGNAL(textEdited(QString)), this, SLOT(setprobeStepY_fromLineEdit()));
+    connect(this->ui->lineEdit_4Damax, SIGNAL(textEdited(QString)), this, SLOT(set4Damax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowXMax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMin_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(textEdited(QString)), this, SLOT(setscan_WindowYMax_fromLineEdit()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMin_edited()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(setscan_WindowYMax_edited()));
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(textEdited(QString)), this, SLOT(updatePotentialDisplay()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(textEdited(QString)), this, SLOT(updatePotentialDisplay()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(textEdited(QString)), this, SLOT(updatePotentialDisplay()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(textEdited(QString)), this, SLOT(updatePotentialDisplay()));
+    connect(this->ui->lineEdit_interpFactor_y, SIGNAL(editingFinished()), this, SLOT(setinterpYSet_edited()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(setpixelSizeYSet_edited()));
+    connect(this->ui->lineEdit_probeStepY, SIGNAL(editingFinished()), this, SLOT(setprobeStepYSet_edited()));
+    connect(this->ui->lineEdit_probeTiltY, SIGNAL(editingFinished()), this, SLOT(setprobeTiltYSet_edited()));
+    connect(this->ui->lineEdit_scanWindowXMin, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowXMin()));
+    connect(this->ui->lineEdit_scanWindowXMax, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowXMax()));
+    connect(this->ui->lineEdit_scanWindowYMin, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMin()));
+    connect(this->ui->lineEdit_scanWindowYMax, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_scanWindowYMax()));
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimX()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimY()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_cellDimZ()));
+    connect(this->ui->lineEdit_tileX, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileX()));
+    connect(this->ui->lineEdit_tileY, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileY()));
+    connect(this->ui->lineEdit_tileZ, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_tileZ()));
+    connect(this->ui->lineEdit_cellDimX, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+    connect(this->ui->lineEdit_cellDimY, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+    connect(this->ui->lineEdit_cellDimZ, SIGNAL(textEdited(QString)), this, SLOT(userHasSetCellDims()));
+    connect(this->ui->lineEdit_pixelSizeX, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeX()));
+    connect(this->ui->lineEdit_pixelSizeY, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_pixelSizeY()));
+    connect(this->ui->lineEdit_interpFactor_x, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_interpFactor_x()));
+    connect(this->ui->lineEdit_interpFactor_y, SIGNAL(editingFinished()), this, SLOT(checkInput_lineEdit_interpFactor_y()));
+    connect(this->ui->lineEdit_E0, SIGNAL(textEdited(QString)), this, SLOT(setE0_fromLineEdit()));
+    connect(this->ui->radBtn_PRISM, SIGNAL(clicked(bool)), this, SLOT(setAlgo_PRISM()));
+    connect(this->ui->radBtn_Multislice, SIGNAL(clicked(bool)), this, SLOT(setAlgo_Multislice()));
+    connect(this->ui->btn_calcPotential, SIGNAL(clicked(bool)), this, SLOT(calculatePotential()));
+    connect(this->ui->btn_go, SIGNAL(clicked(bool)), this, SLOT(calculateAll()));
+    connect(this->ui->btn_go_hrtem, SIGNAL(clicked(bool)), this, SLOT(calculateAllHRTEM()));
+    connect(this->ui->lineEdit_slicemin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
+    connect(this->ui->lineEdit_slicemax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits()));
+    connect(this->ui->slider_bothSlices, SIGNAL(valueChanged(int)), this, SLOT(moveBothPotentialSliders(int)));
+    connect(this->ui->slider_bothDetectors, SIGNAL(valueChanged(int)), this, SLOT(moveBothDetectorSliders(int)));
     //    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_PotentialCombo(int)));
-    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_min(int)));
-    connect(this->ui->slider_slicemax,                 SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_max(int)));
-    connect(this->ui->slider_slicemin,                 SIGNAL(valueChanged(int)),        this, SLOT(updatePotentialFloatImage()));
-    connect(this->ui->slider_slicemax,                 SIGNAL(valueChanged(int)),        this, SLOT(updatePotentialFloatImage()));
-    connect(this->ui->slider_angmin,                   SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_min_ang(int)));
-    connect(this->ui->slider_angmax,                   SIGNAL(valueChanged(int)),        this, SLOT(updateSlider_lineEdits_max_ang(int)));
-    connect(this->ui->slider_angmin,                   SIGNAL(valueChanged(int)),        this, SLOT(updateOutputFloatImage()));
-    connect(this->ui->slider_angmax,                   SIGNAL(valueChanged(int)),        this, SLOT(updateOutputFloatImage()));
-    connect(this->ui->lineEdit_angmin,                 SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits_ang()));
-    connect(this->ui->lineEdit_angmax,                 SIGNAL(editingFinished()),        this, SLOT(updateSliders_fromLineEdits_ang()));
-    connect(this->ui->lineEdit_contrast_outputMin,     SIGNAL(editingFinished()),        this, SLOT(updateContrastAngMin()));
-    connect(this->ui->lineEdit_contrast_outputMax,     SIGNAL(editingFinished()),        this, SLOT(updateContrastAngMax()));
-    connect(this->ui->lineEdit_contrastPotMin,         SIGNAL(editingFinished()),        this, SLOT(updateContrastPotMin()));
-    connect(this->ui->lineEdit_contrastPotMax,         SIGNAL(editingFinished()),        this, SLOT(updateContrastPotMax()));
-    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),      this, SLOT(redrawImages()));
-    connect(this->ui->btn_saveOutputImage,             SIGNAL(clicked(bool)),            this, SLOT(saveCurrentOutputImage()));
-    connect(this->ui->comboBox_streamMode,             SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
+    connect(this->ui->slider_slicemin, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_min(int)));
+    connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max(int)));
+    connect(this->ui->slider_slicemin, SIGNAL(valueChanged(int)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->slider_slicemax, SIGNAL(valueChanged(int)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_min_ang(int)));
+    connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateSlider_lineEdits_max_ang(int)));
+    connect(this->ui->slider_angmin, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
+    connect(this->ui->slider_angmax, SIGNAL(valueChanged(int)), this, SLOT(updateOutputFloatImage()));
+    connect(this->ui->lineEdit_angmin, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
+    connect(this->ui->lineEdit_angmax, SIGNAL(editingFinished()), this, SLOT(updateSliders_fromLineEdits_ang()));
+    connect(this->ui->lineEdit_contrast_outputMin, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMin()));
+    connect(this->ui->lineEdit_contrast_outputMax, SIGNAL(editingFinished()), this, SLOT(updateContrastAngMax()));
+    connect(this->ui->lineEdit_contrastPotMin, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMin()));
+    connect(this->ui->lineEdit_contrastPotMax, SIGNAL(editingFinished()), this, SLOT(updateContrastPotMax()));
+    connect(this->ui->tabWidget_2, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
+    connect(this->ui->tabWidget_3, SIGNAL(currentChanged(int)), this, SLOT(redrawImages()));
+    connect(this->ui->btn_saveOutputImage, SIGNAL(clicked(bool)), this, SLOT(saveCurrentOutputImage()));
+    connect(this->ui->comboBox_streamMode, SIGNAL(currentIndexChanged(int)), this, SLOT(setStreamingMode(int)));
     //connect(this->ui->checkBox_saveProjectedPotential, SIGNAL(toggled(bool)),            this, SLOT(toggleSaveProjectedPotential()));
-    connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetCalculation()));
-    connect(this->ui->btn_calculateProbe,              SIGNAL(clicked()),                this, SLOT(calculateProbe()));
-    connect(this->ui->btn_reset,                       SIGNAL(clicked()),                this, SLOT(resetLinks()));
-    connect(this->ui->checkBox_2D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle2DOutput()));
-    connect(this->ui->checkBox_3D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle3DOutput()));
-    connect(this->ui->checkBox_4D,                     SIGNAL(toggled(bool)),            this, SLOT(toggle4DOutput()));
-    connect(this->ui->checkBox_DPC_CoM,                SIGNAL(toggled(bool)),            this, SLOT(toggleDPC_CoM()));
-    connect(this->ui->checkBox_PS,                     SIGNAL(toggled(bool)),            this, SLOT(togglePotentialSlices()));
-    connect(this->ui->checkBox_thermalEffects,         SIGNAL(toggled(bool)),            this, SLOT(toggleThermalEffects()));
-    connect(this->ui->checkBox_occupancy,              SIGNAL(toggled(bool)),            this, SLOT(toggleOccupancy()));
-    connect(this->ui->checkBox_NQS,                    SIGNAL(toggled(bool)),            this, SLOT(toggleNyquist()));
-    connect(this->ui->checkBox_sqrtIntensityPot,       SIGNAL(toggled(bool)),            this, SLOT(updatePotentialFloatImage()));
-    connect(this->ui->checkBox_log,                    SIGNAL(toggled(bool)),            this, SLOT(updateProbeImages()));
-    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
-//    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updatePotentialFloatImage()));
-//    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updateOutputFloatImage()));
-    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updateAllImages()));
+    connect(this->ui->actionReset_Prismatic, SIGNAL(triggered()), this, SLOT(resetCalculation()));
+    connect(this->ui->btn_calculateProbe, SIGNAL(clicked()), this, SLOT(calculateProbe()));
+    connect(this->ui->actionReset_Prismatic, SIGNAL(triggered()), this, SLOT(resetLinks()));
+    connect(this->ui->checkBox_2D, SIGNAL(toggled(bool)), this, SLOT(toggle2DOutput()));
+    connect(this->ui->checkBox_3D, SIGNAL(toggled(bool)), this, SLOT(toggle3DOutput()));
+    connect(this->ui->checkBox_4D, SIGNAL(toggled(bool)), this, SLOT(toggle4DOutput()));
+    connect(this->ui->checkBox_crop4D, SIGNAL(toggled(bool)), this, SLOT(toggle4Dcrop()));
+    connect(this->ui->checkBox_DPC_CoM, SIGNAL(toggled(bool)), this, SLOT(toggleDPC_CoM()));
+    connect(this->ui->checkBox_PS, SIGNAL(toggled(bool)), this, SLOT(togglePotentialSlices()));
+    connect(this->ui->checkBox_saveSMatrix, SIGNAL(toggled(bool)), this, SLOT(toggleSMatrixoutput()));
+    connect(this->ui->checkBox_saveComplex, SIGNAL(toggled(bool)), this, SLOT(toggleComplexoutput()));
+    connect(this->ui->checkBox_saveProbe, SIGNAL(toggled(bool)), this, SLOT(toggleProbeOutput()));
+    connect(this->ui->checkBox_thermalEffects, SIGNAL(toggled(bool)), this, SLOT(toggleThermalEffects()));
+    connect(this->ui->checkBox_matrixRefocus, SIGNAL(toggled(bool)), this, SLOT(togglematrixRefocus()));
+    connect(this->ui->checkBox_potential3D, SIGNAL(toggled(bool)), this, SLOT(togglePotential3D()));
+   // connect(this->ui->checkBox_occupancy, SIGNAL(toggled(bool)), this, SLOT(toggleOccupancy()));
+    connect(this->ui->checkBox_NQS, SIGNAL(toggled(bool)), this, SLOT(toggleNyquist()));
+    connect(this->ui->checkBox_sqrtIntensityPot, SIGNAL(toggled(bool)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->checkBox_sqrtIntensityPot_2, SIGNAL(toggled(bool)), this, SLOT(updatePotentialFloatImage()));
+    connect(this->ui->checkBox_log, SIGNAL(toggled(bool)), this, SLOT(updateProbeImages()));
+    connect(this->ui->comboBox_colormap, SIGNAL(currentTextChanged(QString)), this, SLOT(changeColormap(QString)));
+    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updatePotentialFloatImage()));
+    //    connect(this->ui->comboBox_colormap,               SIGNAL(currentTextChanged(QString)), this, SLOT(updateOutputFloatImage()));
+    connect(this->ui->comboBox_colormap, SIGNAL(currentTextChanged(QString)), this, SLOT(updateAllImages()));
+
+    //connections for the collapsable buttons
+    connect(this->ui->btn_closebox, SIGNAL(clicked()), this, SLOT(collapseSample()));
+    connect(this->ui->btn_closebox_2, SIGNAL(clicked()), this, SLOT(collapseSimulation()));
+    connect(this->ui->btn_closebox_3, SIGNAL(clicked()), this, SLOT(collapseStem()));
+    connect(this->ui->btn_closebox_4, SIGNAL(clicked()), this, SLOT(collapseHrtem()));
+    connect(this->ui->btn_closebox_5, SIGNAL(clicked()), this, SLOT(collapseOutput()));
+    connect(this->ui->btn_closebox_7, SIGNAL(clicked()), this, SLOT(collapseComputational()));
+
+
+    //connections for changing the theme/field of the application
+    connect(this->ui->actionDarkField, SIGNAL(triggered()), this, SLOT(darkField()));
+    connect(this->ui->actionLightField, SIGNAL(triggered()), this, SLOT(lightField()));
+
+
+
+
+
 
 
     //    connect(this->ui->tabs,                            SIGNAL(currentChanged(int)),this, SLOT(updatePotentialDisplay()));
     updateAlphaMax();
-//    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->tabs->width(),
-//                                                                                ui->tabs->height(),
-//                                                                                Qt::KeepAspectRatio)));
-
+    //    ui->lbl_image_potential->setPixmap(QPixmap::fromImage(potentialImage.scaled(ui->tabs->width(),
+    //                                                                                ui->tabs->height(),
+    //                                                                                Qt::KeepAspectRatio)));
 }
+
+
 
 void PRISMMainWindow::updateDisplay(){
     std::stringstream ss;
@@ -429,8 +359,8 @@ void PRISMMainWindow::updateDisplay(){
 	ss << (this->meta->zStart);
     this->ui->lineEdit_zStart->setText(QString::fromStdString(ss.str()));
     ss.str("");
-    ss << (this->meta->alphaBeamMax * 1e3);
-    this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
+    // ss << (this->meta->alphaBeamMax * 1e3);
+    // this->ui->lineEdit_alphaBeamMax->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->integrationAngleMin * 1e3);
     this->ui->lineEdit_2D_inner->setText(QString::fromStdString(ss.str()));
@@ -471,6 +401,18 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->probeDefocus);
     this->ui->lineEdit_probeDefocus->setText(QString::fromStdString(ss.str()));
     ss.str("");
+    ss << (this->meta->probeDefocus_min);
+    this->ui->lineEdit_dfr_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_max);
+    this->ui->lineEdit_dfr_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_step);
+    this->ui->lineEdit_dfr_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->probeDefocus_sigma);
+    this->ui->lineEdit_dfs->setText(QString::fromStdString(ss.str()));
+    ss.str("");
 	ss << (this->meta->C3);
 	this->ui->lineEdit_C3->setText(QString::fromStdString(ss.str()));
 	ss.str("");
@@ -482,6 +424,36 @@ void PRISMMainWindow::updateDisplay(){
     ss.str("");
     ss << (this->meta->probeYtilt * 1e3);
     this->ui->lineEdit_probeTiltY->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minXtilt * 1e3);
+    this->ui->lineEdit_xtt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxXtilt * 1e3);
+    this->ui->lineEdit_xtt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->xTiltStep * 1e3);
+    this->ui->lineEdit_xtt_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minYtilt * 1e3);
+    this->ui->lineEdit_ytt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxYtilt * 1e3);
+    this->ui->lineEdit_ytt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->yTiltStep * 1e3);
+    this->ui->lineEdit_ytt_step->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->minRtilt * 1e3);
+    this->ui->lineEdit_rtt_min->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->maxRtilt * 1e3);
+    this->ui->lineEdit_rtt_max->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->xTiltOffset * 1e3);
+    this->ui->lineEdit_xtilt_offset->setText(QString::fromStdString(ss.str()));
+    ss.str("");
+    ss << (this->meta->yTiltOffset * 1e3);
+    this->ui->lineEdit_ytilt_offset->setText(QString::fromStdString(ss.str()));
     ss.str("");
     ss << (this->meta->detectorAngleStep * 1e3);
     this->ui->lineEdit_detectorAngle->setText(QString::fromStdString(ss.str()));
@@ -501,6 +473,9 @@ void PRISMMainWindow::updateDisplay(){
     ss << (this->meta->randomSeed);
     this->ui->lineEdit_randomSeed->setText(QString::fromStdString(ss.str()));
     ss.str("");
+    ss << (this->meta->crop4Damax);
+    this->ui->lineEdit_4Damax->setText(QString::fromStdString(ss.str()));
+    ss.str("");
     ss << (this->meta->batchSizeTargetCPU);
     this->ui->lineEdit_batchCPU->setText(QString::fromStdString(ss.str()));
     ss.str("");
@@ -513,21 +488,29 @@ void PRISMMainWindow::updateDisplay(){
     this->ui->lineEdit_scanWindowYMin->setCursorPosition(0);
     this->ui->lineEdit_scanWindowYMax->setCursorPosition(0);
     this->ui->lineEdit_randomSeed->setCursorPosition(0);
+    ui->lineEdit_4Damax->setEnabled(false);
 
     this->ui->lineEdit_outputfile->setText(QString::fromStdString(ss.str()));
     this->ui->spinBox_numGPUs->setValue(this->meta->numGPUs);
     this->ui->spinBox_numThreads->setValue(this->meta->numThreads);
     this->ui->spinBox_numFP->setValue(this->meta->numFP);
     this->ui->spinBox_numNS->setValue(this->meta->numSlices);
+    this->ui->spinBox_zSampling->setValue(this->meta->zSampling);
     this->ui->spinBox_numStreams->setValue(this->meta->numStreamsPerGPU);
+    ui->checkBox_potential3D->setChecked(meta->potential3D);
+    ui->checkBox_matrixRefocus->setChecked(meta->matrixRefocus);
     ui->checkBox_thermalEffects->setChecked(meta->includeThermalEffects);
-    ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
+   // ui->checkBox_occupancy->setChecked(meta->includeOccupancy);
     ui->checkBox_NQS->setChecked(meta->nyquistSampling);
     ui->checkBox_2D->setChecked(meta->save2DOutput);
     ui->checkBox_3D->setChecked(meta->save3DOutput);
     ui->checkBox_4D->setChecked(meta->save4DOutput);
     ui->checkBox_DPC_CoM->setChecked(meta->saveDPC_CoM);
     ui->checkBox_PS->setChecked(meta->savePotentialSlices);
+    ui->checkBox_saveSMatrix->setChecked(meta->saveSMatrix);
+    ui->checkBox_saveComplex->setChecked(meta->saveComplexOutputWave);
+    ui->checkBox_saveProbe->setChecked(meta->saveProbe);
+
 
     switch (this->meta->algorithm){
         case Prismatic::Algorithm::PRISM :
@@ -551,7 +534,7 @@ void PRISMMainWindow::updateDisplay(){
     ui->lbl_sliceThickness->setText(QString::fromUtf8("Slice\nThickness (\u212B)"));
     ui->lbl_probeStep->setText(QString::fromUtf8("Probe Step (\u212B)"));
     ui->lbl_alphaMax->setText(QString::fromUtf8("\u03B1 max = ??"));
-    ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
+    // ui->lbl_alphaBeamMax->setText(QString::fromUtf8("Probe \u03B1 limit (mrads)"));
     ui->lbl_lambda->setText(QString::fromUtf8("\u03BB = ") + QString::number(calculateLambda(*meta)) + QString::fromUtf8("\u212B"));
     ui->lbl_potBound->setText(QString::fromUtf8("Potential\nBound (\u212B)"));
     ui->lbl_pixelSize->setText(QString::fromUtf8("Pixel\nSize (\u212B)"));
@@ -592,12 +575,30 @@ void PRISMMainWindow::writeParameterFile(){
     }
 }
 
+void PRISMMainWindow::readAberrationFile(){
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Aberration File(*.txt);;All files(*)"));
+    if (validateFilename(filename.toStdString())){
+        this->meta->aberrations = Prismatic::readAberrations(filename.toStdString());
+        this->meta->arbitraryAberrations = true;
+    }
+}
+
+void PRISMMainWindow::readProbeFile(){
+    QString filename;
+    filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Probe File(*.txt);;All files(*)"));
+    if (validateFilename(filename.toStdString())){
+        Prismatic::readProbes(filename.toStdString(), this->meta->probes_x, this->meta->probes_y);
+        this->meta->arbitraryProbes = true;
+    }
+}
+
 void PRISMMainWindow::setAlgo_PRISM(){
 	std::cout << "Setting algorithm to PRISM" << std::endl;
 	setAlgo(Prismatic::Algorithm::PRISM);
     ui->lineEdit_interpFactor_x->setEnabled(true);
     ui->lineEdit_interpFactor_y->setEnabled(true);
-    ui->lineEdit_alphaBeamMax->setEnabled(true);
+    // ui->lineEdit_alphaBeamMax->setEnabled(true);
 }
 
 void PRISMMainWindow::setAlgo_Multislice(){
@@ -605,7 +606,7 @@ void PRISMMainWindow::setAlgo_Multislice(){
 	setAlgo(Prismatic::Algorithm::Multislice);
     ui->lineEdit_interpFactor_x->setDisabled(true);
     ui->lineEdit_interpFactor_y->setDisabled(true);
-    ui->lineEdit_alphaBeamMax->setDisabled(true);
+    // ui->lineEdit_alphaBeamMax->setDisabled(true);
 }
 
 void PRISMMainWindow::setAlgo(const Prismatic::Algorithm algo){
@@ -639,7 +640,6 @@ void PRISMMainWindow::setInterpolationFactorY(){
     resetCalculation();
 }
 
-
 void PRISMMainWindow::setFilenameAtoms_fromDialog(){
 	QString filename;
     filename = QFileDialog::getOpenFileName(this, tr("ExistingFile"), filename, tr("Atomic Model(*.xyz *.XYZ);;All files(*)"));
@@ -664,6 +664,7 @@ void PRISMMainWindow::updateUCdims(const std::string& filename){
     }else{
         this->setFilenameAtoms(filename);
         ui->btn_go->setEnabled(true);
+        ui->btn_go_hrtem->setEnabled(true);
         ui->btn_calcPotential->setEnabled(true);
         this->setWindowTitle(QString::fromStdString(std::string("Prismatic (") + std::string(filename + std::string(")"))));
         if (uc_dims[0]>0){
@@ -764,6 +765,14 @@ void PRISMMainWindow::setNumNS(const int& num){
     resetCalculation();
 }
 
+void PRISMMainWindow::setzSampling(const int& num){
+    if (num > 0){
+        this->meta->zSampling = num;
+        std::cout << "Setting number of subslices for 3D potential integration to " << num << std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::setPixelSizeX_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val =(PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_pixelSizeX->text().toDouble(&flag);
@@ -823,15 +832,15 @@ void PRISMMainWindow::setzStart_fromLineEdit(){
     resetCalculation();
 }
 
-void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
-    bool flag = false;
-    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
-    if (flag){
-        this->meta->alphaBeamMax = val / 1000;
-        std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
-    }
-    resetCalculation();
-}
+// void PRISMMainWindow::setalphaBeamMax_fromLineEdit(){
+//     bool flag = false;
+//     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_alphaBeamMax->text().toDouble(&flag);
+//     if (flag){
+//         this->meta->alphaBeamMax = val / 1000;
+//         std::cout << "Setting maximum PRISM probe scattering angle to " << val << " mrad" << std::endl;
+//     }
+//     resetCalculation();
+// }
 
 void PRISMMainWindow::set2D_innerAngle_fromLineEdit(){
     bool flag = false;
@@ -992,6 +1001,46 @@ void PRISMMainWindow::setprobe_defocus_fromLineEdit(){
     resetCalculation();
 }
 
+void PRISMMainWindow::set_dfr_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_min = val;
+        std::cout << "Setting probe defocus range min to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfr_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_max = val;
+        std::cout << "Setting probe defocus range max to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfr_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfr_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_step = val;
+        std::cout << "Setting probe defocus range step to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::set_dfs_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_dfs->text().toDouble(&flag);
+    if (flag){
+        this->meta->probeDefocus_sigma = val;
+        std::cout << "Setting probe defocus range step to " << val << " Angstroms" <<  std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::setprobe_C3_fromLineEdit(){
     bool flag = false;
     PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_C3->text().toDouble(&flag);
@@ -1044,6 +1093,106 @@ void PRISMMainWindow::setprobe_Ytilt_fromLineEdit(){
     if (flag){
         this->meta->probeYtilt =  val / 1000;
         std::cout << "Setting probe Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min X tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max X tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtt_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtt_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->xTiltStep =  val / 1000;
+        std::cout << "Setting HRTEM X tilt step to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max Y tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytt_step_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytt_step->text().toDouble(&flag);
+    if (flag){
+        this->meta->yTiltStep =  val / 1000;
+        std::cout << "Setting HRTEM Y tilt step to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setrtt_min_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_rtt_min->text().toDouble(&flag);
+    if (flag){
+        this->meta->minXtilt =  val / 1000;
+        std::cout << "Setting HRTEM min R tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setrtt_max_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_rtt_max->text().toDouble(&flag);
+    if (flag){
+        this->meta->maxXtilt =  val / 1000;
+        std::cout << "Setting HRTEM max R tilt to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setxtilt_offset_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_xtilt_offset->text().toDouble(&flag);
+    if (flag){
+        this->meta->xTiltOffset =  val / 1000;
+        std::cout << "Setting HRTEM X tilt offset to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
+void PRISMMainWindow::setytilt_offset_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_ytilt_offset->text().toDouble(&flag);
+    if (flag){
+        this->meta->yTiltOffset =  val / 1000;
+        std::cout << "Setting HRTEM Y tilt offset to " << val << " mrad" << std::endl;
     }
     resetCalculation();
 }
@@ -1209,36 +1358,32 @@ void PRISMMainWindow::calculateAll(){
     progressbar->show();
     this->setFilenameOutput_fromLineEdit();
 
-    if (meta->algorithm == Prismatic::Algorithm::PRISM) {
-	    FullPRISMCalcThread *worker = new FullPRISMCalcThread(this, progressbar);
-        std::cout <<"Starting Full PRISM Calculation" << std::endl;
-        worker->meta.toString();
-        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+    FullCalcThread *worker = new FullCalcThread(this, progressbar);
+    worker->meta.toString();
+    connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
+    connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
+    connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
+    if(this->meta->algorithm == Prismatic::Algorithm::HRTEM){
+        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage_HRTEM()));
+    }else{
         connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
-        connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
-	    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-	    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        worker->start();
-    } else{
-        FullMultisliceCalcThread *worker = new FullMultisliceCalcThread(this, progressbar);
-        std::cout <<"Also do CPU work: "<<worker->meta.alsoDoCPUWork<<std::endl;
-        std::cout <<"Starting Full Multislice Calculation" << std::endl;
-        worker->meta.toString();
-        connect(worker, SIGNAL(signalErrorReadingAtomsDialog()), this, SLOT(displayErrorReadingAtomsDialog()));
-        connect(worker, SIGNAL(overwriteWarning()),this,SLOT(preventOverwrite()),Qt::BlockingQueuedConnection);
-        connect(worker, SIGNAL(potentialCalculated()), this, SLOT(updatePotentialImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(updateOutputImage()));
-        connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
-        connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-        connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
-        worker->start();
     }
+    connect(worker, SIGNAL(outputCalculated()), this, SLOT(enableOutputWidgets()));
+    connect(worker, SIGNAL(signalTitle(const QString)), progressbar, SLOT(setTitle(const QString)));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(close()));
+    connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    connect(worker, SIGNAL(finished()), progressbar, SLOT(deleteLater()));
+    worker->start();
     Prismatic::writeParamFile(*this->meta, get_default_parameter_filename());
+}
+
+void PRISMMainWindow::calculateAllHRTEM(){
+    Prismatic::Algorithm stem_algo = this->meta->algorithm;
+
+    this->meta->algorithm = Prismatic::Algorithm::HRTEM;
+    calculateAll();
+
+    setAlgo(stem_algo);
 }
 
 void PRISMMainWindow::preventOverwrite(){
@@ -1357,7 +1502,7 @@ void PRISMMainWindow::updatePotentialFloatImage(){
                                        potentialImage_float.end());
         auto maxval = std::max_element(potentialImage_float.begin(),
                                        potentialImage_float.end());
-        if (ui->checkBox_sqrtIntensityPot->isChecked()){
+        if (ui->checkBox_sqrtIntensityPot->isChecked()){ 
             contrast_potentialMin = std::sqrt(*minval);
             contrast_potentialMax = std::sqrt(*maxval);
         } else {
@@ -1376,7 +1521,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
             QMutexLocker gatekeeper(&potentialLock);
 //            QMutexLocker gatekeeper(&dataLock);
 
-            if (ui->checkBox_sqrtIntensityPot->isChecked()){
+            if (ui->checkBox_sqrtIntensityPot->isChecked()){ 
                 for (auto j = 0; j < potential.get_dimj(); ++j){
                     for (auto i = 0; i < potential.get_dimi(); ++i){
 //                        uchar val = getUcharFromFloat(std::sqrt(potentialImage_float.at(j,i)),
@@ -1411,6 +1556,7 @@ void PRISMMainWindow::updatePotentialDisplay(){
                                                                  ui->lbl_image_potential->height(),
                                                                  Qt::KeepAspectRatio));
 
+        ui->lbl_image_potential_2->setPixmap(qpix);
         // draw a rectangle around the region that will be scanned
         QPainter p;
         p.begin(&qpix);
@@ -1550,7 +1696,7 @@ void PRISMMainWindow::updateProbeK_MultisliceDisplay(){
         double cHigh, cLow;
         cLow  = *contrast.first;
         cHigh = *contrast.second;
-        if (ui->checkBox_log->isChecked()){
+        if (ui->checkBox_log->isChecked()){ 
             cLow  = std::log(1e-5 + std::abs(cLow));
             cHigh = std::log(1e-5 + std::abs(cHigh));
             for (auto j = 0; j < probeImage_mk_float.get_dimj(); ++j){
@@ -1581,7 +1727,7 @@ void PRISMMainWindow::updateProbeR_MultisliceDisplay(){
         double cHigh, cLow;
         cLow  = *contrast.first;
         cHigh = *contrast.second;
-        if (ui->checkBox_log->isChecked()){
+        if (ui->checkBox_log->isChecked()){ 
             cLow  = std::log(1e-5 + std::abs(cLow));
             cHigh = std::log(1e-5 + std::abs(cHigh));
             for (auto j = 0; j < probeImage_mr_float.get_dimj(); ++j){
@@ -1743,6 +1889,69 @@ void PRISMMainWindow::updateOutputDisplay(){
 
         ui->lbl_image_output->setPixmap(QPixmap::fromImage( outputImage.scaled(ui->lbl_image_output->width(),
                                                                                ui->lbl_image_output->height(),
+                                                                               Qt::KeepAspectRatio)));
+    }
+}
+
+void PRISMMainWindow::updateOutputImage_HRTEM(){
+    if (checkoutputArrayExists_HRTEM()){
+            {
+            QMutexLocker gatekeeper(&outputLock);
+
+            // create new empty image with appropriate dimensions
+            outputImage_HRTEM = QImage(smatrix.get_dimj(), smatrix.get_dimi(), QImage::Format_ARGB32);
+            }
+            // update sliders to match dimensions of output, which also triggers a redraw of the image
+            this->ui->slider_angmin_2->setMinimum(0);
+            this->ui->slider_angmin_2->setMaximum(smatrix.get_dimk()-1);
+            this->ui->lineEdit_angmin_2->setText(QString::number((PRISMATIC_FLOAT_PRECISION) smatrix.get_dimk()));
+        }
+    updateOutputFloatImage_HRTEM();
+}
+
+void PRISMMainWindow::updateOutputFloatImage_HRTEM(){
+      if (checkoutputArrayExists_HRTEM()){
+        QMutexLocker gatekeeper(&outputLock);
+
+        // integrate image into the float array, then convert to uchar
+        size_t beam = 0; // this->ui->slider_angmin_2->value();
+        outputImage_HRTEM_float = Prismatic::zeros_ND<2, PRISMATIC_FLOAT_PRECISION>({{smatrix.get_dimj(), smatrix.get_dimi()}});
+        for (auto j = 0; j < smatrix.get_dimj(); ++j){
+            for (auto i = 0; i < smatrix.get_dimi(); ++i){
+                outputImage_HRTEM_float.at(j,i) += pow(std::abs(smatrix.at(beam, j, i)), 2.0);
+            }
+        }
+
+        // get max/min values for contrast setting
+        auto minval = std::min_element(outputImage_HRTEM_float.begin(),
+                                       outputImage_HRTEM_float.end());
+        auto maxval = std::max_element(outputImage_HRTEM_float.begin(),
+                                       outputImage_HRTEM_float.end());
+        contrast_outputMin_HRTEM = *minval;
+        contrast_outputMax_HRTEM = *maxval;
+        ui->lineEdit_contrast_outputMin_2->setText(QString::number(contrast_outputMin));
+        ui->lineEdit_contrast_outputMax_2->setText(QString::number(contrast_outputMax));
+    }
+    updateOutputDisplay_HRTEM();
+}
+
+void PRISMMainWindow::updateOutputDisplay_HRTEM(){
+    if (checkoutputArrayExists_HRTEM()){
+        QMutexLocker gatekeeper(&outputLock);
+            for (auto j = 0; j < smatrix.get_dimj(); ++j){
+                for (auto i = 0; i < smatrix.get_dimi(); ++i){
+                    outputImage_HRTEM.setPixel(j, i, this->colormapper.getColor(outputImage_HRTEM_float.at(j,i),
+                                                                         contrast_outputMin_HRTEM,
+                                                                         contrast_outputMax_HRTEM));
+                }
+            }
+
+        QImage outputImage_tmp = outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                    ui->lbl_image_output_2->height(),
+                                                    Qt::KeepAspectRatio);
+
+        ui->lbl_image_output_2->setPixmap(QPixmap::fromImage( outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                                               ui->lbl_image_output_2->height(),
                                                                                Qt::KeepAspectRatio)));
     }
 }
@@ -2100,6 +2309,25 @@ void PRISMMainWindow::toggle4DOutput(){
     meta->save4DOutput = ui->checkBox_4D->isChecked();
 }
 
+void PRISMMainWindow::toggle4Dcrop(){
+    meta->crop4DOutput = ui->checkBox_4D->isChecked();
+    if(meta->crop4DOutput){
+        ui->lineEdit_4Damax->setEnabled(true);
+    }else{
+        ui->lineEdit_4Damax->setDisabled(true);
+    }
+}
+
+void PRISMMainWindow::set4Damax_fromLineEdit(){
+    bool flag = false;
+    PRISMATIC_FLOAT_PRECISION val = (PRISMATIC_FLOAT_PRECISION)this->ui->lineEdit_4Damax->text().toDouble(&flag);
+    if (flag){
+        this->meta->crop4Damax =  val / 1000;
+        std::cout << "Setting 4D crop angle to " << val << " mrad" << std::endl;
+    }
+    resetCalculation();
+}
+
 void PRISMMainWindow::toggleDPC_CoM(){
     meta->saveDPC_CoM = ui->checkBox_DPC_CoM->isChecked();
 }
@@ -2108,15 +2336,37 @@ void PRISMMainWindow::togglePotentialSlices(){
     meta->savePotentialSlices = ui->checkBox_PS->isChecked();
 }
 
+void PRISMMainWindow::toggleSMatrixoutput(){
+    meta->saveSMatrix = ui->checkBox_saveSMatrix->isChecked();
+}
+
+void PRISMMainWindow::toggleComplexoutput(){
+    meta->saveComplexOutputWave = ui->checkBox_saveComplex->isChecked();
+}
+
+void PRISMMainWindow::toggleProbeOutput(){
+    meta->saveProbe = ui->checkBox_saveProbe->isChecked();
+}
+
 void PRISMMainWindow::toggleThermalEffects(){
     meta->includeThermalEffects = ui->checkBox_thermalEffects->isChecked();
     resetCalculation();
 }
 
-void PRISMMainWindow::toggleOccupancy(){
-    meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
+void PRISMMainWindow::togglematrixRefocus(){
+    meta->matrixRefocus = ui->checkBox_matrixRefocus->isChecked();
     resetCalculation();
 }
+
+void PRISMMainWindow::togglePotential3D(){
+    meta->potential3D = ui->checkBox_potential3D->isChecked();
+    resetCalculation();
+}
+
+/*void PRISMMainWindow::toggleOccupancy(){
+    meta->includeOccupancy = ui->checkBox_occupancy->isChecked();
+    resetCalculation();
+}*/
 
 void PRISMMainWindow::toggleNyquist(){
     meta->nyquistSampling = ui->checkBox_NQS->isChecked();
@@ -2179,6 +2429,11 @@ bool PRISMMainWindow::OutputIsReady(){
 bool PRISMMainWindow::checkoutputArrayExists(){
     QMutexLocker gatekeeper(&outputLock);
     return outputArrayExists;
+}
+
+bool PRISMMainWindow::checkoutputArrayExists_HRTEM(){
+    QMutexLocker gatekeeper(&outputLock);
+    return outputArrayExists_HRTEM;
 }
 
 bool PRISMMainWindow::checkpotentialArrayExists(){
@@ -2267,11 +2522,20 @@ void PRISMMainWindow::potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECI
         potentialReady = true;
     }
 }
+
 void PRISMMainWindow::outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> _output){
     {
         QMutexLocker gatekeeper(&outputLock);
         output = _output;
         outputArrayExists = true;
+    }
+}
+
+void PRISMMainWindow::outputReceived_HRTEM(Prismatic::Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> _output){
+    {
+        QMutexLocker gatekeeper(&outputLock);
+        smatrix = _output;
+        outputArrayExists_HRTEM = true;
     }
 }
 
@@ -2314,6 +2578,11 @@ void PRISMMainWindow::resetCalculation(){
     // delete this->meta;
     // this->meta = new Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION>;
     // updateDisplay();
+}
+
+void PRISMMainWindow::resetPotential(){
+    QMutexLocker gatekeeper(&dataLock);
+    potentialReady  = false;
 }
 
 
@@ -2359,8 +2628,9 @@ void PRISMMainWindow::redrawImages(){
     ui->lbl_image_probeDifferenceR->setPixmap(QPixmap::fromImage(probeImage_diffr.scaled(ui->lbl_image_probeDifferenceR->width(),
                                                                                          ui->lbl_image_probeDifferenceR->height(),
                                                                                          Qt::KeepAspectRatio)));
-    ui->lbl_image_output->setPixmap(QPixmap::fromImage(outputImage.scaled(ui->lbl_image_output->width(),
-                                                                          ui->lbl_image_output->height(),
+
+    ui->lbl_image_output_2->setPixmap(QPixmap::fromImage(outputImage_HRTEM.scaled(ui->lbl_image_output_2->width(),
+                                                                          ui->lbl_image_output_2->height(),
                                                                           Qt::KeepAspectRatio)));
 
     updatePotentialDisplay();
@@ -2424,4 +2694,267 @@ PRISMATIC_FLOAT_PRECISION calculateLambda(Prismatic::Metadata<PRISMATIC_FLOAT_PR
 	constexpr double c = 299792458;
 	constexpr double h = 6.62607e-34;
 	return (PRISMATIC_FLOAT_PRECISION)(h / sqrt(2 * m * e * meta.E0) / sqrt(1 + e * meta.E0 / 2 / m / c / c) * 1e10);
+}
+
+
+//Collapses and Opens Sample Box window
+void PRISMMainWindow::collapseSample(){
+
+    //if widget is open
+    if(!sampleClosed){
+        this->ui->box_samplesettings->setMaximumHeight(boxClosed);
+        this->ui->box_samplesettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_samplesettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
+        sampleClosed = true;
+
+
+    }else{
+
+        this->ui->box_samplesettings->setMaximumHeight(boxOpen);
+        this->ui->box_samplesettings->setMinimumHeight(boxOpen);
+        this->ui->btn_closebox->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_samplesettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        //QPropertyAnimation* pAni2 = new QPropertyAnimation(this->ui->scrollArea_4, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(scrollOpen);
+        //pAni->setDuration(300);
+        this->ui->scrollArea_4->setMaximumHeight(scrollOpen);
+        this->ui->scrollArea_4->setMinimumHeight(scrollOpen);
+
+        //pAni->start();
+        //pAni2->start();
+        sampleClosed = false;
+    }
+}
+
+
+void PRISMMainWindow::collapseStem(){
+
+    //if widget is open
+    if(!stemClosed){
+        this->ui->box_stemsettings->setMaximumHeight(boxClosed);
+        this->ui->box_stemsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_3->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_stemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+        
+        stemClosed = true;
+
+
+    }else{
+
+        this->ui->box_stemsettings->setMaximumHeight(boxOpen);
+        this->ui->box_stemsettings->setMinimumHeight(boxOpen);
+        this->ui->btn_closebox_3->setText("-");
+
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_stemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_3->setMinimumHeight(scrollOpen);
+        this->ui->scrollArea_3->setMaximumHeight(scrollOpen);
+
+        //pAni->start();
+        stemClosed = false;
+    }
+}
+
+void PRISMMainWindow::collapseHrtem(){
+
+    //if widget is open
+    if(!hrtemClosed){
+        this->ui->box_hrtemsettings->setMaximumHeight(boxClosed);
+        this->ui->box_hrtemsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_4->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_hrtemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+        
+        hrtemClosed = true;
+
+
+    }else{
+        this->ui->box_hrtemsettings->setMaximumHeight(boxOpen);
+        this->ui->box_hrtemsettings->setMinimumHeight(boxOpen);
+        this->ui->btn_closebox_4->setText("-");
+
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_hrtemsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_7->setMinimumHeight(scrollOpen);
+        this->ui->scrollArea_7->setMaximumHeight(scrollOpen);
+
+        //pAni->start();
+        hrtemClosed = false;
+    }
+}
+
+
+void PRISMMainWindow::collapseOutput(){
+
+    //if widget is open
+    if(!outputClosed){
+        this->ui->box_outputsettings->setMaximumHeight(boxClosed);
+        this->ui->box_outputsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_5->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_outputsettings, "minimumHeight" );
+        //pAni->setStartValue(120);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
+        outputClosed = true;
+
+
+    }else{
+
+        this->ui->box_outputsettings->setMaximumHeight(120);
+        this->ui->box_outputsettings->setMinimumHeight(120);
+        this->ui->btn_closebox_5->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_outputsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(120);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_6->setMinimumHeight(110);
+        this->ui->scrollArea_6->setMaximumHeight(110);
+
+        //pAni->start();
+
+        outputClosed = false;
+    }
+}
+
+void PRISMMainWindow::collapseSimulation(){
+
+    //if widget is open
+    if(!simulationClosed){
+
+
+        this->ui->box_simulationsettings->setMaximumHeight(boxClosed);
+        this->ui->box_simulationsettings->setMinimumHeight(boxClosed);
+        this->ui->btn_closebox_2->setText("+");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_simulationsettings, "minimumHeight" );
+        //pAni->setStartValue(boxOpen);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
+        simulationClosed = true;
+
+
+    }else{
+
+
+        this->ui->box_simulationsettings->setMaximumHeight(boxOpen+10);
+        this->ui->box_simulationsettings->setMinimumHeight(boxOpen+10);
+        this->ui->btn_closebox_2->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_simulationsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(boxOpen);
+        //pAni->setDuration(animSpeed);
+
+        this->ui->scrollArea_5->setMaximumHeight(scrollOpen+5);
+        this->ui->scrollArea_5->setMinimumHeight(scrollOpen+5);
+
+        //pAni->start();
+
+        simulationClosed = false;
+    }
+}
+
+void PRISMMainWindow::collapseComputational(){
+
+    //if widget is open
+    if(!computationalClosed){
+
+        this->ui->box_computationalsettings->setMaximumHeight(boxClosed);
+        this->ui->box_computationalsettings->setMinimumHeight(boxClosed);
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_computationalsettings, "minimumHeight" );
+        //pAni->setStartValue(190);
+        //pAni->setEndValue(boxClosed);
+        //pAni->setDuration(animSpeed);
+        //pAni->start();
+
+        computationalClosed = true;
+        this->ui->btn_closebox_7->setText("+");
+
+
+    }else{
+
+        this->ui->box_computationalsettings->setMaximumHeight(200);
+        this->ui->box_computationalsettings->setMinimumHeight(200);
+        this->ui->btn_closebox_7->setText("-");
+
+        //QPropertyAnimation* pAni = new QPropertyAnimation(this->ui->box_computationalsettings, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(190);
+        //pAni->setDuration(animSpeed);
+
+
+        //QPropertyAnimation* pAni2 = new QPropertyAnimation(this->ui->scrollArea_9, "minimumHeight" );
+        //pAni->setStartValue(boxClosed);
+        //pAni->setEndValue(170);
+        //pAni->setDuration(300);
+
+
+        this->ui->scrollArea_9->setMaximumHeight(170);
+        this->ui->scrollArea_9->setMinimumHeight(170);
+
+
+        //pAni->start();
+        //pAni2->start();
+
+        computationalClosed = false;
+    }
+}
+
+
+void PRISMMainWindow::lightField(){
+
+// set stylesheet
+    QFile file(":/light.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream stream(&file);
+    qApp->setStyleSheet(stream.readAll());
+
+}
+
+void PRISMMainWindow::darkField(){
+
+// set stylesheet
+    QFile file(":/dark.qss");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream stream(&file);
+    qApp->setStyleSheet(stream.readAll());
+
 }

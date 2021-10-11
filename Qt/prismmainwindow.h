@@ -45,8 +45,7 @@ class PRISMMainWindow : public QMainWindow
     friend class PotentialThread;
     //    friend class SMatrixThread;
     friend class ProbeThread;
-    friend class FullPRISMCalcThread;
-    friend class FullMultisliceCalcThread;
+    friend class FullCalcThread;
     friend class prism_progressbar;
 
 public:
@@ -56,6 +55,7 @@ public:
     bool SMatrixIsReady();
     bool OutputIsReady();
     bool checkoutputArrayExists();
+    bool checkoutputArrayExists_HRTEM();
     bool checkpotentialArrayExists();
     void updateUCdims(const std::string &filename);
     ~PRISMMainWindow();
@@ -65,6 +65,8 @@ public slots:
     void selectParameterFile();
     void writeParameterFile();
     void readParams(const std::string param_filename);
+    void readAberrationFile();
+    void readProbeFile();
     void setInterpolationFactorX();
     void setInterpolationFactorY();
     void setFilenameAtoms_fromDialog();
@@ -74,13 +76,14 @@ public slots:
     void setNumThreads(const int &numThreads);
     void setNumFP(const int &numFP);
     void setNumNS(const int &numSlices);
+    void setzSampling(const int &num);
     void setNumStreams(const int &numFP);
     void setPixelSizeX_fromLineEdit();
     void setPixelSizeY_fromLineEdit();
     void setPotBound_fromLineEdit();
     void setprobeSemiangle_fromLineEdit();
     void setzStart_fromLineEdit();
-    void setalphaBeamMax_fromLineEdit();
+    // void setalphaBeamMax_fromLineEdit();
     void set2D_innerAngle_fromLineEdit();
     void set2D_outerAngle_fromLineEdit();
     void setSliceThickness_fromLineEdit();
@@ -99,6 +102,7 @@ public slots:
     void setAlgo_Multislice();
     void calculatePotential();
     void calculateAll();
+    void calculateAllHRTEM();
     void calculateProbe();
     void updatePotentialImage();
     void updatePotentialDisplay();
@@ -106,6 +110,9 @@ public slots:
     void updateOutputImage();
     void updateOutputDisplay();
     void updateOutputFloatImage();
+    void updateOutputImage_HRTEM();
+    void updateOutputDisplay_HRTEM();
+    void updateOutputFloatImage_HRTEM();
     void updateSliders_fromLineEdits();
     void updateSliders_fromLineEdits_ang();
     void updateContrastPotMin();
@@ -124,25 +131,47 @@ public slots:
     //void toggleSaveProjectedPotential();
     void enableOutputWidgets();
     void setprobe_defocus_fromLineEdit();
+    void set_dfr_min_fromLineEdit();
+    void set_dfr_max_fromLineEdit();
+    void set_dfr_step_fromLineEdit();
+    void set_dfs_fromLineEdit();
     void setRandomSeed_fromLineEdit();
     void setprobe_C3_fromLineEdit();
     void setprobe_C5_fromLineEdit();
     void setdetectorAngleStep_fromLineEdit();
     void setprobe_Xtilt_fromLineEdit();
     void setprobe_Ytilt_fromLineEdit();
+    void setxtt_min_fromLineEdit();
+    void setxtt_max_fromLineEdit();
+    void setxtt_step_fromLineEdit();
+    void setytt_min_fromLineEdit();
+    void setytt_max_fromLineEdit();
+    void setytt_step_fromLineEdit();
+    void setrtt_min_fromLineEdit();
+    void setrtt_max_fromLineEdit();
+    void setxtilt_offset_fromLineEdit();
+    void setytilt_offset_fromLineEdit();
     void toggle2DOutput();
     void toggle3DOutput();
     void toggle4DOutput();
+    void toggle4Dcrop();
+    void set4Damax_fromLineEdit();
     void toggleDPC_CoM();
     void togglePotentialSlices();
+    void togglematrixRefocus();
+    void togglePotential3D();
     void toggleThermalEffects();
-    void toggleOccupancy();
+    void toggleSMatrixoutput();
+    void toggleComplexoutput();
+    void toggleProbeOutput();
+    //void toggleOccupancy();
     void toggleNyquist();
     void setscan_WindowXMin_fromLineEdit();
     void setscan_WindowXMax_fromLineEdit();
     void setscan_WindowYMin_fromLineEdit();
     void setscan_WindowYMax_fromLineEdit();
     void resetCalculation();
+    void resetPotential();
     void newRandomSeed();
 
     //    void updateProbeK_PRISM(Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION>);
@@ -169,6 +198,7 @@ public slots:
     void update_RK(QString str);
     void potentialReceived(Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION>);
     void outputReceived(Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION>);
+    void outputReceived_HRTEM(Prismatic::Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>>);
     void displayErrorReadingParamsDialog();
     void displayErrorReadingAtomsDialog();
     void setscan_WindowYMin_edited();
@@ -202,6 +232,19 @@ public slots:
     void preventOverwrite();
     void flipOverwrite();
 
+    //Collapse functions for each box
+    void collapseSample();
+    void collapseSimulation();
+    void collapseStem();
+    void collapseHrtem();
+    void collapseOutput();
+    void collapseComputational();
+
+
+    //Change themes functions
+    void lightField();
+    void darkField();
+
 protected:
     void setFilenameAtoms(const std::string &filename);
     void setFilenameOutput(const std::string &filename);
@@ -210,7 +253,7 @@ protected:
     void setNumFP(const size_t &numFP);
     void setNumNS(const size_t &numSlices);
     void setE0(const PRISMATIC_FLOAT_PRECISION &E0);
-    void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION &alphaBeamMax);
+    // void setAlphaBeamMax(const PRISMATIC_FLOAT_PRECISION &alphaBeamMax);
     void setSliceThickness(const PRISMATIC_FLOAT_PRECISION &thickness);
     void setCellDimX(const int &dimX);
     void setCellDimY(const int &dimY);
@@ -225,6 +268,7 @@ private:
     Prismatic::Parameters<PRISMATIC_FLOAT_PRECISION> pars_multi;
     Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> *getMetadata() { return this->meta; }
     Prismatic::Array3D<PRISMATIC_FLOAT_PRECISION> potential;
+    Prismatic::Array3D<std::complex<PRISMATIC_FLOAT_PRECISION>> smatrix;
     Prismatic::Array4D<PRISMATIC_FLOAT_PRECISION> output;
     Prismatic::Array1D<PRISMATIC_FLOAT_PRECISION> detectorAngles;
     std::vector<PRISMATIC_FLOAT_PRECISION> pixelSize;
@@ -242,6 +286,7 @@ private:
     bool probeSetupReady;
     bool potentialArrayExists;
     bool outputArrayExists;
+    bool outputArrayExists_HRTEM;
     bool probesCalculated;
     bool interpYSet;
     bool pixelSizeYSet;
@@ -251,6 +296,23 @@ private:
     bool maxWindowYSet;
     bool overwriteCheck = false;
 
+
+    //collapse funtction variables
+    bool sampleClosed = true;
+    bool simulationClosed = true;
+    bool stemClosed = true;
+    bool hrtemClosed = true;
+    bool outputClosed = true;
+    bool computationalClosed = true;
+
+    //Height each box gets
+    //Computational and Output boxes both have unique sizes
+    int boxOpen = 260;
+    int boxClosed = 20;
+    int scrollOpen = 230;
+
+    int animSpeed = 600;
+    
     QImage potentialImage;
     QImage probeImage;
     QImage probeImage_pr;
@@ -260,9 +322,11 @@ private:
     QImage probeImage_diffr;
     QImage probeImage_diffk;
     QImage outputImage;
+    QImage outputImage_HRTEM;
 
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> potentialImage_float;
-    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_float;
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_float; 
+    Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> outputImage_HRTEM_float; 
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pr_float;
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_pk_float;
     Prismatic::Array2D<PRISMATIC_FLOAT_PRECISION> probeImage_mr_float;
@@ -274,6 +338,8 @@ private:
     PRISMATIC_FLOAT_PRECISION contrast_potentialMax;
     PRISMATIC_FLOAT_PRECISION contrast_outputMin;
     PRISMATIC_FLOAT_PRECISION contrast_outputMax;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMin_HRTEM;
+    PRISMATIC_FLOAT_PRECISION contrast_outputMax_HRTEM;
     PRISMATIC_FLOAT_PRECISION currently_calculated_X;
     PRISMATIC_FLOAT_PRECISION currently_calculated_Y;
 };

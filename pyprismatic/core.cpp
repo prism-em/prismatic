@@ -18,6 +18,8 @@
 #include "go.h"
 #include <iostream>
 #include <stdio.h>
+#include "aberration.h"
+#include "probe.h"
 #ifdef PRISMATIC_ENABLE_GPU
 #include "cuprismatic.h"
 #endif //PRISMATIC_ENABLE_GPU
@@ -30,24 +32,33 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	int randomSeed;
 	int numFP, batchSizeTargetCPU, batchSizeTargetGPU,
 		tileX, tileY, tileZ,
-		numGPUs, numStreamsPerGPU, numThreads, includeThermalEffects, alsoDoCPUWork, save2DOutput,
-		save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, numSlices;
-	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode;
+		numGPUs, numStreamsPerGPU, numThreads, includeThermalEffects, includeOccupancy, alsoDoCPUWork,
+		save2DOutput, save3DOutput, save4DOutput, saveDPC_CoM, savePotentialSlices, nyquistSampling, crop4DOutput,
+		zSampling, numSlices, potential3D, saveSMatrix, importPotential, importSMatrix, saveComplexOutputWave, saveProbe, matrixRefocus,
+        earlyCPUStopCount;
+    unsigned long long int maxFileSize;
+	char *filenameAtoms, *filenameOutput, *algorithm, *transferMode,
+		 *aberrations_file, *probes_file, *importFile, *importPath;
 	double realspacePixelSizeX, realspacePixelSizeY, potBound,
 		sliceThickness, probeStepX, probeStepY,
-		cellDimX, cellDimY, cellDimZ, earlyCPUStopCount, E0, alphaBeamMax,
+		cellDimX, cellDimY, cellDimZ, E0, alphaBeamMax,
 		detectorAngleStep, probeDefocus, C3,
 		C5, probeSemiangle, probeXtilt,
 		probeYtilt, scanWindowXMin, scanWindowXMax,
 		scanWindowYMin, scanWindowYMax,
-		integrationAngleMin, integrationAngleMax, zStart, scanWindowXMin_r, scanWindowXMax_r,
-		scanWindowYMin_r, scanWindowYMax_r;
+		integrationAngleMin, integrationAngleMax, crop4Damax, zStart,
+		scanWindowXMin_r, scanWindowXMax_r, scanWindowYMin_r, scanWindowYMax_r,
+		probeDefocus_min, probeDefocus_max, probeDefocus_step, probeDefocus_sigma,
+		minXtilt, maxXtilt, minYtilt, maxYtilt, minRtilt, maxRtilt, xTiltOffset, yTiltOffset, xTiltStep, yTiltStep;
 #ifdef PRISMATIC_ENABLE_GPU
 	std::cout << "COMPILED FOR GPU" << std::endl;
 #endif //PRISMATIC_ENABLE_GPU
-
-	if (!PyArg_ParseTuple(
-			args, "iissdddiddddiiiddiiiiiddddddddddddddispppppddsiiiiddddd",
+	//i - integer
+	//s - string
+	//d - double
+	//p - bool
+	if (!PyArg_ParseTuple( 
+			args, "iissdddidiiddddiiiddiiiiiidddddddddsddddddddddddddddddddddsispppppppddsppppdpppippssK",
 			&interpolationFactorX,
 			&interpolationFactorY,
 			&filenameAtoms,
@@ -57,6 +68,9 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&potBound,
 			&numFP,
 			&sliceThickness,
+			&zSampling,
+			&numSlices,
+			&zStart,
 			&cellDimX,
 			&cellDimY,
 			&cellDimZ,
@@ -74,19 +88,41 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&probeStepX,
 			&probeStepY,
 			&probeDefocus,
+			&probeDefocus_min,
+			&probeDefocus_max,
+			&probeDefocus_step,
+			&probeDefocus_sigma,
 			&C3,
 			&C5,
+			&aberrations_file, //pass a string to read a file for now; file is created on python side as scratch
 			&probeSemiangle,
 			&detectorAngleStep,
 			&probeXtilt,
 			&probeYtilt,
+			&minXtilt,
+			&maxXtilt,
+			&minYtilt,
+			&maxYtilt,
+			&minRtilt,
+			&maxRtilt,
+			&xTiltOffset,
+			&yTiltOffset,
+			&xTiltStep,
+			&yTiltStep,
 			&scanWindowXMin,
 			&scanWindowXMax,
 			&scanWindowYMin,
 			&scanWindowYMax,
+			&scanWindowXMin_r,
+			&scanWindowXMax_r,
+			&scanWindowYMin_r,
+			&scanWindowYMax_r,
+			&probes_file,
 			&randomSeed,
 			&algorithm,
+			&potential3D,
 			&includeThermalEffects,
+			&includeOccupancy,
 			&alsoDoCPUWork,
 			&save2DOutput,
 			&save3DOutput,
@@ -96,13 +132,18 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 			&transferMode,
 			&saveDPC_CoM,
 			&savePotentialSlices,
+			&saveSMatrix,
+			&crop4DOutput,
+			&crop4Damax,
 			&nyquistSampling,
-			&numSlices,
-			&zStart,
-			&scanWindowXMin_r,
-			&scanWindowXMax_r,
-			&scanWindowYMin_r,
-			&scanWindowYMax_r))
+			&importPotential,
+			&importSMatrix,
+			&saveProbe,
+			&saveComplexOutputWave,
+			&matrixRefocus,
+			&importFile,
+			&importPath,
+			&maxFileSize))
 	{
 		return NULL;
 	}
@@ -115,6 +156,7 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.potBound = potBound;
 	meta.numFP = numFP;
 	meta.sliceThickness = sliceThickness;
+	meta.zSampling = zSampling;
 	meta.numSlices = numSlices;
 	meta.zStart = zStart;
 	meta.cellDim[2] = cellDimX;
@@ -134,12 +176,43 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.probeStepX = probeStepX;
 	meta.probeStepY = probeStepY;
 	meta.probeDefocus = probeDefocus;
+	
+	//set up sim series if values require it
+	if(probeDefocus_min != 0.0 && probeDefocus_max > probeDefocus_min && probeDefocus_step != 0)
+	{
+		meta.probeDefocus_min = probeDefocus_min;
+		meta.probeDefocus_max = probeDefocus_max;
+		meta.probeDefocus_step = probeDefocus_step;
+		meta.simSeries = true;
+	}
+
+	if(probeDefocus_sigma != 0.0)
+	{
+		meta.probeDefocus_sigma = probeDefocus_sigma;
+		meta.simSeries = true;
+	}
+	
 	meta.C3 = C3;
 	meta.C5 = C5;
-	meta.probeSemiangle = probeSemiangle /1000;
-	meta.detectorAngleStep = detectorAngleStep /1000;
-	meta.probeXtilt = probeXtilt /1000;
-	meta.probeYtilt = probeYtilt /1000;
+	if(std::string(aberrations_file).size() > 0)
+	{
+		meta.arbitraryAberrations = true;
+		meta.aberrations = Prismatic::readAberrations(std::string(aberrations_file));
+	}
+	meta.probeSemiangle = probeSemiangle / 1000;
+	meta.detectorAngleStep = detectorAngleStep / 1000;
+	meta.probeXtilt = probeXtilt / 1000;
+	meta.probeYtilt = probeYtilt / 1000;
+	meta.minXtilt = minXtilt / 1000;
+	meta.maxXtilt = maxXtilt / 1000;
+	meta.xTiltStep = xTiltStep /1000;
+	meta.xTiltOffset = xTiltOffset / 1000;
+	meta.minYtilt = minYtilt / 1000;
+	meta.maxYtilt = maxYtilt / 1000;
+	meta.yTiltStep = yTiltStep /1000;
+	meta.yTiltOffset = yTiltOffset / 1000;
+	meta.minRtilt = minRtilt / 1000;
+	meta.maxRtilt = maxRtilt / 1000;
 	meta.scanWindowXMin = scanWindowXMin;
 	meta.scanWindowXMax = scanWindowXMax;
 	meta.scanWindowYMin = scanWindowYMin;
@@ -148,25 +221,52 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	meta.scanWindowXMax_r = scanWindowXMax_r;
 	meta.scanWindowYMin_r = scanWindowYMin_r;
 	meta.scanWindowYMax_r = scanWindowYMax_r;
+	if(scanWindowXMax_r) meta.realSpaceWindow_x = true;
+	if(scanWindowYMax_r) meta.realSpaceWindow_y = true;
+
+	if(std::string(probes_file).size() > 0)
+	{
+		meta.arbitraryProbes = true;
+		std::cout << "Reading probe positions from" << " " << std::string(probes_file) << std::endl;
+		Prismatic::readProbes(std::string(probes_file), meta.probes_x, meta.probes_y);
+	}
 	meta.randomSeed = randomSeed;
-	if (std::string(algorithm) == "multislice")
+	if (std::string(algorithm) == "multislice" || std::string(algorithm) == "m")
 	{
 		meta.algorithm = Prismatic::Algorithm::Multislice;
 	}
-	else
+	else if(std::string(algorithm) == "prism" || std::string(algorithm) == "p")
 	{
 		meta.algorithm = Prismatic::Algorithm::PRISM;
 	}
+	else if(std::string(algorithm) == "hrtem" || std::string(algorithm) == "t")
+	{
+		meta.algorithm = Prismatic::Algorithm::HRTEM;
+	}
+	meta.potential3D = potential3D;
 	meta.includeThermalEffects = includeThermalEffects;
+	meta.includeOccupancy = includeOccupancy;
 	meta.alsoDoCPUWork = alsoDoCPUWork;
 	meta.save2DOutput = save2DOutput;
 	meta.save3DOutput = save3DOutput;
 	meta.save4DOutput = save4DOutput;
-	meta.savePotentialSlices = savePotentialSlices;
+	meta.crop4DOutput = crop4DOutput;
+	meta.crop4Damax = crop4Damax / 1000;
 	meta.saveDPC_CoM = saveDPC_CoM;
+	meta.savePotentialSlices = savePotentialSlices;
+	meta.saveSMatrix = saveSMatrix;
 	meta.integrationAngleMin = integrationAngleMin / 1000;
 	meta.integrationAngleMax = integrationAngleMax / 1000;
 	meta.nyquistSampling = nyquistSampling;
+	meta.importPotential = importPotential;
+	meta.importSMatrix = importSMatrix;
+	meta.saveComplexOutputWave = saveComplexOutputWave;
+	meta.saveProbe = saveProbe;
+    meta.saveProbeComplex = (saveProbe == 1) ? false : true;
+	meta.maxFileSize = maxFileSize;
+	meta.matrixRefocus = matrixRefocus;
+	meta.importFile = std::string(importFile);
+	meta.importPath = std::string(importPath);
 
 	if (std::string(transferMode) == "singlexfer")
 	{
@@ -186,17 +286,12 @@ static PyObject *pyprismatic_core_go(PyObject *self, PyObject *args)
 	int scratch = Prismatic::writeParamFile(meta,"scratch_param.txt");
 
 	Prismatic::Metadata<PRISMATIC_FLOAT_PRECISION> tmp_meta;
-	if(Prismatic::parseParamFile(tmp_meta,"scratch_param.txt")) 
+	if(Prismatic::parseParamFile(tmp_meta,"scratch_param.txt"))
 	{
 		Prismatic::go(meta);
 	}else{
 		std::cout << "Invalid parameters detected. Cancelling calculation, please check inputs." << std::endl;
 	}
-	// configure simulation behavior
-	//	Prismatic::configure(meta);
-	//std::remove("scratch_param.txt");
-	// execute simulation
-	//	Prismatic::execute_plan(meta);
 
 	Py_RETURN_NONE;
 }

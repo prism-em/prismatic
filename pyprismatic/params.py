@@ -11,6 +11,8 @@
 #    Implementation of Image Simulation Algorithms for Scanning
 #    Transmission Electron Microscopy. arXiv:1706.08563 (2017)
 
+import os
+import time
 from typing import List, Any
 import pyprismatic.core
 
@@ -34,8 +36,8 @@ class Metadata:
     "tileX" : number of unit cells to tile in X direction
     "tileY" : number of unit cells to tile in Y direction
     "tileZ" : number of unit cells to tile in Z direction
-    "E0" : electron beam energy (in eV)
-    "alphaBeamMax" : the maximum probe angle to consider (in rad)
+    "E0" : electron beam energy (in keV)
+    "alphaBeamMax" : the maximum probe angle to consider (in mrad)
     "numGPUs" : number of GPUs to use. A runtime check is performed to check how many are actually available, and the minimum of these two numbers is used.
     "numStreamsPerGPU" : number of CUDA streams to use per GPU
     "numThreads" : number of CPU worker threads to use
@@ -47,10 +49,10 @@ class Metadata:
     "probeDefocus" : probe defocus (in Angstroms)
     "C3" : microscope C3 (in Angstroms)
     "C5" : microscope C5 (in Angstroms)
-    "probeSemiangle" : probe convergence semi-angle (in rad)
-    "detectorAngleStep" : angular step size for detector integration bins (in rad)
-    "probeXtilt" : (in Angstroms)
-    "probeYtilt" : (in Angstroms)
+    "probeSemiangle" : probe convergence semi-angle (in mrad)
+    "detectorAngleStep" : angular step size for detector integration bins (in mrad)
+    "probeXtilt" : (in mrad)
+    "probeYtilt" : (in mrad)
     "scanWindowXMin" : lower X size of the window to scan the probe (in fractional coordinates)
     "scanWindowXMax" : upper X size of the window to scan the probe (in fractional coordinates)
     "scanWindowYMin" : lower Y size of the window to scan the probe (in fractional coordinates)
@@ -62,15 +64,18 @@ class Metadata:
     "randomSeed" : number to use for random seeding of thermal effects
     "algorithm" : simulation algorithm to use, "prism" or "multislice"
     "includeThermalEffects" : true/false to apply random thermal displacements (Debye-Waller effect)
+    "includeOccupancy" : true/false to consider occupancy values for likelihood of atoms existing at each site
     "alsoDoCPUWork" : true/false
     "save2DOutput" : save the 2D STEM image integrated between integrationAngleMin and integrationAngleMax
     "save3DOutput" : true/false Also save the 3D output at the detector for each probe (3D output mode)
     "save4DOutput" : true/false Also save the 4D output at the detector for each probe (4D output mode)
     "saveDPC_CoM"  : true/false Also save the DPC center of mass calculation for each probe
     "savePotentialSlices" : true/false Also save the projected potential array
+    "crop4DOutput" : true/false Crop the 4D output smaller than the anti-aliasing boundary (default: False)
+    "crop4Damax" : float If crop4D, the maximum angle to which the output is cropped (in mrad) (default: 100)
     "nyquistSampling": set number of probe positions at Nyquist sampling limit
-    "integrationAngleMin" : (in rad)
-    "integrationAngleMax" : (in rad)
+    "integrationAngleMin" : (in mrad)
+    "integrationAngleMax" : (in mrad)
     "transferMode" : memory model to use, either "streaming", "singlexfer", or "auto"
     """
 
@@ -84,6 +89,9 @@ class Metadata:
         "potBound",
         "numFP",
         "sliceThickness",
+        "zSampling",
+        "numSlices",
+        "zStart",
         "cellDimX",
         "cellDimY",
         "cellDimZ",
@@ -101,19 +109,41 @@ class Metadata:
         "probeStepX",
         "probeStepY",
         "probeDefocus",
+        "probeDefocus_min",
+        "probeDefocus_max",
+        "probeDefocus_step",
+        "probeDefocus_sigma",
         "C3",
         "C5",
+        "aberrations_file",
         "probeSemiangle",
         "detectorAngleStep",
         "probeXtilt",
         "probeYtilt",
+        "minXtilt",
+        "maxXtilt",
+        "minYtilt",
+        "maxYtilt",
+        "minRtilt",
+        "maxRtilt",
+        "xTiltOffset",
+        "yTiltOffset",
+        "xTiltStep",
+        "yTiltStep",
         "scanWindowXMin",
         "scanWindowXMax",
         "scanWindowYMin",
         "scanWindowYMax",
+        "scanWindowXMin_r",
+        "scanWindowXMax_r",
+        "scanWindowYMin_r",
+        "scanWindowYMax_r",
+        "probes_file",
         "randomSeed",
         "algorithm",
+        "potential3D",
         "includeThermalEffects",
+        "includeOccupancy",
         "alsoDoCPUWork",
         "save2DOutput",
         "save3DOutput",
@@ -123,16 +153,27 @@ class Metadata:
         "transferMode",
         "saveDPC_CoM",
         "savePotentialSlices",
+        "saveSMatrix",
+        "crop4DOutput",
+        "crop4Damax",
         "nyquistSampling",
-        "numSlices",
-        "zStart",
-        "scanWindowXMin_r",
-        "scanWindowXMax_r",
-        "scanWindowYMin_r",
-        "scanWindowYMax_r",
+        "importPotential",
+        "importSMatrix",
+        "saveProbe",
+        "saveComplexOutputWave",
+        "matrixRefocus",
+        "importFile",
+        "importPath",
+        "maxFileSize",
     ]
 
-    str_fields: List[str] = ["algorithm", "transferMode"]
+    str_fields: List[str] = [
+        "algorithm",
+        "transferMode",
+        "aberrations_file",
+        "probes_file",
+        "importFile",
+        "importPath"]
 
     int_fields: List[str] = [
         "interpolationFactorX",
@@ -149,6 +190,9 @@ class Metadata:
         "batchSizeCPU",
         "batchSizeGPU",
         "numSlices",
+        "zSampling",
+        "maxFileSize",
+        "saveProbe"
     ]
 
     float_fields: List[str] = [
@@ -157,16 +201,31 @@ class Metadata:
         "potBound",
         "sliceThickness",
         "E0",
-        "alphaBeamMax" "earlyCPUStopCount",
+        "alphaBeamMax",
+        "earlyCPUStopCount",
         "probeStepX",
         "probeStepY",
         "probeDefocus",
+        "probeDefocus_min",
+        "probeDefocus_max",
+        "probeDefocus_step",
+        "probeDefocus_sigma",
         "C3",
         "C5",
         "probeSemiangle",
         "detectorAngleStep",
         "probeXtilt",
         "probeYtilt",
+        "minXtilt",
+        "maxXtilt",
+        "minYtilt",
+        "maxYtilt",
+        "minRtilt",
+        "maxRtilt",
+        "xTiltOffset",
+        "yTiltOffset",
+        "xTiltStep",
+        "yTiltStep",
         "scanWindowXMin",
         "scanWindowXMax",
         "scanWindowYMin",
@@ -178,6 +237,7 @@ class Metadata:
         "integrationAngleMin",
         "integrationAngleMax",
         "zStart",
+        "crop4Damax",
     ]
 
     def __init__(self, *args, **kwargs):
@@ -197,56 +257,86 @@ class Metadata:
         self.filenameOutput = "output.h5"
         self.realspacePixelSizeX = 0.1
         self.realspacePixelSizeY = 0.1
-        self.potBound = 1.0
+        self.potBound = 3.0
         self.numFP = 1
         self.sliceThickness = 2.0
+        self.zSampling = 16
         self.numSlices = 0
         self.zStart = 0.0
         self.cellDimX = 20.0
         self.cellDimY = 20.0
         self.cellDimZ = 20.0
-        self.tileX = 3
-        self.tileY = 3
+        self.tileX = 1
+        self.tileY = 1
         self.tileZ = 1
-        self.E0 = 80e3
-        self.alphaBeamMax = 0.024
+        self.E0 = 80
+        self.alphaBeamMax = 24
         self.numGPUs = 4
         self.numStreamsPerGPU = 3
         self.numThreads = 12
         self.batchSizeTargetCPU = 1
-        self.batchSizeTargetGPU = 2
+        self.batchSizeTargetGPU = 1
         self.batchSizeCPU = 1
         self.batchSizeGPU = 1
-        self.earlyCPUStopCount = 100.0
+        self.earlyCPUStopCount = 100
         self.probeStepX = 0.25
         self.probeStepY = 0.25
-        self.probeDefocus = 0.0
-        self.C3 = 0.0
-        self.C5 = 0.0
-        self.probeSemiangle = 0.02
-        self.detectorAngleStep = 0.001
+        self.probeDefocus = float("NaN")
+        self.probeDefocus_min = 0.0
+        self.probeDefocus_max = 0.0
+        self.probeDefocus_step = 0.0
+        self.probeDefocus_sigma = 0.0
+        self.C3 = float("NaN")
+        self.C5 = float("NaN")
+        self.aberrations_file = ""
+        self.probeSemiangle = 20.0
+        self.detectorAngleStep = 1.0
         self.probeXtilt = 0.0
         self.probeYtilt = 0.0
+        self.minXtilt = 0.0
+        self.maxXtilt = 0.0
+        self.minYtilt = 0.0
+        self.maxYtilt = 0.0
+        self.minRtilt = 0.0
+        self.maxRtilt = 0.0
+        self.xTiltOffset = 0.0
+        self.yTiltOffset = 0.0
+        self.xTiltStep = 1.0
+        self.yTiltStep = 1.0
         self.scanWindowXMin = 0.0
         self.scanWindowXMax = 0.99999
         self.scanWindowYMin = 0.0
         self.scanWindowYMax = 0.99999
         self.scanWindowXMin_r = 0.0
-        self.scanWindowXMax_r = 1.0
+        self.scanWindowXMax_r = 0.0
         self.scanWindowYMin_r = 0.0
-        self.scanWindowYMax_r = 1.0
+        self.scanWindowYMax_r = 0.0
+        self.probes_file = ""
         self.randomSeed = np.random.randint(0, 999999)
         self.algorithm = "prism"
-        self.includeThermalEffects = False
+        self.potential3D = True
+        self.includeThermalEffects = True
+        self.includeOccupancy = True
         self.alsoDoCPUWork = True
         self.save2DOutput = False
+        self.integrationAngleMin = 0
+        self.integrationAngleMax = 1.0
         self.save3DOutput = True
         self.save4DOutput = False
+        self.crop4DOutput = False
+        self.crop4Damax = 100.0
         self.saveDPC_CoM = False
         self.savePotentialSlices = False
+        self.saveSMatrix = False
         self.nyquistSampling = False
-        self.integrationAngleMin = 0
-        self.integrationAngleMax = 0.001
+        self.importPotential = False
+        self.importSMatrix = False
+        self.saveComplexOutputWave = False
+        self.saveProbe = 0
+        self.maxFileSize = 2*10**9 #to make sure python types as int
+        self.matrixRefocus = False
+        self.importFile = ""
+        self.importPath = ""
         self.transferMode = "auto"
         for k, v in kwargs.items():
             if k not in Metadata.fields:
@@ -275,6 +365,117 @@ class Metadata:
         self._filenameAtoms = filenameAtoms
         if filenameAtoms != "":  # do not set cell dimensions for default empty string
             self._setCellDims(filenameAtoms)
+
+    ##############################
+    ### Convenience Properties ###
+    ##############################
+
+    @property
+    def interpolationFactor(self):
+        return self.interpolationFactorX, self.interpolationFactorY
+
+    @interpolationFactor.setter
+    def interpolationFactor(self, val):
+        self.interpolationFactorX = val
+        self.interpolationFactorY = val
+
+    @property
+    def realspacePixelSize(self):
+        return self.realspacePixelSizeX, self.realspacePixelSizeY
+
+    @realspacePixelSize.setter
+    def realspacePixelSize(self, val):
+        self.realspacePixelSizeX = val
+        self.realspacePixelSizeY = val
+
+    @property
+    def cellDim(self):
+        return self.cellDimX, self.cellDimY, self.cellDimZ
+
+    @cellDim.setter
+    def cellDim(self, vals):
+        self.cellDimX = vals[0]
+        self.cellDimY = vals[1]
+        self.cellDimZ = vals[2]
+
+    @property
+    def tile(self):
+        return self.tileX, self.tileY, self.tileZ
+
+    @tile.setter
+    def tile(self, vals):
+        self.tileX = vals[0]
+        self.tileY = vals[1]
+        self.tileZ = vals[2]
+
+    @property
+    def probeStep(self):
+        return self.probeStepX, self.probeStepY
+
+    @probeStep.setter
+    def probeStep(self, val):
+        self.probeStepX = val
+        self.probeStepY = val
+
+    @property
+    def probetilt(self):
+        return self.probeXtilt, self.probeYtilt
+
+    @probetilt.setter
+    def probetilt(self, val):
+        self.probeXtilt = val
+        self.probeYtilt = val
+
+    @property
+    def scanWindowX(self):
+        return self.scanWindowXMin, self.scanWindowXMax
+
+    @scanWindowX.setter
+    def scanWindowX(self, vals):
+        self.scanWindowXMin = vals[0]
+        self.scanWindowXMax = vals[1]
+
+    @property
+    def scanWindowY(self):
+        return self.scanWindowYMin, self.scanWindowYMax
+
+    @scanWindowY.setter
+    def scanWindowY(self, vals):
+        self.scanWindowYMin = vals[0]
+        self.scanWindowYMax = vals[1]
+
+    @property
+    def scanWindowX_r(self):
+        return self.scanWindowXMin_r, self.scanWindowXMax_r
+
+    @scanWindowX_r.setter
+    def scanWindowX_r(self, vals):
+        self.scanWindowXMin_r = vals[0]
+        self.scanWindowXMax_r = vals[1]
+
+    @property
+    def scanWindowY_r(self):
+        return self.scanWindowYMin_r, self.scanWindowYMax_r
+
+    @scanWindowY_r.setter
+    def scanWindowY_r(self, vals):
+        self.scanWindowYMin_r = vals[0]
+        self.scanWindowYMax_r = vals[1]
+
+    @property
+    def saveProbe(self):
+        return self._saveProbe
+
+    @saveProbe.setter
+    def saveProbe(self, vals):
+        if isinstance(vals, bool):
+            self._saveProbe = int(vals)
+        else:
+            self._saveProbe = vals
+
+    #####################
+    ###### Methods ######
+    #####################
 
     def readParameters(self, filename: str):
         """Read parameters from ``filename`` previously stored by ``writeParameters()``.
@@ -324,11 +525,30 @@ class Metadata:
         outf.close()
 
     def toString(self):
+        """
+        Display the simulation parameters.
+        """
         for field in Metadata.fields:
             print("{} = {}".format(field, getattr(self, field)))
 
-    def go(self):
+    def go(self, display_run_time=True, save_run_time=False):
+        """Run the simulation. To display and/or export the simulation run
+        time set the corresponding arguments ``display_run_time`` and
+        ``save_run_time`` to ``True`` or ``False`` (defaults are True and False).
+        """
         self.algorithm: str = self.algorithm.lower()
         self.transferMode: str = self.transferMode.lower()
         l: List[Any] = [getattr(self, field) for field in Metadata.fields]
+        start = time.time()
         pyprismatic.core.go(*l)
+        end = time.time()
+
+        # Display and save run time when requested
+        formatted_time = time.strftime("%H:%M:%S", time.gmtime(end-start))
+        total_time = f"The simulation time of {self.filenameOutput} was: {formatted_time} ({end-start:6g} s)"
+        if display_run_time:
+            print(total_time)
+        if save_run_time:
+            filename = f"{os.path.splitext(self.filenameOutput)[0]}-timing.txt"
+            with open(filename, 'w') as f:
+                f.write(total_time)

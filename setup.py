@@ -120,9 +120,13 @@ class cmake_build_ext(build_ext):
                 ]
                 # Assuming that Visual Studio and MinGW are supported compilers
                 if self.compiler.compiler_type == 'msvc':
-                    cmake_args += [
-                        '-DCMAKE_GENERATOR_PLATFORM=%s' % plat,
-                    ]
+                    # When using Visual Studio generator, set the platform
+                    # otherwise don't since other generator, such as NMake,
+                    # doesn't support platform specification.
+                    if 'Visual Studio' in os.environ.get('CMAKE_GENERATOR', ''):
+                        cmake_args += [
+                            '-DCMAKE_GENERATOR_PLATFORM=%s' % plat,
+                        ]
                 else:
                     cmake_args += [
                         '-G', 'MinGW Makefiles',

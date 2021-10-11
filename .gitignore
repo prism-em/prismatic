@@ -22,3 +22,5 @@ cmake-build-debug/
 *.txt
 *.mrc
 **/.vscode/
+unittests/outputs/
+__pycache__

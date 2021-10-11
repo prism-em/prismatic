@@ -23,6 +23,7 @@
 namespace Prismatic {
 	inline void setupCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupBeams(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+	inline void setupBeams_HRTEM(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void setupSMatrixCoordinates(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
 	inline void downsampleFourierComponents(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
@@ -44,6 +45,12 @@ namespace Prismatic {
 	void fill_Scompact_CPUOnly(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 	void PRISM02_calcSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+
+	void PRISM02_importSMatrix(Parameters<PRISMATIC_FLOAT_PRECISION>& pars);
+
+	void refocus(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
+	void apply_aberrations(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 }
 #endif //PRISMATIC_PRISM02_H

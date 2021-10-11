@@ -6,10 +6,10 @@ set(CMAKE_BUILD_TYPE RELEASE)
 
 # set warning level
 if ( CMAKE_COMPILER_IS_GNUCC )
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -w -O3 -fPIC")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -w -O3 -fPIC -g")
 endif ( CMAKE_COMPILER_IS_GNUCC )
 if ( MSVC )
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W0 /utf-8 /Ox")
+    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W0 /utf-8 /Ox /permissive-")
 endif ( MSVC )
 
 # PRISM custom options
@@ -20,10 +20,12 @@ set(PRISMATIC_ENABLE_CLI 1 CACHE BOOL PRISMATIC_ENABLE_GPU)
 set(PRISMATIC_ENABLE_DOUBLE_PRECISION 0 CACHE BOOL PRISMATIC_ENABLE_DOUBLE_PRECISION)
 set(PRISMATIC_ENABLE_PYPRISMATIC 0 CACHE BOOL PRISMATIC_ENABLE_PYPRISMATIC)
 set(PRISMATIC_USE_HDF5_STATIC 0 CACHE BOOL PRISMATIC_USE_HDF5_STATIC)
+set(PRISMATIC_TESTS 0 CACHE BOOL PRISMATIC_TESTS)
+set(OUTPUT_NAME prismatic CACHE STRING OUTPUT_NAME)
 
 #set (CMAKE_BUILD_TYPE DEBUG)
 if (PRISMATIC_ENABLE_GPU)
-    set(NVCC_FLAGS_EXTRA "-arch=sm_30 -std=c++11 -Xcompiler -fPIC")
+    set(NVCC_FLAGS_EXTRA "-arch=sm_60 -std=c++11 -Xcompiler -fPIC")
 endif (PRISMATIC_ENABLE_GPU)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
@@ -42,11 +44,15 @@ set(SOURCE_FILES
         src/PRISM03_calcOutput.cpp
         src/PRISM_entry.cpp
         src/Multislice_entry.cpp
+        src/HRTEM_entry.cpp
         src/projectedPotential.cpp
         src/parseInput.cpp
         src/utility.cpp
         src/atom.cpp
-        src/go.cpp)
+        src/go.cpp
+        src/fileIO.cpp
+        src/probe.cpp
+        src/aberration.cpp)
 
 if (PRISMATIC_ENABLE_GUI)
 set(GUI_SOURCE_FILES
@@ -56,7 +62,8 @@ set(GUI_SOURCE_FILES
         Qt/prism_progressbar.cpp
         Qt/saveatomiccoordinatesdialog.cpp
         Qt/prism_colormapper.cpp
-	    Qt/prism_resources.qrc)
+	    Qt/prism_resources.qrc
+        Qt/breeze.qrc)
 endif (PRISMATIC_ENABLE_GUI)
 
 if (PRISMATIC_ENABLE_GPU)
@@ -64,13 +71,48 @@ if (PRISMATIC_ENABLE_GPU)
             src/Multislice_calcOutput.cu
             src/PRISM02_calcSMatrix.cu
             src/PRISM03_calcOutput.cu
-            src/utility.cu)
+            src/utility.cu
+            src/fileIO.cu)
 endif (PRISMATIC_ENABLE_GPU)
+
+if (PRISMATIC_TESTS)
+    set(TEST_SOURCE_FILES
+            unittests/testSuite.cpp
+            unittests/potentialTests.cpp
+            unittests/ioTests.cpp
+            unittests/hrtemTests.cpp
+            unittests/processingTests.cpp
+            unittests/probeTests.cpp
+            unittests/aberrationsTests.cpp
+            unittests/seriesTests.cpp
+            unittests/refocusTests.cpp
+            )
+endif (PRISMATIC_TESTS)
 
 # find core packages
 find_package (Threads REQUIRED)
 find_package (Boost REQUIRED)
-find_package (FFTW3 REQUIRED)
+
+if(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	if(UNIX)
+		set(FFTW_FIND_COMPONENTS "DOUBLE_LIB" "DOUBLE_THREADS_LIB")
+	else(UNIX)
+		set(FFTW_FIND_COMPONENTS "DOUBLE_LIB")
+	endif(UNIX)
+else(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	if(UNIX)
+		set(FFTW_FIND_COMPONENTS "FLOAT_LIB" "FLOAT_THREADS_LIB")
+	else(UNIX)
+		set(FFTW_FIND_COMPONENTS "FLOAT_LIB")
+	endif(UNIX)
+endif(PRISMATIC_ENABLE_DOUBLE_PRECISION)
+find_package (FFTW REQUIRED COMPONENTS ${FFTW_FIND_COMPONENTS})
+
+if(FFTW_FOUND)
+	message("Found FFTW: ${FFTW_LIBRARIES}")
+else(FFTW_FOUND)
+    message("Could not find FFTW library")
+endif(FFTW_FOUND)
 
 if(PRISMATIC_ENABLE_PYPRISMATIC)
     find_package (PythonInterp 3.5 REQUIRED)
@@ -78,7 +120,6 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
 endif(PRISMATIC_ENABLE_PYPRISMATIC)
 
 if (PRISMATIC_USE_HDF5_STATIC)
-   message("entered")
    set(HDF5_USE_STATIC_LIBRARIES ON)
 endif (PRISMATIC_USE_HDF5_STATIC)
 
@@ -89,12 +130,12 @@ find_library(HDF5_C_LIBRARIES hdf5)
 find_library(HDF5_CXX_HL_LIBRARIES hdf5_hl_cpp)
 find_library(HDF5_CXX_LIBRARIES hdf5_cpp)
 
-set(HDF5_LIBRARIES ${HDF5_C_HL_LIBRARIES} ${HDF5_C_LIBRARIES} ${HDF5_CXX_HL_LIBRARIES} ${HDF5_CXX_LIBRARIES})
-
 message("Boost dir " ${Boost_INCLUDE_DIRS})
+message("FFTW dir " ${FFTW_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include
+                    ${CMAKE_SOURCE_DIR}/unittests/include
                     ${Boost_INCLUDE_DIRS}
-                    ${FFTW_INCLUDE_DIR}
+                    ${FFTW_INCLUDE_DIRS}
                     ${HDF5_INCLUDE_DIRS})
 # find CUDA package, if building for GPU
 if (PRISMATIC_ENABLE_GPU)
@@ -105,14 +146,17 @@ endif(PRISMATIC_ENABLE_GPU)
 
 # find Qt modules, if building GUI
 if (PRISMATIC_ENABLE_GUI)
-find_package(Qt5Widgets REQUIRED)
-message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
+    find_package(Qt5Widgets REQUIRED)
+    message(Qt5Widgets_DIR = ${Qt5Widgets_DIR})
 endif (PRISMATIC_ENABLE_GUI)
 
 # add preprocessor directives based on configuration
 if (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	message("Double precision enabled")
     add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
-endif (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+else (PRISMATIC_ENABLE_DOUBLE_PRECISION)
+	message("Single precision enabled")
+endif (PRISMATIC_ENABLE_DOUBLE_PRECISION) 
 
 if (PRISMATIC_ENABLE_GUI)
     add_definitions(-DPRISMATIC_ENABLE_GUI)
@@ -125,26 +169,6 @@ endif (PRISMATIC_ENABLE_GPU)
 if (PRISMATIC_ENABLE_CLI)
     add_definitions(-DPRISMATIC_ENABLE_CLI)
 endif (PRISMATIC_ENABLE_CLI)
-
-# setup FFTW based on desired precision
-if (NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-    message("Single precision enabled")
-    if (UNIX)
-	    message(UNIX)
-	    set(FFTW_LIBRARIES ${FFTW_EXECUTABLE_LIBRARIES})
-	    set(FFTW_LIBRARIES fftw3f fftw3f_threads)
-            set(FFTW_LIBRARY ${FFTW_EXECUTABLE_LIBRARIES})
-	    message("FFTW_EXECUTABLE_LIBRARIES = " ${FFTW_EXECUTABLE_LIBRARIES})
-	    message("FFTW_LIBRARY = " ${FFTW_LIBRARY})
-    endif (UNIX)
-else(NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-    message("Double precision enabled")
-    add_definitions(-DPRISMATIC_ENABLE_DOUBLE_PRECISION)
-	if (FFTW_THREADS_LIBRARY)
-    		set(FFTW_LIBRARIES ${FFTW_LIBRARY} ${FFTW_THREADS_LIBRARY})
-    	endif(FFTW_THREADS_LIBRARY)
-endif(NOT PRISMATIC_ENABLE_DOUBLE_PRECISION)
-
 
 
 if (PRISMATIC_ENABLE_CLI)
@@ -168,6 +192,7 @@ if (PRISMATIC_ENABLE_CLI)
 #        		   ${Boost_LIBRARY_DIRS}
                    ${FFTW_LIBRARIES}
                    ${HDF5_LIBRARIES})
+    set_target_properties(prismatic PROPERTIES OUTPUT_NAME ${OUTPUT_NAME})
 endif (PRISMATIC_ENABLE_CLI)
 
 if(APPLE)
@@ -237,10 +262,6 @@ if (PRISMATIC_ENABLE_GUI)
     endif(APPLE)
 endif (PRISMATIC_ENABLE_GUI)
 
-
-
-
-
 if (PRISMATIC_ENABLE_CLI)
     install(TARGETS prismatic RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endif(PRISMATIC_ENABLE_CLI)
@@ -272,8 +293,7 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
     target_link_libraries(pyprismatic_core
                     ${CMAKE_THREAD_LIBS_INIT}
                     ${FFTW_LIBRARIES}
-                    ${HDF5_LIBRARIES}
-                    ${PYTHON_LIBRARIES})
+                    ${HDF5_LIBRARIES})
 
     set_target_properties(
     pyprismatic_core
@@ -283,11 +303,49 @@ if(PRISMATIC_ENABLE_PYPRISMATIC)
         LINKER_LANGUAGE CXX
     )
 
-    if(NOT UNIX)
-    set_target_properties(
-        pyprismatic_core
-        PROPERTIES
-            SUFFIX ".pyd"
-    )
-    endif(NOT UNIX)
+    if (WIN32)
+        target_link_libraries(pyprismatic_core ${PYTHON_LIBRARIES})
+        set_target_properties(pyprismatic_core PROPERTIES SUFFIX ".pyd")
+    elseif (APPLE)
+        set_target_properties(pyprismatic_core PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
+        set_target_properties(pyprismatic_core PROPERTIES SUFFIX ".so")
+    endif ()
+    # else Linux: dont link
+
 endif(PRISMATIC_ENABLE_PYPRISMATIC)
+
+if (PRISMATIC_TESTS)
+    find_package (Boost REQUIRED COMPONENTS unit_test_framework)
+
+    if (PRISMATIC_ENABLE_GPU)
+        cuda_add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${CUDA_SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+        cuda_add_cufft_to_target(prismatic-tests)
+    else(PRISMATIC_ENABLE_GPU)
+        add_executable(prismatic-tests
+                        ${SOURCE_FILES}
+                        ${TEST_SOURCE_FILES})
+    endif (PRISMATIC_ENABLE_GPU)
+
+    target_compile_definitions(prismatic-tests PRIVATE "BOOST_TEST_DYN_LINK=1")
+
+    target_link_libraries(prismatic-tests
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${FFTW_LIBRARIES}
+        ${HDF5_LIBRARIES}
+        ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
+    # always run tests last
+    if(PRISMATIC_ENABLE_PYPRISMATIC)
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=NONE
+                            DEPENDS prismatic prismatic-tests pyprismatic_core)
+    else(PRISMATIC_ENABLE_PYPRISMATIC)
+        add_custom_target(PrismaticTestSuite ALL ./prismatic-tests --log_level=all --run_test=NONE
+                            DEPENDS prismatic prismatic-tests)
+    endif(PRISMATIC_ENABLE_PYPRISMATIC)
+
+
+endif (PRISMATIC_TESTS)
+

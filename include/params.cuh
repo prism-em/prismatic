@@ -41,6 +41,7 @@ namespace Prismatic {
 		size_t 						 **beamsIndex_ph;
         PRISMATIC_CUDA_COMPLEX_FLOAT **trans_d;
         PRISMATIC_CUDA_COMPLEX_FLOAT **prop_d;
+        PRISMATIC_CUDA_COMPLEX_FLOAT **propBack_d;
         size_t 					     **qxInd_d;
         size_t 						 **qyInd_d;
         size_t 					     **beamsIndex_d;
@@ -62,6 +63,7 @@ namespace Prismatic {
 		std::complex<PRISMATIC_FLOAT_PRECISION> **ScompactSlice_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *trans_ph;
 		std::complex<PRISMATIC_FLOAT_PRECISION> *prop_ph;
+		std::complex<PRISMATIC_FLOAT_PRECISION> *propBack_ph;
 
 	};
 }

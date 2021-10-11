@@ -1,0 +1,11 @@
+{
+    "menu_name": "Anaconda${PY_VER} ${PLATFORM}",
+    "menu_items":
+    [
+        {
+            "name": "Prismatic",
+            "script": "${PREFIX}/Library/bin/prismatic-gui.exe",
+            "icon": "${MENU_DIR}/prismatic.ico"
+        }
+    ]
+}

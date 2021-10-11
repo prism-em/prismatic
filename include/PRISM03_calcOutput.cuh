@@ -40,8 +40,8 @@ namespace Prismatic {
 	                                PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
 	                                const cufftHandle &cufft_plan,
 	                                const cudaStream_t& stream,
-	                                CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
-
+									CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
+									
 	 void buildSignal_GPU_streaming(Parameters<PRISMATIC_FLOAT_PRECISION>&  pars,
 	                               const size_t& ay,
 	                               const size_t& ax,
@@ -62,6 +62,7 @@ namespace Prismatic {
 	                               PRISMATIC_FLOAT_PRECISION *integratedOutput_ds,
 	                               const cufftHandle &cufft_plan,
 	                               const cudaStream_t& stream,
-	                               CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
+								   CudaParameters<PRISMATIC_FLOAT_PRECISION>& cuda_pars);
+								   
 }
 #endif //PRISMATIC_PRISM03_CUH
