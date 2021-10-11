@@ -690,8 +690,10 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	std::string base_name = "probe";
 	hsize_t attr_dims[1] = {1};
 	hsize_t data_dims[2];
-	data_dims[0] = {pars.psiProbeInit.get_dimi()};
-	data_dims[1] = {pars.psiProbeInit.get_dimj()};
+    int f = 1;
+    if(pars.meta.algorithm == Algorithm::Multislice) f = 2;
+	data_dims[0] = {pars.psiProbeInit.get_dimi()/f};
+	data_dims[1] = {pars.psiProbeInit.get_dimj()/f};
 
 	hsize_t qx_dim[1] = {pars.qx.size()};
 	hsize_t qy_dim[1] = {pars.qy.size()};
@@ -703,7 +705,8 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 	complex_type.insertMember(im_str, 4, PFP_TYPE);
 
 	//create slice group
-	H5::Group probeGroup(dslices.createGroup("probe"));
+    std::string group_name = (pars.meta.saveProbeComplex) ? "probe_complex" : "probe";
+	H5::Group probeGroup(dslices.createGroup(group_name.c_str()));
 
 	//write attributes
 	writeScalarAttribute(probeGroup, "emd_group_type", 1);
@@ -712,7 +715,12 @@ void setupProbeOutput(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	//create dataset
 	H5::DataSpace mspace(2, data_dims); //rank is 2
-	H5::DataSet probe_data = probeGroup.createDataSet("data", complex_type, mspace);
+    if(pars.meta.saveProbeComplex){
+        H5::DataSet probe_data = probeGroup.createDataSet("data", complex_type, mspace);
+    }
+    else{
+        H5::DataSet probe_data = probeGroup.createDataSet("data", PFP_TYPE, mspace);
+    }
 	mspace.close();
 
 	//write dimensions
@@ -1081,6 +1089,49 @@ void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 
 	qArr_group.close();
 };
+
+void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars){
+
+    int f = 1;
+    if(pars.meta.algorithm == Algorithm::Multislice) f = 2;
+    hsize_t mdims[2] = {pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f};
+    long offset_x = pars.psiProbeInit.get_dimi() / (2*f);
+    long offset_y = pars.psiProbeInit.get_dimj() / (2*f);
+    long ndimy = (long) pars.psiProbeInit.get_dimj();
+    long ndimx = (long) pars.psiProbeInit.get_dimi();
+
+
+    if(pars.meta.saveProbeComplex){
+        Array2D<std::complex<PRISMATIC_FLOAT_PRECISION>> tmp_c = zeros_ND<2, std::complex<PRISMATIC_FLOAT_PRECISION>>(
+            {{pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f}});
+
+        for (long y = 0; y < pars.psiProbeInit.get_dimj() / f; ++y) {
+            for (long x = 0; x < pars.psiProbeInit.get_dimi() / f; ++x) {
+                tmp_c.at(x, y) = pars.psiProbeInit.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                            ((x - offset_x) % ndimx + ndimx) % ndimx);
+            }
+        }
+
+        H5::Group probeGroup = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices/probe_complex");
+        writeComplexDataSet_inOrder(probeGroup, "data", &tmp_c[0], mdims, 2);
+    }
+    else{
+        Array2D<PRISMATIC_FLOAT_PRECISION> tmp = zeros_ND<2, PRISMATIC_FLOAT_PRECISION>(
+            {{pars.psiProbeInit.get_dimi()/f, pars.psiProbeInit.get_dimj()/f}});
+
+        for (long y = 0; y < pars.psiProbeInit.get_dimj() / f; ++y) {
+            for (long x = 0; x < pars.psiProbeInit.get_dimi() / f; ++x) {
+                tmp.at(x, y) = pow(std::abs(pars.psiProbeInit.at(((y - offset_y) % ndimy + ndimy) % ndimy,
+                                            ((x - offset_x) % ndimx + ndimx) % ndimx)), 2.0);
+            }
+        }
+
+        H5::Group probeGroup = pars.outputFile.openGroup("4DSTEM_simulation/data/diffractionslices/probe");
+        writeRealDataSet_inOrder(probeGroup, "data", &tmp[0], mdims, 2);
+
+    }
+};
+
 
 void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars)
 {

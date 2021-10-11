@@ -124,6 +124,7 @@ namespace Prismatic{
             saveComplexOutputWave = false; //
             arbitraryProbes       = false;
             saveProbe             = false; //
+            saveProbeComplex      = false; //
             simSeries             = false;
             seriesVals            = {};
             seriesKeys            = {};
@@ -221,6 +222,7 @@ namespace Prismatic{
         bool saveComplexOutputWave;
         bool arbitraryProbes;
         bool saveProbe;
+        bool saveProbeComplex;
         bool simSeries;
         std::vector<std::vector<T>> seriesVals;
         std::vector<std::string> seriesKeys;
@@ -348,6 +350,7 @@ namespace Prismatic{
         std::cout << "saveComplexOutputWave = " << saveComplexOutputWave << std::endl;
         std::cout << "arbitraryProbes = " << arbitraryProbes << std::endl;
         std::cout << "saveProbe = " << saveProbe << std::endl;
+        std::cout << "saveProbeComplex = " << saveProbeComplex << std::endl;
         std::cout << "simSeries = " << simSeries << std::endl;
         std::cout << "matrixRefocus = " << matrixRefocus << std::endl;
         std::cout << std::noboolalpha << std::endl;
@@ -446,6 +449,7 @@ namespace Prismatic{
         if(saveComplexOutputWave != other.saveComplexOutputWave)return false;
         if(arbitraryProbes != other.arbitraryProbes)return false;
         if(saveProbe != other.saveProbe)return false;
+        if(saveProbeComplex != other.saveProbeComplex)return false;
         if(simSeries != other.simSeries)return false;
         if(matrixRefocus != other.matrixRefocus)return false;
         return true;

@@ -59,6 +59,8 @@ void saveSTEM(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 void save_qArr(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
+void saveProbe(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
+
 void configureImportFP(Parameters<PRISMATIC_FLOAT_PRECISION> &pars);
 
 std::string getDigitString(int digit);

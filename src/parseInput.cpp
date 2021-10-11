@@ -97,7 +97,7 @@ void printHelp()
               << "* --4D-crop (-4DC) bool=false : Crop the 4D output smaller than the anti-aliasing boundary (default: Off)\n"
               << "* --4D-amax (-4DA) value: If --4D-crop, the maximum angle to which the output is cropped (in mrad) (default: 100)\n"
               << "* --save-DPC-CoM (-DPC) bool=false : Also save the DPC Center of Mass calculation (default: Off)\n"
-              << "* --save-probe (-probe) bool=false : Also save the complex entrance probe (default: Off)\n"
+              << "* --save-probe (-probe) int : Also save the complex entrance probe. 0 to not save \"off\", 1 to save probe intensity, 2 to save complex probe (default: 0 )\n"
               << "* --save-potential-slices (-ps) bool=false : Also save the calculated potential slices (default: Off)\n"
               << "* --save-smatrix (-sm) bool=false : Also save the compact smatrix (warning: can be very large) (default: Off)\n"
               << "* --save-complex (-com) bool=false : Save the complex valued output probes (STEM) or plane waves (HRTEM), instead of integrating intensity. Saves each frozen phonon individually. (default: Off)\n"
@@ -290,6 +290,7 @@ bool writeParamFile(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
     f << "--save-DPC-CoM:" << meta.saveDPC_CoM << "\n";
     f << "--save-potential-slices:" << meta.savePotentialSlices << "\n";
     f << "--save-smatrix:" << meta.saveSMatrix << "\n";
+    f << "--save-probe:" << int(meta.saveProbe) + int(meta.saveProbeComplex) << "\n"; // should be safe since saveProbeComplex can't be set independently
     f << "--import-potential:" << meta.importPotential << "\n";
     f << "--import-smatrix:" << meta.importSMatrix << "\n";
     f << "--nyquist-sampling:"<< meta.nyquistSampling <<"\n";
@@ -1711,10 +1712,11 @@ bool parse_probe(Metadata<PRISMATIC_FLOAT_PRECISION> &meta,
 {
     if (argc < 2)
     {
-        cout << "No value provided for -probe (syntax is -probe bool)\n";
+        cout << "No value provided for -probe (syntax is -probe int)\n";
         return false;
     }
     meta.saveProbe = std::string((*argv)[1]) == "0" ? false : true;
+    if (meta.saveProbe) meta.saveProbeComplex = std::string((*argv)[1]) == "1" ? false : true;
     argc -= 2;
     argv[0] += 2;
     return true;

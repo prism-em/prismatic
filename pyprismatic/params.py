@@ -192,6 +192,7 @@ class Metadata:
         "numSlices",
         "zSampling",
         "maxFileSize",
+        "saveProbe"
     ]
 
     float_fields: List[str] = [
@@ -331,7 +332,7 @@ class Metadata:
         self.importPotential = False
         self.importSMatrix = False
         self.saveComplexOutputWave = False
-        self.saveProbe = False
+        self.saveProbe = 0
         self.maxFileSize = 2*10**9 #to make sure python types as int
         self.matrixRefocus = False
         self.importFile = ""
@@ -461,8 +462,16 @@ class Metadata:
         self.scanWindowYMin_r = vals[0]
         self.scanWindowYMax_r = vals[1]
 
+    @property
+    def saveProbe(self):
+        return self._saveProbe
 
-
+    @saveProbe.setter
+    def saveProbe(self, vals):
+        if isinstance(vals, bool):
+            self._saveProbe = int(vals)
+        else:
+            self._saveProbe = vals
 
     #####################
     ###### Methods ######
