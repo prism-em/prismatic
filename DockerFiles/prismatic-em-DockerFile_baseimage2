@@ -1,0 +1,82 @@
+# Create from here to handle all the CUDA Drivers 
+FROM nvidia/cuda:10.1-devel-ubuntu18.04
+
+
+
+
+
+RUN apt-get update -y && \
+    # GNU compiler
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        g++ \
+        gcc \
+        gfortran && \
+    # Boost version 1.74.0
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        bzip2 \
+        libbz2-dev \
+        tar \
+        wget \
+        zlib1g-dev && \ 
+    mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2 && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/boost_1_74_0.tar.bz2 -C /var/tmp -j && \
+    cd /var/tmp/boost_1_74_0 && ./bootstrap.sh --prefix=/usr/local/boost --without-libraries=python && \
+    ./b2 -j$(nproc) -q install && \
+    rm -rf /var/tmp/boost_1_74_0.tar.bz2 /var/tmp/boost_1_74_0 && \
+
+    # CMake version 3.18.3
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        make \
+        wget && \
+    mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://cmake.org/files/v3.18/cmake-3.18.3-Linux-x86_64.sh && \
+    mkdir -p /usr/local && \
+    /bin/sh /var/tmp/cmake-3.18.3-Linux-x86_64.sh --prefix=/usr/local --skip-license && \
+    rm -rf /var/tmp/cmake-3.18.3-Linux-x86_64.sh && \
+
+    # HDF5 version 1.12.0
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        bzip2 \
+        file \
+        make \
+        wget \
+        zlib1g-dev && \
+    mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2 && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/hdf5-1.12.0.tar.bz2 -C /var/tmp -j && \
+    cd /var/tmp/hdf5-1.12.0 &&   ./configure --prefix=/usr/local/hdf5 --enable-cxx --enable-threadsafe --enable-unsupported && \
+    make -j$(nproc) && \
+    make -j$(nproc) install && \
+    rm -rf /var/tmp/hdf5-1.12.0 /var/tmp/hdf5-1.12.0.tar.bz2 && \ 
+
+    # FFTW
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        file \
+        make \
+        wget && \
+    mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp ftp://ftp.fftw.org/pub/fftw/fftw-3.3.8.tar.gz && \
+    mkdir -p /var/tmp && tar -x -f /var/tmp/fftw-3.3.8.tar.gz -C /var/tmp -z && \
+    cd /var/tmp/fftw-3.3.8 &&   ./configure --prefix=/usr/local/fftw --enable-openmp --enable-float --enable-shared --enable-sse2 --enable-threads && \
+    make -j$(nproc) && \
+    make -j$(nproc) install && \
+    rm -rf /var/tmp/fftw-3.3.8 /var/tmp/fftw-3.3.8.tar.gz && \
+
+    # python3
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        python3-dev \
+        python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# boost
+ENV LD_LIBRARY_PATH=/usr/local/boost/lib:$LD_LIBRARY_PATH
+# cmake
+ENV PATH=/usr/local/bin:$PATH
+#  HDF5
+ENV CPATH=/usr/local/hdf5/include:$CPATH \
+    HDF5_DIR=/usr/local/hdf5 \
+    LD_LIBRARY_PATH=/usr/local/hdf5/lib:$LD_LIBRARY_PATH \
+    LIBRARY_PATH=/usr/local/hdf5/lib:$LIBRARY_PATH \
+    PATH=/usr/local/hdf5/bin:$PATH
+# FFTW 
+ENV LD_LIBRARY_PATH=/usr/local/fftw/lib:$LD_LIBRARY_PATH
+# python
+ENV PYTHONPATH=/usr/local/lib/python3.6/dist-packages/:/usr/bin/local/:/usr/local/lib
+

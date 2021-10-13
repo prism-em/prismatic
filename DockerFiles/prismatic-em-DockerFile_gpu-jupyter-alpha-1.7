@@ -1,0 +1,34 @@
+FROM arakowsk/prismatic-em:baseimage2
+
+WORKDIR /home/
+ENV LD_LIBRARY_PATH=/usr/local/boost/lib/usr/local/fftw/lib:/usr/local/hdf5/lib:/usr/local/boost/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
+ENV PATH=/usr/local/bin:$PATH
+ENV CPATH=/usr/local/hdf5/include:$CPATH
+ENV HDF5_DIR=/usr/local/hdf5
+ENV PATH=/usr/local/hdf5/bin:/usr/local/fftw/bin:/usr/local/bin:$PATH
+ENV CPLUS_INCLUDE_PATH=/usr/local/cuda-10.1/include:/usr/local/boost:/usr/local/fftw/include:/usr/local/hdf5/include:$CPLUS_INCLUDE_PATH
+
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        pkg-config \
+	git && \
+	rm -rf /var/lib/apt/lists/* && \  
+	git clone --branch dev https://github.com/prism-em/prismatic prismatic && \
+	cd prismatic && \
+	mkdir build && \
+	cd build && \
+	cmake ../ -DPRISMATIC_ENABLE_PYPRISMATIC=1  -DPRISMATIC_ENABLE_GPU=1 -DPRISMATIC_ENABLE_PYTHON_GPU=1 -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ && \
+	make -j 8 &&\
+	make install && \
+	cd .. && \
+	pip3 install setuptools && \
+	pip3 install -r requirements.txt && \
+	pip3 install jupyter && \
+	pip3 install scipy && \
+	pip3 install numpy && \
+	pip3 install jedi==0.17.2 && \
+	pip3 install pandas && \
+	pip3 install "dask[complete]" && \
+	python3 setup.py install -DPRISMATIC_ENABLE_GPU=1 -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ -DBOOST_ROOT=/usr/local/boost/ -DPRISMATIC_ENABLE_PYTHON_GPU=1 -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+	
+	

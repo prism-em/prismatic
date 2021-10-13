@@ -1,0 +1,29 @@
+FROM arakowsk/prismatic-em:baseimage2
+
+WORKDIR /home/
+ENV LD_LIBRARY_PATH=/usr/local/boost/lib/usr/local/fftw/lib:/usr/local/hdf5/lib:/usr/local/boost/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$LD_LIBRARY_PATH
+ENV PATH=/usr/local/bin:$PATH
+ENV CPATH=/usr/local/hdf5/include:$CPATH
+ENV HDF5_DIR=/usr/local/hdf5
+ENV PATH=/usr/local/hdf5/bin:/usr/local/fftw/bin:/usr/local/bin:$PATH
+ENV CPLUS_INCLUDE_PATH=/usr/local/cuda-10.1/include:/usr/local/boost:/usr/local/fftw/include:/usr/local/hdf5/include:$CPLUS_INCLUDE_PATH
+
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        pkg-config \
+	git && \
+	rm -rf /var/lib/apt/lists/* && \  
+	git clone --branch dev https://github.com/prism-em/prismatic prismatic && \
+	cd prismatic && \
+	mkdir build && \
+	cd build && \
+	cmake ../ -DPRISMATIC_ENABLE_PYPRISMATIC=1  -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ && \
+	make -j 8 &&\
+	make install && \
+	cd .. && \
+	pip3 install setuptools && \
+	pip3 install -r requirements.txt && \
+	pip3 install jupyter && \
+	python3 setup.py install -DFFTW_INCLUDE_DIRS=/usr/local/fftw/include/ -DFFTW_ROOT=/usr/local/fftw/ -DBOOST_ROOT=/usr/local/boost/ -DPYTHON_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())")  -DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+	
+	
