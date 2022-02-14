@@ -427,7 +427,7 @@ namespace Prismatic{
 
 		if(meta.savePotentialSlices) numElems += imageSize[0]*imageSize[1]*std::ceil(tiledCellDim[0]/meta.sliceThickness);
 		std::cout << "Approximate output file size is (Gb): " << (numElems*sizeof(PRISMATIC_FLOAT_PRECISION))/(1e9) << std::endl;
-		if(numElems*sizeof(PRISMATIC_FLOAT_PRECISION) > meta.maxFileSize)
+		if(numElems*sizeof(PRISMATIC_FLOAT_PRECISION)/(1e9) > meta.maxFileSize)
 		{
 			throw std::runtime_error("Simulation output file will be larger than maximum allowed file size.");
 		}
