@@ -233,6 +233,6 @@ def source_size(data, rx, ry, sigma):
     rxx = rxx-rx[len(rx)//2-1]
     ryy = ryy-ry[len(ry)//2-1]
     rr = np.sqrt(rxx**2.0 + ryy**2.0)
-    source_size_kernel = rad_gaussian(rr, kernel_sigma)
+    source_size_kernel = rad_gaussian(rr, sigma)
     
     return signal.convolve2d(data, source_size_kernel, 'same')/signal.convolve2d(np.ones(np.shape(data)), source_size_kernel, 'same')
