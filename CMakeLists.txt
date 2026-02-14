@@ -4,6 +4,8 @@ project(PRISM)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE RELEASE)
 
+cmake_policy(SET CMP0074 NEW)
+
 # set warning level
 if ( CMAKE_COMPILER_IS_GNUCC )
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -w -O3 -fPIC -g")
@@ -196,7 +198,7 @@ if (PRISMATIC_ENABLE_CLI)
 endif (PRISMATIC_ENABLE_CLI)
 
 if(APPLE)
-  list(APPEND GUI_SOURCE_FILES ../Qt/icons/prismatic-icon.icns)
+  # list(APPEND GUI_SOURCE_FILES ../Qt/icons/prismatic-icon.icns)
   set(MACOSX_BUNDLE_ICON_FILE prismatic-icon.icns)
   set(MACOSX_BUNDLE_BUNDLE_VERSION 0.1)
   set_source_files_properties(../Qt/icons/prismatic-icon.icns PROPERTIES
