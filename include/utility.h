@@ -171,7 +171,7 @@ Array2D<T> cropOutput(Array2D<T> &img, const Parameters<T> &pars){
     {
         for(auto i = 0; i < cropped.get_dimi(); i++)
         {
-            cropped.at(i,j) = shifted.at(j,i);
+            cropped.at(j,i) = shifted.at(i,j);
         }
     }
     
@@ -219,7 +219,7 @@ Array2D<std::complex<T>> cropOutput(Array2D<std::complex<T>> &img, const Paramet
     {
         for(auto i = 0; i < cropped.get_dimi(); i++)
         {
-            cropped.at(i,j) = shifted.at(j,i);
+            cropped.at(j,i) = shifted.at(i,j);
         }
     }
     
